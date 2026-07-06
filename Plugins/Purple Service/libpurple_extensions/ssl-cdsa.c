@@ -41,7 +41,6 @@ typedef struct
 {
 	CFReadStreamRef	readStream;
 	CFWriteStreamRef writeStream;
-	guint	handshake_handler;
 } PurpleSslCDSAData;
 
 static GList *connections = NULL;
@@ -135,9 +134,6 @@ ssl_cdsa_handshake_cb(gpointer data, gint source, PurpleInputCondition cond)
 
 	purple_debug_info("cdsa", "Connecting (handshake complete)\n");
 
-	purple_input_remove(cdsa_data->handshake_handler);
-	cdsa_data->handshake_handler = 0;
-
 	purple_debug_info("cdsa", "SSL_connect: verifying certificate\n");
 
 	if(certificate_ui_cb) {
@@ -151,9 +147,10 @@ ssl_cdsa_handshake_cb(gpointer data, gint source, PurpleInputCondition cond)
 		}
 
 		if (!certs) {
-			/* No trust info to verify — pass and continue */
-			purple_debug_info("cdsa", "No certificate trust info available, continuing\n");
-			gsc->connect_cb(gsc->connect_cb_data, gsc, cond);
+			purple_debug_error("cdsa", "No certificate trust info available — refusing connection\n");
+			if (gsc->error_cb != NULL)
+				gsc->error_cb(gsc, PURPLE_SSL_CERTIFICATE_INVALID, gsc->connect_cb_data);
+			purple_ssl_close(gsc);
 			return;
 		}
 
@@ -256,6 +253,8 @@ ssl_cdsa_create_context(gpointer data) {
 	 * Create paired read/write streams from the existing socket fd.
 	 */
 	CFStreamCreatePairWithSocket(kCFAllocatorDefault, gsc->fd, &readStream, &writeStream);
+	cdsa_data->readStream = readStream;
+	cdsa_data->writeStream = writeStream;
 	if (!readStream || !writeStream) {
 		purple_debug_error("cdsa", "CFStreamCreatePairWithSocket failed\n");
 		if (gsc->error_cb != NULL)
@@ -264,9 +263,6 @@ ssl_cdsa_create_context(gpointer data) {
 		purple_ssl_close(gsc);
 		return;
 	}
-
-	cdsa_data->readStream = readStream;
-	cdsa_data->writeStream = writeStream;
 
 	/*
 	 * Set TLS settings.
@@ -348,11 +344,12 @@ ssl_cdsa_create_context(gpointer data) {
 	}
 
 	/*
-	 * Add a fallback input handler in case the stream event doesn't fire
-	 * (e.g. on older runloop configurations).
+	 * The CFStream event callback (kCFStreamEventOpenCompleted) handles
+	 * handshake completion. No fallback handler needed — CFStream is
+	 * reliable on all supported macOS versions (10.11+).
 	 */
-	cdsa_data->handshake_handler = purple_input_add(gsc->fd, PURPLE_INPUT_READ, ssl_cdsa_handshake_cb, gsc);
 }
+
 
 /*
  * ssl_cdsa_connect
@@ -373,10 +370,8 @@ ssl_cdsa_close(PurpleSslConnection *gsc)
 	if (cdsa_data == NULL)
 		return;
 
-	if (cdsa_data->handshake_handler)
-		purple_input_remove(cdsa_data->handshake_handler);
-
 	if (cdsa_data->readStream) {
+		CFReadStreamSetClient(cdsa_data->readStream, 0, NULL, NULL);
 		CFReadStreamUnscheduleFromRunLoop(cdsa_data->readStream, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
 		CFReadStreamClose(cdsa_data->readStream);
 		CFRelease(cdsa_data->readStream);
