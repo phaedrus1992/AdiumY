@@ -46,12 +46,12 @@ typedef enum {
 
 #define	KEY_GENERAL_HOTKEY				@"General Hot Key"
 
-@class SGHotKey;
+@class AIHotKey;
 
 @interface ESGeneralPreferencesPlugin : AIPlugin {
 	ESGeneralPreferences	*preferences;
-	
-	SGHotKey	*globalHotKey;
+
+	AIHotKey	*globalHotKey;
 }
 
 @end

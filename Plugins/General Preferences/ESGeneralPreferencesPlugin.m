@@ -37,8 +37,8 @@
 #import <Adium/AIServiceIcons.h>
 #import <Adium/AIStatusIcons.h>
 
-#import "SGHotKey.h"
-#import "SGHotKeyCenter.h"
+#import "AIHotKey.h"
+#import "AIHotKeyCenter.h"
 
 #define	TAB_DEFAULT_PREFS			@"TabDefaults"
 
@@ -74,7 +74,7 @@
 
 }
 
-- (void)hitHotKey:(SGHotKey *)hotKey
+- (void)hitHotKey:(AIHotKey *)hotKey
 {
 	if (![NSApp isActive]) {
 		[NSApp activateIgnoringOtherApps:YES];
@@ -93,20 +93,19 @@
 	if (firstTime || [key isEqualToString:KEY_GENERAL_HOTKEY]) {
 		if (globalHotKey) {
 			//Unregister the old global hot key if it exists
-			[[SGHotKeyCenter sharedCenter] unregisterHotKey:globalHotKey];
+			[[AIHotKeyCenter sharedCenter] unregisterHotKey:globalHotKey];
 			[globalHotKey release]; globalHotKey = nil;
 		}
 		
 		id plistRepresentation = [prefDict objectForKey:KEY_GENERAL_HOTKEY];
 		if (plistRepresentation) {
 			//Register a new one if we want one
-			globalHotKey = [[SGHotKey alloc] initWithIdentifier:KEY_GENERAL_HOTKEY
-													   keyCombo:[[[SGKeyCombo alloc] initWithPlistRepresentation:plistRepresentation] autorelease]];
-			
+			globalHotKey = [[AIHotKey alloc] initWithDictionary:plistRepresentation];
+			globalHotKey.identifier = KEY_GENERAL_HOTKEY;
 			[globalHotKey setTarget:self];
 			[globalHotKey setAction:@selector(hitHotKey:)];
 
-			[[SGHotKeyCenter sharedCenter] registerHotKey:globalHotKey];
+			[[AIHotKeyCenter sharedCenter] registerHotKey:globalHotKey];
 		} 
 	}
 }

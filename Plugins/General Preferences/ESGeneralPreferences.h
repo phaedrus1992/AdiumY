@@ -16,15 +16,15 @@
 
 #import <Adium/AIPreferencePane.h>
 
-@class SRRecorderControl;
+@class AIHotKeyRecorder;
 
 @interface ESGeneralPreferences : AIPreferencePane {
     IBOutlet	NSButton		*checkBox_messagesInTabs;
     IBOutlet	NSButton		*checkBox_arrangeByGroup;
 	IBOutlet	NSButton		*checkBox_updatesAutomatic;
-	IBOutlet	NSButton		*checkBox_updatesProfileInfo;	
+	IBOutlet	NSButton		*checkBox_updatesProfileInfo;
 	IBOutlet	NSButton		*checkBox_updatesIncludeBetas;
-	
+
 	IBOutlet	NSPopUpButton	*popUp_tabKeys;
 	IBOutlet	NSPopUpButton	*popUp_sendKeys;
 	IBOutlet	NSPopUpButton	*popUp_tabPositionMenu;
@@ -32,16 +32,16 @@
 	IBOutlet	NSTextField		*label_logging;
 	IBOutlet	NSTextField		*label_messagesSendOn;
 	IBOutlet	NSTextField		*label_messagesTabs;
-	IBOutlet	NSTextField		*label_switchTabsWith;	
-	
+	IBOutlet	NSTextField		*label_switchTabsWith;
+
 	IBOutlet	NSTextField		*label_shortcutRecorder;
 
     IBOutlet    NSView          *placeholder_shortcutRecorder;
-    SRRecorderControl           *shortcutRecorder;		
+    AIHotKeyRecorder            *shortcutRecorder;
 }
 
 - (IBAction)configureLogCertainAccounts:(id)sender;
 
-@property (nonatomic, retain) SRRecorderControl *shortcutRecorder;
+@property (nonatomic, retain) AIHotKeyRecorder *shortcutRecorder;
 
 @end

@@ -17,12 +17,10 @@
 #import <Adium/AIContentControllerProtocol.h>
 #import <Adium/AIInterfaceControllerProtocol.h>
 #import "AISoundController.h"
-#import <ShortcutRecorder/SRRecorderControl.h>
 #import "ESGeneralPreferences.h"
 #import "ESGeneralPreferencesPlugin.h"
-#import "SGHotKeyCenter.h"
-#import "SGHotKey.h"
-#import "SGHotKey.h"
+#import "AIHotKey.h"
+#import "AIHotKeyRecorder.h"
 #import "AIMessageWindowController.h"
 #import <Adium/AIServiceIcons.h>
 #import <Adium/AIStatusIcons.h>
@@ -114,28 +112,16 @@
 	[popUp_tabPositionMenu selectItemWithTag:[[adium.preferenceController preferenceForKey:KEY_TABBAR_POSITION
 																								 group:PREF_GROUP_DUAL_WINDOW_INTERFACE] intValue]];
 
-    self.shortcutRecorder = [[[SRRecorderControl alloc] initWithFrame:placeholder_shortcutRecorder.frame] autorelease];
+    self.shortcutRecorder = [[[AIHotKeyRecorder alloc] initWithFrame:placeholder_shortcutRecorder.frame] autorelease];
     shortcutRecorder.delegate = self;
     [[placeholder_shortcutRecorder superview] addSubview:shortcutRecorder];
 
 	//Global hotkey
-	TISInputSourceRef currentLayout = TISCopyCurrentKeyboardLayoutInputSource();
-	
-	if (TISGetInputSourceProperty(currentLayout, kTISPropertyUnicodeKeyLayoutData)) {
-		SGKeyCombo *keyCombo = [[[SGKeyCombo alloc] initWithPlistRepresentation:[adium.preferenceController preferenceForKey:KEY_GENERAL_HOTKEY
+		AIHotKey *hotKey = [[[AIHotKey alloc] initWithDictionary:[adium.preferenceController preferenceForKey:KEY_GENERAL_HOTKEY
 																														 group:PREF_GROUP_GENERAL]] autorelease];
-		[shortcutRecorder setKeyCombo:SRMakeKeyCombo([keyCombo keyCode], [shortcutRecorder carbonToCocoaFlags:[keyCombo modifiers]])];
-		[shortcutRecorder setAnimates:YES];
-		[shortcutRecorder setStyle:SRGreyStyle];
-		
+		self.shortcutRecorder.hotKey = hotKey;
+
 		[label_shortcutRecorder setLocalizedString:AILocalizedString(@"When pressed, this key combination will bring Adium to the front", nil)];
-	} else {
-		[shortcutRecorder setEnabled:NO];
-		
-		[label_shortcutRecorder setLocalizedString:AILocalizedString(@"You are using an old-style (rsrc) keyboard layout which Adium does not support.", nil)];
-	}
-	
-	CFRelease(currentLayout);
 
     [self configureControlDimming];
 }
@@ -255,17 +241,15 @@
 	return [menu autorelease];		
 }
 
-- (BOOL)shortcutRecorder:(SRRecorderControl *)aRecorder isKeyCode:(NSInteger)keyCode andFlagsTaken:(NSUInteger)flags reason:(NSString **)aReason
+- (BOOL)hotKeyRecorder:(AIHotKeyRecorder *)aRecorder shouldCaptureKeyCode:(unsigned short)keyCode modifierFlags:(NSUInteger)modifierFlags
 {
-	return NO;
+	return YES;
 }
 
-- (void)shortcutRecorder:(SRRecorderControl *)aRecorder keyComboDidChange:(KeyCombo)newKeyCombo
+- (void)hotKeyRecorder:(AIHotKeyRecorder *)aRecorder keyComboDidChange:(AIHotKey *)hotKey
 {
 	if (aRecorder == shortcutRecorder) {
-		SGKeyCombo *keyCombo = [SGKeyCombo keyComboWithKeyCode:[shortcutRecorder keyCombo].code
-													 modifiers:[shortcutRecorder cocoaToCarbonFlags:[shortcutRecorder keyCombo].flags]];
-		[adium.preferenceController setPreference:[keyCombo plistRepresentation]
+		[adium.preferenceController setPreference:[hotKey dictionaryRepresentation]
 											 forKey:KEY_GENERAL_HOTKEY
 											  group:PREF_GROUP_GENERAL];
 	}
