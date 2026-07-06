@@ -167,6 +167,7 @@ static void associateLibpurpleAccounts(void)
 		if ([adiumAccount isKindOfClass:[CBPurpleAccount class]]) {
 			PurpleAccount *account = purple_accounts_find(adiumAccount.purpleAccountName, adiumAccount.protocolPlugin);
 			if (account) {
+				if (account->ui_data) (void)CFBridgingRelease(account->ui_data);
 
 				account->ui_data = (__bridge_retained void *)adiumAccount;
 

@@ -111,8 +111,8 @@ static NSMutableArray		*libpurplePluginArray = nil;
 	PurpleAccount *account = purple_account_new([adiumAccount purpleAccountName], [adiumAccount protocolPlugin]);
 
 	if (account->ui_data) {
-
-		[(__bridge CBPurpleAccount *)account->ui_data setPurpleAccount:nil];
+		CBPurpleAccount *oldAccount = (__bridge_transfer CBPurpleAccount *)account->ui_data;
+		[oldAccount setPurpleAccount:nil];
 	}
 	account->ui_data = (__bridge_retained void *)adiumAccount;
 
@@ -129,7 +129,7 @@ static NSMutableArray		*libpurplePluginArray = nil;
 
 	if (account) {
 
-		if (account->ui_data) (void)(__bridge_transfer CBPurpleAccount *)account->ui_data;
+		if (account->ui_data) (void)CFBridgingRelease(account->ui_data);
 		account->ui_data = nil;
 		
 		purple_accounts_remove(account);
@@ -413,7 +413,7 @@ AIChat* groupChatLookupFromConv(PurpleConversation *conv)
 			chat.chatCreationDictionary = [account extractChatCreationDictionaryFromConversation: conv];
 		}
         if (conv->ui_data != chat) {
-            if (conv->ui_data) (void)(__bridge_transfer AIChat *)conv->ui_data;
+            if (conv->ui_data) (void)CFBridgingRelease(conv->ui_data);
             conv->ui_data = (__bridge_retained void *)chat;
         }
 		AILog(@"group chat lookup assigned %@ to %p (%s)",chat,conv, purple_conversation_get_name(conv));
@@ -500,7 +500,7 @@ AIChat* imChatLookupFromConv(PurpleConversation *conv)
 
 		//Associate the PurpleConversation with the AIChat
         if (conv->ui_data != chat) {
-            if (conv->ui_data) (void)(__bridge_transfer AIChat *)conv->ui_data;
+            if (conv->ui_data) (void)CFBridgingRelease(conv->ui_data);
             conv->ui_data = (__bridge_retained void *)chat;
         }
 	}
@@ -1274,7 +1274,7 @@ static void purpleUnregisterCb(PurpleAccount *account, gboolean success, void *u
 		 * to nil so we don't try to do it again.
 		 */
         AILogWithSignature(@"Destroying %p (and releasing chat %p)", conv, conv->ui_data);
-		if (conv->ui_data) (void)(__bridge_transfer AIChat *)conv->ui_data;
+		if (conv->ui_data) (void)CFBridgingRelease(conv->ui_data);
 		conv->ui_data = nil;
 
 		//Tell purple to destroy the conversation.

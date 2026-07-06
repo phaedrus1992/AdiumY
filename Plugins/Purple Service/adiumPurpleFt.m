@@ -28,7 +28,7 @@ static void adiumPurpleDestroy(PurpleXfer *xfer)
 	ESFileTransfer *fileTransfer = (__bridge ESFileTransfer *)xfer->ui_data;
 	[accountLookup(xfer->account) destroyFileTransfer:fileTransfer];
 
-	if (xfer->ui_data) (void)(__bridge_transfer ESFileTransfer *)xfer->ui_data;
+	if (xfer->ui_data) (void)CFBridgingRelease(xfer->ui_data);
 	xfer->ui_data = nil;
     }
 }

@@ -1032,7 +1032,7 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 
 	PurpleConversation *conv = [[chat identifier] pointerValue];
 	if (conv && conv->ui_data) {
-		(void)(__bridge_transfer AIChat *)conv->ui_data;
+		(void)CFBridgingRelease(conv->ui_data);
 		conv->ui_data = NULL;
 	}
 

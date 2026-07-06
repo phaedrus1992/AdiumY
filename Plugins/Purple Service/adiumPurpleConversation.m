@@ -58,7 +58,7 @@ static void adiumPurpleConvDestroy(PurpleConversation *conv)
 
 		[chat setIdentifier:nil];
 
-		if (conv->ui_data) (void)(__bridge_transfer AIChat *)conv->ui_data;
+		if (conv->ui_data) (void)CFBridgingRelease(conv->ui_data);
 		conv->ui_data = nil;
 	}
     }
