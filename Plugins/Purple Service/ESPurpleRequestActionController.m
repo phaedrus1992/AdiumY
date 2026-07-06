@@ -115,9 +115,7 @@
 
 - (void)dealloc
 {
-	; requestController = nil;
-
-	;
+	requestController = nil;
 }
 
 - (BOOL)textAndButtonsWindowDidEnd:(NSWindow *)window returnCode:(AITextAndButtonsReturnCode)returnCode suppression:(BOOL)suppression userInfo:(id)userInfo

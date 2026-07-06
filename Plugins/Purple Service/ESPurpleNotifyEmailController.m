@@ -150,8 +150,6 @@
 				   withObject:message
 				   withObject:(urlString ? urlString : nil)];
 
-	;
-	
 	return NULL;
 }
 

@@ -32,10 +32,6 @@
 
 - (void)dealloc {
 	xmlnode_free(command);
-
-	;
-
-	;
 }
 
 - (AMPurpleJabberFormGenerator*)form {

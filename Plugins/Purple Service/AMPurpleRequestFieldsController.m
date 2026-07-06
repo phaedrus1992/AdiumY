@@ -653,10 +653,6 @@
     return self;
 }
 
-- (void)dealloc {
-
-    ;
-}
 
 - (void)loadForm:(NSXMLDocument*)doc {
     NSData *formdata = [doc XMLDataWithOptions:NSXMLDocumentTidyHTML | NSXMLDocumentIncludeContentTypeDeclaration];

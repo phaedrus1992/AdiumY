@@ -830,7 +830,6 @@
 				replacementString = (includeTimeWithDay ? [NSString stringWithFormat:@"%@, %@", valueDay, valueTime] : valueDay);
 		}
 
-		;
 	}
 
 	return replacementString;

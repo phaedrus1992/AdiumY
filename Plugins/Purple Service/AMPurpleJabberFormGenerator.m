@@ -115,12 +115,6 @@
 	return desc;
 }
 
-- (void)dealloc {
-
-	;
-
-	;
-}
 
 - (xmlnode*)xml {
 	xmlnode *xml_result = xmlnode_new("field");
@@ -187,8 +181,6 @@
 }
 
 - (void)dealloc {
-
-	;
 }
 
 - (void)setStringValue:(NSString*)_value {
@@ -228,8 +220,6 @@
 }
 
 - (void)dealloc {
-
-	;
 }
 
 - (void)setStringValue:(NSString*)_value {
@@ -273,8 +263,6 @@
 }
 
 - (void)dealloc {
-
-	;
 }
 
 - (void)setJIDs:(NSArray*)_jids {
@@ -317,8 +305,6 @@
 }
 
 - (void)dealloc {
-
-	;
 }
 
 - (void)setJID:(NSString*)_jid {
@@ -385,11 +371,6 @@
 	return self;
 }
 
-- (void)dealloc {
-
-	;
-
-}
 
 - (void)setOptions:(NSArray*)_options {
 	id old = options;
@@ -469,11 +450,6 @@
 	return self;
 }
 
-- (void)dealloc {
-
-	;
-
-}
 
 - (void)setStringValue:(NSString*)_value {
 	id old = value;
@@ -534,8 +510,6 @@
 }
 
 - (void)dealloc {
-
-	;
 }
 
 - (void)setStringValue:(NSString*)_value {
@@ -577,8 +551,6 @@
 }
 
 - (void)dealloc {
-
-	;
 }
 
 - (void)setStringValue:(NSString*)_value {
@@ -618,8 +590,6 @@
 }
 
 - (void)dealloc {
-
-	;
 }
 
 - (void)setStringValue:(NSString*)_value {
@@ -714,12 +684,6 @@
 	return self;
 }
 
-- (void)dealloc {
-
-	;
-
-	;
-}
 
 - (void)setTitle:(NSString*)_title {
 	id old = title;

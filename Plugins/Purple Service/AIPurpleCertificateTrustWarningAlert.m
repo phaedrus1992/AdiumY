@@ -99,8 +99,6 @@
 - (void)dealloc {
 	CFRelease(certificates);
 	CFRelease(trustRef);
-
-	;
 }
 
 - (IBAction)showWindow:(id)sender {

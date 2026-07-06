@@ -105,10 +105,6 @@
 - (void)dealloc
 {
 	[xmlConsoleController close];
-
-	;
-
-	;
 }
 
 - (NSSet *)supportedPropertyKeys

@@ -50,11 +50,6 @@
 	return [completeUserName UTF8String];
 }
 
-- (void)dealloc {
-
-	;
-
-}
 
 - (NSString *)serverSuffix
 {

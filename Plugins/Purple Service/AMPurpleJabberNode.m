@@ -250,15 +250,6 @@ static void AMPurpleJabberNode_received_data_cb(PurpleConnection *gc, xmlnode **
 
 - (void)dealloc {
 	purple_signals_disconnect_by_handle(self);
-
-	;
-
-	;
-
-	;
-
-	;
-
 }
 
 - (void)fetchItems {

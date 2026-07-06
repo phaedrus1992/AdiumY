@@ -46,11 +46,6 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)dealloc
-{
-
-}
-
 #pragma mark Content handling
 - (void)willReceiveContent:(NSNotification *)notification
 {	

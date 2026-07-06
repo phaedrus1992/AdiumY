@@ -116,8 +116,6 @@ static void xmlnode_sent_cb(PurpleConnection *gc, xmlnode **packet, gpointer thi
 
 - (void)dealloc {
 	purple_signals_disconnect_by_handle(self);
-
-	;
 }
 
 - (void)addCommand:(NSString*)node delegate:(id<AMPurpleJabberAdHocServerDelegate>)delegate name:(NSString*)name {

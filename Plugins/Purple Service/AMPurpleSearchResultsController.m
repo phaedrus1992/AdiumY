@@ -125,11 +125,6 @@
 	return self;
 }
 
-- (void)dealloc {
-
-	;
-
-}
 
 - (void)addResults:(PurpleNotifySearchResults*)results {
 	GList *row;

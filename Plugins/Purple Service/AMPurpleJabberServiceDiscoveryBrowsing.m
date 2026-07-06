@@ -38,9 +38,6 @@
 
 - (void)dealloc {
 	[browsers makeObjectsPerformSelector:@selector(close)];
-
-	;
-
 }
 
 - (IBAction)browse:(id)sender
