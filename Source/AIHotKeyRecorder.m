@@ -12,8 +12,6 @@
 {
     BOOL _recording;
     NSTrackingArea *_trackingArea;
-    NSTimer *_blinkTimer;
-    BOOL _blinkOn;
     id _localMonitor;
 }
 
@@ -44,8 +42,6 @@
         [_localMonitor release];
     }
     [_trackingArea release];
-    [_blinkTimer invalidate];
-    [_blinkTimer release];
     [_hotKey release];
     [super dealloc];
 }
@@ -100,13 +96,8 @@
     NSColor *textColor;
 
     if (_recording) {
-        if (_blinkOn) {
-            displayString = NSLocalizedString(@"Type shortcut…", @"Hot key recorder: prompt when recording");
-            textColor = [NSColor grayColor];
-        } else {
-            displayString = @"";
-            textColor = [NSColor clearColor];
-        }
+        displayString = NSLocalizedString(@"Type shortcut…", @"Hot key recorder: prompt when recording");
+        textColor = [NSColor grayColor];
     } else if (self.hotKey && [self.hotKey isValidCombo]) {
         displayString = [self keyComboString];
         textColor = [NSColor blackColor];
@@ -186,14 +177,7 @@
     _recording = YES;
     [self.window makeFirstResponder:self];
 
-    // Blink timer for the prompt
-    _blinkOn = YES;
-    _blinkTimer = [[NSTimer scheduledTimerWithTimeInterval:0.6
-                                                     target:self
-                                                   selector:@selector(_blinkTimerFired:)
-                                                   userInfo:nil
-                                                    repeats:YES] retain];
-
+    // Show prompt statically while recording
     // Local monitor to capture key combo
     AIHotKeyRecorder * __unsafe_unretained weakSelf = self;
     _localMonitor = [[NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskKeyDown
@@ -265,17 +249,10 @@
         _localMonitor = nil;
     }
 
-    [_blinkTimer invalidate];
-    [_blinkTimer release];
-    _blinkTimer = nil;
 
     [self _updateDisplay];
 }
 
-- (void)_blinkTimerFired:(NSTimer *)timer {
-    _blinkOn = !_blinkOn;
-    [self setNeedsDisplay:YES];
-}
 
 #pragma mark - Actions
 
@@ -312,9 +289,5 @@
     return YES;
 }
 
-- (void)keyDown:(NSEvent *)event {
-    // Shouldn't reach here as local monitor captures first
-    [super keyDown:event];
-}
 
 @end
