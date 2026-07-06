@@ -122,7 +122,7 @@
 		[self showWindow:nil];
 		[self tableViewSelectionDidChange:[NSNotification notificationWithName:@"SelectionChanged" object:nil]];
 	}
-	return ; // will be released in -purpleRequestClose when we're done
+	return self;
 }
 
 - (void)dealloc {

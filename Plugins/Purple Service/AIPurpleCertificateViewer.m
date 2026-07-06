@@ -40,7 +40,7 @@
 		CFRetain(certificatechain);
 		account = _account;
 	}
-	return ;
+	return self;
 }
 
 - (void)dealloc {

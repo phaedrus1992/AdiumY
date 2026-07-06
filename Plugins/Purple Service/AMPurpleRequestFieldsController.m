@@ -650,7 +650,7 @@
                                                    object:[self window]];
     }
 
-    return ; // keep us as long as the form is open
+    return self;
 }
 
 - (void)dealloc {

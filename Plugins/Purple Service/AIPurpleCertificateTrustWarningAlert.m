@@ -69,6 +69,11 @@
 	AIPurpleCertificateTrustWarningAlert *alert = [[self alloc] initWithAccount:account hostname:hostname certificates:certs resultCallback:_query_cert_cb userData:ud];
 	[alert showWindow:nil];
 
+	// ponytail: keep alive via static set until callback removes it (not a window controller, no ARC-managed retain)
+	static NSMutableSet *pendingAlerts;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{ pendingAlerts = [NSMutableSet set]; });
+	[pendingAlerts addObject:alert];
 }
 
 - (id)initWithAccount:(AIAccount*)_account
@@ -88,7 +93,7 @@
 		
 		userdata = ud;
 	}
-	return ;
+	return self;
 }
 
 - (void)dealloc {
@@ -254,6 +259,10 @@
 
 	[parentWindow performClose:nil];
 
+	static NSMutableSet *pendingAlerts;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{ pendingAlerts = [NSMutableSet set]; });
+	[pendingAlerts removeObject:self];
 }
 
 @end
