@@ -16,7 +16,6 @@
 
 #import "ESPurpleDotMacAccountViewController.h"
 
-
 @implementation ESPurpleDotMacAccountViewController
 
 @end

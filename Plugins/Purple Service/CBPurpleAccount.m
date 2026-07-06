@@ -217,7 +217,6 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 {
 }		
 
-
 //Signed online
 - (void)updateSignon:(AIListContact *)theContact withData:(void *)data
 {
@@ -331,7 +330,6 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 	[theContact notifyOfChangedPropertiesSilently:silentAndDelayed];
 }
 
-
 - (void)clearIconForContact:(AIListContact *)theContact
 {
 	[theContact setServersideIconData:nil
@@ -441,7 +439,7 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 																		forKey:KEY_VALUE]];
 						}
 					}
-					[value release];
+
 				}	
 				break;
 			}
@@ -465,7 +463,6 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 			NSMutableDictionary *replacementDict = [dict mutableCopy];
 			[replacementDict setObject:newValue forKey:KEY_VALUE];
 			[array replaceObjectAtIndex:i withObject:replacementDict];
-			[replacementDict release];
 
 			/* There will only be 1 (at most) web profile link */
 			break;
@@ -744,7 +741,7 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 			/* Retained in -[self authorizationRequestWithDict:].  We kept it around before now in case libpurle wanted us to close it early, such as because the
 			 * account disconnected.
 			 */
-			[infoDict release];
+
 		} else {
 			[purpleAdapter closeAuthRequestWithHandle:infoDict];
 			
@@ -905,7 +902,6 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 	}
 }
 
-
 - (void)updateUser:(NSString *)user
 		   forChat:(AIChat *)chat
 			 flags:(PurpleConvChatBuddyFlags)flags 
@@ -1033,11 +1029,10 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
  */
 - (BOOL)rejoinChat:(AIChat *)chat
 {
-	[chat retain];
 
 	PurpleConversation *conv = [[chat identifier] pointerValue];
 	if (conv && conv->ui_data) {
-		[(AIChat *)(conv->ui_data) release];
+
 		conv->ui_data = NULL;
 	}
 
@@ -1049,8 +1044,6 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 	[chat setValue:[NSNumber numberWithBool:YES] forProperty:@"Rejoining Chat" notify:NotifyNever];
 	
 	[purpleAdapter openChat:chat onAccount:self];
-
-	[chat autorelease];
 
 	//We don't get any immediate feedback as to our success; just return YES.
 	return YES;
@@ -1086,7 +1079,6 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 
 	return chat;
 }
-
 
 - (AIChat *)chatWithName:(NSString *)name identifier:(id)identifier
 {
@@ -1144,7 +1136,6 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 									[topic UTF8String]);
 	}
 }
-
 
 - (void)updateTitle:(NSString *)inTitle forChat:(AIChat *)chat
 {
@@ -1424,7 +1415,6 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
     return [[adium cachesPath] stringByAppendingPathComponent:[filename safeFilenameString]];	
 }
 
-
 - (void)chat:(AIChat *)inChat setCustomEmoticon:(NSString *)emoticonEquivalent withImageData:(NSData *)inImageData
 {
 	/* XXX Note: If we can set outgoing emoticons, this method needs to be updated to mark emoticons as incoming
@@ -1656,7 +1646,7 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 	if (xfer) {
 		//Associate the fileTransfer and the xfer with each other
 		[fileTransfer setAccountData:[NSValue valueWithPointer:xfer]];
-		xfer->ui_data = [fileTransfer retain];
+		xfer->ui_data = (__bridge_retained void *)fileTransfer;
 		
 		//Set the filename
 		purple_xfer_set_local_filename(xfer, [[fileTransfer localFilename] UTF8String]);
@@ -1744,7 +1734,7 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 - (void)destroyFileTransfer:(ESFileTransfer *)fileTransfer
 {
 	AILog(@"Destroy file transfer %@",fileTransfer);
-	[fileTransfer release];
+
 }
 
 //Accept a send or receive ESFileTransfer object, beginning the transfer.
@@ -1831,7 +1821,6 @@ static void prompt_host_cancel_cb(CBPurpleAccount *self) {
 	[self disconnect];
 }
 
-
 static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 	if(host && *host) {
 		[self setPreference:[NSString stringWithUTF8String:host]
@@ -1858,7 +1847,6 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 						 self);
 						 
 }
-
 
 - (void)continueConnectWithConfiguredPurpleAccount
 {
@@ -2185,7 +2173,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 	[[NSNotificationCenter defaultCenter] removeObserver:self
 										  name:Adium_iTunesTrackChangedNotification
 										object:nil];
-	[tuneinfo release];
+
 	tuneinfo = nil;
 	
 	if (deletePurpleAccountAfterDisconnecting) {
@@ -2242,7 +2230,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 {
 	//Save the new password
 	if (inPassword && ![password isEqualToString:inPassword]) {
-		[password release]; password = [inPassword retain];
+		; password = inPassword;
 	}
 
 	//Ensure we have a purple account if one does not already exist
@@ -2416,7 +2404,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 }
 
 - (void)iTunesDidUpdate:(NSNotification*)notification {
-	[tuneinfo release];
+
 	tuneinfo = [[notification object] retain];
 
 	/* Only if we're including the information in all statuses do we need to do an update;
@@ -2505,8 +2493,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 				statusID:statusID
 				isActive:[NSNumber numberWithBool:YES] /* We're only using exclusive states for now... I hope.  */
 			   arguments:arguments];
-	
-	[arguments release];
+
 }
 
 /*!
@@ -2799,12 +2786,12 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 				}
 				
 				[menuItem setSubmenu:submenu];
-				[submenu release];
+
 			}
 		}
 
 		[menuItemArray addObject:menuItem];
-		[menuItem release];
+
 	}
 
 	purple_menu_action_free(act);
@@ -3086,7 +3073,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 	}
 	
 	//Release dialog as required by AIAccount's documentation since we didn't call super's implementation.
-	[dialog release];
+
 }
 
 - (void)unregisteredAccount:(BOOL)success {
@@ -3137,10 +3124,8 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 {	
 	[adium.preferenceController unregisterPreferenceObserver:self];
 
-	[permittedContactsArray release];
-	[deniedContactsArray release];
-	
-    [super dealloc];
+	;
+
 }
 
 - (NSString *)unknownGroupName {
@@ -3243,8 +3228,6 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 			
 			// Don't log the psychic message.
 			newStatusMessage.postProcessContent = NO;
-			
-			[forceString release];
 
 			[adium.contentController receiveContentObject:newStatusMessage];
 		}

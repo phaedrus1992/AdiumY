@@ -49,12 +49,10 @@
 	return self;
 }
 
-
 - (void)dealloc
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
-	
-	[super dealloc];
+
 }
 
 /*!
@@ -64,7 +62,7 @@
  */
 - (void)purpleRequestClose
 {	
-	[self release];
+
 }
 
 /*!

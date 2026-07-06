@@ -77,7 +77,6 @@ static NSMutableDictionary *lookupRequestsByQueryData = nil;
 	[lookupRequestsByQueryData setObject:self forKey:[NSValue valueWithPointer:query_data]];
 
 	//Released in finishDnsRequest
-	[self retain];
 
 	return self;
 }
@@ -86,8 +85,7 @@ static NSMutableDictionary *lookupRequestsByQueryData = nil;
 {
 	if (host)
 		CFRelease(host);
-	
-	[super dealloc];
+
 }
 
 - (PurpleDnsQueryData *)queryData
@@ -102,7 +100,7 @@ static void host_client_cb(CFHostRef theHost, CFHostInfoType typeInfo,
 						   const CFStreamError *streamError,
 						   void *info)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	
 	AdiumPurpleDnsRequest *self = (AdiumPurpleDnsRequest *)info;
 	if (streamError && (streamError->error != 0)) {
@@ -121,8 +119,7 @@ static void host_client_cb(CFHostRef theHost, CFHostInfoType typeInfo,
 			[self lookupFailedWithError:NULL];
 		}
 	}
-	
-	[pool release];
+
 }
 
 /*!
@@ -215,7 +212,6 @@ static void host_client_cb(CFHostRef theHost, CFHostInfoType typeInfo,
 	return TRUE;
 }
 
-
 /*!
  * @brief Clean up after a DNS request (whether it succeeded or failed)
  *
@@ -235,7 +231,7 @@ static void host_client_cb(CFHostRef theHost, CFHostInfoType typeInfo,
 	}
 
 	//Release our retain in init...
-	[self autorelease];
+
 }
 
 /*!

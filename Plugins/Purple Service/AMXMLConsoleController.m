@@ -28,12 +28,12 @@
 static void
 xmlnode_received_cb(PurpleConnection *gc, xmlnode **packet, gpointer this)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	
     AMXMLConsoleController *self = (AMXMLConsoleController *)this;
     
     if (!this || [self gc] != gc) {
-		[pool release];
+
 		return;
 	}
     
@@ -46,22 +46,20 @@ xmlnode_received_cb(PurpleConnection *gc, xmlnode **packet, gpointer this)
     NSAttributedString *astr = [[NSAttributedString alloc] initWithString:sstr
                                                                attributes:nil];
     [self appendToLog:astr];
-    [astr release];
-    
+
 	g_free(str);
-	
-	[pool release];
+
 }
 
 static void
 xmlnode_sent_cb(PurpleConnection *gc, char **packet, gpointer this)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
     AMXMLConsoleController *self = (AMXMLConsoleController *)this;
 	xmlnode *node;
 
     if (!this || [self gc] != gc) {
-		[pool release];
+
 		return;
 	}
 
@@ -70,7 +68,7 @@ xmlnode_sent_cb(PurpleConnection *gc, char **packet, gpointer this)
 			NULL);
 
 	if (!node) {
-		[pool release];
+
 		return;
 	}
 	
@@ -83,20 +81,17 @@ xmlnode_sent_cb(PurpleConnection *gc, char **packet, gpointer this)
     NSAttributedString *astr = [[NSAttributedString alloc] initWithString:sstr
                                                                attributes:[NSDictionary dictionaryWithObject:[NSColor blueColor] forKey:NSForegroundColorAttributeName]];
     [self appendToLog:astr];
-    [astr release];
-    
+
 	g_free(str);
 	xmlnode_free(node);
-	
-	[pool release];
+
 }
 
 @implementation AMXMLConsoleController
 
 - (void)dealloc {
     purple_signals_disconnect_by_handle(self);
-    
-    [super dealloc];
+
 }
 
 - (IBAction)sendXML:(id)sender {
@@ -146,7 +141,6 @@ xmlnode_sent_cb(PurpleConnection *gc, char **packet, gpointer this)
 {
 	[xmlConsoleWindow close];
 }
-
 
 - (void)appendToLog:(NSAttributedString*)astr {
 	[[xmlLogView textStorage] appendAttributedString:astr];

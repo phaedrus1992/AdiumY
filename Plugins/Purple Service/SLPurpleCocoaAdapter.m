@@ -58,7 +58,6 @@
 - (BOOL)attemptPurpleCommandOnMessage:(NSString *)originalMessage fromAccount:(AIAccount *)sourceAccount inChat:(AIChat *)chat;
 @end
 
-
 static NSMutableArray		*libpurplePluginArray = nil;
 
 @implementation SLPurpleCocoaAdapter
@@ -112,10 +111,10 @@ static NSMutableArray		*libpurplePluginArray = nil;
 	PurpleAccount *account = purple_account_new([adiumAccount purpleAccountName], [adiumAccount protocolPlugin]);
 
 	if (account->ui_data) {
-		[(CBPurpleAccount *)account->ui_data autorelease];
-		[(CBPurpleAccount *)account->ui_data setPurpleAccount:nil];
+
+		[(__bridge CBPurpleAccount *)account->ui_data setPurpleAccount:nil];
 	}
-	account->ui_data = [adiumAccount retain];
+	account->ui_data = (__bridge_retained void *)adiumAccount;
 
 	[adiumAccount setPurpleAccount:account];
 
@@ -129,7 +128,7 @@ static NSMutableArray		*libpurplePluginArray = nil;
 	PurpleAccount *account = accountLookupFromAdiumAccount(adiumAccount);
 
 	if (account) {
-		[(CBPurpleAccount *)account->ui_data release];
+
 		account->ui_data = nil;
 		
 		purple_accounts_remove(account);
@@ -168,16 +167,16 @@ static void ZombieKiller_Signal(int i)
 
 void adium_glib_print(const char *string)
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    @autoreleasepool {
 	AILog(@"(GLib): %s", string);
-    [pool drain];
+    }
 }
 
 void adium_glib_log(const gchar *log_domain, GLogLevelFlags flags, const gchar *message, gpointer user_data)
 {
 	if (!AIDebugLoggingIsEnabled()) return;
 	
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    @autoreleasepool {
     
 	NSString *level;
 	
@@ -200,7 +199,7 @@ void adium_glib_log(const gchar *log_domain, GLogLevelFlags flags, const gchar *
 
 	
 	AILog(@"(GLib : %s): %@: %s", log_domain, level, message);
-    [pool drain];
+    }
 }
 
 - (void)initLibPurple
@@ -332,7 +331,7 @@ static NSString* serviceClassForPurpleProtocolID(const char *protocolID)
  */
 CBPurpleAccount* accountLookup(PurpleAccount *account)
 {
-	CBPurpleAccount *adiumPurpleAccount = (account ? (CBPurpleAccount *)account->ui_data : nil);
+	CBPurpleAccount *adiumPurpleAccount = (account ? (__bridge CBPurpleAccount *)account->ui_data : nil);
 	/* If the account doesn't have its ui_data associated yet (we haven't tried to connect) but we want this
 	 * lookup data, we have to do some manual parsing.  This is used for example from the OTR preferences.
 	 */
@@ -370,7 +369,7 @@ AIListContact* contactLookupFromBuddy(PurpleBuddy *buddy)
 		theContact = [accountLookup(purple_buddy_get_account(buddy)) contactWithUID:UID];
 		
 		//Associate the handle with ui_data and the buddy with our statusDictionary
-		buddy->node.ui_data = [theContact retain];
+		buddy->node.ui_data = theContact;
 		
 		//This is the first time the contact has been accessed from the buddy; reset the icon cache for it
 		[AIUserIcons flushCacheForObject:theContact];
@@ -388,7 +387,7 @@ AIChat* groupChatLookupFromConv(PurpleConversation *conv)
 {
 	AIChat *chat;
 	
-	chat = (AIChat *)conv->ui_data;
+	chat = (__bridge AIChat *)conv->ui_data;
 	if (!chat) {
 		NSString *name = [NSString stringWithUTF8String:purple_conversation_get_name(conv)];
 		
@@ -413,8 +412,8 @@ AIChat* groupChatLookupFromConv(PurpleConversation *conv)
 			chat.chatCreationDictionary = [account extractChatCreationDictionaryFromConversation: conv];
 		}
         if (conv->ui_data != chat) {
-            [(AIChat *)(conv->ui_data) release];
-            conv->ui_data = [chat retain];
+
+            conv->ui_data = (__bridge_retained void *)chat;
         }
 		AILog(@"group chat lookup assigned %@ to %p (%s)",chat,conv, purple_conversation_get_name(conv));
 	}
@@ -446,7 +445,7 @@ AIChat* imChatLookupFromConv(PurpleConversation *conv)
 {
 	AIChat			*chat;
 	
-	chat = (AIChat *)conv->ui_data;
+	chat = (__bridge AIChat *)conv->ui_data;
 
 	if (!chat) {
 		//No chat is associated with the IM conversation
@@ -500,8 +499,8 @@ AIChat* imChatLookupFromConv(PurpleConversation *conv)
 
 		//Associate the PurpleConversation with the AIChat
         if (conv->ui_data != chat) {
-            [(AIChat *)(conv->ui_data) release];
-            conv->ui_data = [chat retain];
+
+            conv->ui_data = (__bridge_retained void *)chat;
         }
 	}
     
@@ -615,7 +614,6 @@ PurpleConversation* convLookupFromChat(AIChat *chat, id adiumAccount)
 					} else {
 						AILogWithSignature(@"No last message found for history on %@", chat);
 					}
-
 
 					//In debug mode, verify we didn't miss any required values
 					if (AIDebugLoggingIsEnabled()) {
@@ -740,7 +738,7 @@ NSString *processPurpleImages(NSString* inString, AIAccount* adiumAccount)
 					
 					data = [bitmapRep representationUsingType:NSPNGFileType properties:[NSDictionary dictionaryWithValuesForKeys:[NSArray array]]];
 					extension = @"png";
-					[image release];
+
 				}
 				
 				filename = [filename stringByAppendingPathExtension:extension];
@@ -759,7 +757,7 @@ NSString *processPurpleImages(NSString* inString, AIAccount* adiumAccount)
 		}
 	}
 
-	return ([newString autorelease]);
+	return newString;
 }
 
 #pragma mark Notify
@@ -892,7 +890,6 @@ NSString *processPurpleImages(NSString* inString, AIAccount* adiumAccount)
 
 	return NULL;
 }
-
 
 #pragma mark File transfers
 - (void)displayFileSendError
@@ -1277,7 +1274,6 @@ static void purpleUnregisterCb(PurpleAccount *account, gboolean success, void *u
 		 */
         AILogWithSignature(@"Destroying %p (and releasing chat %p)", conv, conv->ui_data);
 
-		[(AIChat *)conv->ui_data release];
 		conv->ui_data = nil;
 
 		//Tell purple to destroy the conversation.
@@ -1631,7 +1627,6 @@ GList *createListFromDictionary(NSDictionary *arguments)
 {
 	purple_signals_disconnect_by_handle(adium_purple_get_handle());
 
-	[super dealloc];
 }
 
 #ifdef HAVE_CDSA

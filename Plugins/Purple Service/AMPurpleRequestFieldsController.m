@@ -164,7 +164,6 @@
 
 @end
 
-
 @implementation AMPurpleRequestFieldInteger
 
 - (NSXMLElement*)xhtml {
@@ -364,7 +363,7 @@
 		
 		data = [bitmapRep representationUsingType:NSPNGFileType properties:[NSDictionary dictionaryWithValuesForKeys:[NSArray array]]];
 		extension = @"png";
-		[image release];
+
 	}
 
 	NSString *filename = [[[NSString stringWithFormat:@"TEMP-Image_%@",[self key]] stringByAppendingPathExtension:extension] safeFilenameString];
@@ -386,9 +385,7 @@
     return result;
 }
 
-
 @end
-
 
 @interface AMPurpleRequestFieldsController ()
 - (void)loadForm:(NSXMLDocument*)doc;
@@ -607,7 +604,7 @@
 
                     //Insert the field into the XHTML document
                     [fieldset addChild:[fieldobject xhtml]];
-                    [fieldobject release];
+
                 }
             }
         }
@@ -653,13 +650,12 @@
                                                    object:[self window]];
     }
 
-    return [self retain]; // keep us as long as the form is open
+    return ; // keep us as long as the form is open
 }
 
 - (void)dealloc {
-    [fieldobjects release];
 
-    [super dealloc];
+    ;
 }
 
 - (void)loadForm:(NSXMLDocument*)doc {
@@ -696,7 +692,7 @@
             ((PurpleRequestFieldsCb)cancelcb)(userData, fields);
     }
     
-    [self autorelease]; // no we don't need us no longer, commit suicide
+    ; // no we don't need us no longer, commit suicide
 }
 
 - (void)webView:(WebView *)webView decidePolicyForNavigationAction:(NSDictionary *)actionInformation
@@ -711,8 +707,7 @@
         if ([[[request URL] absoluteString] isEqualToString:@"http://www.adium.im/XMPP/form"]) {
             NSString *info = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
             NSArray *formfields = [info componentsSeparatedByString:@"&"];
-            [info release];
-            
+
             NSString *field;
             for (field in formfields) {
                 NSArray *keyvalue = [field componentsSeparatedByString:@"="];
@@ -740,9 +735,8 @@
                                                                                             (CFStringRef)@"", kCFStringEncodingUTF8);
                 
 				[[fieldobjects objectForKey:key] applyValue:value];
-                
-                [key release];
-                [value release];
+
+                ;
             }
             
 			wasSubmitted = YES;

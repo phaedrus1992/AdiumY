@@ -31,7 +31,6 @@
 
 @end
 
-
 @implementation ESJabberService
 
 - (id)init
@@ -47,12 +46,11 @@
 - (void)dealloc
 {
 	[adium.interfaceController unregisterContactListTooltipEntry:moodTooltip secondaryEntry:YES];
-	[moodTooltip release]; moodTooltip = nil;
-	[charactersInNode release]; charactersInNode = nil;
-	[charactersInDomain release]; charactersInDomain = nil;
-	[charactersInResource release]; charactersInResource = nil;
-	
-	[super dealloc];
+	; moodTooltip = nil;
+	; charactersInNode = nil;
+	; charactersInDomain = nil;
+	; charactersInResource = nil;
+
 }
 
 //Account Creation
@@ -160,7 +158,6 @@
 		x10000_10FFFF.location	= (unsigned int)0x10000;
 		x10000_10FFFF.length	= 1048576;
 
-
 		NSMutableCharacterSet *allowedCharactersInNode = [[NSMutableCharacterSet alloc] init];
 		[allowedCharactersInNode addCharactersInRange:x0021];
 		[allowedCharactersInNode addCharactersInRange:x0023_0025];
@@ -174,9 +171,8 @@
 		[allowedCharactersInNode addCharactersInRange:xE000_FFFD];
 		[allowedCharactersInNode addCharactersInRange:x10000_10FFFF];
 
-
 		charactersInNode = [allowedCharactersInNode immutableCopy];
-		[allowedCharactersInNode release];
+
 	}
 
 	return charactersInNode;
@@ -213,7 +209,7 @@
 		[allowedCharactersInDomain addCharactersInString:@"-."];
 
 		charactersInDomain = [allowedCharactersInDomain immutableCopy];
-		[allowedCharactersInDomain release];
+
 	}
 
 	return charactersInDomain;
@@ -253,7 +249,7 @@
 		[allowedCharactersInResource addCharactersInRange:x10000_10FFFF];
 
 		charactersInResource = [allowedCharactersInResource immutableCopy];
-		[allowedCharactersInResource release];
+
 	}
 
 	return charactersInResource;
@@ -278,9 +274,8 @@
 	[allowedCharacters addCharactersInString:@"@"];
 	[allowedCharacters formUnionWithCharacterSet:domainSet];
 	returnSet = [allowedCharacters immutableCopy];
-	[allowedCharacters release];
 
-	return [returnSet autorelease];
+	return returnSet;
 }
 
 /*!
@@ -297,9 +292,8 @@
 	[allowedCharacters addCharactersInString:@"/"];
 	[allowedCharacters formUnionWithCharacterSet:resourceSet];
 	returnSet = [allowedCharacters immutableCopy];
-	[allowedCharacters release];
-	
-	return [returnSet autorelease];
+
+	return returnSet;
 }
 
 - (NSUInteger)allowedLength{

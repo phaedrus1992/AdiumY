@@ -147,7 +147,6 @@
 
 #pragma mark Dragging Delegate
 
-
 - (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender
 {
 	return YES;

@@ -162,10 +162,9 @@ gboolean purple_init_zephyr_plugin(void);
 									AILocalizedString(@"The Zephyr Host Manager reported an error #%li: %@", "Be careful to keep the % parts the same in this string. %@ will be replaced by an error message."),
                                     AILocalizedString(@"OK", nil), nil, nil, (long)status, tempString);
 
-            [tempString release];
             //Should we stop here, or keep going, knowing we'll get another error message when we try to connect via libpurple?
         }
-        [zhm release];
+
     }
 
     // Actually connect
