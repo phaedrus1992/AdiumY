@@ -499,13 +499,13 @@
 		[self serverReportedInvalidPassword];
 		shouldAttemptReconnect = AIReconnectImmediately;
 	}
-#ifdef HAVE_CDSA
+
 	else if (purple_account_get_bool([self purpleAccount],PURPLE_SSL_CDSA_BUGGY_TLS_WORKAROUND,false) &&
 			 [*disconnectionError isEqualToString:[NSString stringWithUTF8String:_("SSL Handshake Failed")]]) {
 		AILog(@"%@: Reconnecting immediately to try to work around buggy TLS stacks",self);
 		shouldAttemptReconnect = AIReconnectNormally;
 	}
-#endif
+
 	return shouldAttemptReconnect;
 }
 
@@ -878,7 +878,7 @@
 #else
 	//For non-debug builds, only enable it if the preference is set
 	enableConsole = [[NSUserDefaults standardUserDefaults] boolForKey:@"AMXMPPShowAdvanced"];
-#endif
+
 	
 	return enableConsole;
 }
