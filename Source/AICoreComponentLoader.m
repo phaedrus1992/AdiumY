@@ -127,7 +127,7 @@ NSTimeInterval aggregateComponentLoadingTime = 0.0;
 		@"SHLinkManagementPlugin",
 		@"ESGlobalEventsPreferencesPlugin",
 		@"ESGeneralPreferencesPlugin",
-		@"NEHGrowlPlugin",
+		@"NEHUserNotificationPlugin",
 		@"ESSecureMessagingPlugin",
 		@"ESStatusPreferencesPlugin",
 		@"AIAutomaticStatus",
