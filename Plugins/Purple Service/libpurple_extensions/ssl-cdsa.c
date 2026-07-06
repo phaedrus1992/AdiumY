@@ -205,11 +205,10 @@ ssl_cdsa_stream_event(CFReadStreamRef stream, CFStreamEventType event, void *inf
 			if (error) {
 				CFStringRef desc = CFErrorCopyDescription(error);
 				if (desc) {
-					purple_debug_error("cdsa", "Stream error: %s\n",
-						char descBuf[256];
-						if (CFStringGetCString(desc, descBuf, sizeof(descBuf), kCFStringEncodingUTF8)) {
-							purple_debug_error("cdsa", "Stream error: %s\n", descBuf);
-						}
+					char descBuf[256];
+					if (CFStringGetCString(desc, descBuf, sizeof(descBuf), kCFStringEncodingUTF8)) {
+						purple_debug_error("cdsa", "Stream error: %s\n", descBuf);
+					}
 						CFRelease(desc);
 				}
 				CFRelease(error);
