@@ -358,7 +358,7 @@ PurpleAccount* accountLookupFromAdiumAccount(CBPurpleAccount *adiumAccount)
 AIListContact* contactLookupFromBuddy(PurpleBuddy *buddy)
 {
 	//Get the node's ui_data
-	AIListContact *theContact = (buddy ? (AIListContact *)buddy->node.ui_data : nil);
+	AIListContact *theContact = (buddy ? (__bridge AIListContact *)buddy->node.ui_data : nil);
 
 	//If the node does not have ui_data yet, we need to create a contact and associate it
 	if (!theContact && buddy) {
@@ -369,7 +369,7 @@ AIListContact* contactLookupFromBuddy(PurpleBuddy *buddy)
 		theContact = [accountLookup(purple_buddy_get_account(buddy)) contactWithUID:UID];
 		
 		//Associate the handle with ui_data and the buddy with our statusDictionary
-		buddy->node.ui_data = theContact;
+		buddy->node.ui_data = (__bridge_retained void *)theContact;
 		
 		//This is the first time the contact has been accessed from the buddy; reset the icon cache for it
 		[AIUserIcons flushCacheForObject:theContact];
@@ -412,7 +412,7 @@ AIChat* groupChatLookupFromConv(PurpleConversation *conv)
 			chat.chatCreationDictionary = [account extractChatCreationDictionaryFromConversation: conv];
 		}
         if (conv->ui_data != chat) {
-
+            if (conv->ui_data) (void)(__bridge_transfer AIChat *)conv->ui_data;
             conv->ui_data = (__bridge_retained void *)chat;
         }
 		AILog(@"group chat lookup assigned %@ to %p (%s)",chat,conv, purple_conversation_get_name(conv));
@@ -423,7 +423,7 @@ AIChat* groupChatLookupFromConv(PurpleConversation *conv)
 
 AIChat* existingChatLookupFromConv(PurpleConversation *conv)
 {
-	return (conv ? conv->ui_data : nil);
+	return (conv ? (__bridge id)conv->ui_data : nil);
 }
 
 AIChat* chatLookupFromConv(PurpleConversation *conv)
@@ -499,7 +499,7 @@ AIChat* imChatLookupFromConv(PurpleConversation *conv)
 
 		//Associate the PurpleConversation with the AIChat
         if (conv->ui_data != chat) {
-
+            if (conv->ui_data) (void)(__bridge_transfer AIChat *)conv->ui_data;
             conv->ui_data = (__bridge_retained void *)chat;
         }
 	}
@@ -1273,7 +1273,7 @@ static void purpleUnregisterCb(PurpleAccount *account, gboolean success, void *u
 		 * to nil so we don't try to do it again.
 		 */
         AILogWithSignature(@"Destroying %p (and releasing chat %p)", conv, conv->ui_data);
-
+		if (conv->ui_data) (void)(__bridge_transfer AIChat *)conv->ui_data;
 		conv->ui_data = nil;
 
 		//Tell purple to destroy the conversation.

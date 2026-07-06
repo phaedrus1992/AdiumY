@@ -44,7 +44,8 @@ static void adiumPurpleBlistRemove(PurpleBuddyList *list, PurpleBlistNode *node)
 		[accountLookup(purple_buddy_get_account(buddy)) removeContact:contactLookupFromBuddy(buddy)];
 
 		//Clear the ui_data
-		; buddy->node.ui_data = NULL;
+		if (buddy->node.ui_data) (void)(__bridge_transfer AIListContact *)buddy->node.ui_data;
+		buddy->node.ui_data = NULL;
     }
     }
 }
