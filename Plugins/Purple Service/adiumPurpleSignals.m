@@ -27,7 +27,7 @@ static void buddy_idle_changed_cb(PurpleBuddy *buddy, gboolean old_idle, gboolea
 
 static void buddy_event_cb(PurpleBuddy *buddy, PurpleBuddyEvent event)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	
 	if (buddy) {
 		SEL				updateSelector = nil;
@@ -123,13 +123,12 @@ static void buddy_event_cb(PurpleBuddy *buddy, PurpleBuddyEvent event)
 			}
 		}
 	}
-	
-	[pool release];
+
 }
 
 static void buddy_status_changed_cb(PurpleBuddy *buddy, PurpleStatus *oldstatus, PurpleStatus *status, PurpleBuddyEvent event)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	CBPurpleAccount		*account = accountLookup(purple_buddy_get_account(buddy));
 	AIListContact		*theContact = contactLookupFromBuddy(buddy);
 	NSNumber			*statusTypeNumber;
@@ -153,12 +152,12 @@ static void buddy_status_changed_cb(PurpleBuddy *buddy, PurpleStatus *oldstatus,
 						 statusName:statusName
 					  statusMessage:statusMessage
 						   isMobile:isMobile];
-	[pool release];
+
 }
 
 static void buddy_idle_changed_cb(PurpleBuddy *buddy, gboolean old_idle, gboolean idle, PurpleBuddyEvent event)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	CBPurpleAccount	*account = accountLookup(purple_buddy_get_account(buddy));
 	AIListContact	*theContact = contactLookupFromBuddy(buddy);
 	PurplePresence	*presence = purple_buddy_get_presence(buddy);
@@ -174,14 +173,13 @@ static void buddy_idle_changed_cb(PurpleBuddy *buddy, gboolean old_idle, gboolea
 		[account updateIdleReturn:theContact
 						 withData:nil];
 	}
-	
-	[pool release];
+
 }
 
 //This is called when a buddy is added or changes groups
 static void buddy_added_cb(PurpleBuddy *buddy)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	PurpleAccount	*purpleAccount = purple_buddy_get_account(buddy);
 	if (purple_account_is_connected(purpleAccount)) {
 		CBPurpleAccount	*account = accountLookup(purpleAccount);
@@ -212,12 +210,12 @@ static void buddy_added_cb(PurpleBuddy *buddy)
 		// Force a status update for the user. Useful for things like XMPP which might display an error message for an offline contact.
 		buddy_status_changed_cb(buddy, NULL, purple_presence_get_active_status(purple_buddy_get_presence(buddy)), PURPLE_BUDDY_NONE);
 	}
-	[pool release];
+
 }
 
 static void buddy_removed_cb(PurpleBuddy *buddy)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	PurpleAccount	*purpleAccount = purple_buddy_get_account(buddy);
 	if (purple_account_is_connected(purpleAccount)) {
 		CBPurpleAccount	*account = accountLookup(purpleAccount);
@@ -231,25 +229,24 @@ static void buddy_removed_cb(PurpleBuddy *buddy)
 		 */
 		[account removeContact:listContact fromGroupName:groupName];
 	}
-	[pool release];
+
 }
 
 static void connection_signed_on_cb(PurpleConnection *gc)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	GSList *buddies = purple_find_buddies(purple_connection_get_account(gc), /* buddy_name */ NULL);
 	GSList *cur;
 	for (cur = buddies; cur; cur = cur->next) {
 		buddy_added_cb((PurpleBuddy *)cur->data);
 	}
 	g_slist_free(buddies);
-	
-	[pool release];
+
 }
 
 static void node_aliased_cb(PurpleBlistNode *node, char *old_alias)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
 		PurpleBuddy		*buddy = (PurpleBuddy *)node;
 		CBPurpleAccount	*account = accountLookup(purple_buddy_get_account(buddy));
@@ -264,8 +261,7 @@ static void node_aliased_cb(PurpleBlistNode *node, char *old_alias)
 		[account updateContact:contactLookupFromBuddy(buddy)
 					   toAlias:(alias ? [NSString stringWithUTF8String:alias] : nil)];
 	}
-	
-	[pool release];
+
 }
 
 static NSDictionary *dictionaryFromHashTable(GHashTable *data)
@@ -295,7 +291,7 @@ static NSDictionary *dictionaryFromHashTable(GHashTable *data)
 
 static void chat_join_failed_cb(PurpleConnection *gc, GHashTable *components)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	CBPurpleAccount	*account = accountLookup(purple_connection_get_account(gc));
 	NSDictionary *componentDict = dictionaryFromHashTable(components);
 
@@ -306,19 +302,18 @@ static void chat_join_failed_cb(PurpleConnection *gc, GHashTable *components)
 			break;
 		}
 	}
-	
-	[pool release];
+
 }
 
 static void typing_changed(PurpleAccount *account, const char *name, AITypingState typingState)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	CBPurpleAccount	*cbaccount = accountLookup(account);
 	AIListContact *contact = contactLookupFromBuddy(purple_find_buddy(account, name));
 	
 	// Don't do anything for those who aren't on our contact list.
 	if (contact.isStranger) {
-		[pool release];
+
 		return;
 	}
 
@@ -331,18 +326,17 @@ static void typing_changed(PurpleAccount *account, const char *name, AITypingSta
 
 	if (chat)
 		[cbaccount typingUpdateForIMChat:chat typing:[NSNumber numberWithInteger:typingState]];
-	
-	[pool release];
+
 }
 
 static void conversation_created_cb(PurpleConversation *conv, void *data) {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_IM) {
 		AIChat *chat = imChatLookupFromConv(conv);
 		//When a conversation is created, we must clear the typing flag, as libpurple won't notify us properly
 		[accountLookup(purple_conversation_get_account(conv)) typingUpdateForIMChat:chat typing:[NSNumber numberWithInteger:AINotTyping]];
 	}
-	[pool release];
+
 }
 
 /* The buddy-typing, buddy-typed, and buddy-typing-stopped signals will only be sent
@@ -368,7 +362,7 @@ buddy_typing_stopped_cb(PurpleAccount *account, const char *name, void *data) {
 
 static void
 chat_joined_cb(PurpleConversation *conv, void *data) {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	//Pass chats along to the account
 	if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_CHAT) {
 		
@@ -376,15 +370,13 @@ chat_joined_cb(PurpleConversation *conv, void *data) {
 		
 		[accountLookup(purple_conversation_get_account(conv)) addChat:chat];
 	}
-	
-	[pool release];
-}
 
+}
 
 static void
 file_recv_request_cb(PurpleXfer *xfer)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	ESFileTransfer  *fileTransfer;
 	
     //Purple doesn't return normalized user id, so it should be normalized manually
@@ -400,7 +392,7 @@ file_recv_request_cb(PurpleXfer *xfer)
 	//Configure the new object for the transfer
 	[fileTransfer setAccountData:[NSValue valueWithPointer:xfer]];
 	
-	xfer->ui_data = [fileTransfer retain];
+	xfer->ui_data = (__bridge_retained void *)fileTransfer;
 	
 	/* Set a fake local filename to convince libpurple that we are handling the request. We are, but
 	 * the code expects a synchronous response, and we rock out asynchronously.
@@ -409,13 +401,12 @@ file_recv_request_cb(PurpleXfer *xfer)
 	
 	//Tell the account that we are ready to request the reception
 	[accountLookup(purple_xfer_get_account(xfer)) requestReceiveOfFileTransfer:fileTransfer];
-	
-	[pool release];
+
 }
 
 void configureAdiumPurpleSignals(void)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	void *blist_handle = purple_blist_get_handle();
 	void *handle       = adium_purple_get_handle();
 	
@@ -486,6 +477,5 @@ void configureAdiumPurpleSignals(void)
 
 	purple_signal_connect(purple_xfers_get_handle(), "file-recv-request",
 						  handle, PURPLE_CALLBACK(file_recv_request_cb), NULL);
-	
-	[pool release];
+
 }

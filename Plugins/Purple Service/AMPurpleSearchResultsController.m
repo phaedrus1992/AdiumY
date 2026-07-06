@@ -16,7 +16,6 @@
 
 #import "AMPurpleSearchResultsController.h"
 
-
 @implementation AMPurpleSearchResultsController
 
 - (id)initWithPurpleConnection:(PurpleConnection*)_gc title:(NSString*)title primaryText:(NSString*)primary secondaryText:(NSString*)secondary searchResults:(PurpleNotifySearchResults*)results userData:(gpointer)_user_data {
@@ -80,8 +79,7 @@
 			[newbutton setAutoresizingMask:NSViewMinXMargin | NSViewMinYMargin];
 			
 			[searchButtons setObject:[NSValue valueWithPointer:button] forKey:[NSValue valueWithNonretainedObject:newbutton]];
-			
-			[newbutton release];
+
 			offset -= 20.0f;
 		}
 		
@@ -99,7 +97,7 @@
 			if(scol->title)
 				[[tcol headerCell] setStringValue:[NSString stringWithUTF8String:scol->title]];
 			[tableview addTableColumn:tcol];
-			[tcol release];
+
 		}
 		
 		// convert the rows
@@ -116,7 +114,7 @@
 				if(text)
 					[dict setObject:[NSString stringWithUTF8String:text] forKey:[NSNumber numberWithUnsignedInteger:col++]];
 			}
-			[dict release];
+
 		}
 		
 		[tableview reloadData];
@@ -124,13 +122,13 @@
 		[self showWindow:nil];
 		[self tableViewSelectionDidChange:[NSNotification notificationWithName:@"SelectionChanged" object:nil]];
 	}
-	return [self retain]; // will be released in -purpleRequestClose when we're done
+	return ; // will be released in -purpleRequestClose when we're done
 }
 
 - (void)dealloc {
-	[searchButtons release];
-	[searchResults release];
-	[super dealloc];
+
+	;
+
 }
 
 - (void)addResults:(PurpleNotifySearchResults*)results {
@@ -145,7 +143,7 @@
 			if(text)
 				[dict setObject:[NSString stringWithUTF8String:text] forKey:[NSNumber numberWithUnsignedInteger:col++]];
 		}
-		[dict release];
+
 	}
 	
 	[tableview reloadData];

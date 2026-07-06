@@ -60,8 +60,7 @@
 		windowIsClosing = YES;
 		[self closeWindow:nil];
 	}
-	
-	[self release];
+
 }
 
 @end

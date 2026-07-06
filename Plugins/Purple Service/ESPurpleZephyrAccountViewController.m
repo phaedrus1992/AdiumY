@@ -103,7 +103,7 @@
     [account setPreference:ray
                     forKey:KEY_ZEPHYR_SERVERS
                      group:GROUP_ACCOUNT_STATUS];
-    [ray release];
+
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
@@ -138,7 +138,6 @@
     [tableView_servers selectRowIndexes:[NSIndexSet indexSetWithIndex:[ray count]] byExtendingSelection:NO];
     [tableView_servers editColumn:0 row:[ray count] withEvent:nil select:YES];
 
-    [ray release];
 }
 
 /*!
@@ -154,7 +153,7 @@
         [account setPreference:ray
                         forKey:KEY_ZEPHYR_SERVERS
                          group:GROUP_ACCOUNT_STATUS];
-        [ray release];
+
         [tableView_servers reloadData];
     }
 }

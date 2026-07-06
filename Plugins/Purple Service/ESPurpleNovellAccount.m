@@ -46,7 +46,6 @@ gboolean purple_init_novell_plugin(void);
 	return nil;
 }
 
-
 /*!
  * @brief Return the purple status ID to be used for a status
  *

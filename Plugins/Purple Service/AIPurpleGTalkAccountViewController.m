@@ -17,7 +17,6 @@
 #import "AIPurpleGTalkAccountViewController.h"
 #import "AIPurpleGTalkAccount.h"
 
-
 @implementation AIPurpleGTalkAccountViewController
 
 - (NSString *)nibName{

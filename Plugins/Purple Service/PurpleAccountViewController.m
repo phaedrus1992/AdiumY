@@ -66,8 +66,7 @@
 															 keyEquivalent:@""];
 	[menuItem setEnabled:NO];
 	[menu addItem:menuItem];
-	[menuItem release];
-	
+
 	for (name in inArray) {
 		menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:name
 																		target:nil
@@ -77,10 +76,9 @@
 		if (canIndent) [menuItem setIndentationLevel:1];
 		
 		[menu addItem:menuItem];
-		[menuItem release];
+
 	}
 }
-
 
 - (NSMenu *)encodingMenu
 {
@@ -228,7 +226,7 @@
 	 HP-ROMAN8, NEXTSTEP
 	 */
 	
-	return [menu autorelease];
+	return menu;
 }
 
 @end

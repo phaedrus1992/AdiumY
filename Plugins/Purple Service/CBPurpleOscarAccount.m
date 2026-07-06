@@ -285,7 +285,6 @@
 	}
 }
 
-
 #pragma mark Delayed updates
 
 - (void)_performDelayedUpdates:(NSTimer *)timer
@@ -311,8 +310,8 @@
 		[arrayOfContactsForDelayedUpdates removeObjectAtIndex:0];
 		
 	} else {
-		[arrayOfContactsForDelayedUpdates release]; arrayOfContactsForDelayedUpdates = nil;
-		[delayedSignonUpdateTimer invalidate]; [delayedSignonUpdateTimer release]; delayedSignonUpdateTimer = nil;
+		; arrayOfContactsForDelayedUpdates = nil;
+		[delayedSignonUpdateTimer invalidate]; ; delayedSignonUpdateTimer = nil;
 	}
 }
 
@@ -426,7 +425,7 @@
 														bodyBackground:NO
 												   allowJavascriptURLs:YES];
 	if(!OSAtomicCompareAndSwapPtrBarrier(nil, newEncoder, (void *)&encoderCloseFontTagsAttachmentsAsText))
-	  [newEncoder release];
+
 	[encoderCloseFontTagsAttachmentsAsText setAllowAIMsubprofileLinks:YES];
   }
   
@@ -456,8 +455,7 @@
 														bodyBackground:NO
 												   allowJavascriptURLs:YES];
 	if(!OSAtomicCompareAndSwapPtrBarrier(nil, newEncoder, (void *)&encoderCloseFontTags))
-	  [newEncoder release];
-	
+
 	newEncoder = [[AIHTMLDecoder alloc] initWithHeaders:NO
 											   fontTags:YES
 										  closeFontTags:NO
@@ -471,8 +469,7 @@
 										 bodyBackground:NO
 									allowJavascriptURLs:YES];
 	if(!OSAtomicCompareAndSwapPtrBarrier(nil, newEncoder, (void *)&encoderGroupChat))
-	  [newEncoder release];
-	
+
 	[encoderCloseFontTags setAllowAIMsubprofileLinks:YES];
 	[encoderGroupChat setAllowAIMsubprofileLinks:YES];
   }
@@ -572,7 +569,7 @@
 			purple_imgstore_unref_by_id([imgstoreNumber intValue]);			
 		}
 		
-		[purpleImagesToUnref release]; purpleImagesToUnref = nil;
+		; purpleImagesToUnref = nil;
 	}
 
 	return success;
@@ -582,7 +579,6 @@
 {
 	return ![[message.message string] hasPrefix:@"[Offline IM sent"];
 }
-
 
 #pragma mark DirectIM (IM Image)
 //We are now connected via DirectIM to theContact
@@ -606,7 +602,7 @@
 		[directIMQueue removeObjectForKey:theContact.internalObjectID];
 		
 		if (![directIMQueue count]) {
-			[directIMQueue release]; directIMQueue = nil;
+			; directIMQueue = nil;
 		}
 	}
 }
@@ -694,7 +690,6 @@
 							
 							imageData = [[[image JPEGRepresentationWithCompressionFactor:1.0f] retain] autorelease];
 							extension = @"jpg";
-							[image release];
 
 						} else if (![extension length]) {
 							//We don't know what we're working with. Try to produce a PNG so we know the format.
@@ -702,7 +697,7 @@
 							
 							imageData = [[[image PNGRepresentation] retain] autorelease];
 							extension = @"png";
-							[image release];							
+
 						}
 
 						//Delete any existing wrong extension
@@ -736,9 +731,8 @@
 		}
 	}
 	
-	return ([processedString autorelease]);
+	return processedString;
 }
-
 
 #pragma mark Contacts
 /*!
@@ -835,9 +829,8 @@
 			else
 				replacementString = (includeTimeWithDay ? [NSString stringWithFormat:@"%@, %@", valueDay, valueTime] : valueDay);
 		}
-		
-		[valueDay release];
-		[valueTime release];
+
+		;
 	}
 
 	return replacementString;
@@ -861,7 +854,7 @@
 				NSMutableDictionary *replacementDict = [dict mutableCopy];
 				[replacementDict setObject:replacementString forKey:KEY_VALUE];
 				[array replaceObjectAtIndex:i withObject:replacementDict];
-				[replacementDict release];
+
 			}
 		} else if ([key isEqualToString:memberSinceKey]) {
 			[array removeObjectAtIndex:i];
@@ -874,7 +867,6 @@
 
 	return array;
 }
-
 
 #pragma mark Contact List Menu Items
 - (NSString *)titleForContactMenuLabel:(const char *)label forContact:(AIListContact *)inContact
