@@ -129,6 +129,7 @@ static NSMutableArray		*libpurplePluginArray = nil;
 
 	if (account) {
 
+		if (account->ui_data) (void)(__bridge_transfer CBPurpleAccount *)account->ui_data;
 		account->ui_data = nil;
 		
 		purple_accounts_remove(account);
