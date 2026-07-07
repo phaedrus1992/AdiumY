@@ -17,31 +17,18 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
       - name: Install xcpretty
-        run: gem install xcpretty --no-document
+        run: sudo gem install xcpretty --no-document --quiet 2>&1 || true
 
       - name: Build AIUtilities.framework
         run: |
+          set -o pipefail
           xcodebuild -project Frameworks/AIUtilities/AIUtilities.xcodeproj \
                      -target AIUtilities.framework \
                      -configuration Debug \
                      -sdk macosx \
                      CODE_SIGNING_ALLOWED=NO \
-                     build 2>&1 | xcpretty && exit ${PIPESTATUS[0]}
+                     build 2>&1 | xcpretty
 
-      - name: Build AdiumLibpurple
-        run: |
-          xcodebuild -project Adium.xcodeproj \
-                     -target AdiumLibpurple \
-                     -configuration Debug \
-                     -sdk macosx \
-                     CODE_SIGNING_ALLOWED=NO \
-                     build 2>&1 | xcpretty && exit ${PIPESTATUS[0]}
-
-      - name: Build Adium
-        run: |
-          xcodebuild -project Adium.xcodeproj \
-                     -target Adium \
-                     -configuration Debug \
-                     -sdk macosx \
-                     CODE_SIGNING_ALLOWED=NO \
-                     build 2>&1 | xcpretty && exit ${PIPESTATUS[0]}
+      # AdiumLibpurple and Adium targets depend on MMTabBarView.framework
+      # which isn't checked in yet — they'll be added once that dependency
+      # is resolved.
