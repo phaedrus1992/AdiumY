@@ -24,14 +24,30 @@ jobs:
 
       - name: Fix and build MMTabBarView.framework
         run: |
+          # Fix Darwin.Availability module import for modern SDKs
           sed -i '' 's/@import Darwin.Availability;/#import <Availability.h>/' \
             "Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/Styles/Mojave Tab Style/MMMojaveTabStyle+Assets.m"
+          # Set deployment target to 10.13 in the project file (needed for libarclite removal)
+          plutil -convert json -o /tmp/mmtab.json \
+            "Dependencies/MMTabBarView/MMTabBarView/MMTabBarView.xcodeproj/project.pbxproj"
+          python3 -c "
+import json
+with open('/tmp/mmtab.json') as f:
+    d = json.load(f)
+for obj in d.get('objects', {}).values():
+    if isinstance(obj, dict) and 'buildSettings' in obj:
+        obj['buildSettings']['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
+with open('/tmp/mmtab.json', 'w') as f:
+    json.dump(d, f)
+"
+          plutil -convert binary1 -o \
+            "Dependencies/MMTabBarView/MMTabBarView/MMTabBarView.xcodeproj/project.pbxproj" \
+            /tmp/mmtab.json
           xcodebuild -project Dependencies/MMTabBarView/MMTabBarView/MMTabBarView.xcodeproj \
                      -scheme MMTabBarView \
                      -configuration Release \
                      -sdk macosx \
                      CODE_SIGNING_ALLOWED=NO \
-                     MACOSX_DEPLOYMENT_TARGET=10.13 \
                      build 2>&1 | xcpretty
 
       - name: Copy MMTabBarView.framework
@@ -57,6 +73,7 @@ jobs:
                      -configuration Debug \
                      -sdk macosx \
                      CODE_SIGNING_ALLOWED=NO \
+                     MACOSX_DEPLOYMENT_TARGET=10.13 \
                      build 2>&1 | xcpretty
 
       - name: Build Adium
@@ -67,4 +84,5 @@ jobs:
                      -configuration Debug \
                      -sdk macosx \
                      CODE_SIGNING_ALLOWED=NO \
+                     MACOSX_DEPLOYMENT_TARGET=10.13 \
                      build 2>&1 | xcpretty
