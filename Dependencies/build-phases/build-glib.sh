@@ -86,7 +86,6 @@ PCEOF
         -Dsystemtap=false \
         -Dnls=disabled \
         -Dforce_posix_threads=true \
-        -Diconv=libc \
         --wrap-mode=nofallback
 
     ninja -C _build -j"$NUM_JOBS"
