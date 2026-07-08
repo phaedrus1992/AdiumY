@@ -23,21 +23,8 @@ jobs:
       - name: Install xcpretty
         run: sudo gem install xcpretty --no-document --quiet 2>&1 || true
 
-      - name: Initialize submodules
-        run: git submodule update --init Dependencies/MMTabBarView
-
-      - name: Fix and build MMTabBarView.framework
+      - name: Build MMTabBarView.framework
         run: |
-          # Fix Darwin.Availability module import for modern SDKs
-          sed -i '' 's/@import Darwin.Availability;/#import <Availability.h>/' \
-            "Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/Styles/Mojave Tab Style/MMMojaveTabStyle+Assets.m"
-          # Set deployment target to 10.13 in the project file (needed for libarclite removal)
-          plutil -convert json -o /tmp/mmtab.json \
-            "Dependencies/MMTabBarView/MMTabBarView/MMTabBarView.xcodeproj/project.pbxproj"
-          python3 -c 'import json; d=json.load(open("/tmp/mmtab.json")); [o.get("buildSettings",{}).__setitem__("MACOSX_DEPLOYMENT_TARGET","10.13") for o in d.get("objects",{}).values() if isinstance(o,dict)]; json.dump(d,open("/tmp/mmtab.json","w"))'
-          plutil -convert binary1 -o \
-            "Dependencies/MMTabBarView/MMTabBarView/MMTabBarView.xcodeproj/project.pbxproj" \
-            /tmp/mmtab.json
           xcodebuild -project Dependencies/MMTabBarView/MMTabBarView/MMTabBarView.xcodeproj \
                      -scheme MMTabBarView \
                      -configuration Release \
