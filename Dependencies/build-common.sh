@@ -205,6 +205,7 @@ rewrite_dependency_links() {
             libintl)  FW_MAP["libintl"]=1 ;;
             libffi)   FW_MAP["libffi"]=1 ;;
             libpcre2-8) FW_MAP["libpcre2-8"]=1 ;;
+            libxml2)  FW_MAP["libxml2"]=1 ;;
             libgcrypt) FW_MAP["libgcrypt"]=1 ;;
             libotr)   FW_MAP["libotr"]=1 ;;
             libpurple) FW_MAP["libpurple"]=1 ;;

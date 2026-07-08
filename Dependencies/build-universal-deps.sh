@@ -36,6 +36,7 @@ source "$ROOTDIR/build-phases/build-libffi.sh"
 source "$ROOTDIR/build-phases/build-gettext.sh"
 source "$ROOTDIR/build-phases/build-pcre2.sh"
 source "$ROOTDIR/build-phases/build-glib.sh"
+source "$ROOTDIR/build-phases/build-libxml2.sh"
 
 # More phases will be added here as they're implemented
 
@@ -65,6 +66,7 @@ run_phase libffi build_libffi_phase
 run_phase gettext build_gettext_phase
 run_phase pcre2 build_pcre2_phase
 run_phase glib build_glib_phase
+run_phase libxml2 build_libxml2_phase
 
 # ---- Rewrite dependency links ----
 echo ""
