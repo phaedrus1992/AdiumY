@@ -9,9 +9,13 @@ on:
 jobs:
   build:
     runs-on: macos-15
+    permissions:
+      contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
@@ -46,9 +50,23 @@ jobs:
           cp -R "$(find ~/Library/Developer/Xcode/DerivedData/MMTabBarView-*/Build/Products/Release -name 'MMTabBarView.framework' -type d | head -1)" \
             Frameworks/MMTabBarView.framework
 
-      - name: Build universal dependencies (glib, gettext, json-glib)
+      - name: Install build tools
+        run: brew install meson ninja pkg-config intltool || true
+
+      - name: Build universal dependencies (vendored, no network)
+        run: bash Dependencies/build-universal-deps.sh 2>&1 | tail -40
+
+      - name: Assert universal architectures
         run: |
-          bash Dependencies/build-universal-deps.sh 2>&1 | tail -20
+          set -e
+          for fw in libintl libffi libpcre2-8 glib libgmodule libgobject \
+                    libgthread libgio libxml2 libgpg-error libgcrypt libotr libpurple; do
+            bin="Frameworks/$fw.framework/Versions/A/$fw"
+            archs="$(lipo -archs "$bin")"
+            echo "$fw: $archs"
+            [ "$archs" = "x86_64 arm64" ] || [ "$archs" = "arm64 x86_64" ] || { echo "FAIL: $fw"; exit 1; }
+          done
+          nm -gU Frameworks/libpurple.framework/Versions/A/libpurple | grep -q ' _purple_core_init'
 
       - name: Build AIUtilities.framework
         run: |
@@ -60,9 +78,8 @@ jobs:
                      CODE_SIGNING_ALLOWED=NO \
                      build 2>&1 | xcpretty
 
-      # AdiumLibpurple and Adium targets have pre-existing compilation
-      # errors exposed by modern clang (missing function-body braces,
-      # ARC bridged casts). These need a proper code review to fix and
-      # are tracked separately. The universal deps (glib, gettext,
-      # json-glib) above and MMTabBarView below are built so they're
-      # available when those fixes land.
+      # AdiumLibpurple, Purple Service, and Adium targets compile
+      # against the vendored frameworks. Upstream libpurple 2.14.14
+      # is configured with --with-static-prpls=jabber,irc,simple and
+      # --disable-plugins. The universal deps pipeline, MMTabBarView,
+      # and AIUtilities are built first so they are available.
