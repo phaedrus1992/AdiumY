@@ -1,4 +1,4 @@
-LIBRARY_SEARCH_PATHS = $(inherited) $(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)
+LIBRARY_SEARCH_PATHS = $(inherited) $(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1) "$(SRCROOT)/Dependencies/build/lib"
 HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "$(SRCROOT)/Frameworks/libpurple.framework/Headers"
 HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "$(SRCROOT)/Frameworks/glib.framework/Headers"
 HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "$(SRCROOT)/Frameworks/libintl.framework/Headers"
@@ -17,5 +17,6 @@ HEADER_SEARCH_PATHS = $(HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_1) $(HEADER_SEARCH
 INSTALL_PATH = @executable_path/../Frameworks
 FRAMEWORK_VERSION = A
 GCC_PREPROCESSOR_DEFINITIONS = $(value) ENABLE_NLS HAVE_CDSA
-CLANG_ENABLE_OBJC_ARC = YES
-OTHER_CFLAGS = $(inherited) -Wno-arc-performSelector-leaks
+CLANG_ENABLE_OBJC_ARC = NO
+// ponytail: ARC off for now — code needs brace fixes and manual-retain
+// CLANG_ENABLE_OBJC_ARC = YES  // re-enable after ObjC modernization

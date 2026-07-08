@@ -24,13 +24,12 @@ static void adiumPurpleNewXfer(PurpleXfer *xfer)
 
 static void adiumPurpleDestroy(PurpleXfer *xfer)
 {
-    @autoreleasepool {
-	ESFileTransfer *fileTransfer = (__bridge ESFileTransfer *)xfer->ui_data;
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	ESFileTransfer *fileTransfer = (ESFileTransfer *)xfer->ui_data;
 	[accountLookup(xfer->account) destroyFileTransfer:fileTransfer];
-
-	if (xfer->ui_data) (void)CFBridgingRelease(xfer->ui_data);
+	
 	xfer->ui_data = nil;
-    }
+    [pool drain];
 }
 
 static void adiumPurpleAddXfer(PurpleXfer *xfer)
@@ -40,33 +39,33 @@ static void adiumPurpleAddXfer(PurpleXfer *xfer)
 
 static void adiumPurpleUpdateProgress(PurpleXfer *xfer, double percent)
 {	
-    @autoreleasepool {
-	ESFileTransfer *fileTransfer = (__bridge ESFileTransfer *)xfer->ui_data;
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	ESFileTransfer *fileTransfer = (ESFileTransfer *)xfer->ui_data;
 	
 	if (fileTransfer) {
 		[accountLookup(xfer->account) updateProgressForFileTransfer:fileTransfer
 															percent:[NSNumber numberWithDouble:percent]
 														  bytesSent:[NSNumber numberWithUnsignedLong:xfer->bytes_sent]];
 	}
-    }
+    [pool drain];
 }
 
 static void adiumPurpleCancelLocal(PurpleXfer *xfer)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	AILog(@"adiumPurpleCancelLocal");
-	ESFileTransfer *fileTransfer = (__bridge ESFileTransfer *)xfer->ui_data;
+	ESFileTransfer *fileTransfer = (ESFileTransfer *)xfer->ui_data;
     [accountLookup(xfer->account) fileTransferCancelledLocally:fileTransfer];
-    }
+    [pool drain];
 }
 
 static void adiumPurpleCancelRemote(PurpleXfer *xfer)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	AILog(@"adiumPurpleCancelRemote");
-	ESFileTransfer *fileTransfer = (__bridge ESFileTransfer *)xfer->ui_data;
+	ESFileTransfer *fileTransfer = (ESFileTransfer *)xfer->ui_data;
     [accountLookup(xfer->account) fileTransferCancelledRemotely:fileTransfer];
-    }
+    [pool drain];
 }
 
 static PurpleXferUiOps adiumPurpleFileTransferOps = {

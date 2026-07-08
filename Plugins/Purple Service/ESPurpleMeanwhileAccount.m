@@ -90,7 +90,7 @@ extern const char *mwServiceAware_getText(void *, void *);
 
 	if (statusMessageString && [statusMessageString length]) {
 		buddyStatusMessage = [[[NSAttributedString alloc] initWithString:statusMessageString
-														 attributes:nil];
+														 attributes:nil] autorelease];
 	}
 
 	return buddyStatusMessage;

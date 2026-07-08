@@ -309,6 +309,7 @@ static PurpleConversation *fakeConversation(PurpleAccount *account)
 	return self.formattedUID;
 }
 
+
 /*!
  * @brief Re-create the chat's join options.
  */
@@ -367,6 +368,7 @@ BOOL contactUIDIsServerContact(NSString *contactUID)
 {
 	return contactUIDIsServerContact(inContact.UID);
 }
+
 
 /*!
  * @brief Don't log server contacts (services) or FreeNode's stupidity.

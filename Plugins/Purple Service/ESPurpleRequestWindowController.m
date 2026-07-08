@@ -67,7 +67,7 @@
 	//If masked, replace our textField_input with a secure one
 	if ([[infoDict objectForKey:@"Masked"] boolValue]) {
 		NSRect				inputFrame = [textField_input frame];
-		NSSecureTextField	*secureTextField = [[[NSSecureTextField alloc] initWithFrame:inputFrame];
+		NSSecureTextField	*secureTextField = [[[NSSecureTextField alloc] initWithFrame:inputFrame] autorelease];
 		
 		[[textField_input superview] addSubview:secureTextField];
 		[secureTextField setNeedsDisplay:YES];
@@ -158,9 +158,9 @@
 		[textField_input selectText:nil];
 	}
 
-	okayCallbackValue = [[infoDict objectForKey:@"OK Callback"];
-	cancelCallbackValue = [[infoDict objectForKey:@"Cancel Callback"];
-	userDataValue = [[infoDict objectForKey:@"userData"];
+	okayCallbackValue = [[infoDict objectForKey:@"OK Callback"] retain];
+	cancelCallbackValue = [[infoDict objectForKey:@"Cancel Callback"] retain];
+	userDataValue = [[infoDict objectForKey:@"userData"] retain];
 	
 	[self showWindow:nil];
 }
@@ -180,9 +180,9 @@
 	if (sender == button_okay) {
 		[self doRequestInputCbValue:okayCallbackValue
 				  withUserDataValue:userDataValue
-						inputString:[[[textField_input stringValue] copy]];
+						inputString:[[[textField_input stringValue] copy] autorelease]];
 		
-		; cancelCallbackValue = nil;
+		[cancelCallbackValue release]; cancelCallbackValue = nil;
 		[[self window] close];
 		
 	} else if (sender == button_cancel) {
@@ -192,10 +192,11 @@
 
 - (void)dealloc
 {
-	; okayCallbackValue = nil;
-	; cancelCallbackValue = nil;
-	; userDataValue = nil;
-
+	[okayCallbackValue release]; okayCallbackValue = nil;
+	[cancelCallbackValue release]; cancelCallbackValue = nil;
+	[userDataValue release]; userDataValue = nil;
+	
+	[super dealloc];
 }
 
 - (void)doWindowWillClose
@@ -203,7 +204,7 @@
 	if (cancelCallbackValue) {
 		[self doRequestInputCbValue:cancelCallbackValue
 				  withUserDataValue:userDataValue
-						inputString:[[[textField_input stringValue] copy]];
+						inputString:[[[textField_input stringValue] copy] autorelease]];
 	}
 }
 
@@ -246,7 +247,7 @@
 														  table:nil]
 					   forKey:@"Cancel Text"];
 	
-	return translatedDict;
+	return [translatedDict autorelease];
 }
 
 @end

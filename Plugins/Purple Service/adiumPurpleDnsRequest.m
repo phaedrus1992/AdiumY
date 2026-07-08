@@ -60,7 +60,7 @@ static NSMutableDictionary *lookupRequestsByQueryData = nil;
  */
 + (BOOL)performDnsRequestWithData:(PurpleDnsQueryData *)inData resolvedCB:(PurpleDnsQueryResolvedCallback)inResolved failedCB:(PurpleDnsQueryFailedCallback)inFailed
 {
-	return [[[self alloc] initWithData:inData resolvedCB:inResolved failedCB:inFailed] startLookup];
+	return [[[[self alloc] initWithData:inData resolvedCB:inResolved failedCB:inFailed] autorelease] startLookup];
 }
 
 - (id)initWithData:(PurpleDnsQueryData *)data resolvedCB:(PurpleDnsQueryResolvedCallback)resolved failedCB:(PurpleDnsQueryFailedCallback)failed
@@ -77,6 +77,7 @@ static NSMutableDictionary *lookupRequestsByQueryData = nil;
 	[lookupRequestsByQueryData setObject:self forKey:[NSValue valueWithPointer:query_data]];
 
 	//Released in finishDnsRequest
+	[self retain];
 
 	return self;
 }
@@ -85,7 +86,8 @@ static NSMutableDictionary *lookupRequestsByQueryData = nil;
 {
 	if (host)
 		CFRelease(host);
-
+	
+	[super dealloc];
 }
 
 - (PurpleDnsQueryData *)queryData
@@ -100,9 +102,9 @@ static void host_client_cb(CFHostRef theHost, CFHostInfoType typeInfo,
 						   const CFStreamError *streamError,
 						   void *info)
 {
-	@autoreleasepool {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	AdiumPurpleDnsRequest *self = (__bridge AdiumPurpleDnsRequest *)info;
+	AdiumPurpleDnsRequest *self = (AdiumPurpleDnsRequest *)info;
 	if (streamError && (streamError->error != 0)) {
 		[self lookupFailedWithError:streamError];
 
@@ -113,13 +115,14 @@ static void host_client_cb(CFHostRef theHost, CFHostInfoType typeInfo,
 		 CFArrayRef of addresses.  Each address is a CFDataRef wrapping a struct sockaddr. */
 		CFArrayRef addresses = CFHostGetAddressing(theHost, &hasBeenResolved);
 		if (hasBeenResolved) {
-			[self lookupSucceededWithAddresses:(__bridge NSArray *)addresses];
+			[self lookupSucceededWithAddresses:(NSArray *)addresses];
 
 		} else {
 			[self lookupFailedWithError:NULL];
 		}
 	}
-
+	
+	[pool release];
 }
 
 /*!
@@ -212,6 +215,7 @@ static void host_client_cb(CFHostRef theHost, CFHostInfoType typeInfo,
 	return TRUE;
 }
 
+
 /*!
  * @brief Clean up after a DNS request (whether it succeeded or failed)
  *
@@ -231,7 +235,7 @@ static void host_client_cb(CFHostRef theHost, CFHostInfoType typeInfo,
 	}
 
 	//Release our retain in init...
-
+	[self autorelease];
 }
 
 /*!

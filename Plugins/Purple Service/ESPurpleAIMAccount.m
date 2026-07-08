@@ -67,7 +67,8 @@
 - (void)dealloc
 {
 	[adium.preferenceController unregisterPreferenceObserver:self];
-
+	
+	[super dealloc];
 }
 
 #pragma mark Connectivity
@@ -205,5 +206,6 @@
 		[chat addParticipatingListObject:listContact notify:(newArrival && [newArrival boolValue])];
 	}
 }
+
 
 @end

@@ -59,7 +59,7 @@
 		centeredParagraphStyle,NSParagraphStyleAttributeName,nil];
 	
 	[message appendAttributedString:[[[NSAttributedString alloc] initWithString:title
-																	 attributes:titleAttributes]];
+																	 attributes:titleAttributes] autorelease]];
 	
 	//Message
 	NSString		*numberMessage;
@@ -89,7 +89,7 @@
 		centeredParagraphStyle,NSParagraphStyleAttributeName,nil];
 	
 	[message appendAttributedString:[[[NSAttributedString alloc] initWithString:numberMessage
-																	 attributes:numberMessageAttributes]];
+																	 attributes:numberMessageAttributes] autorelease]];
 	
 	if (count == 1) {
 		BOOL	haveFroms    = (froms    != NULL);
@@ -111,9 +111,9 @@
 				NSString	*fromString = [NSString stringWithUTF8String:(*froms)];
 				if (fromString && [fromString length]) {
 					[message appendAttributedString:[[[NSAttributedString alloc] initWithString:AILocalizedString(@"From: ",nil)
-																					 attributes:fieldAttributed]];
+																					 attributes:fieldAttributed] autorelease]];
 					[message appendAttributedString:[[[NSAttributedString alloc] initWithString:fromString
-																					 attributes:infoAttributed]];
+																					 attributes:infoAttributed] autorelease]];
 				}
 			}
 			
@@ -125,10 +125,10 @@
 				NSString	*subjectString = [NSString stringWithUTF8String:(*subjects)];
 				if (subjectString && [subjectString length]) {
 					[message appendAttributedString:[[[NSAttributedString alloc] initWithString:AILocalizedString(@"Subject: ",nil)
-																					 attributes:fieldAttributed]];
+																					 attributes:fieldAttributed] autorelease]];
 					AILog(@"%@: %@ appending %@",self,message,subjectString);
 					[message appendAttributedString:[[[NSAttributedString alloc] initWithString:subjectString
-																					 attributes:infoAttributed]];				
+																					 attributes:infoAttributed] autorelease]];				
 				} else {
 					AILog(@"Got an invalid subjectString from %s",*subjects);
 				}
@@ -150,6 +150,9 @@
 				   withObject:message
 				   withObject:(urlString ? urlString : nil)];
 
+	[centeredParagraphStyle release];
+	[message release];
+	
 	return NULL;
 }
 
@@ -243,7 +246,7 @@
 		 * nor what normally happens when the user opens a .html file since that is, on many systems, an HTML editor.
 		 * Instead, we want to know what application to use for viewing web pages... and then open this file in it.
 		 */
-		err = LSGetApplicationForURL((__bridge CFURLRef)[NSURL URLWithString:@"http://www.adium.im"],
+		err = LSGetApplicationForURL((CFURLRef)[NSURL URLWithString:@"http://www.adium.im"],
 									 kLSRolesViewer,
 									 /*outAppRef*/ NULL,
 									 &appURL);
@@ -282,15 +285,15 @@
 	NSString *appName;
 	FSRef myAppRef;
 	
-	LSGetApplicationForURL((__bridge CFURLRef)[NSURL URLWithString:@"mailto://"], kLSRolesAll, &myAppRef, NULL);
+	LSGetApplicationForURL((CFURLRef)[NSURL URLWithString:@"mailto://"], kLSRolesAll, &myAppRef, NULL);
 	LSCopyDisplayNameForRef(&myAppRef, (CFStringRef *)&appName);
 	
 	NSRange appRange;
 	if ((appRange = [appName rangeOfString:@".app" options:(NSCaseInsensitiveSearch | NSBackwardsSearch | NSAnchoredSearch)]).location != NSNotFound) {
-		appName = [[appName substringToIndex:appRange.location];
+		appName = [[appName substringToIndex:appRange.location] retain];
 	}
 
-	return appName;
+	return [appName autorelease];
 }
 
 @end

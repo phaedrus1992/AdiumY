@@ -22,8 +22,7 @@
 
 static void *adiumPurpleNotifyMessage(PurpleNotifyMsgType type, const char *title, const char *primary, const char *secondary)
 {
-	__block void *res = NULL;
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	AILog(@"adiumPurpleNotifyMessage: type: %i\n%s\n%s\n%s ",
 			   type,
@@ -31,21 +30,20 @@ static void *adiumPurpleNotifyMessage(PurpleNotifyMsgType type, const char *titl
 			   (primary ? primary : ""),
 			   (secondary ? secondary : ""));
 
-	res = ([[SLPurpleCocoaAdapter sharedInstance] handleNotifyMessageOfType:type
+	void *res = ([[SLPurpleCocoaAdapter sharedInstance] handleNotifyMessageOfType:type
                                                                         withTitle:title
                                                                           primary:primary
                                                                         secondary:secondary]);
-    }
+    [pool drain];
     return res;
 }
 
 static void *adiumPurpleNotifyEmails(PurpleConnection *gc, size_t count, gboolean detailed, const char **subjects, const char **froms, const char **tos, const char **urls)
 {
-	__block void *res = NULL;
 	// Don't notify that 0 emails are present.
 	if (!count)
 		return NULL;
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
     //Values passed can be null
 	AIAccount	*account = (PURPLE_CONNECTION_IS_VALID(gc) ?
@@ -59,7 +57,7 @@ static void *adiumPurpleNotifyEmails(PurpleConnection *gc, size_t count, gboolea
 															   froms:froms
 																 tos:tos
 																urls:urls];
-    }
+    [pool drain];
     return res;
 }
 
@@ -76,8 +74,7 @@ static void *adiumPurpleNotifyEmail(PurpleConnection *gc, const char *subject, c
 
 static void *adiumPurpleNotifyFormatted(const char *title, const char *primary, const char *secondary, const char *text)
 {
-	__block void *res = NULL;
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	AILog(@"adiumPurpleNotifyFormatted: %s\n%s\n%s\n%s ",
 			   (title ? title : ""),
@@ -85,11 +82,11 @@ static void *adiumPurpleNotifyFormatted(const char *title, const char *primary, 
 			   (secondary ? secondary : ""),
 			   (text ? text : ""));
 
-	res = ([[SLPurpleCocoaAdapter sharedInstance] handleNotifyFormattedWithTitle:title
+	void * res = ([[SLPurpleCocoaAdapter sharedInstance] handleNotifyFormattedWithTitle:title
                                                                                 primary:primary
                                                                               secondary:secondary
                                                                                    text:text]);	
-    }
+    [pool drain];
     return res;
 }
 
@@ -97,17 +94,16 @@ static void *adiumPurpleNotifySearchResults(PurpleConnection *gc, const char *ti
 										  const char *primary, const char *secondary,
 										  PurpleNotifySearchResults *results, gpointer user_data)
 {
-	__block void *res = NULL;
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	AILog(@"**** returning search results");
 	//This will be released in adiumPurpleNotifyClose()
-	res = (__bridge void *)[[AMPurpleSearchResultsController alloc] initWithPurpleConnection:gc
+	void *res = [[AMPurpleSearchResultsController alloc] initWithPurpleConnection:gc
 																	   title:(title ? [NSString stringWithUTF8String:title] : nil)
 																 primaryText:(primary ? [NSString stringWithUTF8String:primary] : nil)
 															   secondaryText:(secondary ? [NSString stringWithUTF8String:secondary] : nil)
 															   searchResults:results
 																	userData:user_data];
-    }
+    [pool drain];
     return res;
 }
 
@@ -115,17 +111,17 @@ static void adiumPurpleNotifySearchResultsNewRows(PurpleConnection *gc,
 												 PurpleNotifySearchResults *results,
 												 void *data)
 {
-    @autoreleasepool {
-	if([(__bridge id)data isKindOfClass:[AMPurpleSearchResultsController class]]) {
-		[(__bridge AMPurpleSearchResultsController*)data addResults:results];
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	if([(id)data isKindOfClass:[AMPurpleSearchResultsController class]]) {
+		[(AMPurpleSearchResultsController*)data addResults:results];
 	}
-    }
+    [pool drain];
 }
 
 static void *adiumPurpleNotifyUserinfo(PurpleConnection *gc, const char *who,
 									 PurpleNotifyUserInfo *user_info)
 {	
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	if (PURPLE_CONNECTION_IS_VALID(gc)) {
 		PurpleAccount		*account = purple_connection_get_account(gc);
@@ -144,14 +140,14 @@ static void *adiumPurpleNotifyUserinfo(PurpleConnection *gc, const char *who,
 							withData:user_info];
 	}
     
-    }
+    [pool drain];
 	
     return NULL;
 }
 
 static void *adiumPurpleNotifyUri(const char *uri)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	AILogWithSignature(@"Opening URI %s",uri);
 
@@ -172,7 +168,7 @@ static void *adiumPurpleNotifyUri(const char *uri)
 			FSRef appRef;
 			
 			//Open the HTML file with a web browser, not with an HTML editor
-			if (LSGetApplicationForURL((__bridge CFURLRef)[NSURL URLWithString:@"http://google.com"],
+			if (LSGetApplicationForURL((CFURLRef)[NSURL URLWithString:@"http://google.com"],
 									   kLSRolesViewer,
 									   &appRef,
 									   NULL) != kLSApplicationNotFoundErr) {
@@ -196,27 +192,27 @@ static void *adiumPurpleNotifyUri(const char *uri)
 		}
 	}
     
-    }
+    [pool drain];
 	
     return NULL;
 }
 
 static void adiumPurpleNotifyClose(PurpleNotifyType type,void *uiHandle)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-	id ourHandle = (__bridge id)uiHandle;
+	id ourHandle = uiHandle;
 	AILogWithSignature(@"Closing %p (%i)",ourHandle,type);
 
 	if ([ourHandle respondsToSelector:@selector(purpleRequestClose)]) {
 		[ourHandle performSelector:@selector(purpleRequestClose)];
-
+		[ourHandle release];
 	} else if ([ourHandle respondsToSelector:@selector(closeWindow:)]) {
 		[ourHandle performSelector:@selector(closeWindow:)
 						withObject:nil];
 	}
     
-    }
+    [pool drain];
 }
 
 static PurpleNotifyUiOps adiumPurpleNotifyOps = {

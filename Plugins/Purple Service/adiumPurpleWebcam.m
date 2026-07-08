@@ -120,8 +120,8 @@ static void adiumPurpleWebcamFrameFinished(PurpleWebcam *wc, NSUInteger id)
 	
 	
 	
-	//	;
-	; frameData = nil;
+	//	[rep release];
+	[frameData release]; frameData = nil;
 	
 	
 	

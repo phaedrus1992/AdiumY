@@ -32,6 +32,7 @@
 	[popUp_encoding setMenu:[self encodingMenu]];
 }
 
+
 //Configure controls
 - (void)configureForAccount:(AIAccount *)inAccount
 {

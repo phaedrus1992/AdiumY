@@ -68,12 +68,7 @@
 
 	AIPurpleCertificateTrustWarningAlert *alert = [[self alloc] initWithAccount:account hostname:hostname certificates:certs resultCallback:_query_cert_cb userData:ud];
 	[alert showWindow:nil];
-
-	// ponytail: keep alive via static set until callback removes it (not a window controller, no ARC-managed retain)
-	static NSMutableSet *pendingAlerts;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{ pendingAlerts = [NSMutableSet set]; });
-	[pendingAlerts addObject:alert];
+	[alert release];
 }
 
 - (id)initWithAccount:(AIAccount*)_account
@@ -93,12 +88,16 @@
 		
 		userdata = ud;
 	}
-	return self;
+	return [self retain];
 }
 
 - (void)dealloc {
 	CFRelease(certificates);
 	CFRelease(trustRef);
+	
+	[hostname release];
+	
+	[super dealloc];
 }
 
 - (IBAction)showWindow:(id)sender {
@@ -112,7 +111,7 @@
 	err = SecPolicySearchCreate(CSSM_CERT_X_509v3, &CSSMOID_APPLE_TP_SSL, NULL, &searchRef);
 	if(err != noErr) {
 		NSBeep();
-
+		[self release];
 		return;
 	}
 	
@@ -120,7 +119,7 @@
 	if(err != noErr) {
 		CFRelease(searchRef);
 		NSBeep();
-
+		[self release];
 		return;
 	}
 
@@ -147,7 +146,7 @@
 		CFRelease(searchRef);
 		CFRelease(policyRef);
 		NSBeep();
-
+		[self release];
 		return;
 	}
 		
@@ -161,7 +160,7 @@
 			case kSecTrustResultUnspecified: // trust ok, user has no particular opinion about this
 #ifndef ALWAYS_SHOW_TRUST_WARNING
 				query_cert_cb(true, userdata);
-
+				[self autorelease];
 				break;
 #endif
 			case kSecTrustResultConfirm: // trust ok, but user asked (earlier) that you check with him before proceeding
@@ -176,7 +175,7 @@
 				NSWindow *fakeWindow = [[[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, TRUST_PANEL_WIDTH, 1)
 																	styleMask:(NSTitledWindowMask | NSMiniaturizableWindowMask)
 																	  backing:NSBackingStoreBuffered
-																		defer:NO];
+																		defer:NO] autorelease];
 				[fakeWindow center];
 				[fakeWindow setTitle:AILocalizedString(@"Verify Certificate", nil)];
 
@@ -194,12 +193,12 @@
 				 * kSecTrustResultInvalid -> logic error; fix your program (SecTrust was used incorrectly)
 				 */
 				query_cert_cb(false, userdata);
-
+				[self autorelease];
 				break;
 		}
 	} else {
 		query_cert_cb(false, userdata);
-
+		[self autorelease];
 	}
 
 	CFRelease(searchRef);
@@ -244,6 +243,7 @@
 							message:title];
 }
 
+
 - (void)editAccountWindow:(NSWindow *)window didOpenForAccount:(AIAccount *)inAccount
 {
 	[self runTrustPanelOnWindow:window];	
@@ -255,12 +255,11 @@
 
 	query_cert_cb(didTrustCerficate, userdata);
 
-	[parentWindow performClose:nil];
+	[trustpanel release];
 
-	static NSMutableSet *pendingAlerts;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{ pendingAlerts = [NSMutableSet set]; });
-	[pendingAlerts removeObject:self];
+	[parentWindow performClose:nil];
+	
+	[self release];
 }
 
 @end

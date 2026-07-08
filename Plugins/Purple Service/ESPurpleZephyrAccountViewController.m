@@ -103,7 +103,7 @@
     [account setPreference:ray
                     forKey:KEY_ZEPHYR_SERVERS
                      group:GROUP_ACCOUNT_STATUS];
-
+    [ray release];
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
@@ -128,7 +128,7 @@
  * @brief Add a new server to the list of servers.
  */
 - (void)addRowToServerList {
-    NSArray *ray = [[account preferenceForKey:KEY_ZEPHYR_SERVERS group:GROUP_ACCOUNT_STATUS];
+    NSArray *ray = [[account preferenceForKey:KEY_ZEPHYR_SERVERS group:GROUP_ACCOUNT_STATUS] retain];
 
     [account setPreference:[ray arrayByAddingObject:@""]
                     forKey:KEY_ZEPHYR_SERVERS
@@ -138,6 +138,7 @@
     [tableView_servers selectRowIndexes:[NSIndexSet indexSetWithIndex:[ray count]] byExtendingSelection:NO];
     [tableView_servers editColumn:0 row:[ray count] withEvent:nil select:YES];
 
+    [ray release];
 }
 
 /*!
@@ -153,7 +154,7 @@
         [account setPreference:ray
                         forKey:KEY_ZEPHYR_SERVERS
                          group:GROUP_ACCOUNT_STATUS];
-
+        [ray release];
         [tableView_servers reloadData];
     }
 }

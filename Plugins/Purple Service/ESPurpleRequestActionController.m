@@ -54,7 +54,7 @@
 
 		infoDict = [self translatedInfoDict:infoDict];
 
-		theInfoDict = infoDict;
+		theInfoDict = [infoDict retain];
 
 		title = [infoDict objectForKey:@"TitleString"];
 		
@@ -101,7 +101,7 @@
 																						  target:self
 																						userInfo:infoDict];
 		// We retain it once more, as showOnWindow will (eventually) do a release.
-
+		[requestController retain];
 		[requestController showOnWindow:nil];
 		
 		if ([infoDict objectForKey:@"Image"])
@@ -115,7 +115,10 @@
 
 - (void)dealloc
 {
-	requestController = nil;
+	[requestController release]; requestController = nil;
+	[theInfoDict release];
+
+	[super dealloc];
 }
 
 - (BOOL)textAndButtonsWindowDidEnd:(NSWindow *)window returnCode:(AITextAndButtonsReturnCode)returnCode suppression:(BOOL)suppression userInfo:(id)userInfo
@@ -156,7 +159,7 @@
 	}
 	
 	//We won't need to try to close it ourselves later
-	; requestController = nil;
+	[requestController release]; requestController = nil;
 	
 	//Inform libpurple that the request window closed
 	[ESPurpleRequestAdapter requestCloseWithHandle:self];	
@@ -189,7 +192,8 @@
 		[[requestController window] orderOut:self];
 		[requestController close];
 	}
-
+	
+	[self autorelease];
 }
 
 /*!
@@ -262,7 +266,7 @@
 	[translatedDict setObject:buttonNamesArray
 					   forKey:@"Button Names"];
 
-	return translatedDict;
+	return [translatedDict autorelease];
 }
 
 - (NSString *)description

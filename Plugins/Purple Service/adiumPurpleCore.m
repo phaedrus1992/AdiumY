@@ -40,15 +40,16 @@
 #warning This include and the jabber_auth_add_mech() will be part of the FacebookXMPP account's initialization
 #import <libpurple/auth.h>
 
+
 #pragma mark Debug
 // Debug ------------------------------------------------------------------------------------------------------
 static void adiumPurpleDebugPrint(PurpleDebugLevel level, const char *category, const char *debug_msg)
 {
 	//Log error
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	if (!category) category = "general"; //Category can be nil
 	AILog(@"(Libpurple: %s) %s",category, debug_msg);
-    }
+    [pool drain];
 }
 
 static int adiumPurpleDebugIsEnabled(PurpleDebugLevel level, const char *category)
@@ -94,9 +95,9 @@ static void init_all_plugins()
 	//Load each plugin
 	for (id <AILibpurplePlugin>	plugin in [SLPurpleCocoaAdapter libpurplePluginArray]) {
 		if ([plugin respondsToSelector:@selector(installLibpurplePlugin)]) {
-            @autoreleasepool {
+            NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 			[plugin installLibpurplePlugin];
-            }
+            [pool drain];
 		}
 	}
 #ifdef HAVE_CDSA
@@ -115,9 +116,9 @@ static void load_external_plugins(void)
 	//Load each plugin	
 	for (id <AILibpurplePlugin>	plugin in [SLPurpleCocoaAdapter libpurplePluginArray]) {
 		if ([plugin respondsToSelector:@selector(loadLibpurplePlugin)]) {
-            @autoreleasepool {
+            NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 			[plugin loadLibpurplePlugin];
-            }
+            [pool drain];
 		}
 	}	
 }
@@ -154,23 +155,22 @@ void configurePurpleDebugLogging()
 
 static void adiumPurpleCoreDebugInit(void)
 {
-	@autoreleasepool {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	AILogWithSignature(@"");
 	configurePurpleDebugLogging();
-
+	
+	[pool release];
 }
 
-}
 static void associateLibpurpleAccounts(void)
 {
 	for (CBPurpleAccount *adiumAccount in adium.accountController.accounts) {
 		if ([adiumAccount isKindOfClass:[CBPurpleAccount class]]) {
 			PurpleAccount *account = purple_accounts_find(adiumAccount.purpleAccountName, adiumAccount.protocolPlugin);
 			if (account) {
-				if (account->ui_data) (void)CFBridgingRelease(account->ui_data);
-
-				account->ui_data = (__bridge_retained void *)adiumAccount;
+				[(CBPurpleAccount *)account->ui_data autorelease];
+				account->ui_data = [adiumAccount retain];
 
 				[adiumAccount setPurpleAccount:account];				
 			}
@@ -181,7 +181,7 @@ static void associateLibpurpleAccounts(void)
 /* The core is ready... finish configuring libpurple and its plugins */
 static void adiumPurpleCoreUiInit(void)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	bindtextdomain("pidgin", [[[NSBundle bundleWithIdentifier:@"im.pidgin.libpurple"] resourcePath] fileSystemRepresentation]);
 	bind_textdomain_codeset("pidgin", "UTF-8");
@@ -249,7 +249,7 @@ static void adiumPurpleCoreUiInit(void)
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:AILibpurpleDidInitialize
 														object:nil];
-    }
+    [pool drain];
 }
 
 static void adiumPurpleCoreQuit(void)
@@ -260,7 +260,7 @@ static void adiumPurpleCoreQuit(void)
 
 static GHashTable *adiumPurpleCoreGetUiInfo(void)
 {
-	@autoreleasepool {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	static GHashTable *ui_info = NULL;
 	if (!ui_info) {
@@ -289,6 +289,8 @@ static GHashTable *adiumPurpleCoreGetUiInfo(void)
 		 * points, we now use the key used by the offical AIR (Mac/Linux) client. */
 		g_hash_table_insert(ui_info, "prpl-icq-clientkey", "ic1-IIcaJnnNV5xA");
 	}
+	
+	[pool release];
 
 	return ui_info;
 }
@@ -305,7 +307,6 @@ static PurpleCoreUiOps adiumPurpleCoreOps = {
 };
 
 PurpleCoreUiOps *adium_purple_core_get_ops(void)
-}
 {
 	return &adiumPurpleCoreOps;
 }

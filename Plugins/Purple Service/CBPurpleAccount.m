@@ -114,7 +114,7 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 - (SLPurpleCocoaAdapter *)purpleAdapter
 {
 	if (!purpleAdapter) {
-		purpleAdapter = [[SLPurpleCocoaAdapter sharedInstance];	
+		purpleAdapter = [[SLPurpleCocoaAdapter sharedInstance] retain];	
 	}	
 	return purpleAdapter;
 }
@@ -216,6 +216,7 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 - (void)updateContact:(AIListContact *)theContact forEvent:(NSNumber *)event
 {
 }		
+
 
 //Signed online
 - (void)updateSignon:(AIListContact *)theContact withData:(void *)data
@@ -330,6 +331,7 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 	[theContact notifyOfChangedPropertiesSilently:silentAndDelayed];
 }
 
+
 - (void)clearIconForContact:(AIListContact *)theContact
 {
 	[theContact setServersideIconData:nil
@@ -367,7 +369,7 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 {
 	NSMutableString *returnString = nil;
 	if ([inString rangeOfString:@"Purple could not find any information in the user's profile. The user most likely does not exist."].location != NSNotFound) {
-		returnString = [[inString mutableCopy];
+		returnString = [[inString mutableCopy] autorelease];
 		[returnString replaceOccurrencesOfString:@"Purple could not find any information in the user's profile. The user most likely does not exist."
 									  withString:AILocalizedString(@"Adium could not find any information in the user's profile. This may not be a registered name.", "Message shown when a contact's profile can't be found")
 										 options:NSLiteralSearch
@@ -439,7 +441,7 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 																		forKey:KEY_VALUE]];
 						}
 					}
-
+					[value release];
 				}	
 				break;
 			}
@@ -455,7 +457,7 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 		NSString *value = [dict objectForKey:KEY_VALUE];
 		if (value &&
 			[value rangeOfString:webProfileValue options:(NSBackwardsSearch | NSAnchoredSearch | NSLiteralSearch)].location != NSNotFound) {
-			NSMutableString *newValue = [[value mutableCopy];
+			NSMutableString *newValue = [[value mutableCopy] autorelease];
 			[newValue replaceOccurrencesOfString:webProfileValue
 									  withString:[self webProfileStringForContact:contact]
 										 options:(NSBackwardsSearch | NSAnchoredSearch | NSLiteralSearch)];
@@ -463,6 +465,7 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 			NSMutableDictionary *replacementDict = [dict mutableCopy];
 			[replacementDict setObject:newValue forKey:KEY_VALUE];
 			[array replaceObjectAtIndex:i withObject:replacementDict];
+			[replacementDict release];
 
 			/* There will only be 1 (at most) web profile link */
 			break;
@@ -714,7 +717,7 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 - (id)authorizationRequestWithDict:(NSDictionary*)dict
 {
 	// We retain this in case libpurple wants to close the request early. It is freed below.
-	return [[AdiumAuthorization showAuthorizationRequestWithDict:dict forAccount:self];
+	return [[AdiumAuthorization showAuthorizationRequestWithDict:dict forAccount:self] retain];
 }
 
 - (void)authorizationWithDict:(NSDictionary *)infoDict response:(AIAuthorizationResponse)authorizationResponse
@@ -724,10 +727,10 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 
 		switch (authorizationResponse) {
 			case AIAuthorizationAllowed:
-				callback = [[[infoDict objectForKey:@"authorizeCB"];
+				callback = [[[infoDict objectForKey:@"authorizeCB"] retain] autorelease];
 				break;
 			case AIAuthorizationDenied:
-				callback = [[[infoDict objectForKey:@"denyCB"];
+				callback = [[[infoDict objectForKey:@"denyCB"] retain] autorelease];
 				break;
 			case AIAuthorizationNoResponse:
 				callback = nil;
@@ -736,12 +739,12 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 		
 		//libpurple will remove its reference to the handle for this request, which is inDict, in response to this callback invocation
 		if (callback) {
-			[purpleAdapter doAuthRequestCbValue:callback withUserDataValue:[[[infoDict objectForKey:@"userData"]];
+			[purpleAdapter doAuthRequestCbValue:callback withUserDataValue:[[[infoDict objectForKey:@"userData"] retain] autorelease]];
 
 			/* Retained in -[self authorizationRequestWithDict:].  We kept it around before now in case libpurle wanted us to close it early, such as because the
 			 * account disconnected.
 			 */
-
+			[infoDict release];
 		} else {
 			[purpleAdapter closeAuthRequestWithHandle:infoDict];
 			
@@ -902,6 +905,7 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 	}
 }
 
+
 - (void)updateUser:(NSString *)user
 		   forChat:(AIChat *)chat
 			 flags:(PurpleConvChatBuddyFlags)flags 
@@ -1029,10 +1033,11 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
  */
 - (BOOL)rejoinChat:(AIChat *)chat
 {
+	[chat retain];
 
 	PurpleConversation *conv = [[chat identifier] pointerValue];
 	if (conv && conv->ui_data) {
-		(void)CFBridgingRelease(conv->ui_data);
+		[(AIChat *)(conv->ui_data) release];
 		conv->ui_data = NULL;
 	}
 
@@ -1044,6 +1049,8 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 	[chat setValue:[NSNumber numberWithBool:YES] forProperty:@"Rejoining Chat" notify:NotifyNever];
 	
 	[purpleAdapter openChat:chat onAccount:self];
+
+	[chat autorelease];
 
 	//We don't get any immediate feedback as to our success; just return YES.
 	return YES;
@@ -1079,6 +1086,7 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 
 	return chat;
 }
+
 
 - (AIChat *)chatWithName:(NSString *)name identifier:(id)identifier
 {
@@ -1136,6 +1144,7 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 									[topic UTF8String]);
 	}
 }
+
 
 - (void)updateTitle:(NSString *)inTitle forChat:(AIChat *)chat
 {
@@ -1415,6 +1424,7 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
     return [[adium cachesPath] stringByAppendingPathComponent:[filename safeFilenameString]];	
 }
 
+
 - (void)chat:(AIChat *)inChat setCustomEmoticon:(NSString *)emoticonEquivalent withImageData:(NSData *)inImageData
 {
 	/* XXX Note: If we can set outgoing emoticons, this method needs to be updated to mark emoticons as incoming
@@ -1646,7 +1656,7 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 	if (xfer) {
 		//Associate the fileTransfer and the xfer with each other
 		[fileTransfer setAccountData:[NSValue valueWithPointer:xfer]];
-		xfer->ui_data = (__bridge_retained void *)fileTransfer;
+		xfer->ui_data = [fileTransfer retain];
 		
 		//Set the filename
 		purple_xfer_set_local_filename(xfer, [[fileTransfer localFilename] UTF8String]);
@@ -1734,7 +1744,7 @@ AIGroupChatFlags groupChatFlagsFromPurpleConvChatBuddyFlags(PurpleConvChatBuddyF
 - (void)destroyFileTransfer:(ESFileTransfer *)fileTransfer
 {
 	AILog(@"Destroy file transfer %@",fileTransfer);
-
+	[fileTransfer release];
 }
 
 //Accept a send or receive ESFileTransfer object, beginning the transfer.
@@ -1821,6 +1831,7 @@ static void prompt_host_cancel_cb(CBPurpleAccount *self) {
 	[self disconnect];
 }
 
+
 static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 	if(host && *host) {
 		[self setPreference:[NSString stringWithUTF8String:host]
@@ -1847,6 +1858,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 						 self);
 						 
 }
+
 
 - (void)continueConnectWithConfiguredPurpleAccount
 {
@@ -2173,7 +2185,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 	[[NSNotificationCenter defaultCenter] removeObserver:self
 										  name:Adium_iTunesTrackChangedNotification
 										object:nil];
-
+	[tuneinfo release];
 	tuneinfo = nil;
 	
 	if (deletePurpleAccountAfterDisconnecting) {
@@ -2230,7 +2242,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 {
 	//Save the new password
 	if (inPassword && ![password isEqualToString:inPassword]) {
-		; password = inPassword;
+		[password release]; password = [inPassword retain];
 	}
 
 	//Ensure we have a purple account if one does not already exist
@@ -2404,8 +2416,8 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 }
 
 - (void)iTunesDidUpdate:(NSNotification*)notification {
-
-	tuneinfo = [[notification object];
+	[tuneinfo release];
+	tuneinfo = [[notification object] retain];
 
 	/* Only if we're including the information in all statuses do we need to do an update;
 	 * if we just have a 'now playing' status, the dynamic stats update will call
@@ -2459,7 +2471,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 		if ([self shouldAddMusicalNoteToNowPlayingStatus]) {
 #define MUSICAL_NOTE_AND_SPACE [NSString stringWithUTF8String:"\xe2\x99\xab "]
 			NSMutableAttributedString *temporaryStatusMessage;
-			temporaryStatusMessage = [[[NSMutableAttributedString alloc] initWithString:MUSICAL_NOTE_AND_SPACE];
+			temporaryStatusMessage = [[[NSMutableAttributedString alloc] initWithString:MUSICAL_NOTE_AND_SPACE] autorelease];
 			[temporaryStatusMessage appendAttributedString:inStatusMessage];
 
 			inStatusMessage = temporaryStatusMessage;
@@ -2493,7 +2505,8 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 				statusID:statusID
 				isActive:[NSNumber numberWithBool:YES] /* We're only using exclusive states for now... I hope.  */
 			   arguments:arguments];
-
+	
+	[arguments release];
 }
 
 /*!
@@ -2786,12 +2799,12 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 				}
 				
 				[menuItem setSubmenu:submenu];
-
+				[submenu release];
 			}
 		}
 
 		[menuItemArray addObject:menuItem];
-
+		[menuItem release];
 	}
 
 	purple_menu_action_free(act);
@@ -2889,7 +2902,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 						menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:title
 																						 target:self
 																						 action:@selector(performAccountMenuAction:)
-																				  keyEquivalent:@""];
+																				  keyEquivalent:@""] autorelease];
 						dict = [NSDictionary dictionaryWithObjectsAndKeys:
 							[NSValue valueWithPointer:action->callback], @"PurplePluginActionCallback",
 							[NSValue valueWithPointer:action->user_data], @"PurplePluginActionCallbackUserData",
@@ -2926,7 +2939,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 		NSMenuItem *showCertificateMenuItem = [[[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Show Server Certificate",nil)
 																		 target:self
 																		 action:@selector(showServerCertificate) 
-																  keyEquivalent:@""];
+																  keyEquivalent:@""] autorelease];
 		
 		[menuItemArray addObject:showCertificateMenuItem];
 	}
@@ -3073,7 +3086,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 	}
 	
 	//Release dialog as required by AIAccount's documentation since we didn't call super's implementation.
-
+	[dialog release];
 }
 
 - (void)unregisteredAccount:(BOOL)success {
@@ -3121,8 +3134,13 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 }
 
 - (void)dealloc
-{
+{	
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	[permittedContactsArray release];
+	[deniedContactsArray release];
+	
+    [super dealloc];
 }
 
 - (NSString *)unknownGroupName {
@@ -3225,6 +3243,8 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host) {
 			
 			// Don't log the psychic message.
 			newStatusMessage.postProcessContent = NO;
+			
+			[forceString release];
 
 			[adium.contentController receiveContentObject:newStatusMessage];
 		}

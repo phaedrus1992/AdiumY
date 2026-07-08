@@ -50,6 +50,12 @@
 	return [completeUserName UTF8String];
 }
 
+- (void)dealloc {
+	[response release];
+	[conn release];
+	
+	[super dealloc];
+}
 
 - (NSString *)serverSuffix
 {
@@ -176,7 +182,7 @@
 	
 	AILogWithSignature(@"%@", request);
 	
-	conn = [[NSURLConnection connectionWithRequest:request delegate:self];
+	conn = [[NSURLConnection connectionWithRequest:request delegate:self] retain];
 	
 	response = [[NSMutableData alloc] init];
 }
@@ -197,7 +203,7 @@
 	
 	AILogWithSignature(@"%@", request);
 	
-	conn = [[NSURLConnection connectionWithRequest:request delegate:self];
+	conn = [[NSURLConnection connectionWithRequest:request delegate:self] retain];
 	
 	response = [[NSMutableData alloc] init];
 }
@@ -279,11 +285,12 @@
 													   keychainItem:NULL
 															  error:NULL];
 	}
-
-	password = [[responseDict objectForKey:@"access_token"];
 	
-	; conn = nil;
-	; response = nil;
+	[password release];
+	password = [[responseDict objectForKey:@"access_token"] retain];
+	
+	[conn release]; conn = nil;
+	[response release]; response = nil;
 	
 	if (password) {
 		[self setGTalkMechEnabled:YES];

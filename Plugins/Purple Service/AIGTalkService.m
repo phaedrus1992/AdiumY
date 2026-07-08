@@ -34,6 +34,7 @@
 	return [AIPurpleGTalkJoinChatViewController joinChatView];
 }
 
+
 //Service Description
 - (NSString *)serviceCodeUniqueID{
 	return @"libpurple-jabber-gtalk";

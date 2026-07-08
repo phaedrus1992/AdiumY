@@ -37,7 +37,7 @@ static NSImage *det_triangle_closed = nil;
 		//Load the window immediately
 		[self window];
 
-		node = _node;
+		node = [_node retain];
 		[node addDelegate:self];
 		if (![node items])
 			[node fetchItems];
@@ -45,7 +45,8 @@ static NSImage *det_triangle_closed = nil;
 			[node fetchInfo];
         
         [[self window] makeKeyAndOrderFront:nil];
-
+		
+        [self retain];
         [outlineview setTarget:self];
         [outlineview setDoubleAction:@selector(openService:)];
     }
@@ -56,7 +57,8 @@ static NSImage *det_triangle_closed = nil;
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 
-    ;
+	[node release];
+    [super dealloc];
 }
 
 - (NSString *)adiumFrameAutosaveName
@@ -145,7 +147,7 @@ static NSImage *det_triangle_closed = nil;
 		NSArray *commands = [(AMPurpleJabberNode*)item commands];
 		
 		if (commands) {
-			menu = [[[NSMenu alloc] initWithTitle:@""];
+			menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
 			AMPurpleJabberNode *command;
 			
 			for (command in commands) {
@@ -155,7 +157,7 @@ static NSImage *det_triangle_closed = nil;
 				[mitem setTarget:self];
 				[mitem setRepresentedObject:command];
 				[menu addItem:mitem];
-
+				[mitem release];
 			}
 		}
 	}
@@ -164,7 +166,7 @@ static NSImage *det_triangle_closed = nil;
 }
 
 - (IBAction)changeServiceName:(id)sender {
-
+	[node release];
 	node = [[AMPurpleJabberNode alloc] initWithJID:[servicename stringValue] node:([[nodename stringValue] length]>0)?[nodename stringValue]:nil name:nil connection:gc];
 	[node addDelegate:self];
 	[node fetchInfo];
@@ -173,7 +175,8 @@ static NSImage *det_triangle_closed = nil;
 
 - (void)windowWillClose:(NSNotification *)notification
 {
-
+    [self release];
+	
 	[super windowWillClose:notification];
 }
 
@@ -239,32 +242,32 @@ static NSImage *det_triangle_closed = nil;
     NSString *identifier = [tableColumn identifier];
     
 	if ([identifier isEqualToString:@"jid"])
-		return [[[NSAttributedString alloc] initWithString:[item jid] attributes:style];
+		return [[[NSAttributedString alloc] initWithString:[item jid] attributes:style] autorelease];
 	else if ([identifier isEqualToString:@"name"]) {
 		if ([item node]) {
 			if ([item name])
-				return [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@ (%@)",[item name],[item node]] attributes:style];
-			return [[[NSAttributedString alloc] initWithString:[item node] attributes:style];
+				return [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@ (%@)",[item name],[item node]] attributes:style] autorelease];
+			return [[[NSAttributedString alloc] initWithString:[item node] attributes:style] autorelease];
 		}
 		if ([item node])
-			return [[[NSAttributedString alloc] initWithString:[item name] attributes:style];
+			return [[[NSAttributedString alloc] initWithString:[item name] attributes:style] autorelease];
 		// try to guess a name when there's none supplied
 		NSRange slashsign = [[item jid] rangeOfString:@"/"];
 		if (slashsign.location != NSNotFound)
-			return [[[NSAttributedString alloc] initWithString:[[item jid] substringFromIndex:slashsign.location+1] attributes:style];
+			return [[[NSAttributedString alloc] initWithString:[[item jid] substringFromIndex:slashsign.location+1] attributes:style] autorelease];
 		NSRange atsign = [[item jid] rangeOfString:@"@"];
 		if (atsign.location != NSNotFound)
-			return [[[NSAttributedString alloc] initWithString:[[item jid] substringToIndex:atsign.location] attributes:style];
+			return [[[NSAttributedString alloc] initWithString:[[item jid] substringToIndex:atsign.location] attributes:style] autorelease];
 		if ([[item identities] count] > 0) {
 			NSDictionary *identity = [[item identities] objectAtIndex:0];
 			id name = [identity objectForKey:@"name"];
 			if (name != [NSNull null] && [name length] > 0)
-				return [[[NSAttributedString alloc] initWithString:[identity objectForKey:@"name"] attributes:style];
+				return [[[NSAttributedString alloc] initWithString:[identity objectForKey:@"name"] attributes:style] autorelease];
 		}
-		return [[[NSAttributedString alloc] initWithString:AILocalizedString(@"(unknown)",nil) attributes:style];
+		return [[[NSAttributedString alloc] initWithString:AILocalizedString(@"(unknown)",nil) attributes:style] autorelease];
 	} else if ([identifier isEqualToString:@"category"]) {
 		if (![item identities])
-			[[[NSAttributedString alloc] initWithString:AILocalizedString(@"Fetching...",nil) attributes:style];
+			[[[NSAttributedString alloc] initWithString:AILocalizedString(@"Fetching...",nil) attributes:style] autorelease];
 		
 		NSMutableArray *identities = [[NSMutableArray alloc] init];
 		
@@ -274,8 +277,9 @@ static NSImage *det_triangle_closed = nil;
 			[identities addObject:[NSString stringWithFormat:@"%@ (%@)",[identity objectForKey:@"category"],[identity objectForKey:@"type"]]];
 		
 		NSString *result = [identities componentsJoinedByString:@", "];
-
-		return [[[NSAttributedString alloc] initWithString:result attributes:style];
+		
+		[identities release];
+		return [[[NSAttributedString alloc] initWithString:result attributes:style] autorelease];
 	} else
         return @"???";
 }
@@ -327,8 +331,8 @@ static NSImage *det_triangle_closed = nil;
 		[[NSAffineTransform transform] set];
 		[img unlockFocus];
 		[cell setImage:img];
-
-		NSInvocation *inv = [[NSInvocation invocationWithMethodSignature:[outlineView methodSignatureForSelector:@selector(setNeedsDisplayInRect:)]];
+		[img release];
+		NSInvocation *inv = [[NSInvocation invocationWithMethodSignature:[outlineView methodSignatureForSelector:@selector(setNeedsDisplayInRect:)]] retain];
 		[inv setSelector:@selector(setNeedsDisplayInRect:)];
 		NSRect rect = [outlineView rectOfRow:[outlineView rowForItem:item]];
 		[inv setArgument:&rect atIndex:2];
@@ -346,7 +350,8 @@ static NSImage *det_triangle_closed = nil;
 				[det_triangle_opened lockFocus];
 				[triangleCell drawWithFrame:NSMakeRect(0.0f,0.0f,13.0f,13.0f) inView:outlineView];
 				[det_triangle_opened unlockFocus];
-
+				
+				[triangleCell release];
 			}
 
 			[cell setImage:det_triangle_opened];
@@ -361,7 +366,8 @@ static NSImage *det_triangle_closed = nil;
 				[det_triangle_closed lockFocus];
 				[triangleCell drawWithFrame:NSMakeRect(0.0f,0.0f,13.0f,13.0f) inView:outlineView];
 				[det_triangle_closed unlockFocus];
-
+				
+				[triangleCell release];
 			}
 			
 			[cell setImage:det_triangle_closed];

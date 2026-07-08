@@ -29,7 +29,7 @@
 #pragma mark Conversations
 static void adiumPurpleConvCreate(PurpleConversation *conv)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	//Pass chats along to the account
 	if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_CHAT) {
@@ -38,17 +38,17 @@ static void adiumPurpleConvCreate(PurpleConversation *conv)
 		
 		[accountLookup(purple_conversation_get_account(conv)) addChat:chat];
 	}
-    }
+    [pool drain];
 }
 
 static void adiumPurpleConvDestroy(PurpleConversation *conv)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	/* Purple is telling us a conv was destroyed.  We've probably already cleaned up, but be sure in case purple calls this
 	 * when we don't ask it to (for example if we are summarily kicked from a chat room and purple closes the 'window').
 	 */
-	AIChat *chat = (__bridge AIChat *)conv->ui_data;
+	AIChat *chat = (AIChat *)conv->ui_data;
 
 	AILogWithSignature(@"%p: %@", conv, chat);
 
@@ -57,18 +57,17 @@ static void adiumPurpleConvDestroy(PurpleConversation *conv)
 		[accountLookup(purple_conversation_get_account(conv)) chatWasDestroyed:chat];
 
 		[chat setIdentifier:nil];
-
-		if (conv->ui_data) (void)CFBridgingRelease(conv->ui_data);
+		[chat release];
 		conv->ui_data = nil;
 	}
-    }
+    [pool drain];
 }
 
 static void adiumPurpleConvWriteChat(PurpleConversation *conv, const char *who,
 								   const char *message, PurpleMessageFlags flags,
 								   time_t mtime)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 		NSDictionary	*messageDict;
 		NSString		*messageString;
@@ -113,14 +112,14 @@ static void adiumPurpleConvWriteChat(PurpleConversation *conv, const char *who,
 
 			[accountLookup(purple_conversation_get_account(conv)) receivedMultiChatMessage:messageDict inChat:groupChatLookupFromConv(conv)];
 		}
-    }
+    [pool drain];
 }
 
 static void adiumPurpleConvWriteIm(PurpleConversation *conv, const char *who,
 								 const char *message, PurpleMessageFlags flags,
 								 time_t mtime)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	//We only care about this if it does not have the PURPLE_MESSAGE_SEND flag, which is set if Purple is sending a sent message back to us
 	if ((flags & PURPLE_MESSAGE_SEND) == 0) {
@@ -165,20 +164,20 @@ static void adiumPurpleConvWriteIm(PurpleConversation *conv, const char *who,
 										 inChat:chat];
 		}
 	}
-    }
+    [pool drain];
 }
 
 static void adiumPurpleConvWriteConv(PurpleConversation *conv, const char *who, const char *alias,
 								   const char *message, PurpleMessageFlags flags,
 								   time_t mtime)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	AILog(@"adiumPurpleConvWriteConv: Received %s from %s [%i]",message,who,flags);
 	AIChat	*chat = chatLookupFromConv(conv);
 
 	if (!chat) {
-        }
+        [pool drain];
 		return;
 	}
 	
@@ -186,7 +185,7 @@ static void adiumPurpleConvWriteConv(PurpleConversation *conv, const char *who, 
 	
 	if (!messageString) {
 		AILogWithSignature(@"Received write without message: %@ %d", chat, flags);
-        }
+        [pool drain];
 		return;
 	}
 	
@@ -194,7 +193,7 @@ static void adiumPurpleConvWriteConv(PurpleConversation *conv, const char *who, 
 		if ([messageString rangeOfString:@"User information not available"].location != NSNotFound) {
 			//Ignore user information errors; they are irrelevent
 			//XXX The user info check only works in English; libpurple should be modified to be better about this useless information spamming
-            }
+            [pool drain];
 			return;
 		}
 		
@@ -288,7 +287,7 @@ static void adiumPurpleConvWriteConv(PurpleConversation *conv, const char *who, 
 						  afterDelay:0];
 		}
 	}
-    }
+    [pool drain];
 }
 
 NSString *get_real_name_for_account_conv_buddy(PurpleAccount *account, PurpleConversation *conv, char *who)
@@ -325,7 +324,7 @@ NSString *get_real_name_for_account_conv_buddy(PurpleAccount *account, PurpleCon
 
 static void adiumPurpleConvChatAddUsers(PurpleConversation *conv, GList *cbuddies, gboolean new_arrivals)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_CHAT) {
 		PurpleAccount *account = purple_conversation_get_account(conv);
 
@@ -348,13 +347,13 @@ static void adiumPurpleConvChatAddUsers(PurpleConversation *conv, GList *cbuddie
 										   newlyAdded:new_arrivals];
 	} else
 		AILog(@"adiumPurpleConvChatAddUsers: IM");
-    }
+    [pool drain];
 }
 
 static void adiumPurpleConvChatRenameUser(PurpleConversation *conv, const char *oldName,
 										const char *newName, const char *newAlias)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	AILog(@"adiumPurpleConvChatRenameUser: %s: oldName %s, newName %s, newAlias %s",
 			   purple_conversation_get_name(conv),
 			   oldName, newName, newAlias);
@@ -373,12 +372,12 @@ static void adiumPurpleConvChatRenameUser(PurpleConversation *conv, const char *
 																		  flags:cb->flags
 																		 inChat:groupChatLookupFromConv(conv)];
 	}
-    }
+    [pool drain];
 }
 
 static void adiumPurpleConvChatRemoveUsers(PurpleConversation *conv, GList *users)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_CHAT) {
 		NSMutableArray	*usersArray = [NSMutableArray array];
 		PurpleAccount	*account = purple_conversation_get_account(conv);
@@ -395,12 +394,12 @@ static void adiumPurpleConvChatRemoveUsers(PurpleConversation *conv, GList *user
 	} else {
 		AILog(@"adiumPurpleConvChatRemoveUser: IM");
 	}
-    }
+    [pool drain];
 }
 
 static void adiumPurpleConvUpdateUser(PurpleConversation *conv, const char *user)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	PurpleAccount *account = purple_conversation_get_account(conv);
 	CBPurpleAccount *adiumAccount = accountLookup(account);
 	
@@ -425,7 +424,7 @@ static void adiumPurpleConvUpdateUser(PurpleConversation *conv, const char *user
 					   flags:cb->flags
 					   alias:name
 				  attributes:attributes];
-    }
+    [pool drain];
 }
 
 static void adiumPurpleConvPresent(PurpleConversation *conv)
@@ -441,7 +440,7 @@ static gboolean adiumPurpleConvHasFocus(PurpleConversation *conv)
 
 static void adiumPurpleConvUpdated(PurpleConversation *conv, PurpleConvUpdateType type)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 	if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_CHAT) {
 		PurpleConvChat  *chat = purple_conversation_get_chat_data(conv);
@@ -531,17 +530,17 @@ static void adiumPurpleConvUpdated(PurpleConversation *conv, PurpleConvUpdateTyp
 				break;
 		}
 	}
-    }
+    [pool drain];
 }
 
 #pragma mark Custom smileys
 static gboolean adiumPurpleConvCustomSmileyAdd(PurpleConversation *conv, const char *smile, gboolean remote)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	AILog(@"%s: Added Custom Smiley %s",purple_conversation_get_name(conv),smile);
 	[accountLookup(purple_conversation_get_account(conv)) chat:chatLookupFromConv(conv)
 			 isWaitingOnCustomEmoticon:[NSString stringWithUTF8String:smile]];
-    }
+    [pool drain];
 
 	return TRUE;
 }
@@ -549,34 +548,33 @@ static gboolean adiumPurpleConvCustomSmileyAdd(PurpleConversation *conv, const c
 static void adiumPurpleConvCustomSmileyWrite(PurpleConversation *conv, const char *smile,
 									const guchar *data, gsize size)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	AILog(@"%s: Write Custom Smiley %s (%p %lu)",purple_conversation_get_name(conv),smile,data,size);
 
 	[accountLookup(purple_conversation_get_account(conv)) chat:chatLookupFromConv(conv)
 					 setCustomEmoticon:[NSString stringWithUTF8String:smile]
 						 withImageData:[NSData dataWithBytes:data
 													  length:size]];
-    }
+    [pool drain];
 }
 
 static void adiumPurpleConvCustomSmileyClose(PurpleConversation *conv, const char *smile)
 {
-    @autoreleasepool {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	AILog(@"%s: Close Custom Smiley %s",purple_conversation_get_name(conv),smile);
 
 	[accountLookup(purple_conversation_get_account(conv)) chat:chatLookupFromConv(conv)
 				  closedCustomEmoticon:[NSString stringWithUTF8String:smile]];
-    }
+    [pool drain];
 }
 
 static gboolean adiumPurpleConvJoin(PurpleConversation *conv, const char *name,
 									PurpleConvChatBuddyFlags flags,
 									GHashTable *users)
 {
-	__block AIChat *chat;
-    @autoreleasepool {
-	chat = groupChatLookupFromConv(conv);
-    }
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	AIChat *chat = groupChatLookupFromConv(conv);
+    [pool drain];
 	// We return TRUE if we want to hide it.
 	return !chat.showJoinLeave;
 }
@@ -584,10 +582,9 @@ static gboolean adiumPurpleConvJoin(PurpleConversation *conv, const char *name,
 static gboolean adiumPurpleConvLeave(PurpleConversation *conv, const char *name,
 									 const char *reason, GHashTable *users)
 {
-	__block AIChat *chat;
-    @autoreleasepool {
-	chat = groupChatLookupFromConv(conv);
-    }
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	AIChat *chat = groupChatLookupFromConv(conv);
+    [pool drain];
 	
 	// We return TRUE if we want to hide it.
 	return !chat.showJoinLeave;	

@@ -44,10 +44,10 @@ static inline CFMutableDictionaryRef sourceInfoDict() {
 }
 
 static inline dispatch_source_t sourceForTag(unsigned long tag) {
-    return (__bridge dispatch_source_t)CFDictionaryGetValue(sourceInfoDict(), (void *)tag);
+    return (dispatch_source_t)CFDictionaryGetValue(sourceInfoDict(), (void *)tag);
 }
 static inline void setSourceForTag(dispatch_source_t source, unsigned long tag) {
-    CFDictionarySetValue(sourceInfoDict(), (void *)tag, (__bridge const void *)source);
+    CFDictionarySetValue(sourceInfoDict(), (void *)tag, source);
 }
 static inline void removeSourceForTag(unsigned long tag) {
     CFDictionaryRemoveValue(sourceInfoDict(), (void *)tag);
@@ -67,7 +67,7 @@ gboolean adium_source_remove(guint tag) {
 	
     removeSourceForTag(tag);
 
-	// ARC: release not needed
+	dispatch_release(src);
 	
 	return success;
 }
@@ -94,7 +94,7 @@ guint addTimer(uint64_t interval, uint64_t leeway, GSourceFunc function, gpointe
     setSourceForTag(src, tag);
 	
     dispatch_source_set_event_handler(src, ^{
-        @autoreleasepool {
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
 		if (sourceForTag(tag)) {
             if (!function || !function(data)) {
@@ -104,7 +104,7 @@ guint addTimer(uint64_t interval, uint64_t leeway, GSourceFunc function, gpointe
 			AILogWithSignature(@"Timer with tag %i was already canceled!", tag);
 		}
   
-        }
+        [pool drain];
     });
 	
     dispatch_resume(src);
@@ -147,9 +147,9 @@ guint adium_input_add(gint fd, PurpleInputCondition condition,
     src = dispatch_source_create(type, fd, 0, dispatch_get_main_queue());
 	
     dispatch_source_set_event_handler(src, ^{
-        @autoreleasepool {
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
         if (func) func(user_data, fd, condition);
-        }
+        [pool drain];
     });
 		
     setSourceForTag(src, tag);
