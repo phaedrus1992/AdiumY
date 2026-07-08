@@ -57,6 +57,12 @@ set_build_env() {
         export SANDBOX="$SANDBOX_ARM64"
     fi
 
+    # Meson places LDFLAGS before dependency -l flags but cross-file c_link_args
+    # after them. Add -L paths here so meson (and autotools) can find libraries
+    # in build- and sandbox-dir lib/ when a dependency like intl provides only
+    # a bare -lintl flag without a search path.
+    export LDFLAGS="$LDFLAGS -L$BUILD_DIR/lib -L$SANDBOX/lib"
+
     export PKG_CONFIG_PATH="$BUILD_DIR/lib/pkgconfig"
     export PATH="$BUILD_DIR/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 }
