@@ -34,8 +34,9 @@ jobs:
 
       - name: Copy MMTabBarView.framework
         run: |
-          cp -R "$(find ~/Library/Developer/Xcode/DerivedData/MMTabBarView-*/Build/Products/Release -name 'MMTabBarView.framework' -type d | head -1)" \
-            Frameworks/MMTabBarView.framework
+          SRC="$(find ~/Library/Developer/Xcode/DerivedData/MMTabBarView-*/Build/Products/Release -name 'MMTabBarView.framework' -type d | head -1)"
+          if [ -z "$SRC" ]; then echo "ERROR: MMTabBarView.framework not found in DerivedData"; exit 1; fi
+          cp -R "$SRC" Frameworks/MMTabBarView.framework
 
       - name: Install build tools
         run: brew install meson ninja pkg-config intltool || true
