@@ -8,7 +8,6 @@ syntax: glob
 *.xcuserdatad
 build
 Icon*
-Docs
 Dependencies/build
 Dependencies/source
 Dependencies/Frameworks
