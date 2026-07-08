@@ -184,33 +184,20 @@ PLIST
 # ---- Rewrite inter-framework dependency links ----
 # Scans all framework binaries and rewrites SANDBOX/BUILD_DIR paths to
 # @executable_path/../Frameworks/<dep>.framework/Versions/A/<dep>
+# NOTE: macOS ships bash 3.2 (no declare -A), so this uses indexed arrays.
 rewrite_dependency_links() {
     local frameworks_dir="$1"
 
     echo "--- Rewriting dependency links ---"
 
-    # Build a map of known framework names
-    declare -A FW_MAP
+    # Collect framework names (indexed array, bash 3.2 compatible).
+    # Substring match in the lookup loop handles dylib aliases natively
+    # (e.g. "glib" matches "libglib-2.0"), no explicit alias map needed.
+    local fw_names=()
+    local fw fw_name
     for fw in "$frameworks_dir"/*.framework; do
-        local name
-        name="$(basename "$fw" .framework)"
-        FW_MAP["$name"]=1
-        # Also map common dylib names to frameworks
-        case "$name" in
-            glib)    FW_MAP["libglib-2.0"]=1 ;;
-            libgthread) FW_MAP["libgthread-2.0"]=1 ;;
-            libgmodule) FW_MAP["libgmodule-2.0"]=1 ;;
-            libgobject) FW_MAP["libgobject-2.0"]=1 ;;
-            libgio)   FW_MAP["libgio-2.0"]=1 ;;
-            libintl)  FW_MAP["libintl"]=1 ;;
-            libffi)   FW_MAP["libffi"]=1 ;;
-            libpcre2-8) FW_MAP["libpcre2-8"]=1 ;;
-            libxml2)  FW_MAP["libxml2"]=1 ;;
-            libgpg-error) FW_MAP["libgpg-error"]=1 ;;
-            libgcrypt) FW_MAP["libgcrypt"]=1 ;;
-            libotr)   FW_MAP["libotr"]=1 ;;
-            libpurple) FW_MAP["libpurple"]=1 ;;
-        esac
+        fw_name="$(basename "$fw" .framework)"
+        fw_names+=("$fw_name")
     done
 
     for fw in "$frameworks_dir"/*.framework; do
@@ -231,7 +218,8 @@ rewrite_dependency_links() {
             if [ -z "$dep_path" ]; then continue; fi
 
             # Check if this path matches a known framework
-            for fw_name in "${!FW_MAP[@]}"; do
+            local fw_name
+            for fw_name in "${fw_names[@]}"; do
                 if echo "$dep_path" | grep -q "$fw_name"; then
                     local new_path="@executable_path/../Frameworks/$fw_name.framework/Versions/A/$fw_name"
                     if [ "$dep_path" != "$new_path" ]; then
