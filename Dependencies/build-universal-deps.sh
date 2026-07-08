@@ -39,6 +39,7 @@ source "$ROOTDIR/build-phases/build-glib.sh"
 source "$ROOTDIR/build-phases/build-libxml2.sh"
 source "$ROOTDIR/build-phases/build-gpg-error.sh"
 source "$ROOTDIR/build-phases/build-gcrypt.sh"
+source "$ROOTDIR/build-phases/build-libotr.sh"
 
 # More phases will be added here as they're implemented
 
@@ -71,6 +72,7 @@ run_phase glib build_glib_phase
 run_phase libxml2 build_libxml2_phase
 run_phase gpg-error build_gpg_error_phase
 run_phase gcrypt build_gcrypt_phase
+run_phase libotr build_libotr_phase
 
 # ---- Rewrite dependency links ----
 echo ""
