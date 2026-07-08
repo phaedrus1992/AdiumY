@@ -22,19 +22,71 @@ build_glib() {
 
     # Need pkg-config in PATH; look at vendored sandbox deps first (libffi, pcre2)
     export PATH="$BUILD_DIR/bin:$PATH"
-    export PKG_CONFIG_PATH="$SANDBOX/lib/pkgconfig:$BUILD_DIR/lib/pkgconfig"
+    # For meson cross-compilation: PKG_CONFIG_PATH is not inherited by the
+    # cross pkg-config. Use PKG_CONFIG_LIBDIR to point meson's pkg-config
+    # directly at our build dir. Generate .pc files for deps here in case
+    # they were never populated (e.g. --only=glib was used).
+    mkdir -p "$BUILD_DIR/lib/pkgconfig"
+    if [ ! -f "$BUILD_DIR/lib/pkgconfig/libffi.pc" ]; then
+        cat > "$BUILD_DIR/lib/pkgconfig/libffi.pc" <<PCEOF
+prefix=$BUILD_DIR
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+
+Name: libffi
+Description: Foreign Function Interface
+Version: 3.6.0
+Libs: -L\${libdir} -lffi
+Cflags: -I\${includedir}
+PCEOF
+    fi
+    if [ ! -f "$BUILD_DIR/lib/pkgconfig/libpcre2-8.pc" ]; then
+        cat > "$BUILD_DIR/lib/pkgconfig/libpcre2-8.pc" <<PCEOF
+prefix=$BUILD_DIR
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+
+Name: libpcre2-8
+Description: PCRE2 - Perl compatible regular expressions
+Version: 10.47
+Libs: -L\${libdir} -lpcre2-8
+Cflags: -I\${includedir}
+PCEOF
+    fi
+    export PKG_CONFIG_LIBDIR="$BUILD_DIR/lib/pkgconfig"
+
+    # Build deps into the sandbox first (needed for --only=glib).
+    # Use subshells so they do not cd away from glib source dir.
+    (build_gettext)
+    (build_pcre2)
+    (build_libffi)
+
+    # meson's built-in dependency detectors (like 'intl') only inherit
+    # flags from the cross file's c_args/c_link_args/cpp_args/cpp_link_args,
+    # not from env vars. Detection tests may use C or C++ compiler. Generate
+    # a temporary cross file with build dir in all four arg arrays.
+    local cross_final="$ROOTDIR/.cache/meson-cross-$ARCH.ini"
+    mkdir -p "$ROOTDIR/.cache"
+    sed -e "s|c_args = \[|c_args = ['-I${BUILD_DIR}/include', '-I${SANDBOX}/include', |" \
+        -e "s|c_link_args = \[|c_link_args = ['-L${BUILD_DIR}/lib', '-L${SANDBOX}/lib', |" \
+        -e "s|cpp_args = \[|cpp_args = ['-I${BUILD_DIR}/include', '-I${SANDBOX}/include', |" \
+        -e "s|cpp_link_args = \[|cpp_link_args = ['-L${BUILD_DIR}/lib', '-L${SANDBOX}/lib', |" \
+        "$ROOTDIR/meson-cross-$ARCH.ini" > "$cross_final"
 
     meson setup _build \
-        $cross_arg \
+        --cross-file "$cross_final" \
         --prefix="$SANDBOX" --libdir=lib \
         -Dman-pages=disabled -Ddocumentation=false \
         -Dinstalled_tests=false -Dtests=false \
-        -Dintrospection=false \
+        -Dintrospection=disabled \
         -Dselinux=disabled -Dxattr=false \
         -Dlibelf=disabled -Ddtrace=false \
         -Dsystemtap=false \
         -Dnls=disabled \
         -Dforce_posix_threads=true \
+        -Diconv=libc \
         --wrap-mode=nofallback
 
     ninja -C _build -j"$NUM_JOBS"

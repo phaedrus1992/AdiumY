@@ -76,7 +76,7 @@ build_for_archs() {
         set_build_env "$arch"
         rm -rf "$SANDBOX"
         mkdir -p "$SANDBOX"
-        (cd "$SANDBOX" && "$build_fn")
+        (cd "$SANDBOX" && "$build_fn") || { echo "  ERROR: $build_fn failed for $arch" >&2; return 1; }
         echo "--- $arch build complete ---"
     done
 
