@@ -3784,19 +3784,6 @@
 			<key>sourceTree</key>
 			<string>BUILT_PRODUCTS_DIR</string>
 		</dict>
-		<key>312ED3CB0C7E875B00A6BDA9</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>text.plist.xml</string>
-			<key>name</key>
-			<string>UnitTests-Info.plist</string>
-			<key>path</key>
-			<string>Plists/UnitTests-Info.plist</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
 		<key>312ED3CC0C7E875C00A6BDA9</key>
 		<dict>
 			<key>buildConfigurations</key>
@@ -3886,7 +3873,6 @@
 			<key>children</key>
 			<array>
 				<string>312ED3E30C7E8A4A00A6BDA9</string>
-				<string>312ED3CB0C7E875B00A6BDA9</string>
 				<string>31E84DF10C7F387800674BCA</string>
 				<string>3107D5230F63134F0051DDD5</string>
 				<string>3107D5240F63134F0051DDD5</string>
@@ -41042,7 +41028,6 @@
 				<string>633D50ED0F9D31BD004F491E</string>
 				<string>633D50EF0F9D31BD004F491E</string>
 				<string>633D4FC00F9D3116004F491E</string>
-				<string>633D4FC10F9D3116004F491E</string>
 			</array>
 			<key>isa</key>
 			<string>PBXGroup</string>
@@ -41063,21 +41048,6 @@
 			<string>schema.xml</string>
 			<key>path</key>
 			<string>Other/Adium Spotlight Importer/schema.xml</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>633D4FC10F9D3116004F491E</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>text.plist.xml</string>
-			<key>name</key>
-			<string>Info.plist</string>
-			<key>path</key>
-			<string>Other/Adium Spotlight Importer/Info.plist</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
