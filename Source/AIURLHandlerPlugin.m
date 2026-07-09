@@ -181,14 +181,13 @@
  * @brief Helper schemes
  *
  * Helper schemes are schemes which we should always be registered as the default application
- * for. This includes things like the adiumxtra:// installer, and twitterreply:// for the Twitter
- * service.
+ * for. This includes things like the adiumxtra:// installer.
  *
  * @returns An NSArray of all of the helper schemes we support.
  */
 - (NSArray *)helperSchemes
 {
-	return [NSArray arrayWithObjects:@"twitterreply", @"adiumxtra", nil];
+	return [NSArray arrayWithObjects:@"adiumxtra", nil];
 }
 
 #pragma mark Default Bundle

@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 - Dead protocol services: AIM/ICQ/OSCAR, MobileMe/.Mac, GTalk, LiveJournal,
   Gadu-Gadu, Novell/GroupWise, Sametime/Meanwhile, Zephyr
+- Twitter Plugin (targets long-dead REST API v1.0, bundled STTwitter abandoned)
+- Image Uploading Plugin (ImageShack/Imgur anonymous APIs, targets dead services)
+- Video Chat Interface + Purple Service video/webcam glue (GStreamer/farstream
+  scaffolding that never worked on macOS)
 - libmeanwhile.framework and json-glib dependencies from build
 
 ### Changed
