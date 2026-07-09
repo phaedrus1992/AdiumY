@@ -191,12 +191,8 @@ struct purple_webcam_ui_ops *adium_purple_webcam_get_ui_ops(void)
 	return &adiumPurpleWebcamOps;
 }
 
-gboolean purple_init_j2k_plugin(void);
 void initPurpleWebcamSupport(void)
 {
-	//Init the plugin
-	purple_init_j2k_plugin();
-	
 	//Set the UI Ops
 	purple_webcam_set_ui_ops(adium_purple_webcam_get_ui_ops());
 }

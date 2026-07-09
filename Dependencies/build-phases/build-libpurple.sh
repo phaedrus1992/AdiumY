@@ -65,6 +65,7 @@ build_libpurple_phase() {
     cp "$src/internal.h" "$src/cmds.h" "$hdr/"
     cp "$src/protocols/jabber/auth.h" "$src/protocols/jabber/bosh.h" \
        "$src/protocols/jabber/buddy.h" "$src/protocols/jabber/caps.h" \
+       "$src/protocols/jabber/chat.h" \
        "$src/protocols/jabber/jutil.h" "$src/protocols/jabber/presence.h" \
        "$src/protocols/jabber/si.h" "$src/protocols/jabber/jabber.h" \
        "$src/protocols/jabber/iq.h" "$src/protocols/jabber/namespaces.h" \
