@@ -39,23 +39,9 @@
 										  forGroup:GROUP_ACCOUNT_STATUS];
 	
     //Install the services
-	[ESAIMService registerService];
-	[ESDotMacService registerService];
-	[AIMobileMeService registerService];
-	[ESICQService registerService];
-	[ESGaduGaduService registerService];
-	[AIGTalkService registerService];
 	[ESIRCService registerService];
-	[AILiveJournalService registerService];
-	/* TODO for release of 1.5: At the very least, present to users who had a QQ account
-	 * a message that it's no longer supported.
-	 */
-	//[ESQQService registerService];
 	[ESSimpleService registerService];
-	[ESNovellService registerService];
 	[ESJabberService registerService];
-	//[ESZephyrService registerService];
-	[ESMeanwhileService registerService];
 	
 	[SLPurpleCocoaAdapter pluginDidLoad];
 	

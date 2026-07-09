@@ -14,16 +14,6 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import "ESAIMService.h"
-#import "ESDotMacService.h"
-#import "AIMobileMeService.h"
-#import "ESICQService.h"
-#import "ESGaduGaduService.h"
-#import "AIGTalkService.h"
 #import "ESIRCService.h"
-#import "AILiveJournalService.h"
 #import "ESJabberService.h"
-#import "ESMeanwhileService.h"
-#import "ESNovellService.h"
 #import "ESSimpleService.h"
-#import "ESZephyrService.h"

@@ -17,8 +17,6 @@
 #import "BGICImportController.h"
 #import "BGICLogImportController.h"
 
-#import "ESAIMService.h"
-#import "ESDotMacService.h"
 #import "ESJabberService.h"
 #import "AWBonjourService.h"
 
@@ -112,18 +110,11 @@
 	NSDictionary *rawPrefsFile = [NSDictionary dictionaryWithContentsOfFile:[[NSString stringWithFormat:@"~/Library/Preferences/com.apple.iChat.%@.plist", serviceName] stringByExpandingTildeInPath]];
 	NSArray *accountsFromRaw = [[rawPrefsFile valueForKey:@"Accounts"] allValues];
 	
-	// we'll grab these momentarily and use judiciously afterwards, Bonjour is external to this to method, unlike the others
-	ESAIMService *aimService = nil;
-	ESDotMacService *macService = nil;
+	// ponytail: iChat Jabber-only import; AIM/.Mac dead
 	ESJabberService *jabberService = nil;	
 	
-#warning iChat Import needs to be updated for MobileMe
 	for (AIService *service in adium.accountController.services) {
-		if ([service.serviceID isEqual:@"AIM"])
-			aimService = (ESAIMService *)service;
-		else if ([service.serviceID isEqual:@"Mac"])
-			macService = (ESDotMacService *)service;
-		else if ([service.serviceID isEqual:@"Jabber"])
+		if ([service.serviceID isEqual:@"Jabber"])
 			jabberService = (ESJabberService *)service;
 		else if ([service.serviceID isEqual:@"Bonjour"])
 			bonjourService = (AWBonjourService *)service;
@@ -135,8 +126,7 @@
 			
 			NSString *accountName = [currentAccount objectForKey:@"LoginAs"];
 			
-			AIAccount *newAcct = [adium.accountController createAccountWithService:
-				([serviceName isEqual:@"Jabber"] ? (AIService *)jabberService : ([accountName rangeOfString:@"mac.com"].length > 0 ? (AIService *)macService : (AIService *)aimService))
+			AIAccount *newAcct = [adium.accountController createAccountWithService:(AIService *)jabberService
 																				 UID:accountName];
 			if (newAcct == nil)
 				continue;
@@ -380,7 +370,6 @@
 		[importAccountsButton setState:NSOffState]; // reset so we don't do this again
 		currentStep--;
 		// do what's necessary to import here
-		[self importAccountsForService:@"AIM"];
 		[self importAccountsForService:@"Jabber"];
 		[self importAccountsForService:@"SubNet"]; // SubNet is where iChat stores Bonjour accounts
 		if (!blockForBonjour) {

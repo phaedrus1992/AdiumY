@@ -2902,9 +2902,7 @@ NSString *handleSpecialCasesForUIDAndServiceClass(NSString *contactUID, NSString
 	/* Jabber and its specified derivative services need special handling;
 	 * this is cross-contamination from ESPurpleJabberAccount.
 	 */
-	if ([serviceClass isEqualToString:@"Jabber"] ||
-		[serviceClass isEqualToString:@"GTalk"] ||
-		[serviceClass isEqualToString:@"LiveJournal"]) {
+	if ([serviceClass isEqualToString:@"Jabber"]) {
 		
 		if ([contactUID hasSuffix:@"@gmail.com"] ||
 			[contactUID hasSuffix:@"@googlemail.com"] ||
@@ -2918,25 +2916,6 @@ NSString *handleSpecialCasesForUIDAndServiceClass(NSString *contactUID, NSString
 			serviceClass = @"Jabber";
 		}	
 		
-		/* OSCAR and its specified derivative services need special handling;
-		 *  this is cross-contamination from CBPurpleOscarAccount.
-		 */
-	} else if ([serviceClass isEqualToString:@"AIM"] ||
-			   [serviceClass isEqualToString:@"ICQ"] ||
-			   [serviceClass isEqualToString:@"Mac"] ||
-			   [serviceClass isEqualToString:@"MobileMe"]) {
-		const char	firstCharacter = ([contactUID length] ? [contactUID characterAtIndex:0] : '\0');
-		
-		//Determine service based on UID
-		if ([contactUID hasSuffix:@"@mac.com"]) {
-			serviceClass = @"Mac";
-		} else if ([contactUID hasSuffix:@"@me.com"]) {
-			serviceClass = @"MobileMe";
-		} else if (firstCharacter && (firstCharacter >= '0' && firstCharacter <= '9')) {
-			serviceClass = @"ICQ";
-		} else {
-			serviceClass = @"AIM";
-		}
 	}
 	
 	return serviceClass;

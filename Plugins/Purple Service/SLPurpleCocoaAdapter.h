@@ -82,9 +82,6 @@
 - (void)setCheckMail:(NSNumber *)checkMail forAccount:(id)adiumAccount;
 - (void)setDefaultPermitDenyForAccount:(id)adiumAccount;
 
-- (void)OSCAREditComment:(NSString *)comment forUID:(NSString *)inUID onAccount:(id)adiumAccount;
-- (void)OSCARSetFormatTo:(NSString *)inFormattedUID onAccount:(id)adiumAccount;
-
 - (void)displayFileSendError;
 - (void *)handleNotifyMessageOfType:(PurpleNotifyMsgType)type withTitle:(const char *)title primary:(const char *)primary secondary:(const char *)secondary;
 - (void *)handleNotifyFormattedWithTitle:(const char *)title primary:(const char *)primary secondary:(const char *)secondary text:(const char *)text;
