@@ -639,63 +639,6 @@
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
-		<key>1109634B0F61C1D00064CA0E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>AITwitterReplyWindow.nib</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterReplyWindow.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>1109634C0F61C1D00064CA0E</key>
-		<dict>
-			<key>fileRef</key>
-			<string>1109634B0F61C1D00064CA0E</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
-		<key>110966180F61D3E70064CA0E</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AITwitterReplyWindowController.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterReplyWindowController.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>110966190F61D3E70064CA0E</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AITwitterReplyWindowController.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterReplyWindowController.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>1109661A0F61D3E70064CA0E</key>
-		<dict>
-			<key>fileRef</key>
-			<string>110966190F61D3E70064CA0E</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
 		<key>1111B22F0F8478500068CE51</key>
 		<dict>
 			<key>isa</key>
@@ -1122,43 +1065,6 @@
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
-		<key>112523170F5F7F86003FC58A</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AITwitterURLHandler.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterURLHandler.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>112523180F5F7F86003FC58A</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AITwitterURLHandler.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterURLHandler.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>112523190F5F7F86003FC58A</key>
-		<dict>
-			<key>fileRef</key>
-			<string>112523180F5F7F86003FC58A</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
 		<key>112939010FD5AC1B00FA8F53</key>
 		<dict>
 			<key>isa</key>
@@ -1449,43 +1355,6 @@
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
-		<key>112E7FA40FC86BB400657119</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AITwitterActionsHTMLFilter.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterActionsHTMLFilter.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>112E7FA50FC86BB400657119</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AITwitterActionsHTMLFilter.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterActionsHTMLFilter.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>112E7FA60FC86BB400657119</key>
-		<dict>
-			<key>fileRef</key>
-			<string>112E7FA50FC86BB400657119</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
 		<key>1130EA98109B445500FB3454</key>
 		<dict>
 			<key>isa</key>
@@ -1546,187 +1415,16 @@
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
-		<key>113891810F6B6AFF00A7D7DC</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AILaconicaService.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AILaconicaService.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>113891820F6B6AFF00A7D7DC</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AILaconicaService.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AILaconicaService.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
 		<key>113891850F6B6B0300A7D7DC</key>
 		<dict>
 			<key>children</key>
-			<array>
-				<string>113892250F6B70CA00A7D7DC</string>
-				<string>113892260F6B70CA00A7D7DC</string>
-				<string>113891810F6B6AFF00A7D7DC</string>
-				<string>113891820F6B6AFF00A7D7DC</string>
-				<string>113891880F6B6B2800A7D7DC</string>
-				<string>113891890F6B6B2800A7D7DC</string>
-				<string>1138918B0F6B6B3F00A7D7DC</string>
-				<string>1138918C0F6B6B3F00A7D7DC</string>
-				<string>113891930F6B6B9C00A7D7DC</string>
-				<string>113891940F6B6B9C00A7D7DC</string>
-			</array>
+			<array/>
 			<key>isa</key>
 			<string>PBXGroup</string>
 			<key>name</key>
 			<string>Laconica</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
-		</dict>
-		<key>113891880F6B6B2800A7D7DC</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AILaconicaAccount.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AILaconicaAccount.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>113891890F6B6B2800A7D7DC</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AILaconicaAccount.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AILaconicaAccount.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>1138918B0F6B6B3F00A7D7DC</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AILaconicaPlugin.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AILaconicaPlugin.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>1138918C0F6B6B3F00A7D7DC</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AILaconicaPlugin.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AILaconicaPlugin.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>113891930F6B6B9C00A7D7DC</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AILaconicaAccountViewController.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AILaconicaAccountViewController.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>113891940F6B6B9C00A7D7DC</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AILaconicaAccountViewController.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AILaconicaAccountViewController.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>113892250F6B70CA00A7D7DC</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>image.png</string>
-			<key>name</key>
-			<string>laconica-small.png</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/laconica-small.png</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>113892260F6B70CA00A7D7DC</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>image.png</string>
-			<key>name</key>
-			<string>laconica.png</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/laconica.png</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>113892270F6B70CA00A7D7DC</key>
-		<dict>
-			<key>fileRef</key>
-			<string>113892250F6B70CA00A7D7DC</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
-		<key>113892280F6B70CA00A7D7DC</key>
-		<dict>
-			<key>fileRef</key>
-			<string>113892260F6B70CA00A7D7DC</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
 		</dict>
 		<key>113900B00F85BEF60081A418</key>
 		<dict>
@@ -1858,36 +1556,6 @@
 			<string>1139FFA90F85260E0081A418</string>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
-		</dict>
-		<key>113E06A910D0ABA0005D5B9A</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>adiumPurpleMedia.m</string>
-			<key>path</key>
-			<string>Plugins/Purple Service/adiumPurpleMedia.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>113E06AE10D0ABE3005D5B9A</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>adiumPurpleMedia.h</string>
-			<key>path</key>
-			<string>Plugins/Purple Service/adiumPurpleMedia.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
 		</dict>
 		<key>1147FCC210D1CB4C004E9E8D</key>
 		<dict>
@@ -2889,21 +2557,6 @@
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
-		<key>1181981210D0B17C003E8ECA</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>adiumPurpleMedia.h</string>
-			<key>path</key>
-			<string>Plugins/Purple Service/adiumPurpleMedia.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
 		<key>118198DB10D0B494003E8ECA</key>
 		<dict>
 			<key>children</key>
@@ -3057,43 +2710,6 @@
 		<dict>
 			<key>fileRef</key>
 			<string>1192E6B20FD30307003CAEF5</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
-		<key>1197F66F0FCF8D180032F19B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AITwitterStatusFollowup.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterStatusFollowup.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>1197F6700FCF8D180032F19B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AITwitterStatusFollowup.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterStatusFollowup.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>1197F6710FCF8D180032F19B</key>
-		<dict>
-			<key>fileRef</key>
-			<string>1197F6700FCF8D180032F19B</string>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
@@ -3284,162 +2900,16 @@
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
-		<key>11BD73D10F5A54BB007D438A</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>image.png</string>
-			<key>name</key>
-			<string>twitter-small.png</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/twitter-small.png</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11BD73D20F5A54BB007D438A</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>image.png</string>
-			<key>name</key>
-			<string>twitter.png</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/twitter.png</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11BD73D30F5A54BB007D438A</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11BD73D10F5A54BB007D438A</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
-		<key>11BD73D40F5A54BB007D438A</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11BD73D20F5A54BB007D438A</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
-		<key>11BE28DD0FCC7D2B000E6A10</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AIImageUploaderPlugin.h</string>
-			<key>path</key>
-			<string>Plugins/Image Uploading Plugin/AIImageUploaderPlugin.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11BE28DE0FCC7D2B000E6A10</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AIImageUploaderPlugin.m</string>
-			<key>path</key>
-			<string>Plugins/Image Uploading Plugin/AIImageUploaderPlugin.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11BE28DF0FCC7D2B000E6A10</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11BE28DE0FCC7D2B000E6A10</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
 		<key>11BE28E30FCC7DA8000E6A10</key>
 		<dict>
 			<key>children</key>
-			<array>
-				<string>11BE29630FCCA8DA000E6A10</string>
-				<string>11BE29660FCCA9E3000E6A10</string>
-				<string>11BE29670FCCA9E3000E6A10</string>
-				<string>11BE28DD0FCC7D2B000E6A10</string>
-				<string>11BE28DE0FCC7D2B000E6A10</string>
-				<string>11D915570FFC0E9C00B39713</string>
-				<string>11D915580FFC0E9C00B39713</string>
-				<string>5A9439791279ECB800FDD81D</string>
-				<string>5A94397A1279ECB800FDD81D</string>
-				<string>11D915700FFC100700B39713</string>
-				<string>11D915710FFC100700B39713</string>
-			</array>
+			<array/>
 			<key>isa</key>
 			<string>PBXGroup</string>
 			<key>name</key>
 			<string>Image Uploading</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11BE29630FCCA8DA000E6A10</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>ImageUploaderProgress.nib</string>
-			<key>path</key>
-			<string>Plugins/Image Uploading Plugin/ImageUploaderProgress.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11BE29640FCCA8DA000E6A10</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11BE29630FCCA8DA000E6A10</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
-		<key>11BE29660FCCA9E3000E6A10</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AIImageUploaderWindowController.h</string>
-			<key>path</key>
-			<string>Plugins/Image Uploading Plugin/AIImageUploaderWindowController.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11BE29670FCCA9E3000E6A10</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AIImageUploaderWindowController.m</string>
-			<key>path</key>
-			<string>Plugins/Image Uploading Plugin/AIImageUploaderWindowController.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11BE29680FCCA9E3000E6A10</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11BE29670FCCA9E3000E6A10</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
 		</dict>
 		<key>11C157D504A88DE0008E0C76</key>
 		<dict>
@@ -3595,37 +3065,7 @@
 		<key>11D135D80FBE4C65000B0A5E</key>
 		<dict>
 			<key>children</key>
-			<array>
-				<string>11D135DA0FBE4C69000B0A5E</string>
-				<string>11D135DB0FBE4C6C000B0A5E</string>
-				<string>11D135DC0FBE4C6E000B0A5E</string>
-				<string>11D135DD0FBE4C70000B0A5E</string>
-				<string>11D135DE0FBE4C73000B0A5E</string>
-				<string>11D135DF0FBE4C76000B0A5E</string>
-				<string>11D135E00FBE4C82000B0A5E</string>
-				<string>11D135E10FBE4C84000B0A5E</string>
-				<string>11D135E20FBE4C86000B0A5E</string>
-				<string>11D135E30FBE4C88000B0A5E</string>
-				<string>11D135E40FBE4C8A000B0A5E</string>
-				<string>11D135E50FBE4C8D000B0A5E</string>
-				<string>11D135E60FBE4C8F000B0A5E</string>
-				<string>11D135E70FBE4C91000B0A5E</string>
-				<string>11D135E80FBE4C93000B0A5E</string>
-				<string>11D135E90FBE4C95000B0A5E</string>
-				<string>11D135EA0FBE4C98000B0A5E</string>
-				<string>11D135EB0FBE4C9A000B0A5E</string>
-				<string>11D135EC0FBE4C9C000B0A5E</string>
-				<string>11D135ED0FBE4C9E000B0A5E</string>
-				<string>11D135EE0FBE4CA1000B0A5E</string>
-				<string>11D135EF0FBE4CA2000B0A5E</string>
-				<string>11D135F00FBE4CA4000B0A5E</string>
-				<string>11D135F10FBE4CA6000B0A5E</string>
-				<string>11D135F20FBE4CA9000B0A5E</string>
-				<string>11D135F30FBE4CB6000B0A5E</string>
-				<string>5A7645BB11E0486300E5E0AF</string>
-				<string>5A80CC85121F5A7A00D0670A</string>
-				<string>D1C1FA2814995D98008C94EB</string>
-			</array>
+			<array/>
 			<key>isa</key>
 			<string>PBXVariantGroup</string>
 			<key>name</key>
@@ -3637,418 +3077,6 @@
 		<dict>
 			<key>fileRef</key>
 			<string>11D135D80FBE4C65000B0A5E</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
-		<key>11D135DA0FBE4C69000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>ca</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/ca.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135DB0FBE4C6C000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>cs</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/cs.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135DC0FBE4C6E000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>da</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/da.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135DD0FBE4C70000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>de</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/de.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135DE0FBE4C73000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>el_GR</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/el_GR.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135DF0FBE4C76000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>en_GB</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/en_GB.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135E00FBE4C82000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>es</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/es.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135E10FBE4C84000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>fi</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/fi.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135E20FBE4C86000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>fr</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/fr.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135E30FBE4C88000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>fr_CA</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/fr_CA.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135E40FBE4C8A000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>hu</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/hu.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135E50FBE4C8D000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>is</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/is.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135E60FBE4C8F000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>it</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/it.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135E70FBE4C91000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>ja</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/ja.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135E80FBE4C93000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>nb</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/nb.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135E90FBE4C95000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>nl</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/nl.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135EA0FBE4C98000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>pl</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/pl.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135EB0FBE4C9A000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>pt_PT</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/pt_PT.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135EC0FBE4C9C000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>pt</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/pt.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135ED0FBE4C9E000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>ru</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/ru.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135EE0FBE4CA1000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>sl</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/sl.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135EF0FBE4CA2000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>sv</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/sv.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135F00FBE4CA4000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>tr</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/tr.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135F10FBE4CA6000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>zh_CN</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/zh_CN.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135F20FBE4CA9000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>zh_TW</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/zh_TW.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D135F30FBE4CB6000B0A5E</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>en</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/en.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D915570FFC0E9C00B39713</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AIImageShackImageUploader.h</string>
-			<key>path</key>
-			<string>Plugins/Image Uploading Plugin/AIImageShackImageUploader.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D915580FFC0E9C00B39713</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AIImageShackImageUploader.m</string>
-			<key>path</key>
-			<string>Plugins/Image Uploading Plugin/AIImageShackImageUploader.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D9156F0FFC0FEB00B39713</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11D915580FFC0E9C00B39713</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
-		<key>11D915700FFC100700B39713</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AIGenericMultipartImageUploader.h</string>
-			<key>path</key>
-			<string>Plugins/Image Uploading Plugin/AIGenericMultipartImageUploader.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D915710FFC100700B39713</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AIGenericMultipartImageUploader.m</string>
-			<key>path</key>
-			<string>Plugins/Image Uploading Plugin/AIGenericMultipartImageUploader.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11D915720FFC100700B39713</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11D915710FFC100700B39713</string>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
@@ -4328,71 +3356,15 @@
 			<key>targetProxy</key>
 			<string>11F6CB2D109BC6AC0070022D</string>
 		</dict>
-		<key>11F738F00F58D12200B3285B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AITwitterAccount.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterAccount.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11F738F10F58D12200B3285B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AITwitterAccount.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterAccount.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11F738F20F58D12200B3285B</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11F738F10F58D12200B3285B</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
 		<key>11F738F40F58D15500B3285B</key>
 		<dict>
 			<key>children</key>
 			<array>
 				<string>5A3B4D6A16D878AB00903E40</string>
 				<string>113891850F6B6B0300A7D7DC</string>
-				<string>1197F66F0FCF8D180032F19B</string>
-				<string>1197F6700FCF8D180032F19B</string>
-				<string>1109634B0F61C1D00064CA0E</string>
-				<string>110966180F61D3E70064CA0E</string>
-				<string>110966190F61D3E70064CA0E</string>
-				<string>11F739000F58D1C300B3285B</string>
-				<string>11F739010F58D1C400B3285B</string>
 				<string>11D135D80FBE4C65000B0A5E</string>
-				<string>11BD73D10F5A54BB007D438A</string>
-				<string>11BD73D20F5A54BB007D438A</string>
 				<string>EFB1C3120DDBDA3100B3973D</string>
 				<string>EFB1C3130DDBDA3100B3973D</string>
-				<string>112523170F5F7F86003FC58A</string>
-				<string>112523180F5F7F86003FC58A</string>
-				<string>11F738FA0F58D19B00B3285B</string>
-				<string>11F738FB0F58D19B00B3285B</string>
-				<string>11F738F70F58D18700B3285B</string>
-				<string>11F738F80F58D18700B3285B</string>
-				<string>11F738F00F58D12200B3285B</string>
-				<string>11F738F10F58D12200B3285B</string>
-				<string>112E7FA40FC86BB400657119</string>
-				<string>112E7FA50FC86BB400657119</string>
 			</array>
 			<key>isa</key>
 			<string>PBXGroup</string>
@@ -4400,117 +3372,6 @@
 			<string>Twitter</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11F738F70F58D18700B3285B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AITwitterService.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterService.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11F738F80F58D18700B3285B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AITwitterService.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterService.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11F738F90F58D18700B3285B</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11F738F80F58D18700B3285B</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
-		<key>11F738FA0F58D19B00B3285B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AITwitterPlugin.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterPlugin.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11F738FB0F58D19B00B3285B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AITwitterPlugin.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterPlugin.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11F738FC0F58D19B00B3285B</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11F738FB0F58D19B00B3285B</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
-		<key>11F739000F58D1C300B3285B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AITwitterAccountViewController.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterAccountViewController.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11F739010F58D1C400B3285B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AITwitterAccountViewController.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/AITwitterAccountViewController.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11F739020F58D1C400B3285B</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11F739010F58D1C400B3285B</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
 		</dict>
 		<key>11FC23BF0F768C0900C1C906</key>
 		<dict>
@@ -18937,7 +17798,6 @@
 				<string>3485DB2B09EBCE6500232CC4</string>
 				<string>3485DB2D09EBCE6500232CC4</string>
 				<string>3485DB2F09EBCE6500232CC4</string>
-				<string>3485DB3109EBCE6500232CC4</string>
 				<string>3485DB3809EBCE7400232CC4</string>
 				<string>3485DB3A09EBCE7400232CC4</string>
 				<string>3485DB5A09EBCE7400232CC4</string>
@@ -19218,7 +18078,6 @@
 				<string>3485DB2A09EBCE6500232CC4</string>
 				<string>3485DB2C09EBCE6500232CC4</string>
 				<string>3485DB2E09EBCE6500232CC4</string>
-				<string>3485DB3009EBCE6500232CC4</string>
 				<string>3485DB3709EBCE7400232CC4</string>
 				<string>3485DB3909EBCE7400232CC4</string>
 				<string>3485DB5909EBCE7400232CC4</string>
@@ -19551,27 +18410,6 @@
 		<dict>
 			<key>fileRef</key>
 			<string>34BBE1B907A2F4C500663CC9</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
-		<key>3485DB3009EBCE6500232CC4</key>
-		<dict>
-			<key>fileRef</key>
-			<string>34BBE18407A2F20E00663CC9</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-			<key>settings</key>
-			<dict>
-				<key>ATTRIBUTES</key>
-				<array>
-					<string>Public</string>
-				</array>
-			</dict>
-		</dict>
-		<key>3485DB3109EBCE6500232CC4</key>
-		<dict>
-			<key>fileRef</key>
-			<string>34BBE18507A2F20E00663CC9</string>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
@@ -25362,36 +24200,6 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>34BBE18407A2F20E00663CC9</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>adiumPurpleWebcam.h</string>
-			<key>path</key>
-			<string>Plugins/Purple Service/adiumPurpleWebcam.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>34BBE18507A2F20E00663CC9</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>adiumPurpleWebcam.m</string>
-			<key>path</key>
-			<string>Plugins/Purple Service/adiumPurpleWebcam.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
 		<key>34BBE18A07A2F2A600663CC9</key>
 		<dict>
 			<key>fileEncoding</key>
@@ -25804,11 +24612,6 @@
 				<string>117866E10EC759B9003E9B97</string>
 				<string>117866E20EC759B9003E9B97</string>
 				<string>117866E30EC759B9003E9B97</string>
-				<string>11BD73D30F5A54BB007D438A</string>
-				<string>11BD73D40F5A54BB007D438A</string>
-				<string>1109634C0F61C1D00064CA0E</string>
-				<string>113892270F6B70CA00A7D7DC</string>
-				<string>113892280F6B70CA00A7D7DC</string>
 				<string>11C97DFD0F7D26C200E8DD37</string>
 				<string>11700A440F7E8CB60078D6AB</string>
 				<string>112B483F0F82E91200690E84</string>
@@ -25817,7 +24620,6 @@
 				<string>113900B10F85BEF60081A418</string>
 				<string>11D135D90FBE4C65000B0A5E</string>
 				<string>11A2F10A0FC8FC1A00C3F05C</string>
-				<string>11BE29640FCCA8DA000E6A10</string>
 				<string>112939020FD5AC1B00FA8F53</string>
 				<string>1130EA99109B445500FB3454</string>
 				<string>1130EA9D109B445D00FB3454</string>
@@ -25855,7 +24657,6 @@
 			<string>2147483647</string>
 			<key>files</key>
 			<array>
-				<string>11D9156F0FFC0FEB00B39713</string>
 				<string>111E89010F93FE3900A5F18B</string>
 				<string>111E89020F93FE3900A5F18B</string>
 				<string>111256070F8DA2BF00E76177</string>
@@ -26137,12 +24938,6 @@
 				<string>111DDF3A0E8E7D2F00114FCA</string>
 				<string>632ADC150E9EDDCA00AB6817</string>
 				<string>5A1781860EC1215D00BA1E04</string>
-				<string>11F738F20F58D12200B3285B</string>
-				<string>11F738F90F58D18700B3285B</string>
-				<string>11F738FC0F58D19B00B3285B</string>
-				<string>11F739020F58D1C400B3285B</string>
-				<string>112523190F5F7F86003FC58A</string>
-				<string>1109661A0F61D3E70064CA0E</string>
 				<string>1163F0EC0F6C7A8300F12F5D</string>
 				<string>11700A350F7E8BE80078D6AB</string>
 				<string>112B490A0F82FB1700690E84</string>
@@ -26153,31 +24948,18 @@
 				<string>1139011C0F85C9450081A418</string>
 				<string>11E786810F8860210014612E</string>
 				<string>1121B29A0F896A720047EC66</string>
-				<string>112E7FA60FC86BB400657119</string>
 				<string>11A2F1220FC8FC9D00C3F05C</string>
 				<string>638BC1FC0FC932E000CE7600</string>
-				<string>11BE28DF0FCC7D2B000E6A10</string>
-				<string>11BE29680FCCA9E3000E6A10</string>
-				<string>1197F6710FCF8D180032F19B</string>
 				<string>112939100FD5AE1400FA8F53</string>
-				<string>11D915720FFC100700B39713</string>
 				<string>11000D041098863B0096A1E2</string>
 				<string>5A9A9F8911F2951400328DF9</string>
 				<string>76C1AF9C125A906A00D269A9</string>
-				<string>5A94397B1279ECB800FDD81D</string>
 				<string>349062A2127F7E6900FC313F</string>
 				<string>1154F50B12E1476900B8CA27</string>
 				<string>766ABAB61306D1020049FFB7</string>
 				<string>5A5F8BBD12D560E400019727</string>
 				<string>5A17D65D130F76B4002C852F</string>
 				<string>97AF5CDB13191DE200550C41</string>
-				<string>5A3B4D7916D878AC00903E40</string>
-				<string>5A3B4D7A16D878AC00903E40</string>
-				<string>5A3B4D7C16D878AC00903E40</string>
-				<string>5A3B4D7E16D878AC00903E40</string>
-				<string>5A0D236A16F4C7BC005DF211</string>
-				<string>5A4B77E916FBDDC700DF398C</string>
-				<string>76FBDAC91733B9CA00C9F10B</string>
 				<string>8BCB47CB455B8BD8E1116293</string>
 				<string>0CECB15A3A804B20BE28CE17</string>
 				<string>FE679E39F3C744B386A480EA</string>
@@ -27270,9 +26052,6 @@
 				<string>344499E80B23CA5D0054B761</string>
 				<string>34BBE10907A2EE3700663CC9</string>
 				<string>34BBE10A07A2EE3700663CC9</string>
-				<string>113E06AE10D0ABE3005D5B9A</string>
-				<string>1181981210D0B17C003E8ECA</string>
-				<string>113E06A910D0ABA0005D5B9A</string>
 				<string>34BBE0E907A2ECCF00663CC9</string>
 				<string>34BBE0EA07A2ECD000663CC9</string>
 				<string>34BBE17E07A2F10400663CC9</string>
@@ -27295,8 +26074,6 @@
 				<string>34BBE12907A2F09B00663CC9</string>
 				<string>34BBE1B807A2F4C500663CC9</string>
 				<string>34BBE1B907A2F4C500663CC9</string>
-				<string>34BBE18407A2F20E00663CC9</string>
-				<string>34BBE18507A2F20E00663CC9</string>
 				<string>811036230CDE8C2100EC6038</string>
 				<string>811036240CDE8C2100EC6038</string>
 			</array>
@@ -32330,7 +31107,6 @@
 				<string>9E791D8505768A3000547562</string>
 				<string>4BF303160687466D000DCA65</string>
 				<string>F5F8CA450A1A9BC500154550</string>
-				<string>4BC5A5C90764F70E0080ECF7</string>
 				<string>632D800908E7DE2C0032C187</string>
 			</array>
 			<key>isa</key>
@@ -37903,96 +36679,6 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>4BC5A5C90764F70E0080ECF7</key>
-		<dict>
-			<key>children</key>
-			<array>
-				<string>4BC5A5D80764F75B0080ECF7</string>
-				<string>4BC5A5D90764F75B0080ECF7</string>
-				<string>4BC5A5D60764F75B0080ECF7</string>
-				<string>4BC5A5D70764F75B0080ECF7</string>
-				<string>4BC5A5DA0764F75B0080ECF7</string>
-			</array>
-			<key>isa</key>
-			<string>PBXGroup</string>
-			<key>name</key>
-			<string>Video Chat Interface</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>4BC5A5D60764F75B0080ECF7</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>30</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AILocalVideoWindowController.h</string>
-			<key>path</key>
-			<string>Plugins/Video Chat Interface/AILocalVideoWindowController.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>4BC5A5D70764F75B0080ECF7</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>30</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AILocalVideoWindowController.m</string>
-			<key>path</key>
-			<string>Plugins/Video Chat Interface/AILocalVideoWindowController.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>4BC5A5D80764F75B0080ECF7</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>30</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AIVideoChatInterfacePlugin.h</string>
-			<key>path</key>
-			<string>Plugins/Video Chat Interface/AIVideoChatInterfacePlugin.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>4BC5A5D90764F75B0080ECF7</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>30</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AIVideoChatInterfacePlugin.m</string>
-			<key>path</key>
-			<string>Plugins/Video Chat Interface/AIVideoChatInterfacePlugin.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>4BC5A5DA0764F75B0080ECF7</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>LocalVideoWindow.nib</string>
-			<key>path</key>
-			<string>Plugins/Video Chat Interface/LocalVideoWindow.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
 		<key>4BCAB5EF07B59967006641B9</key>
 		<dict>
 			<key>isa</key>
@@ -40727,48 +39413,6 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>5A0D236816F4C7BC005DF211</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>STTwitterAppOnly.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/STTwitterAppOnly.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A0D236916F4C7BC005DF211</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>STTwitterAppOnly.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/STTwitterAppOnly.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A0D236A16F4C7BC005DF211</key>
-		<dict>
-			<key>fileRef</key>
-			<string>5A0D236816F4C7BC005DF211</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-			<key>settings</key>
-			<dict>
-				<key>COMPILER_FLAGS</key>
-				<string>-fno-objc-arc</string>
-			</dict>
-		</dict>
 		<key>5A1781840EC1215D00BA1E04</key>
 		<dict>
 			<key>fileEncoding</key>
@@ -40862,21 +39506,6 @@
 		<dict>
 			<key>children</key>
 			<array>
-				<string>5A4B77E716FBDDC600DF398C</string>
-				<string>5A4B77E816FBDDC700DF398C</string>
-				<string>5A0D236816F4C7BC005DF211</string>
-				<string>5A0D236916F4C7BC005DF211</string>
-				<string>5A3B4D6B16D878AB00903E40</string>
-				<string>5A3B4D6C16D878AB00903E40</string>
-				<string>5A3B4D6D16D878AB00903E40</string>
-				<string>5A3B4D6E16D878AB00903E40</string>
-				<string>5A3B4D7116D878AB00903E40</string>
-				<string>5A3B4D7216D878AB00903E40</string>
-				<string>5A3B4D7516D878AB00903E40</string>
-				<string>76FBDAC51733B9C900C9F10B</string>
-				<string>76FBDAC61733B9C900C9F10B</string>
-				<string>76FBDAC71733B9C900C9F10B</string>
-				<string>76FBDAC81733B9C900C9F10B</string>
 				<string>5A3B4D7616D878AC00903E40</string>
 			</array>
 			<key>isa</key>
@@ -40886,239 +39515,16 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>5A3B4D6B16D878AB00903E40</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>NSString+STTwitter.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/NSString+STTwitter.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A3B4D6C16D878AB00903E40</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>NSString+STTwitter.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/NSString+STTwitter.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A3B4D6D16D878AB00903E40</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>STTwitterAPIWrapper.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/STTwitterAPIWrapper.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A3B4D6E16D878AB00903E40</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>STTwitterAPIWrapper.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/STTwitterAPIWrapper.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A3B4D7116D878AB00903E40</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>STTwitterOAuth.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/STTwitterOAuth.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A3B4D7216D878AB00903E40</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>STTwitterOAuth.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/STTwitterOAuth.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A3B4D7516D878AB00903E40</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>STTwitterOAuthProtocol.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/STTwitterOAuthProtocol.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
 		<key>5A3B4D7616D878AC00903E40</key>
 		<dict>
 			<key>children</key>
-			<array>
-				<string>5A3B4D7716D878AC00903E40</string>
-				<string>5A3B4D7816D878AC00903E40</string>
-			</array>
+			<array/>
 			<key>isa</key>
 			<string>PBXGroup</string>
 			<key>name</key>
 			<string>Vendor</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A3B4D7716D878AC00903E40</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>STHTTPRequest.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/Vendor/STHTTPRequest.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A3B4D7816D878AC00903E40</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>STHTTPRequest.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/Vendor/STHTTPRequest.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A3B4D7916D878AC00903E40</key>
-		<dict>
-			<key>fileRef</key>
-			<string>5A3B4D6C16D878AB00903E40</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-			<key>settings</key>
-			<dict>
-				<key>COMPILER_FLAGS</key>
-				<string>-fno-objc-arc</string>
-			</dict>
-		</dict>
-		<key>5A3B4D7A16D878AC00903E40</key>
-		<dict>
-			<key>fileRef</key>
-			<string>5A3B4D6E16D878AB00903E40</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-			<key>settings</key>
-			<dict>
-				<key>COMPILER_FLAGS</key>
-				<string>-fno-objc-arc</string>
-			</dict>
-		</dict>
-		<key>5A3B4D7C16D878AC00903E40</key>
-		<dict>
-			<key>fileRef</key>
-			<string>5A3B4D7216D878AB00903E40</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-			<key>settings</key>
-			<dict>
-				<key>COMPILER_FLAGS</key>
-				<string>-fno-objc-arc</string>
-			</dict>
-		</dict>
-		<key>5A3B4D7E16D878AC00903E40</key>
-		<dict>
-			<key>fileRef</key>
-			<string>5A3B4D7816D878AC00903E40</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-			<key>settings</key>
-			<dict>
-				<key>COMPILER_FLAGS</key>
-				<string>-fno-objc-arc</string>
-			</dict>
-		</dict>
-		<key>5A4B77E716FBDDC600DF398C</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>NSData+Base64.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/NSData+Base64.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A4B77E816FBDDC700DF398C</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>NSData+Base64.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/NSData+Base64.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A4B77E916FBDDC700DF398C</key>
-		<dict>
-			<key>fileRef</key>
-			<string>5A4B77E716FBDDC600DF398C</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
 		</dict>
 		<key>5A5F8BBB12D560E400019727</key>
 		<dict>
@@ -41522,19 +39928,6 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>5A7645BB11E0486300E5E0AF</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>sk_SK</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/sk_SK.lproj/AITwitterAccountView.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
 		<key>5A76477F11E04B8400E5E0AF</key>
 		<dict>
 			<key>isa</key>
@@ -41578,19 +39971,6 @@
 			<string>uk</string>
 			<key>path</key>
 			<string>Resources/uk.lproj/AIAdvancedInspectorPane.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A80CC85121F5A7A00D0670A</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>uk</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/uk.lproj/AITwitterAccountView.nib</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
@@ -41945,43 +40325,6 @@
 			<string>Plugins/WebKit Message View/Resources/uk.lproj/WebKitPreferencesView.nib</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A9439791279ECB800FDD81D</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AIImgurImageUploader.h</string>
-			<key>path</key>
-			<string>Plugins/Image Uploading Plugin/AIImgurImageUploader.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A94397A1279ECB800FDD81D</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AIImgurImageUploader.m</string>
-			<key>path</key>
-			<string>Plugins/Image Uploading Plugin/AIImgurImageUploader.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5A94397B1279ECB800FDD81D</key>
-		<dict>
-			<key>fileRef</key>
-			<string>5A94397A1279ECB800FDD81D</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
 		</dict>
 		<key>5A9A9F8711F2951400328DF9</key>
 		<dict>
@@ -45745,73 +44088,6 @@
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
-		<key>76FBDAC51733B9C900C9F10B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>STTwitterHTML.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/STTwitterHTML.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>76FBDAC61733B9C900C9F10B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>STTwitterHTML.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/STTwitterHTML.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>76FBDAC71733B9C900C9F10B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>STTwitterOAuthOSX.h</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/STTwitterOAuthOSX.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>76FBDAC81733B9C900C9F10B</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>STTwitterOAuthOSX.m</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/STTwitter/STTwitterOAuthOSX.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>76FBDAC91733B9CA00C9F10B</key>
-		<dict>
-			<key>fileRef</key>
-			<string>76FBDAC61733B9C900C9F10B</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
 		<key>77D903500B78CF1000B86C42</key>
 		<dict>
 			<key>isa</key>
@@ -47990,19 +46266,6 @@
 			<string>en_AU</string>
 			<key>path</key>
 			<string>Resources/en_AU.lproj/AIAdvancedInspectorPane.nib</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>D1C1FA2814995D98008C94EB</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>wrapper.nib</string>
-			<key>name</key>
-			<string>en_AU</string>
-			<key>path</key>
-			<string>Plugins/Twitter Plugin/Resources/en_AU.lproj/AITwitterAccountView.nib</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>

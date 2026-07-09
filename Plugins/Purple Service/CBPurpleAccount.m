@@ -62,7 +62,6 @@
 #import "ESiTunesPlugin.h"
 #import "AMPurpleTuneTooltip.h"
 #import "adiumPurpleRequest.h"
-#import "adiumPurpleMedia.h"
 #import "AIDualWindowInterfacePlugin.h"
 
 #ifdef HAVE_CDSA
