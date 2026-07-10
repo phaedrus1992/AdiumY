@@ -48,14 +48,18 @@ readonly DYLIB_MAP_DYLIB=(
     "libgcrypt.20.dylib"
     "libotr.5.dylib"
     "libpurple.0.dylib"
+    "libfribidi.0.dylib"
+    "libLMX.dylib"
 )
 readonly DYLIB_MAP_FRAMEWORK=(
     "libffi" "libintl" "glib" "libgmodule" "libgobject" "libgthread" "libgio"
     "libpcre2-8" "libxml2" "libgpg-error" "libgcrypt" "libotr" "libpurple"
+    "FriBidi" "LMX"
 )
 readonly DYLIB_MAP_BINARY=(
     "libffi" "libintl" "glib" "libgmodule" "libgobject" "libgthread" "libgio"
     "libpcre2-8" "libxml2" "libgpg-error" "libgcrypt" "libotr" "libpurple"
+    "FriBidi" "LMX"
 )
 
 # Look up framework name for a dylib basename.
@@ -329,7 +333,7 @@ vendored_extract() {
     case "$filename" in
         *.tar.gz|*.tgz) tar -xzf "$tarball" -C "$extract_dir" ;;
         *.tar.xz)       tar -xJf "$tarball" -C "$extract_dir" ;;
-        *.tar.bz2)      tar -xjf "$tarball" -C "$extract_dir" ;;
+        *.tar.bz2|*.tbz|*.tbz2) tar -xjf "$tarball" -C "$extract_dir" ;;
         *)              echo "  ERROR: unknown archive format: $filename" >&2; return 1 ;;
     esac
 

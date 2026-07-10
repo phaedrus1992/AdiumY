@@ -33,7 +33,7 @@
 #import <Adium/ESFileWrapperExtension.h>
 #import <Adium/AIXMLElement.h>
 
-#import <FriBidi/NSString-FBAdditions.h>
+#import "NSString-FBAdditions.h"
 
 #import <CoreServices/CoreServices.h>
 

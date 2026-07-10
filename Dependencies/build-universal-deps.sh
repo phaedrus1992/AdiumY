@@ -42,8 +42,8 @@ source "$ROOTDIR/build-phases/build-gpg-error.sh"
 source "$ROOTDIR/build-phases/build-gcrypt.sh"
 source "$ROOTDIR/build-phases/build-libotr.sh"
 source "$ROOTDIR/build-phases/build-libpurple.sh"
-
-# More phases will be added here as they're implemented
+source "$ROOTDIR/build-phases/build-fribidi.sh"
+source "$ROOTDIR/build-phases/build-lmx.sh"
 
 # ---- Cleanup ----
 if [ "$CLEAN" -eq 1 ]; then
@@ -76,6 +76,8 @@ run_phase gpg-error build_gpg_error_phase
 run_phase gcrypt build_gcrypt_phase
 run_phase libotr build_libotr_phase
 run_phase libpurple build_libpurple_phase
+run_phase fribidi build_fribidi_phase
+run_phase lmx build_lmx_phase
 
 # ---- Verification gate ----
 # Every framework from the map must pass structural checks.
