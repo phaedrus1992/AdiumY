@@ -35,6 +35,10 @@ Frameworks/MMTabBarView.framework
 Frameworks/FriBidi.framework
 Frameworks/LMX.framework
 
+# Sparkle — now resolved via SPM binary target. The SPM-integrated XCFramework
+# is managed automatically; the old vendored copy was removed.
+Frameworks/Sparkle.framework
+
 Resources/af/LC_MESSAGES
 Resources/af/LC_MESSAGES
 Resources/af/LC_MESSAGES
