@@ -1120,6 +1120,9 @@
 		EEC461B6096D68580028632F /* OWSpellingPerContactPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC461B4096D68580028632F /* OWSpellingPerContactPlugin.m */; };
 		F5F8CA4D0A1A9C9400154550 /* GBQuestionHandlerPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = F5F8CA4B0A1A9C9400154550 /* GBQuestionHandlerPlugin.m */; };
 		FE679E39F3C744B386A480EA /* AIHotKeyCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E3B26D44D2946559357EF3B /* AIHotKeyCenter.m */; };
+		157A41826D404EB05E6A696A /* FriBidi.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9719C92B1530EDF700217FBE /* FriBidi.framework */; };
+		8705FD124693CDB6DDA2205E /* NSString-FBAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = E6D0F02CCCE8ED0F1E4F348D /* NSString-FBAdditions.m */; };
+		46A29DBDFEF508EE3F2E6FF2 /* NSString-FBAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 703142272A64505D5DE405E5 /* NSString-FBAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -3567,6 +3570,8 @@
 		F5F0FEA204B133AB01A80106 /* EmoticonDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; name = EmoticonDefaults.plist; path = Plugins/Emoticons/EmoticonDefaults.plist; sourceTree = "<group>"; };
 		F5F8CA4A0A1A9C9400154550 /* GBQuestionHandlerPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GBQuestionHandlerPlugin.h; path = Source/GBQuestionHandlerPlugin.h; sourceTree = "<group>"; };
 		F5F8CA4B0A1A9C9400154550 /* GBQuestionHandlerPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GBQuestionHandlerPlugin.m; path = Source/GBQuestionHandlerPlugin.m; sourceTree = "<group>"; };
+		703142272A64505D5DE405E5 /* NSString-FBAdditions.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = "NSString-FBAdditions.h"; path = Frameworks/Adium/Source/NSString-FBAdditions.h; sourceTree = "<group>"; };
+		E6D0F02CCCE8ED0F1E4F348D /* NSString-FBAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString-FBAdditions.m"; path = Frameworks/Adium/Source/NSString-FBAdditions.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3646,7 +3651,7 @@
 				636D92840E4E968A00E5F558 /* AddressBook.framework in Frameworks */,
 				34D836E507CBF593006466F2 /* Carbon.framework in Frameworks */,
 				3448761406D1EC0C00DA778C /* Cocoa.framework in Frameworks */,
-			);
+				157A41826D404EB05E6A696A /* FriBidi.framework in Frameworks */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -4132,6 +4137,8 @@
 				348862CE05645E95003C9627 /* ESFileTransfer.m */,
 				34F2E83907C2CDBD007EAAAB /* ESFileWrapperExtension.h */,
 				34F2E83807C2CDBD007EAAAB /* ESFileWrapperExtension.m */,
+				703142272A64505D5DE405E5 /* NSString-FBAdditions.h */,
+				E6D0F02CCCE8ED0F1E4F348D /* NSString-FBAdditions.m */,
 			);
 			name = Other;
 			sourceTree = "<group>";
@@ -6964,7 +6971,7 @@
 				34F17FCE0F8EAC34009C5A39 /* AIListOutlineView+Drawing.h in Headers */,
 				63B0EC9D0F8FBB660062476B /* AIProxyListObject.h in Headers */,
 				979AA6A714D59DC8008730DF /* AIBoolToControlTextColorTransformer.h in Headers */,
-			);
+				46A29DBDFEF508EE3F2E6FF2 /* NSString-FBAdditions.h in Headers */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
@@ -7239,7 +7246,7 @@
 			files = (
 				31034F0C0C8142720003F5AA /* UTF8Snowman.txt in Resources */,
 				31FA804C0D4A8EB200ABE634 /* Adium.sdef in Resources */,
-			);
+				8705FD124693CDB6DDA2205E /* NSString-FBAdditions.m in Sources */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		3485D67C09EB416300232CC4 /* Resources */ = {

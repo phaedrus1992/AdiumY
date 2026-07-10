@@ -48,14 +48,18 @@ readonly DYLIB_MAP_DYLIB=(
     "libgcrypt.20.dylib"
     "libotr.5.dylib"
     "libpurple.0.dylib"
+    "libfribidi.2.dylib"
+    "libLMX.dylib"
 )
 readonly DYLIB_MAP_FRAMEWORK=(
     "libffi" "libintl" "glib" "libgmodule" "libgobject" "libgthread" "libgio"
     "libpcre2-8" "libxml2" "libgpg-error" "libgcrypt" "libotr" "libpurple"
+    "FriBidi" "LMX"
 )
 readonly DYLIB_MAP_BINARY=(
     "libffi" "libintl" "glib" "libgmodule" "libgobject" "libgthread" "libgio"
     "libpcre2-8" "libxml2" "libgpg-error" "libgcrypt" "libotr" "libpurple"
+    "FriBidi" "LMX"
 )
 
 # Look up framework name for a dylib basename.

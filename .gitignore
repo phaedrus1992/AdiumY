@@ -32,6 +32,8 @@ Frameworks/libgthread.framework
 Frameworks/libintl.framework
 # MMTabBarView.framework — built fresh by CI, see .github/workflows/ci.yml
 Frameworks/MMTabBarView.framework
+Frameworks/FriBidi.framework
+Frameworks/LMX.framework
 
 Resources/af/LC_MESSAGES
 Resources/af/LC_MESSAGES
