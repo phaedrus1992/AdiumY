@@ -2,4 +2,4 @@ name: "AdiumY"
 description: "Adium fork? WHY?"
 id: "adiumy"
 
-tags: ["lang-objc", "lang-c", "lang-cpp"]
+tags: ["macos", "lang-objc", "lang-c", "lang-cpp"]
