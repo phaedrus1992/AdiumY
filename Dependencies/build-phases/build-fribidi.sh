@@ -28,6 +28,7 @@ build_fribidi() {
 
 build_fribidi_phase() {
     echo "=== Phase: FriBidi $BUILD_FRIBIDI_VERSION ==="
+    skip_cached "fribidi" "$BUILD_FRIBIDI_SHA256" && return 0
     build_for_archs build_fribidi "libfribidi.0.dylib"
 
     # Stage headers from sandbox so framework doesn't reference ephemeral paths
@@ -35,4 +36,5 @@ build_fribidi_phase() {
     cp -R "$SANDBOX_X86_64/include/fribidi"/ "$BUILD_DIR/staging/fribidi/" 2>/dev/null || true
     build_framework "FriBidi" "FriBidi" "$BUILD_DIR/lib/libfribidi.0.dylib" \
         "$BUILD_DIR/staging/fribidi" "$BUILD_FRIBIDI_VERSION"
+    write_cache "fribidi" "$BUILD_FRIBIDI_SHA256"
 }

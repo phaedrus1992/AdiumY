@@ -29,6 +29,7 @@ build_libxml2() {
 
 build_libxml2_phase() {
     echo "=== Phase: libxml2 $BUILD_LIBXML2_VERSION ==="
+    skip_cached "libxml2" "$BUILD_LIBXML2_SHA256" && return 0
     # Dylib name libxml2.16.dylib: libtool -version-info is CURRENT:MICRO:AGE with
     # CURRENT=major+minor=17, AGE=minor-compat=1, so suffix = CURRENT-AGE = 16
     # (verified in the 2.15.3 configure.ac).
@@ -46,4 +47,5 @@ build_libxml2_phase() {
     sed -i '' "s|$SANDBOX_X86_64|$BUILD_DIR|g" "$BUILD_DIR/lib/pkgconfig/libxml-2.0.pc"
     mkdir -p "$BUILD_DIR/include"
     cp -R "$SANDBOX_X86_64/include/libxml2" "$BUILD_DIR/include/"
+    write_cache "libxml2" "$BUILD_LIBXML2_SHA256"
 }

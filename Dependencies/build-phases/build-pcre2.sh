@@ -29,6 +29,7 @@ build_pcre2() {
 
 build_pcre2_phase() {
     echo "=== Phase: pcre2 $BUILD_PCRE2_VERSION ==="
+    skip_cached "pcre2" "$BUILD_PCRE2_SHA256" && return 0
     build_for_archs build_pcre2 "libpcre2-8.0.dylib"
     build_framework "libpcre2-8" "libpcre2-8" "$BUILD_DIR/lib/libpcre2-8.0.dylib" "" "$BUILD_PCRE2_VERSION"
 
@@ -37,4 +38,5 @@ build_pcre2_phase() {
         mkdir -p "$BUILD_DIR/include"
         cp -R "$SANDBOX_X86_64/include/"pcre2*.h "$BUILD_DIR/include/" 2>/dev/null || true
     fi
+    write_cache "pcre2" "$BUILD_PCRE2_SHA256"
 }

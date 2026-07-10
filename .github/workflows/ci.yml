@@ -41,7 +41,7 @@ jobs:
       - name: Install build tools
         run: brew install meson ninja pkg-config intltool || true
 
-      - name: Cache vendored dependency frameworks
+      - name: Cache vendored dependency builds
         id: deps-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -59,13 +59,20 @@ jobs:
             Frameworks/libgobject.framework
             Frameworks/libgthread.framework
             Frameworks/libintl.framework
-          key: deps-frameworks-${{ runner.os }}-${{ hashFiles('Dependencies/vendor/**', 'Dependencies/build-common.sh', 'Dependencies/build-phases/**', 'Dependencies/build-universal-deps.sh', 'Dependencies/meson-cross-*.ini') }}
+            Frameworks/FriBidi.framework
+            Frameworks/LMX.framework
+            Dependencies/build
+            Dependencies/.cache
+          key: deps-v2-${{ runner.os }}-${{ hashFiles('Dependencies/vendor/**', 'Dependencies/build-common.sh', 'Dependencies/build-phases/**', 'Dependencies/build-universal-deps.sh', 'Dependencies/meson-cross-*.ini') }}
+          restore-keys: |
+            deps-v2-${{ runner.os }}-
 
       - name: Build universal dependencies (vendored, no network)
         if: steps.deps-cache.outputs.cache-hit != 'true'
         run: |
           set -o pipefail
           LOG_FILE="$RUNNER_TEMP/build-deps.log"
+          echo "--- Restored cached build artifacts, checking per-dependency stamps ---"
           bash Dependencies/build-universal-deps.sh 2>&1 | tee "$LOG_FILE" | tail -40
           echo "log-path=$LOG_FILE" >> "$GITHUB_ENV"
 

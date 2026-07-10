@@ -25,6 +25,7 @@ SANDBOX_ARM64="$ROOTDIR/sandbox-arm64"
 SDK_DIR="$(xcrun --sdk macosx --show-sdk-path)"
 SDK_VER="11.0"
 NUM_JOBS="$(sysctl -n hw.activecpu 2>/dev/null || echo 4)"
+FORCE="${FORCE:-0}"
 
 # ---- Architecture triples ----
 HOST_X86_64="x86_64-apple-darwin"
@@ -90,6 +91,34 @@ _lookup_binary() {
 # ---- Cleanup ----
 cleanup_build_dirs() {
     rm -rf "$SANDBOX_X86_64" "$SANDBOX_ARM64"
+}
+
+# ---- Build cache (per-dependency stamps) ----
+STAMP_DIR="$ROOTDIR/.cache/stamps"
+
+# Check if a dependency's build is already cached.
+# Usage: skip_cached <phase_name> <sha256>
+# Returns 0 (skip) if stamp matches, 1 (build needed) otherwise.
+skip_cached() {
+    local name="$1"
+    local sha256="$2"
+    local stamp="$STAMP_DIR/$name"
+
+    [ "$FORCE" -eq 1 ] && return 1
+    [ -f "$stamp" ] || return 1
+    [ "$(cat "$stamp")" = "$sha256" ] || return 1
+    echo "  CACHED: $name (matches stamp, use --force to rebuild)"
+    return 0
+}
+
+# Write build stamp after successful framework creation.
+# Usage: write_cache <phase_name> <sha256>
+write_cache() {
+    local name="$1"
+    local sha256="$2"
+    mkdir -p "$STAMP_DIR" || :
+    echo "$sha256" > "$STAMP_DIR/$name" || :
+    echo "  CACHED: wrote stamp for $name"
 }
 
 # ---- Per-arch build environment ----

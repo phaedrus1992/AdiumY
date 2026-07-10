@@ -28,8 +28,10 @@ build_libffi() {
 
 build_libffi_phase() {
     echo "=== Phase: libffi $BUILD_LIBFFI_VERSION ==="
+    skip_cached "libffi" "$BUILD_LIBFFI_SHA256" && return 0
     build_for_archs build_libffi "libffi.8.dylib"
     # No headers in the framework: ffitarget.h is arch-specific and only
     # glib's build consumes it (from the per-arch sandbox).
     build_framework "libffi" "libffi" "$BUILD_DIR/lib/libffi.8.dylib" "" "$BUILD_LIBFFI_VERSION"
+    write_cache "libffi" "$BUILD_LIBFFI_SHA256"
 }

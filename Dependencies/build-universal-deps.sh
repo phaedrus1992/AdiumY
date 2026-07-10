@@ -10,6 +10,7 @@
 # Flags:
 #   --clean        Remove all cached source and build artifacts before building
 #   --build-dir=<dir>  Override build output directory (default: Dependencies/build/)
+#   --force        Ignore build stamps and rebuild all dependencies
 
 set -o pipefail
 
@@ -24,6 +25,7 @@ while [ $# -gt 0 ]; do
         --clean) CLEAN=1 ;;
         --build-dir=*) BUILD_DIR_OVERRIDE="${1#*=}" ;;
         --only=*) ONLY_PHASE="${1#*=}" ;;
+        --force) FORCE=1 ;;
         *) echo "Unknown option: $1" >&2; exit 1 ;;
     esac
     shift

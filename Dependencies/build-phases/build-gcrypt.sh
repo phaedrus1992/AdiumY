@@ -33,6 +33,7 @@ build_gcrypt() {
 
 build_gcrypt_phase() {
     echo "=== Phase: libgcrypt $BUILD_GCRYPT_VERSION ==="
+    skip_cached "gcrypt" "$BUILD_GCRYPT_SHA256" && return 0
     build_for_archs build_gcrypt "libgcrypt.20.dylib"
 
     # Stage gcrypt headers so framework provides them for the Adium target
@@ -40,4 +41,5 @@ build_gcrypt_phase() {
     cp "$SANDBOX_X86_64/include/"gcrypt*.h "$BUILD_DIR/staging/gcrypt/" 2>/dev/null || true
     build_framework "libgcrypt" "libgcrypt" "$BUILD_DIR/lib/libgcrypt.20.dylib" \
         "$BUILD_DIR/staging/gcrypt" "$BUILD_GCRYPT_VERSION"
+    write_cache "gcrypt" "$BUILD_GCRYPT_SHA256"
 }

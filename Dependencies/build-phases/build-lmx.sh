@@ -30,6 +30,7 @@ build_lmx() {
 
 build_lmx_phase() {
     echo "=== Phase: LMX $BUILD_LMX_VERSION ==="
+    skip_cached "lmx" "$BUILD_LMX_SHA256" && return 0
     build_for_archs build_lmx "libLMX.dylib"
 
     # Stage headers from sandbox
@@ -37,4 +38,5 @@ build_lmx_phase() {
     cp -R "$SANDBOX_X86_64/include/lmx"/ "$BUILD_DIR/staging/lmx/" 2>/dev/null || true
     build_framework "LMX" "LMX" "$BUILD_DIR/lib/libLMX.dylib" \
         "$BUILD_DIR/staging/lmx" "$BUILD_LMX_VERSION"
+    write_cache "lmx" "$BUILD_LMX_SHA256"
 }

@@ -34,6 +34,7 @@ build_gettext() {
 
 build_gettext_phase() {
     echo "=== Phase: gettext $BUILD_GETTEXT_VERSION ==="
+    skip_cached "gettext" "$BUILD_GETTEXT_SHA256" && return 0
     build_for_archs build_gettext "libintl.8.dylib"
 
     # Stage only libintl headers (not the shared $BUILD_DIR/include)
@@ -66,4 +67,5 @@ Libs: -L\${libdir} -lintl
 Cflags: -I\${includedir}
 PCEOF
     fi
+    write_cache "gettext" "$BUILD_GETTEXT_SHA256"
 }

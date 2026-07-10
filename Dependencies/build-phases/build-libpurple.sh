@@ -46,6 +46,7 @@ build_libpurple() {
 
 build_libpurple_phase() {
     echo "=== Phase: libpurple $BUILD_LIBPURPLE_VERSION ==="
+    skip_cached "libpurple" "$BUILD_LIBPURPLE_SHA256" && return 0
 
     # Extract here (outer scope) so LIBPURPLE_SRC survives build_for_archs's subshell.
     local src_dir
@@ -74,4 +75,5 @@ build_libpurple_phase() {
        "$src/protocols/jabber/iq.h" "$src/protocols/jabber/namespaces.h" \
        "$hdr/"
     cp "$src/protocols/irc/irc.h" "$hdr/"
+    write_cache "libpurple" "$BUILD_LIBPURPLE_SHA256"
 }
