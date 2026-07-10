@@ -116,8 +116,8 @@ skip_cached() {
 write_cache() {
     local name="$1"
     local sha256="$2"
-    mkdir -p "$STAMP_DIR"
-    echo "$sha256" > "$STAMP_DIR/$name"
+    mkdir -p "$STAMP_DIR" || :
+    echo "$sha256" > "$STAMP_DIR/$name" || :
     echo "  CACHED: wrote stamp for $name"
 }
 
