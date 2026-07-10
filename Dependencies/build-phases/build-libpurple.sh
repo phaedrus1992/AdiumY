@@ -54,8 +54,11 @@ build_libpurple_phase() {
 
     build_for_archs build_libpurple "libpurple.0.dylib"
 
+    # Stage headers from sandbox so framework doesn't reference ephemeral paths
+    mkdir -p "$BUILD_DIR/staging/libpurple"
+    cp -R "$SANDBOX_X86_64/include/libpurple"/ "$BUILD_DIR/staging/libpurple/" 2>/dev/null || true
     build_framework "libpurple" "libpurple" "$BUILD_DIR/lib/libpurple.0.dylib" \
-        "$SANDBOX_X86_64/include/libpurple"
+        "$BUILD_DIR/staging/libpurple" "$BUILD_LIBPURPLE_VERSION"
 
     # Purple Service imports internal + prpl headers not installed by `make install`.
     # Copy them from the source tree (same set the old fork's build shipped, minus

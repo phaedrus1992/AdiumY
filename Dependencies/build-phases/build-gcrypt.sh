@@ -34,5 +34,10 @@ build_gcrypt() {
 build_gcrypt_phase() {
     echo "=== Phase: libgcrypt $BUILD_GCRYPT_VERSION ==="
     build_for_archs build_gcrypt "libgcrypt.20.dylib"
-    build_framework "libgcrypt" "libgcrypt" "$BUILD_DIR/lib/libgcrypt.20.dylib" ""
+
+    # Stage gcrypt headers so framework provides them for the Adium target
+    mkdir -p "$BUILD_DIR/staging/gcrypt"
+    cp "$SANDBOX_X86_64/include/"gcrypt*.h "$BUILD_DIR/staging/gcrypt/" 2>/dev/null || true
+    build_framework "libgcrypt" "libgcrypt" "$BUILD_DIR/lib/libgcrypt.20.dylib" \
+        "$BUILD_DIR/staging/gcrypt" "$BUILD_GCRYPT_VERSION"
 }

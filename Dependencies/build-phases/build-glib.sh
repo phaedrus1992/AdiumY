@@ -126,7 +126,7 @@ build_glib_phase() {
     local glibconfig_src="$BUILD_DIR/lib/glib-2.0/include/glibconfig.h"
 
     # Build the glib framework first with all headers
-    build_framework "glib" "glib" "$BUILD_DIR/lib/libglib-2.0.0.dylib" "$glib_headers"
+    build_framework "glib" "glib" "$BUILD_DIR/lib/libglib-2.0.0.dylib" "$glib_headers" "$BUILD_GLIB_VERSION"
 
     # Copy glibconfig.h into the glib framework headers
     if [ -f "$glibconfig_src" ]; then
@@ -136,7 +136,7 @@ build_glib_phase() {
 
     # Copy glib headers into the sub-framework Headers/ dirs
     for sub in libgthread libgmodule libgobject libgio; do
-        build_framework "$sub" "$sub" "$BUILD_DIR/lib/$sub-2.0.0.dylib" ""
+        build_framework "$sub" "$sub" "$BUILD_DIR/lib/$sub-2.0.0.dylib" "" "$BUILD_GLIB_VERSION"
         mkdir -p "$SRCROOT/Frameworks/$sub.framework/Versions/A/Headers"
         if [ -d "$SRCROOT/Frameworks/glib.framework/Versions/A/Headers" ]; then
             cp -R "$SRCROOT/Frameworks/glib.framework/Versions/A/Headers/" \

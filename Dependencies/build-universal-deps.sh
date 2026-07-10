@@ -77,33 +77,74 @@ run_phase gcrypt build_gcrypt_phase
 run_phase libotr build_libotr_phase
 run_phase libpurple build_libpurple_phase
 
-# ---- Rewrite dependency links ----
+# ---- Verification gate ----
+# Every framework from the map must pass structural checks.
+# In --only mode, frameworks not built by the selected phase are skipped.
 echo ""
-echo "=== Rewriting framework dependency links ==="
-rewrite_dependency_links "$SRCROOT/Frameworks"
+echo "=== Verifying frameworks ==="
+
+verify_mode="full"
+if [ -n "$ONLY_PHASE" ]; then
+    verify_mode="partial"
+fi
+
+has_errors=0
+for i in "${!DYLIB_MAP_DYLIB[@]}"; do
+    fw="${DYLIB_MAP_FRAMEWORK[$i]}"
+    bin="${DYLIB_MAP_BINARY[$i]}"
+    fw_dir="$SRCROOT/Frameworks/$fw.framework"
+    binary="$fw_dir/Versions/A/$bin"
+
+    if [ ! -f "$binary" ]; then
+        if [ "$verify_mode" = "full" ]; then
+            echo "  FAIL: $fw.framework — binary missing ($binary)"
+            has_errors=1
+        else
+            echo "  SKIP: $fw.framework — not built (--only mode)"
+        fi
+        continue
+    fi
+
+    # Check universal archs
+    archs="$(lipo -archs "$binary" 2>/dev/null || echo "")"
+    if ! echo "$archs" | grep -q "x86_64" || ! echo "$archs" | grep -q "arm64"; then
+        echo "  FAIL: $fw.framework — missing archs (got: $archs)"
+        has_errors=1
+    fi
+
+    # Check for leaked absolute / sandbox / build paths
+    bad_deps="$(otool -L "$binary" 2>/dev/null | grep -E '(/Users/|sandbox-|/Dependencies/build)')" || true
+    if [ -n "$bad_deps" ]; then
+        echo "  FAIL: $fw.framework — contains absolute/sandbox dependency paths:"
+        echo "$bad_deps"
+        has_errors=1
+    fi
+
+    # Check code signature
+    if ! codesign --verify --strict "$binary" 2>/dev/null; then
+        echo "  FAIL: $fw.framework — codesign verification failed"
+        has_errors=1
+    fi
+
+    # Check top-level symlinks
+    if [ ! -L "$fw_dir/$bin" ] || [ ! -L "$fw_dir/Headers" ] || \
+       [ ! -L "$fw_dir/Resources" ] || [ ! -L "$fw_dir/Versions/Current" ]; then
+        echo "  FAIL: $fw.framework — top-level symlinks missing/resolved"
+        has_errors=1
+    fi
+done
 
 # ---- Cleanup sandboxes ----
 echo ""
 echo "=== Cleaning up ==="
 cleanup_build_dirs
 
+if [ "$has_errors" -ne 0 ]; then
+    echo ""
+    echo "=== VERIFICATION FAILED ===" >&2
+    exit 1
+fi
+
 echo ""
-echo "=== Build complete ==="
-echo "Frameworks in: $SRCROOT/Frameworks/"
-echo ""
-echo "Frameworks built:"
-for fw in "$SRCROOT/Frameworks"/*.framework; do
-    name="$(basename "$fw" .framework)"
-    binary=""
-    if [ -f "$fw/Versions/A/$name" ]; then
-        binary="$fw/Versions/A/$name"
-    elif [ -f "$fw/Versions/A/lib$name" ]; then
-        binary="$fw/Versions/A/lib$name"
-    fi
-    if [ -n "$binary" ] && [ -f "$binary" ]; then
-        archs="$(lipo -info "$binary" 2>/dev/null | grep -o 'are:.*' | cut -d' ' -f2- || echo 'unknown')"
-        echo "  $name.framework ($archs)"
-    else
-        echo "  $name.framework (no binary)"
-    fi
-done
+echo "=== Build complete === $(lipo -archs "$binary" 2>/dev/null || true)"
+echo "All frameworks verified OK."

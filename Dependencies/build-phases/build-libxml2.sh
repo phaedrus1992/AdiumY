@@ -33,7 +33,12 @@ build_libxml2_phase() {
     # CURRENT=major+minor=17, AGE=minor-compat=1, so suffix = CURRENT-AGE = 16
     # (verified in the 2.15.3 configure.ac).
     build_for_archs build_libxml2 "libxml2.16.dylib"
-    build_framework "libxml2" "libxml2" "$BUILD_DIR/lib/libxml2.16.dylib" "$SANDBOX_X86_64/include/libxml2"
+
+    # Stage headers from sandbox so framework doesn't reference ephemeral paths
+    mkdir -p "$BUILD_DIR/staging/libxml2"
+    cp -R "$SANDBOX_X86_64/include/libxml2"/ "$BUILD_DIR/staging/libxml2/" 2>/dev/null || true
+    build_framework "libxml2" "libxml2" "$BUILD_DIR/lib/libxml2.16.dylib" \
+        "$BUILD_DIR/staging/libxml2" "$BUILD_LIBXML2_VERSION"
 
     # Copy .pc file for downstream (libpurple) and fix prefix
     mkdir -p "$BUILD_DIR/lib/pkgconfig"

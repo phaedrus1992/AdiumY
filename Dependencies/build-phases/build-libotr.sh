@@ -33,6 +33,10 @@ build_libotr() {
 build_libotr_phase() {
     echo "=== Phase: libotr $BUILD_LIBOTR_VERSION ==="
     build_for_archs build_libotr "libotr.5.dylib"
+
+    # Stage headers from sandbox so framework doesn't reference ephemeral paths
+    mkdir -p "$BUILD_DIR/staging/libotr"
+    cp -R "$SANDBOX_X86_64/include/libotr"/ "$BUILD_DIR/staging/libotr/" 2>/dev/null || true
     build_framework "libotr" "libotr" "$BUILD_DIR/lib/libotr.5.dylib" \
-        "$SANDBOX_X86_64/include/libotr"
+        "$BUILD_DIR/staging/libotr" "$BUILD_LIBOTR_VERSION"
 }

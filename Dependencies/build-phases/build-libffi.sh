@@ -31,5 +31,5 @@ build_libffi_phase() {
     build_for_archs build_libffi "libffi.8.dylib"
     # No headers in the framework: ffitarget.h is arch-specific and only
     # glib's build consumes it (from the per-arch sandbox).
-    build_framework "libffi" "libffi" "$BUILD_DIR/lib/libffi.8.dylib" ""
+    build_framework "libffi" "libffi" "$BUILD_DIR/lib/libffi.8.dylib" "" "$BUILD_LIBFFI_VERSION"
 }

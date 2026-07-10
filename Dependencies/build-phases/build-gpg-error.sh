@@ -30,5 +30,10 @@ build_gpg_error() {
 build_gpg_error_phase() {
     echo "=== Phase: libgpg-error $BUILD_GPGERROR_VERSION ==="
     build_for_archs build_gpg_error "libgpg-error.0.dylib"
-    build_framework "libgpg-error" "libgpg-error" "$BUILD_DIR/lib/libgpg-error.0.dylib" ""
+
+    # Stage gpg-error headers so framework provides them for the Adium target
+    mkdir -p "$BUILD_DIR/staging/gpg-error"
+    cp "$SANDBOX_X86_64/include/"gpg-error*.h "$BUILD_DIR/staging/gpg-error/" 2>/dev/null || true
+    build_framework "libgpg-error" "libgpg-error" "$BUILD_DIR/lib/libgpg-error.0.dylib" \
+        "$BUILD_DIR/staging/gpg-error" "$BUILD_GPGERROR_VERSION"
 }

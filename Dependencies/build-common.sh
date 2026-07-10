@@ -30,6 +30,59 @@ NUM_JOBS="$(sysctl -n hw.activecpu 2>/dev/null || echo 4)"
 HOST_X86_64="x86_64-apple-darwin"
 HOST_ARM64="aarch64-apple-darwin"
 
+# ---- Dependency Map ----
+# Maps dylib basename → framework name → binary name.
+# Three parallel indexed arrays (bash 3.2 compatible, no associative arrays).
+# Used by build_framework to rewrite inter-framework dependency paths to @rpath.
+readonly DYLIB_MAP_DYLIB=(
+    "libffi.8.dylib"
+    "libintl.8.dylib"
+    "libglib-2.0.0.dylib"
+    "libgmodule-2.0.0.dylib"
+    "libgobject-2.0.0.dylib"
+    "libgthread-2.0.0.dylib"
+    "libgio-2.0.0.dylib"
+    "libpcre2-8.0.dylib"
+    "libxml2.16.dylib"
+    "libgpg-error.0.dylib"
+    "libgcrypt.20.dylib"
+    "libotr.5.dylib"
+    "libpurple.0.dylib"
+)
+readonly DYLIB_MAP_FRAMEWORK=(
+    "libffi" "libintl" "glib" "libgmodule" "libgobject" "libgthread" "libgio"
+    "libpcre2-8" "libxml2" "libgpg-error" "libgcrypt" "libotr" "libpurple"
+)
+readonly DYLIB_MAP_BINARY=(
+    "libffi" "libintl" "glib" "libgmodule" "libgobject" "libgthread" "libgio"
+    "libpcre2-8" "libxml2" "libgpg-error" "libgcrypt" "libotr" "libpurple"
+)
+
+# Look up framework name for a dylib basename.
+# Usage: fw="$(_lookup_framework "libfoo.X.dylib")" || fw=""
+_lookup_framework() {
+    local dylib="$1" i
+    for i in "${!DYLIB_MAP_DYLIB[@]}"; do
+        if [ "${DYLIB_MAP_DYLIB[$i]}" = "$dylib" ]; then
+            echo "${DYLIB_MAP_FRAMEWORK[$i]}"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Look up binary name for a dylib basename.
+_lookup_binary() {
+    local dylib="$1" i
+    for i in "${!DYLIB_MAP_DYLIB[@]}"; do
+        if [ "${DYLIB_MAP_DYLIB[$i]}" = "$dylib" ]; then
+            echo "${DYLIB_MAP_BINARY[$i]}"
+            return 0
+        fi
+    done
+    return 1
+}
+
 # ---- Cleanup ----
 cleanup_build_dirs() {
     rm -rf "$SANDBOX_X86_64" "$SANDBOX_ARM64"
@@ -45,7 +98,7 @@ set_build_env() {
     export CXX="clang++"
     export CFLAGS="-arch $arch -mmacosx-version-min=$min_ver -isysroot $sdk -O2"
     export CXXFLAGS="-arch $arch -mmacosx-version-min=$min_ver -isysroot $sdk -O2"
-    export LDFLAGS="-arch $arch -mmacosx-version-min=$min_ver -isysroot $sdk"
+    export LDFLAGS="-arch $arch -mmacosx-version-min=$min_ver -isysroot $sdk -Wl,-headerpad_max_install_names"
     export OBJCFLAGS="-arch $arch -mmacosx-version-min=$min_ver -isysroot $sdk"
 
     export ARCH="$arch"
@@ -105,9 +158,12 @@ build_for_archs() {
     # Create .dylib symlinks (linker looks for libfoo.dylib, not libfoo.0.0.dylib)
     for dylib in "$lib_dir"/*.dylib; do
         [ -f "$dylib" ] || continue
-        local name="$(basename "$dylib")"
+        [ -L "$dylib" ] && continue   # guard: skip symlinks from a prior run to avoid junk chains
+        local name
+        name="$(basename "$dylib")"
         # Strip trailing version number: libfoo.X.dylib -> libfoo.dylib
-        local bare="$(echo "$name" | sed 's/\.[0-9]\{1,\}\.dylib$/.dylib/')"
+        local bare
+        bare="$(echo "$name" | sed 's/\.[0-9]\{1,\}\.dylib$/.dylib/')"
         if [ "$bare" != "$name" ] && [ ! -f "$lib_dir/$bare" ] && [ ! -L "$lib_dir/$bare" ]; then
             ln -sf "$name" "$lib_dir/$bare"
             echo "  symlink: $bare -> $name"
@@ -117,39 +173,94 @@ build_for_archs() {
 }
 
 # ---- Create a .framework bundle ----
+# Creates a complete, self-contained, relocatable framework bundle.
 # Usage: build_framework <name> <binary_name> <dylib_path> <header_dir> [version]
+# The version defaults to "A" but phases should pass their library version
+# (e.g. "1.12.2") so Info.plist carries the real version.
 build_framework() {
     local name="$1"        # e.g. "glib"
     local binary_name="$2" # e.g. "glib" (the file inside framework)
     local dylib_path="$3"  # path to the universal dylib
-    local header_dir="$4"  # path to headers (or empty)
+    local header_dir="$4"  # path to headers (or empty string)
     local version="${5:-A}"
 
     local fw_dir="$SRCROOT/Frameworks/$name.framework"
     local ver_dir="$fw_dir/Versions/$version"
 
-    echo "--- Creating framework: $name ---"
+    echo "--- Creating framework: $name (v$version) ---"
 
-    mkdir -p "$ver_dir/Resources"
-    mkdir -p "$ver_dir/Headers"
+    # Idempotent: remove any stale bundle before building
+    rm -rf "$fw_dir"
+    mkdir -p "$ver_dir/Resources" "$ver_dir/Headers"
 
-    # Copy binary
+    # ---- Binary ----
     if [ -f "$dylib_path" ]; then
         cp "$dylib_path" "$ver_dir/$binary_name"
         chmod 755 "$ver_dir/$binary_name"
 
-        # Set install name
+        # Set @rpath-based install name (relocatable, matches consumer rpaths)
         install_name_tool -id \
-            "@executable_path/../Frameworks/$name.framework/Versions/$version/$binary_name" \
-            "$ver_dir/$binary_name" 2>/dev/null || true
+            "@rpath/$name.framework/Versions/$version/$binary_name" \
+            "$ver_dir/$binary_name"
+
+        # ---- Rewrite inter-framework dependency links ----
+        # Collect all non-system, non-@rpath dependency paths from otool -L.
+        # For each one, look up the dylib basename in DYLIB_MAP: mapped deps get
+        # rewritten to @rpath/<fw>.framework/Versions/<ver>/<bin>; unmapped
+        # absolute paths (which should never exist for our vendored deps) fail
+        # the phase loudly.
+        local dep_path dylib_basename fw_lookup bin_lookup new_path has_errors
+        has_errors=0
+
+        while IFS= read -r line; do
+            dep_path="$(echo "$line" | awk '{print $1}')"
+            [ -z "$dep_path" ] && continue
+
+            dylib_basename="$(basename "$dep_path")"
+            fw_lookup="$(_lookup_framework "$dylib_basename")" || true
+
+            if [ -n "$fw_lookup" ]; then
+                bin_lookup="$(_lookup_binary "$dylib_basename")"
+                new_path="@rpath/${fw_lookup}.framework/Versions/$version/${bin_lookup}"
+                if [ "$dep_path" != "$new_path" ]; then
+                    install_name_tool -change "$dep_path" "$new_path" "$ver_dir/$binary_name"
+                    echo "  $binary_name: $dep_path -> $new_path"
+                fi
+            else
+                # Only fail on absolute paths (these are build-system leaks).
+                # System paths, @rpath, @loader_path, and leaf names are fine.
+                case "$dep_path" in
+                    /*)
+                        echo "  ERROR: unmapped absolute dependency $dep_path in $binary_name" >&2
+                        has_errors=1
+                        ;;
+                esac
+            fi
+        done < <(
+            otool -L "$ver_dir/$binary_name" 2>/dev/null | \
+            grep -v ':' | grep -v '/usr/lib/' | grep -v '/System/' | \
+            grep -v '@rpath' | grep -v '@executable_path'
+        )
+
+        if [ "$has_errors" -ne 0 ]; then
+            return 1
+        fi
+
+        # Re-sign after install_name_tool edits (arm64 macOS kills unsigned edits)
+        codesign -f -s - "$ver_dir/$binary_name"
     fi
 
-    # Copy headers
+    # ---- Headers ----
+    # cp -RL dereferences symlinks so no absolute symlinks leak into bundles
     if [ -n "$header_dir" ] && [ -d "$header_dir" ]; then
-        cp -R "$header_dir/" "$ver_dir/Headers/"
+        cp -RL "$header_dir/" "$ver_dir/Headers/"
     fi
 
-    # Create Info.plist
+    # ---- Info.plist ----
+    local plist_version="$version"
+    if [ "$version" = "A" ]; then
+        plist_version="1.0"
+    fi
     local plist="$ver_dir/Resources/Info.plist"
     cat > "$plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -169,76 +280,23 @@ build_framework() {
     <key>CFBundlePackageType</key>
     <string>FMWK</string>
     <key>CFBundleShortVersionString</key>
-    <string>$version</string>
+    <string>$plist_version</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleVersion</key>
-    <string>$version</string>
+    <string>$plist_version</string>
 </dict>
 </plist>
 PLIST
+    plutil -lint "$plist" || { echo "  ERROR: Info.plist lint failed for $name" >&2; return 1; }
 
-    # Create symlinks
+    # ---- Symlinks ----
     ln -sfh "$version" "$fw_dir/Versions/Current"
     ln -sfh "Versions/Current/$binary_name" "$fw_dir/$binary_name"
     ln -sfh "Versions/Current/Headers" "$fw_dir/Headers"
     ln -sfh "Versions/Current/Resources" "$fw_dir/Resources"
 
     echo "--- Framework $name created ---"
-}
-
-# ---- Rewrite inter-framework dependency links ----
-# Scans all framework binaries and rewrites SANDBOX/BUILD_DIR paths to
-# @executable_path/../Frameworks/<dep>.framework/Versions/A/<dep>
-# NOTE: macOS ships bash 3.2 (no declare -A), so this uses indexed arrays.
-rewrite_dependency_links() {
-    local frameworks_dir="$1"
-
-    echo "--- Rewriting dependency links ---"
-
-    # Collect framework names (indexed array, bash 3.2 compatible).
-    # Substring match in the lookup loop handles dylib aliases natively
-    # (e.g. "glib" matches "libglib-2.0"), no explicit alias map needed.
-    local fw_names=()
-    local fw fw_name
-    for fw in "$frameworks_dir"/*.framework; do
-        fw_name="$(basename "$fw" .framework)"
-        fw_names+=("$fw_name")
-    done
-
-    for fw in "$frameworks_dir"/*.framework; do
-        local name
-        name="$(basename "$fw" .framework)"
-        local binary="$fw/Versions/A/$name"
-
-        if [ ! -f "$binary" ]; then
-            continue
-        fi
-
-        # Get all dependency paths
-        otool -L "$binary" 2>/dev/null | grep -v ':' | grep -v '/usr/lib/' | \
-            grep -v '/System/' | grep -v '@executable_path' | \
-            while read -r line; do
-            local dep_path
-            dep_path="$(echo "$line" | awk '{print $1}')"
-            if [ -z "$dep_path" ]; then continue; fi
-
-            # Check if this path matches a known framework
-            local fw_name
-            for fw_name in "${fw_names[@]}"; do
-                if echo "$dep_path" | grep -q "$fw_name"; then
-                    local new_path="@executable_path/../Frameworks/$fw_name.framework/Versions/A/$fw_name"
-                    if [ "$dep_path" != "$new_path" ]; then
-                        install_name_tool -change "$dep_path" "$new_path" "$binary" 2>/dev/null || true
-                        echo "  $binary: $dep_path -> $new_path"
-                    fi
-                    break
-                fi
-            done
-        done
-    done
-
-    echo "--- Dependency rewriting done ---"
 }
 
 # ---- Extract a vendored source tarball ----

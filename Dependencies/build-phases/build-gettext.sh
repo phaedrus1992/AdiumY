@@ -35,7 +35,14 @@ build_gettext() {
 build_gettext_phase() {
     echo "=== Phase: gettext $BUILD_GETTEXT_VERSION ==="
     build_for_archs build_gettext "libintl.8.dylib"
-    build_framework "libintl" "libintl" "$BUILD_DIR/lib/libintl.8.dylib" "$BUILD_DIR/include"
+
+    # Stage only libintl headers (not the shared $BUILD_DIR/include)
+    mkdir -p "$BUILD_DIR/staging/libintl"
+    if [ -d "$SANDBOX_X86_64/include" ]; then
+        cp "$SANDBOX_X86_64/include/"libintl*.h "$BUILD_DIR/staging/libintl/" 2>/dev/null || true
+    fi
+    build_framework "libintl" "libintl" "$BUILD_DIR/lib/libintl.8.dylib" \
+        "$BUILD_DIR/staging/libintl" "$BUILD_GETTEXT_VERSION"
 
     # Copy libintl headers to build dir so glib can include <libintl.h>
     if [ -d "$SANDBOX_X86_64/include" ]; then
