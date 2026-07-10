@@ -185,7 +185,7 @@ build_framework() {
     local version="${5:-A}"
 
     local fw_dir="$SRCROOT/Frameworks/$name.framework"
-    local ver_dir="$fw_dir/Versions/$version"
+    local ver_dir="$fw_dir/Versions/A"
 
     echo "--- Creating framework: $name (v$version) ---"
 
@@ -200,7 +200,7 @@ build_framework() {
 
         # Set @rpath-based install name (relocatable, matches consumer rpaths)
         install_name_tool -id \
-            "@rpath/$name.framework/Versions/$version/$binary_name" \
+            "@rpath/$name.framework/Versions/A/$binary_name" \
             "$ver_dir/$binary_name"
 
         # ---- Rewrite inter-framework dependency links ----
@@ -221,7 +221,7 @@ build_framework() {
 
             if [ -n "$fw_lookup" ]; then
                 bin_lookup="$(_lookup_binary "$dylib_basename")"
-                new_path="@rpath/${fw_lookup}.framework/Versions/$version/${bin_lookup}"
+                new_path="@rpath/${fw_lookup}.framework/Versions/A/${bin_lookup}"
                 if [ "$dep_path" != "$new_path" ]; then
                     install_name_tool -change "$dep_path" "$new_path" "$ver_dir/$binary_name"
                     echo "  $binary_name: $dep_path -> $new_path"
@@ -291,7 +291,7 @@ PLIST
     plutil -lint "$plist" || { echo "  ERROR: Info.plist lint failed for $name" >&2; return 1; }
 
     # ---- Symlinks ----
-    ln -sfh "$version" "$fw_dir/Versions/Current"
+    ln -sfh "A" "$fw_dir/Versions/Current"
     ln -sfh "Versions/Current/$binary_name" "$fw_dir/$binary_name"
     ln -sfh "Versions/Current/Headers" "$fw_dir/Headers"
     ln -sfh "Versions/Current/Resources" "$fw_dir/Resources"
