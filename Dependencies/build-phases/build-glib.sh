@@ -13,12 +13,6 @@ build_glib() {
     cd "$src_dir"
 
     # glib uses meson — need to find the cross file
-    local cross_arg=""
-    if [ "$HOST_TRIPLE" = "$HOST_ARM64" ]; then
-        cross_arg="--cross-file $ROOTDIR/meson-cross-arm64.ini"
-    else
-        cross_arg="--cross-file $ROOTDIR/meson-cross-x86_64.ini"
-    fi
 
     # Need pkg-config in PATH; look at vendored sandbox deps first (libffi, pcre2)
     export PATH="$BUILD_DIR/bin:$PATH"

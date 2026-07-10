@@ -24,6 +24,7 @@ SANDBOX_X86_64="$ROOTDIR/sandbox-x86_64"
 SANDBOX_ARM64="$ROOTDIR/sandbox-arm64"
 SDK_DIR="$(xcrun --sdk macosx --show-sdk-path)"
 SDK_VER="11.0"
+# shellcheck disable=SC2034 # used by build phase scripts that source this file
 NUM_JOBS="$(sysctl -n hw.activecpu 2>/dev/null || echo 4)"
 FORCE="${FORCE:-0}"
 
@@ -196,6 +197,7 @@ build_for_archs() {
         name="$(basename "$dylib")"
         # Strip trailing version number: libfoo.X.dylib -> libfoo.dylib
         local bare
+        # shellcheck disable=SC2001 # sed is clearer for this regex than bash pattern
         bare="$(echo "$name" | sed 's/\.[0-9]\{1,\}\.dylib$/.dylib/')"
         if [ "$bare" != "$name" ] && [ ! -f "$lib_dir/$bare" ] && [ ! -L "$lib_dir/$bare" ]; then
             ln -sf "$name" "$lib_dir/$bare"
@@ -359,7 +361,7 @@ vendored_extract() {
     fi
 
     mkdir -p "$extract_dir"
-    rm -rf "$extract_dir/$expected_dirname"
+    rm -rf "${extract_dir:?}/$expected_dirname"
     echo "  Extracting $filename..." >&2
     case "$filename" in
         *.tar.gz|*.tgz) tar -xzf "$tarball" -C "$extract_dir" ;;

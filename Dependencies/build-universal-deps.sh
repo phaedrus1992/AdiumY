@@ -7,6 +7,7 @@
 #
 # Usage: ./build-universal-deps.sh [--clean] [--build-dir=<dir>]
 #
+# shellcheck disable=SC1091 # sourced files use ROOTDIR, not determinable statically
 # Flags:
 #   --clean        Remove all cached source and build artifacts before building
 #   --build-dir=<dir>  Override build output directory (default: Dependencies/build/)
@@ -20,6 +21,7 @@ SRCROOT="$(cd "$ROOTDIR/.." && pwd)"
 # ---- Parse flags ----
 CLEAN=0
 ONLY_PHASE=""
+# shellcheck disable=SC2034 # BUILD_DIR_OVERRIDE is parsed for future build-dir override support; FORCE used by build-common.sh
 while [ $# -gt 0 ]; do
     case "$1" in
         --clean) CLEAN=1 ;;
