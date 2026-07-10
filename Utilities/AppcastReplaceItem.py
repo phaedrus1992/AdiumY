@@ -13,7 +13,6 @@ changelog_fmt = 'http://www.adium.im/changelogs/%(version)s.html'
 enclosure_fmt = '        <enclosure sparkle:md5Sum="%(md5)s" sparkle:version="%(version)s" url="%(url)s" length="%(file_size)s" type="application/octet-stream"/>\n'
 # End of configurable variables.
 
-import xml.etree.cElementTree as ElementTree
 import sys
 import os
 import time

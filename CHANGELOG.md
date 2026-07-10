@@ -19,3 +19,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 - Purple Service now only supports XMPP (Jabber), IRC, and SIMPLE protocols
 - Build system: removed reference to libmeanwhile and json-glib in Xcode project
+- Vendored Sparkle framework updated from 1.17.0 to 2.9.4
