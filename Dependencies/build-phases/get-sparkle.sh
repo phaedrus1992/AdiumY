@@ -51,3 +51,21 @@ fi
 cp -R "$EXTRACTED_FRAMEWORK/macos-arm64_x86_64/Sparkle.framework" "$FRAMEWORK_DIR"
 
 echo "Sparkle.framework installed successfully ($(file "$FRAMEWORK_DIR/Sparkle" | sed 's/.*://'))"
+
+echo "Downloading Sparkle $SPARKLE_VERSION CLI tools (generate_appcast, generate_keys, sign_update)"
+CLI_TARBALL_URL="https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz"
+CLI_DIR="$SRCROOT/Dependencies/build/sparkle-tools"
+
+mkdir -p "$CLI_DIR"
+curl -#L -o "$TEMP_DIR/sparkle.tar.xz" "$CLI_TARBALL_URL"
+tar -xJf "$TEMP_DIR/sparkle.tar.xz" -C "$TEMP_DIR"
+
+EXTRACTED_BIN_DIR="$(find "$TEMP_DIR" -path "*/bin" -type d | head -1)"
+if [ -z "$EXTRACTED_BIN_DIR" ]; then
+    echo "Warning: Could not find bin/ directory in Sparkle distribution archive" >&2
+else
+    cp "$EXTRACTED_BIN_DIR/generate_appcast" "$CLI_DIR/generate_appcast"
+    cp "$EXTRACTED_BIN_DIR/generate_keys" "$CLI_DIR/generate_keys"
+    cp "$EXTRACTED_BIN_DIR/sign_update" "$CLI_DIR/sign_update"
+    echo "Sparkle CLI tools installed to $CLI_DIR"
+fi"

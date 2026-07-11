@@ -17,7 +17,7 @@
             <connections>
                 <outlet property="interfaceController" destination="6706" id="6721"/>
                 <outlet property="menuController" destination="6655" id="6656"/>
-                <outlet property="updater" destination="7246" id="7265"/>
+                <outlet property="updaterController" destination="7246" id="7265"/>
             </connections>
         </customObject>
         <menu title="menubartest" systemMenu="main" id="6600" userLabel="MainMenu1">
@@ -617,9 +617,9 @@
             </connections>
         </customObject>
         <menu title="Menu" id="6946" userLabel="DockMenu"/>
-        <customObject id="7246" userLabel="SUUpdater" customClass="SUUpdater">
+        <customObject id="7246" userLabel="SPUStandardUpdaterController" customClass="SPUStandardUpdaterController">
             <connections>
-                <outlet property="delegate" destination="4001" id="7250"/>
+                <outlet property="updaterDelegate" destination="4001" id="7250"/>
             </connections>
         </customObject>
     </objects>

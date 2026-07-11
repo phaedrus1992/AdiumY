@@ -1134,7 +1134,7 @@ static NSString *prefsCategory;
  *		key: 		The key to be used  when reporting data to the server
  *		value:		Value to be used when reporting data to the server
  */
-- (NSArray *)feedParametersForUpdater:(SUUpdater *)updater sendingSystemProfile:(BOOL)sendProfileInfo
+- (NSArray *)feedParametersForUpdater:(SPUUpdater *)updater sendingSystemProfile:(BOOL)sendingProfile
 {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
@@ -1229,7 +1229,7 @@ static NSString *prefsCategory;
 	return profileInfo;
 }
 
-- (id<SUVersionComparison>)versionComparatorForUpdater:(SUUpdater *)updater
+- (id<SUVersionComparison>)versionComparatorForUpdater:(SPUUpdater *)updater
 {
 	return self;
 }

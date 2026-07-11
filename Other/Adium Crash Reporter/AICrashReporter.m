@@ -20,7 +20,6 @@
 #import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AITextViewWithPlaceholder.h>
-#import <Sparkle/Sparkle.h>
 
 #define CRASH_REPORT_URL @"http://www.visualdistortion.org/crash/post.jsp"
 #define KEY_CRASH_EMAIL_ADDRESS @"AdiumCrashReporterEmailAddress"
@@ -36,10 +35,6 @@
 #define ADIUM_UPDATE_BETA_URL @"http://beta.adiumx.com/"
 
 #define UNABLE_TO_SEND AILocalizedString(@"Unable to send crash report", nil)
-
-@interface AICrashReporter (PRIVATE)
-- (void)performVersionChecking;
-@end
 
 @implementation AICrashReporter
 
@@ -62,7 +57,6 @@
 	[crashLog release];
 	[slayerScript release];
 	[adiumPath release];
-	[statusChecker release];
 
 	[super dealloc];
 }
@@ -248,7 +242,7 @@
 		[self _loadBuildInformation];
 
 		// Perform version checking; when it is complete or fails, the submission process wil continue
-		[self performVersionChecking];
+		[self finishWithAcceptableVersion:YES newVersionString:nil];
 	}
 }
 
@@ -442,35 +436,6 @@
 
 	// Close our window to terminate
 	[window_MainWindow performClose:nil];
-}
-
-- (void)versionCheckingTimedOut
-{
-	[self statusChecker:nil foundVersion:nil isNewVersion:NO];
-}
-
-/*!
- * @brief Returns the date of the most recent Adium build (contacts adiumx.com asynchronously)
- */
-- (void)performVersionChecking
-{
-	statusChecker = [[SUStatusChecker statusCheckerForDelegate:self] retain];
-	[self performSelector:@selector(versionCheckingTimedOut) withObject:nil afterDelay:10.0];
-}
-
-- (void)statusChecker:(SUStatusChecker *)statusChecker
-		 foundVersion:(NSString *)versionString
-		 isNewVersion:(BOOL)isNewVersion
-{
-	// Only send the report if there is not a new version
-	if (!versionString) {
-		NSLog(@"Adium Crash Reporter warning: Could not retrieve version information from the server. Perhaps it is "
-			  @"blocked? Allowing the crash reporter anyways.");
-		isNewVersion = NO;
-	}
-
-	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(versionCheckingTimedOut) object:nil];
-	[self finishWithAcceptableVersion:!isNewVersion newVersionString:versionString];
 }
 
 #ifdef BETA_RELEASE

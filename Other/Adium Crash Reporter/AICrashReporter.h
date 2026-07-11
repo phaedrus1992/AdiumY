@@ -20,10 +20,9 @@
 	[[NSString stringWithFormat:@"~/Library/Logs/CrashReporter/%@.crash.log",                                          \
 								[[NSProcessInfo processInfo] processName]] stringByExpandingTildeInPath]
 
-@class AIAutoScrollView, AITextViewWithPlaceholder, SUStatusChecker;
-@protocol SUStatusCheckerDelegate;
+@class AIAutoScrollView, AITextViewWithPlaceholder;
 
-@interface AICrashReporter : NSObject <SUStatusCheckerDelegate> {
+@interface AICrashReporter : NSObject {
 	IBOutlet NSWindow *window_MainWindow;
 	IBOutlet NSTextField *textField_emailAddress;
 	IBOutlet NSTextField *textField_accountIM;
@@ -45,7 +44,6 @@
 	NSAppleScript *slayerScript;
 
 	NSString *adiumPath;
-	SUStatusChecker *statusChecker;
 
 	BOOL sentCrashLog;
 }
