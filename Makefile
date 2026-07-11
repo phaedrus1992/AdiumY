@@ -18,7 +18,7 @@ XCODEBUILD ?= xcodebuild
 CP=ditto --rsrc
 RM=rm
 
-.PHONY: all adium clean localizable-strings latest test astest install
+.PHONY: all adium clean localizable-strings latest test astest install format format-check coverage-check
 
 adium:
 	$(XCODEBUILD) -version
@@ -47,6 +47,19 @@ localizable-strings:
 	genstrings -o Frameworks/Adium\ Framework/Resources/en.lproj -s AILocalizedString Frameworks/Adium\ Framework/Source/*.m Frameworks/Adium\ Framework/Source/*.h
 	mv "tmp/Purple Service" Plugins
 	rmdir tmp || true
+
+# -- Quality enforcement targets --
+
+FORMAT_DIRS = Source Plugins Other "Frameworks/AIUtilities/Source" "Frameworks/AIUtilities/Other" "Frameworks/AIUtilities/AdiumApplescriptRunner" "Frameworks/Adium/Source" UnitTests
+
+format:
+	find $(FORMAT_DIRS) -type f \( -name '*.m' -o -name '*.mm' -o -name '*.h' -o -name '*.c' -o -name '*.cc' \) -not -path '*/libezv/*' -print0 | sort -z | xargs -0 clang-format -i
+
+format-check:
+	scripts/format-check.sh
+
+coverage-check:
+	scripts/coverage-check.sh
 
 latest:
 	hg pull -u

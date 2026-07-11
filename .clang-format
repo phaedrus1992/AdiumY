@@ -1,0 +1,30 @@
+---
+# Adium code style — matches existing conventions:
+#   - Tabs for indentation, 4-char tab width
+#   - K&R brace for control flow, Allman for functions/methods
+#   - Pointer * on the right (attached to variable name)
+#   - 120 column limit
+#   - ObjC: no space after @property
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: ForContinuationAndIndentation
+ColumnLimit: 120
+PointerAlignment: Right
+ObjCSpaceAfterProperty: false
+ObjCBlockIndentWidth: 4
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: Inline
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterControlStatement: Never
+  AfterFunction: true
+  AfterClass: false
+  AfterStruct: false
+  AfterEnum: false
+  BeforeElse: false
+  BeforeCatch: false
+  BeforeWhile: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+...

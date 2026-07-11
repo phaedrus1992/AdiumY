@@ -23,6 +23,13 @@ jobs:
       - name: Install xcpretty
         run: sudo gem install xcpretty --no-document --quiet 2>&1 || true
 
+      - name: Install clang-format
+        run: brew install clang-format 2>&1 || true
+
+      - name: Check code style (clang-format dry-run)
+        run: |
+          make format-check CLANG_FORMAT="$(brew --prefix clang-format)/bin/clang-format"
+
       - name: Shellcheck build scripts
         run: |
           brew install shellcheck 2>&1 || true
@@ -118,3 +125,15 @@ jobs:
       # is configured with --with-static-prpls=jabber,irc,simple and
       # --disable-plugins. The universal deps pipeline, MMTabBarView,
       # and AIUtilities are built first so they are available.
+
+      # Coverage check — runs tests with coverage and verifies threshold.
+      # Currently a no-op (no profile data = skipped). Enable once tests
+      # are running by adding the test command before this step, e.g.:
+      #   xcodebuild -project Adium.xcodeproj \
+      #              -configuration Debug \
+      #              -sdk macosx \
+      #              -enableCodeCoverage YES \
+      #              test 2>&1 | xcpretty
+      - name: Check code coverage threshold
+        run: |
+          make coverage-check
