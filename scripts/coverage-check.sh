@@ -63,8 +63,8 @@ while IFS= read -r line; do
       *Tests|*Test|AutoHyperlinks|MMTabBarView) continue ;;
     esac
 
-    # Compare as integer
-    PCT_INT=$(echo "$PCT" | cut -d'.' -f1)
+    # Compare as integer (strip decimal via parameter expansion, no subshell)
+    PCT_INT="${PCT%.*}"
     if [ "$PCT_INT" -lt "$THRESHOLD" ]; then
       echo "FAIL: $TARGET coverage ${PCT}% < ${THRESHOLD}%"
       FAILED=1
