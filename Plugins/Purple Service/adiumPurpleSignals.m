@@ -21,6 +21,7 @@
 #import <Adium/AIChatControllerProtocol.h>
 #import <Adium/AIListContact.h>
 #import <Adium/ESFileTransfer.h>
+#import <libpurple/jabber.h>
 
 static void buddy_status_changed_cb(PurpleBuddy *buddy, PurpleStatus *oldstatus, PurpleStatus *status,
 									PurpleBuddyEvent event);
@@ -516,6 +517,10 @@ void configureAdiumPurpleSignals(void)
 	// Register XEP-0184 and XEP-0333 callbacks
 	jabber_set_receipt_cb(jabber_receipt_received_cb);
 	jabber_set_chat_marker_cb(jabber_chat_marker_received_cb);
+
+	// Advertise XEP-0184 and XEP-0333 support in disco#info capabilities
+	jabber_add_feature(NS_RECEIPTS, NULL);
+	jabber_add_feature(NS_CHAT_MARKERS, NULL);
 
 	[pool release];
 }

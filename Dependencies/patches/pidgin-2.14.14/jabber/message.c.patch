@@ -38,8 +38,18 @@
  		}
  	}
 +
-+	if(jm->type == JABBER_MESSAGE_CHAT)
++	if(jm->add_receipt_request)
 +		jabber_receipt_add_request(message);
 
  	jabber_send(jm->js, message);
 
+@@ -1206,6 +1228,12 @@
+ 	}
+
+ 	g_free(xhtml);
++
++	jm->add_receipt_request = !jbr || !jbr->caps.info ||
++		jabber_resource_has_capability(jbr, NS_RECEIPTS);
+
+ 	jabber_message_send(jm);
+ 	jabber_message_free(jm);

@@ -59,6 +59,7 @@ build_libpurple_phase() {
        "$patches_dir/chatmarker.h" "$patches_dir/chatmarker.c" \
        "$LIBPURPLE_SRC/libpurple/protocols/jabber/"
     patch -d "$LIBPURPLE_SRC" -p1 < "$patches_dir/message.c.patch"
+    patch -d "$LIBPURPLE_SRC" -p1 < "$patches_dir/message.h.patch"
     patch -d "$LIBPURPLE_SRC" -p1 < "$patches_dir/jabber.h.patch"
     patch -d "$LIBPURPLE_SRC" -p1 < "$patches_dir/namespaces.h.patch"
     patch -d "$LIBPURPLE_SRC" -p1 < "$patches_dir/Makefile.am.patch"
