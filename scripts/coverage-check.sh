@@ -42,37 +42,38 @@ fi
 
 echo "Found coverage profile: $COV_FILE"
 
-# Get coverage report
-REPORT=$($XCRUN xccov view --report --files-for-targets "$COV_FILE" 2>/dev/null || true)
+# Verify jq is available for JSON parsing
+if ! command -v jq &>/dev/null; then
+  echo "ERROR: jq not found. Install via 'brew install jq'" >&2
+  exit 1
+fi
 
-if [ -z "$REPORT" ]; then
+# Get coverage report as JSON (more robust than text parsing — handles
+# spaces in target names, locale-independent formatting)
+# xccov view --report --json outputs per-target coverage as a fraction (0-1)
+REPORT_JSON=$($XCRUN xccov view --report --json "$COV_FILE" 2>/dev/null || true)
+
+if [ -z "$REPORT_JSON" ]; then
   echo "WARNING: xccov report is empty — no test coverage data generated."
   echo "SKIPPED — no coverage data to check."
   exit 0
 fi
 
 FAILED=0
-while IFS= read -r line; do
-  # Parse lines like:  Adium 45.2% (120/265)
-  if [[ $line =~ ^[[:space:]]*([^[:space:]]+)[[:space:]]+([0-9.]+)% ]]; then
-    TARGET="${BASH_REMATCH[1]}"
-    PCT="${BASH_REMATCH[2]}"
+# Parse JSON with jq — extract name and lineCoverage (as integer percentage)
+while IFS=$'\t' read -r TARGET PCT_INT; do
+  # Skip test targets (suffixed with Test/Tests) and frameworks we don't own
+  case "$TARGET" in
+    *Tests|*Test|AutoHyperlinks|MMTabBarView) continue ;;
+  esac
 
-    # Skip test targets (suffixed with Test/Tests) and frameworks we don't own
-    case "$TARGET" in
-      *Tests|*Test|AutoHyperlinks|MMTabBarView) continue ;;
-    esac
-
-    # Compare as integer (strip decimal via parameter expansion, no subshell)
-    PCT_INT="${PCT%.*}"
-    if [ "$PCT_INT" -lt "$THRESHOLD" ]; then
-      echo "FAIL: $TARGET coverage ${PCT}% < ${THRESHOLD}%"
-      FAILED=1
-    else
-      echo "OK:   $TARGET coverage ${PCT}% >= ${THRESHOLD}%"
-    fi
+  if [ "$PCT_INT" -lt "$THRESHOLD" ]; then
+    echo "FAIL: $TARGET coverage ${PCT_INT}% < ${THRESHOLD}%"
+    FAILED=1
+  else
+    echo "OK:   $TARGET coverage ${PCT_INT}% >= ${THRESHOLD}%"
   fi
-done <<< "$REPORT"
+done < <(echo "$REPORT_JSON" | jq -r '.targets[] | [.name, (.lineCoverage * 100 | floor)] | @tsv')
 
 if [ "$FAILED" -eq 1 ]; then
   echo ""

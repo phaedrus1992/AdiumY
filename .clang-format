@@ -1,10 +1,12 @@
 ---
-# Adium code style — matches existing conventions:
+# Adium code style:
 #   - Tabs for indentation, 4-char tab width
 #   - K&R brace for control flow, Allman for functions/methods
 #   - Pointer * on the right (attached to variable name)
 #   - 120 column limit
-#   - ObjC: no space after @property
+#   - ObjC @property: no space before parenthesis
+#     (deliberate style change from the original codebase; the bulk format
+#      commit applied this consistently across all owned source files)
 BasedOnStyle: LLVM
 IndentWidth: 4
 TabWidth: 4
