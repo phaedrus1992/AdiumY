@@ -17,8 +17,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#import <libpurple/internal.h>
 #import <libpurple/debug.h>
+#import <libpurple/internal.h>
 #import <libpurple/plugin.h>
 #import <libpurple/sslconn.h>
 #import <libpurple/version.h>
@@ -27,14 +27,13 @@
 
 #ifdef HAVE_OPENSSL
 
-#import <openssl/ssl.h>
 #import <openssl/err.h>
+#import <openssl/ssl.h>
 
-typedef struct
-{
-	SSL	*ssl;
-	SSL_CTX	*ssl_ctx;
-	guint	handshake_handler;
+typedef struct {
+	SSL *ssl;
+	SSL_CTX *ssl_ctx;
+	guint handshake_handler;
 } PurpleSslOpensslData;
 
 #define PURPLE_SSL_OPENSSL_DATA(gsc) ((PurpleSslOpensslData *)gsc->private_data)
@@ -45,8 +44,7 @@ typedef struct
  * load the error strings we might want to use eventually, and init the
  * openssl library
  */
-static void
-ssl_openssl_init_openssl(void)
+static void ssl_openssl_init_openssl(void)
 {
 	/*
 	 * load the error number to string strings so that we can make sense
@@ -65,8 +63,7 @@ ssl_openssl_init_openssl(void)
 /*
  * ssl_openssl_init
  */
-static gboolean
-ssl_openssl_init(void)
+static gboolean ssl_openssl_init(void)
 {
 	return (TRUE);
 }
@@ -77,8 +74,7 @@ ssl_openssl_init(void)
  * couldn't find anything to match the call to SSL_library_init in the man
  * pages, i wonder if there actually is anything we need to call
  */
-static void
-ssl_openssl_uninit(void)
+static void ssl_openssl_uninit(void)
 {
 	ERR_free_strings();
 }
@@ -86,8 +82,7 @@ ssl_openssl_uninit(void)
 /*
  * ssl_openssl_handshake_cb
  */
-static void
-ssl_openssl_handshake_cb(gpointer data, gint source, PurpleInputCondition cond)
+static void ssl_openssl_handshake_cb(gpointer data, gint source, PurpleInputCondition cond)
 {
 	PurpleSslConnection *gsc = (PurpleSslConnection *)data;
 	PurpleSslOpensslData *openssl_data = PURPLE_SSL_OPENSSL_DATA(gsc);
@@ -110,8 +105,7 @@ ssl_openssl_handshake_cb(gpointer data, gint source, PurpleInputCondition cond)
 		purple_debug_error("openssl", "SSL_connect failed: %s\n", ERR_error_string(ret2, NULL));
 
 		if (gsc->error_cb != NULL)
-			gsc->error_cb(gsc, PURPLE_SSL_HANDSHAKE_FAILED,
-				gsc->connect_cb_data);
+			gsc->error_cb(gsc, PURPLE_SSL_HANDSHAKE_FAILED, gsc->connect_cb_data);
 
 		purple_ssl_close(gsc);
 		return;
@@ -131,8 +125,7 @@ ssl_openssl_handshake_cb(gpointer data, gint source, PurpleInputCondition cond)
  *
  * given a socket, put an openssl connection around it.
  */
-static void
-ssl_openssl_connect(PurpleSslConnection *gsc)
+static void ssl_openssl_connect(PurpleSslConnection *gsc)
 {
 	PurpleSslOpensslData *openssl_data;
 
@@ -146,13 +139,12 @@ ssl_openssl_connect(PurpleSslConnection *gsc)
 
 	/*
 	 * allocate a new SSL_CTX object
-	*/
+	 */
 	openssl_data->ssl_ctx = SSL_CTX_new(SSLv23_client_method());
 	if (openssl_data->ssl_ctx == NULL) {
 		purple_debug_error("openssl", "SSL_CTX_new failed\n");
 		if (gsc->error_cb != NULL)
-			gsc->error_cb(gsc, PURPLE_SSL_HANDSHAKE_FAILED,
-				gsc->connect_cb_data);
+			gsc->error_cb(gsc, PURPLE_SSL_HANDSHAKE_FAILED, gsc->connect_cb_data);
 
 		purple_ssl_close(gsc);
 		return;
@@ -165,8 +157,7 @@ ssl_openssl_connect(PurpleSslConnection *gsc)
 	if (openssl_data->ssl == NULL) {
 		purple_debug_error("openssl", "SSL_new failed\n");
 		if (gsc->error_cb != NULL)
-			gsc->error_cb(gsc, PURPLE_SSL_HANDSHAKE_FAILED,
-				gsc->connect_cb_data);
+			gsc->error_cb(gsc, PURPLE_SSL_HANDSHAKE_FAILED, gsc->connect_cb_data);
 
 		purple_ssl_close(gsc);
 		return;
@@ -178,21 +169,18 @@ ssl_openssl_connect(PurpleSslConnection *gsc)
 	if (SSL_set_fd(openssl_data->ssl, gsc->fd) == 0) {
 		purple_debug_error("openssl", "SSL_set_fd failed\n");
 		if (gsc->error_cb != NULL)
-			gsc->error_cb(gsc, PURPLE_SSL_HANDSHAKE_FAILED,
-				gsc->connect_cb_data);
+			gsc->error_cb(gsc, PURPLE_SSL_HANDSHAKE_FAILED, gsc->connect_cb_data);
 
 		purple_ssl_close(gsc);
 		return;
 	}
 
-	openssl_data->handshake_handler = purple_input_add(gsc->fd,
-		PURPLE_INPUT_READ, ssl_openssl_handshake_cb, gsc);
+	openssl_data->handshake_handler = purple_input_add(gsc->fd, PURPLE_INPUT_READ, ssl_openssl_handshake_cb, gsc);
 
 	ssl_openssl_handshake_cb(gsc, gsc->fd, PURPLE_INPUT_READ);
 }
 
-static void
-ssl_openssl_close(PurpleSslConnection *gsc)
+static void ssl_openssl_close(PurpleSslConnection *gsc)
 {
 	PurpleSslOpensslData *openssl_data = PURPLE_SSL_OPENSSL_DATA(gsc);
 	int i;
@@ -217,8 +205,7 @@ ssl_openssl_close(PurpleSslConnection *gsc)
 	gsc->private_data = NULL;
 }
 
-static size_t
-ssl_openssl_read(PurpleSslConnection *gsc, void *data, size_t len)
+static size_t ssl_openssl_read(PurpleSslConnection *gsc, void *data, size_t len)
 {
 	PurpleSslOpensslData *openssl_data = PURPLE_SSL_OPENSSL_DATA(gsc);
 	ssize_t s;
@@ -238,7 +225,7 @@ ssl_openssl_read(PurpleSslConnection *gsc, void *data, size_t len)
 		if (ret == SSL_ERROR_ZERO_RETURN) {
 			s = 0;
 			errno = ECONNRESET;
-			
+
 		} else {
 			s = -1;
 			/*
@@ -254,8 +241,7 @@ ssl_openssl_read(PurpleSslConnection *gsc, void *data, size_t len)
 	return (s);
 }
 
-static size_t
-ssl_openssl_write(PurpleSslConnection *gsc, const void *data, size_t len)
+static size_t ssl_openssl_write(PurpleSslConnection *gsc, const void *data, size_t len)
 {
 	PurpleSslOpensslData *openssl_data = PURPLE_SSL_OPENSSL_DATA(gsc);
 	ssize_t s = 0;
@@ -293,19 +279,12 @@ ssl_openssl_write(PurpleSslConnection *gsc, const void *data, size_t len)
 	return (s);
 }
 
-static PurpleSslOps ssl_ops = {
-	ssl_openssl_init,
-	ssl_openssl_uninit,
-	ssl_openssl_connect,
-	ssl_openssl_close,
-	ssl_openssl_read,
-	ssl_openssl_write
-};
+static PurpleSslOps ssl_ops = {ssl_openssl_init,  ssl_openssl_uninit, ssl_openssl_connect,
+							   ssl_openssl_close, ssl_openssl_read,   ssl_openssl_write};
 
 #endif /* HAVE_OPENSSL */
 
-static gboolean
-plugin_load(PurplePlugin *plugin)
+static gboolean plugin_load(PurplePlugin *plugin)
 {
 #ifdef HAVE_OPENSSL
 	if (!purple_ssl_get_ops())
@@ -320,8 +299,7 @@ plugin_load(PurplePlugin *plugin)
 #endif
 }
 
-static gboolean
-plugin_unload(PurplePlugin *plugin)
+static gboolean plugin_unload(PurplePlugin *plugin)
 {
 #ifdef HAVE_OPENSSL
 	if (purple_ssl_get_ops() == &ssl_ops)
@@ -331,40 +309,31 @@ plugin_unload(PurplePlugin *plugin)
 	return (TRUE);
 }
 
-static PurplePluginInfo info = {
-	PURPLE_PLUGIN_MAGIC,
-	PURPLE_MAJOR_VERSION,
-	PURPLE_MINOR_VERSION,
-	PURPLE_PLUGIN_STANDARD,				/* type */
-	NULL,						/* ui_requirement */
-	PURPLE_PLUGIN_FLAG_INVISIBLE,			/* flags */
-	NULL,						/* dependencies */
-	PURPLE_PRIORITY_DEFAULT,				/* priority */
+static PurplePluginInfo info = {PURPLE_PLUGIN_MAGIC, PURPLE_MAJOR_VERSION, PURPLE_MINOR_VERSION,
+								PURPLE_PLUGIN_STANDARD,       /* type */
+								NULL,                         /* ui_requirement */
+								PURPLE_PLUGIN_FLAG_INVISIBLE, /* flags */
+								NULL,                         /* dependencies */
+								PURPLE_PRIORITY_DEFAULT,      /* priority */
 
-	SSL_OPENSSL_PLUGIN_ID,				/* id */
-	N_("OpenSSL"),					/* name */
-	"1.0",					/* version */
+								SSL_OPENSSL_PLUGIN_ID, /* id */
+								N_("OpenSSL"),         /* name */
+								"1.0",                 /* version */
 
-	N_("Provides SSL support through OpenSSL."),	/* description */
-	N_("Provides SSL support through OpenSSL."),
-	"OpenSSL",
-	NULL,						/* homepage */
+								N_("Provides SSL support through OpenSSL."),                  /* description */
+								N_("Provides SSL support through OpenSSL."), "OpenSSL", NULL, /* homepage */
 
-	plugin_load,					/* load */
-	plugin_unload,					/* unload */
-	NULL,						/* destroy */
+								plugin_load,   /* load */
+								plugin_unload, /* unload */
+								NULL,          /* destroy */
 
-	NULL,						/* ui_info */
-	NULL,						/* extra_info */
-	NULL,						/* prefs_info */
-	NULL,						/* actions */
-	/* _purple_reserved 1-4 */
-	NULL, NULL, NULL, NULL
-};
+								NULL, /* ui_info */
+								NULL, /* extra_info */
+								NULL, /* prefs_info */
+								NULL, /* actions */
+								/* _purple_reserved 1-4 */
+								NULL, NULL, NULL, NULL};
 
-static void
-init_plugin(PurplePlugin *plugin)
-{
-}
+static void init_plugin(PurplePlugin *plugin) {}
 
 PURPLE_INIT_PLUGIN(ssl_openssl, init_plugin, info)

@@ -1,32 +1,31 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContactControllerProtocol.h>
 #import "ESAccountEvents.h"
-#import <Adium/AIContactAlertsControllerProtocol.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <Adium/AIAccount.h>
+#import <Adium/AIContactAlertsControllerProtocol.h>
+#import <Adium/AIContactControllerProtocol.h>
 
-#define ACCOUNT_CONNECTION_STATUS_GROUPING  4.0
+#define ACCOUNT_CONNECTION_STATUS_GROUPING 4.0
 
 @interface ESAccountEvents ()
 - (void)accountConnection:(NSTimer *)timer;
 - (void)accountDisconnection:(NSTimer *)timer;
 @end
-
 
 /*!
  * @class ESAccountEvents
@@ -41,14 +40,23 @@
 {
 	accountConnectionStatusGroupingOnlineTimer = nil;
 	accountConnectionStatusGroupingOfflineTimer = nil;
-	
-	//Register the events we generate
-	[adium.contactAlertsController registerEventID:ACCOUNT_CONNECTED withHandler:self inGroup:AIAccountsEventHandlerGroup globalOnly:YES];
-	[adium.contactAlertsController registerEventID:ACCOUNT_DISCONNECTED withHandler:self inGroup:AIAccountsEventHandlerGroup globalOnly:YES];
-	[adium.contactAlertsController registerEventID:ACCOUNT_RECEIVED_EMAIL withHandler:self inGroup:AIOtherEventHandlerGroup globalOnly:YES];
 
-	//Observe status changes
-    [[AIContactObserverManager sharedManager] registerListObjectObserver:self];
+	// Register the events we generate
+	[adium.contactAlertsController registerEventID:ACCOUNT_CONNECTED
+									   withHandler:self
+										   inGroup:AIAccountsEventHandlerGroup
+										globalOnly:YES];
+	[adium.contactAlertsController registerEventID:ACCOUNT_DISCONNECTED
+									   withHandler:self
+										   inGroup:AIAccountsEventHandlerGroup
+										globalOnly:YES];
+	[adium.contactAlertsController registerEventID:ACCOUNT_RECEIVED_EMAIL
+									   withHandler:self
+										   inGroup:AIOtherEventHandlerGroup
+										globalOnly:YES];
+
+	// Observe status changes
+	[[AIContactObserverManager sharedManager] registerListObjectObserver:self];
 }
 
 - (void)uninstallPlugin
@@ -61,25 +69,28 @@
  *
  * We're global-only, so no short descriptions are needed.
  */
-- (NSString *)shortDescriptionForEventID:(NSString *)eventID { return @""; }
+- (NSString *)shortDescriptionForEventID:(NSString *)eventID
+{
+	return @"";
+}
 
 /*!
  * @brief Global short description for an event
  */
 - (NSString *)globalShortDescriptionForEventID:(NSString *)eventID
 {
-	NSString	*description;
-	
+	NSString *description;
+
 	if ([eventID isEqualToString:ACCOUNT_CONNECTED]) {
-		description = AILocalizedString(@"You connect",nil);
+		description = AILocalizedString(@"You connect", nil);
 	} else if ([eventID isEqualToString:ACCOUNT_DISCONNECTED]) {
-		description = AILocalizedString(@"You disconnect",nil);
+		description = AILocalizedString(@"You disconnect", nil);
 	} else if ([eventID isEqualToString:ACCOUNT_RECEIVED_EMAIL]) {
-		description = AILocalizedString(@"New email notification",nil);
+		description = AILocalizedString(@"New email notification", nil);
 	} else {
-		description = @"";	
+		description = @"";
 	}
-	
+
 	return description;
 }
 
@@ -93,8 +104,8 @@
  */
 - (NSString *)englishGlobalShortDescriptionForEventID:(NSString *)eventID
 {
-	NSString	*description;
-	
+	NSString *description;
+
 	if ([eventID isEqualToString:ACCOUNT_CONNECTED]) {
 		description = @"Connected";
 	} else if ([eventID isEqualToString:ACCOUNT_DISCONNECTED]) {
@@ -102,9 +113,9 @@
 	} else if ([eventID isEqualToString:ACCOUNT_RECEIVED_EMAIL]) {
 		description = @"New Mail Received";
 	} else {
-		description = @"";	
+		description = @"";
 	}
-	
+
 	return description;
 }
 
@@ -113,18 +124,18 @@
  */
 - (NSString *)longDescriptionForEventID:(NSString *)eventID forListObject:(AIListObject *)listObject
 {
-	NSString	*description;
-	
+	NSString *description;
+
 	if ([eventID isEqualToString:ACCOUNT_CONNECTED]) {
-		description = AILocalizedString(@"When you connect",nil);
+		description = AILocalizedString(@"When you connect", nil);
 	} else if ([eventID isEqualToString:ACCOUNT_DISCONNECTED]) {
-		description = AILocalizedString(@"When you disconnect",nil);
+		description = AILocalizedString(@"When you disconnect", nil);
 	} else if ([eventID isEqualToString:ACCOUNT_RECEIVED_EMAIL]) {
-		description = AILocalizedString(@"When you receive a new email notification",nil);
+		description = AILocalizedString(@"When you receive a new email notification", nil);
 	} else {
 		description = @"";
 	}
-	
+
 	return description;
 }
 
@@ -142,43 +153,44 @@
 										  userInfo:(id)userInfo
 									includeSubject:(BOOL)includeSubject
 {
-	NSString	*description = nil;
-	
+	NSString *description = nil;
+
 	if (includeSubject) {
-		NSString	*format = nil;
+		NSString *format = nil;
 		if ([eventID isEqualToString:ACCOUNT_CONNECTED]) {
-			format = AILocalizedString(@"%@ connected",nil);
+			format = AILocalizedString(@"%@ connected", nil);
 		} else if ([eventID isEqualToString:ACCOUNT_DISCONNECTED]) {
-			format = AILocalizedString(@"%@ disconnected",nil);
+			format = AILocalizedString(@"%@ disconnected", nil);
 		} else if ([eventID isEqualToString:ACCOUNT_RECEIVED_EMAIL]) {
-			format = AILocalizedString(@"%@ received new email",nil);
+			format = AILocalizedString(@"%@ received new email", nil);
 		}
-		
+
 		if (format) {
-			description = [NSString stringWithFormat:format,listObject.formattedUID];
+			description = [NSString stringWithFormat:format, listObject.formattedUID];
 		}
 	} else {
 		if ([eventID isEqualToString:ACCOUNT_CONNECTED]) {
-			description = AILocalizedString(@"connected",nil);
+			description = AILocalizedString(@"connected", nil);
 		} else if ([eventID isEqualToString:ACCOUNT_DISCONNECTED]) {
-			description = AILocalizedString(@"disconnected",nil);
+			description = AILocalizedString(@"disconnected", nil);
 		} else if ([eventID isEqualToString:ACCOUNT_RECEIVED_EMAIL]) {
 			if (userInfo && [userInfo isKindOfClass:[NSString class]]) {
 				description = [[(NSString *)userInfo copy] autorelease];
 
 			} else {
-				description = AILocalizedString(@"received new email",nil);
+				description = AILocalizedString(@"received new email", nil);
 			}
 		}
 	}
-	
+
 	return description;
 }
 
 - (NSImage *)imageForEventID:(NSString *)eventID
 {
-	static NSImage	*eventImage = nil;
-	if (!eventImage) eventImage = [[NSImage imageNamed:@"pref-accounts" forClass:[self class]] retain];
+	static NSImage *eventImage = nil;
+	if (!eventImage)
+		eventImage = [[NSImage imageNamed:@"pref-accounts" forClass:[self class]] retain];
 	return eventImage;
 }
 
@@ -188,15 +200,15 @@
 								  withCount:(NSUInteger)count
 {
 	NSString *format = nil;
-	
+
 	if ([eventID isEqualToString:ACCOUNT_CONNECTED]) {
-		format = AILocalizedString(@"%u accounts connected",nil);
+		format = AILocalizedString(@"%u accounts connected", nil);
 	} else if ([eventID isEqualToString:ACCOUNT_DISCONNECTED]) {
-		format = AILocalizedString(@"%u accounts disconnected",nil);
+		format = AILocalizedString(@"%u accounts disconnected", nil);
 	} else if ([eventID isEqualToString:ACCOUNT_RECEIVED_EMAIL]) {
-		format = AILocalizedString(@"%u accounts received new email",nil);
+		format = AILocalizedString(@"%u accounts received new email", nil);
 	}
-	
+
 	return format ? [NSString stringWithFormat:format, count] : @"";
 }
 
@@ -208,34 +220,38 @@
  */
 - (NSSet *)updateListObject:(AIListObject *)inObject keys:(NSSet *)inModifiedKeys silent:(BOOL)silent
 {
-	if ([inObject isKindOfClass:[AIAccount class]]) { //We only care about accounts
+	if ([inObject isKindOfClass:[AIAccount class]]) { // We only care about accounts
 		if ([inModifiedKeys containsObject:@"isOnline"]) {
-			
+
 			if ([inObject boolValueForProperty:@"isOnline"]) {
 				if (accountConnectionStatusGroupingOnlineTimer) {
-					[accountConnectionStatusGroupingOnlineTimer invalidate]; [accountConnectionStatusGroupingOnlineTimer release];
+					[accountConnectionStatusGroupingOnlineTimer invalidate];
+					[accountConnectionStatusGroupingOnlineTimer release];
 				}
-				
-				accountConnectionStatusGroupingOnlineTimer = [[NSTimer scheduledTimerWithTimeInterval:ACCOUNT_CONNECTION_STATUS_GROUPING
-																							   target:self
-																							 selector:@selector(accountConnection:)
-																							 userInfo:inObject
-																							  repeats:NO] retain];
+
+				accountConnectionStatusGroupingOnlineTimer =
+					[[NSTimer scheduledTimerWithTimeInterval:ACCOUNT_CONNECTION_STATUS_GROUPING
+													  target:self
+													selector:@selector(accountConnection:)
+													userInfo:inObject
+													 repeats:NO] retain];
 			} else {
 				if (accountConnectionStatusGroupingOfflineTimer) {
-					[accountConnectionStatusGroupingOfflineTimer invalidate]; [accountConnectionStatusGroupingOfflineTimer release];
+					[accountConnectionStatusGroupingOfflineTimer invalidate];
+					[accountConnectionStatusGroupingOfflineTimer release];
 				}
-				
-				accountConnectionStatusGroupingOfflineTimer = [[NSTimer scheduledTimerWithTimeInterval:ACCOUNT_CONNECTION_STATUS_GROUPING
-																								target:self
-																							  selector:@selector(accountDisconnection:)
-																							  userInfo:inObject
-																							   repeats:NO] retain];
+
+				accountConnectionStatusGroupingOfflineTimer =
+					[[NSTimer scheduledTimerWithTimeInterval:ACCOUNT_CONNECTION_STATUS_GROUPING
+													  target:self
+													selector:@selector(accountDisconnection:)
+													userInfo:inObject
+													 repeats:NO] retain];
 			}
 		}
 	}
-	
-	return nil;	
+
+	return nil;
 }
 
 /*!
@@ -244,10 +260,11 @@
 - (void)accountConnection:(NSTimer *)timer
 {
 	[adium.contactAlertsController generateEvent:ACCOUNT_CONNECTED
-									 forListObject:[timer userInfo]
-										  userInfo:nil
-					  previouslyPerformedActionIDs:nil];
-	[accountConnectionStatusGroupingOnlineTimer release]; accountConnectionStatusGroupingOnlineTimer = nil;
+								   forListObject:[timer userInfo]
+										userInfo:nil
+					previouslyPerformedActionIDs:nil];
+	[accountConnectionStatusGroupingOnlineTimer release];
+	accountConnectionStatusGroupingOnlineTimer = nil;
 }
 
 /*!
@@ -256,10 +273,11 @@
 - (void)accountDisconnection:(NSTimer *)timer
 {
 	[adium.contactAlertsController generateEvent:ACCOUNT_DISCONNECTED
-									 forListObject:[timer userInfo]
-										  userInfo:nil
-					  previouslyPerformedActionIDs:nil];
-	[accountConnectionStatusGroupingOfflineTimer release]; accountConnectionStatusGroupingOfflineTimer = nil;
+								   forListObject:[timer userInfo]
+										userInfo:nil
+					previouslyPerformedActionIDs:nil];
+	[accountConnectionStatusGroupingOfflineTimer release];
+	accountConnectionStatusGroupingOfflineTimer = nil;
 }
 
 @end

@@ -14,13 +14,14 @@ static inline NSComparisonResult compareObjectsWithSelector(id a, id b, SEL cmd)
 
 @implementation NSMutableArray (NSMutableArrayAdditions)
 
-- (unsigned) indexForInsortingObject:(id)obj usingSelector:(SEL)compareCmd {
+- (unsigned)indexForInsortingObject:(id)obj usingSelector:(SEL)compareCmd
+{
 	unsigned count = [self count];
 	if (!count) {
-		//bail now so we can assume a non-empty array later
+		// bail now so we can assume a non-empty array later
 		return 0U;
 	} else if (count == 1U) {
-		//bail now so we can assume an array with more than one object later
+		// bail now so we can assume an array with more than one object later
 		return compareObjectsWithSelector(obj, [self objectAtIndex:0U], compareCmd) == NSOrderedDescending;
 	}
 
@@ -35,10 +36,8 @@ static inline NSComparisonResult compareObjectsWithSelector(id a, id b, SEL cmd)
 	signed movementDirection = initialComparison;
 	i += movementDirection;
 
-	while ((i  > 0U)
-	&&     (i <  count)
-	&&     compareObjectsWithSelector(obj, [self objectAtIndex:i], compareCmd) == initialComparison
-	) {
+	while ((i > 0U) && (i < count) &&
+		   compareObjectsWithSelector(obj, [self objectAtIndex:i], compareCmd) == initialComparison) {
 		i += movementDirection;
 	}
 
@@ -47,6 +46,7 @@ static inline NSComparisonResult compareObjectsWithSelector(id a, id b, SEL cmd)
 
 @end
 
-static inline NSComparisonResult compareObjectsWithSelector(id a, id b, SEL cmd) {
+static inline NSComparisonResult compareObjectsWithSelector(id a, id b, SEL cmd)
+{
 	return (NSComparisonResult)objc_msgSend(a, cmd, b);
 }

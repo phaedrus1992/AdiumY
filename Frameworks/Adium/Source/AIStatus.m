@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -17,12 +17,11 @@
 #import <Adium/AIStatus.h>
 #import <Adium/AIStatusIcons.h>
 
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIHTMLDecoder.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-
+#import <Adium/AIAccountControllerProtocol.h>
+#import <Adium/AIHTMLDecoder.h>
+#import <Adium/AIStatusControllerProtocol.h>
 
 @implementation AIStatus
 
@@ -33,9 +32,9 @@
  */
 + (AIStatus *)status
 {
-	AIStatus	*newStatus = [[[self alloc] init] autorelease];
-	
-	//Configure defaults as necessary
+	AIStatus *newStatus = [[[self alloc] init] autorelease];
+
+	// Configure defaults as necessary
 	[newStatus setAutoReplyIsStatusMessage:YES];
 
 	return newStatus;
@@ -49,10 +48,10 @@
  */
 + (AIStatus *)statusWithDictionary:(NSDictionary *)inDictionary
 {
-	AIStatus	*status = [self status];
+	AIStatus *status = [self status];
 	[status->statusDict addEntriesFromDictionary:inDictionary];
 
-	return status; 
+	return status;
 }
 
 /*!
@@ -64,14 +63,14 @@
  */
 + (AIStatus *)statusOfType:(AIStatusType)inStatusType
 {
-	AIStatus	*status = [self status];
+	AIStatus *status = [self status];
 	[status setStatusType:inStatusType];
 	[status setStatusName:[adium.statusController defaultStatusNameForType:inStatusType]];
-	
+
 	if (inStatusType == AIAwayStatusType) {
 		[status setHasAutoReply:YES];
 	}
-	
+
 	return status;
 }
 
@@ -83,7 +82,7 @@
 }
 
 /*!
-* @brief Returns an appropriate icon for this state
+ * @brief Returns an appropriate icon for this state
  *
  * This method will generate an appropriate status icon based on the state's content.
  *
@@ -92,9 +91,9 @@
  */
 - (NSImage *)iconOfType:(AIStatusIconType)iconType direction:(AIIconDirection)direction
 {
-	NSString		*statusName;
-	AIStatusType	statusType;
-	
+	NSString *statusName;
+	AIStatusType statusType;
+
 	if ([self shouldForceInitialIdleTime]) {
 		statusName = @"Idle";
 		statusType = AIAwayStatusType;
@@ -102,13 +101,12 @@
 		statusName = self.statusName;
 		statusType = self.statusType;
 	}
-	
+
 	return [AIStatusIcons statusIconForStatusName:statusName
 									   statusType:statusType
 										 iconType:iconType
 										direction:direction];
 }
-
 
 /*!
  * @brief The status message for this status
@@ -117,11 +115,12 @@
  */
 - (NSAttributedString *)statusMessage
 {
-	NSAttributedString	*statusMessage;
-	
+	NSAttributedString *statusMessage;
+
 	statusMessage = [statusDict objectForKey:STATUS_STATUS_MESSAGE];
 
-	if (![statusMessage length]) statusMessage = nil;
+	if (![statusMessage length])
+		statusMessage = nil;
 
 	return statusMessage;
 }
@@ -140,13 +139,13 @@
 - (void)setStatusMessage:(NSAttributedString *)statusMessage
 {
 	if (statusMessage) {
-		[statusDict setObject:statusMessage
-					   forKey:STATUS_STATUS_MESSAGE];
+		[statusDict setObject:statusMessage forKey:STATUS_STATUS_MESSAGE];
 	} else {
 		[statusDict removeObjectForKey:STATUS_STATUS_MESSAGE];
 	}
-	
-	[filteredStatusMessage release]; filteredStatusMessage = nil;
+
+	[filteredStatusMessage release];
+	filteredStatusMessage = nil;
 }
 
 /*!
@@ -164,9 +163,8 @@
 	if (![filteredStatusMessage isEqualToString:inFilteredStatusMessage]) {
 		[filteredStatusMessage release];
 		filteredStatusMessage = [inFilteredStatusMessage retain];
-		
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"AIStatusFilteredStatusMessageChanged"
-												  object:self];
+
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"AIStatusFilteredStatusMessageChanged" object:self];
 	}
 }
 
@@ -182,16 +180,16 @@
  */
 - (NSAttributedString *)autoReply
 {
-	NSAttributedString	*autoReply = nil;
+	NSAttributedString *autoReply = nil;
 
 	if ([self hasAutoReply]) {
-		autoReply = ([self autoReplyIsStatusMessage] ?
-					 self.statusMessage :
-					 [statusDict objectForKey:STATUS_AUTO_REPLY_MESSAGE]);
+		autoReply = ([self autoReplyIsStatusMessage] ? self.statusMessage
+													 : [statusDict objectForKey:STATUS_AUTO_REPLY_MESSAGE]);
 	}
 
-	if (![autoReply length]) autoReply = nil;
-	
+	if (![autoReply length])
+		autoReply = nil;
+
 	return autoReply;
 }
 
@@ -209,8 +207,7 @@
 - (void)setAutoReply:(NSAttributedString *)autoReply
 {
 	if (autoReply) {
-		[statusDict setObject:autoReply
-					   forKey:STATUS_AUTO_REPLY_MESSAGE];
+		[statusDict setObject:autoReply forKey:STATUS_AUTO_REPLY_MESSAGE];
 	} else {
 		[statusDict removeObjectForKey:STATUS_AUTO_REPLY_MESSAGE];
 	}
@@ -239,8 +236,7 @@
  */
 - (void)setHasAutoReply:(BOOL)hasAutoReply
 {
-	[statusDict setObject:[NSNumber numberWithBool:hasAutoReply]
-				   forKey:STATUS_HAS_AUTO_REPLY];
+	[statusDict setObject:[NSNumber numberWithBool:hasAutoReply] forKey:STATUS_HAS_AUTO_REPLY];
 }
 
 /*!
@@ -261,47 +257,42 @@
 }
 
 /*!
-* @brief Returns an appropriate title
+ * @brief Returns an appropriate title
  *
  * Not all states provide a title.  This method will generate an appropriate title based on the states' content.
  * If the state has a specified title, it will always be used.
- */ 
+ */
 - (NSString *)title
 {
-	NSAttributedString	*statusMessage, *autoReply;
-	NSString			*title = nil;
-	AIStatusType		statusType;
-	NSRange				linebreakRange;
+	NSAttributedString *statusMessage, *autoReply;
+	NSString *title = nil;
+	AIStatusType statusType;
+	NSRange linebreakRange;
 
-	//Start off using super's implementation, looking for a directly assigned title
+	// Start off using super's implementation, looking for a directly assigned title
 	title = [super title];
-	
+
 	/* Now we start falling through looking to generate a title if we don't have one yet */
-	
-	//If the state has a status message, use it.
-	if (!title && 
-	   (statusMessage = self.statusMessage) &&
-	   ([statusMessage length])) {
+
+	// If the state has a status message, use it.
+	if (!title && (statusMessage = self.statusMessage) && ([statusMessage length])) {
 		title = [statusMessage string];
 	}
 
-	//If the state has an autoreply (but no status message), use it.
-	if (!title &&
-	   (autoReply = [self autoReply]) &&
-	   ([autoReply length])) {
+	// If the state has an autoreply (but no status message), use it.
+	if (!title && (autoReply = [self autoReply]) && ([autoReply length])) {
 		title = [autoReply string];
 	}
-	
+
 	/* If the state is not an available state, or it's an available state with a non-default statusName,
- 	 * use the description of the state itself. */
+	 * use the description of the state itself. */
 	statusType = self.statusType;
-	if (!title &&
-	   ((self.statusType != AIAvailableStatusType) || ((self.statusName != nil) &&
-														 ![self.statusName isEqualToString:STATUS_NAME_AVAILABLE]))) {
+	if (!title && ((self.statusType != AIAvailableStatusType) ||
+				   ((self.statusName != nil) && ![self.statusName isEqualToString:STATUS_NAME_AVAILABLE]))) {
 		title = [adium.statusController descriptionForStateOfStatus:self];
 	}
 
-	//If the state is simply idle, use the string "Idle"
+	// If the state is simply idle, use the string "Idle"
 	if (!title && [self shouldForceInitialIdleTime]) {
 		title = AILocalizedString(@"Idle", nil);
 	}
@@ -310,20 +301,21 @@
 		title = [adium.statusController localizedDescriptionForCoreStatusName:STATUS_NAME_OFFLINE];
 	}
 
-	//If the state is none of the above, use the string "Available"
-	if (!title) title = [adium.statusController localizedDescriptionForCoreStatusName:STATUS_NAME_AVAILABLE];
-	
-	//Strip newlines and whitespace from the beginning and the end
+	// If the state is none of the above, use the string "Available"
+	if (!title)
+		title = [adium.statusController localizedDescriptionForCoreStatusName:STATUS_NAME_AVAILABLE];
+
+	// Strip newlines and whitespace from the beginning and the end
 	title = [title stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
-	//Only use the first line of a multi-line title
+	// Only use the first line of a multi-line title
 	linebreakRange = [title lineRangeForRange:NSMakeRange(0, 0)];
-	//check to make sure that there actually is a linebreak to account for
+	// check to make sure that there actually is a linebreak to account for
 	//	by comparing the linebreak range against the whole string's range.
-	if ( !NSEqualRanges(linebreakRange, NSMakeRange(0, [title length])) ) {  
-		title = [title substringWithRange:linebreakRange];  
+	if (!NSEqualRanges(linebreakRange, NSMakeRange(0, [title length]))) {
+		title = [title substringWithRange:linebreakRange];
 	}
-	
+
 	return title;
 }
 
@@ -348,8 +340,7 @@
 - (void)setStatusName:(NSString *)statusName
 {
 	if (statusName) {
-		[statusDict setObject:statusName
-					   forKey:STATUS_STATUS_NAME];
+		[statusDict setObject:statusName forKey:STATUS_STATUS_NAME];
 	} else {
 		[statusDict removeObjectForKey:STATUS_STATUS_NAME];
 	}
@@ -362,7 +353,7 @@
  */
 - (BOOL)shouldForceInitialIdleTime
 {
-	return [[statusDict objectForKey:STATUS_SHOULD_FORCE_INITIAL_IDLE_TIME] boolValue];	
+	return [[statusDict objectForKey:STATUS_SHOULD_FORCE_INITIAL_IDLE_TIME] boolValue];
 }
 
 /*!
@@ -379,7 +370,7 @@
 /*!
  * @brief The time the account should be set to have been idle when this state is set
  *
- * @result Number of seconds idle 
+ * @result Number of seconds idle
  */
 - (double)forcedInitialIdleTime
 {
@@ -389,18 +380,17 @@
 /*!
  * @brief The time the account should be set to have been idle when this state is set
  *
- * @param forcedInitialIdleTime Number of seconds idle 
+ * @param forcedInitialIdleTime Number of seconds idle
  */
 - (void)setForcedInitialIdleTime:(double)forcedInitialIdleTime
 {
-	[statusDict setObject:[NSNumber numberWithDouble:forcedInitialIdleTime]
-				   forKey:STATUS_FORCED_INITIAL_IDLE_TIME];
+	[statusDict setObject:[NSNumber numberWithDouble:forcedInitialIdleTime] forKey:STATUS_FORCED_INITIAL_IDLE_TIME];
 }
 
 /*!
  * @brief Is this status state mutable?
  *
- * If this method indicates the status state is not mutable,  it should not be presented to the user for editing. 
+ * If this method indicates the status state is not mutable,  it should not be presented to the user for editing.
  * This should be the condition for (and only for) basic saved states built in to Adium.
  *
  * @result AIStateMutabilityType value
@@ -415,8 +405,7 @@
  */
 - (void)setMutabilityType:(AIStatusMutabilityType)mutabilityType
 {
-	[statusDict setObject:[NSNumber numberWithInt:mutabilityType]
-				   forKey:STATUS_MUTABILITY_TYPE];
+	[statusDict setObject:[NSNumber numberWithInt:mutabilityType] forKey:STATUS_MUTABILITY_TYPE];
 }
 
 - (BOOL)mutesSound
@@ -467,7 +456,8 @@
 			[self setStatusMessageString:(NSString *)newMessage];
 		else {
 			[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
-			[[NSScriptCommand currentCommand] setScriptErrorString:@"Status message must be a string or an attributed string."];
+			[[NSScriptCommand currentCommand]
+				setScriptErrorString:@"Status message must be a string or an attributed string."];
 			return;
 		}
 		[adium.statusController savedStatusesChanged];
@@ -482,11 +472,13 @@
 			[newStatus setStatusMessageString:(NSString *)newMessage];
 		else {
 			[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
-			[[NSScriptCommand currentCommand] setScriptErrorString:@"Status message must be a string or an attributed string."];
+			[[NSScriptCommand currentCommand]
+				setScriptErrorString:@"Status message must be a string or an attributed string."];
 			return;
 		}
-		[adium.statusController savedStatusesChanged];		
-		[adium.statusController applyState:newStatus toAccounts:[adium.accountController accountsWithCurrentStatus:self]];
+		[adium.statusController savedStatusesChanged];
+		[adium.statusController applyState:newStatus
+								toAccounts:[adium.accountController accountsWithCurrentStatus:self]];
 	}
 }
 - (NSTextStorage *)scriptingAutoreply
@@ -502,7 +494,8 @@
 			[self setAutoReplyString:(NSString *)newAutoreply];
 		else {
 			[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
-			[[NSScriptCommand currentCommand] setScriptErrorString:@"Autoreply message must be a string or an attributed string."];
+			[[NSScriptCommand currentCommand]
+				setScriptErrorString:@"Autoreply message must be a string or an attributed string."];
 			return;
 		}
 		[adium.statusController savedStatusesChanged];
@@ -516,32 +509,34 @@
 			[newStatus setAutoReplyString:(NSString *)newAutoreply];
 		else {
 			[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
-			[[NSScriptCommand currentCommand] setScriptErrorString:@"Autoreply message must be a string or an attributed string."];
+			[[NSScriptCommand currentCommand]
+				setScriptErrorString:@"Autoreply message must be a string or an attributed string."];
 			return;
 		}
-		[adium.statusController savedStatusesChanged];		
-		[adium.statusController applyState:newStatus toAccounts:[adium.accountController accountsWithCurrentStatus:self]];
+		[adium.statusController savedStatusesChanged];
+		[adium.statusController applyState:newStatus
+								toAccounts:[adium.accountController accountsWithCurrentStatus:self]];
 	}
 }
 
 - (void)setStatusTypeApplescript:(AIStatusTypeApplescript)statusTypeApplescript
 {
-	AIStatusType			statusType;
-	
+	AIStatusType statusType;
+
 	switch (statusTypeApplescript) {
-		case AIAvailableStatusTypeAS:
-			statusType = AIAvailableStatusType;
-			break;
-		case AIAwayStatusTypeAS:
-			statusType = AIAwayStatusType;
-			break;
-		case AIInvisibleStatusTypeAS:
-			statusType = AIInvisibleStatusType;
-			break;
-		case AIOfflineStatusTypeAS:
-		default:
-			statusType = AIOfflineStatusType;
-			break;
+	case AIAvailableStatusTypeAS:
+		statusType = AIAvailableStatusType;
+		break;
+	case AIAwayStatusTypeAS:
+		statusType = AIAwayStatusType;
+		break;
+	case AIInvisibleStatusTypeAS:
+		statusType = AIInvisibleStatusType;
+		break;
+	case AIOfflineStatusTypeAS:
+	default:
+		statusType = AIOfflineStatusType;
+		break;
 	}
 	if ([self mutabilityType] == AIEditableStatusState || [self mutabilityType] == AITemporaryEditableStatusState) {
 		[self setStatusType:statusType];
@@ -552,8 +547,9 @@
 		[newStatus setMutabilityType:AITemporaryEditableStatusState];
 		[newStatus setStatusType:statusType];
 		[newStatus setStatusName:[adium.statusController defaultStatusNameForType:statusType]];
-		[adium.statusController savedStatusesChanged];		
-		[adium.statusController applyState:newStatus toAccounts:[adium.accountController accountsWithCurrentStatus:self]];
+		[adium.statusController savedStatusesChanged];
+		[adium.statusController applyState:newStatus
+								toAccounts:[adium.accountController accountsWithCurrentStatus:self]];
 	}
 }
 
@@ -579,8 +575,9 @@
 		AIStatus *newStatus = [[self mutableCopy] autorelease];
 		[newStatus setMutabilityType:AITemporaryEditableStatusState];
 		[newStatus setTitle:newTitle];
-		[adium.statusController savedStatusesChanged];		
-		[adium.statusController applyState:newStatus toAccounts:[adium.accountController accountsWithCurrentStatus:self]];
+		[adium.statusController savedStatusesChanged];
+		[adium.statusController applyState:newStatus
+								toAccounts:[adium.accountController accountsWithCurrentStatus:self]];
 	}
 }
 

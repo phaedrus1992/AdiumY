@@ -1,21 +1,20 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 @interface TestColorAdditions : SenTestCase {
-
 }
 
 #pragma mark -equalToRGBColor:
@@ -52,9 +51,9 @@
 - (void)testContrastingColorForGray;
 
 #pragma mark -adjustHue:saturation:brightness:
-- (void)testAdjustRedToGreen; //Hue += 1/3
-- (void)testAdjustRedToWhite; //Saturation -= 1
-- (void)testAdjustRedToBlack; //Brightness -= 1
+- (void)testAdjustRedToGreen; // Hue += 1/3
+- (void)testAdjustRedToWhite; // Saturation -= 1
+- (void)testAdjustRedToBlack; // Brightness -= 1
 
 #pragma mark -hexString
 - (void)testHexStringForRed;
@@ -120,16 +119,16 @@
 - (void)testHexToInt_InvalidCharacters;
 - (void)testIntToHex_0;
 - (void)testIntToHex_15;
-- (void)testIntToHex_16; //Invalid
-- (void)testIntToHex_Neg1; //Invalid
+- (void)testIntToHex_16;   // Invalid
+- (void)testIntToHex_Neg1; // Invalid
 
 #pragma mark -representedColor
-//Valid
+// Valid
 - (void)testRepresentedColorWithThreeNonZeroComponents;
 - (void)testRepresentedColorWithThreeZeroComponents;
 - (void)testRepresentedColorWithFourNonZeroComponents;
 - (void)testRepresentedColorWithFourZeroComponents;
-//Invalid
+// Invalid
 - (void)testRepresentedColorWithEmptyString;
 - (void)testRepresentedColorWithInvalidString;
 - (void)testRepresentedColorWithTwoCommas;
@@ -137,12 +136,12 @@
 - (void)testRepresentedColorWithFourCommas;
 
 #pragma mark -representedColorWithAlpha:
-//Valid
+// Valid
 - (void)testRepresentedColorWithAlphaWithThreeNonZeroComponents;
 - (void)testRepresentedColorWithAlphaWithThreeZeroComponents;
 - (void)testRepresentedColorWithAlphaWithFourNonZeroComponents;
 - (void)testRepresentedColorWithAlphaWithFourZeroComponents;
-//Invalid
+// Invalid
 - (void)testRepresentedColorWithAlphaWithEmptyString;
 - (void)testRepresentedColorWithAlphaWithInvalidString;
 - (void)testRepresentedColorWithAlphaWithTwoCommas;
@@ -152,7 +151,8 @@
 - (void)testRandomColorHasAlpha1;
 
 #pragma mark +colorWithHTMLString:
-//These method declarations are automatically generated! If you want to change them, please change the program in the Utilities folder instead. Otherwise, your changes may be clobbered by the next person.
+// These method declarations are automatically generated! If you want to change them, please change the program in the
+// Utilities folder instead. Otherwise, your changes may be clobbered by the next person.
 - (void)testColorWith6DigitHTMLStringForRedLowercase;
 - (void)testColorWith6DigitHTMLStringForRedUppercase;
 - (void)testColorWith6DigitHTMLStringForYellowLowercase;
@@ -289,7 +289,7 @@
 - (void)testColorWith4DigitHTMLStringForTransparentBlackLowercase;
 - (void)testColorWith4DigitHTMLStringForTransparentBlackUppercase;
 
-//End of automatically-generated method declarations
+// End of automatically-generated method declarations
 
 - (void)testColorWithHTMLStringWithNil;
 - (void)testColorWithHTMLStringWithEmptyString;

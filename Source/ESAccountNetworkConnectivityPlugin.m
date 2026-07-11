@@ -1,26 +1,26 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
 #import "ESAccountNetworkConnectivityPlugin.h"
 #import <AIUtilities/AIEventAdditions.h>
 #import <AIUtilities/AIHostReachabilityMonitor.h>
 #import <AIUtilities/AISleepNotification.h>
 #import <Adium/AIAccount.h>
+#import <Adium/AIAccountControllerProtocol.h>
+#import <Adium/AIContactControllerProtocol.h>
 #import <Adium/AIListObject.h>
 
 @interface ESAccountNetworkConnectivityPlugin ()
@@ -51,20 +51,20 @@
  */
 - (void)installPlugin
 {
-	//Wait for Adium to finish launching to handle autoconnecting enabled accounts
+	// Wait for Adium to finish launching to handle autoconnecting enabled accounts
 	[[NSNotificationCenter defaultCenter] addObserver:self
-								   selector:@selector(adiumFinishedLaunching:)
-									   name:AIApplicationDidFinishLoadingNotification
-									 object:nil];
+											 selector:@selector(adiumFinishedLaunching:)
+												 name:AIApplicationDidFinishLoadingNotification
+											   object:nil];
 
 	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 
-	//Monitor system sleep so we can cleanly disconnect / reconnect
-    [notificationCenter addObserver:self
+	// Monitor system sleep so we can cleanly disconnect / reconnect
+	[notificationCenter addObserver:self
 						   selector:@selector(systemWillSleep:)
 							   name:AISystemWillSleep_Notification
 							 object:nil];
-    [notificationCenter addObserver:self
+	[notificationCenter addObserver:self
 						   selector:@selector(systemDidWake:)
 							   name:AISystemDidWake_Notification
 							 object:nil];
@@ -85,7 +85,7 @@
  */
 - (void)dealloc
 {
-	[accountsToConnect    release];
+	[accountsToConnect release];
 	[accountsToNotConnect release];
 
 	[super dealloc];
@@ -98,64 +98,61 @@
  */
 - (void)adiumFinishedLaunching:(NSNotification *)notification
 {
-	NSArray						*accounts = adium.accountController.accounts;
-	AIHostReachabilityMonitor	*monitor = [AIHostReachabilityMonitor defaultMonitor];
-	BOOL						shiftHeld = [NSEvent shiftKey];
-	
-	//Start off forbidding all accounts from auto-connecting.
-	accountsToConnect    = [[NSMutableSet alloc] initWithArray:accounts];
+	NSArray *accounts = adium.accountController.accounts;
+	AIHostReachabilityMonitor *monitor = [AIHostReachabilityMonitor defaultMonitor];
+	BOOL shiftHeld = [NSEvent shiftKey];
+
+	// Start off forbidding all accounts from auto-connecting.
+	accountsToConnect = [[NSMutableSet alloc] initWithArray:accounts];
 	accountsToNotConnect = [accountsToConnect mutableCopy];
-	knownHosts			 = [[NSMutableSet alloc] init];
-	
+	knownHosts = [[NSMutableSet alloc] init];
+
 	/* Add ourselves to the default host-reachability monitor as an observer for each account's host.
 	 * At the same time, weed accounts that are to be auto-connected out of the accountsToNotConnect set.
 	 */
-	AIAccount		*account;
-	
-	for (account in accounts) {
-		BOOL	connectAccount = (!shiftHeld  &&
-								  account.enabled &&
-								  [[account preferenceForKey:KEY_AUTOCONNECT
-													  group:GROUP_ACCOUNT_STATUS] boolValue]);
+	AIAccount *account;
 
-		if (account.enabled &&
-			[account connectivityBasedOnNetworkReachability]) {
+	for (account in accounts) {
+		BOOL connectAccount = (!shiftHeld && account.enabled &&
+							   [[account preferenceForKey:KEY_AUTOCONNECT group:GROUP_ACCOUNT_STATUS] boolValue]);
+
+		if (account.enabled && [account connectivityBasedOnNetworkReachability]) {
 			NSString *host = [account host];
 			if (host && ![knownHosts containsObject:host]) {
 				[monitor addObserver:self forHost:host];
 				[knownHosts addObject:host];
 			}
-			
-			//If this is an account we should auto-connect, remove it from accountsToNotConnect so that we auto-connect it.
+
+			// If this is an account we should auto-connect, remove it from accountsToNotConnect so that we auto-connect
+			// it.
 			if (connectAccount) {
 				[accountsToNotConnect removeObject:account];
 				[account setValue:[NSNumber numberWithBool:YES] forProperty:@"isWaitingForNetwork" notify:NotifyNow];
-				continue; //prevent the account from being removed from accountsToConnect.
+				continue; // prevent the account from being removed from accountsToConnect.
 			}
-			
-		}  else if (connectAccount) {
+
+		} else if (connectAccount) {
 			/* This account does not connect based on network reachability, but should autoconnect.
 			 * Connect it immediately.
 			 */
 			[account setShouldBeOnline:YES];
 		}
-		
+
 		[accountsToConnect removeObject:account];
 	}
-	
+
 	[knownHosts release];
-	
-	//Watch for future changes to our account list
+
+	// Watch for future changes to our account list
 	[[NSNotificationCenter defaultCenter] addObserver:self
-								   selector:@selector(accountListChanged:)
-									   name:Account_ListChanged
-									 object:nil];
+											 selector:@selector(accountListChanged:)
+												 name:Account_ListChanged
+											   object:nil];
 }
 
 - (void)networkDidChange
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:AINetworkDidChangeNotification
-											  object:nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:AINetworkDidChangeNotification object:nil];
 }
 
 /*!
@@ -168,7 +165,7 @@
  */
 - (void)hostReachabilityChanged:(BOOL)networkIsReachable forHost:(NSString *)host
 {
-	//Connect or disconnect accounts in response to the connectivity change
+	// Connect or disconnect accounts in response to the connectivity change
 	for (AIAccount *account in adium.accountController.accounts) {
 		if (networkIsReachable && [accountsToNotConnect containsObject:account]) {
 			[accountsToNotConnect removeObject:account];
@@ -178,20 +175,20 @@
 			}
 		}
 	}
-	
-	//Collate reachability changes for multiple hosts into a single notification
-	[NSObject cancelPreviousPerformRequestsWithTarget:self
-											 selector:@selector(networkDidChange)
-											   object:nil];
+
+	// Collate reachability changes for multiple hosts into a single notification
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(networkDidChange) object:nil];
 	[self performSelector:@selector(networkDidChange) withObject:nil afterDelay:1.0];
 }
 
 #pragma mark AIHostReachabilityObserver compliance
 
-- (void)hostReachabilityMonitor:(AIHostReachabilityMonitor *)monitor hostIsReachable:(NSString *)host {
+- (void)hostReachabilityMonitor:(AIHostReachabilityMonitor *)monitor hostIsReachable:(NSString *)host
+{
 	[self hostReachabilityChanged:YES forHost:host];
 }
-- (void)hostReachabilityMonitor:(AIHostReachabilityMonitor *)monitor hostIsNotReachable:(NSString *)host {
+- (void)hostReachabilityMonitor:(AIHostReachabilityMonitor *)monitor hostIsNotReachable:(NSString *)host
+{
 	[self hostReachabilityChanged:NO forHost:host];
 }
 
@@ -207,25 +204,22 @@
  */
 - (void)handleConnectivityForAccount:(AIAccount *)account reachable:(BOOL)reachable
 {
-	AILog(@"handleConnectivityForAccount: %@ reachable: %i",account,reachable);
+	AILog(@"handleConnectivityForAccount: %@ reachable: %i", account, reachable);
 
 	if (reachable) {
-		//If we are now online and are waiting to connect this account, do it if the account hasn't already
-		//been taken care of.
+		// If we are now online and are waiting to connect this account, do it if the account hasn't already
+		// been taken care of.
 		[account setValue:nil forProperty:@"isWaitingForNetwork" notify:NotifyNow];
-		if ([accountsToConnect containsObject:account] ||
-			[account valueForProperty:@"waitingToReconnect"]) {
-			if (!account.online &&
-				![account boolValueForProperty:@"isConnecting"]) {
+		if ([accountsToConnect containsObject:account] || [account valueForProperty:@"waitingToReconnect"]) {
+			if (!account.online && ![account boolValueForProperty:@"isConnecting"]) {
 				[account setShouldBeOnline:YES];
 				[accountsToConnect removeObject:account];
 			}
 		}
 	} else {
-		//If we are no longer online and this account is connected, disconnect it.
+		// If we are no longer online and this account is connected, disconnect it.
 		[account setValue:[NSNumber numberWithBool:YES] forProperty:@"isWaitingForNetwork" notify:NotifyNow];
-		if ((account.online ||
-			 [account boolValueForProperty:@"isConnecting"]) &&
+		if ((account.online || [account boolValueForProperty:@"isConnecting"]) &&
 			![account boolValueForProperty:@"isDisconnecting"]) {
 			[account disconnectFromDroppedNetworkConnection];
 			[accountsToConnect addObject:account];
@@ -233,7 +227,8 @@
 	}
 }
 
-//Disconnect / Reconnect on sleep --------------------------------------------------------------------------------------
+// Disconnect / Reconnect on sleep
+// --------------------------------------------------------------------------------------
 #pragma mark Disconnect/Reconnect On Sleep
 /*!
  * @brief System is sleeping
@@ -241,17 +236,16 @@
 - (void)systemWillSleep:(NSNotification *)notification
 {
 	AILog(@"***** System sleeping...");
-	//Disconnect all online or connecting accounts
+	// Disconnect all online or connecting accounts
 	if ([self _accountsAreOnlineOrDisconnecting:YES]) {
 		for (AIAccount *account in adium.accountController.accounts) {
-			if (account.online ||
-				[account boolValueForProperty:@"isConnecting"] ||
+			if (account.online || [account boolValueForProperty:@"isConnecting"] ||
 				[account valueForProperty:@"waitingToReconnect"]) {
 
 				// Disconnect the account if it's online
 				if (account.online) {
 					[account disconnect];
-				// Cancel any reconnect attempts
+					// Cancel any reconnect attempts
 				} else if ([account valueForProperty:@"waitingToReconnect"]) {
 					[account cancelAutoReconnect];
 				}
@@ -260,11 +254,11 @@
 			}
 		}
 	}
-		
-	//While some accounts disconnect immediately, others may need a second or two to finish the process.  For
-	//these accounts we'll want to hold system sleep until they are ready.  We monitor account status changes
-	//and will lift the hold once all accounts are finished.
-	//Don't delay sleep for connecting or reconnecting accounts
+
+	// While some accounts disconnect immediately, others may need a second or two to finish the process.  For
+	// these accounts we'll want to hold system sleep until they are ready.  We monitor account status changes
+	// and will lift the hold once all accounts are finished.
+	// Don't delay sleep for connecting or reconnecting accounts
 	if ([self _accountsAreOnlineOrDisconnecting:NO]) {
 		AILog(@"Posting AISystemHoldSleep_Notification...");
 		[[NSNotificationCenter defaultCenter] postNotificationName:AISystemHoldSleep_Notification object:nil];
@@ -280,12 +274,12 @@
 - (NSSet *)updateListObject:(AIListObject *)inObject keys:(NSSet *)inModifiedKeys silent:(BOOL)silent
 {
 	if ([inObject isKindOfClass:[AIAccount class]]) {
-		if (waitingToSleep &&
-			[inModifiedKeys containsObject:@"isOnline"]) {
-			//Don't delay sleep for connecting or reconnecting accounts
+		if (waitingToSleep && [inModifiedKeys containsObject:@"isOnline"]) {
+			// Don't delay sleep for connecting or reconnecting accounts
 			if (![self _accountsAreOnlineOrDisconnecting:NO]) {
 				AILog(@"Posting AISystemContinueSleep_Notification...");
-				[[NSNotificationCenter defaultCenter] postNotificationName:AISystemContinueSleep_Notification object:nil];
+				[[NSNotificationCenter defaultCenter] postNotificationName:AISystemContinueSleep_Notification
+																	object:nil];
 				waitingToSleep = NO;
 
 			} else {
@@ -296,25 +290,26 @@
 			AIAccount *account = (AIAccount *)inObject;
 
 			if (account.enabled) {
-				//Start observing for this host if we're not already
+				// Start observing for this host if we're not already
 				if ([account connectivityBasedOnNetworkReachability]) {
 					NSString *host = [account host];
 					AIHostReachabilityMonitor *monitor = [AIHostReachabilityMonitor defaultMonitor];
-	
-					[account setValue:[NSNumber numberWithBool:YES] forProperty:@"isWaitingForNetwork" notify:NotifyNow];
-					if (host &&
-						![monitor observer:self isObservingHost:host]) {
+
+					[account setValue:[NSNumber numberWithBool:YES]
+						  forProperty:@"isWaitingForNetwork"
+							   notify:NotifyNow];
+					if (host && ![monitor observer:self isObservingHost:host]) {
 						[monitor addObserver:self forHost:host];
 					}
 				}
-				
+
 			} else {
-				BOOL			enabledAccountUsingThisHost = NO;
-				NSString		*thisHost = [account host];
-				
+				BOOL enabledAccountUsingThisHost = NO;
+				NSString *thisHost = [account host];
+
 				[account setValue:nil forProperty:@"isWaitingForNetwork" notify:NotifyNow];
 
-				//Check if any enabled accounts are still using this now-disabled account's host
+				// Check if any enabled accounts are still using this now-disabled account's host
 				for (AIAccount *loopAccount in adium.accountController.accounts) {
 					if (loopAccount.enabled && loopAccount.connectivityBasedOnNetworkReachability) {
 						if ([thisHost caseInsensitiveCompare:loopAccount.host] == NSOrderedSame) {
@@ -324,7 +319,7 @@
 					}
 				}
 
-				//If not, stop observing it entirely
+				// If not, stop observing it entirely
 				if (!enabledAccountUsingThisHost) {
 					AIHostReachabilityMonitor *monitor = [AIHostReachabilityMonitor defaultMonitor];
 					[monitor removeObserver:self forHost:thisHost];
@@ -344,17 +339,15 @@
 - (BOOL)_accountsAreOnlineOrDisconnecting:(BOOL)considerConnecting
 {
 	for (AIAccount *account in adium.accountController.accounts) {
-		if (account.online ||
-		   [account boolValueForProperty:@"isDisconnecting"]) {
-			AILog(@"%@ (and possibly others) is still %@",account, (account.online ? @"online" : @"disconnecting"));
+		if (account.online || [account boolValueForProperty:@"isDisconnecting"]) {
+			AILog(@"%@ (and possibly others) is still %@", account, (account.online ? @"online" : @"disconnecting"));
 			return YES;
-		} else if (considerConnecting &&
-				   ([account boolValueForProperty:@"isConnecting"] ||
-					[account valueForProperty:@"waitingToReconnect"])) {
+		} else if (considerConnecting && ([account boolValueForProperty:@"isConnecting"] ||
+										  [account valueForProperty:@"waitingToReconnect"])) {
 			return YES;
 		}
 	}
-	
+
 	return NO;
 }
 
@@ -365,12 +358,12 @@
 {
 	AILog(@"***** System did wake...");
 
-	/* We could have been waiting to sleep but then timed out and slept anyways; clear the flag if that happened and it wasn't cleared
-	 * in updateListObject::: above.
+	/* We could have been waiting to sleep but then timed out and slept anyways; clear the flag if that happened and it
+	 * wasn't cleared in updateListObject::: above.
 	 */
 	waitingToSleep = NO;
 
-	//Immediately re-connect accounts which are ignoring the server reachability
+	// Immediately re-connect accounts which are ignoring the server reachability
 	for (AIAccount *account in adium.accountController.accounts) {
 		if (![account connectivityBasedOnNetworkReachability] && [accountsToConnect containsObject:account]) {
 			[account setShouldBeOnline:YES];
@@ -387,16 +380,14 @@
  */
 - (void)accountListChanged:(NSNotification *)notification
 {
-	AIHostReachabilityMonitor	*monitor = [AIHostReachabilityMonitor defaultMonitor];
+	AIHostReachabilityMonitor *monitor = [AIHostReachabilityMonitor defaultMonitor];
 
-	//Immediately re-connect accounts which are ignoring the server reachability
+	// Immediately re-connect accounts which are ignoring the server reachability
 	for (AIAccount *account in adium.accountController.accounts) {
-		if (account.enabled &&
-			[account connectivityBasedOnNetworkReachability]) {
+		if (account.enabled && [account connectivityBasedOnNetworkReachability]) {
 			NSString *host = [account host];
-			
-			if (host &&
-				![monitor observer:self isObservingHost:host]) {
+
+			if (host && ![monitor observer:self isObservingHost:host]) {
 				[monitor addObserver:self forHost:host];
 			}
 		}

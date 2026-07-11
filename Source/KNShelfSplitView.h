@@ -31,98 +31,93 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMA
 
 */
 
-
-
 @interface KNShelfSplitView : NSView {
-	IBOutlet NSView *			shelfView;
-	IBOutlet NSView *			contentView;
-	IBOutlet id					delegate;
-	IBOutlet id					target;
-	SEL							action;
-	
-	NSString *					autosaveName;
-	NSImage *					actionButtonImage;
-	NSImage *					contextButtonImage;
-	NSColor *					shelfBackgroundColor;
-	CGFloat						currentShelfWidth;
-	CGFloat						prevShelfWidthBeforeDoubleClick;
-	BOOL						isShelfVisible;
-	NSMenu *					contextButtonMenu;
-	
-	NSRect						controlRect;
-	BOOL						shouldDrawActionButton;
-	NSRect						actionButtonRect;
-	BOOL						shouldDrawContextButton;
-	NSRect						contextButtonRect;
-	NSRect						resizeThumbRect;
-	NSRect						resizeBarRect;
-	NSInteger							activeControlPart;
-	BOOL						shouldHilite;
-	
-	BOOL						delegateHasValidateWidth;
-	BOOL						delegateHasContextMenu;
-	
-	BOOL						drawLine;
-	BOOL						shelfOnRight;
-	
+	IBOutlet NSView *shelfView;
+	IBOutlet NSView *contentView;
+	IBOutlet id delegate;
+	IBOutlet id target;
+	SEL action;
+
+	NSString *autosaveName;
+	NSImage *actionButtonImage;
+	NSImage *contextButtonImage;
+	NSColor *shelfBackgroundColor;
+	CGFloat currentShelfWidth;
+	CGFloat prevShelfWidthBeforeDoubleClick;
+	BOOL isShelfVisible;
+	NSMenu *contextButtonMenu;
+
+	NSRect controlRect;
+	BOOL shouldDrawActionButton;
+	NSRect actionButtonRect;
+	BOOL shouldDrawContextButton;
+	NSRect contextButtonRect;
+	NSRect resizeThumbRect;
+	NSRect resizeBarRect;
+	NSInteger activeControlPart;
+	BOOL shouldHilite;
+
+	BOOL delegateHasValidateWidth;
+	BOOL delegateHasContextMenu;
+
+	BOOL drawLine;
+	BOOL shelfOnRight;
+
 	NSAttributedString *attributedStringValue;
-	CGFloat		stringHeight;
-	
-	NSImage		*background;
-	NSSize		backgroundSize;
+	CGFloat stringHeight;
+
+	NSImage *background;
+	NSSize backgroundSize;
 }
 
--(IBAction)toggleShelf:(id)sender;
+- (IBAction)toggleShelf:(id)sender;
 
--(id)initWithFrame:(NSRect)aFrame shelfView:(NSView *)aShelfView contentView:(NSView *)aContentView;
+- (id)initWithFrame:(NSRect)aFrame shelfView:(NSView *)aShelfView contentView:(NSView *)aContentView;
 
--(void)setDelegate:(id)aDelegate;
--(id)delegate;
--(void)setTarget:(id)aTarget;
--(id)target;
--(void)setAction:(SEL)aSelector;
--(SEL)action;
+- (void)setDelegate:(id)aDelegate;
+- (id)delegate;
+- (void)setTarget:(id)aTarget;
+- (id)target;
+- (void)setAction:(SEL)aSelector;
+- (SEL)action;
 
--(void)setShelfView:(NSView *)aView;
--(NSView *)shelfView;
--(void)setContentView:(NSView *)aView;
--(NSView *)contentView;
+- (void)setShelfView:(NSView *)aView;
+- (NSView *)shelfView;
+- (void)setContentView:(NSView *)aView;
+- (NSView *)contentView;
 
--(void)setShelfOnRight:(BOOL)inRight;
--(BOOL)shelfOnRight;
+- (void)setShelfOnRight:(BOOL)inRight;
+- (BOOL)shelfOnRight;
 
--(void)setDrawShelfLine:(BOOL)inDraw;
--(BOOL)drawShelfLine;
+- (void)setDrawShelfLine:(BOOL)inDraw;
+- (BOOL)drawShelfLine;
 
--(void)setShelfWidth:(CGFloat)aWidth;
--(CGFloat)shelfWidth;
+- (void)setShelfWidth:(CGFloat)aWidth;
+- (CGFloat)shelfWidth;
 
--(BOOL)isShelfVisible;
--(void)setShelfIsVisible:(BOOL)visible;
+- (BOOL)isShelfVisible;
+- (void)setShelfIsVisible:(BOOL)visible;
 
--(void)setAutosaveName:(NSString *)aName;
--(NSString *)autosaveName;
+- (void)setAutosaveName:(NSString *)aName;
+- (NSString *)autosaveName;
 
+- (void)setActionButtonImage:(NSImage *)anImage;
+- (NSImage *)actionButtonImage;
+- (void)setContextButtonImage:(NSImage *)anImage;
+- (NSImage *)contextButtonImage;
+- (void)setShelfBackgroundColor:(NSColor *)aColor;
+- (NSColor *)shelfBackgroundColor;
 
--(void)setActionButtonImage:(NSImage *)anImage;
--(NSImage *)actionButtonImage;
--(void)setContextButtonImage:(NSImage *)anImage;
--(NSImage *)contextButtonImage;
--(void)setShelfBackgroundColor:(NSColor *)aColor;
--(NSColor *)shelfBackgroundColor;
-
-
--(void)recalculateSizes;
--(void)drawControlBackgroundInRect:(NSRect)aRect active:(BOOL)isActive;
+- (void)recalculateSizes;
+- (void)drawControlBackgroundInRect:(NSRect)aRect active:(BOOL)isActive;
 
 - (void)setResizeThumbStringValue:(NSString *)inString;
-
 
 @end
 
 @interface NSObject (KNShelfSplitViewDelegate)
 // These are all optional.
--(CGFloat)shelfSplitView:(KNShelfSplitView *)shelfSplitView validateWidth:(CGFloat)proposedWidth;
--(void)splitViewDidHaveResizeDoubleClick:(KNShelfSplitView *)shelfSplitView;
--(NSMenu *)contextMenuForShelfSplitView:(KNShelfSplitView *)shelfSplitView;
+- (CGFloat)shelfSplitView:(KNShelfSplitView *)shelfSplitView validateWidth:(CGFloat)proposedWidth;
+- (void)splitViewDidHaveResizeDoubleClick:(KNShelfSplitView *)shelfSplitView;
+- (NSMenu *)contextMenuForShelfSplitView:(KNShelfSplitView *)shelfSplitView;
 @end

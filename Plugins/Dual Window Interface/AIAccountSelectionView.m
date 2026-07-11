@@ -1,35 +1,35 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccountControllerProtocol.h>
 #import "AIAccountSelectionView.h"
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIChatControllerProtocol.h>
 #import <AIUtilities/AIPopUpButtonAdditions.h>
 #import <Adium/AIAccount.h>
+#import <Adium/AIAccountControllerProtocol.h>
+#import <Adium/AIChat.h>
+#import <Adium/AIChatControllerProtocol.h>
+#import <Adium/AIContactControllerProtocol.h>
+#import <Adium/AIContentControllerProtocol.h>
 #import <Adium/AIContentMessage.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIMetaContact.h>
 #import <Adium/AIService.h>
-#import <Adium/AIChat.h>
 
-#define BOX_RECT	NSMakeRect(0, 0, 300, 28)
-#define LABEL_RECT	NSMakeRect(17, 7, 56, 17)
-#define POPUP_RECT	NSMakeRect(75, 1, 212, 26)
+#define BOX_RECT NSMakeRect(0, 0, 300, 28)
+#define LABEL_RECT NSMakeRect(17, 7, 56, 17)
+#define POPUP_RECT NSMakeRect(75, 1, 212, 26)
 
 @interface AIAccountSelectionView ()
 - (id)_init;
@@ -55,8 +55,8 @@
  *
  * This view manages data, as well, MVC be damned.
  *
- * The To: field, display first, is the indepdenent variable.  It shows all contacts within the selected metacontact, or shows nothing
- * if a normal contact is the chat's destination.
+ * The To: field, display first, is the indepdenent variable.  It shows all contacts within the selected metacontact, or
+ * shows nothing if a normal contact is the chat's destination.
  *
  * The From: field is the dependent variable. It shows all accounts which could message the selected contact.
  */
@@ -67,7 +67,7 @@
  */
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
-	if((self = [super initWithCoder:aDecoder])) {
+	if ((self = [super initWithCoder:aDecoder])) {
 		[self _init];
 	}
 	return self;
@@ -78,7 +78,7 @@
  */
 - (id)initWithFrame:(NSRect)frameRect
 {
-	if((self = [super initWithFrame:frameRect])) {
+	if ((self = [super initWithFrame:frameRect])) {
 		[self _init];
 	}
 	return self;
@@ -107,20 +107,19 @@
 		[leftColor release];
 		leftColor = [inLeftColor retain];
 	}
-	
+
 	if (rightColor != inRightColor) {
 		[rightColor release];
 		rightColor = [inRightColor retain];
 	}
-	
+
 	[self setNeedsDisplay:YES];
 }
 
--(void)drawRect:(NSRect)aRect
-{	
+- (void)drawRect:(NSRect)aRect
+{
 	if (rightColor && leftColor) {
-		NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:leftColor
-															 endingColor:rightColor];
+		NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:leftColor endingColor:rightColor];
 		[gradient drawInRect:self.bounds angle:0.0];
 		[gradient release];
 	}
@@ -134,37 +133,38 @@
  */
 - (void)setChat:(AIChat *)inChat
 {
-	if(chat != inChat){
-		if(chat){
-			//Stop observing the existing chat
+	if (chat != inChat) {
+		if (chat) {
+			// Stop observing the existing chat
 			[[NSNotificationCenter defaultCenter] removeObserver:self name:Chat_SourceChanged object:chat];
 			[[NSNotificationCenter defaultCenter] removeObserver:self name:Chat_DestinationChanged object:chat];
 
-			//Remove our menus
+			// Remove our menus
 			[self _destroyAccountMenu];
 			[self _destroyContactMenu];
-			
-			//Release it
-			[chat release]; chat = nil;
+
+			// Release it
+			[chat release];
+			chat = nil;
 		}
 
-		if(inChat){
-			//Retain the new chat
+		if (inChat) {
+			// Retain the new chat
 			chat = [inChat retain];
-			
-			//Observe changes to this chat's source and destination
+
+			// Observe changes to this chat's source and destination
 			[[NSNotificationCenter defaultCenter] addObserver:self
-										   selector:@selector(chatSourceChanged:)
-											   name:Chat_SourceChanged
-											 object:chat];
+													 selector:@selector(chatSourceChanged:)
+														 name:Chat_SourceChanged
+													   object:chat];
 			[[NSNotificationCenter defaultCenter] addObserver:self
-										   selector:@selector(chatDestinationChanged:)
-											   name:Chat_DestinationChanged
-											 object:chat];
-			
-			//Update source and destination menus
+													 selector:@selector(chatDestinationChanged:)
+														 name:Chat_DestinationChanged
+													   object:chat];
+
+			// Update source and destination menus
 			[self configureForCurrentChat];
-		}			
+		}
 	} else {
 		[self configureForCurrentChat];
 	}
@@ -177,14 +177,14 @@
 {
 	AILogWithSignature(@"");
 
-	//Rebuild 'To' contact menu
+	// Rebuild 'To' contact menu
 	if ([self choicesAvailableForContact]) {
 		[self _createContactMenu];
 	} else {
 		[self _destroyContactMenu];
 	}
 
-	//Update our 'From' account menu
+	// Update our 'From' account menu
 	[self chatDestinationChanged:nil];
 }
 
@@ -195,20 +195,20 @@
 {
 	AILogWithSignature(@"popUp_contacts selecting %@ (%@)", chat.listObject, [notification object]);
 
-	//Update selection in contact menu
+	// Update selection in contact menu
 	[popUp_contacts selectItemWithRepresentedObjectUsingCompare:chat.listObject];
 
-	//Rebuild 'From' account menu
-	if ([self choicesAvailableForAccount]){
+	// Rebuild 'From' account menu
+	if ([self choicesAvailableForAccount]) {
 		[self configureAccountMenu];
 	} else {
-		[self _destroyAccountMenu];	
+		[self _destroyAccountMenu];
 	}
 
-	//Reposition our menus and resize as necessary
+	// Reposition our menus and resize as necessary
 	[self _repositionMenusAndResize];
 
-	//Update selection in account menu
+	// Update selection in account menu
 	[self chatSourceChanged:nil];
 }
 
@@ -217,8 +217,8 @@
  */
 - (void)chatSourceChanged:(NSNotification *)notification
 {
-	//Update selection in account menu
-	AILogWithSignature(@"popUp_accounts selecting %@ (%@)", chat.account,  [notification object]);
+	// Update selection in account menu
+	AILogWithSignature(@"popUp_accounts selecting %@ (%@)", chat.account, [notification object]);
 	[popUp_accounts selectItemWithRepresentedObject:chat.account];
 }
 
@@ -229,53 +229,54 @@
  */
 - (void)_repositionMenusAndResize
 {
-	NSInteger		newHeight = 0;
-	NSRect	oldFrame = [self frame];
-	
-	//Account menu is always at the bottom
-	if(box_accounts){
+	NSInteger newHeight = 0;
+	NSRect oldFrame = [self frame];
+
+	// Account menu is always at the bottom
+	if (box_accounts) {
 		[box_accounts setFrameOrigin:NSMakePoint(0, 0)];
 		newHeight += [box_accounts frame].size.height;
 	}
 
-	//Contact menu is at the bottom, unless the account menu is present in which case it moves up
-	if(box_contacts){
+	// Contact menu is at the bottom, unless the account menu is present in which case it moves up
+	if (box_contacts) {
 		[box_contacts setFrameOrigin:NSMakePoint(0, (box_accounts ? [box_accounts frame].size.height : 0))];
 		newHeight += [box_contacts frame].size.height;
 	}
 
-	//Resize our view to fit whichever menus are visible
+	// Resize our view to fit whichever menus are visible
 	[self setFrameSize:NSMakeSize([self frame].size.width, newHeight)];
-	[[self superview] setNeedsDisplayInRect:NSUnionRect(oldFrame,[self frame])];
-	
+	[[self superview] setNeedsDisplayInRect:NSUnionRect(oldFrame, [self frame])];
+
 	[[NSNotificationCenter defaultCenter] postNotificationName:AIViewFrameDidChangeNotification object:self];
 }
 
-
-//Account Menu ---------------------------------------------------------------------------------------------------------
+// Account Menu
+// ---------------------------------------------------------------------------------------------------------
 #pragma mark Account Menu
 /*!
  * @brief Returns YES if a choice of source account is available
  */
 - (BOOL)choicesAvailableForAccount
 {
-	NSInteger		choices = 0;
+	NSInteger choices = 0;
 
 	for (AIAccount *account in adium.accountController.accounts) {
 		if ([self _accountIsAvailable:account]) {
-			if (++choices > 1) return YES;
+			if (++choices > 1)
+				return YES;
 		}
 	}
-	
+
 	return NO;
 }
 
 - (void)rebuildAccountMenuFromMenuItems:(NSArray *)menuItems
 {
-	NSMenuItem	 *menuItem;
+	NSMenuItem *menuItem;
 	NSMutableArray *menuItemsForAccountsWhichKnow = [NSMutableArray array];
 	NSMutableArray *menuItemsForAccountsWhichDoNotKnow = [NSMutableArray array];
-	
+
 	for (menuItem in menuItems) {
 		AIAccount *account = [menuItem representedObject];
 		AIListContact *listContact = [adium.contactController existingContactWithService:chat.listObject.service
@@ -287,18 +288,19 @@
 		else
 			[menuItemsForAccountsWhichKnow addObject:menuItem];
 	}
-	
+
 	NSMenu *menu = [[NSMenu alloc] init];
 
-	//First, add items for accounts which have the current contact on their contact lists
+	// First, add items for accounts which have the current contact on their contact lists
 	for (menuItem in menuItemsForAccountsWhichKnow) {
 		[menu addItem:menuItem];
 	}
-	
-	//If we added any items and will be adding more, put in a separator
-	if ([menu numberOfItems] && [menuItemsForAccountsWhichDoNotKnow count]) [menu addItem:[NSMenuItem separatorItem]];
 
-	//Finally, add items for accounts which are on the right service but don't know about this contact
+	// If we added any items and will be adding more, put in a separator
+	if ([menu numberOfItems] && [menuItemsForAccountsWhichDoNotKnow count])
+		[menu addItem:[NSMenuItem separatorItem]];
+
+	// Finally, add items for accounts which are on the right service but don't know about this contact
 	for (menuItem in menuItemsForAccountsWhichDoNotKnow) {
 		[menu addItem:menuItem];
 	}
@@ -310,13 +312,16 @@
 /*!
  * @brief Account Menu Delegate
  */
-- (void)accountMenu:(AIAccountMenu *)inAccountMenu didRebuildMenuItems:(NSArray *)menuItems {
+- (void)accountMenu:(AIAccountMenu *)inAccountMenu didRebuildMenuItems:(NSArray *)menuItems
+{
 	[self rebuildAccountMenuFromMenuItems:menuItems];
 }
-- (void)accountMenu:(AIAccountMenu *)inAccountMenu didSelectAccount:(AIAccount *)inAccount {
+- (void)accountMenu:(AIAccountMenu *)inAccountMenu didSelectAccount:(AIAccount *)inAccount
+{
 	[adium.chatController switchChat:chat toAccount:inAccount];
 }
-- (BOOL)accountMenu:(AIAccountMenu *)inAccountMenu shouldIncludeAccount:(AIAccount *)inAccount {
+- (BOOL)accountMenu:(AIAccountMenu *)inAccountMenu shouldIncludeAccount:(AIAccount *)inAccount
+{
 	return [self _accountIsAvailable:inAccount];
 }
 - (NSControlSize)controlSizeForAccountMenu:(AIAccountMenu *)inAccountMenu;
@@ -341,26 +346,31 @@
  */
 - (void)configureAccountMenu
 {
-	[box_accounts removeFromSuperview]; [box_accounts release];
+	[box_accounts removeFromSuperview];
+	[box_accounts release];
 	box_accounts = [[self _boxWithFrame:BOX_RECT] retain];
-	
+
 	[popUp_accounts release];
 	popUp_accounts = [[self _popUpButtonWithFrame:POPUP_RECT] retain];
 	[box_accounts addSubview:popUp_accounts];
-	
-	NSTextField *label_accounts = [self _textFieldLabelWithValue:AILocalizedString(@"From:", "Label in front of the dropdown of accounts from which to send a message")
-														   frame:LABEL_RECT];
+
+	NSTextField *label_accounts =
+		[self _textFieldLabelWithValue:AILocalizedString(
+										   @"From:",
+										   "Label in front of the dropdown of accounts from which to send a message")
+								 frame:LABEL_RECT];
 	[box_accounts addSubview:label_accounts];
 
-	//Resize the contact box to fit our view and insert it
+	// Resize the contact box to fit our view and insert it
 	[box_accounts setFrameSize:NSMakeSize(NSWidth([self frame]), NSHeight(BOX_RECT))];
 	[self addSubview:box_accounts];
 
-	//Configure the contact menu
+	// Configure the contact menu
 	if (accountMenu)
 		[accountMenu rebuildMenu];
 	else
-		accountMenu = [[AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu showTitleVerbs:NO] retain];
+		accountMenu = [[AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu
+											   showTitleVerbs:NO] retain];
 }
 
 /*!
@@ -370,39 +380,46 @@
 {
 	if (popUp_accounts) {
 		[box_accounts removeFromSuperview];
-		[popUp_accounts release]; popUp_accounts = nil;
-		[box_accounts release]; box_accounts = nil;
-		[accountMenu release]; accountMenu = nil;
+		[popUp_accounts release];
+		popUp_accounts = nil;
+		[box_accounts release];
+		box_accounts = nil;
+		[accountMenu release];
+		accountMenu = nil;
 	}
 }
 
-
-//Contact Menu ---------------------------------------------------------------------------------------------------------
+// Contact Menu
+// ---------------------------------------------------------------------------------------------------------
 #pragma mark Contact Menu
 /*!
  * @brief Returns YES if a choice of destination contact is available
  */
-- (BOOL)choicesAvailableForContact {
+- (BOOL)choicesAvailableForContact
+{
 	if (chat.listObject.metaContact)
 		return chat.listObject.metaContact.uniqueContainedObjects.count > 1;
-	
+
 	return NO;
 }
 
 /*!
  * @brief Contact menu delegate
  */
-- (void)contactMenuDidRebuild:(AIContactMenu *)inContactMenu {
+- (void)contactMenuDidRebuild:(AIContactMenu *)inContactMenu
+{
 	AILogWithSignature(@"");
 	[popUp_contacts setMenu:[inContactMenu menu]];
 	[self chatDestinationChanged:nil];
 }
-- (void)contactMenu:(AIContactMenu *)inContactMenu didSelectContact:(AIListContact *)inContact {
+- (void)contactMenu:(AIContactMenu *)inContactMenu didSelectContact:(AIListContact *)inContact
+{
 	[adium.chatController switchChat:chat toListContact:inContact usingContactAccount:YES];
 }
-- (AIListContact *)contactMenu:(AIContactMenu *)inContactMenu validateContact:(AIListContact *)inContact {
+- (AIListContact *)contactMenu:(AIContactMenu *)inContactMenu validateContact:(AIListContact *)inContact
+{
 	AIListContact *preferredContact = [adium.contactController preferredContactForContentType:CONTENT_MESSAGE_TYPE
-																				 forListContact:inContact];
+																			   forListContact:inContact];
 	return (preferredContact ? preferredContact : inContact);
 }
 /*!
@@ -410,25 +427,32 @@
  */
 - (void)_createContactMenu
 {
-	[box_contacts removeFromSuperview]; [box_contacts release];
+	[box_contacts removeFromSuperview];
+	[box_contacts release];
 	box_contacts = [[self _boxWithFrame:BOX_RECT] retain];
 
 	[popUp_contacts release];
 	popUp_contacts = [[self _popUpButtonWithFrame:POPUP_RECT] retain];
 	[box_contacts addSubview:popUp_contacts];
-		
-	NSTextField *label_contacts = [self _textFieldLabelWithValue:AILocalizedString(@"To:", "Label in front of the dropdown for picking which contact to send a message to in the message window") frame:LABEL_RECT];
+
+	NSTextField *label_contacts = [self
+		_textFieldLabelWithValue:
+			AILocalizedString(
+				@"To:",
+				"Label in front of the dropdown for picking which contact to send a message to in the message window")
+						   frame:LABEL_RECT];
 	[box_contacts addSubview:label_contacts];
 
-	//Resize the contact box to fit our view and insert it
+	// Resize the contact box to fit our view and insert it
 	[box_contacts setFrameSize:NSMakeSize(NSWidth([self frame]), NSHeight(BOX_RECT))];
 	[self addSubview:box_contacts];
 
-	//Configure the contact menu
+	// Configure the contact menu
 	if (contactMenu)
 		[contactMenu rebuildMenu];
 	else
-		contactMenu = [[AIContactMenu contactMenuWithDelegate:self forContactsInObject:chat.listObject.parentContact] retain];
+		contactMenu = [[AIContactMenu contactMenuWithDelegate:self
+										  forContactsInObject:chat.listObject.parentContact] retain];
 }
 
 /*!
@@ -436,16 +460,19 @@
  */
 - (void)_destroyContactMenu
 {
-	if(popUp_contacts){
+	if (popUp_contacts) {
 		[box_contacts removeFromSuperview];
-		[box_contacts release]; box_contacts = nil;
-		[popUp_contacts release]; popUp_contacts = nil;
-		[contactMenu release]; contactMenu = nil;
+		[box_contacts release];
+		box_contacts = nil;
+		[popUp_contacts release];
+		popUp_contacts = nil;
+		[contactMenu release];
+		contactMenu = nil;
 	}
 }
 
-
-//Misc -----------------------------------------------------------------------------------------------------------------
+// Misc
+// -----------------------------------------------------------------------------------------------------------------
 #pragma mark Misc
 /*!
  * @brief
@@ -482,7 +509,7 @@
 	 * (such as that of the letter 'g') in the recipient pop-up.
 	 */
 	[popUp setFont:[NSFont systemFontOfSize:0.0f]];
-	
+
 	return [popUp autorelease];
 }
 
@@ -491,16 +518,16 @@
  */
 - (NSView *)_boxWithFrame:(NSRect)inFrame
 {
-	NSView	*box = [[NSView alloc] initWithFrame:inFrame];
+	NSView *box = [[NSView alloc] initWithFrame:inFrame];
 
 	[box setAutoresizingMask:(NSViewWidthSizable)];
-	
+
 	return [box autorelease];
 }
 
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"%@{%@}",[super description], chat];
+	return [NSString stringWithFormat:@"%@{%@}", [super description], chat];
 }
 
 @end

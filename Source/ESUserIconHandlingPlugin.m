@@ -1,38 +1,38 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import "ESUserIconHandlingPlugin.h"
+#import <AIUtilities/AIFileManagerAdditions.h>
+#import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIImageButton.h>
+#import <AIUtilities/AIMenuAdditions.h>
+#import <AIUtilities/AIMutableOwnerArray.h>
+#import <AIUtilities/AIToolbarUtilities.h>
+#import <Adium/AIAccount.h>
+#import <Adium/AIChat.h>
 #import <Adium/AIChatControllerProtocol.h>
 #import <Adium/AIContactControllerProtocol.h>
 #import <Adium/AIContentControllerProtocol.h>
 #import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIToolbarControllerProtocol.h>
-#import "ESUserIconHandlingPlugin.h"
-#import <AIUtilities/AIFileManagerAdditions.h>
-#import <AIUtilities/AIMutableOwnerArray.h>
-#import <AIUtilities/AIToolbarUtilities.h>
-#import <AIUtilities/AIMenuAdditions.h>
-#import <AIUtilities/AIImageAdditions.h>
-#import <AIUtilities/AIImageButton.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIListObject.h>
 #import <Adium/AIServiceIcons.h>
+#import <Adium/AIToolbarControllerProtocol.h>
 
-#define	TOOLBAR_ITEM_TAG	-999
+#define TOOLBAR_ITEM_TAG -999
 
 @interface ESUserIconHandlingPlugin ()
 - (void)registerToolbarItem;
@@ -61,11 +61,11 @@
  */
 - (void)installPlugin
 {
-	//Register our observers
+	// Register our observers
 	[[NSNotificationCenter defaultCenter] addObserver:self
-								   selector:@selector(listObjectAttributesChanged:)
-									   name:ListObject_AttributesChanged
-									 object:nil];
+											 selector:@selector(listObjectAttributesChanged:)
+												 name:ListObject_AttributesChanged
+											   object:nil];
 
 	[self registerToolbarItem];
 }
@@ -78,7 +78,7 @@
 	[adium.preferenceController unregisterPreferenceObserver:self];
 }
 
-//Needs some 		[self updateToolbarItemForObject:inObject];
+// Needs some 		[self updateToolbarItemForObject:inObject];
 
 /*!
  * @brief List object attributes changes
@@ -87,9 +87,9 @@
  */
 - (void)listObjectAttributesChanged:(NSNotification *)notification
 {
-	AIListObject	*inObject = [notification object];
-	NSSet			*keys = [[notification userInfo] objectForKey:@"Keys"];
-	
+	AIListObject *inObject = [notification object];
+	NSSet *keys = [[notification userInfo] objectForKey:@"Keys"];
+
 	if ([keys containsObject:KEY_USER_ICON]) {
 		if (inObject) {
 			[self updateToolbarItemForObject:inObject];
@@ -97,12 +97,10 @@
 			for (AIChat *chat in adium.interfaceController.openChats) {
 				NSWindow *window = [adium.interfaceController windowForChat:chat];
 				if (window) {
-					[self _updateToolbarIconOfChat:chat
-										  inWindow:window];
+					[self _updateToolbarIconOfChat:chat inWindow:window];
 				}
 			}
 		}
-			
 	}
 }
 
@@ -115,13 +113,13 @@
  */
 - (void)registerToolbarItem
 {
-	AIImageButton	*button;
-	NSToolbarItem	*toolbarItem;
+	AIImageButton *button;
+	NSToolbarItem *toolbarItem;
 
 	toolbarItems = [[NSMutableSet alloc] init];
 	validatedItems = [[NSMutableSet alloc] init];
 
-	//Toolbar item registration
+	// Toolbar item registration
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(toolbarWillAddItem:)
 												 name:NSToolbarWillAddItemNotification
@@ -131,27 +129,27 @@
 												 name:NSToolbarDidRemoveItemNotification
 											   object:nil];
 
-	button = [[AIImageButton alloc] initWithFrame:NSMakeRect(0,0,32,32)];
-	
+	button = [[AIImageButton alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
+
 	toolbarItem = [AIToolbarUtilities toolbarItemWithIdentifier:@"UserIcon"
-														  label:AILocalizedString(@"Icon",nil)
-												   paletteLabel:AILocalizedString(@"Contact Icon",nil)
-														toolTip:AILocalizedString(@"Show this contact's icon",nil)
+														  label:AILocalizedString(@"Icon", nil)
+												   paletteLabel:AILocalizedString(@"Contact Icon", nil)
+														toolTip:AILocalizedString(@"Show this contact's icon", nil)
 														 target:self
 												settingSelector:@selector(setView:)
 													itemContent:button
 														 action:@selector(dummyAction:)
 														   menu:nil];
 
-	[toolbarItem setMinSize:NSMakeSize(32,32)];
-	[toolbarItem setMaxSize:NSMakeSize(32,32)];
-	
+	[toolbarItem setMinSize:NSMakeSize(32, 32)];
+	[toolbarItem setMaxSize:NSMakeSize(32, 32)];
+
 	[button setCornerRadius:3.0f];
 	[button setToolbarItem:toolbarItem];
 	[button setImage:[NSImage imageNamed:@"default-icon" forClass:[self class] loadLazily:YES]];
 	[button release];
 
-	//Register our toolbar item
+	// Register our toolbar item
 	[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"MessageWindow"];
 }
 
@@ -160,15 +158,15 @@
  */
 - (void)toolbarWillAddItem:(NSNotification *)notification
 {
-	NSToolbarItem	*item = [[notification userInfo] objectForKey:@"item"];
+	NSToolbarItem *item = [[notification userInfo] objectForKey:@"item"];
 
 	if ([[item itemIdentifier] isEqualToString:@"UserIcon"]) {
 
 		[item setEnabled:YES];
 
-		//Add menu to toolbar item (for text mode)
-		NSMenuItem	*menuFormRepresentation, *blankMenuItem;
-		NSMenu		*menu;
+		// Add menu to toolbar item (for text mode)
+		NSMenuItem *menuFormRepresentation, *blankMenuItem;
+		NSMenu *menu;
 
 		menuFormRepresentation = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] init] autorelease];
 
@@ -189,40 +187,38 @@
 		[menuFormRepresentation setTitle:[item label]];
 		[item setMenuFormRepresentation:menuFormRepresentation];
 
-		//If this is the first item added, start observing for chats becoming visible so we can update the icon
+		// If this is the first item added, start observing for chats becoming visible so we can update the icon
 		if ([toolbarItems count] == 0) {
 			[[NSNotificationCenter defaultCenter] addObserver:self
-										   selector:@selector(chatDidBecomeVisible:)
-											   name:@"AIChatDidBecomeVisible"
-											 object:nil];
+													 selector:@selector(chatDidBecomeVisible:)
+														 name:@"AIChatDidBecomeVisible"
+													   object:nil];
 		}
 
 		[toolbarItems addObject:item];
-		
-		[self performSelector:@selector(toolbarDidAddItem:)
-				   withObject:item
-				   afterDelay:0];
+
+		[self performSelector:@selector(toolbarDidAddItem:) withObject:item afterDelay:0];
 	}
 }
 
 - (void)toolbarDidAddItem:(NSToolbarItem *)item
 {
 	/* Only need to take action if we haven't already validated the initial state of this item.
-	* This will only be true when the toolbar is revealed for the first time having been hidden when window opened.
-	*/
+	 * This will only be true when the toolbar is revealed for the first time having been hidden when window opened.
+	 */
 	if (![validatedItems containsObject:item]) {
 		NSEnumerator *enumerator = [[NSApp windows] objectEnumerator];
-		NSWindow	 *window;
-		NSToolbar	 *thisItemsToolbar = [item toolbar];
-		
-		//Look at each window to find the toolbar we are in
+		NSWindow *window;
+		NSToolbar *thisItemsToolbar = [item toolbar];
+
+		// Look at each window to find the toolbar we are in
 		while ((window = [enumerator nextObject])) {
-			if ([window toolbar] == thisItemsToolbar) break;
+			if ([window toolbar] == thisItemsToolbar)
+				break;
 		}
-		
+
 		if (window) {
-			[self _updateToolbarItem:item
-							 forChat:[adium.interfaceController activeChatInWindow:window]];
+			[self _updateToolbarItem:item forChat:[adium.interfaceController activeChatInWindow:window]];
 		}
 	}
 }
@@ -234,18 +230,16 @@
  *
  * @param notification Notification with an @"item" userInfo key for an NSToolbarItem.
  */
-- (void)toolbarDidRemoveItem: (NSNotification *)notification
+- (void)toolbarDidRemoveItem:(NSNotification *)notification
 {
-	NSToolbarItem	*item = [[notification userInfo] objectForKey:@"item"];
+	NSToolbarItem *item = [[notification userInfo] objectForKey:@"item"];
 	if ([toolbarItems containsObject:item]) {
 		[item setView:nil];
 		[toolbarItems removeObject:item];
 		[validatedItems removeObject:item];
 
 		if ([toolbarItems count] == 0) {
-			[[NSNotificationCenter defaultCenter] removeObserver:self
-												  name:@"AIChatDidBecomeVisible"
-												object:nil];
+			[[NSNotificationCenter defaultCenter] removeObserver:self name:@"AIChatDidBecomeVisible" object:nil];
 		}
 	}
 }
@@ -259,53 +253,47 @@
  */
 - (void)chatDidBecomeVisible:(NSNotification *)notification
 {
-	[self _updateToolbarIconOfChat:[notification object]
-						  inWindow:[[notification userInfo] objectForKey:@"NSWindow"]];
+	[self _updateToolbarIconOfChat:[notification object] inWindow:[[notification userInfo] objectForKey:@"NSWindow"]];
 }
 
 - (void)updateToolbarItemForObject:(AIListObject *)inObject
 {
-	AIChat		*chat;
-	NSWindow	*window;
+	AIChat *chat;
+	NSWindow *window;
 
-	//Update the icon in the toolbar for this contact if a chat is open and we have any toolbar items
-	if (([toolbarItems count] > 0) &&
-		[inObject isKindOfClass:[AIListContact class]] &&
+	// Update the icon in the toolbar for this contact if a chat is open and we have any toolbar items
+	if (([toolbarItems count] > 0) && [inObject isKindOfClass:[AIListContact class]] &&
 		(chat = [adium.chatController existingChatWithContact:(AIListContact *)inObject]) &&
 		(window = [adium.interfaceController windowForChat:chat])) {
-		[self _updateToolbarIconOfChat:chat
-							  inWindow:window];
+		[self _updateToolbarIconOfChat:chat inWindow:window];
 	}
 }
 
 - (void)_updateToolbarItem:(NSToolbarItem *)item forChat:(AIChat *)chat
 {
-	AIListContact	*listContact;
-	NSImage			*image;
-	
-    if (chat.isGroupChat) {
-        listContact = (AIListContact *)[adium.contactController existingBookmarkForChat:chat];
-    } else {
-        listContact = chat.listObject.parentContact;
-    }
-    
+	AIListContact *listContact;
+	NSImage *image;
+
+	if (chat.isGroupChat) {
+		listContact = (AIListContact *)[adium.contactController existingBookmarkForChat:chat];
+	} else {
+		listContact = chat.listObject.parentContact;
+	}
+
 	if (listContact) {
 		image = [listContact userIcon];
-		
-		//Use the serviceIcon if no image can be found
-		if (!image) image = [AIServiceIcons serviceIconForObject:listContact
-															type:AIServiceIconLarge
-													   direction:AIIconNormal];
+
+		// Use the serviceIcon if no image can be found
+		if (!image)
+			image = [AIServiceIcons serviceIconForObject:listContact type:AIServiceIconLarge direction:AIIconNormal];
 	} else {
-		//If we have no listObject or we have a name, we are a group chat and
-		//should use the account's service icon
-		image = [AIServiceIcons serviceIconForObject:chat.account
-												type:AIServiceIconLarge
-										   direction:AIIconNormal];
+		// If we have no listObject or we have a name, we are a group chat and
+		// should use the account's service icon
+		image = [AIServiceIcons serviceIconForObject:chat.account type:AIServiceIconLarge direction:AIIconNormal];
 	}
-	
+
 	[(AIImageButton *)[item view] setImage:image];
-	
+
 	[validatedItems addObject:item];
 }
 
@@ -317,9 +305,9 @@
  */
 - (void)_updateToolbarIconOfChat:(AIChat *)chat inWindow:(NSWindow *)window
 {
-	NSToolbar		*toolbar = [window toolbar];
-	NSEnumerator	*enumerator = [[toolbar items] objectEnumerator];
-	NSToolbarItem	*item;
+	NSToolbar *toolbar = [window toolbar];
+	NSEnumerator *enumerator = [[toolbar items] objectEnumerator];
+	NSToolbarItem *item;
 
 	while ((item = [enumerator nextObject])) {
 		if ([[item itemIdentifier] isEqualToString:@"UserIcon"]) {
@@ -332,7 +320,8 @@
 /*!
  * @brief Empty action for menu item validation purposes
  */
-- (IBAction)dummyAction:(id)sender{};
+- (IBAction)dummyAction:(id)sender
+{};
 
 /*!
  * @brief Menu needs update
@@ -343,7 +332,7 @@
 - (void)menuNeedsUpdate:(NSMenu *)menu
 {
 	NSMenuItem *menuItem = [menu itemAtIndex:0];
-	NSToolbarItem	*toolbarItem = [menuItem representedObject];
+	NSToolbarItem *toolbarItem = [menuItem representedObject];
 
 	[menuItem setImage:[[[(AIImageButton *)[toolbarItem view] image] copy] autorelease]];
 }

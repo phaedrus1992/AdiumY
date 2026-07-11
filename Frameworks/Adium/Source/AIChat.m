@@ -1,45 +1,44 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 #import <Adium/AIAccount.h>
 #import <Adium/AIChat.h>
+#import <Adium/AIChatControllerProtocol.h>
+#import <Adium/AIContactControllerProtocol.h>
+#import <Adium/AIContactHidingController.h>
+#import <Adium/AIContentControllerProtocol.h>
 #import <Adium/AIContentMessage.h>
 #import <Adium/AIContentTopic.h>
+#import <Adium/AIHTMLDecoder.h>
+#import <Adium/AIInterfaceControllerProtocol.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIService.h>
-#import <Adium/ESFileTransfer.h>
-#import <Adium/AIHTMLDecoder.h>
 #import <Adium/AIServiceIcons.h>
-#import <Adium/AIUserIcons.h>
-#import <Adium/AIContactHidingController.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
 #import <Adium/AISortController.h>
+#import <Adium/AIUserIcons.h>
+#import <Adium/ESFileTransfer.h>
 
 #import <AIUtilities/AIArrayAdditions.h>
-#import <AIUtilities/AIMutableOwnerArray.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
+#import <AIUtilities/AIMutableOwnerArray.h>
 
-#import "AIMessageWindowController.h"
-#import "AIMessageWindow.h"
 #import "AIInterfaceControllerProtocol.h"
-#import "AIWebKitMessageViewController.h"
 #import "AILoggerPlugin.h"
-
+#import "AIMessageWindow.h"
+#import "AIMessageWindowController.h"
+#import "AIWebKitMessageViewController.h"
 
 @interface AIChat ()
 - (id)initForAccount:(AIAccount *)inAccount;
@@ -57,12 +56,12 @@ static int nextChatNumber = 0;
 
 + (id)chatForAccount:(AIAccount *)inAccount
 {
-    return [[[self alloc] initForAccount:inAccount] autorelease];
+	return [[[self alloc] initForAccount:inAccount] autorelease];
 }
 
 - (id)initForAccount:(AIAccount *)inAccount
 {
-    if ((self = [super init])) {
+	if ((self = [super init])) {
 		name = nil;
 		account = [inAccount retain];
 		participatingContacts = [[NSMutableArray alloc] init];
@@ -79,21 +78,21 @@ static int nextChatNumber = 0;
 		showJoinLeave = YES;
 		pendingOutgoingContentObjects = [[NSMutableArray alloc] init];
 
-		AILog(@"[AIChat: %p initForAccount]",self);
-		
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-												 selector:@selector(contentObjectAdded:) 
-													 name:Content_ContentObjectAdded 
+		AILog(@"[AIChat: %p initForAccount]", self);
+
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(contentObjectAdded:)
+													 name:Content_ContentObjectAdded
 												   object:self];
 	}
 
-    return self;
+	return self;
 }
 
 - (void)contentObjectAdded:(NSNotification *)notification
 {
 	AIContentMessage *content = [[notification userInfo] objectForKey:@"AIContentObject"];
-	
+
 	self.lastMessageDate = [content date];
 }
 
@@ -102,7 +101,7 @@ static int nextChatNumber = 0;
  */
 - (void)dealloc
 {
-	AILog(@"[%@ dealloc]",self);
+	AILog(@"[%@ dealloc]", self);
 
 	[account release];
 	[self removeAllParticipatingContactsSilently];
@@ -112,24 +111,32 @@ static int nextChatNumber = 0;
 	[dateOpened release];
 	[ignoredListContacts release];
 	[pendingOutgoingContentObjects release];
-	[uniqueChatID release]; uniqueChatID = nil;
-	[customEmoticons release]; customEmoticons = nil;
-	[topic release]; [topicSetter release];
-	
-	[tabStateIcon release]; tabStateIcon = nil;
-    [chatCreationInfo release]; chatCreationInfo = nil;
-    [enteredTextTimer release]; enteredTextTimer = nil;
-    [securityDetails release]; securityDetails = nil;
-	[lastMessageDate release]; lastMessageDate = nil;
-	
+	[uniqueChatID release];
+	uniqueChatID = nil;
+	[customEmoticons release];
+	customEmoticons = nil;
+	[topic release];
+	[topicSetter release];
+
+	[tabStateIcon release];
+	tabStateIcon = nil;
+	[chatCreationInfo release];
+	chatCreationInfo = nil;
+	[enteredTextTimer release];
+	enteredTextTimer = nil;
+	[securityDetails release];
+	securityDetails = nil;
+	[lastMessageDate release];
+	lastMessageDate = nil;
+
 	[super dealloc];
 }
 
-//Big image
+// Big image
 - (NSImage *)chatImage
 {
-	AIListContact 	*listObject = nil;
-	NSImage			*image = nil;
+	AIListContact *listObject = nil;
+	NSImage *image = nil;
 
 	if (self.isGroupChat) {
 		listObject = (AIListContact *)[adium.contactController existingBookmarkForChat:self];
@@ -139,7 +146,8 @@ static int nextChatNumber = 0;
 
 	if (listObject) {
 		image = listObject.parentContact.userIcon;
-		if (!image) image = [AIServiceIcons serviceIconForObject:listObject type:AIServiceIconLarge direction:AIIconNormal];
+		if (!image)
+			image = [AIServiceIcons serviceIconForObject:listObject type:AIServiceIconLarge direction:AIIconNormal];
 	} else {
 		image = [AIServiceIcons serviceIconForObject:self.account type:AIServiceIconLarge direction:AIIconNormal];
 	}
@@ -147,12 +155,12 @@ static int nextChatNumber = 0;
 	return image;
 }
 
-//lil image
+// lil image
 - (NSImage *)chatMenuImage
 {
-	AIListObject 	*listObject = nil;
-	NSImage			*chatMenuImage = nil;
-	
+	AIListObject *listObject = nil;
+	NSImage *chatMenuImage = nil;
+
 	if (self.isGroupChat) {
 		listObject = (AIListContact *)[adium.contactController existingBookmarkForChat:self];
 	} else {
@@ -162,20 +170,18 @@ static int nextChatNumber = 0;
 	if (listObject) {
 		chatMenuImage = [AIUserIcons menuUserIconForObject:listObject];
 	} else {
-		chatMenuImage = [AIServiceIcons serviceIconForObject:account
-														type:AIServiceIconSmall
-												   direction:AIIconNormal];
+		chatMenuImage = [AIServiceIcons serviceIconForObject:account type:AIServiceIconSmall direction:AIIconNormal];
 	}
 
 	return chatMenuImage;
 }
 
-
-//Associated Account ---------------------------------------------------------------------------------------------------
+// Associated Account
+// ---------------------------------------------------------------------------------------------------
 #pragma mark Associated Account
 - (AIAccount *)account
 {
-    return account;
+	return account;
 }
 
 - (void)setAccount:(AIAccount *)inAccount
@@ -183,10 +189,10 @@ static int nextChatNumber = 0;
 	if (inAccount != account) {
 		[account release];
 		account = [inAccount retain];
-		
-		//The uniqueChatID may depend upon the account, so clear it
+
+		// The uniqueChatID may depend upon the account, so clear it
 		[self clearUniqueChatID];
-		[[NSNotificationCenter defaultCenter] postNotificationName:Chat_SourceChanged object:self]; //Notify
+		[[NSNotificationCenter defaultCenter] postNotificationName:Chat_SourceChanged object:self]; // Notify
 	}
 }
 
@@ -200,61 +206,56 @@ static int nextChatNumber = 0;
 
 - (void)setChatCreationDictionary:(NSDictionary *)inDict
 {
-	[self setValue:inDict
-				   forProperty:@"chatCreationInfo"
-				   notify:NotifyNever];
+	[self setValue:inDict forProperty:@"chatCreationInfo" notify:NotifyNever];
 }
 
 @synthesize hasSentOrReceivedContent, isOpen, dateOpened;
 
-//Status ---------------------------------------------------------------------------------------------------------------
+// Status
+// ---------------------------------------------------------------------------------------------------------------
 #pragma mark Status
-//Status
+// Status
 - (void)didModifyProperties:(NSSet *)keys silent:(BOOL)silent
 {
-	[adium.chatController chatStatusChanged:self
-						   modifiedStatusKeys:keys
-									   silent:silent];	
+	[adium.chatController chatStatusChanged:self modifiedStatusKeys:keys silent:silent];
 }
 
 - (void)object:(id)inObject didChangeValueForProperty:(NSString *)key notify:(NotifyTiming)notify
 {
-	//If our unviewed content changes or typing status changes, and we have a single list object, 
-	//apply the change to that object as well so it can be cleanly reflected in the contact list.
-	if ([key isEqualToString:KEY_UNVIEWED_CONTENT] ||
-		[key isEqualToString:KEY_TYPING]) {
-		AIListObject	*listObject = nil;
-		
+	// If our unviewed content changes or typing status changes, and we have a single list object,
+	// apply the change to that object as well so it can be cleanly reflected in the contact list.
+	if ([key isEqualToString:KEY_UNVIEWED_CONTENT] || [key isEqualToString:KEY_TYPING]) {
+		AIListObject *listObject = nil;
+
 		if (self.isGroupChat) {
 			listObject = (AIListContact *)[adium.contactController existingBookmarkForChat:self];
 		} else {
 			listObject = self.listObject;
 		}
-		
-		if (listObject) [listObject setValue:[self valueForProperty:key] forProperty:key notify:notify];
+
+		if (listObject)
+			[listObject setValue:[self valueForProperty:key] forProperty:key notify:notify];
 	}
-	
+
 	[super object:inObject didChangeValueForProperty:key notify:notify];
 }
 
 - (void)clearListObjectStatuses
 {
-	AIListObject	*listObject = self.listObject;
-	
+	AIListObject *listObject = self.listObject;
+
 	if (listObject) {
 		[listObject setValue:nil forProperty:KEY_UNVIEWED_CONTENT notify:NotifyLater];
 		[listObject setValue:nil forProperty:KEY_TYPING notify:NotifyLater];
-	
+
 		[listObject notifyOfChangedPropertiesSilently:NO];
 	}
-	
 }
-//Secure chatting ------------------------------------------------------------------------------------------------------
+// Secure chatting
+// ------------------------------------------------------------------------------------------------------
 - (void)setSecurityDetails:(NSDictionary *)inSecurityDetails
 {
-	[self setValue:inSecurityDetails
-				   forProperty:@"securityDetails"
-				   notify:NotifyNow];
+	[self setValue:inSecurityDetails forProperty:@"securityDetails" notify:NotifyNow];
 }
 - (NSDictionary *)securityDetails
 {
@@ -262,19 +263,19 @@ static int nextChatNumber = 0;
 }
 
 - (BOOL)isSecure
-{	
+{
 	return self.encryptionStatus != EncryptionStatus_None;
 }
 
 - (AIEncryptionStatus)encryptionStatus
 {
-	AIEncryptionStatus	encryptionStatus = EncryptionStatus_None;
-	
+	AIEncryptionStatus encryptionStatus = EncryptionStatus_None;
+
 	if (securityDetails) {
 		NSNumber *detailsStatus;
 		if ((detailsStatus = [securityDetails objectForKey:@"EncryptionStatus"])) {
 			encryptionStatus = [detailsStatus intValue];
-			
+
 		} else {
 			/* If we don't have a specific encryption status, but do have security details, assume
 			 * encrypted and verified.
@@ -291,7 +292,7 @@ static int nextChatNumber = 0;
 	return [account allowSecureMessagingTogglingForChat:self];
 }
 
-//Name  ----------------------------------------------------------------------------------------------------------------
+// Name ----------------------------------------------------------------------------------------------------------------
 #pragma mark Name
 
 @synthesize name;
@@ -306,23 +307,23 @@ static int nextChatNumber = 0;
 
 - (NSString *)displayName
 {
-    NSString	*outName = [self displayArrayObjectForKey:@"Display Name"];
-    return outName ? outName : (name ? name : self.listObject.displayName);
+	NSString *outName = [self displayArrayObjectForKey:@"Display Name"];
+	return outName ? outName : (name ? name : self.listObject.displayName);
 }
 
 - (void)setDisplayName:(NSString *)inDisplayName
 {
-	[[self displayArrayForKey:@"Display Name"] setObject:inDisplayName
-											   withOwner:[NSValue valueWithNonretainedObject:self] /* Don't want a retain loop */
-										   priorityLevel:Highest_Priority];
+	[[self displayArrayForKey:@"Display Name"]
+			setObject:inDisplayName
+			withOwner:[NSValue valueWithNonretainedObject:self] /* Don't want a retain loop */
+		priorityLevel:Highest_Priority];
 
-	//The display array doesn't cause an attribute update; fake it.
-	[adium.chatController chatStatusChanged:self
-						 modifiedStatusKeys:[NSSet setWithObject:@"Display Name"]
-									 silent:NO];
+	// The display array doesn't cause an attribute update; fake it.
+	[adium.chatController chatStatusChanged:self modifiedStatusKeys:[NSSet setWithObject:@"Display Name"] silent:NO];
 }
 
-//Participating ListObjects --------------------------------------------------------------------------------------------
+// Participating ListObjects
+// --------------------------------------------------------------------------------------------
 #pragma mark Participating ListObjects
 
 /*!
@@ -353,11 +354,11 @@ static int nextChatNumber = 0;
 - (NSString *)aliasForContact:(AIListObject *)contact
 {
 	NSString *alias = [participatingContactsAliases objectForKey:contact.UID];
-	
+
 	if (!alias && self.isGroupChat) {
 		alias = [self.account fallbackAliasForContact:(AIListContact *)contact inChat:self];
 	}
-	
+
 	return alias;
 }
 
@@ -368,8 +369,7 @@ static int nextChatNumber = 0;
  */
 - (void)setFlags:(AIGroupChatFlags)flags forContact:(AIListObject *)contact
 {
-	[participatingContactsFlags setObject:[NSNumber numberWithInteger:flags]
-								   forKey:contact.UID];
+	[participatingContactsFlags setObject:[NSNumber numberWithInteger:flags] forKey:contact.UID];
 }
 
 /*!
@@ -377,34 +377,34 @@ static int nextChatNumber = 0;
  */
 - (void)setAlias:(NSString *)alias forContact:(AIListObject *)contact
 {
-	[participatingContactsAliases setObject:alias
-									 forKey:contact.UID];
+	[participatingContactsAliases setObject:alias forKey:contact.UID];
 }
 
 AIGroupChatFlags highestFlag(AIGroupChatFlags flags)
 {
 	if ((flags & AIGroupChatFounder) == AIGroupChatFounder)
 		return AIGroupChatFounder;
-	
+
 	if ((flags & AIGroupChatOp) == AIGroupChatOp)
 		return AIGroupChatOp;
-	
+
 	if ((flags & AIGroupChatHalfOp) == AIGroupChatHalfOp)
 		return AIGroupChatHalfOp;
-	
+
 	if ((flags & AIGroupChatVoice) == AIGroupChatVoice)
 		return AIGroupChatVoice;
-	
+
 	return AIGroupChatNone;
 }
 
-NSComparisonResult userListSort (id objectA, id objectB, void *context)
+NSComparisonResult userListSort(id objectA, id objectB, void *context)
 {
 	AIChat *chat = (AIChat *)context;
-	
-	AIGroupChatFlags flagA = highestFlag([chat flagsForContact:objectA]), flagB = highestFlag([chat flagsForContact:objectB]);
-	
-	if(flagA > flagB) {
+
+	AIGroupChatFlags flagA = highestFlag([chat flagsForContact:objectA]),
+					 flagB = highestFlag([chat flagsForContact:objectB]);
+
+	if (flagA > flagB) {
 		return NSOrderedAscending;
 	} else if (flagA < flagB) {
 		return NSOrderedDescending;
@@ -428,7 +428,7 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
  *
  * Removes any values which are dependent upon the contact, such as
  * its flags or alias.
-*/
+ */
 - (void)removeSavedValuesForContactUID:(NSString *)contactUID
 {
 	[participatingContactsFlags removeObjectForKey:contactUID];
@@ -448,7 +448,7 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 		if ([self containsObject:obj] || ![self canContainObject:obj])
 			[contacts removeObject:obj];
 	}
-	
+
 	[participatingContacts addObjectsFromArray:contacts];
 	[adium.chatController chat:self addedListContacts:contacts notify:notify];
 	[contacts release];
@@ -470,7 +470,7 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 
 @synthesize preferredListObject = preferredContact;
 
-//If this chat only has one participating list object, it is returned.  Otherwise, nil is returned
+// If this chat only has one participating list object, it is returned.  Otherwise, nil is returned
 - (AIListContact *)listObject
 {
 	if (self.countOfContainedObjects == 1 && !self.isGroupChat) {
@@ -488,11 +488,11 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 		}
 		[self addParticipatingListObject:inListObject notify:YES];
 
-		//Clear any local caches relying on the list object
+		// Clear any local caches relying on the list object
 		[self clearListObjectStatuses];
 		[self clearUniqueChatID];
 
-		//Notify once the destination has been changed
+		// Notify once the destination has been changed
 		[[NSNotificationCenter defaultCenter] postNotificationName:Chat_DestinationChanged object:self];
 	}
 }
@@ -502,13 +502,13 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 	if (!uniqueChatID) {
 		if (self.isGroupChat) {
 			uniqueChatID = [[NSString alloc] initWithFormat:@"%@.%i", self.name, nextChatNumber++];
-		} else {			
+		} else {
 			uniqueChatID = [self.listObject.internalObjectID retain];
 		}
 
 		if (!uniqueChatID) {
 			uniqueChatID = [[NSString alloc] initWithFormat:@"UnknownChat.%i", nextChatNumber++];
-			NSLog(@"Warning: Unknown chat %p",self);
+			NSLog(@"Warning: Unknown chat %p", self);
 		}
 	}
 
@@ -517,7 +517,8 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 
 - (void)clearUniqueChatID
 {
-	[uniqueChatID release]; uniqueChatID = nil;
+	[uniqueChatID release];
+	uniqueChatID = nil;
 }
 
 - (NSString *)internalObjectID
@@ -525,8 +526,8 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 	return self.uniqueChatID;
 }
 
-
-//Content --------------------------------------------------------------------------------------------------------------
+// Content
+// --------------------------------------------------------------------------------------------------------------
 #pragma mark Content
 
 @synthesize lastMessageDate;
@@ -543,11 +544,11 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
  */
 - (BOOL)shouldBeginSendingContentObject:(AIContentObject *)inObject
 {
-	NSInteger	currentIndex = [pendingOutgoingContentObjects indexOfObjectIdenticalTo:inObject];
+	NSInteger currentIndex = [pendingOutgoingContentObjects indexOfObjectIdenticalTo:inObject];
 
-	//Don't add the object twice when we are called from -[AIChat finishedSendingContentObject]
+	// Don't add the object twice when we are called from -[AIChat finishedSendingContentObject]
 	if (currentIndex == NSNotFound) {
-		[pendingOutgoingContentObjects addObject:inObject];		
+		[pendingOutgoingContentObjects addObject:inObject];
 	}
 
 	return pendingOutgoingContentObjects.count == 1 || currentIndex == 0;
@@ -564,7 +565,7 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 - (void)finishedSendingContentObject:(AIContentObject *)inObject
 {
 	[pendingOutgoingContentObjects removeObjectIdenticalTo:inObject];
-	
+
 	if (pendingOutgoingContentObjects.count) {
 		[adium.contentController sendContentObject:[pendingOutgoingContentObjects objectAtIndex:0]];
 	}
@@ -576,7 +577,7 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 
 	if (self.isGroupChat) {
 		if (self.account.online) {
-			//XXX Liar!
+			// XXX Liar!
 			sendingAbilityType = AIChatCanSendMessageNow;
 		} else {
 			sendingAbilityType = AIChatCanNotSendMessage;
@@ -585,22 +586,22 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 	} else {
 		if (self.account.online) {
 			AIListContact *listObject = self.listObject;
-			
+
 			if (listObject.online || listObject.isStranger) {
 				sendingAbilityType = AIChatCanSendMessageNow;
 			} else if ([self.account canSendOfflineMessageToContact:listObject]) {
-				sendingAbilityType = AIChatCanSendViaServersideOfflineMessage;				
+				sendingAbilityType = AIChatCanSendViaServersideOfflineMessage;
 			} else if ([self.account maySendMessageToInvisibleContact:listObject]) {
-				sendingAbilityType = AIChatMayNotBeAbleToSendMessage;	
+				sendingAbilityType = AIChatMayNotBeAbleToSendMessage;
 			} else {
 				sendingAbilityType = AIChatCanNotSendMessage;
 			}
 
 		} else {
 			sendingAbilityType = AIChatCanNotSendMessage;
-		}		
+		}
 	}
-	
+
 	return sendingAbilityType;
 }
 
@@ -622,17 +623,17 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 - (void)incrementUnviewedContentCount
 {
 	NSInteger currentUnviewed = [self integerValueForProperty:KEY_UNVIEWED_CONTENT];
-	[self setValue:[NSNumber numberWithInteger:(currentUnviewed+1)]
-					 forProperty:KEY_UNVIEWED_CONTENT
-					 notify:NotifyNow];
+	[self setValue:[NSNumber numberWithInteger:(currentUnviewed + 1)]
+		forProperty:KEY_UNVIEWED_CONTENT
+			 notify:NotifyNow];
 }
 
 - (void)incrementUnviewedMentionCount
 {
 	NSInteger currentUnviewed = [self integerValueForProperty:KEY_UNVIEWED_MENTION];
-	[self setValue:[NSNumber numberWithInteger:(currentUnviewed+1)]
-	   forProperty:KEY_UNVIEWED_MENTION
-			notify:NotifyNow];
+	[self setValue:[NSNumber numberWithInteger:(currentUnviewed + 1)]
+		forProperty:KEY_UNVIEWED_MENTION
+			 notify:NotifyNow];
 }
 
 - (void)clearUnviewedContentCount
@@ -647,12 +648,12 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 - (BOOL)shouldLog
 {
 	BOOL shouldLog = [self.account shouldLogChat:self];
-	
-	if(shouldLog && self.isSecure) {
+
+	if (shouldLog && self.isSecure) {
 		shouldLog = [[adium.preferenceController preferenceForKey:KEY_LOGGER_SECURE_CHATS
 															group:PREF_GROUP_LOGGING] boolValue];
 	}
-	
+
 	return shouldLog;
 }
 
@@ -682,19 +683,19 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 
 - (NSUInteger)visibleIndexOfObject:(AIListObject *)obj
 {
-	if(![[AIContactHidingController sharedController] visibilityOfListObject:obj inContainer:self])
+	if (![[AIContactHidingController sharedController] visibilityOfListObject:obj inContainer:self])
 		return NSNotFound;
 	return [participatingContacts indexOfObject:obj];
 }
 
-//Retrieve a specific object by service and UID
+// Retrieve a specific object by service and UID
 - (AIListObject *)objectWithService:(AIService *)inService UID:(NSString *)inUID
 {
 	for (AIListContact *object in self) {
 		if ([inUID isEqualToString:object.UID] && object.service == inService)
 			return object;
 	}
-	
+
 	return nil;
 }
 
@@ -706,41 +707,40 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 - (void)removeObject:(AIListObject *)inObject
 {
 	if ([self containsObject:inObject]) {
-		AIListContact *contact = (AIListContact *)inObject; //if we contain it, it has to be an AIListContact
-		
-		//make sure removing it from the array doesn't deallocate it immediately, since we need it for -chat:removedListContact:
+		AIListContact *contact = (AIListContact *)inObject; // if we contain it, it has to be an AIListContact
+
+		// make sure removing it from the array doesn't deallocate it immediately, since we need it for
+		// -chat:removedListContact:
 		[inObject retain];
-		
+
 		[participatingContacts removeObject:inObject];
-		
+
 		[self removeSavedValuesForContactUID:inObject.UID];
 
 		[adium.chatController chat:self removedListContact:contact];
 
-		if (contact.isStranger &&
-			![adium.chatController allGroupChatsContainingContact:contact.parentContact].count &&
+		if (contact.isStranger && ![adium.chatController allGroupChatsContainingContact:contact.parentContact].count &&
 			![adium.chatController existingChatWithContact:contact.parentContact]) {
-			
+
 			[[AIContactObserverManager sharedManager] delayListObjectNotifications];
 			[adium.contactController accountDidStopTrackingContact:contact];
 			[[AIContactObserverManager sharedManager] endListObjectNotificationsDelaysImmediately];
 		}
-		
+
 		[inObject release];
 	}
 }
 
 - (void)removeObjectAfterAccountStopsTracking:(AIListObject *)object
 {
-	[self removeObject:object]; //does nothing if we've already removed it
+	[self removeObject:object]; // does nothing if we've already removed it
 }
 
 - (void)removeAllParticipatingContactsSilently
 {
 	/* Note that allGroupChatsContainingContact won't count this chat if it's already marked as not open */
 	for (AIListContact *listContact in self) {
-		if (listContact.isStranger &&
-			![adium.chatController existingChatWithContact:listContact.parentContact] &&
+		if (listContact.isStranger && ![adium.chatController existingChatWithContact:listContact.parentContact] &&
 			([adium.chatController allGroupChatsContainingContact:listContact.parentContact].count == 0)) {
 			[adium.contactController accountDidStopTrackingContact:listContact];
 		}
@@ -750,8 +750,7 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 	[participatingContactsFlags removeAllObjects];
 	[participatingContactsAliases removeAllObjects];
 
-	[[NSNotificationCenter defaultCenter] postNotificationName:Chat_ParticipatingListObjectsChanged
-											  object:self];
+	[[NSNotificationCenter defaultCenter] postNotificationName:Chat_ParticipatingListObjectsChanged object:self];
 }
 
 @synthesize expanded;
@@ -768,15 +767,24 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 
 - (NSString *)contentsBasedIdentifier
 {
-	return [NSString stringWithFormat:@"%@-%@.%@",self.name, self.account.service.serviceID, self.account.UID];
+	return [NSString stringWithFormat:@"%@-%@.%@", self.name, self.account.service.serviceID, self.account.UID];
 }
 
-//Not used
-- (float)smallestOrder { return 0; }
-- (float)largestOrder { return 1E10f; }
-- (float)orderIndexForObject:(AIListObject *)listObject { return 0; }
-- (void)listObject:(AIListObject *)listObject didSetOrderIndex:(float)inOrderIndex {};
-
+// Not used
+- (float)smallestOrder
+{
+	return 0;
+}
+- (float)largestOrder
+{
+	return 1E10f;
+}
+- (float)orderIndexForObject:(AIListObject *)listObject
+{
+	return 0;
+}
+- (void)listObject:(AIListObject *)listObject didSetOrderIndex:(float)inOrderIndex
+{};
 
 #pragma mark Ignoring
 /*!
@@ -790,16 +798,16 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 	if (self.account.accountManagesGroupChatIgnore) {
 		[self.account setContact:inContact ignored:isIgnored inChat:self];
 	} else {
-		//Create ignoredListContacts if needed
+		// Create ignoredListContacts if needed
 		if (isIgnored && !ignoredListContacts) {
-			ignoredListContacts = [[NSMutableSet alloc] init];	
+			ignoredListContacts = [[NSMutableSet alloc] init];
 		}
 
 		if (isIgnored) {
 			[ignoredListContacts addObject:inContact];
 		} else {
-			[ignoredListContacts removeObject:inContact];		
-		}	
+			[ignoredListContacts removeObject:inContact];
+		}
 	}
 }
 
@@ -827,9 +835,7 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 #pragma mark Debugging
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"%@:%@",
-		[super description],
-		(uniqueChatID ? uniqueChatID : @"<new>")];
+	return [NSString stringWithFormat:@"%@:%@", [super description], (uniqueChatID ? uniqueChatID : @"<new>")];
 }
 
 #pragma mark Group Chats
@@ -850,22 +856,23 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 - (void)updateTopic:(NSString *)inTopic withSource:(AIListContact *)contact
 {
 	[self setValue:inTopic forProperty:KEY_TOPIC notify:NotifyNow];
-	
+
 	[self setValue:contact forProperty:KEY_TOPIC_SETTER notify:NotifyNow];
-	
+
 	// Apply the new topic to the message view
-	AIContentTopic *contentTopic = [AIContentTopic topicInChat:self
-													withSource:contact
-												   destination:nil
-														  date:[NSDate date]
-													   message:[NSAttributedString stringWithString:[self valueForProperty:KEY_TOPIC] ?: @""]];
-	
+	AIContentTopic *contentTopic =
+		[AIContentTopic topicInChat:self
+						 withSource:contact
+						destination:nil
+							   date:[NSDate date]
+							message:[NSAttributedString stringWithString:[self valueForProperty:KEY_TOPIC] ?: @""]];
+
 	// The content controller has huge problems with blank messages being let through.
 	if (![[self valueForProperty:KEY_TOPIC] length]) {
 		contentTopic.message = CONTENT_TOPIC_MESSAGE_ACTUALLY_EMPTY;
 		contentTopic.actuallyBlank = YES;
 	}
-	
+
 	[adium.contentController receiveContentObject:contentTopic];
 }
 
@@ -875,8 +882,10 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 - (void)setTopic:(NSString *)inTopic
 {
 	if (self.supportsTopic) {
-		// We mess with the topic, replacing nbsp with spaces; make sure we're not setting an identical one other than this.
-		NSString *tempTopic = [[self valueForProperty:KEY_TOPIC] stringByReplacingOccurrencesOfString:@"\u00A0" withString:@" "];
+		// We mess with the topic, replacing nbsp with spaces; make sure we're not setting an identical one other than
+		// this.
+		NSString *tempTopic = [[self valueForProperty:KEY_TOPIC] stringByReplacingOccurrencesOfString:@"\u00A0"
+																						   withString:@" "];
 		if ([tempTopic isEqualToString:inTopic]) {
 			AILogWithSignature(@"Not setting topic for %@, already the same.", self);
 		} else {
@@ -884,7 +893,8 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 			[account setTopic:inTopic forChat:self];
 		}
 	} else {
-		AILogWithSignature(@"Attempt to set %@ topic when account doesn't support it.", [self valueForProperty:KEY_TOPIC]);
+		AILogWithSignature(@"Attempt to set %@ topic when account doesn't support it.",
+						   [self valueForProperty:KEY_TOPIC]);
 	}
 }
 
@@ -892,7 +902,8 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 
 - (void)addCustomEmoticon:(AIEmoticon *)inEmoticon
 {
-	if (!customEmoticons) customEmoticons = [[NSMutableSet alloc] init];
+	if (!customEmoticons)
+		customEmoticons = [[NSMutableSet alloc] init];
 	[customEmoticons addObject:inEmoticon];
 }
 
@@ -907,48 +918,52 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
  */
 - (void)receivedError:(NSNumber *)type
 {
-	//Notify observers
+	// Notify observers
 	[self setValue:type forProperty:KEY_CHAT_ERROR notify:NotifyNow];
 
-	//No need to continue to store the NSNumber
+	// No need to continue to store the NSNumber
 	[self setValue:nil forProperty:KEY_CHAT_ERROR notify:NotifyNever];
 }
 
 #pragma mark Room commands
 - (NSMenu *)actionMenu
-{	
+{
 	return [self.account actionMenuForChat:self];
 }
-- (void)setActionMenu:(NSMenu *)inMenu {};
+- (void)setActionMenu:(NSMenu *)inMenu
+{};
 
 #pragma mark Applescript
 
 - (NSScriptObjectSpecifier *)objectSpecifier
 {
-	AIMessageWindowController *windowController = self.chatContainer.windowController;	
+	AIMessageWindowController *windowController = self.chatContainer.windowController;
 	NSScriptClassDescription *containerClassDesc;
 	NSScriptObjectSpecifier *containerRef = nil;
 	if (windowController) {
 		containerRef = [[windowController window] objectSpecifier];
 		containerClassDesc = [containerRef keyClassDescription];
 	} else {
-		containerClassDesc = (NSScriptClassDescription *)[NSScriptClassDescription classDescriptionForClass:[NSApp class]];
+		containerClassDesc =
+			(NSScriptClassDescription *)[NSScriptClassDescription classDescriptionForClass:[NSApp class]];
 	}
-	
-	return [[[NSUniqueIDSpecifier allocWithZone:[self zone]]
-		initWithContainerClassDescription:containerClassDesc
-		containerSpecifier:containerRef key:@"chats" uniqueID:[self uniqueChatID]] autorelease];
+
+	return [[[NSUniqueIDSpecifier allocWithZone:[self zone]] initWithContainerClassDescription:containerClassDesc
+																			containerSpecifier:containerRef
+																						   key:@"chats"
+																					  uniqueID:[self uniqueChatID]]
+		autorelease];
 }
 
 - (unsigned int)index
 {
-	//what we're going to do is find this tab in the tab view's hierarchy, so as to get its index
+	// what we're going to do is find this tab in the tab view's hierarchy, so as to get its index
 	AIMessageWindowController *windowController = self.chatContainer.windowController;
 
 	NSArray *chats = [windowController containedChats];
-	for (unsigned int i=0;i<[chats count];i++) {
+	for (unsigned int i = 0; i < [chats count]; i++) {
 		if ([chats objectAtIndex:i] == self)
-			return i+1; //one based
+			return i + 1; // one based
 	}
 	NSAssert(NO, @"This chat is weird.");
 	return 0;
@@ -960,7 +975,7 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 	NSAssert (index-1 < [chats count], @"Don't let index be bigger than the count!");
 	NSLog(@"Trying to move %@ in %@ to %u",messageTab,window,index-1);
 	[windowController moveTabViewItem:messageTab toIndex:index-1]; //This is bad bad bad. Why?
-	
+
 }*/
 
 - (NSString *)scriptingName
@@ -971,7 +986,7 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 	return aName;
 }
 
-- (id <AIChatContainer>)chatContainer
+- (id<AIChatContainer>)chatContainer
 {
 	return [self valueForProperty:@"messageTabViewItem"];
 }
@@ -1015,64 +1030,65 @@ NSComparisonResult userListSort (id objectA, id objectB, void *context)
 /*!
  * @brief Applescript command to send a message in this chat
  */
-- (id)sendScriptCommand:(NSScriptCommand *)command {
-	NSDictionary	*evaluatedArguments = [command evaluatedArguments];
-	NSString		*message = [evaluatedArguments objectForKey:@"message"];
-	NSURL			*fileURL = [evaluatedArguments objectForKey:@"withFile"];
-	
-	//Send any message we were told to send
+- (id)sendScriptCommand:(NSScriptCommand *)command
+{
+	NSDictionary *evaluatedArguments = [command evaluatedArguments];
+	NSString *message = [evaluatedArguments objectForKey:@"message"];
+	NSURL *fileURL = [evaluatedArguments objectForKey:@"withFile"];
+
+	// Send any message we were told to send
 	if (message && [message length]) {
-		//Take the string and turn it into an attributed string (in case we were passed HTML)
-		NSAttributedString  *attributedMessage = [AIHTMLDecoder decodeHTML:message];
-		AIContentMessage	*messageContent;
+		// Take the string and turn it into an attributed string (in case we were passed HTML)
+		NSAttributedString *attributedMessage = [AIHTMLDecoder decodeHTML:message];
+		AIContentMessage *messageContent;
 		messageContent = [AIContentMessage messageInChat:self
 											  withSource:self.account
 											 destination:self.listObject
 													date:nil
 												 message:attributedMessage
 											   autoreply:NO];
-		
+
 		[adium.contentController sendContentObject:messageContent];
 	}
-	
-	//Send any file we were told to send to every participating list object (anyone remember the AOL mass mailing zareW scene?)
+
+	// Send any file we were told to send to every participating list object (anyone remember the AOL mass mailing zareW
+	// scene?)
 	if (fileURL && fileURL.path.length) {
-		
+
 		for (AIListContact *listContact in self) {
-			AIListContact   *targetFileTransferContact;
-			
-			//Make sure we know where we are sending the file by finding the best contact for
-			//sending CONTENT_FILE_TRANSFER_TYPE.
-			if ((targetFileTransferContact = [adium.contactController preferredContactForContentType:CONTENT_FILE_TRANSFER_TYPE
-																						forListContact:listContact])) {
-				[adium.fileTransferController sendFile:[fileURL path]
-										   toListContact:targetFileTransferContact];
+			AIListContact *targetFileTransferContact;
+
+			// Make sure we know where we are sending the file by finding the best contact for
+			// sending CONTENT_FILE_TRANSFER_TYPE.
+			if ((targetFileTransferContact =
+					 [adium.contactController preferredContactForContentType:CONTENT_FILE_TRANSFER_TYPE
+															  forListContact:listContact])) {
+				[adium.fileTransferController sendFile:[fileURL path] toListContact:targetFileTransferContact];
 			} else {
 				AILogWithSignature(@"No contact available to receive files to %@", listContact);
 				NSBeep();
 			}
 		}
 	}
-	
+
 	return nil;
 }
 
 /*!
  * @brief Applescript command to make this chat active
  */
-- (id)goActiveScriptCommand:(NSScriptCommand *)command 
+- (id)goActiveScriptCommand:(NSScriptCommand *)command
 {
 	[adium.interfaceController setActiveChat:self];
 	return nil;
 }
-
 
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackbuf count:(NSUInteger)len
 {
 	return [self.containedObjects countByEnumeratingWithState:state objects:stackbuf count:len];
 }
 
-- (BOOL) canContainObject:(id)obj
+- (BOOL)canContainObject:(id)obj
 {
 	return [obj isKindOfClass:[AIListContact class]];
 }

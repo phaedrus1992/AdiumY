@@ -11,15 +11,14 @@
 #define STARTING_POINTS_STARTUP_ACTION @"Display Starting Points"
 #define DO_NOTHING_STARTUP_ACTION @"Do Nothing"
 
-@interface AXCPreferenceController : NSObject 
-{
-	IBOutlet NSUserDefaultsController * userDefaults;
-	IBOutlet NSPopUpButton * startupActionPopup;
-	IBOutlet NSWindow * prefsWindow;
-	NSMutableArray * startupActions;
+@interface AXCPreferenceController : NSObject {
+	IBOutlet NSUserDefaultsController *userDefaults;
+	IBOutlet NSPopUpButton *startupActionPopup;
+	IBOutlet NSWindow *prefsWindow;
+	NSMutableArray *startupActions;
 }
 
-- (IBAction) showPrefs:(id)sender;
-- (void) populateStartupActions;
-- (NSArray *) startupActions;
+- (IBAction)showPrefs:(id)sender;
+- (void)populateStartupActions;
+- (NSArray *)startupActions;
 @end

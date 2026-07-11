@@ -12,16 +12,16 @@
 
 @implementation AXCDocumentController
 
-//we want to hide the Starting Points window when a document is opened.
-- (void) addDocument:(NSDocument *)document
+// we want to hide the Starting Points window when a document is opened.
+- (void)addDocument:(NSDocument *)document
 {
 	[startingPointsController setStartingPointsVisible:NO];
 
 	[super addDocument:document];
 }
 
-//we want to show the Starting Points window again when the last document is closed.
-- (void) removeDocument:(NSDocument *)document
+// we want to show the Starting Points window again when the last document is closed.
+- (void)removeDocument:(NSDocument *)document
 {
 	[super removeDocument:document];
 

@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -17,8 +17,7 @@
 #import "AdiumContentFiltering.h"
 
 @interface AdiumContentFiltering ()
-- (void)_registerContentFilter:(id)inFilter
-				   filterArray:(NSMutableArray *)inFilterArray;
+- (void)_registerContentFilter:(id)inFilter filterArray:(NSMutableArray *)inFilterArray;
 @end
 
 @implementation AdiumContentFiltering
@@ -28,24 +27,24 @@
  */
 - (id)init
 {
-	if((self = [super init])){
+	if ((self = [super init])) {
 		stringsRequiringPolling = [[NSMutableSet alloc] init];
 		delayedFilteringDict = [[NSMutableDictionary alloc] init];
 	}
-	
+
 	return self;
 }
 
 - (void)dealloc
-{	
+{
 	[stringsRequiringPolling release];
 	[delayedFilteringDict release];
 
 	[super dealloc];
 }
 
-
-//Content Filtering ----------------------------------------------------------------------------------------------------
+// Content Filtering
+// ----------------------------------------------------------------------------------------------------
 #pragma mark Content Filtering
 /*!
  * @brief Register a content filter.
@@ -62,20 +61,17 @@
 	if (!contentFilter[type][direction]) {
 		contentFilter[type][direction] = [[NSMutableArray alloc] init];
 	}
-	
-	[self _registerContentFilter:inFilter
-					 filterArray:contentFilter[type][direction]];
+
+	[self _registerContentFilter:inFilter filterArray:contentFilter[type][direction]];
 }
 
-- (void)registerHTMLContentFilter:(id <AIHTMLContentFilter>)inFilter
-						direction:(AIFilterDirection)direction
+- (void)registerHTMLContentFilter:(id<AIHTMLContentFilter>)inFilter direction:(AIFilterDirection)direction
 {
-	if(!htmlContentFilters[direction]) {
+	if (!htmlContentFilters[direction]) {
 		htmlContentFilters[direction] = [[NSMutableArray alloc] init];
 	}
-	
-	[self _registerContentFilter:inFilter
-					 filterArray:htmlContentFilters[direction]];
+
+	[self _registerContentFilter:inFilter filterArray:htmlContentFilters[direction]];
 }
 
 /*!
@@ -95,12 +91,11 @@
 	if (!contentFilter[type][direction]) {
 		contentFilter[type][direction] = [[NSMutableArray alloc] init];
 	}
-	
-	//Register the filter
-	[self _registerContentFilter:inFilter
-					 filterArray:contentFilter[type][direction]];
 
-	//Note that this is a delayed filter
+	// Register the filter
+	[self _registerContentFilter:inFilter filterArray:contentFilter[type][direction]];
+
+	// Note that this is a delayed filter
 	if (!delayedContentFilters[type][direction]) {
 		delayedContentFilters[type][direction] = [[NSMutableArray alloc] init];
 	}
@@ -124,10 +119,10 @@
 /*!
  * @brief Unregister a delayed filter.
  */
-- (void)unregisterDelayedContentFilter:(id <AIDelayedContentFilter>)inFilter
+- (void)unregisterDelayedContentFilter:(id<AIDelayedContentFilter>)inFilter
 {
 	NSParameterAssert(inFilter != nil);
-	
+
 	for (NSUInteger i = 0; i < FILTER_TYPE_COUNT; i++) {
 		for (NSUInteger j = 0; j < FILTER_DIRECTION_COUNT; j++) {
 			[delayedContentFilters[i][j] removeObject:inFilter];
@@ -138,10 +133,10 @@
 /*!
  * @brief Unregister an HTML filter.
  */
-- (void)unregisterHTMLContentFilter:(id <AIHTMLContentFilter>)inFilter
+- (void)unregisterHTMLContentFilter:(id<AIHTMLContentFilter>)inFilter
 {
 	NSParameterAssert(inFilter != nil);
-	
+
 	for (NSUInteger j = 0; j < FILTER_DIRECTION_COUNT; j++) {
 		[htmlContentFilters[j] removeObject:inFilter];
 	}
@@ -160,16 +155,16 @@
  */
 - (BOOL)shouldPollToUpdateString:(NSString *)inString
 {
-	NSString		*stringRequiringPolling;
-	BOOL			shouldPoll = NO;
-	
+	NSString *stringRequiringPolling;
+	BOOL shouldPoll = NO;
+
 	for (stringRequiringPolling in stringsRequiringPolling) {
 		if ([inString rangeOfString:stringRequiringPolling].location != NSNotFound) {
 			shouldPoll = YES;
 			break;
 		}
 	}
-	
+
 	return shouldPoll;
 }
 
@@ -197,11 +192,14 @@
  * @brief Perform the filtering of an attributedString on the specified content filter.
  *
  * @param attributedString A pointer to the NSAttributedString to filter
- * @param inContentFilterArray Array of filters to use, which must each conform to either AIDelayedContentFilter or AIContentFilter
+ * @param inContentFilterArray Array of filters to use, which must each conform to either AIDelayedContentFilter or
+ * AIContentFilter
  * @param filterContext Passed to each filter as context.
  * @param uniqueID A unique ID used by delayed filters
- * @param filtersToSkip An array of filters which should not be performed, such as previously performed or inappropriate filters
- * @param finishedFilters A pointer to an array which will be filled with the filters which were performed, suitable for passing later as performedFilters
+ * @param filtersToSkip An array of filters which should not be performed, such as previously performed or inappropriate
+ * filters
+ * @param finishedFilters A pointer to an array which will be filled with the filters which were performed, suitable for
+ * passing later as performedFilters
  *
  * @result YES if any delayed filtering began; NO if it did not
  */
@@ -212,10 +210,10 @@
 				  filtersToSkip:(NSArray *)filtersToSkip
 				finishedFilters:(NSArray **)finishedFilters
 {
-	BOOL			beganDelayedFiltering = NO;
-	NSMutableArray	*performedFilters;
-	
-	//If we're passed previouslyPerformedFilters, use them as a starting point for performedFilters
+	BOOL beganDelayedFiltering = NO;
+	NSMutableArray *performedFilters;
+
+	// If we're passed previouslyPerformedFilters, use them as a starting point for performedFilters
 	if (filtersToSkip) {
 		performedFilters = [[filtersToSkip mutableCopy] autorelease];
 	} else {
@@ -223,28 +221,31 @@
 	}
 
 	for (id filter in inContentFilterArray) {
-		//Only run the filter if there were no previously performed filters or this hasn't been previously done
+		// Only run the filter if there were no previously performed filters or this hasn't been previously done
 		if (!filtersToSkip || ![filtersToSkip containsObject:filter]) {
 			if ([filter conformsToProtocol:@protocol(AIDelayedContentFilter)]) {
-				beganDelayedFiltering = [(id <AIDelayedContentFilter>)filter delayedFilterAttributedString:*attributedString 
-																								   context:filterContext
-																								  uniqueID:uniqueID];
+				beganDelayedFiltering =
+					[(id<AIDelayedContentFilter>)filter delayedFilterAttributedString:*attributedString
+																			  context:filterContext
+																			 uniqueID:uniqueID];
 			} else {
 				@try {
-					*attributedString = [(id <AIContentFilter>)filter filterAttributedString:*attributedString context:filterContext];
-				}
-				@catch (NSException *exception) {
+					*attributedString = [(id<AIContentFilter>)filter filterAttributedString:*attributedString
+																					context:filterContext];
+				} @catch (NSException *exception) {
 					AILogWithSignature(@"Caught exception in content %@: %@", filter, exception);
 				}
 			}
 		}
-		
-		//Note that we've now completed this filter
+
+		// Note that we've now completed this filter
 		[performedFilters addObject:filter];
-		if (beganDelayedFiltering) break;
+		if (beganDelayedFiltering)
+			break;
 	}
-	
-	if (finishedFilters) *finishedFilters = performedFilters;
+
+	if (finishedFilters)
+		*finishedFilters = performedFilters;
 
 	return beganDelayedFiltering;
 }
@@ -271,7 +272,7 @@
 			uniqueDelayedFilterID:0
 					filtersToSkip:delayedContentFilters[type][direction]
 				  finishedFilters:NULL];
-	
+
 	return attributedString;
 }
 
@@ -286,7 +287,8 @@
  * @param direction Direction of the filter
  * @param filterContext A object, such as an AIListContact or an AIAccount, used as context by filters
  * @param target Target to notify when filtering is complete
- * @param selector Selector to call on target.  It should take 2 arguments; the first will be the filtered attributedString; the second is the passed context.
+ * @param selector Selector to call on target.  It should take 2 arguments; the first will be the filtered
+ * attributedString; the second is the passed context.
  * @param context Context passed back to target via selector when filtering is complete
  * @result The filtered attributed string, which may be the same as attributedString
  */
@@ -301,20 +303,21 @@
 	NSParameterAssert(type >= 0 && type < FILTER_TYPE_COUNT);
 	NSParameterAssert(direction >= 0 && direction < FILTER_DIRECTION_COUNT);
 
-	BOOL				shouldDelay = NO;
-	NSInvocation		*invocation;
-	
-	//Set up the invocation
+	BOOL shouldDelay = NO;
+	NSInvocation *invocation;
+
+	// Set up the invocation
 	invocation = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:selector]];
 	[invocation setSelector:selector];
 	[invocation setTarget:target];
-	[invocation setArgument:&context atIndex:3]; //context, the second argument after the two hidden arguments of every NSInvocation
+	[invocation setArgument:&context
+					atIndex:3]; // context, the second argument after the two hidden arguments of every NSInvocation
 
 	if (attributedString) {
-		static unsigned long long	uniqueDelayedFilterID = 0;
-		NSArray	*performedFilters = nil;
-		
-		//Perform the filters
+		static unsigned long long uniqueDelayedFilterID = 0;
+		NSArray *performedFilters = nil;
+
+		// Perform the filters
 		shouldDelay = [self _filterAttributedString:&attributedString
 									  contentFilter:contentFilter[type][direction]
 									  filterContext:filterContext
@@ -322,38 +325,38 @@
 									  filtersToSkip:nil
 									finishedFilters:&performedFilters];
 
-		//If we should delay (a delayed filter is doing its thing), store what we need to finish later
+		// If we should delay (a delayed filter is doing its thing), store what we need to finish later
 		if (shouldDelay) {
 			NSMutableDictionary *trackingDict;
-			
-			//NSInvocation does not retain its arguments by default; if we're caching the invocation, we must tell it to.
+
+			// NSInvocation does not retain its arguments by default; if we're caching the invocation, we must tell it
+			// to.
 			[invocation retainArguments];
 
-			trackingDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-				invocation, @"Invocation",
-				contentFilter[type][direction], @"Delayed Content Filter",
-				filterContext, @"Filter Context", nil];
-			
+			trackingDict = [NSMutableDictionary
+				dictionaryWithObjectsAndKeys:invocation, @"Invocation", contentFilter[type][direction],
+											 @"Delayed Content Filter", filterContext, @"Filter Context", nil];
+
 			if (performedFilters) {
-				[trackingDict setObject:performedFilters
-								 forKey:@"Performed Filters"];
+				[trackingDict setObject:performedFilters forKey:@"Performed Filters"];
 			}
-	
-			//Track this so we can invoke with the filtered product later
+
+			// Track this so we can invoke with the filtered product later
 			[delayedFilteringDict setObject:trackingDict
 									 forKey:[NSNumber numberWithUnsignedLongLong:uniqueDelayedFilterID]];
 		}
-		
-		//Increment our delayed filter ID
+
+		// Increment our delayed filter ID
 		uniqueDelayedFilterID++;
 	}
-	
-	//If we didn't delay, invoke immediately
+
+	// If we didn't delay, invoke immediately
 	if (!shouldDelay) {
-		//Put that attributed string into the invocation as the first argument after the two hidden arguments of every NSInvocation
+		// Put that attributed string into the invocation as the first argument after the two hidden arguments of every
+		// NSInvocation
 		[invocation setArgument:&attributedString atIndex:2];
-		
-		//Send the filtered attributedString back via the invocation
+
+		// Send the filtered attributedString back via the invocation
 		[invocation invoke];
 	}
 }
@@ -369,41 +372,42 @@
  */
 - (void)delayedFilterDidFinish:(NSAttributedString *)attributedString uniqueID:(unsigned long long)uniqueID
 {
-	NSNumber			*uniqueIDNumber;
-	NSMutableDictionary	*infoDict;
-	NSArray				*performedFilters = nil;
-	BOOL				shouldDelay;
+	NSNumber *uniqueIDNumber;
+	NSMutableDictionary *infoDict;
+	NSArray *performedFilters = nil;
+	BOOL shouldDelay;
 
 	uniqueIDNumber = [NSNumber numberWithUnsignedLongLong:uniqueID];
 	infoDict = [delayedFilteringDict objectForKey:uniqueIDNumber];
 
-	//Run through the filters again, skipping the ones we did previously, since a delayed filter would stop after the first hit
+	// Run through the filters again, skipping the ones we did previously, since a delayed filter would stop after the
+	// first hit
 	shouldDelay = [self _filterAttributedString:&attributedString
 								  contentFilter:[infoDict objectForKey:@"Delayed Content Filter"]
 								  filterContext:[infoDict objectForKey:@"Filter Context"]
 						  uniqueDelayedFilterID:uniqueID
 								  filtersToSkip:[infoDict objectForKey:@"Performed Filters"]
 								finishedFilters:&performedFilters];
-	
-	//If we no longer need to delay, set up the invocation and invoke it
-	if (!shouldDelay) {
-		NSInvocation	*invocation = [infoDict objectForKey:@"Invocation"];
 
-		//Put that attributed string into the invocation as the first argument after the two hidden arguments of every NSInvocation
+	// If we no longer need to delay, set up the invocation and invoke it
+	if (!shouldDelay) {
+		NSInvocation *invocation = [infoDict objectForKey:@"Invocation"];
+
+		// Put that attributed string into the invocation as the first argument after the two hidden arguments of every
+		// NSInvocation
 		[invocation setArgument:&attributedString atIndex:2];
 
-		//Send the filtered attributedString back via the invocation
+		// Send the filtered attributedString back via the invocation
 		[invocation invoke];
 
-		//No further need for the infoDict from delayedFilteringDict
+		// No further need for the infoDict from delayedFilteringDict
 		[delayedFilteringDict removeObjectForKey:uniqueIDNumber];
 
 	} else {
 		/* performedFilters may now be a different object after filters ran;
 		 * update the infoDict for the next delayedFilterDidFinsh:uniqueId: call
 		 */
-		[infoDict setObject:performedFilters
-					 forKey:@"Performed Filters"];
+		[infoDict setObject:performedFilters forKey:@"Performed Filters"];
 	}
 }
 
@@ -412,7 +416,7 @@ static NSInteger filterSort(id<AIContentFilter> filterA, id<AIContentFilter> fil
 {
 	CGFloat filterPriorityA = [filterA filterPriority];
 	CGFloat filterPriorityB = [filterB filterPriority];
-	
+
 	if (filterPriorityA < filterPriorityB)
 		return NSOrderedAscending;
 	else if (filterPriorityA > filterPriorityB)
@@ -426,13 +430,12 @@ static NSInteger filterSort(id<AIContentFilter> filterA, id<AIContentFilter> fil
  *
  * Adds, then sorts by priority
  */
-- (void)_registerContentFilter:(id)inFilter
-				   filterArray:(NSMutableArray *)inFilterArray
+- (void)_registerContentFilter:(id)inFilter filterArray:(NSMutableArray *)inFilterArray
 {
 	NSParameterAssert(inFilter != nil);
-	
+
 	[inFilterArray addObject:inFilter];
-	[inFilterArray sortUsingFunction:filterSort context:nil];	
+	[inFilterArray sortUsingFunction:filterSort context:nil];
 }
 
 @end

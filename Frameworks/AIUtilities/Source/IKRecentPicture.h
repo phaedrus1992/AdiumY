@@ -8,26 +8,24 @@
  * SDK Root: /Developer/SDKs/MacOSX10.5.sdk
  */
 
-
 @protocol IKImageProxy;
 
 @class IKImageWrapper, NSData, NSDictionary, NSImage, NSString;
 
-@interface IKPictureTakerRecentPicture : NSObject
-{
-    NSString *_originalImageName;
-    IKImageWrapper *_originalImage;
-    NSDictionary *_cropInfo;
-    NSData *_smallIconData;
-    NSImage *_smallIconCache;
-    NSString *_originalImagePath;
-    struct CGSize _cropSize;
-    struct CGRect _crop;
-    int _version;
-    double _timeValue;
-    BOOL _isEmpty;
-    BOOL _isABMeImage;
-    void *_userInfo;
+@interface IKPictureTakerRecentPicture : NSObject {
+	NSString *_originalImageName;
+	IKImageWrapper *_originalImage;
+	NSDictionary *_cropInfo;
+	NSData *_smallIconData;
+	NSImage *_smallIconCache;
+	NSString *_originalImagePath;
+	struct CGSize _cropSize;
+	struct CGRect _crop;
+	int _version;
+	double _timeValue;
+	BOOL _isEmpty;
+	BOOL _isABMeImage;
+	void *_userInfo;
 }
 
 + (id)defaultRecentPictureWithImageWrapper:(id)arg1 cropSize:(struct CGSize)arg2;
@@ -62,13 +60,11 @@
 
 @end
 
-
 @class NSMutableArray, NSString;
 
-@interface IKPictureTakerRecentPictureRepository : NSObject
-{
-    NSString *_name;
-    NSMutableArray *_sRecents;
+@interface IKPictureTakerRecentPictureRepository : NSObject {
+	NSString *_name;
+	NSMutableArray *_sRecents;
 }
 
 + (void)setDomainName:(id)arg1;

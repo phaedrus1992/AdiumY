@@ -6,75 +6,82 @@
 
 #import <Foundation/Foundation.h>
 #if TARGET_OS_IPHONE
-#	import <UIKit/UIKit.h>
+#import <UIKit/UIKit.h>
 #endif
 #import <AIUtilities/ISO8601DateFormatter.h>
 
 #ifndef DEFAULT_TIME_SEPARATOR
-#	define DEFAULT_TIME_SEPARATOR ':'
+#define DEFAULT_TIME_SEPARATOR ':'
 #endif
 const unichar ISO8601DefaultTimeSeparatorCharacter = DEFAULT_TIME_SEPARATOR;
 
-//Unicode date formats.
+// Unicode date formats.
 #define ISO_CALENDAR_DATE_FORMAT @"yyyy-MM-dd"
-//#define ISO_WEEK_DATE_FORMAT @"YYYY-'W'ww-ee" //Doesn't actually work because NSDateComponents counts the weekday starting at 1.
+// #define ISO_WEEK_DATE_FORMAT @"YYYY-'W'ww-ee" //Doesn't actually work because NSDateComponents counts the weekday
+// starting at 1.
 #define ISO_ORDINAL_DATE_FORMAT @"yyyy-DDD"
 #define ISO_TIME_FORMAT @"HH:mm:ss"
-//printf formats.
+// printf formats.
 #define ISO_TIMEZONE_UTC_FORMAT @"Z"
 #define ISO_TIMEZONE_OFFSET_FORMAT_NO_SEPARATOR @"%+.2d%.2d"
 #define ISO_TIMEZONE_OFFSET_FORMAT_WITH_SEPARATOR @"%+.2d%C%.2d"
 
 @interface ISO8601DateFormatter ()
-+ (void) createGlobalCachesThatDoNotAlreadyExist;
-//Used when a memory warning occurs (if at least one ISO 8601 Date Formatter exists at the time).
-+ (void) purgeGlobalCaches;
++ (void)createGlobalCachesThatDoNotAlreadyExist;
+// Used when a memory warning occurs (if at least one ISO 8601 Date Formatter exists at the time).
++ (void)purgeGlobalCaches;
 @end
 
-@interface ISO8601DateFormatter(UnparsingPrivate)
+@interface ISO8601DateFormatter (UnparsingPrivate)
 
-- (NSString *) replaceColonsInString:(NSString *)timeFormat withTimeSeparator:(unichar)timeSep;
+- (NSString *)replaceColonsInString:(NSString *)timeFormat withTimeSeparator:(unichar)timeSep;
 
-- (NSString *) stringFromDate:(NSDate *)date formatString:(NSString *)dateFormat timeZone:(NSTimeZone *)timeZone;
-- (NSString *) weekDateStringForDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone;
+- (NSString *)stringFromDate:(NSDate *)date formatString:(NSString *)dateFormat timeZone:(NSTimeZone *)timeZone;
+- (NSString *)weekDateStringForDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone;
 
 @end
 
 static NSMutableDictionary *timeZonesByOffset;
 
 #if ISO8601_TESTING_PURPOSES_ONLY
-//This method only exists for use by the project's test cases. DO NOT use this in an application.
+// This method only exists for use by the project's test cases. DO NOT use this in an application.
 extern bool ISO8601DateFormatter_GlobalCachesAreWarm(void);
 
-bool ISO8601DateFormatter_GlobalCachesAreWarm(void) {
+bool ISO8601DateFormatter_GlobalCachesAreWarm(void)
+{
 	return (timeZonesByOffset != nil) && (timeZonesByOffset.count > 0);
 }
 #endif
 
 @implementation ISO8601DateFormatter
 
-+ (void) initialize {
++ (void)initialize
+{
 	[self createGlobalCachesThatDoNotAlreadyExist];
 }
 
-+ (void) createGlobalCachesThatDoNotAlreadyExist {
++ (void)createGlobalCachesThatDoNotAlreadyExist
+{
 	if (!timeZonesByOffset) {
 		timeZonesByOffset = [[NSMutableDictionary alloc] init];
 	}
 }
 
-+ (void) purgeGlobalCaches {
++ (void)purgeGlobalCaches
+{
 	timeZonesByOffset = nil;
 }
 
-- (NSCalendar *) makeCalendarWithDesiredConfiguration {
+- (NSCalendar *)makeCalendarWithDesiredConfiguration
+{
 	NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-	calendar.firstWeekday = 2; //Monday
+	calendar.firstWeekday = 2; // Monday
 	calendar.timeZone = [NSTimeZone defaultTimeZone];
 	return calendar;
 }
 
-- (id) init {
+- (id)init
+{
 	if ((self = [super init])) {
 		parsingCalendar = [self makeCalendarWithDesiredConfiguration];
 		unparsingCalendar = [self makeCalendarWithDesiredConfiguration];
@@ -86,35 +93,40 @@ bool ISO8601DateFormatter_GlobalCachesAreWarm(void) {
 
 #if TARGET_OS_IPHONE
 		[[NSNotificationCenter defaultCenter] addObserver:self
-			selector:@selector(didReceiveMemoryWarning:)
-			name:UIApplicationDidReceiveMemoryWarningNotification
-			object:nil];
+												 selector:@selector(didReceiveMemoryWarning:)
+													 name:UIApplicationDidReceiveMemoryWarningNotification
+												   object:nil];
 #endif
 	}
 	return self;
 }
 
-- (void) dealloc {
+- (void)dealloc
+{
 #if TARGET_OS_IPHONE
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:UIApplicationDidReceiveMemoryWarningNotification
+												  object:nil];
 #endif
 }
 
-- (void) didReceiveMemoryWarning:(NSNotification *)notification {
+- (void)didReceiveMemoryWarning:(NSNotification *)notification
+{
 	[[self class] purgeGlobalCaches];
 }
 
 @synthesize defaultTimeZone;
-- (void) setDefaultTimeZone:(NSTimeZone *)tz {
+- (void)setDefaultTimeZone:(NSTimeZone *)tz
+{
 	if (defaultTimeZone != tz) {
-		
+
 		defaultTimeZone = tz;
 
 		unparsingCalendar.timeZone = defaultTimeZone;
 	}
 }
 
-//The following properties are only here because GCC doesn't like @synthesize in category implementations.
+// The following properties are only here because GCC doesn't like @synthesize in category implementations.
 
 #pragma mark Parsing
 
@@ -132,7 +144,7 @@ static BOOL is_leap_year(NSUInteger year);
  *YYYY-MM-DD
  *YYYY-MM
  *YYYY
- *YY //century 
+ *YY //century
  * //Implied century: YY is 00-99
  *  YYMMDD
  *  YY-MM-DD
@@ -174,48 +186,50 @@ static BOOL is_leap_year(NSUInteger year);
  *  -W-d
  */
 
-- (NSDateComponents *) dateComponentsFromString:(NSString *)string {
+- (NSDateComponents *)dateComponentsFromString:(NSString *)string
+{
 	return [self dateComponentsFromString:string timeZone:NULL];
 }
-- (NSDateComponents *) dateComponentsFromString:(NSString *)string timeZone:(out NSTimeZone **)outTimeZone {
+- (NSDateComponents *)dateComponentsFromString:(NSString *)string timeZone:(out NSTimeZone **)outTimeZone
+{
 	return [self dateComponentsFromString:string timeZone:outTimeZone range:NULL fractionOfSecond:NULL];
 }
-- (NSDateComponents *) dateComponentsFromString:(NSString *)string timeZone:(out NSTimeZone **)outTimeZone range:(out NSRange *)outRange fractionOfSecond:(out NSTimeInterval *)outFractionOfSecond {
+- (NSDateComponents *)dateComponentsFromString:(NSString *)string
+									  timeZone:(out NSTimeZone **)outTimeZone
+										 range:(out NSRange *)outRange
+							  fractionOfSecond:(out NSTimeInterval *)outFractionOfSecond
+{
 	if (string == nil)
 		return nil;
-	// Bail if the string contains a slash delimiter (we don't yet support ISO 8601 intervals and we don't support slash-separated dates)
+	// Bail if the string contains a slash delimiter (we don't yet support ISO 8601 intervals and we don't support
+	// slash-separated dates)
 	if ([string rangeOfString:@"/"].location != NSNotFound)
 		return nil;
 
 	NSDate *now = [NSDate date];
 
 	NSDateComponents *components = [[NSDateComponents alloc] init];
-	NSDateComponents *nowComponents = [parsingCalendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit) fromDate:now];
+	NSDateComponents *nowComponents =
+		[parsingCalendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit) fromDate:now];
 
 	NSUInteger
-		//Date
+		// Date
 		year,
-		month_or_week = 0U,
-		day = 0U,
-		//Time
+		month_or_week = 0U, day = 0U,
+		// Time
 		hour = 0U;
-	NSTimeInterval
-		minute = 0.0,
-		second = 0.0;
-	//Time zone
+	NSTimeInterval minute = 0.0, second = 0.0;
+	// Time zone
 	NSInteger tz_hour = 0;
 	NSInteger tz_minute = 0;
 
-	enum {
-		monthAndDate,
-		week,
-		dateOnly
-	} dateSpecification = monthAndDate;
+	enum { monthAndDate, week, dateOnly } dateSpecification = monthAndDate;
 
 	BOOL strict = self.parsesStrictly;
 	unichar timeSep = self.timeSeparator;
 
-	if (strict) timeSep = ISO8601DefaultTimeSeparatorCharacter;
+	if (strict)
+		timeSep = ISO8601DefaultTimeSeparatorCharacter;
 	NSAssert(timeSep != '\0', @"Time separator must not be NUL.");
 
 	BOOL isValidDate = ([string length] > 0U);
@@ -223,13 +237,13 @@ static BOOL is_leap_year(NSUInteger year);
 
 	const unichar *ch = (const unichar *)[string cStringUsingEncoding:NSUnicodeStringEncoding];
 
-	NSRange range = { 0U, 0U };
+	NSRange range = {0U, 0U};
 	const unichar *start_of_date = NULL;
 	if (strict && isspace(*ch)) {
 		range.location = NSNotFound;
 		isValidDate = NO;
 	} else {
-		//Skip leading whitespace.
+		// Skip leading whitespace.
 		NSUInteger i = 0U;
 		while (isspace(ch[i]))
 			++i;
@@ -242,309 +256,320 @@ static BOOL is_leap_year(NSUInteger year);
 		NSUInteger num_leading_hyphens = 0U, num_digits = 0U;
 
 		if (*ch == 'T') {
-			//There is no date here, only a time. Set the date to now; then we'll parse the time.
+			// There is no date here, only a time. Set the date to now; then we'll parse the time.
 			isValidDate = isdigit(*++ch);
 
 			year = nowComponents.year;
 			month_or_week = nowComponents.month;
 			day = nowComponents.day;
 		} else {
-			while(*ch == '-') {
+			while (*ch == '-') {
 				++num_leading_hyphens;
 				++ch;
 			}
 
 			segment = read_segment(ch, &ch, &num_digits);
-			switch(num_digits) {
-				case 0:
-					if (*ch == 'W') {
-						if ((ch[1] == '-') && isdigit(ch[2]) && ((num_leading_hyphens == 1U) || ((num_leading_hyphens == 2U) && !strict))) {
+			switch (num_digits) {
+			case 0:
+				if (*ch == 'W') {
+					if ((ch[1] == '-') && isdigit(ch[2]) &&
+						((num_leading_hyphens == 1U) || ((num_leading_hyphens == 2U) && !strict))) {
+						year = nowComponents.year;
+						month_or_week = 1U;
+						ch += 2;
+						goto parseDayAfterWeek;
+					} else if (num_leading_hyphens == 1U) {
+						year = nowComponents.year;
+						goto parseWeekAndDay;
+					} else
+						isValidDate = NO;
+				} else
+					isValidDate = NO;
+				break;
+
+			case 8: // YYYY MM DD
+				if (num_leading_hyphens > 0U)
+					isValidDate = NO;
+				else {
+					day = segment % 100U;
+					segment /= 100U;
+					month_or_week = segment % 100U;
+					year = segment / 100U;
+				}
+				break;
+
+			case 6: // YYMMDD (implicit century)
+				if (num_leading_hyphens > 0U || strict)
+					isValidDate = NO;
+				else {
+					day = segment % 100U;
+					segment /= 100U;
+					month_or_week = segment % 100U;
+					year = nowComponents.year;
+					year -= (year % 100U);
+					year += segment / 100U;
+				}
+				break;
+
+			case 4:
+				switch (num_leading_hyphens) {
+				case 0: // YYYY
+					year = segment;
+
+					if (*ch == '-')
+						++ch;
+
+					if (!isdigit(*ch)) {
+						if (*ch == 'W')
+							goto parseWeekAndDay;
+						else
+							month_or_week = day = 1U;
+					} else {
+						segment = read_segment(ch, &ch, &num_digits);
+						switch (num_digits) {
+						case 4: // MMDD
+							if (strict)
+								isValidDate = NO;
+							else {
+								day = segment % 100U;
+								month_or_week = segment / 100U;
+							}
+							break;
+
+						case 2: // MM
+							month_or_week = segment;
+
+							if (*ch == '-')
+								++ch;
+							if (!isdigit(*ch))
+								day = 1U;
+							else
+								day = read_segment(ch, &ch, NULL);
+							break;
+
+						case 3: // DDD
+							day = segment % 1000U;
+							dateSpecification = dateOnly;
+							if (strict && (day > (365U + is_leap_year(year))))
+								isValidDate = NO;
+							break;
+
+						default:
+							isValidDate = NO;
+						}
+					}
+					break;
+
+				case 1: // YYMM
+					month_or_week = segment % 100U;
+					year = segment / 100U;
+
+					if (*ch == '-')
+						++ch;
+					if (!isdigit(*ch))
+						day = 1U;
+					else
+						day = read_segment(ch, &ch, NULL);
+
+					break;
+
+				case 2: // MMDD
+					day = segment % 100U;
+					month_or_week = segment / 100U;
+					year = nowComponents.year;
+
+					break;
+
+				default:
+					isValidDate = NO;
+				} // switch(num_leading_hyphens) (4 digits)
+				break;
+
+			case 1:
+				if (strict) {
+					// Two digits only - never just one.
+					if (num_leading_hyphens == 1U) {
+						if (*ch == '-')
+							++ch;
+						if (*++ch == 'W') {
 							year = nowComponents.year;
-							month_or_week = 1U;
-							ch += 2;
-							goto parseDayAfterWeek;
-						} else if (num_leading_hyphens == 1U) {
-							year = nowComponents.year;
+							year -= (year % 10U);
+							year += segment;
 							goto parseWeekAndDay;
 						} else
 							isValidDate = NO;
 					} else
 						isValidDate = NO;
 					break;
-
-				case 8: //YYYY MM DD
-					if (num_leading_hyphens > 0U)
-						isValidDate = NO;
-					else {
-						day = segment % 100U;
-						segment /= 100U;
-						month_or_week = segment % 100U;
-						year = segment / 100U;
-					}
-					break;
-
-				case 6: //YYMMDD (implicit century)
-					if (num_leading_hyphens > 0U || strict)
-						isValidDate = NO;
-					else {
-						day = segment % 100U;
-						segment /= 100U;
-						month_or_week = segment % 100U;
-						year  = nowComponents.year;
-						year -= (year % 100U);
-						year += segment / 100U;
-					}
-					break;
-
-				case 4:
-					switch(num_leading_hyphens) {
-						case 0: //YYYY
-							year = segment;
-
-							if (*ch == '-') ++ch;
-
-							if (!isdigit(*ch)) {
-								if (*ch == 'W')
-									goto parseWeekAndDay;
-								else
-									month_or_week = day = 1U;
-							} else {
-								segment = read_segment(ch, &ch, &num_digits);
-								switch(num_digits) {
-									case 4: //MMDD
-										if (strict)
-											isValidDate = NO;
-										else {
-											day = segment % 100U;
-											month_or_week = segment / 100U;
-										}
-										break;
-
-									case 2: //MM
-										month_or_week = segment;
-
-										if (*ch == '-') ++ch;
-										if (!isdigit(*ch))
-											day = 1U;
-										else
-											day = read_segment(ch, &ch, NULL);
-										break;
-
-									case 3: //DDD
-										day = segment % 1000U;
-										dateSpecification = dateOnly;
-										if (strict && (day > (365U + is_leap_year(year))))
-											isValidDate = NO;
-										break;
-
-									default:
-										isValidDate = NO;
-								}
-							}
-							break;
-
-						case 1: //YYMM
-							month_or_week = segment % 100U;
-							year = segment / 100U;
-
-							if (*ch == '-') ++ch;
-							if (!isdigit(*ch))
-								day = 1U;
-							else
-								day = read_segment(ch, &ch, NULL);
-
-							break;
-
-						case 2: //MMDD
-							day = segment % 100U;
-							month_or_week = segment / 100U;
-							year = nowComponents.year;
-
-							break;
-
-						default:
-							isValidDate = NO;
-					} //switch(num_leading_hyphens) (4 digits)
-					break;
-
-				case 1:
-					if (strict) {
-						//Two digits only - never just one.
-						if (num_leading_hyphens == 1U) {
-							if (*ch == '-') ++ch;
-							if (*++ch == 'W') {
-								year  = nowComponents.year;
-								year -= (year % 10U);
-								year += segment;
-								goto parseWeekAndDay;
-							} else
-								isValidDate = NO;
-						} else
-							isValidDate = NO;
-						break;
-					}
-				case 2:
-					switch(num_leading_hyphens) {
-						case 0:
-							if (*ch == '-') {
-								//Implicit century
-								year  = nowComponents.year;
-								year -= (year % 100U);
-								year += segment;
-
-								if (*++ch == 'W')
-									goto parseWeekAndDay;
-								else if (!isdigit(*ch)) {
-									goto centuryOnly;
-								} else {
-									//Get month and/or date.
-									segment = read_segment_4digits(ch, &ch, &num_digits);
-									NSLog(@"(%@) parsing month; segment is %lu and ch is %@", string, (unsigned long)segment, [NSString stringWithCString:(const char *)ch encoding:NSUnicodeStringEncoding]);
-									switch(num_digits) {
-										case 4: //YY-MMDD
-											day = segment % 100U;
-											month_or_week = segment / 100U;
-											break;
-
-										case 1: //YY-M; YY-M-DD (extension)
-											if (strict) {
-												isValidDate = NO;
-												break;
-											}
-										case 2: //YY-MM; YY-MM-DD
-											month_or_week = segment;
-											if (*ch == '-') {
-												if (isdigit(*++ch))
-													day = read_segment_2digits(ch, &ch);
-												else
-													day = 1U;
-											} else
-												day = 1U;
-											break;
-
-										case 3: //Ordinal date.
-											day = segment;
-											dateSpecification = dateOnly;
-											break;
-									}
-								}
-							} else if (*ch == 'W') {
-								year  = nowComponents.year;
-								year -= (year % 100U);
-								year += segment;
-
-							parseWeekAndDay: //*ch should be 'W' here.
-								if (!isdigit(*++ch)) {
-									//Not really a week-based date; just a year followed by '-W'.
-									if (strict)
-										isValidDate = NO;
-									else
-										month_or_week = day = 1U;
-								} else {
-									month_or_week = read_segment_2digits(ch, &ch);
-									if (*ch == '-') ++ch;
-								parseDayAfterWeek:
-									day = isdigit(*ch) ? read_segment_2digits(ch, &ch) : 1U;
-									dateSpecification = week;
-								}
-							} else {
-								//Century only. Assume current year.
-							centuryOnly:
-								year = segment * 100U + nowComponents.year % 100U;
-								month_or_week = day = 1U;
-							}
-							break;
-
-						case 1:; //-YY; -YY-MM (implicit century)
-							NSLog(@"(%@) found %lu digits and one hyphen, so this is either -YY or -YY-MM; segment (year) is %lu", string, (unsigned long)num_digits, (unsigned long)segment);
-							NSUInteger current_year = nowComponents.year;
-							NSUInteger current_century = (current_year % 100U);
-							year = segment + (current_year - current_century);
-							if (num_digits == 1U) //implied decade
-								year += current_century - (current_year % 10U);
-
-							if (*ch == '-') {
-								++ch;
-								month_or_week = read_segment_2digits(ch, &ch);
-								NSLog(@"(%@) month is %lu", string, (unsigned long)month_or_week);
-							}
-
-							day = 1U;
-							break;
-
-						case 2: //--MM; --MM-DD
-							year = nowComponents.year;
-							month_or_week = segment;
-							if (*ch == '-') {
-								++ch;
-								day = read_segment_2digits(ch, &ch);
-							}
-							break;
-
-						case 3: //---DD
-							year = nowComponents.year;
-							month_or_week = nowComponents.month;
-							day = segment;
-							break;
-
-						default:
-							isValidDate = NO;
-					} //switch(num_leading_hyphens) (2 digits)
-					break;
-
-				case 7: //YYYY DDD (ordinal date)
-					if (num_leading_hyphens > 0U)
-						isValidDate = NO;
-					else {
-						day = segment % 1000U;
-						year = segment / 1000U;
-						dateSpecification = dateOnly;
-						if (strict && (day > (365U + is_leap_year(year))))
-							isValidDate = NO;
-					}
-					break;
-
-				case 3: //--DDD (ordinal date, implicit year)
-					//Technically, the standard only allows one hyphen. But it says that two hyphens is the logical implementation, and one was dropped for brevity. So I have chosen to allow the missing hyphen.
-					if ((num_leading_hyphens < 1U) || ((num_leading_hyphens > 2U) && !strict))
-						isValidDate = NO;
-					else {
-						day = segment;
+				}
+			case 2:
+				switch (num_leading_hyphens) {
+				case 0:
+					if (*ch == '-') {
+						// Implicit century
 						year = nowComponents.year;
-						dateSpecification = dateOnly;
-						if (strict && (day > (365U + is_leap_year(year))))
-							isValidDate = NO;
+						year -= (year % 100U);
+						year += segment;
+
+						if (*++ch == 'W')
+							goto parseWeekAndDay;
+						else if (!isdigit(*ch)) {
+							goto centuryOnly;
+						} else {
+							// Get month and/or date.
+							segment = read_segment_4digits(ch, &ch, &num_digits);
+							NSLog(@"(%@) parsing month; segment is %lu and ch is %@", string, (unsigned long)segment,
+								  [NSString stringWithCString:(const char *)ch encoding:NSUnicodeStringEncoding]);
+							switch (num_digits) {
+							case 4: // YY-MMDD
+								day = segment % 100U;
+								month_or_week = segment / 100U;
+								break;
+
+							case 1: // YY-M; YY-M-DD (extension)
+								if (strict) {
+									isValidDate = NO;
+									break;
+								}
+							case 2: // YY-MM; YY-MM-DD
+								month_or_week = segment;
+								if (*ch == '-') {
+									if (isdigit(*++ch))
+										day = read_segment_2digits(ch, &ch);
+									else
+										day = 1U;
+								} else
+									day = 1U;
+								break;
+
+							case 3: // Ordinal date.
+								day = segment;
+								dateSpecification = dateOnly;
+								break;
+							}
+						}
+					} else if (*ch == 'W') {
+						year = nowComponents.year;
+						year -= (year % 100U);
+						year += segment;
+
+					parseWeekAndDay: //*ch should be 'W' here.
+						if (!isdigit(*++ch)) {
+							// Not really a week-based date; just a year followed by '-W'.
+							if (strict)
+								isValidDate = NO;
+							else
+								month_or_week = day = 1U;
+						} else {
+							month_or_week = read_segment_2digits(ch, &ch);
+							if (*ch == '-')
+								++ch;
+						parseDayAfterWeek:
+							day = isdigit(*ch) ? read_segment_2digits(ch, &ch) : 1U;
+							dateSpecification = week;
+						}
+					} else {
+						// Century only. Assume current year.
+					centuryOnly:
+						year = segment * 100U + nowComponents.year % 100U;
+						month_or_week = day = 1U;
 					}
+					break;
+
+				case 1:; //-YY; -YY-MM (implicit century)
+					NSLog(
+						@"(%@) found %lu digits and one hyphen, so this is either -YY or -YY-MM; segment (year) is %lu",
+						string, (unsigned long)num_digits, (unsigned long)segment);
+					NSUInteger current_year = nowComponents.year;
+					NSUInteger current_century = (current_year % 100U);
+					year = segment + (current_year - current_century);
+					if (num_digits == 1U) // implied decade
+						year += current_century - (current_year % 10U);
+
+					if (*ch == '-') {
+						++ch;
+						month_or_week = read_segment_2digits(ch, &ch);
+						NSLog(@"(%@) month is %lu", string, (unsigned long)month_or_week);
+					}
+
+					day = 1U;
+					break;
+
+				case 2: //--MM; --MM-DD
+					year = nowComponents.year;
+					month_or_week = segment;
+					if (*ch == '-') {
+						++ch;
+						day = read_segment_2digits(ch, &ch);
+					}
+					break;
+
+				case 3: //---DD
+					year = nowComponents.year;
+					month_or_week = nowComponents.month;
+					day = segment;
 					break;
 
 				default:
 					isValidDate = NO;
+				} // switch(num_leading_hyphens) (2 digits)
+				break;
+
+			case 7: // YYYY DDD (ordinal date)
+				if (num_leading_hyphens > 0U)
+					isValidDate = NO;
+				else {
+					day = segment % 1000U;
+					year = segment / 1000U;
+					dateSpecification = dateOnly;
+					if (strict && (day > (365U + is_leap_year(year))))
+						isValidDate = NO;
+				}
+				break;
+
+			case 3: //--DDD (ordinal date, implicit year)
+				// Technically, the standard only allows one hyphen. But it says that two hyphens is the logical
+				// implementation, and one was dropped for brevity. So I have chosen to allow the missing hyphen.
+				if ((num_leading_hyphens < 1U) || ((num_leading_hyphens > 2U) && !strict))
+					isValidDate = NO;
+				else {
+					day = segment;
+					year = nowComponents.year;
+					dateSpecification = dateOnly;
+					if (strict && (day > (365U + is_leap_year(year))))
+						isValidDate = NO;
+				}
+				break;
+
+			default:
+				isValidDate = NO;
 			}
 		}
 
 		if (isValidDate) {
-			if (isspace(*ch) || (*ch == 'T')) ++ch;
+			if (isspace(*ch) || (*ch == 'T'))
+				++ch;
 
 			if (isdigit(*ch)) {
 				hour = read_segment_2digits(ch, &ch);
 				if (*ch == timeSep) {
 					++ch;
 					if ((timeSep == ',') || (timeSep == '.')) {
-						//We can't do fractional minutes when '.' is the segment separator.
-						//Only allow whole minutes and whole seconds.
+						// We can't do fractional minutes when '.' is the segment separator.
+						// Only allow whole minutes and whole seconds.
 						minute = read_segment_2digits(ch, &ch);
 						if (*ch == timeSep) {
 							++ch;
 							second = read_segment_2digits(ch, &ch);
 						}
 					} else {
-						//Allow a fractional minute.
-						//If we don't get a fraction, look for a seconds segment.
-						//Otherwise, the fraction of a minute is the seconds.
+						// Allow a fractional minute.
+						// If we don't get a fraction, look for a seconds segment.
+						// Otherwise, the fraction of a minute is the seconds.
 						minute = read_double(ch, &ch);
 						second = modf(minute, &minute);
 						if (second > DBL_EPSILON)
-							second *= 60.0; //Convert fraction (e.g. .5) into seconds (e.g. 30).
+							second *= 60.0; // Convert fraction (e.g. .5) into seconds (e.g. 30).
 						else if (*ch == timeSep) {
 							++ch;
 							second = read_double(ch, &ch);
@@ -553,53 +578,57 @@ static BOOL is_leap_year(NSUInteger year);
 				}
 
 				if (!strict) {
-					if (isspace(*ch)) ++ch;
+					if (isspace(*ch))
+						++ch;
 				}
 
-				switch(*ch) {
-					case 'Z':
-						timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
-						++ch; //So that the Z is included in the range.
-						break;
+				switch (*ch) {
+				case 'Z':
+					timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
+					++ch; // So that the Z is included in the range.
+					break;
 
-					case '+':
-					case '-':;
-						BOOL negative = (*ch == '-');
+				case '+':
+				case '-':;
+					BOOL negative = (*ch == '-');
+					if (isdigit(*++ch)) {
+						// Read hour offset.
+						segment = *ch - '0';
 						if (isdigit(*++ch)) {
-							//Read hour offset.
+							segment *= 10U;
+							segment += *(ch++) - '0';
+						}
+						tz_hour = (NSInteger)segment;
+						if (negative)
+							tz_hour = -tz_hour;
+
+						// Optional separator.
+						if (*ch == self.timeZoneSeparator)
+							++ch;
+
+						if (isdigit(*ch)) {
+							// Read minute offset.
 							segment = *ch - '0';
 							if (isdigit(*++ch)) {
 								segment *= 10U;
-								segment += *(ch++) - '0';
+								segment += *ch - '0';
 							}
-							tz_hour = (NSInteger)segment;
-							if (negative) tz_hour = -tz_hour;
-
-							//Optional separator.
-							if (*ch == self.timeZoneSeparator) ++ch;
-
-							if (isdigit(*ch)) {
-								//Read minute offset.
-								segment = *ch - '0';
-								if (isdigit(*++ch)) {
-									segment *= 10U;
-									segment += *ch - '0';
-								}
-								tz_minute = segment;
-								if (negative) tz_minute = -tz_minute;
-							}
-
-							[[self class] createGlobalCachesThatDoNotAlreadyExist];
-
-							NSInteger timeZoneOffset = (tz_hour * 3600) + (tz_minute * 60);
-							NSNumber *offsetNum = [NSNumber numberWithInteger:timeZoneOffset];
-							timeZone = [timeZonesByOffset objectForKey:offsetNum];
-							if (!timeZone) {
-								timeZone = [NSTimeZone timeZoneForSecondsFromGMT:timeZoneOffset];
-								if (timeZone)
-									[timeZonesByOffset setObject:timeZone forKey:offsetNum];
-							}
+							tz_minute = segment;
+							if (negative)
+								tz_minute = -tz_minute;
 						}
+
+						[[self class] createGlobalCachesThatDoNotAlreadyExist];
+
+						NSInteger timeZoneOffset = (tz_hour * 3600) + (tz_minute * 60);
+						NSNumber *offsetNum = [NSNumber numberWithInteger:timeZoneOffset];
+						timeZone = [timeZonesByOffset objectForKey:offsetNum];
+						if (!timeZone) {
+							timeZone = [NSTimeZone timeZoneForSecondsFromGMT:timeZoneOffset];
+							if (timeZone)
+								[timeZonesByOffset setObject:timeZone forKey:offsetNum];
+						}
+					}
 				}
 			}
 		}
@@ -618,28 +647,29 @@ static BOOL is_leap_year(NSUInteger year);
 				}
 			}
 
-			switch(dateSpecification) {
-				case monthAndDate:
-					components.month = month_or_week;
-					break;
+			switch (dateSpecification) {
+			case monthAndDate:
+				components.month = month_or_week;
+				break;
 
-				case week:;
-					//Adapted from <http://personal.ecu.edu/mccartyr/ISOwdALG.txt>.
-					//This works by converting the week date into an ordinal date, then letting the next case handle it.
-					NSUInteger prevYear = year - 1U;
-					NSUInteger YY = prevYear % 100U;
-					NSUInteger C = prevYear - YY;
-					NSUInteger G = YY + YY / 4U;
-					NSUInteger isLeapYear = (((C / 100U) % 4U) * 5U);
-					NSUInteger Jan1Weekday = (isLeapYear + G) % 7U;
-					enum { monday, tuesday, wednesday, thursday/*, friday, saturday, sunday*/ };
-					components.day = ((8U - Jan1Weekday) + (7U * (Jan1Weekday > thursday))) + (day - 1U) + (7U * (month_or_week - 2));
+			case week:;
+				// Adapted from <http://personal.ecu.edu/mccartyr/ISOwdALG.txt>.
+				// This works by converting the week date into an ordinal date, then letting the next case handle it.
+				NSUInteger prevYear = year - 1U;
+				NSUInteger YY = prevYear % 100U;
+				NSUInteger C = prevYear - YY;
+				NSUInteger G = YY + YY / 4U;
+				NSUInteger isLeapYear = (((C / 100U) % 4U) * 5U);
+				NSUInteger Jan1Weekday = (isLeapYear + G) % 7U;
+				enum { monday, tuesday, wednesday, thursday /*, friday, saturday, sunday*/ };
+				components.day =
+					((8U - Jan1Weekday) + (7U * (Jan1Weekday > thursday))) + (day - 1U) + (7U * (month_or_week - 2));
 
-				case dateOnly: //An "ordinal date".
-					break;
+			case dateOnly: // An "ordinal date".
+				break;
 			}
 		}
-	} //if (!(strict && isdigit(ch[0])))
+	} // if (!(strict && isdigit(ch[0])))
 
 	if (outRange) {
 		if (isValidDate)
@@ -656,17 +686,23 @@ static BOOL is_leap_year(NSUInteger year);
 	return isValidDate ? components : nil;
 }
 
-- (NSDate *) dateFromString:(NSString *)string {
+- (NSDate *)dateFromString:(NSString *)string
+{
 	return [self dateFromString:string timeZone:NULL];
 }
-- (NSDate *) dateFromString:(NSString *)string timeZone:(out NSTimeZone **)outTimeZone {
+- (NSDate *)dateFromString:(NSString *)string timeZone:(out NSTimeZone **)outTimeZone
+{
 	return [self dateFromString:string timeZone:outTimeZone range:NULL];
 }
-- (NSDate *) dateFromString:(NSString *)string timeZone:(out NSTimeZone **)outTimeZone range:(out NSRange *)outRange {
+- (NSDate *)dateFromString:(NSString *)string timeZone:(out NSTimeZone **)outTimeZone range:(out NSRange *)outRange
+{
 	NSTimeZone *timeZone = nil;
 	NSTimeInterval parsedFractionOfSecond = 0.0;
-  
-	NSDateComponents *components = [self dateComponentsFromString:string timeZone:&timeZone range:outRange fractionOfSecond:&parsedFractionOfSecond];
+
+	NSDateComponents *components = [self dateComponentsFromString:string
+														 timeZone:&timeZone
+															range:outRange
+												 fractionOfSecond:&parsedFractionOfSecond];
 
 	if (outTimeZone)
 		*outTimeZone = timeZone;
@@ -680,11 +716,12 @@ static BOOL is_leap_year(NSUInteger year);
 	if (parsedFractionOfSecond > 0.0) {
 		parsedDate = [parsedDate dateByAddingTimeInterval:parsedFractionOfSecond];
 	}
-  
-  return parsedDate;
+
+	return parsedDate;
 }
 
-- (BOOL)getObjectValue:(id *)outValue forString:(NSString *)string errorDescription:(NSString **)error {
+- (BOOL)getObjectValue:(id *)outValue forString:(NSString *)string errorDescription:(NSString **)error
+{
 	NSDate *date = [self dateFromString:string];
 	if (outValue)
 		*outValue = date;
@@ -698,47 +735,54 @@ static BOOL is_leap_year(NSUInteger year);
 @synthesize timeSeparator;
 @synthesize timeZoneSeparator;
 
-- (NSString *) replaceColonsInString:(NSString *)timeFormat withTimeSeparator:(unichar)timeSep {
+- (NSString *)replaceColonsInString:(NSString *)timeFormat withTimeSeparator:(unichar)timeSep
+{
 	if (timeSep != ':') {
 		NSMutableString *timeFormatMutable = [timeFormat mutableCopy];
 		[timeFormatMutable replaceOccurrencesOfString:@":"
-		                               	   withString:[NSString stringWithCharacters:&timeSep length:1U]
-	                                      	  options:NSBackwardsSearch | NSLiteralSearch
-	                                        	range:(NSRange){ 0UL, [timeFormat length] }];
+										   withString:[NSString stringWithCharacters:&timeSep length:1U]
+											  options:NSBackwardsSearch | NSLiteralSearch
+												range:(NSRange){0UL, [timeFormat length]}];
 		timeFormat = timeFormatMutable;
 	}
 	return timeFormat;
 }
 
-- (NSString *) stringFromDate:(NSDate *)date {
+- (NSString *)stringFromDate:(NSDate *)date
+{
 	NSTimeZone *timeZone = self.defaultTimeZone;
-	if (!timeZone) timeZone = [NSTimeZone defaultTimeZone];
+	if (!timeZone)
+		timeZone = [NSTimeZone defaultTimeZone];
 	return [self stringFromDate:date timeZone:timeZone];
 }
 
-- (NSString *) stringFromDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone {
+- (NSString *)stringFromDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone
+{
 	switch (self.format) {
-		case ISO8601DateFormatCalendar:
-			return [self stringFromDate:date formatString:ISO_CALENDAR_DATE_FORMAT timeZone:timeZone];
-		case ISO8601DateFormatWeek:
-			return [self weekDateStringForDate:date timeZone:timeZone];
-		case ISO8601DateFormatOrdinal:
-			return [self stringFromDate:date formatString:ISO_ORDINAL_DATE_FORMAT timeZone:timeZone];
-		default:
-			[NSException raise:NSInternalInconsistencyException format:@"self.format was %tu, not calendar (%tu), week (%tu), or ordinal (%tu)", self.format, ISO8601DateFormatCalendar, ISO8601DateFormatWeek, ISO8601DateFormatOrdinal];
-			return nil;
+	case ISO8601DateFormatCalendar:
+		return [self stringFromDate:date formatString:ISO_CALENDAR_DATE_FORMAT timeZone:timeZone];
+	case ISO8601DateFormatWeek:
+		return [self weekDateStringForDate:date timeZone:timeZone];
+	case ISO8601DateFormatOrdinal:
+		return [self stringFromDate:date formatString:ISO_ORDINAL_DATE_FORMAT timeZone:timeZone];
+	default:
+		[NSException raise:NSInternalInconsistencyException
+					format:@"self.format was %tu, not calendar (%tu), week (%tu), or ordinal (%tu)", self.format,
+						   ISO8601DateFormatCalendar, ISO8601DateFormatWeek, ISO8601DateFormatOrdinal];
+		return nil;
 	}
 }
 
-- (NSString *) stringFromDate:(NSDate *)date formatString:(NSString *)dateFormat timeZone:(NSTimeZone *)timeZone {
+- (NSString *)stringFromDate:(NSDate *)date formatString:(NSString *)dateFormat timeZone:(NSTimeZone *)timeZone
+{
 	if (includeTime)
-		dateFormat = [dateFormat stringByAppendingFormat:@"'T'%@", [self replaceColonsInString:ISO_TIME_FORMAT withTimeSeparator:self.timeSeparator]];
+		dateFormat = [dateFormat stringByAppendingFormat:@"'T'%@", [self replaceColonsInString:ISO_TIME_FORMAT
+																			 withTimeSeparator:self.timeSeparator]];
 
 	if ([dateFormat isEqualToString:lastUsedFormatString] == NO) {
-		
+
 		unparsingFormatter = nil;
 
-		
 		lastUsedFormatString = dateFormat;
 	}
 
@@ -756,28 +800,31 @@ static BOOL is_leap_year(NSUInteger year);
 
 	if (includeTime) {
 		NSInteger offset = [timeZone secondsFromGMTForDate:date];
-		offset /= 60;  //bring down to minutes
+		offset /= 60; // bring down to minutes
 		if (offset == 0)
 			str = [str stringByAppendingString:ISO_TIMEZONE_UTC_FORMAT];
 		else {
 			int timeZoneOffsetHour = (int)(offset / 60);
 			int timeZoneOffsetMinute = (int)(offset % 60);
 			if (self.timeZoneSeparator)
-				str = [str stringByAppendingFormat:ISO_TIMEZONE_OFFSET_FORMAT_WITH_SEPARATOR, timeZoneOffsetHour, self.timeZoneSeparator, timeZoneOffsetMinute];
+				str = [str stringByAppendingFormat:ISO_TIMEZONE_OFFSET_FORMAT_WITH_SEPARATOR, timeZoneOffsetHour,
+												   self.timeZoneSeparator, timeZoneOffsetMinute];
 			else
-				str = [str stringByAppendingFormat:ISO_TIMEZONE_OFFSET_FORMAT_NO_SEPARATOR, timeZoneOffsetHour, timeZoneOffsetMinute];
+				str = [str stringByAppendingFormat:ISO_TIMEZONE_OFFSET_FORMAT_NO_SEPARATOR, timeZoneOffsetHour,
+												   timeZoneOffsetMinute];
 		}
 	}
 
-	//Undo the change we made earlier
+	// Undo the change we made earlier
 	unparsingCalendar.timeZone = self.defaultTimeZone;
 	unparsingFormatter.timeZone = self.defaultTimeZone;
 
 	return str;
 }
 
-- (NSString *) stringForObjectValue:(id)value {
-	if ( ! [value isKindOfClass:[NSDate class]]) {
+- (NSString *)stringForObjectValue:(id)value
+{
+	if (![value isKindOfClass:[NSDate class]]) {
 		NSLog(@"%s: Can only format NSDate objects, not objects like %@", __func__, value);
 		return nil;
 	}
@@ -790,30 +837,30 @@ static BOOL is_leap_year(NSUInteger year);
  *	Rick McCarty, 1999
  *	http://personal.ecu.edu/mccartyr/ISOwdALG.txt
  */
-- (NSString *) weekDateStringForDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone {
+- (NSString *)weekDateStringForDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone
+{
 	unparsingCalendar.timeZone = timeZone;
-	NSDateComponents *components = [unparsingCalendar components:NSYearCalendarUnit | NSWeekdayCalendarUnit | NSDayCalendarUnit fromDate:date];
+	NSDateComponents *components =
+		[unparsingCalendar components:NSYearCalendarUnit | NSWeekdayCalendarUnit | NSDayCalendarUnit fromDate:date];
 
-	//Determine the ordinal date.
+	// Determine the ordinal date.
 	NSDateComponents *startOfYearComponents = [unparsingCalendar components:NSYearCalendarUnit fromDate:date];
 	startOfYearComponents.month = 1;
 	startOfYearComponents.day = 1;
-	NSDateComponents *ordinalComponents = [unparsingCalendar components:NSDayCalendarUnit fromDate:[unparsingCalendar dateFromComponents:startOfYearComponents] toDate:date options:0];
+	NSDateComponents *ordinalComponents =
+		[unparsingCalendar components:NSDayCalendarUnit
+							 fromDate:[unparsingCalendar dateFromComponents:startOfYearComponents]
+							   toDate:date
+							  options:0];
 	ordinalComponents.day += 1;
 
-	enum {
-		monday, tuesday, wednesday, thursday, friday, saturday, sunday
-	};
-	enum {
-		january = 1, february, march,
-		april, may, june,
-		july, august, september,
-		october, november, december
-	};
+	enum { monday, tuesday, wednesday, thursday, friday, saturday, sunday };
+	enum { january = 1, february, march, april, may, june, july, august, september, october, november, december };
 
 	NSInteger year = components.year;
 	NSInteger week = 0;
-	//The old unparser added 6 to [calendarDate dayOfWeek], which was zero-based; components.weekday is one-based, so we now add only 5.
+	// The old unparser added 6 to [calendarDate dayOfWeek], which was zero-based; components.weekday is one-based, so
+	// we now add only 5.
 	NSInteger dayOfWeek = (components.weekday + 5) % 7;
 	NSInteger dayOfYear = ordinalComponents.day;
 
@@ -829,12 +876,12 @@ static BOOL is_leap_year(NSUInteger year);
 
 	NSInteger weekday = ((dayOfYear + Jan1Weekday) - 1) % 7;
 
-	if((dayOfYear <= (7 - Jan1Weekday)) && (Jan1Weekday > thursday)) {
+	if ((dayOfYear <= (7 - Jan1Weekday)) && (Jan1Weekday > thursday)) {
 		week = 52 + ((Jan1Weekday == friday) || ((Jan1Weekday == saturday) && prevYearIsLeapYear));
 		--year;
 	} else {
 		NSInteger lengthOfYear = 365 + yearIsLeapYear;
-		if((lengthOfYear - dayOfYear) < (thursday - weekday)) {
+		if ((lengthOfYear - dayOfYear) < (thursday - weekday)) {
 			++year;
 			week = 1;
 		} else {
@@ -843,35 +890,36 @@ static BOOL is_leap_year(NSUInteger year);
 		}
 	}
 
-	NSString *string = [NSString stringWithFormat:@"%lu-W%02lu-%02lu", (unsigned long)year, (unsigned long)week, ((unsigned long)dayOfWeek) + 1U];
+	NSString *string = [NSString stringWithFormat:@"%lu-W%02lu-%02lu", (unsigned long)year, (unsigned long)week,
+												  ((unsigned long)dayOfWeek) + 1U];
 
 	NSString *timeString;
-	if(includeTime) {
+	if (includeTime) {
 		NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
 		unichar timeSep = self.timeSeparator;
-		if (!timeSep) timeSep = ISO8601DefaultTimeSeparatorCharacter;
+		if (!timeSep)
+			timeSep = ISO8601DefaultTimeSeparatorCharacter;
 		formatter.dateFormat = [self replaceColonsInString:ISO_TIME_FORMAT withTimeSeparator:timeSep];
 		formatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
 		formatter.timeZone = timeZone;
 
 		timeString = [formatter stringForObjectValue:date];
 
-
-		//TODO: This is copied from the calendar-date code. It should be isolated in a method.
+		// TODO: This is copied from the calendar-date code. It should be isolated in a method.
 		NSInteger offset = [timeZone secondsFromGMTForDate:date];
-		offset /= 60;  //bring down to minutes
+		offset /= 60; // bring down to minutes
 		if (offset == 0)
 			timeString = [timeString stringByAppendingString:ISO_TIMEZONE_UTC_FORMAT];
 		else {
 			int timeZoneOffsetHour = (int)(offset / 60);
 			int timeZoneOffsetMinute = (int)(offset % 60);
 			if (self.timeZoneSeparator)
-				timeString = [timeString stringByAppendingFormat:ISO_TIMEZONE_OFFSET_FORMAT_WITH_SEPARATOR,
-				                                                 timeZoneOffsetHour, self.timeZoneSeparator,
-				                                                 timeZoneOffsetMinute];
+				timeString =
+					[timeString stringByAppendingFormat:ISO_TIMEZONE_OFFSET_FORMAT_WITH_SEPARATOR, timeZoneOffsetHour,
+														self.timeZoneSeparator, timeZoneOffsetMinute];
 			else
 				timeString = [timeString stringByAppendingFormat:ISO_TIMEZONE_OFFSET_FORMAT_NO_SEPARATOR,
-				                                                 timeZoneOffsetHour, timeZoneOffsetMinute];
+																 timeZoneOffsetHour, timeZoneOffsetMinute];
 		}
 
 		string = [string stringByAppendingFormat:@"T%@", timeString];
@@ -882,23 +930,27 @@ static BOOL is_leap_year(NSUInteger year);
 
 @end
 
-static NSUInteger read_segment(const unichar *str, const unichar **next, NSUInteger *out_num_digits) {
+static NSUInteger read_segment(const unichar *str, const unichar **next, NSUInteger *out_num_digits)
+{
 	NSUInteger num_digits = 0U;
 	NSUInteger value = 0U;
 
-	while(isdigit(*str)) {
+	while (isdigit(*str)) {
 		value *= 10U;
 		value += *str - '0';
 		++num_digits;
 		++str;
 	}
 
-	if (next) *next = str;
-	if (out_num_digits) *out_num_digits = num_digits;
+	if (next)
+		*next = str;
+	if (out_num_digits)
+		*out_num_digits = num_digits;
 
 	return value;
 }
-static NSUInteger read_segment_4digits(const unichar *str, const unichar **next, NSUInteger *out_num_digits) {
+static NSUInteger read_segment_4digits(const unichar *str, const unichar **next, NSUInteger *out_num_digits)
+{
 	NSUInteger num_digits = 0U;
 	NSUInteger value = 0U;
 
@@ -925,12 +977,15 @@ static NSUInteger read_segment_4digits(const unichar *str, const unichar **next,
 		++num_digits;
 	}
 
-	if (next) *next = str;
-	if (out_num_digits) *out_num_digits = num_digits;
+	if (next)
+		*next = str;
+	if (out_num_digits)
+		*out_num_digits = num_digits;
 
 	return value;
 }
-static NSUInteger read_segment_2digits(const unichar *str, const unichar **next) {
+static NSUInteger read_segment_2digits(const unichar *str, const unichar **next)
+{
 	NSUInteger value = 0U;
 
 	if (isdigit(*str))
@@ -941,19 +996,21 @@ static NSUInteger read_segment_2digits(const unichar *str, const unichar **next)
 		value += *(str++) - '0';
 	}
 
-	if (next) *next = str;
+	if (next)
+		*next = str;
 
 	return value;
 }
 
-//strtod doesn't support ',' as a separator. This does.
-static double read_double(const unichar *str, const unichar **next) {
+// strtod doesn't support ',' as a separator. This does.
+static double read_double(const unichar *str, const unichar **next)
+{
 	double value = 0.0;
 
 	if (str) {
 		NSUInteger int_value = 0;
 
-		while(isdigit(*str)) {
+		while (isdigit(*str)) {
 			int_value *= 10U;
 			int_value += (*(str++) - '0');
 		}
@@ -965,21 +1022,20 @@ static double read_double(const unichar *str, const unichar **next) {
 			register double multiplier, multiplier_multiplier;
 			multiplier = multiplier_multiplier = 0.1;
 
-			while(isdigit(*str)) {
+			while (isdigit(*str)) {
 				value += (*(str++) - '0') * multiplier;
 				multiplier *= multiplier_multiplier;
 			}
 		}
 	}
 
-	if (next) *next = str;
+	if (next)
+		*next = str;
 
 	return value;
 }
 
-static BOOL is_leap_year(NSUInteger year) {
-	return \
-	    ((year %   4U) == 0U)
-	&& (((year % 100U) != 0U)
-	||  ((year % 400U) == 0U));
+static BOOL is_leap_year(NSUInteger year)
+{
+	return ((year % 4U) == 0U) && (((year % 100U) != 0U) || ((year % 400U) == 0U));
 }

@@ -8,7 +8,6 @@
 
 #import "InstantMessage.h"
 
-
 @implementation InstantMessage
 
 - (void)encodeWithCoder:(NSCoder *)encoder
@@ -18,21 +17,18 @@
 
 - (id)initWithCoder:(NSCoder *)decoder
 {
-	if ([decoder allowsKeyedCoding])
-	{
+	if ([decoder allowsKeyedCoding]) {
 		sender = [[decoder decodeObjectForKey:@"Sender"] retain];
 		text = [[decoder decodeObjectForKey:@"MessageText"] retain];
 		date = [[decoder decodeObjectForKey:@"Time"] retain];
 		flags = [decoder decodeInt32ForKey:@"Flags"];
-	}
-	else
-	{
+	} else {
 		sender = [[decoder decodeObject] retain];
 		date = [[decoder decodeObject] retain];
 		text = [[decoder decodeObject] retain];
 		[decoder decodeValueOfObjCType:@encode(unsigned) at:&flags];
 	}
-	
+
 	return self;
 }
 

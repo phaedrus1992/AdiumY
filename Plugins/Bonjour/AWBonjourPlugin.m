@@ -6,7 +6,7 @@
  * License:
  * Copyright (C) 2004-2005 Andrew Wellington.
  * All rights reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
@@ -22,8 +22,8 @@
  * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import "AWBonjourAccount.h"
 #import "AWBonjourPlugin.h"
+#import "AWBonjourAccount.h"
 #import "AWBonjourService.h"
 
 @implementation AWBonjourPlugin
@@ -34,4 +34,3 @@
 }
 
 @end
-

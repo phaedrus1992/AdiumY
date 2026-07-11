@@ -1,22 +1,20 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
 #import "AIImageCollectionView.h"
-
 
 @interface AIImageCollectionView ()
 
@@ -31,7 +29,6 @@
 
 @end
 
-
 @implementation AIImageCollectionView
 
 @dynamic delegate;
@@ -39,13 +36,12 @@
 @synthesize highlightStyle, highlightSize, highlightCornerRadius;
 @synthesize highlightedIndex;
 
-
 - (id)initWithFrame:(NSRect)frame
 {
 	if ((self = [super initWithFrame:frame])) {
 		// Initialize
 		[self AI_initImageCollectionView];
-	}	
+	}
 
 	return self;
 }
@@ -64,42 +60,34 @@
 	highlightStyle = AIImageCollectionViewHighlightBorderStyle;
 	highlightSize = 2.0f;
 	highlightCornerRadius = 0.0f;
-	
+
 	highlightedIndex = NSNotFound;
-	
+
 	// Mouse Tracking
 	[self addTrackingArea:[[NSTrackingArea alloc] initWithRect:[self bounds]
-														options:(NSTrackingMouseEnteredAndExited |
-																 NSTrackingActiveInKeyWindow |
-																 NSTrackingInVisibleRect)
-														  owner:self
-													   userInfo:nil]];
-	
+													   options:(NSTrackingMouseEnteredAndExited |
+																NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect)
+														 owner:self
+													  userInfo:nil]];
+
 	// Temporary solution, 1st tracking area will only report MouseMoved Events
 	[self addTrackingArea:[[NSTrackingArea alloc] initWithRect:[self bounds]
-														options:(NSTrackingMouseMoved |
-																 NSTrackingActiveInKeyWindow |
-																 NSTrackingInVisibleRect)
-														  owner:self
-													   userInfo:nil]];
+													   options:(NSTrackingMouseMoved | NSTrackingActiveInKeyWindow |
+																NSTrackingInVisibleRect)
+														 owner:self
+													  userInfo:nil]];
 
 	// Track for item's selection changes
-	[self addObserver:self forKeyPath:@"selectionIndexes"
-			  options:(NSKeyValueObservingOptionNew)
-			  context:NULL];
-	
+	[self addObserver:self forKeyPath:@"selectionIndexes" options:(NSKeyValueObservingOptionNew)context:NULL];
+
 	// Track for item's content changes
-	[self addObserver:self forKeyPath:@"content"
-			  options:(NSKeyValueObservingOptionNew)
-			  context:NULL];
+	[self addObserver:self forKeyPath:@"content" options:(NSKeyValueObservingOptionNew)context:NULL];
 }
 
 - (void)dealloc
-{	
+{
 	[self removeObserver:self forKeyPath:@"selectionIndexes"];
 	[self removeObserver:self forKeyPath:@"content"];
-	
-	
 }
 
 - (void)drawRect:(NSRect)dirtyRect
@@ -107,70 +95,74 @@
 	// Draw selection
 	if ([[self selectionIndexes] count] > 0) {
 		[[NSColor selectedMenuItemColor] set];
-		
+
 		[[self selectionIndexes] enumerateIndexesUsingBlock:^(NSUInteger anIndex, BOOL *stop) {
 			NSRect highlightRect = [self frameForItemAtIndex:anIndex];
-			
+
 			// Adjust Pattern
-			[[NSGraphicsContext currentContext] setPatternPhase:NSMakePoint(0.0f, NSMaxY([self convertRect:highlightRect toView:nil]))];
-			
+			[[NSGraphicsContext currentContext] setPatternPhase:NSMakePoint(0.0f, NSMaxY([self convertRect:highlightRect
+																									toView:nil]))];
+
 			// Adjust highlight rect
 			highlightRect.origin.x += (highlightSize / 2);
 			highlightRect.origin.y += (highlightSize / 2);
 			highlightRect.size.width -= highlightSize;
 			highlightRect.size.height -= highlightSize;
-			
-			NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:highlightRect	xRadius:[self highlightCornerRadius]
-																						yRadius:[self highlightCornerRadius]];
+
+			NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:highlightRect
+																 xRadius:[self highlightCornerRadius]
+																 yRadius:[self highlightCornerRadius]];
 			[path setLineWidth:[self highlightSize]];
-			
+
 			// Style
 			switch ([self highlightStyle]) {
-				// Border
-				case AIImageCollectionViewHighlightBorderStyle:
-					[path stroke];
-					break;
-					
-				// Background
-				case AIImageCollectionViewHighlightBackgroundStyle:
-				default:
-					[path fill];
-					break;
-			}
-		}];
-	}
-	
-	// Draw highlight
-	if ([self highlightedIndex] != NSNotFound) {
-		NSRect highlightRect = [[[self subviews] objectAtIndex:[self highlightedIndex]] frame];
-		
-		[[NSColor selectedMenuItemColor] set];
-		
-		// Adjust Pattern
-		[[NSGraphicsContext currentContext] setPatternPhase:NSMakePoint(0.0f, NSMaxY([self convertRect:highlightRect toView:nil]))];
-		
-		// Adjust highlight rect
-		highlightRect.origin.x += (highlightSize / 2);
-		highlightRect.origin.y += (highlightSize / 2);
-		highlightRect.size.width -= highlightSize;
-		highlightRect.size.height -= highlightSize;
-		
-		NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:highlightRect 	xRadius:[self highlightCornerRadius]
-															 						yRadius:[self highlightCornerRadius]];
-		[path setLineWidth:[self highlightSize]];
-		
-		// Style
-		switch ([self highlightStyle]) {
 			// Border
 			case AIImageCollectionViewHighlightBorderStyle:
 				[path stroke];
 				break;
-			
+
 			// Background
 			case AIImageCollectionViewHighlightBackgroundStyle:
 			default:
 				[path fill];
 				break;
+			}
+		}];
+	}
+
+	// Draw highlight
+	if ([self highlightedIndex] != NSNotFound) {
+		NSRect highlightRect = [[[self subviews] objectAtIndex:[self highlightedIndex]] frame];
+
+		[[NSColor selectedMenuItemColor] set];
+
+		// Adjust Pattern
+		[[NSGraphicsContext currentContext] setPatternPhase:NSMakePoint(0.0f, NSMaxY([self convertRect:highlightRect
+																								toView:nil]))];
+
+		// Adjust highlight rect
+		highlightRect.origin.x += (highlightSize / 2);
+		highlightRect.origin.y += (highlightSize / 2);
+		highlightRect.size.width -= highlightSize;
+		highlightRect.size.height -= highlightSize;
+
+		NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:highlightRect
+															 xRadius:[self highlightCornerRadius]
+															 yRadius:[self highlightCornerRadius]];
+		[path setLineWidth:[self highlightSize]];
+
+		// Style
+		switch ([self highlightStyle]) {
+		// Border
+		case AIImageCollectionViewHighlightBorderStyle:
+			[path stroke];
+			break;
+
+		// Background
+		case AIImageCollectionViewHighlightBackgroundStyle:
+		default:
+			[path fill];
+			break;
 		}
 	}
 }
@@ -180,7 +172,10 @@
 /*!
  * Handle KVO
  */
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+- (void)observeValueForKeyPath:(NSString *)keyPath
+					  ofObject:(id)object
+						change:(NSDictionary *)change
+					   context:(void *)context
 {
 	// Selection has changed
 	if ([keyPath isEqual:@"selectionIndexes"]) {
@@ -192,11 +187,11 @@
 		if ([[self selectionIndexes] isEqualToIndexSet:[NSIndexSet indexSet]]) {
 			[self selectItemAtIndex:NSNotFound];
 		}
-		
+
 		[self setNeedsDisplay:YES];
-	
-	// Content has changed
-    } else if ([keyPath isEqual:@"content"]) {
+
+		// Content has changed
+	} else if ([keyPath isEqual:@"content"]) {
 		// We don't want to highlight a removed item
 		if ([self highlightedIndex] == [[self content] count]) {
 			// Reset highlight
@@ -221,7 +216,7 @@
 			if ([[self delegate] imageCollectionView:self shouldHighlightItemAtIndex:anIndex]) {
 				[self setHighlightedIndex:anIndex];
 				[self setNeedsDisplay:YES];
-				
+
 				// Message delegate : Did Highlight
 				if ([[self delegate] respondsToSelector:@selector(imageCollectionView:didHighlightItemAtIndex:)]) {
 					[[self delegate] imageCollectionView:self didHighlightItemAtIndex:anIndex];
@@ -265,7 +260,7 @@
 {
 	[self setHighlightedIndex:NSNotFound];
 	[self setNeedsDisplay:YES];
-	
+
 	// Message delegate: Should Highlight
 	if ([[self delegate] respondsToSelector:@selector(imageCollectionView:shouldHighlightItemAtIndex:)]) {
 		[[self delegate] imageCollectionView:self shouldHighlightItemAtIndex:NSNotFound];
@@ -284,9 +279,9 @@
 
 	NSUInteger indexX = AIceil(aPoint.x / self.maxItemSize.width);
 	NSUInteger indexY = AIceil(aPoint.y / self.maxItemSize.height);
-	
+
 	NSUInteger anIndex = (((indexY * numberOfCols) - (numberOfCols - indexX)) - 1);
-	
+
 	return (NSPointInRect(aPoint, [self frameForItemAtIndex:anIndex]) ? anIndex : NSNotFound);
 }
 
@@ -299,13 +294,13 @@
 	}
 }
 
-#pragma mark - Mouse Events 
+#pragma mark - Mouse Events
 
 - (void)mouseMoved:(NSEvent *)anEvent
 {
 	// Highlight item
 	[self highlightItemAtIndex:[self indexAtPoint:[self convertPoint:[anEvent locationInWindow] fromView:nil]]];
-	
+
 	[super mouseMoved:anEvent];
 }
 
@@ -313,7 +308,7 @@
 {
 	// Reset highlight
 	[self resetHighlight];
-	
+
 	[super mouseExited:anEvent];
 }
 
@@ -321,7 +316,7 @@
 {
 	// Scrolling first
 	[super scrollWheel:anEvent];
-		
+
 	// Highlight item
 	[self highlightItemAtIndex:[self indexAtPoint:[self convertPoint:[anEvent locationInWindow] fromView:nil]]];
 }
@@ -331,10 +326,12 @@
 - (void)keyDown:(NSEvent *)anEvent
 {
 	// Delete
-	if ([[self delegate] respondsToSelector:@selector(imageCollectionView:shouldDeleteItemsAtIndexes:)] && [[anEvent charactersIgnoringModifiers] length]) {
-		unichar	pressedKey = [[anEvent charactersIgnoringModifiers] characterAtIndex:0];
-		
-		if (pressedKey == NSDeleteFunctionKey || pressedKey == NSBackspaceCharacter || pressedKey == NSDeleteCharacter) {
+	if ([[self delegate] respondsToSelector:@selector(imageCollectionView:shouldDeleteItemsAtIndexes:)] &&
+		[[anEvent charactersIgnoringModifiers] length]) {
+		unichar pressedKey = [[anEvent charactersIgnoringModifiers] characterAtIndex:0];
+
+		if (pressedKey == NSDeleteFunctionKey || pressedKey == NSBackspaceCharacter ||
+			pressedKey == NSDeleteCharacter) {
 			// Delete selected items
 			// Message delegate: Should Delete
 			if ([[self delegate] imageCollectionView:self shouldDeleteItemsAtIndexes:[self selectionIndexes]] &&
@@ -344,7 +341,7 @@
 			}
 		}
 	}
-	
+
 	[super keyDown:anEvent];
 }
 

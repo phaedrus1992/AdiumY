@@ -1,27 +1,26 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
 #import "AIImageViewWithImagePicker.h"
 #import <Quartz/Quartz.h>
 
-#import "AIImageDrawingAdditions.h"
-#import "AIImageAdditions.h"
-#import "AIFileManagerAdditions.h"
 #import "AIApplicationAdditions.h"
+#import "AIFileManagerAdditions.h"
+#import "AIImageAdditions.h"
+#import "AIImageDrawingAdditions.h"
 #import "AIStringUtilities.h"
 
 #import "IKRecentPicture.h" //10.5+, private
@@ -49,21 +48,22 @@
 /*
  * @class AIImageViewWithImagePicker
  *
- * @brief Image view which displays and uses the Image Picker used by Apple Address Book and iChat when activated and also allows other image-setting behaviors.
+ * @brief Image view which displays and uses the Image Picker used by Apple Address Book and iChat when activated and
+ * also allows other image-setting behaviors.
  *
  * The following is supported
  *		- Address book-style image picker on double-click or enter, with delegate notification
  *		- Or, alternately, an Open Panel on double-click or enter, with delegate notification
  *		- Copying and pasting, with delegate notification
- *		- Drag and drop into and out of the image well, with delegate notification, 
+ *		- Drag and drop into and out of the image well, with delegate notification,
  *			with support for animated GIFs and transparency
  *		- Notifcation to the delegate of user's attempt to delete the image
  *		- Adding image to Recent Picture Repository, for dragged images only
  */
 @implementation AIImageViewWithImagePicker
 
-
-@synthesize delegate, activeRecentPicture, usePictureTaker, presentPictureTakerAsSheet, shouldUpdateRecentRepository, maxSize; 
+@synthesize delegate, activeRecentPicture, usePictureTaker, presentPictureTakerAsSheet, shouldUpdateRecentRepository,
+	maxSize;
 
 #pragma mark Init
 
@@ -72,10 +72,10 @@
  */
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
-    if ((self = [super initWithCoder:aDecoder])) {
+	if ((self = [super initWithCoder:aDecoder])) {
 		[self _initImageViewWithImagePicker];
 	}
-    return self;
+	return self;
 }
 
 /*
@@ -98,9 +98,9 @@
 	title = nil;
 	delegate = nil;
 	activeRecentPicture = nil;
-	
+
 	shouldUpdateRecentRepository = NO;
-	
+
 	lastResp = nil;
 	shouldDrawFocusRing = NO;
 
@@ -118,11 +118,10 @@
 
 	if (pictureTaker) {
 		[pictureTaker close];
-        pictureTaker = nil;
+		pictureTaker = nil;
 	}
-	
+
 	delegate = nil;
-	
 }
 
 #pragma mark Getters and Setters
@@ -135,13 +134,13 @@
 - (void)setImage:(NSImage *)inImage
 {
 	[super setImage:inImage];
-	
+
 	// Inform the picker controller of a changed selection if it is open, for live updating
 	if (pictureTaker) {
 		[pictureTaker setInputImage:inImage];
 	}
-	
-    activeRecentPicture = nil;
+
+	activeRecentPicture = nil;
 }
 
 /*!
@@ -149,12 +148,12 @@
  *
  * Set the title of the Image Picker window which will be displayed if the user activates it (see class discussion).
  * @param inTitle An <tt>NSString</tt> of the title
- */ 
+ */
 - (void)setTitle:(NSString *)inTitle
 {
 	if (title != inTitle) {
 		title = inTitle;
-		
+
 		if (pictureTaker) {
 			[pictureTaker setTitle:title];
 		}
@@ -166,7 +165,9 @@
  */
 - (NSString *)title
 {
-	return (title ? title : AILocalizedStringFromTableInBundle(@"Image Picker", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil));
+	return (title ? title
+				  : AILocalizedStringFromTableInBundle(@"Image Picker", nil,
+													   [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil));
 }
 
 #pragma mark Monitoring user interaction
@@ -180,29 +181,30 @@
 {
 	if ([self isEnabled]) {
 		NSEvent *nextEvent;
-		
-		//Wait for the next event
+
+		// Wait for the next event
 		nextEvent = [[self window] nextEventMatchingMask:(NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSPeriodicMask)
 											   untilDate:[NSDate distantFuture]
 												  inMode:NSEventTrackingRunLoopMode
 												 dequeue:NO];
-		
+
 		mouseDownPos = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-		
+
 		/* If the user starts dragging, don't call mouse down as we won't receive mouse dragged events, as it seems that
-			* NSImageView does some sort of event loop modification in response to a click. We didn't dequeue the event, so
-			* we don't have to handle it ourselves -- instead, the event loop will handle it after this invocation is complete. 
-			*/
+		 * NSImageView does some sort of event loop modification in response to a click. We didn't dequeue the event, so
+		 * we don't have to handle it ourselves -- instead, the event loop will handle it after this invocation is
+		 * complete.
+		 */
 		if ([nextEvent type] != NSLeftMouseDragged) {
-			[super mouseDown:theEvent];   
+			[super mouseDown:theEvent];
 		}
-		
+
 		if ([theEvent clickCount] == 2) {
 			[self showPictureTaker];
 		}
 
 	} else {
-		[super mouseDown:theEvent];   
+		[super mouseDown:theEvent];
 	}
 }
 
@@ -215,8 +217,9 @@
 {
 	NSString *characters = [theEvent charactersIgnoringModifiers];
 	unichar key = ([characters length] ? [characters characterAtIndex:0] : 0);
-	
-	if ((key == NSBackspaceCharacter) || (key == NSDeleteCharacter) || (key == NSDeleteFunctionKey) || (key == NSDeleteCharFunctionKey)) {
+
+	if ((key == NSBackspaceCharacter) || (key == NSDeleteCharacter) || (key == NSDeleteFunctionKey) ||
+		(key == NSDeleteCharFunctionKey)) {
 		[self delete];
 	} else if (key == NSEnterCharacter || key == NSCarriageReturnCharacter) {
 		[self showPictureTaker];
@@ -232,18 +235,19 @@
  */
 - (void)mouseDragged:(NSEvent *)theEvent
 {
-	if (![self image]) return;
+	if (![self image])
+		return;
 
 	// Work out if the mouse has been dragged far enough - it stops accidental drags
 	NSPoint mousePos = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-	CGFloat dx = mousePos.x-mouseDownPos.x;
-	CGFloat dy = mousePos.y-mouseDownPos.y;	
-	
-	if ((dx*dx) + (dy*dy) < DRAGGING_THRESHOLD) {
+	CGFloat dx = mousePos.x - mouseDownPos.x;
+	CGFloat dy = mousePos.y - mouseDownPos.y;
+
+	if ((dx * dx) + (dy * dy) < DRAGGING_THRESHOLD) {
 		return;
 	}
-	
-	//Start the drag
+
+	// Start the drag
 	[self dragPromisedFilesOfTypes:[NSArray arrayWithObject:@"png"]
 						  fromRect:NSZeroRect
 							source:self
@@ -251,20 +255,29 @@
 							 event:theEvent];
 }
 
-- (void)dragImage:(NSImage *)anImage at:(NSPoint)imageLoc offset:(NSSize)mouseOffset event:(NSEvent *)theEvent pasteboard:(NSPasteboard *)pboard source:(id)sourceObject slideBack:(BOOL)slideBack
+- (void)dragImage:(NSImage *)anImage
+			   at:(NSPoint)imageLoc
+		   offset:(NSSize)mouseOffset
+			event:(NSEvent *)theEvent
+	   pasteboard:(NSPasteboard *)pboard
+		   source:(id)sourceObject
+		slideBack:(BOOL)slideBack
 {
-	[pboard addTypes:[NSArray arrayWithObjects:NSTIFFPboardType,NSPDFPboardType,nil] owner:self];
-	
+	[pboard addTypes:[NSArray arrayWithObjects:NSTIFFPboardType, NSPDFPboardType, nil] owner:self];
+
 	NSImage *dragImage = [[NSImage alloc] initWithSize:[[self image] size]];
-	
-	//Draw our original image as 50% transparent
+
+	// Draw our original image as 50% transparent
 	[dragImage lockFocus];
-	[[self image] drawAtPoint:NSZeroPoint fromRect:NSMakeRect(0, 0, self.image.size.width, self.image.size.height) operation:NSCompositeCopy fraction:0.5f];
+	[[self image] drawAtPoint:NSZeroPoint
+					 fromRect:NSMakeRect(0, 0, self.image.size.width, self.image.size.height)
+					operation:NSCompositeCopy
+					 fraction:0.5f];
 	[dragImage unlockFocus];
-	
-	//Change to the size we are displaying
+
+	// Change to the size we are displaying
 	[dragImage setSize:[self bounds].size];
-	
+
 	[super dragImage:dragImage
 				  at:imageLoc
 			  offset:mouseOffset
@@ -287,22 +300,20 @@
  */
 - (void)pasteboard:(NSPasteboard *)sender provideDataForType:(NSString *)type
 {
-    //sender has accepted the drag and now we need to send the data for the type we promised
-    if ([type isEqualToString:NSTIFFPboardType]) {
-		//set data for TIFF type on the pasteboard as requested
-		[sender setData:[[self image] TIFFRepresentation] 
-				forType:NSTIFFPboardType];
-		
-    } else if ([type isEqualToString:NSPDFPboardType]) {
-		[sender setData:[self dataWithPDFInsideRect:[self bounds]] 
-				forType:NSPDFPboardType];
-    }
+	// sender has accepted the drag and now we need to send the data for the type we promised
+	if ([type isEqualToString:NSTIFFPboardType]) {
+		// set data for TIFF type on the pasteboard as requested
+		[sender setData:[[self image] TIFFRepresentation] forType:NSTIFFPboardType];
+
+	} else if ([type isEqualToString:NSPDFPboardType]) {
+		[sender setData:[self dataWithPDFInsideRect:[self bounds]] forType:NSPDFPboardType];
+	}
 }
 
 /*
  * @brief Dragging entered
  */
-- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender
 {
 	if ([sender draggingSource] == self) {
 		return NSDragOperationNone;
@@ -314,7 +325,7 @@
 /*
  * @brief Dragging updated
  */
-- (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender
+- (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender
 {
 	if ([sender draggingSource] == self) {
 		return NSDragOperationNone;
@@ -328,20 +339,20 @@
 	NSString *name = nil;
 	if ([[self delegate] respondsToSelector:@selector(fileNameForImageInImagePicker:)]) {
 		name = [[self delegate] fileNameForImageInImagePicker:self];
-		if (![name length]) name = nil;
+		if (![name length])
+			name = nil;
 	}
-	
+
 	if (!name)
 		name = NSLocalizedString(@"Picture", nil);
-	
+
 	name = [name stringByAppendingPathExtension:@"png"];
-	
+
 	NSString *fullPath = [[inDropDestination path] stringByAppendingPathComponent:name];
 	fullPath = [[NSFileManager defaultManager] uniquePathForPath:fullPath];
-	
-	[[[self image] bestRepresentationByType] writeToFile:fullPath
-									   atomically:YES];
-	
+
+	[[[self image] bestRepresentationByType] writeToFile:fullPath atomically:YES];
+
 	return [NSArray arrayWithObject:[fullPath lastPathComponent]];
 }
 
@@ -353,41 +364,42 @@
  * We then want to update our pictureTaker's selection if it is open.
  * Also we want the image to be added to the recent repository.
  */
-- (void)concludeDragOperation:(id <NSDraggingInfo>)sender
+- (void)concludeDragOperation:(id<NSDraggingInfo>)sender
 {
 	NSImage *droppedImage = [[NSImage alloc] initWithPasteboard:[sender draggingPasteboard]];
-    
-    if (!droppedImage) {
-        return;
-    }
-    
-    NSSize droppedImageSize = [droppedImage size];
+
+	if (!droppedImage) {
+		return;
+	}
+
+	NSSize droppedImageSize = [droppedImage size];
 	NSSize mSize = [self maxSize];
-	
-	IKPictureTakerRecentPicture *recentPicture = [IKPictureTakerRecentPicture defaultRecentPictureWithOriginalImage:droppedImage cropSize:CGSizeZero];
-	
-    // We want to edit a dropped image if it is:
-    // - larger then desired max size
-    // - width/height proportions are ~20% off the squre shape
+
+	IKPictureTakerRecentPicture *recentPicture =
+		[IKPictureTakerRecentPicture defaultRecentPictureWithOriginalImage:droppedImage cropSize:CGSizeZero];
+
+	// We want to edit a dropped image if it is:
+	// - larger then desired max size
+	// - width/height proportions are ~20% off the squre shape
 	if ((mSize.width > 0.0f && droppedImageSize.width > mSize.width) ||
 		(mSize.height > 0.0f && droppedImageSize.height > mSize.height) ||
-        (droppedImageSize.width / droppedImageSize.height > 1.2f ||
-         droppedImageSize.width / droppedImageSize.height < 0.8f)) {
+		(droppedImageSize.width / droppedImageSize.height > 1.2f ||
+		 droppedImageSize.width / droppedImageSize.height < 0.8f)) {
 
-        // Set recent picture and open Image Picker
-        [self setRecentPictureAsImageInput:recentPicture];
-        [self showPictureTaker];
-            
-        return;
-    } else if ([self pictureTaker]) {
-        // Update an open Image Picker
-        [self setRecentPictureAsImageInput:recentPicture];
-    }
-	
+		// Set recent picture and open Image Picker
+		[self setRecentPictureAsImageInput:recentPicture];
+		[self showPictureTaker];
+
+		return;
+	} else if ([self pictureTaker]) {
+		// Update an open Image Picker
+		[self setRecentPictureAsImageInput:recentPicture];
+	}
+
 	// Inform the delegate
 	if ([[self delegate] respondsToSelector:@selector(imageViewWithImagePicker:didChangeToImageData:)]) {
-        [[self delegate] imageViewWithImagePicker:self didChangeToImageData:[droppedImage bestRepresentationByType]];
-    } else if ([[self delegate] respondsToSelector:@selector(imageViewWithImagePicker:didChangeToImage:)]) {
+		[[self delegate] imageViewWithImagePicker:self didChangeToImageData:[droppedImage bestRepresentationByType]];
+	} else if ([[self delegate] respondsToSelector:@selector(imageViewWithImagePicker:didChangeToImage:)]) {
 		[[self delegate] imageViewWithImagePicker:self didChangeToImage:droppedImage];
 	}
 
@@ -405,10 +417,10 @@
 			CGFloat tmpSize = MAX(droppedImageSize.width, droppedImageSize.height);
 			mSize = NSMakeSize(tmpSize, tmpSize);
 		}
-		
+
 		// Update recent picture
 		[recentPicture setCropInfo:nil smallIcon:[droppedImage imageByFittingInSize:mSize]];
-		
+
 		// Add to recent repository
 		[[IKPictureTakerRecentPictureRepository recentRepository] addRecent:recentPicture];
 	}
@@ -433,30 +445,29 @@
  */
 - (void)paste:(id)sender
 {
-	NSPasteboard	*pb = [NSPasteboard generalPasteboard];
-	NSString		*type = [pb availableTypeFromArray:
-		[NSArray arrayWithObjects:NSTIFFPboardType, NSPDFPboardType,nil]];
-	BOOL			success = NO;
+	NSPasteboard *pb = [NSPasteboard generalPasteboard];
+	NSString *type = [pb availableTypeFromArray:[NSArray arrayWithObjects:NSTIFFPboardType, NSPDFPboardType, nil]];
+	BOOL success = NO;
 
-    NSData			*imageData = (type ? [pb dataForType:type] : nil);
+	NSData *imageData = (type ? [pb dataForType:type] : nil);
 	if (imageData) {
 		NSImage *image = [[NSImage alloc] initWithData:imageData];
 		if (image) {
-			NSSize	imageSize = [image size];
+			NSSize imageSize = [image size];
 
 			if ((maxSize.width > 0 && imageSize.width > maxSize.width) ||
 				(maxSize.height > 0 && imageSize.height > maxSize.height)) {
 				image = [image imageByScalingToSize:maxSize];
 				imageData = [image bestRepresentationByType];
 			}
-			
+
 			[self setImage:image];
-							
+
 			if (pictureTaker) {
 				[pictureTaker setInputImage:image];
 			}
-			
-			//Inform the delegate
+
+			// Inform the delegate
 			if (delegate) {
 				if ([delegate respondsToSelector:@selector(imageViewWithImagePicker:didChangeToImageData:)]) {
 					[delegate performSelector:@selector(imageViewWithImagePicker:didChangeToImageData:)
@@ -468,12 +479,13 @@
 								   withObject:image];
 				}
 			}
-			
+
 			success = YES;
 		}
 	}
-	
-	if (!success) NSBeep();
+
+	if (!success)
+		NSBeep();
 }
 
 /*
@@ -493,41 +505,42 @@
 - (void)delete
 {
 	if (delegate && [delegate respondsToSelector:@selector(deleteInImageViewWithImagePicker:)]) {
-		[delegate performSelector:@selector(deleteInImageViewWithImagePicker:)
-					   withObject:self];
-	}	
+		[delegate performSelector:@selector(deleteInImageViewWithImagePicker:) withObject:self];
+	}
 }
 
 #pragma mark NSImagePicker Access and Delegate
 
 /*!
  * @brief Action to call -[self showPictureTaker]
- */ 
+ */
 - (IBAction)showImagePicker:(id)sender
 {
 	[self showPictureTaker];
 }
 
-- (void)pictureTakerDidEnd:(IKPictureTaker *)inPictureTaker returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
+- (void)pictureTakerDidEnd:(IKPictureTaker *)inPictureTaker
+				returnCode:(NSInteger)returnCode
+			   contextInfo:(void *)contextInfo;
 {
 	if (returnCode == NSOKButton) {
 		NSImage *image = [inPictureTaker outputImage];
-		
-		//Update the NSImageView
+
+		// Update the NSImageView
 		NSSize imageSize = [image size];
 		if ((maxSize.width > 0 && imageSize.width > maxSize.width) ||
 			(maxSize.height > 0 && imageSize.height > maxSize.height)) {
 			image = [image imageByScalingToSize:maxSize];
 		}
 		[self setImage:image];
-		
-		//Inform the delegate, but only if NOT using NSOpenPanel
+
+		// Inform the delegate, but only if NOT using NSOpenPanel
 		if (delegate && usePictureTaker) {
 			if ([delegate respondsToSelector:@selector(imageViewWithImagePicker:didChangeToImageData:)]) {
 				[delegate performSelector:@selector(imageViewWithImagePicker:didChangeToImageData:)
 							   withObject:self
 							   withObject:[image bestRepresentationByType]];
-				
+
 			} else if ([delegate respondsToSelector:@selector(imageViewWithImagePicker:didChangeToImage:)]) {
 				[delegate performSelector:@selector(imageViewWithImagePicker:didChangeToImage:)
 							   withObject:self
@@ -543,39 +556,40 @@
 - (void)showPictureTaker
 {
 	if (usePictureTaker) {
-		if (!pictureTaker) {	
+		if (!pictureTaker) {
 			pictureTaker = [IKPictureTaker pictureTaker];
 			[pictureTaker setDelegate:self];
 		}
-		
-		NSImage	*theImage = nil;
-			 
-		//Give the delegate an opportunity to supply an image which differs from the NSImageView's image
+
+		NSImage *theImage = nil;
+
+		// Give the delegate an opportunity to supply an image which differs from the NSImageView's image
 		if (delegate && [delegate respondsToSelector:@selector(imageForImageViewWithImagePicker:)]) {
 			theImage = [delegate imageForImageViewWithImagePicker:self];
 		}
-		
+
 		if (activeRecentPicture && [pictureTaker respondsToSelector:@selector(setRecentPictureAsImageInput:)])
 			[pictureTaker setRecentPictureAsImageInput:activeRecentPicture];
 		else
 			[pictureTaker setInputImage:(theImage ? theImage : [self image])];
 
-		[pictureTaker setTitle:([self title] ? [self title] : AILocalizedStringFromTableInBundle(@"Image Picker", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil))];
-		[pictureTaker setValue:(([self maxSize].width != 0 && [self maxSize].height != 0) ?
-								[NSValue valueWithSize:[self maxSize]] :
-								nil)
-						forKey:IKPictureTakerOutputImageMaxSizeKey];
-		[pictureTaker setValue:[NSNumber numberWithBool:YES]
-						forKey:IKPictureTakerShowEffectsKey];
-		[pictureTaker setValue:[NSNumber numberWithBool:YES]
-						forKey:IKPictureTakerShowAddressBookPictureKey];
+		[pictureTaker setTitle:([self title] ? [self title]
+											 : AILocalizedStringFromTableInBundle(
+												   @"Image Picker", nil,
+												   [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil))];
+		[pictureTaker
+			setValue:(([self maxSize].width != 0 && [self maxSize].height != 0) ? [NSValue valueWithSize:[self maxSize]]
+																				: nil)
+			  forKey:IKPictureTakerOutputImageMaxSizeKey];
+		[pictureTaker setValue:[NSNumber numberWithBool:YES] forKey:IKPictureTakerShowEffectsKey];
+		[pictureTaker setValue:[NSNumber numberWithBool:YES] forKey:IKPictureTakerShowAddressBookPictureKey];
 		if (delegate && [delegate respondsToSelector:@selector(emptyPictureImageForImageViewWithImagePicker:)]) {
 			[pictureTaker setValue:[delegate emptyPictureImageForImageViewWithImagePicker:self]
 							forKey:IKPictureTakerShowEmptyPictureKey];
 		}
 
 		if ([self presentPictureTakerAsSheet]) {
-			[pictureTaker beginPictureTakerSheetForWindow:[self window] 
+			[pictureTaker beginPictureTakerSheetForWindow:[self window]
 											 withDelegate:self
 										   didEndSelector:@selector(pictureTakerDidEnd:returnCode:contextInfo:)
 											  contextInfo:nil];
@@ -584,19 +598,20 @@
 										 didEndSelector:@selector(pictureTakerDidEnd:returnCode:contextInfo:)
 											contextInfo:nil];
 		}
-			 
+
 	} else {
 		/* If we aren't using or can't use the image picker, use an open panel  */
 		NSOpenPanel *openPanel;
-		
+
 		openPanel = [NSOpenPanel openPanel];
-		[openPanel setTitle:AILocalizedStringFromTableInBundle(@"Select Image", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil)];
-        [openPanel setAllowedFileTypes:[NSImage imageFileTypes]];
-		
+		[openPanel setTitle:AILocalizedStringFromTableInBundle(
+								@"Select Image", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil)];
+		[openPanel setAllowedFileTypes:[NSImage imageFileTypes]];
+
 		if ([openPanel runModal] == NSOKButton) {
-			NSData	*imageData;
+			NSData *imageData;
 			NSImage *image;
-			NSSize	imageSize;
+			NSSize imageSize;
 
 			imageData = [NSData dataWithContentsOfURL:[[openPanel URLs] objectAtIndex:0]];
 			image = (imageData ? [[NSImage alloc] initWithData:imageData] : nil);
@@ -607,17 +622,17 @@
 				image = [image imageByScalingToSize:maxSize];
 				imageData = [image bestRepresentationByType];
 			}
-			
-			//Update the image view
+
+			// Update the image view
 			[self setImage:image];
-			
-			//Inform the delegate
+
+			// Inform the delegate
 			if (delegate) {
 				if ([delegate respondsToSelector:@selector(imageViewWithImagePicker:didChangeToImageData:)]) {
 					[delegate performSelector:@selector(imageViewWithImagePicker:didChangeToImageData:)
 								   withObject:self
 								   withObject:imageData];
-					
+
 				} else if ([delegate respondsToSelector:@selector(imageViewWithImagePicker:didChangeToImage:)]) {
 					[delegate performSelector:@selector(imageViewWithImagePicker:didChangeToImage:)
 								   withObject:self
@@ -638,9 +653,10 @@
 	if (activeRecentPicture != recentPicture) {
 		activeRecentPicture = recentPicture;
 	}
-	
-	//Update any open picture taker immediately.
-	if (pictureTaker && activeRecentPicture && [pictureTaker respondsToSelector:@selector(setRecentPictureAsImageInput:)]) {
+
+	// Update any open picture taker immediately.
+	if (pictureTaker && activeRecentPicture &&
+		[pictureTaker respondsToSelector:@selector(setRecentPictureAsImageInput:)]) {
 		[pictureTaker setRecentPictureAsImageInput:activeRecentPicture];
 	}
 }
@@ -656,25 +672,23 @@
 - (BOOL)needsDisplay
 {
 	NSResponder *resp = nil;
-	NSWindow	*window = [self window];
-	
+	NSWindow *window = [self window];
+
 	if ([window isKeyWindow]) {
 		resp = [window firstResponder];
-		
+
 		if (resp == lastResp) {
 			return [super needsDisplay];
 		}
 	} else if (lastResp == nil) {
 		return [super needsDisplay];
 	}
-	
-	shouldDrawFocusRing = ([self focusRingType] != NSFocusRingTypeNone &&
-						   resp != nil &&
-						   [resp isKindOfClass:[NSView class]] &&
-						   [(NSView *)resp isDescendantOf:self]); // [sic]
+
+	shouldDrawFocusRing = ([self focusRingType] != NSFocusRingTypeNone && resp != nil &&
+						   [resp isKindOfClass:[NSView class]] && [(NSView *)resp isDescendantOf:self]); // [sic]
 
 	lastResp = resp;
-	
+
 	[self setKeyboardFocusRingNeedsDisplayInRect:[self bounds]];
 	return YES;
 }
@@ -685,11 +699,11 @@
 - (void)drawRect:(NSRect)rect
 {
 	[super drawRect:rect];
-	
+
 	if (shouldDrawFocusRing) {
 		NSSetFocusRingStyle(NSFocusRingOnly);
 		NSRectFill(rect);
 	}
-} 
+}
 
 @end

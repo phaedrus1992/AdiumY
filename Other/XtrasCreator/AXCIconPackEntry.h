@@ -10,12 +10,12 @@
 	NSString *key, *path;
 }
 
-+ (id) entryWithKey:(NSString *)newKey path:(NSString *)newPath;
-- (id) initWithKey:(NSString *)newKey path:(NSString *)newPath;
++ (id)entryWithKey:(NSString *)newKey path:(NSString *)newPath;
+- (id)initWithKey:(NSString *)newKey path:(NSString *)newPath;
 
-- (NSString *) key;
+- (NSString *)key;
 
-- (NSString *) path;
-- (void) setPath:(NSString *)newPath;
+- (NSString *)path;
+- (void)setPath:(NSString *)newPath;
 
 @end

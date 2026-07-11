@@ -1,73 +1,73 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import <AIUtilities/AIImageDrawingAdditions.h>
 #import <Adium/AIAbstractListController.h>
 #import <Adium/AIListCell.h>
-#import <AIUtilities/AIImageDrawingAdditions.h>
 
-//User Icon
-#define USER_ICON_LEFT_PAD			2
-#define USER_ICON_RIGHT_PAD			2
+// User Icon
+#define USER_ICON_LEFT_PAD 2
+#define USER_ICON_RIGHT_PAD 2
 
-//Status icon
-#define STATUS_ICON_LEFT_PAD		2
-#define STATUS_ICON_RIGHT_PAD		2
+// Status icon
+#define STATUS_ICON_LEFT_PAD 2
+#define STATUS_ICON_RIGHT_PAD 2
 
-//Service icon
-#define SERVICE_ICON_LEFT_PAD		2
-#define SERVICE_ICON_RIGHT_PAD		2
+// Service icon
+#define SERVICE_ICON_LEFT_PAD 2
+#define SERVICE_ICON_RIGHT_PAD 2
 
-#define TEXT_WITH_IMAGES_LEFT_PAD   2
-#define TEXT_WITH_IMAGES_RIGHT_PAD  2
+#define TEXT_WITH_IMAGES_LEFT_PAD 2
+#define TEXT_WITH_IMAGES_RIGHT_PAD 2
 
 @interface AIListContactCell : AIListCell {
-	BOOL				userIconVisible;
-	BOOL				extendedStatusVisible;
-	BOOL				statusIconsVisible;
-	BOOL				serviceIconsVisible;
-	
-	BOOL				statusMessageVisible;
-	BOOL				idleTimeVisible;
-	
-	NSSize				userIconSize;
-	NSInteger					userIconRoundingRadius;
-	CGFloat			statusFontHeight;	
-	
-	BOOL				backgroundColorIsStatus;
-	BOOL				backgroundColorIsEvents;
-	BOOL				shouldUseContactTextColors;
+	BOOL userIconVisible;
+	BOOL extendedStatusVisible;
+	BOOL statusIconsVisible;
+	BOOL serviceIconsVisible;
 
-	LIST_POSITION		userIconPosition;
-	LIST_POSITION		statusIconPosition;
-	LIST_POSITION		serviceIconPosition;
-	BOOL				idleTimeIsBelow;
-	BOOL				statusMessageIsBelow;
-	BOOL				useStatusMessageAsExtendedStatus;
-	BOOL				useAliasesOnNonParentContacts;
+	BOOL statusMessageVisible;
+	BOOL idleTimeVisible;
 
-	CGFloat				backgroundOpacity;
+	NSSize userIconSize;
+	NSInteger userIconRoundingRadius;
+	CGFloat statusFontHeight;
 
-	NSFont				*statusFont;
-	NSColor				*statusColor;
+	BOOL backgroundColorIsStatus;
+	BOOL backgroundColorIsEvents;
+	BOOL shouldUseContactTextColors;
 
-	NSDictionary		*_statusAttributes;
-	NSMutableDictionary	*_statusAttributesInverted;	
+	LIST_POSITION userIconPosition;
+	LIST_POSITION statusIconPosition;
+	LIST_POSITION serviceIconPosition;
+	BOOL idleTimeIsBelow;
+	BOOL statusMessageIsBelow;
+	BOOL useStatusMessageAsExtendedStatus;
+	BOOL useAliasesOnNonParentContacts;
+
+	CGFloat backgroundOpacity;
+
+	NSFont *statusFont;
+	NSColor *statusColor;
+
+	NSDictionary *_statusAttributes;
+	NSMutableDictionary *_statusAttributesInverted;
 }
 
-//Status Text
+// Status Text
 - (void)setStatusFont:(NSFont *)inFont;
 - (NSFont *)statusFont;
 - (NSDictionary *)statusAttributes;
@@ -76,7 +76,7 @@
 - (void)setStatusColor:(NSColor *)inColor;
 - (NSColor *)statusColor;
 
-//Display options
+// Display options
 - (void)setUserIconVisible:(BOOL)inShowIcon;
 - (BOOL)userIconVisible;
 - (void)setUserIconSize:(NSInteger)inSize;
@@ -106,7 +106,7 @@
 - (void)setShouldUseContactTextColors:(BOOL)flag;
 - (void)setUseStatusMessageAsExtendedStatus:(BOOL)flag;
 
-//Drawing
+// Drawing
 - (void)drawContentWithFrame:(NSRect)rect;
 - (void)drawBackgroundWithFrame:(NSRect)rect;
 - (NSRect)drawUserIconInRect:(NSRect)inRect position:(IMAGE_POSITION)position;

@@ -10,23 +10,23 @@
 
 @implementation AXCPreferenceController
 
-- (IBAction) showPrefs:(id)sender
+- (IBAction)showPrefs:(id)sender
 {
-	if(!prefsWindow)
+	if (!prefsWindow)
 		[NSBundle loadNibNamed:@"Preferences.nib" owner:self];
 	[self populateStartupActions];
 	[[startupActionPopup menu] setDelegate:self];
 	[prefsWindow makeKeyAndOrderFront:nil];
 }
 
-+ (void) initialize
++ (void)initialize
 {
-	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-		STARTING_POINTS_STARTUP_ACTION, STARTUP_ACTION_KEY,
-		nil]];
+	[[NSUserDefaults standardUserDefaults]
+		registerDefaults:[NSDictionary
+							 dictionaryWithObjectsAndKeys:STARTING_POINTS_STARTUP_ACTION, STARTUP_ACTION_KEY, nil]];
 }
 
-- (void) populateStartupActions
+- (void)populateStartupActions
 {
 	[startupActions autorelease];
 	startupActions = [[NSMutableArray alloc] init];
@@ -34,7 +34,7 @@
 	[startupActions addObject:DO_NOTHING_STARTUP_ACTION];
 }
 
-- (NSArray *) startupActions
+- (NSArray *)startupActions
 {
 	return startupActions;
 }

@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -18,19 +18,20 @@
 
 @class AIListObject, AIChat, AIActionDetailsPane;
 
-@protocol AIEventHandler, AIActionHandler;
+@protocol AIEventHandler
+, AIActionHandler;
 
-//Event preferences
-#define PREF_GROUP_CONTACT_ALERTS	@"Contact Alerts"
-#define KEY_CONTACT_ALERTS			@"Contact Alerts"
-#define KEY_DEFAULT_EVENT_ID		@"Default Event ID"
-#define KEY_DEFAULT_ACTION_ID		@"Default Action ID"
+// Event preferences
+#define PREF_GROUP_CONTACT_ALERTS @"Contact Alerts"
+#define KEY_CONTACT_ALERTS @"Contact Alerts"
+#define KEY_DEFAULT_EVENT_ID @"Default Event ID"
+#define KEY_DEFAULT_ACTION_ID @"Default Action ID"
 
-//Event Dictionary keys
-#define	KEY_EVENT_ID				@"EventID"
-#define	KEY_ACTION_ID				@"ActionID"
-#define	KEY_ACTION_DETAILS			@"ActionDetails"
-#define KEY_ONE_TIME_ALERT			@"OneTime"
+// Event Dictionary keys
+#define KEY_EVENT_ID @"EventID"
+#define KEY_ACTION_ID @"ActionID"
+#define KEY_ACTION_DETAILS @"ActionDetails"
+#define KEY_ONE_TIME_ALERT @"OneTime"
 
 typedef enum {
 	AIContactsEventHandlerGroup = 0,
@@ -46,15 +47,19 @@ typedef enum {
  * @brief Register an event
  *
  * An event must have a unique eventID. handler is responsible for providing information
- * about the event, such as short and long descriptions. The group determines how the event will be displayed in the events
- * preferences; events in the same group are displayed together.
+ * about the event, such as short and long descriptions. The group determines how the event will be displayed in the
+ * events preferences; events in the same group are displayed together.
  *
  * @param eventID Unique event ID
  * @param handler The handler, which must conform to AIEventHandler
  * @param inGroup The group
- * @param global If YES, the event will only be displayed in the global Events preferences; if NO, the event is available for contacts and groups via Get Info, as well.
+ * @param global If YES, the event will only be displayed in the global Events preferences; if NO, the event is
+ * available for contacts and groups via Get Info, as well.
  */
-- (void)registerEventID:(NSString *)eventID withHandler:(id <AIEventHandler>)handler inGroup:(AIEventHandlerGroupType)inGroup globalOnly:(BOOL)global;
+- (void)registerEventID:(NSString *)eventID
+			withHandler:(id<AIEventHandler>)handler
+				inGroup:(AIEventHandlerGroupType)inGroup
+			 globalOnly:(BOOL)global;
 
 /*!
  * @brief Generate an event, returning a set of the actionIDs which were performed.
@@ -64,11 +69,16 @@ typedef enum {
  * @param eventID The event which occurred
  * @param listObject The object for which the event occurred
  * @param userInfo Event-specific user info
- * @param previouslyPerformedActionIDs If non-nil, a set of actionIDs which should be treated as if they had already been performed in this invocation.
+ * @param previouslyPerformedActionIDs If non-nil, a set of actionIDs which should be treated as if they had already
+ * been performed in this invocation.
  *
- * @result The set of actions which were performed, suitable for being passed back in for another event generation via previouslyPerformedActionIDs
+ * @result The set of actions which were performed, suitable for being passed back in for another event generation via
+ * previouslyPerformedActionIDs
  */
-- (NSSet *)generateEvent:(NSString *)eventID forListObject:(AIListObject *)listObject userInfo:(id)userInfo previouslyPerformedActionIDs:(NSSet *)previouslyPerformedActionIDs;
+- (NSSet *)generateEvent:(NSString *)eventID
+				   forListObject:(AIListObject *)listObject
+						userInfo:(id)userInfo
+	previouslyPerformedActionIDs:(NSSet *)previouslyPerformedActionIDs;
 
 /*!
  * @brief Return all event IDs
@@ -82,11 +92,12 @@ typedef enum {
 
 /*!
  * @brief Returns a menu of all events
- * 
+ *
  * A menu item's represented object is the dictionary describing the event it represents
  *
  * @param target The target on which @selector(selectEvent:) will be called on selection.
- * @param global If YES, the events listed will include global ones (such as Error Occurred) in addition to contact-specific ones.
+ * @param global If YES, the events listed will include global ones (such as Error Occurred) in addition to
+ * contact-specific ones.
  * @result An NSMenu of the events
  */
 - (NSMenu *)menuOfEventsWithTarget:(id)target forGlobalMenu:(BOOL)global;
@@ -113,7 +124,7 @@ typedef enum {
  *
  * This exists for compatibility with old AdiumYExtras...
  */
-- (NSString*)eventIDForEnglishDisplayName:(NSString *)displayName;
+- (NSString *)eventIDForEnglishDisplayName:(NSString *)displayName;
 
 /*!
  * @brief Return a short description to describe eventID when considered globally
@@ -134,7 +145,8 @@ typedef enum {
  * @param eventID The event
  * @param listObject The object for which the event occurred
  * @param userInfo Event-specific userInfo
- * @param includeSubject If YES, the return value is a complete sentence. If NO, the return value is suitable for display after a name or other identifier.
+ * @param includeSubject If YES, the return value is a complete sentence. If NO, the return value is suitable for
+ * display after a name or other identifier.
  * @result The natural language description
  */
 - (NSString *)naturalLanguageDescriptionForEventID:(NSString *)eventID
@@ -194,7 +206,7 @@ typedef enum {
  * @param actionID The actionID
  * @param handler The handler, which must conform to the AIActionHandler protocol
  */
-- (void)registerActionID:(NSString *)actionID withHandler:(id <AIActionHandler>)handler;
+- (void)registerActionID:(NSString *)actionID withHandler:(id<AIActionHandler>)handler;
 
 /*!
  * @brief Return a dictionary whose keys are action IDs and whose objects are objects conforming to AIActionHandler
@@ -233,7 +245,9 @@ typedef enum {
  * @param eventID If specified, only return events matching eventID. If nil, don't filter based on events.
  * @param actionID If specified, only return actions matching actionID. If nil, don't filter based on actionID.
  */
-- (NSArray *)alertsForListObject:(AIListObject *)listObject withEventID:(NSString *)eventID actionID:(NSString *)actionID;
+- (NSArray *)alertsForListObject:(AIListObject *)listObject
+					 withEventID:(NSString *)eventID
+						actionID:(NSString *)actionID;
 
 /*!
  * @brief Add an alert (passed as a dictionary) to a list object
@@ -312,7 +326,8 @@ typedef enum {
 
 /*!
  * @brief Long description for an event
- * @result A localized description of an event, for listObject if passed, which is more verbose than the short description.
+ * @result A localized description of an event, for listObject if passed, which is more verbose than the short
+ * description.
  */
 - (NSString *)longDescriptionForEventID:(NSString *)eventID forListObject:(AIListObject *)listObject;
 
@@ -371,7 +386,8 @@ typedef enum {
 
 /*!
  * @brief Long description
- * @result A longer localized description of the action which should take into account the details dictionary as appropraite.
+ * @result A longer localized description of the action which should take into account the details dictionary as
+ * appropraite.
  */
 - (NSString *)longDescriptionForActionID:(NSString *)actionID withDetails:(NSDictionary *)details;
 
@@ -391,13 +407,19 @@ typedef enum {
  *
  * @param actionID The ID of the action to perform
  * @param listObject The listObject associated with the event triggering the action. It may be nil
- * @param details If set by the details pane when the action was created, the details dictionary for this particular action
+ * @param details If set by the details pane when the action was created, the details dictionary for this particular
+ * action
  * @param eventID The eventID which triggered this action
  * @param userInfo Additional information associated with the event; userInfo's type will vary with the actionID.
  *
- * @result YES if the action was performed successfully.  If NO, other actions of the same type will be attempted even if allowMultipleActionsWithID: returns NO for eventID.
+ * @result YES if the action was performed successfully.  If NO, other actions of the same type will be attempted even
+ * if allowMultipleActionsWithID: returns NO for eventID.
  */
-- (BOOL)performActionID:(NSString *)actionID forListObject:(AIListObject *)listObject withDetails:(NSDictionary *)details triggeringEventID:(NSString *)eventID userInfo:(id)userInfo;
+- (BOOL)performActionID:(NSString *)actionID
+		  forListObject:(AIListObject *)listObject
+			withDetails:(NSDictionary *)details
+	  triggeringEventID:(NSString *)eventID
+			   userInfo:(id)userInfo;
 
 /*!
  * @brief Allow multiple actions?

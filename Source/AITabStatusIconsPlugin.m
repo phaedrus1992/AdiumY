@@ -1,32 +1,31 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #import "AITabStatusIconsPlugin.h"
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIChatControllerProtocol.h>
 #import <AIUtilities/AIMutableOwnerArray.h>
 #import <Adium/AIChat.h>
-#import <Adium/AIListObject.h>
+#import <Adium/AIChatControllerProtocol.h>
+#import <Adium/AIContactControllerProtocol.h>
 #import <Adium/AIListContact.h>
+#import <Adium/AIListObject.h>
 #import <Adium/AIStatusIcons.h>
 
 @interface AITabStatusIconsPlugin ()
 - (void)statusIconSetDidChange:(NSNotification *)aNotification;
 @end
-
 
 /*!
  * @class AITabStatusIconsPlugin
@@ -42,16 +41,16 @@
  */
 - (void)installPlugin
 {
-	//Observe list object changes
+	// Observe list object changes
 	[[AIContactObserverManager sharedManager] registerListObjectObserver:self];
-	
-	//Observe chat changes
+
+	// Observe chat changes
 	[adium.chatController registerChatObserver:self];
-	
+
 	[[NSNotificationCenter defaultCenter] addObserver:self
-								   selector:@selector(statusIconSetDidChange:)
-									   name:AIStatusIconSetDidChangeNotification
-									 object:nil];
+											 selector:@selector(statusIconSetDidChange:)
+												 name:AIStatusIconSetDidChangeNotification
+											   object:nil];
 }
 
 /*!
@@ -78,32 +77,25 @@
  */
 - (NSSet *)updateListObject:(AIListObject *)inObject keys:(NSSet *)inModifiedKeys silent:(BOOL)silent
 {
-    NSSet		*modifiedAttributes = nil;
-	
-	if (inModifiedKeys == nil ||
-	   [inModifiedKeys containsObject:@"isOnline"] ||
-	   [inModifiedKeys containsObject:@"listObjectStatusName"] ||
-	   [inModifiedKeys containsObject:@"listObjectStatusType"] ||
-	   [inModifiedKeys containsObject:@"isIdle"] ||
-	   [inModifiedKeys containsObject:@"notAStranger"] ||
-	   [inModifiedKeys containsObject:KEY_IS_BLOCKED] ||
-	   [inModifiedKeys containsObject:@"isMobile"]) {
-		
+	NSSet *modifiedAttributes = nil;
+
+	if (inModifiedKeys == nil || [inModifiedKeys containsObject:@"isOnline"] ||
+		[inModifiedKeys containsObject:@"listObjectStatusName"] ||
+		[inModifiedKeys containsObject:@"listObjectStatusType"] || [inModifiedKeys containsObject:@"isIdle"] ||
+		[inModifiedKeys containsObject:@"notAStranger"] || [inModifiedKeys containsObject:KEY_IS_BLOCKED] ||
+		[inModifiedKeys containsObject:@"isMobile"]) {
+
 		/* Tab: Note in the modifiedAttributes that it would have changed. Other code
 		 * can use AIStatusIcons to get the actual icon.
 		 */
 
-		//List
-		NSImage *icon = [AIStatusIcons statusIconForListObject:inObject
-														  type:AIStatusIconList
-													 direction:AIIconNormal];
-		[inObject setValue:icon
-			   forProperty:@"listStatusIcon"
-					notify:NotifyNever];
+		// List
+		NSImage *icon = [AIStatusIcons statusIconForListObject:inObject type:AIStatusIconList direction:AIIconNormal];
+		[inObject setValue:icon forProperty:@"listStatusIcon" notify:NotifyNever];
 
 		modifiedAttributes = [NSSet setWithObjects:@"tabStatusIcon", @"listStatusIcon", nil];
 	}
-	
+
 	return modifiedAttributes;
 }
 
@@ -112,24 +104,18 @@
  */
 - (NSSet *)updateChat:(AIChat *)inChat keys:(NSSet *)inModifiedKeys silent:(BOOL)silent
 {
-	NSSet		*modifiedAttributes = nil;
-	
-	if (inModifiedKeys == nil ||
-		[inModifiedKeys containsObject:KEY_TYPING] ||
+	NSSet *modifiedAttributes = nil;
+
+	if (inModifiedKeys == nil || [inModifiedKeys containsObject:KEY_TYPING] ||
 		[inModifiedKeys containsObject:KEY_UNVIEWED_CONTENT]) {
-		AIListContact	*listContact;
-		NSImage			*tabStateIcon;
-		
-		//Apply the state icon to our chat
-		tabStateIcon = [AIStatusIcons statusIconForChat:inChat
-												   type:AIStatusIconTab
-											  direction:AIIconNormal];
-		[inChat setValue:tabStateIcon
-			 forProperty:@"tabStateIcon"
-				  notify:NotifyNever];
+		AIListContact *listContact;
+		NSImage *tabStateIcon;
+
+		// Apply the state icon to our chat
+		tabStateIcon = [AIStatusIcons statusIconForChat:inChat type:AIStatusIconTab direction:AIIconNormal];
+		[inChat setValue:tabStateIcon forProperty:@"tabStateIcon" notify:NotifyNever];
 		modifiedAttributes = [NSSet setWithObject:@"tabStateIcon"];
 
-		
 		if (inChat.isGroupChat) {
 			// If this is a group chat, and we have an AIListBookmark for it, apply the icon to it.
 			listContact = (AIListContact *)[adium.contactController existingBookmarkForChat:inChat];
@@ -137,22 +123,19 @@
 			// If this is a one-on-one chat, apply the icon to its target.
 			listContact = [[inChat listObject] parentContact];
 		}
-		
-		//Also apply the state icon to our contact if this is a one-on-one chat
+
+		// Also apply the state icon to our contact if this is a one-on-one chat
 		if (listContact) {
-			NSImage	*listStateIcon;
-			
-			listStateIcon = [AIStatusIcons statusIconForChat:inChat
-														type:AIStatusIconList
-												   direction:AIIconNormal];
-			[listContact setValue:listStateIcon
-					  forProperty:@"listStateIcon"
-						   notify:NotifyNever];
-			[[AIContactObserverManager sharedManager] listObjectAttributesChanged:listContact
-													  modifiedKeys:[NSSet setWithObject:@"listStateIcon"]];
-		}		
+			NSImage *listStateIcon;
+
+			listStateIcon = [AIStatusIcons statusIconForChat:inChat type:AIStatusIconList direction:AIIconNormal];
+			[listContact setValue:listStateIcon forProperty:@"listStateIcon" notify:NotifyNever];
+			[[AIContactObserverManager sharedManager]
+				listObjectAttributesChanged:listContact
+							   modifiedKeys:[NSSet setWithObject:@"listStateIcon"]];
+		}
 	}
-	
+
 	return modifiedAttributes;
 }
 

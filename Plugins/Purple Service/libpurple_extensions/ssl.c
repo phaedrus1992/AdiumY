@@ -19,8 +19,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111-1301  USA
  */
-#import <libpurple/internal.h>
 #import <libpurple/debug.h>
+#import <libpurple/internal.h>
 #import <libpurple/plugin.h>
 #import <libpurple/sslconn.h>
 #import <libpurple/version.h>
@@ -29,26 +29,21 @@
 
 static PurplePlugin *ssl_plugin = NULL;
 
-static gboolean
-probe_ssl_plugins(PurplePlugin *my_plugin)
+static gboolean probe_ssl_plugins(PurplePlugin *my_plugin)
 {
 	PurplePlugin *plugin;
 	GList *l;
 
 	ssl_plugin = NULL;
 
-	for (l = purple_plugins_get_all(); l != NULL; l = l->next)
-	{
+	for (l = purple_plugins_get_all(); l != NULL; l = l->next) {
 		plugin = (PurplePlugin *)l->data;
 
 		if (plugin == my_plugin)
 			continue;
 
-		if (plugin->info != NULL && plugin->info->id != NULL &&
-			strncmp(plugin->info->id, "ssl-", 4) == 0)
-		{
-			if (purple_plugin_is_loaded(plugin) || purple_plugin_load(plugin))
-			{
+		if (plugin->info != NULL && plugin->info->id != NULL && strncmp(plugin->info->id, "ssl-", 4) == 0) {
+			if (purple_plugin_is_loaded(plugin) || purple_plugin_load(plugin)) {
 				ssl_plugin = plugin;
 
 				break;
@@ -59,18 +54,14 @@ probe_ssl_plugins(PurplePlugin *my_plugin)
 	return (ssl_plugin != NULL);
 }
 
-static gboolean
-plugin_load(PurplePlugin *plugin)
+static gboolean plugin_load(PurplePlugin *plugin)
 {
 	return probe_ssl_plugins(plugin);
 }
 
-static gboolean
-plugin_unload(PurplePlugin *plugin)
+static gboolean plugin_unload(PurplePlugin *plugin)
 {
-	if (ssl_plugin != NULL &&
-		g_list_find(purple_plugins_get_loaded(), ssl_plugin) != NULL)
-	{
+	if (ssl_plugin != NULL && g_list_find(purple_plugins_get_loaded(), ssl_plugin) != NULL) {
 		purple_plugin_unload(ssl_plugin);
 	}
 
@@ -79,46 +70,33 @@ plugin_unload(PurplePlugin *plugin)
 	return TRUE;
 }
 
-static PurplePluginInfo info =
-{
-	PURPLE_PLUGIN_MAGIC,
-	PURPLE_MAJOR_VERSION,
-	PURPLE_MINOR_VERSION,
-	PURPLE_PLUGIN_STANDARD,                             /**< type           */
-    NULL,                                             /**< ui_requirement */
-	PURPLE_PLUGIN_FLAG_INVISIBLE,                       /**< flags          */
-	NULL,                                             /**< dependencies   */
-	PURPLE_PRIORITY_DEFAULT,                            /**< priority       */
+static PurplePluginInfo info = {PURPLE_PLUGIN_MAGIC, PURPLE_MAJOR_VERSION, PURPLE_MINOR_VERSION,
+								PURPLE_PLUGIN_STANDARD,       /**< type           */
+								NULL,                         /**< ui_requirement */
+								PURPLE_PLUGIN_FLAG_INVISIBLE, /**< flags          */
+								NULL,                         /**< dependencies   */
+								PURPLE_PRIORITY_DEFAULT,      /**< priority       */
 
-	SSL_PLUGIN_ID,                                    /**< id             */
-	N_("SSL"),                                        /**< name           */
-	"1.0",                                          /**< version        */
-	                                                  /**  summary        */
-	N_("Provides a wrapper around SSL support libraries."),
-	                                                  /**  description    */
-	N_("Provides a wrapper around SSL support libraries."),
-	"Christian Hammond <chipx86@gnupdate.org>",
-	PURPLE_WEBSITE,                                     /**< homepage       */
+								SSL_PLUGIN_ID, /**< id             */
+								N_("SSL"),     /**< name           */
+								"1.0",         /**< version        */
+											   /**  summary        */
+								N_("Provides a wrapper around SSL support libraries."),
+								/**  description    */
+								N_("Provides a wrapper around SSL support libraries."),
+								"Christian Hammond <chipx86@gnupdate.org>", PURPLE_WEBSITE, /**< homepage       */
 
-	plugin_load,                                      /**< load           */
-	plugin_unload,                                    /**< unload         */
-	NULL,                                             /**< destroy        */
+								plugin_load,   /**< load           */
+								plugin_unload, /**< unload         */
+								NULL,          /**< destroy        */
 
-	NULL,                                             /**< ui_info        */
-	NULL,                                             /**< extra_info     */
-	NULL,
-	NULL,
+								NULL, /**< ui_info        */
+								NULL, /**< extra_info     */
+								NULL, NULL,
 
-	/* padding */
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
+								/* padding */
+								NULL, NULL, NULL, NULL};
 
-static void
-init_plugin(PurplePlugin *plugin)
-{
-}
+static void init_plugin(PurplePlugin *plugin) {}
 
 PURPLE_INIT_PLUGIN(ssl, init_plugin, info)

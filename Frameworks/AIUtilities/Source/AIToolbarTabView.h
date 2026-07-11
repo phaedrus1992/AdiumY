@@ -1,19 +1,18 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 
 /*!
  * @protocol AIToolbarTabViewDelegate
@@ -24,9 +23,11 @@
 @protocol AIToolbarTabViewDelegate
 @optional
 /*!
- * @brief Allows automatic creation of toolbar items for each <tt>NSTabViewItem</tt> the <tt>AIToolbarTabView</tt> contains.
+ * @brief Allows automatic creation of toolbar items for each <tt>NSTabViewItem</tt> the <tt>AIToolbarTabView</tt>
+ * contains.
  *
- * If this method is implemented by the delegate, the delegate will be queried for an image for each <tt>NSTabViewItem</tt>.  These images will be used to automatically populate the window's toolbar with toolbar items.
+ * If this method is implemented by the delegate, the delegate will be queried for an image for each
+ * <tt>NSTabViewItem</tt>.  These images will be used to automatically populate the window's toolbar with toolbar items.
  * @param tabView The <tt>NSTabView</tt> sending the message
  * @param tabViewItem The <tt>NSTabViewItem</tt> for which an image is requested
  * @result An <tt>NSImage</tt> to use for a toolbar item associated with <b>tabViewItem</b>.
@@ -36,9 +37,11 @@
 /*!
  * @brief Allows automatic resizing of the window when the toolbar is used to switch to an <tt>NSTabViewItem</tt>.
  *
- * If this method is implemented by the delegate, the delegate will be queried for a desired height when the user clicks the toolbar button associated with an <tt>NSTabViewItem</tt> (the toolbar item is created by implementation of tabView:imageForTabViewItem: by the delegate -- see its description.).	
- * @param tabView The <tt>NSTabView</tt> sending the message	
- * @param tabViewItem The <tt>NSTabViewItem</tt> for a height is requested	
+ * If this method is implemented by the delegate, the delegate will be queried for a desired height when the user clicks
+ * the toolbar button associated with an <tt>NSTabViewItem</tt> (the toolbar item is created by implementation of
+ * tabView:imageForTabViewItem: by the delegate -- see its description.).
+ * @param tabView The <tt>NSTabView</tt> sending the message
+ * @param tabViewItem The <tt>NSTabViewItem</tt> for a height is requested
  * @result The height needed to display <b>tabViewItem</b>.  The window will be smoothly resized to this height.
  */
 - (int)tabView:(NSTabView *)tabView heightForTabViewItem:(NSTabViewItem *)tabViewItem;
@@ -61,25 +64,28 @@
  * For example, in Adium, the first time a preferences tab is selected, this method returns YES.
  * For subsequent displays, when information is already cached and ready, the method returns NO.
  */
-- (BOOL)immediatelyShowLoadingIndicatorForTabView:(NSTabView *)tabView willSelectTabViewItem:(NSTabViewItem *)tabViewItem;
+- (BOOL)immediatelyShowLoadingIndicatorForTabView:(NSTabView *)tabView
+							willSelectTabViewItem:(NSTabViewItem *)tabViewItem;
 
 @end
-
 
 /*!
  * @class AIToolbarTabView
  * @brief <tt>NSTabView</tt> subclass for creating preference-type windows
  *
- * <p>This is a special <tt>NSTabView</tt> subclass which is useful when creating preference-type windows.  The tabview will automatically create a window toolbar and add an toolbar item for each tab it contains.  The tabview delegate will be asked for the toolbar images.</p>
- * <p>This class also contains methods for auto-sizing the parent window based on the selected tab.  The delegate is asked for the window size, and this tabview takes care of the animation.</p>
- * @see <tt><a href="category_n_s_object(_a_i_toolbar_tab_view_delegate).html" target="_top">NSObject(AIToolbarTabViewDelegate)</a></tt>
-*/
+ * <p>This is a special <tt>NSTabView</tt> subclass which is useful when creating preference-type windows.  The tabview
+ * will automatically create a window toolbar and add an toolbar item for each tab it contains.  The tabview delegate
+ * will be asked for the toolbar images.</p> <p>This class also contains methods for auto-sizing the parent window based
+ * on the selected tab.  The delegate is asked for the window size, and this tabview takes care of the animation.</p>
+ * @see <tt><a href="category_n_s_object(_a_i_toolbar_tab_view_delegate).html"
+ * target="_top">NSObject(AIToolbarTabViewDelegate)</a></tt>
+ */
 @interface AIToolbarTabView : NSTabView <NSToolbarDelegate, AIToolbarTabViewDelegate> {
-    NSMutableDictionary *toolbarItems;
-	int					oldHeight;
-	
-	IBOutlet NSTabViewItem			*tabViewItem_loading;
-	IBOutlet NSProgressIndicator	*progressIndicator_loading;
+	NSMutableDictionary *toolbarItems;
+	int oldHeight;
+
+	IBOutlet NSTabViewItem *tabViewItem_loading;
+	IBOutlet NSProgressIndicator *progressIndicator_loading;
 }
 
 @end

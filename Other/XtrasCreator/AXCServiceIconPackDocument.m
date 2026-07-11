@@ -11,41 +11,42 @@
 
 @implementation AXCServiceIconPackDocument
 
-- (NSString *) OSType {
+- (NSString *)OSType
+{
 	return @"AISr";
 }
-- (NSString *) pathExtension {
+- (NSString *)pathExtension
+{
 	return @"AdiumServiceIcons";
 }
-- (NSString *) uniformTypeIdentifier {
+- (NSString *)uniformTypeIdentifier
+{
 	return @"com.github.phaedrus1992.adiumy.serviceicons";
 }
 
-- (NSArray *) categoryNames {
-	return [NSArray arrayWithObjects:
-		@"Interface-Large", @"Interface-Small", @"List",
-		nil];
+- (NSArray *)categoryNames
+{
+	return [NSArray arrayWithObjects:@"Interface-Large", @"Interface-Small", @"List", nil];
 }
 
-- (NSArray *) entriesForNewDocumentInCategory:(NSString *)categoryName {
-	return [NSArray arrayWithObjects:
-		[AXCIconPackEntry entryWithKey:@"AIM"          path:nil],
-		[AXCIconPackEntry entryWithKey:@"Bonjour"      path:nil],
-		[AXCIconPackEntry entryWithKey:@"Gadu-Gadu"    path:nil],
-		[AXCIconPackEntry entryWithKey:@"GroupWise"    path:nil],
-		[AXCIconPackEntry entryWithKey:@"GTalk"        path:nil],
-		[AXCIconPackEntry entryWithKey:@"ICQ"          path:nil],
-		[AXCIconPackEntry entryWithKey:@"Jabber"       path:nil],
-		[AXCIconPackEntry entryWithKey:@"Mac"          path:nil],
-		[AXCIconPackEntry entryWithKey:@"MSN"          path:nil],
-		[AXCIconPackEntry entryWithKey:@"Napster"      path:nil],
-		[AXCIconPackEntry entryWithKey:@"Sametime"     path:nil],
-		[AXCIconPackEntry entryWithKey:@"Stress Test"  path:nil],
-		[AXCIconPackEntry entryWithKey:@"Trepia"       path:nil],
-		[AXCIconPackEntry entryWithKey:@"Yahoo!"       path:nil],
-		[AXCIconPackEntry entryWithKey:@"Yahoo! Japan" path:nil],
-		[AXCIconPackEntry entryWithKey:@"Zephyr"       path:nil],
-		nil];
+- (NSArray *)entriesForNewDocumentInCategory:(NSString *)categoryName
+{
+	return [NSArray arrayWithObjects:[AXCIconPackEntry entryWithKey:@"AIM" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"Bonjour" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"Gadu-Gadu" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"GroupWise" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"GTalk" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"ICQ" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"Jabber" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"Mac" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"MSN" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"Napster" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"Sametime" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"Stress Test" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"Trepia" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"Yahoo!" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"Yahoo! Japan" path:nil],
+									 [AXCIconPackEntry entryWithKey:@"Zephyr" path:nil], nil];
 }
 
 @end

@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -27,20 +27,23 @@ typedef enum {
 @interface AIAccount (Abstract)
 
 - (id)initWithUID:(NSString *)inUID internalObjectID:(NSString *)inInternalObjectID service:(AIService *)inService;
-@property (readwrite, retain, nonatomic) NSData *userIconData;
-@property (readwrite, nonatomic) BOOL enabled;
-@property (readonly, nonatomic) NSString *host;
-@property (readonly, nonatomic) int port;
+@property(readwrite, retain, nonatomic) NSData *userIconData;
+@property(readwrite, nonatomic) BOOL enabled;
+@property(readonly, nonatomic) NSString *host;
+@property(readonly, nonatomic) int port;
 - (void)filterAndSetUID:(NSString *)inUID;
 
-//Status
-- (void)preferencesChangedForGroup:(NSString *)group key:(NSString *)key object:(AIListObject *)object
-					preferenceDict:(NSDictionary *)prefDict firstTime:(BOOL)firstTime;
+// Status
+- (void)preferencesChangedForGroup:(NSString *)group
+							   key:(NSString *)key
+							object:(AIListObject *)object
+					preferenceDict:(NSDictionary *)prefDict
+						 firstTime:(BOOL)firstTime;
 - (void)silenceAllContactUpdatesForInterval:(NSTimeInterval)interval;
 - (void)updateContactStatus:(AIListContact *)inContact;
 - (void)updateCommonStatusForKey:(NSString *)key;
-@property (readwrite, retain, nonatomic) AIStatus *statusState;
-@property (readonly, nonatomic) AIStatus *actualStatusState;
+@property(readwrite, retain, nonatomic) AIStatus *statusState;
+@property(readonly, nonatomic) AIStatus *actualStatusState;
 - (void)setStatusStateAndRemainOffline:(AIStatus *)statusState;
 
 /*!
@@ -53,7 +56,8 @@ typedef enum {
  * Subclasses MUST call super's implementation.
  *
  * @param image An NSImage of the user icon, or nil if no image.
- * @param originalData The original data which made the image, which may be in any NSImage-compatible format, or nil if no image.
+ * @param originalData The original data which made the image, which may be in any NSImage-compatible format, or nil if
+ * no image.
  */
 - (void)setAccountUserImage:(NSImage *)image withData:(NSData *)originalData;
 
@@ -62,7 +66,7 @@ typedef enum {
  */
 - (void)accountEdited;
 
-//Auto-Refreshing Status String
+// Auto-Refreshing Status String
 - (NSAttributedString *)autoRefreshingOutgoingContentForStatusKey:(NSString *)key;
 - (void)autoRefreshingOutgoingContentForStatusKey:(NSString *)key selector:(SEL)selector context:(id)originalContext;
 - (NSAttributedString *)autoRefreshingOriginalAttributedStringForStatusKey:(NSString *)key;
@@ -73,21 +77,21 @@ typedef enum {
 - (void)_stopAttributedRefreshTimer;
 - (void)gotFilteredStatusMessage:(NSAttributedString *)statusMessage forStatusState:(AIStatus *)statusState;
 - (void)updateLocalDisplayNameTo:(NSAttributedString *)displayName;
-@property (readonly, nonatomic) NSString *currentDisplayName;
+@property(readonly, nonatomic) NSString *currentDisplayName;
 
-//Contacts
-@property (readonly, nonatomic) NSArray *contacts;
+// Contacts
+@property(readonly, nonatomic) NSArray *contacts;
 - (AIListContact *)contactWithUID:(NSString *)sourceUID;
 - (void)removeAllContacts;
 - (void)removePropertyValuesFromContact:(AIListContact *)listContact silently:(BOOL)silent;
 - (NSString *)fallbackAliasForContact:(AIListContact *)contact inChat:(AIChat *)chat;
 - (AIAccountGroupDeletionResponse)willDeleteGroup:(AIListGroup *)group;
 
-//Connectivity
-@property (readwrite, nonatomic) BOOL shouldBeOnline;
+// Connectivity
+@property(readwrite, nonatomic) BOOL shouldBeOnline;
 - (void)toggleOnline;
 - (void)didConnect;
-@property (readonly, nonatomic) NSSet *contactProperties;
+@property(readonly, nonatomic) NSSet *contactProperties;
 - (void)didDisconnect;
 - (void)connectScriptCommand:(NSScriptCommand *)command;
 - (void)disconnectScriptCommand:(NSScriptCommand *)command;
@@ -96,9 +100,9 @@ typedef enum {
 - (NSString *)lastDisconnectionError;
 - (void)setLastDisconnectionError:(NSString *)inError;
 - (AIReconnectDelayType)shouldAttemptReconnectAfterDisconnectionError:(NSString **)disconnectionError;
-@property (readonly, nonatomic) BOOL encrypted;
+@property(readonly, nonatomic) BOOL encrypted;
 
-//FUS Disconnecting
+// FUS Disconnecting
 - (void)autoReconnectAfterDelay:(NSTimeInterval)delay;
 - (double)minimumReconnectTime;
 - (void)cancelAutoReconnect;
@@ -110,16 +114,16 @@ typedef enum {
  *
  * This will not look up the password in the keychain. Results are undefined if we are not connected.
  */
-@property (readonly, nonatomic) NSString *passwordWhileConnected;
+@property(readonly, nonatomic) NSString *passwordWhileConnected;
 
 @end
 
 @interface AIAccount (Abstract_ForSubclasses)
-//Chats
+// Chats
 - (void)displayYouHaveConnectedInChat:(AIChat *)chat;
 
-- (void)passwordReturnedForConnect:(NSString *)inPassword 
-						returnCode:(AIPasswordPromptReturn)returnCode 
+- (void)passwordReturnedForConnect:(NSString *)inPassword
+						returnCode:(AIPasswordPromptReturn)returnCode
 						   context:(id)inContext;
 
 /*!

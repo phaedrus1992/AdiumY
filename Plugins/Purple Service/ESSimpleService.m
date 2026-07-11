@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -17,60 +17,76 @@
 #import "ESSimpleService.h"
 #import "ESPurpleSimpleAccount.h"
 #import "ESPurpleSimpleAccountViewController.h"
-#import <Adium/AIStatusControllerProtocol.h>
 #import <AIUtilities/AIImageAdditions.h>
+#import <Adium/AIStatusControllerProtocol.h>
 
 @implementation ESSimpleService
-//Account Creation
-- (Class)accountClass{
+// Account Creation
+- (Class)accountClass
+{
 	return [ESPurpleSimpleAccount class];
 }
 
-- (AIAccountViewController *)accountViewController{
-    return [ESPurpleSimpleAccountViewController accountViewController];
+- (AIAccountViewController *)accountViewController
+{
+	return [ESPurpleSimpleAccountViewController accountViewController];
 }
 
-- (DCJoinChatViewController *)joinChatView{
+- (DCJoinChatViewController *)joinChatView
+{
 	return nil;
 }
 
-//Service Description
-- (NSString *)serviceCodeUniqueID{
+// Service Description
+- (NSString *)serviceCodeUniqueID
+{
 	return @"libpurple-simple";
 }
-- (NSString *)serviceID{
+- (NSString *)serviceID
+{
 	return @"SIMPLE";
 }
-- (NSString *)serviceClass{
+- (NSString *)serviceClass
+{
 	return @"SIMPLE";
 }
-- (NSString *)shortDescription{
+- (NSString *)shortDescription
+{
 	return @"SIMPLE";
 }
-- (NSString *)longDescription{
+- (NSString *)longDescription
+{
 	return @"SIP / SIMPLE";
 }
-- (NSCharacterSet *)allowedCharacters{
-	return [NSCharacterSet characterSetWithCharactersInString:@"+abcdefghijklmnopqrstuvwxyzABCEDFGHIJKLMNOPQRSTUVWXYZ0123456789._-@\\"];
+- (NSCharacterSet *)allowedCharacters
+{
+	return [NSCharacterSet
+		characterSetWithCharactersInString:@"+abcdefghijklmnopqrstuvwxyzABCEDFGHIJKLMNOPQRSTUVWXYZ0123456789._-@\\"];
 }
-- (NSUInteger)allowedLength{
+- (NSUInteger)allowedLength
+{
 	return 255;
 }
-- (BOOL)caseSensitive{
+- (BOOL)caseSensitive
+{
 	return YES;
 }
-- (AIServiceImportance)serviceImportance{
+- (AIServiceImportance)serviceImportance
+{
 	return AIServiceSecondary;
 }
-- (BOOL)canCreateGroupChats{
+- (BOOL)canCreateGroupChats
+{
 	return NO;
 }
 
-- (void)registerStatuses{
-	[adium.statusController registerStatus:STATUS_NAME_AVAILABLE
-							 withDescription:[adium.statusController localizedDescriptionForCoreStatusName:STATUS_NAME_AVAILABLE]
-									  ofType:AIAvailableStatusType
-								  forService:self];
+- (void)registerStatuses
+{
+	[adium.statusController
+		 registerStatus:STATUS_NAME_AVAILABLE
+		withDescription:[adium.statusController localizedDescriptionForCoreStatusName:STATUS_NAME_AVAILABLE]
+				 ofType:AIAvailableStatusType
+			 forService:self];
 }
 
 /*!
@@ -102,7 +118,7 @@
  */
 - (NSString *)pathForDefaultServiceIconOfType:(AIServiceIconType)iconType
 {
-	return [[NSBundle bundleForClass:[self class]] pathForImageResource:@"simple"];		
+	return [[NSBundle bundleForClass:[self class]] pathForImageResource:@"simple"];
 }
 
 @end

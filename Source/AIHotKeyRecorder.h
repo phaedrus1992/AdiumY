@@ -12,8 +12,8 @@
 
 @interface AIHotKeyRecorder : NSControl
 
-@property (nonatomic, assign) id delegate;
-@property (nonatomic, retain) AIHotKey *hotKey;
+@property(nonatomic, assign) id delegate;
+@property(nonatomic, retain) AIHotKey *hotKey;
 
 - (NSString *)keyComboString;
 
@@ -21,7 +21,9 @@
 
 @interface NSObject (AIHotKeyRecorderDelegate)
 
-- (BOOL)hotKeyRecorder:(AIHotKeyRecorder *)aRecorder shouldCaptureKeyCode:(unsigned short)keyCode modifierFlags:(NSUInteger)modifierFlags;
+- (BOOL)hotKeyRecorder:(AIHotKeyRecorder *)aRecorder
+	shouldCaptureKeyCode:(unsigned short)keyCode
+		   modifierFlags:(NSUInteger)modifierFlags;
 - (void)hotKeyRecorder:(AIHotKeyRecorder *)aRecorder keyComboDidChange:(AIHotKey *)hotKey;
 
 @end

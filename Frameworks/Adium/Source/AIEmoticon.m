@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -19,7 +19,10 @@
 #import <Adium/AITextAttachmentExtension.h>
 
 @interface AIEmoticon ()
-- (AIEmoticon *)initWithIconPath:(NSString *)inPath equivalents:(NSArray *)inTextEquivalents name:(NSString *)inName pack:(AIEmoticonPack *)inPack;
+- (AIEmoticon *)initWithIconPath:(NSString *)inPath
+					 equivalents:(NSArray *)inTextEquivalents
+							name:(NSString *)inName
+							pack:(AIEmoticonPack *)inPack;
 @end
 
 @implementation AIEmoticon
@@ -35,34 +38,40 @@
  * @param inName A human readable name for the emoticon
  * @param inPack The AIEmoticonPack which contains this emoticon
  */
-+ (id)emoticonWithIconPath:(NSString *)inPath equivalents:(NSArray *)inTextEquivalents name:(NSString *)inName pack:(AIEmoticonPack *)inPack
++ (id)emoticonWithIconPath:(NSString *)inPath
+			   equivalents:(NSArray *)inTextEquivalents
+					  name:(NSString *)inName
+					  pack:(AIEmoticonPack *)inPack
 {
-    return [[[self alloc] initWithIconPath:inPath equivalents:inTextEquivalents name:inName pack:inPack] autorelease];
+	return [[[self alloc] initWithIconPath:inPath equivalents:inTextEquivalents name:inName pack:inPack] autorelease];
 }
 
-//Init
-- (AIEmoticon *)initWithIconPath:(NSString *)inPath equivalents:(NSArray *)inTextEquivalents name:(NSString *)inName pack:(AIEmoticonPack *)inPack
+// Init
+- (AIEmoticon *)initWithIconPath:(NSString *)inPath
+					 equivalents:(NSArray *)inTextEquivalents
+							name:(NSString *)inName
+							pack:(AIEmoticonPack *)inPack
 {
-    if ((self = [super init])) {
+	if ((self = [super init])) {
 		path = [inPath retain];
 		name = [inName retain];
 		textEquivalents = [inTextEquivalents retain];
 		pack = [inPack retain];
 		imageLoaded = NO;
-		_cachedAttributedString = nil;	
-    }
+		_cachedAttributedString = nil;
+	}
 
-    return self;
+	return self;
 }
 
-//Dealloc
+// Dealloc
 - (void)dealloc
 {
-    [path release];
+	[path release];
 	[name release];
-    [textEquivalents release];
+	[textEquivalents release];
 	[pack release];
-    [_cachedAttributedString release];
+	[_cachedAttributedString release];
 
 	[super dealloc];
 }
@@ -74,7 +83,7 @@
  */
 - (NSArray *)textEquivalents
 {
-    return textEquivalents;
+	return textEquivalents;
 }
 
 /*!
@@ -87,7 +96,8 @@
 - (void)flushEmoticonImageCache
 {
 	imageLoaded = NO;
-    [_cachedAttributedString release]; _cachedAttributedString = nil;
+	[_cachedAttributedString release];
+	_cachedAttributedString = nil;
 }
 
 /*!
@@ -97,7 +107,7 @@
  */
 - (NSString *)name
 {
-    return name;
+	return name;
 }
 
 /*!
@@ -109,7 +119,7 @@
  */
 - (void)setEnabled:(BOOL)inEnabled
 {
-    enabled = inEnabled;
+	enabled = inEnabled;
 }
 
 /*!
@@ -117,8 +127,9 @@
  *
  * @result The enabled state
  */
-- (BOOL)isEnabled{
-    return enabled;
+- (BOOL)isEnabled
+{
+	return enabled;
 }
 
 /*!
@@ -128,7 +139,7 @@
  */
 - (NSImage *)image
 {
-    return [[[NSImage alloc] initWithContentsOfFile:path] autorelease];
+	return [[[NSImage alloc] initWithContentsOfFile:path] autorelease];
 }
 
 /*!
@@ -139,8 +150,9 @@
 	if (path != inPath) {
 		[path release];
 		path = [inPath retain];
-		
-		[_cachedAttributedString release]; _cachedAttributedString = nil;
+
+		[_cachedAttributedString release];
+		_cachedAttributedString = nil;
 	}
 }
 
@@ -156,7 +168,7 @@
  * and the passed text equivalent available.  The hard work is cached, although each call results in a new
  * NSMutableAttributedString being returned.
  *
- * @param textEquivalent The text equivalent for this attributed string 
+ * @param textEquivalent The text equivalent for this attributed string
  * @param attach If YES, an image cell is immediately attached. If NO, no attachment cell is made.
  *
  * @result The attributed string with the emoticon
@@ -168,45 +180,46 @@
 	dispatch_once(&onceToken, ^{
 		cacheQueue = dispatch_queue_create("im.adium.AIEmoticon.cachedAttributedStringQueue", 0);
 	});
-	__block NSMutableAttributedString   *attributedString;
+	__block NSMutableAttributedString *attributedString;
 	dispatch_sync(cacheQueue, ^{
 		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		AITextAttachmentExtension   *attachment;
-		
-		//Cache this attachment for ourself if we don't already have a cache, or if our cache needs to have an image attached
-		
+		AITextAttachmentExtension *attachment;
+
+		// Cache this attachment for ourself if we don't already have a cache, or if our cache needs to have an image
+		// attached
+
 		if (!_cachedAttributedString || (!imageLoaded && attach)) {
-			[_cachedAttributedString release]; //for the second half of the conditional
-			AITextAttachmentExtension   *emoticonAttachment = [[[AITextAttachmentExtension alloc] init] autorelease];
-			if(!path || attach) {
-				NSTextAttachmentCell		*cell = [[NSTextAttachmentCell alloc] initImageCell:[self image]];
+			[_cachedAttributedString release]; // for the second half of the conditional
+			AITextAttachmentExtension *emoticonAttachment = [[[AITextAttachmentExtension alloc] init] autorelease];
+			if (!path || attach) {
+				NSTextAttachmentCell *cell = [[NSTextAttachmentCell alloc] initImageCell:[self image]];
 				[emoticonAttachment setAttachmentCell:cell];
 				[cell release];
 				imageLoaded = YES;
-			} 
-			
+			}
+
 			[emoticonAttachment setPath:path];
 			[emoticonAttachment setHasAlternate:YES];
 			[emoticonAttachment setImageClass:@"emoticon"];
-			
-			//Emoticons should not ever be sent out as images
+
+			// Emoticons should not ever be sent out as images
 			[emoticonAttachment setShouldAlwaysSendAsText:YES];
-			
+
 			_cachedAttributedString = [[NSAttributedString attributedStringWithAttachment:emoticonAttachment] retain];
 		}
-		
-		
-		//Create a copy of our cached string, and update it for the new text equivalent
+
+		// Create a copy of our cached string, and update it for the new text equivalent
 		attributedString = [_cachedAttributedString mutableCopy];
 		attachment = [[attributedString attribute:NSAttachmentAttributeName atIndex:0 effectiveRange:NULL] copy];
-		[attributedString addAttribute:NSAttachmentAttributeName value:attachment range:NSMakeRange(0, [attributedString length])];
+		[attributedString addAttribute:NSAttachmentAttributeName
+								 value:attachment
+								 range:NSMakeRange(0, [attributedString length])];
 		[attachment setString:textEquivalent];
 		[attachment release];
-   		[pool release];
-    }); 
-    return [attributedString autorelease];
+		[pool release];
+	});
+	return [attributedString autorelease];
 }
-
 
 /*!
  * @brief Is this emoticon appropriate for a service class?
@@ -215,7 +228,7 @@
  */
 - (BOOL)isAppropriateForServiceClass:(NSString *)inServiceClass
 {
-	NSString	*ourServiceClass = pack.serviceClass;
+	NSString *ourServiceClass = pack.serviceClass;
 	return !ourServiceClass || [ourServiceClass isEqualToString:inServiceClass];
 }
 
@@ -224,7 +237,7 @@
  */
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"%@<%p> (Equivalents: %@) [in %@]",name,self,[self textEquivalents],pack];
+	return [NSString stringWithFormat:@"%@<%p> (Equivalents: %@) [in %@]", name, self, [self textEquivalents], pack];
 }
 
 /*!

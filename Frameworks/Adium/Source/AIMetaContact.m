@@ -1,39 +1,39 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIMetaContact.h>
+#import <AIUtilities/AIArrayAdditions.h>
+#import <AIUtilities/AIMutableOwnerArray.h>
+#import <Adium/AIAbstractListController.h>
+#import <Adium/AIAccount.h>
 #import <Adium/AIContactControllerProtocol.h>
+#import <Adium/AIContactHidingController.h>
+#import <Adium/AIContactList.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIListGroup.h>
+#import <Adium/AIMetaContact.h>
 #import <Adium/AIService.h>
-#import <Adium/AIUserIcons.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAbstractListController.h>
-#import <AIUtilities/AIMutableOwnerArray.h>
-#import <AIUtilities/AIArrayAdditions.h>
-#import <Adium/AIContactList.h>
 #import <Adium/AIStatus.h>
-#import <Adium/AIContactHidingController.h>
+#import <Adium/AIUserIcons.h>
 
-/* If META_TYPE_DEBUG is defined, metaContacts and uniqueMetaContacts are given an 
+/* If META_TYPE_DEBUG is defined, metaContacts and uniqueMetaContacts are given an
  * identifying suffix to their formattedUID in the contact list */
-//#define META_TYPE_DEBUG TRUE
+// #define META_TYPE_DEBUG TRUE
 
 @interface AIListContact ()
-@property (readwrite, nonatomic, assign) AIMetaContact *metaContact;
+@property(readwrite, nonatomic, assign) AIMetaContact *metaContact;
 - (void)setContainingObject:(AIListGroup *)inGroup;
 @end
 
@@ -42,11 +42,12 @@
 
 - (void)determineIfWeShouldAppearToContainOnlyOneContact;
 
-- (NSArray *)uniqueContainedListContactsIncludingOfflineAccounts:(BOOL)includeOfflineAccounts visibleOnly:(BOOL)visibleOnly;
+- (NSArray *)uniqueContainedListContactsIncludingOfflineAccounts:(BOOL)includeOfflineAccounts
+													 visibleOnly:(BOOL)visibleOnly;
 
 - (void)updateDisplayName;
 - (void)restoreGrouping;
-@property (readonly, nonatomic) NSArray *visibleListContacts;
+@property(readonly, nonatomic) NSArray *visibleListContacts;
 
 + (NSArray *)_forwardedProperties;
 @end
@@ -62,9 +63,9 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 		_preferredContact = nil;
 		_listContacts = nil;
 		_listContactsIncludingOfflineAccounts = nil;
-		
+
 		_containedObjects = [[NSMutableArray alloc] init];
-		
+
 		expanded = [[self preferenceForKey:KEY_EXPANDED group:PREF_GROUP_OBJECT_STATUS_CACHE] boolValue];
 
 		containsOnlyOneUniqueContact = YES; /* Default to YES, because addObject: will change us to NO when needed */
@@ -74,15 +75,19 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	return self;
 }
 
-//dealloc
+// dealloc
 - (void)dealloc
 {
-	//I've seen a crashlog with a delayed -updateDisplayName causing crashes due to a freed AIMetaContact, so let's cancel any pending updates
+	// I've seen a crashlog with a delayed -updateDisplayName causing crashes due to a freed AIMetaContact, so let's
+	// cancel any pending updates
 	[[NSRunLoop currentRunLoop] cancelPerformSelectorsWithTarget:self];
-	
-	[_containedObjects release]; _containedObjects = nil;
-	[_listContacts release]; _listContacts = nil;
-	[_listContactsIncludingOfflineAccounts release]; _listContactsIncludingOfflineAccounts = nil;
+
+	[_containedObjects release];
+	_containedObjects = nil;
+	[_listContacts release];
+	_listContacts = nil;
+	[_listContactsIncludingOfflineAccounts release];
+	_listContactsIncludingOfflineAccounts = nil;
 
 	[super dealloc];
 }
@@ -102,19 +107,19 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	return [NSString stringWithFormat:@"MetaContact-%i", [inObjectID intValue]];
 }
 
-//A metaContact's internalObjectID is completely unique to it, so return that for interalUniqueObjectID
+// A metaContact's internalObjectID is completely unique to it, so return that for interalUniqueObjectID
 - (NSString *)internalUniqueObjectID
 {
 	return self.internalObjectID;
 }
 
-//Return the account of this metaContact, which we may treat as the preferredContact's account
+// Return the account of this metaContact, which we may treat as the preferredContact's account
 - (AIAccount *)account
 {
 	return self.preferredContact.account;
 }
 
-//Return the service of our preferred contact, so we will display the service icon of our preferred contact on the list
+// Return the service of our preferred contact, so we will display the service icon of our preferred contact on the list
 - (AIService *)service
 {
 	return self.preferredContact.service;
@@ -135,7 +140,10 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	return self.groups;
 }
 
-- (void) setMetaContact:(AIMetaContact *)meta{ NSAssert(NO, @"Should not be reached"); }
+- (void)setMetaContact:(AIMetaContact *)meta
+{
+	NSAssert(NO, @"Should not be reached");
+}
 
 /*!
  * @brief Place this metacontact in all groups that its contained contacts are in
@@ -160,18 +168,19 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 		[adium.contactController _moveContactLocally:self fromGroups:self.groups toGroups:targetGroups];
 }
 
-- (void)removeFromGroup:(AIListObject <AIContainingObject> *)group
-{	
+- (void)removeFromGroup:(AIListObject<AIContainingObject> *)group
+{
 	if (self.groups.count == 1) {
 		if (self.uniqueContainedObjectsCount == 1) {
-			//If the metaContact only has one listContact, we will remove that contact from all accounts
-			AIListContact	*listContact = [self.uniqueContainedObjects objectAtIndex:0];
-			
-			NSSet *objectsToRemove = [adium.contactController allContactsWithService:listContact.service UID:listContact.UID];
+			// If the metaContact only has one listContact, we will remove that contact from all accounts
+			AIListContact *listContact = [self.uniqueContainedObjects objectAtIndex:0];
+
+			NSSet *objectsToRemove = [adium.contactController allContactsWithService:listContact.service
+																				 UID:listContact.UID];
 			for (AIListContact *contact in objectsToRemove) {
 				[contact removeFromGroup:group];
 			}
-		} else {	
+		} else {
 			// Otherwise, we just need to explode the meta.
 			[adium.contactController explodeMetaContact:self];
 		}
@@ -185,13 +194,13 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	}
 }
 
-//A metaContact should never be a stranger
+// A metaContact should never be a stranger
 - (BOOL)isStranger
 {
 	return NO;
 }
 
-- (BOOL) existsServerside
+- (BOOL)existsServerside
 {
 	return NO;
 }
@@ -203,16 +212,16 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
  */
 - (BOOL)isBlocked
 {
-	BOOL			allContactsBlocked = self.uniqueContainedObjectsCount > 0 ? YES : NO;
-	
+	BOOL allContactsBlocked = self.uniqueContainedObjectsCount > 0 ? YES : NO;
+
 	for (AIListContact *currentContact in self.uniqueContainedObjects) {
-		//find any unblocked contacts
+		// find any unblocked contacts
 		if (![currentContact isBlocked]) {
 			allContactsBlocked = NO;
 			break;
 		}
 	}
-	
+
 	return allContactsBlocked;
 }
 
@@ -221,26 +230,27 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
  */
 - (void)setIsBlocked:(BOOL)yesOrNo updateList:(BOOL)addToPrivacyLists
 {
-	
+
 	for (AIListContact *currentContact in self.uniqueContainedObjects) {
 		[currentContact setIsBlocked:yesOrNo updateList:addToPrivacyLists];
 	}
-	
-	//update property if we are completely blocked
-	[self setValue:[NSNumber numberWithBool:self.isBlocked]
-				   forProperty:KEY_IS_BLOCKED 
-				   notify:NotifyNow];
+
+	// update property if we are completely blocked
+	[self setValue:[NSNumber numberWithBool:self.isBlocked] forProperty:KEY_IS_BLOCKED notify:NotifyNow];
 }
 
-//Object Storage -------------------------------------------------------------------------------------------------------
+// Object Storage
+// -------------------------------------------------------------------------------------------------------
 #pragma mark Object Storage
 - (void)containedObjectsOrOrderDidChange
 {
 	_preferredContact = nil;
-	[_listContacts release]; _listContacts = nil;
-	[_listContactsIncludingOfflineAccounts release]; _listContactsIncludingOfflineAccounts = nil;
-	
-	//Our effective icon may have changed
+	[_listContacts release];
+	_listContacts = nil;
+	[_listContactsIncludingOfflineAccounts release];
+	_listContactsIncludingOfflineAccounts = nil;
+
+	// Our effective icon may have changed
 	[AIUserIcons flushCacheForObject:self];
 }
 
@@ -253,38 +263,39 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
  */
 - (BOOL)addObject:(AIListObject *)inObject
 {
-	BOOL	success = NO;
+	BOOL success = NO;
 
 	if (![self.containedObjects containsObjectIdenticalTo:inObject]) {
 		NSParameterAssert([self canContainObject:inObject]);
-		
+
 		((AIListContact *)inObject).metaContact = self;
 		[_containedObjects addObject:inObject];
 		containedObjectsNeedsSort = YES;
-		
+
 		[self containedObjectsOrOrderDidChange];
-		
-		//If we were unique before, check if we will still be unique after adding this contact.
-		//If we were not, no checking needed.
+
+		// If we were unique before, check if we will still be unique after adding this contact.
+		// If we were not, no checking needed.
 		if (containsOnlyOneUniqueContact) {
 			[self determineIfWeShouldAppearToContainOnlyOneContact];
 		}
 
-		//Add the object from our status cache, notifying of the changes (silently) as appropriate
+		// Add the object from our status cache, notifying of the changes (silently) as appropriate
 		if (inObject == [self preferredContact]) {
 			[self updateAllPropertiesForObject:inObject];
 		}
-		
+
 		[self restoreGrouping];
 
-		//Force an immediate update of our visibileListContacts list, which will also update our visible count
+		// Force an immediate update of our visibileListContacts list, which will also update our visible count
 		[self visibleListContacts];
 
 		success = YES;
 	} else {
-		AILogWithSignature(@"%@ (meta=%p) already contained in %@", inObject, ((AIListContact *)inObject).metaContact, self);
+		AILogWithSignature(@"%@ (meta=%p) already contained in %@", inObject, ((AIListContact *)inObject).metaContact,
+						   self);
 	}
-	
+
 	return success;
 }
 
@@ -298,22 +309,22 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	NSParameterAssert([inObject isKindOfClass:[AIListContact class]]);
 	AIListContact *contact = (AIListContact *)inObject;
 	if ([self.containedObjects containsObjectIdenticalTo:inObject]) {
-		BOOL	needToResetToRemoteGroup = NO;
+		BOOL needToResetToRemoteGroup = NO;
 
 		[inObject retain];
 
-		BOOL	wasPreferredContact = (inObject == self.preferredContact);
+		BOOL wasPreferredContact = (inObject == self.preferredContact);
 
 		[_containedObjects removeObject:inObject];
-		
+
 		if (contact.metaContact == self) {
 			/* If the contact is being reassigned to another metaContact, this may already have been done; we shouldn't
 			 * mess with it if it's not still ours to order around. The other metaContact will manage it as needed.
 			 */
 			contact.metaContact = nil;
-			
+
 			if (contact.countOfRemoteGroupNames > 0) {
-				//Reset it to its remote group
+				// Reset it to its remote group
 				needToResetToRemoteGroup = YES;
 			} else {
 				for (AIListGroup *group in self.groups)
@@ -323,17 +334,17 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 
 		[self containedObjectsOrOrderDidChange];
 
-		//Only need to check if we are now unique if we weren't unique before, since we've either become
-		//unique are stayed the same.
+		// Only need to check if we are now unique if we weren't unique before, since we've either become
+		// unique are stayed the same.
 		if (!containsOnlyOneUniqueContact) {
 			[self determineIfWeShouldAppearToContainOnlyOneContact];
 		}
 
-		//Remove all references to the object from our status cache; notifying of the changes as appropriate
+		// Remove all references to the object from our status cache; notifying of the changes as appropriate
 		if (wasPreferredContact)
 			[self updateAllPropertiesForObject:inObject];
 
-		//If we remove our list object, don't continue to show up in the contact list
+		// If we remove our list object, don't continue to show up in the contact list
 		[self restoreGrouping];
 
 		/* Now that we're done reconfigured ourselves and the recently removed object,
@@ -344,7 +355,7 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 		}
 
 		[inObject release];
-		
+
 		return YES;
 	} else {
 		AILogWithSignature(@"%@: Asked to remove %@, but it's not actually contained therein", self, inObject);
@@ -357,42 +368,39 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	NSParameterAssert([inObject isKindOfClass:[AIListContact class]]);
 	AIListContact *contact = (AIListContact *)inObject;
 	[contact retain];
-	
+
 	[_containedObjects removeObject:inObject];
 	contact.metaContact = nil;
 	[self containedObjectsOrOrderDidChange];
 
-	//If we remove our list object, don't continue to show up in the contact list
+	// If we remove our list object, don't continue to show up in the contact list
 	if (self.countOfContainedObjects == 0)
 		[adium.contactController _moveContactLocally:self fromGroups:self.groups toGroups:[NSSet set]];
-	
+
 	[contact release];
 }
 
 - (AIListContact *)preferredContactForContentType:(NSString *)inType
 {
 	AIListObject *preferredContact = nil;
-	
-	/* If we've messaged this contact previously, prefer the last contact we sent to 
+
+	/* If we've messaged this contact previously, prefer the last contact we sent to
 	 * if that contact's status is the most-available one the metacontact can offer
 	 */
 	NSString *objID = [self preferenceForKey:KEY_PREFERRED_DESTINATION_CONTACT group:PREF_GROUP_OBJECT_STATUS_CACHE];
-	
+
 	if (objID)
 		preferredContact = [adium.contactController existingListObjectWithUniqueID:objID];
-	
-	//Use our standard preferred contact if:
-	//a) we no longer contain the saved contact
-	//b) we have a more available contact
-	//c) we have a non-mobile contact and our saved contact is mobile
-	if (
-		(![self containsObject:preferredContact]) ||
-		(preferredContact.statusSummary != self.statusSummary) ||
-		(!self.isMobile && preferredContact.isMobile)	
-	) {
+
+	// Use our standard preferred contact if:
+	// a) we no longer contain the saved contact
+	// b) we have a more available contact
+	// c) we have a non-mobile contact and our saved contact is mobile
+	if ((![self containsObject:preferredContact]) || (preferredContact.statusSummary != self.statusSummary) ||
+		(!self.isMobile && preferredContact.isMobile)) {
 		preferredContact = self.preferredContact;
 	}
-	
+
 	return (AIListContact *)preferredContact;
 }
 
@@ -411,17 +419,17 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 - (AIListContact *)preferredContact
 {
 	if (!_preferredContact) {
-		AIListContact   *preferredContact = nil;
-		
-		//Search for an available contact who is not mobile
+		AIListContact *preferredContact = nil;
+
+		// Search for an available contact who is not mobile
 		for (AIListContact *thisContact in self.uniqueContainedObjects) {
-			if (thisContact.statusSummary == AIAvailableStatus &&	!thisContact.isMobile) {
+			if (thisContact.statusSummary == AIAvailableStatus && !thisContact.isMobile) {
 				preferredContact = thisContact;
 				break;
 			}
 		}
-		
-		//If no available contacts, find the first online contact
+
+		// If no available contacts, find the first online contact
 		if (!preferredContact) {
 			for (AIListContact *thisContact in self.uniqueContainedObjects) {
 				if (thisContact.online) {
@@ -431,12 +439,12 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 			}
 		}
 
-		//If no online contacts, find the first contact
+		// If no online contacts, find the first contact
 		if (!preferredContact && self.uniqueContainedObjectsCount > 0) {
 			preferredContact = [self.uniqueContainedObjects objectAtIndex:0];
 		}
 
-		//If no list contacts at all, try contacts on offline accounts
+		// If no list contacts at all, try contacts on offline accounts
 		if (!preferredContact) {
 			if ([self.containedObjects count]) {
 				preferredContact = [self.containedObjects objectAtIndex:0];
@@ -445,7 +453,7 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 
 		_preferredContact = preferredContact;
 	}
-	
+
 	return _preferredContact;
 }
 
@@ -455,32 +463,31 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
  * Same as self.preferredContact but only looks at contacts on the specified service
  */
 - (AIListContact *)preferredContactWithCompatibleService:(AIService *)inService
-{	
+{
 	if (!inService)
 		return self.preferredContact;
-	
-	NSString	*serviceClass = inService.serviceClass;
-	
-	//Search for an available contact who is not mobile
+
+	NSString *serviceClass = inService.serviceClass;
+
+	// Search for an available contact who is not mobile
 	for (AIListContact *thisContact in self.uniqueContainedObjects) {
 		if ([thisContact.service.serviceClass isEqualToString:serviceClass] &&
-			thisContact.statusSummary == AIAvailableStatus &&
-			!thisContact.isMobile) {
+			thisContact.statusSummary == AIAvailableStatus && !thisContact.isMobile) {
 			return thisContact;
 		}
-	}			
-	
-	//If no available contacts, find the first online contact
+	}
+
+	// If no available contacts, find the first online contact
 	for (AIListContact *thisContact in self.uniqueContainedObjects) {
 		if (thisContact.online && [thisContact.service.serviceClass isEqualToString:serviceClass])
 			return thisContact;
 	}
-	
+
 	for (AIListContact *thisContact in self.uniqueContainedObjects) {
 		if ([thisContact.service.serviceClass isEqualToString:serviceClass])
 			return thisContact;
 	}
-	
+
 	return nil;
 }
 
@@ -498,7 +505,7 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	if (!_listContacts) {
 		_listContacts = [[self uniqueContainedListContactsIncludingOfflineAccounts:NO visibleOnly:NO] retain];
 	}
-	
+
 	return _listContacts;
 }
 
@@ -515,13 +522,14 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
  */
 - (NSArray *)visibleListContacts
 {
-		return [self uniqueContainedListContactsIncludingOfflineAccounts:NO visibleOnly:YES];
+	return [self uniqueContainedListContactsIncludingOfflineAccounts:NO visibleOnly:YES];
 }
 
 - (NSArray *)listContactsIncludingOfflineAccounts
 {
 	if (!_listContactsIncludingOfflineAccounts) {
-		_listContactsIncludingOfflineAccounts = [[self uniqueContainedListContactsIncludingOfflineAccounts:YES visibleOnly:NO] retain];
+		_listContactsIncludingOfflineAccounts = [[self uniqueContainedListContactsIncludingOfflineAccounts:YES
+																							   visibleOnly:NO] retain];
 	}
 
 	return _listContactsIncludingOfflineAccounts;
@@ -530,7 +538,8 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 /*!
  * @brief Dictionary of service classes and list contacts
  *
- * @result A dictionary whose keys are serviceClass strings and whose objects are arrays of contained contacts *on online accounts* on that serviceClass.
+ * @result A dictionary whose keys are serviceClass strings and whose objects are arrays of contained contacts *on
+ * online accounts* on that serviceClass.
  */
 - (NSDictionary *)dictionaryOfServiceClassesAndListContacts
 {
@@ -538,7 +547,7 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 
 	for (AIListContact *listContact in self.uniqueContainedObjects) {
 		NSString *serviceClass = listContact.service.serviceClass;
-		
+
 		// Is there already an entry for this service?
 		NSMutableArray *contactArray = [contactsDict objectForKey:serviceClass];
 		if (contactArray)
@@ -548,17 +557,18 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 			[contactsDict setObject:contactArray forKey:serviceClass];
 		}
 	}
-	
+
 	return contactsDict;
 }
 
 - (NSArray *)servicesOfContainedObjects
 {
-	NSMutableArray	*services = [[NSMutableArray alloc] init];
-	AIListObject	*listObject;
+	NSMutableArray *services = [[NSMutableArray alloc] init];
+	AIListObject *listObject;
 
 	for (listObject in self.containedObjects) {
-		if (![services containsObject:listObject.service]) [services addObject:listObject.service];
+		if (![services containsObject:listObject.service])
+			[services addObject:listObject.service];
 	}
 
 	return [services autorelease];
@@ -577,36 +587,40 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 /**
  * @brief Return an array of unique contained list contacts, optionally including those for offline accounts
  *
- * This is a reasonably expensive call; its return value is cached by -self.uniqueContainedObjects and -[self listContactsIncludingOfflineAccounts],
- * so those are the methods to use externally.
+ * This is a reasonably expensive call; its return value is cached by -self.uniqueContainedObjects and -[self
+ * listContactsIncludingOfflineAccounts], so those are the methods to use externally.
  *
- * Implementation note: uniqueObjectIDs is an array because its indexing matches the indexing of the nascent listContacts array;
- * this allows a fast comparison for existing contacts.
+ * Implementation note: uniqueObjectIDs is an array because its indexing matches the indexing of the nascent
+ * listContacts array; this allows a fast comparison for existing contacts.
  */
-- (NSArray *)uniqueContainedListContactsIncludingOfflineAccounts:(BOOL)includeOfflineAccounts visibleOnly:(BOOL)visibleOnly
+- (NSArray *)uniqueContainedListContactsIncludingOfflineAccounts:(BOOL)includeOfflineAccounts
+													 visibleOnly:(BOOL)visibleOnly
 {
-	NSArray			*myContainedObjects = self.containedObjects;
-	NSMutableArray	*listContacts = [[NSMutableArray alloc] init];
-	
-	//Search for an available contact
+	NSArray *myContainedObjects = self.containedObjects;
+	NSMutableArray *listContacts = [[NSMutableArray alloc] init];
+
+	// Search for an available contact
 	for (AIListContact *listContact in myContainedObjects) {
 		AIListContact *previousContact = [listContacts lastObject];
-		
-		//Take advantage of the fact that this is a sorted list. If there are duplicates, they will be right next to each other.
+
+		// Take advantage of the fact that this is a sorted list. If there are duplicates, they will be right next to
+		// each other.
 		if ([listContact.internalObjectID isEqualToString:previousContact.internalObjectID]) {
-			/* If it is a duplicate, but the previous pick is offline and this contact is online, swap 'em out so our array 
-			 * has the best possible listContacts (making display elsewhere more straightforward) 
-			 */ 
+			/* If it is a duplicate, but the previous pick is offline and this contact is online, swap 'em out so our
+			 * array has the best possible listContacts (making display elsewhere more straightforward)
+			 */
 			if (!previousContact.online && listContact.online)
 				[listContacts replaceObjectAtIndex:[listContacts count] - 1 withObject:listContact];
 			continue;
 		}
 
-		if ((listContact.countOfRemoteGroupNames > 0 || includeOfflineAccounts) && (!visibleOnly || [[AIContactHidingController sharedController] visibilityOfListObject:listContact inContainer:self])) {
-			[listContacts addObject:listContact]; 
+		if ((listContact.countOfRemoteGroupNames > 0 || includeOfflineAccounts) &&
+			(!visibleOnly || [[AIContactHidingController sharedController] visibilityOfListObject:listContact
+																					  inContainer:self])) {
+			[listContacts addObject:listContact];
 		}
 	}
-	
+
 	return [listContacts autorelease];
 }
 
@@ -615,17 +629,17 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	return self.servicesOfContainedObjects.count == 1;
 }
 
-//When the listContacts array has a single member, we only contain one unique contact.
+// When the listContacts array has a single member, we only contain one unique contact.
 - (void)determineIfWeShouldAppearToContainOnlyOneContact
 {
 	BOOL oldOnlyOne = containsOnlyOneUniqueContact;
 
-	//Clear our preferred contact so the next call to it will update the preferred contact
+	// Clear our preferred contact so the next call to it will update the preferred contact
 	[self containedObjectsOrOrderDidChange];
 
 	containsOnlyOneUniqueContact = self.uniqueContainedObjectsCount < 2;
 
-	//If it changed, do stuff
+	// If it changed, do stuff
 	if (oldOnlyOne != containsOnlyOneUniqueContact)
 		[self updateDisplayName];
 }
@@ -633,20 +647,20 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 - (void)updateRemoteGroupingOfContact:(AIListContact *)inListContact;
 {
 #ifdef META_GROUPING_DEBUG
-	AILog(@"AIMetaContact: Remote grouping of %@ changed to %@",inListObject,inListObject.remoteGroupNames);
+	AILog(@"AIMetaContact: Remote grouping of %@ changed to %@", inListObject, inListObject.remoteGroupNames);
 #endif
-	
-	//When a contact has its remote grouping changed, this may mean it is now listed on an online account.
-	//We therefore update our containsOnlyOneContact boolean.
+
+	// When a contact has its remote grouping changed, this may mean it is now listed on an online account.
+	// We therefore update our containsOnlyOneContact boolean.
 	[self determineIfWeShouldAppearToContainOnlyOneContact];
-	
+
 	[self restoreGrouping];
 
-	//Force an immediate update of our visibleListContacts list, which will also update our visible count
+	// Force an immediate update of our visibleListContacts list, which will also update our visible count
 	[self visibleListContacts];
 }
 
-//Property Handling -----------------------------------------------------------------------------------------------
+// Property Handling -----------------------------------------------------------------------------------------------
 #pragma mark Property Handling
 /*
  * @brief Update our preferred ordering as objects that we contain change their status
@@ -663,14 +677,12 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 		_preferredContact = nil;
 		[self determineIfWeShouldAppearToContainOnlyOneContact];
 
-	} else  if ([key isEqualToString:@"listObjectStatusType"] ||
-		[key isEqualToString:@"idleSince"] ||
-		[key isEqualToString:@"isIdle"] ||
-		[key isEqualToString:@"isMobile"] ||
-		[key isEqualToString:@"listObjectStatusMessage"]) {
+	} else if ([key isEqualToString:@"listObjectStatusType"] || [key isEqualToString:@"idleSince"] ||
+			   [key isEqualToString:@"isIdle"] || [key isEqualToString:@"isMobile"] ||
+			   [key isEqualToString:@"listObjectStatusMessage"]) {
 		_preferredContact = nil;
 	}
-	
+
 	[super object:self didChangeValueForProperty:key notify:notify];
 }
 
@@ -683,11 +695,11 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 + (NSArray *)_forwardedProperties
 {
 	static NSArray *properties = nil;
-	
+
 	if (properties == nil) {
-		properties = [[NSArray alloc] initWithObjects:@"isOnline", @"isBlocked",
-					  @"isIdle", @"notAStranger", @"isMobile", @"signedOff", @"signedOn",
-					  @"alwaysOnline", @"unviewedContent", @"unviewedMention", nil];
+		properties = [[NSArray alloc] initWithObjects:@"isOnline", @"isBlocked", @"isIdle", @"notAStranger",
+													  @"isMobile", @"signedOff", @"signedOn", @"alwaysOnline",
+													  @"unviewedContent", @"unviewedMention", nil];
 	}
 	return properties;
 }
@@ -695,52 +707,52 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 - (id)valueForProperty:(NSString *)key
 {
 	id ret;
-	
+
 	if ([[[self class] _forwardedProperties] containsObject:key]) {
 		ret = [self.preferredContact valueForProperty:key];
 	} else {
 		ret = [super valueForProperty:key] ?: [self.preferredContact valueForProperty:key];
 	}
-	
+
 	return ret;
 }
 
 - (NSInteger)integerValueForProperty:(NSString *)key
 {
 	NSInteger ret;
-	
+
 	if ([[[self class] _forwardedProperties] containsObject:key]) {
 		ret = [self.preferredContact integerValueForProperty:key];
 	} else {
 		ret = [super integerValueForProperty:key] ?: [self.preferredContact integerValueForProperty:key];
 	}
-	
+
 	return ret;
 }
 
 - (int)intValueForProperty:(NSString *)key
 {
 	int ret;
-	
+
 	if ([[[self class] _forwardedProperties] containsObject:key]) {
 		ret = [self.preferredContact intValueForProperty:key];
 	} else {
 		ret = [super intValueForProperty:key] ?: [self.preferredContact intValueForProperty:key];
 	}
-	
+
 	return ret;
 }
 
 - (BOOL)boolValueForProperty:(NSString *)key
 {
 	BOOL ret;
-	
+
 	if ([[[self class] _forwardedProperties] containsObject:key]) {
 		ret = [self.preferredContact boolValueForProperty:key];
 	} else {
 		ret = [super boolValueForProperty:key] ?: [self.preferredContact boolValueForProperty:key];
 	}
-	
+
 	return ret;
 }
 
@@ -750,27 +762,28 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
  */
 - (void)updateDisplayName
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:Contact_ApplyDisplayName
-											  object:self
-											userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES]
-																				 forKey:@"Notify"]];
+	[[NSNotificationCenter defaultCenter]
+		postNotificationName:Contact_ApplyDisplayName
+					  object:self
+					userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:@"Notify"]];
 }
 
-- (void)listObject:(AIListObject *)listObject mutableOwnerArray:(AIMutableOwnerArray *)inArray didSetObject:(id)anObject withOwner:(AIListObject *)inOwner priorityLevel:(float)priority
+- (void)listObject:(AIListObject *)listObject
+	mutableOwnerArray:(AIMutableOwnerArray *)inArray
+		 didSetObject:(id)anObject
+			withOwner:(AIListObject *)inOwner
+		priorityLevel:(float)priority
 {
-	if ((listObject != self) &&
-		(inArray == [listObject displayArrayForKey:@"Display Name" create:NO]) &&
+	if ((listObject != self) && (inArray == [listObject displayArrayForKey:@"Display Name" create:NO]) &&
 		(!anObject || ([anObject isEqualToString:[inArray objectValue]]))) {
-		/* One of our contained objects changed its display name in such a  way that its Display Name array's objectValue changed. 
-		 * Our own display name may need to change in turn.
-		 * We used isEqualToString above because the Display Name array contains NSString objects.
-		 * 
-		 * Wait until the next run loop so that all observers of the changed contained object have done their thing; as a metaContact, our return values
-		 * may be based on this contact's values.
+		/* One of our contained objects changed its display name in such a  way that its Display Name array's
+		 * objectValue changed. Our own display name may need to change in turn. We used isEqualToString above because
+		 * the Display Name array contains NSString objects.
+		 *
+		 * Wait until the next run loop so that all observers of the changed contained object have done their thing; as
+		 * a metaContact, our return values may be based on this contact's values.
 		 */
-		[self performSelector:@selector(updateDisplayName)
-				   withObject:nil
-				   afterDelay:0];
+		[self performSelector:@selector(updateDisplayName) withObject:nil afterDelay:0];
 	}
 }
 
@@ -793,32 +806,32 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	[self notifyOfChangedPropertiesSilently:YES];
 }
 
-//Preferences -------------------------------------------------------------------------------------------------
+// Preferences -------------------------------------------------------------------------------------------------
 #pragma mark Preferences
 
-//Retrieve a preference value (with the option of ignoring inherited values)
-//If we don't find a preference, query our preferredContact to take its preference as our own.
-//We could potentially query all the objects.. but that's possibly overkill.
+// Retrieve a preference value (with the option of ignoring inherited values)
+// If we don't find a preference, query our preferredContact to take its preference as our own.
+// We could potentially query all the objects.. but that's possibly overkill.
 - (id)preferenceForKey:(NSString *)inKey group:(NSString *)groupName
 {
 	id returnValue = [super preferenceForKey:inKey group:groupName];
-	
-	//Look to our first contained object
+
+	// Look to our first contained object
 	if (!returnValue && [self.containedObjects count]) {
 		returnValue = [self.preferredContact preferenceForKey:inKey group:groupName];
 
-		//Move the preference to us so we will have it next time and the contact won't (lazy migration)
+		// Move the preference to us so we will have it next time and the contact won't (lazy migration)
 		if (returnValue) {
 			[self setPreference:returnValue forKey:inKey group:groupName];
 			[self.preferredContact setPreference:nil forKey:inKey group:groupName];
 		}
 	}
-	
+
 	return returnValue;
 }
 
 #pragma mark User Icon
-/** 
+/**
  * @brief Return the user icon for this metaContact
  *
  * We always want to provide a userIcon if at all possible.
@@ -833,13 +846,13 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
  */
 - (NSImage *)userIcon
 {
-	NSImage		 *internalUserIcon = [self internalUserIcon];
-	NSImage		 *userIcon = internalUserIcon;
+	NSImage *internalUserIcon = [self internalUserIcon];
+	NSImage *userIcon = internalUserIcon;
 	AIListObject *sourceListObject = self;
 
-	BOOL	useOwnIconAsLastResort = NO;
+	BOOL useOwnIconAsLastResort = NO;
 
-	id <AIUserIconSource> myUserIconSource = [AIUserIcons userIconSourceForObject:self];
+	id<AIUserIconSource> myUserIconSource = [AIUserIcons userIconSourceForObject:self];
 	if (myUserIconSource) {
 		if ([myUserIconSource priority] > AIUserIconMediumPriority) {
 			/* If our own user iocn if it is at less than medium priority, don't use it unless
@@ -850,13 +863,13 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 			sourceListObject = nil;
 		}
 	}
-	
+
 	if (!userIcon) {
 		sourceListObject = self.preferredContact;
 		userIcon = [sourceListObject userIcon];
 	}
 	if (!userIcon) {
-		NSArray		*theContainedObjects = self.uniqueContainedObjects;
+		NSArray *theContainedObjects = self.uniqueContainedObjects;
 
 		NSUInteger count = [theContainedObjects count];
 		for (NSUInteger i = 0; i < count && !userIcon; i++) {
@@ -885,17 +898,16 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 }
 
 - (NSString *)phoneticName
-{	
+{
 	return [self displayArrayObjectForKey:@"Phonetic Name"] ?: self.preferredContact.ownPhoneticName;
 }
 
-//FormattedUID will return nil if we have multiple different UIDs contained within us
+// FormattedUID will return nil if we have multiple different UIDs contained within us
 - (NSString *)formattedUID
 {
 #ifdef META_TYPE_DEBUG
-	return (containsOnlyOneUniqueContact ? 
-			[self.preferredContact.formattedUID stringByAppendingString:@" (uniqueMeta)"] : 
-			@"meta");	
+	return (containsOnlyOneUniqueContact ? [self.preferredContact.formattedUID stringByAppendingString:@" (uniqueMeta)"]
+										 : @"meta");
 #else
 	return containsOnlyOneUniqueContact ? self.preferredContact.formattedUID : nil;
 #endif
@@ -920,23 +932,24 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 /*!
  * @brief Determine the status message to be displayed in the contact list
  *
- * @result <tt>NSAttributedString</tt> which will be the message for this contact in the contact list, after modifications
+ * @result <tt>NSAttributedString</tt> which will be the message for this contact in the contact list, after
+ * modifications
  */
 - (NSAttributedString *)contactListStatusMessage
 {
-	NSAttributedString	*contactListStatusMessage = nil;
-	
-	//Try to use an actual status message first
+	NSAttributedString *contactListStatusMessage = nil;
+
+	// Try to use an actual status message first
 	contactListStatusMessage = self.preferredContact.statusMessage;
 
 	if (!contactListStatusMessage)
 		contactListStatusMessage = [self.preferredContact contactListStatusMessage];
 
-	if (!contactListStatusMessage) { 
+	if (!contactListStatusMessage) {
 		contactListStatusMessage = self.statusMessage;
 		if (contactListStatusMessage)
-			AILogWithSignature(@"%@: Odd. Why do I have a statusmessage (%@) but my preferred contact doesn't?", 
-							   self, contactListStatusMessage);
+			AILogWithSignature(@"%@: Odd. Why do I have a statusmessage (%@) but my preferred contact doesn't?", self,
+							   contactListStatusMessage);
 	}
 
 	return contactListStatusMessage;
@@ -950,9 +963,9 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	return self.preferredContact.account.statusState.mutesSound;
 }
 
-//Object Storage ---------------------------------------------------------------------------------------------
+// Object Storage ---------------------------------------------------------------------------------------------
 #pragma mark Object Storage
-//Return our contained objects
+// Return our contained objects
 
 - (NSArray *)visibleContainedObjects
 {
@@ -961,29 +974,29 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 
 - (NSArray *)containedObjects
 {
-	//Sort the containedObjects if the flag tells us it's needed
+	// Sort the containedObjects if the flag tells us it's needed
 	if (containedObjectsNeedsSort) {
 		containedObjectsNeedsSort = NO;
 		[_containedObjects sortUsingFunction:containedContactSort context:self];
 	}
-	
+
 	return [[_containedObjects copy] autorelease];
 }
 - (NSUInteger)countOfContainedObjects
 {
-    return [_containedObjects count];
+	return [_containedObjects count];
 }
 
-//Test for the presence of an object in our group
+// Test for the presence of an object in our group
 - (BOOL)containsObject:(AIListObject *)inObject
 {
 	return [_containedObjects containsObject:inObject];
 }
 
-//Retrieve an object by index
+// Retrieve an object by index
 - (id)objectAtIndex:(NSUInteger)idx
 {
-    return [self.uniqueContainedObjects objectAtIndex:idx];
+	return [self.uniqueContainedObjects objectAtIndex:idx];
 }
 
 - (AIListObject *)objectWithService:(AIService *)inService UID:(NSString *)inUID
@@ -992,7 +1005,7 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 		if ([inUID isEqualToString:object.UID] && object.service == inService)
 			return object;
 	}
-	
+
 	return nil;
 }
 
@@ -1001,24 +1014,24 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	return self.internalObjectID;
 }
 
-//Expanded State -------------------------------------------------------------------------------------------------------
+// Expanded State
+// -------------------------------------------------------------------------------------------------------
 #pragma mark Expanded State
-//Set the expanded/collapsed state of this group (PRIVATE: For the contact list view to let us know our state)
+// Set the expanded/collapsed state of this group (PRIVATE: For the contact list view to let us know our state)
 - (void)setExpanded:(BOOL)inExpanded
 {
 	if (expanded != inExpanded) {
 		expanded = inExpanded;
-		
+
 		[self setPreference:[NSNumber numberWithBool:expanded]
 					 forKey:KEY_EXPANDED
 					  group:PREF_GROUP_OBJECT_STATUS_CACHE];
-	
 	}
 }
-//Returns the current expanded/collapsed state of this group
+// Returns the current expanded/collapsed state of this group
 - (BOOL)isExpanded
 {
-    return expanded;
+	return expanded;
 }
 
 - (BOOL)isExpandable
@@ -1030,10 +1043,10 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 {
 	[super listObject:listObject didSetOrderIndex:inOrderIndex];
 
-	//We'll need to resort next time we're accessed
+	// We'll need to resort next time we're accessed
 	containedObjectsNeedsSort = YES;
 
-	[self containedObjectsOrOrderDidChange];	
+	[self containedObjectsOrOrderDidChange];
 }
 
 - (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackbuf count:(NSUInteger)len
@@ -1052,16 +1065,17 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	float orderIndexB = [(AIMetaContact *)context orderIndexForObject:objectB];
 	if (orderIndexA > orderIndexB) {
 		return NSOrderedDescending;
-		
+
 	} else if (orderIndexA < orderIndexB) {
 		return NSOrderedAscending;
-		
+
 	} else {
 		return [[objectA internalUniqueObjectID] caseInsensitiveCompare:[objectB internalUniqueObjectID]];
 	}
 }
 
-//Visibility -----------------------------------------------------------------------------------------------------------
+// Visibility
+// -----------------------------------------------------------------------------------------------------------
 #pragma mark Visibility
 /*!
  * @brief Returns the number of visible objects in this metaContact, which is the same as the count of listContacts
@@ -1089,21 +1103,22 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 {
 	NSMutableArray *subobjectDescs = [[NSMutableArray alloc] initWithCapacity:[self.containedObjects count]];
 
-	for(AIListContact *subobject in self.containedObjects)
+	for (AIListContact *subobject in self.containedObjects)
 		[subobjectDescs addObject:[subobject description]];
 
 	NSString *subobjectDescsDesc = [subobjectDescs description];
 	[subobjectDescs release];
 
-	return [NSString stringWithFormat:@"<%@:%p %@: %@>",NSStringFromClass([self class]), self, self.internalObjectID, subobjectDescsDesc];
+	return [NSString stringWithFormat:@"<%@:%p %@: %@>", NSStringFromClass([self class]), self, self.internalObjectID,
+									  subobjectDescsDesc];
 }
 
-- (BOOL) canContainObject:(id)obj
+- (BOOL)canContainObject:(id)obj
 {
 	return [obj isKindOfClass:[AIListContact class]] && ![obj isKindOfClass:[AIMetaContact class]];
 }
 
-//inherit these
+// inherit these
 @dynamic largestOrder;
 @dynamic smallestOrder;
 

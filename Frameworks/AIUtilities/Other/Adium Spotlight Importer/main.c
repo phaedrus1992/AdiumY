@@ -5,10 +5,6 @@
 //  Created by Evan Schoenberg on 3/1/06.
 //
 
-
-
-
-
 //==============================================================================
 //
 //	DO NO MODIFY THE CONTENT OF THIS FILE
@@ -18,19 +14,13 @@
 //
 //==============================================================================
 
-
-
-
-
-
-#import <CoreFoundation/CoreFoundation.h>
 #import <CoreFoundation/CFPlugInCOM.h>
+#import <CoreFoundation/CoreFoundation.h>
 #import <CoreServices/CoreServices.h>
 
 // -----------------------------------------------------------------------------
 //	constants
 // -----------------------------------------------------------------------------
-
 
 #define PLUGIN_ID "9B6E3B91-772C-4DA9-9EFC-06B51846737E"
 
@@ -41,23 +31,19 @@
 // names if you decide to change the names defined in the Info.plist
 //
 
-
 // -----------------------------------------------------------------------------
 //	typedefs
 // -----------------------------------------------------------------------------
 
 // The import function to be implemented in GetMetadataForFile.c
-Boolean GetMetadataForFile(void *thisInterface, 
-			   CFMutableDictionaryRef attributes, 
-			   CFStringRef contentTypeUTI,
-			   CFStringRef pathToFile);
-			   
-// The layout for an instance of MetaDataImporterPlugIn 
-typedef struct __MetadataImporterPluginType
-{
-    MDImporterInterfaceStruct *conduitInterface;
-    CFUUIDRef                 factoryID;
-    UInt32                    refCount;
+Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attributes, CFStringRef contentTypeUTI,
+						   CFStringRef pathToFile);
+
+// The layout for an instance of MetaDataImporterPlugIn
+typedef struct __MetadataImporterPluginType {
+	MDImporterInterfaceStruct *conduitInterface;
+	CFUUIDRef factoryID;
+	UInt32 refCount;
 } MetadataImporterPluginType;
 
 // -----------------------------------------------------------------------------
@@ -66,26 +52,21 @@ typedef struct __MetadataImporterPluginType
 //	Forward declaration for the IUnknown implementation.
 //
 
-MetadataImporterPluginType  *AllocMetadataImporterPluginType(CFUUIDRef inFactoryID);
-void                      DeallocMetadataImporterPluginType(MetadataImporterPluginType *thisInstance);
-HRESULT                   MetadataImporterQueryInterface(void *thisInstance,REFIID iid,LPVOID *ppv);
-void                     *MetadataImporterPluginFactory(CFAllocatorRef allocator,CFUUIDRef typeID);
-ULONG                     MetadataImporterPluginAddRef(void *thisInstance);
-ULONG                     MetadataImporterPluginRelease(void *thisInstance);
+MetadataImporterPluginType *AllocMetadataImporterPluginType(CFUUIDRef inFactoryID);
+void DeallocMetadataImporterPluginType(MetadataImporterPluginType *thisInstance);
+HRESULT MetadataImporterQueryInterface(void *thisInstance, REFIID iid, LPVOID *ppv);
+void *MetadataImporterPluginFactory(CFAllocatorRef allocator, CFUUIDRef typeID);
+ULONG MetadataImporterPluginAddRef(void *thisInstance);
+ULONG MetadataImporterPluginRelease(void *thisInstance);
 // -----------------------------------------------------------------------------
 //	testInterfaceFtbl	definition
 // -----------------------------------------------------------------------------
 //	The TestInterface function table.
 //
 
-static MDImporterInterfaceStruct testInterfaceFtbl = {
-    NULL,
-    MetadataImporterQueryInterface,
-    MetadataImporterPluginAddRef,
-    MetadataImporterPluginRelease,
-    GetMetadataForFile
-};
-
+static MDImporterInterfaceStruct testInterfaceFtbl = {NULL, MetadataImporterQueryInterface,
+													  MetadataImporterPluginAddRef, MetadataImporterPluginRelease,
+													  GetMetadataForFile};
 
 // -----------------------------------------------------------------------------
 //	AllocMetadataImporterPluginType
@@ -96,21 +77,21 @@ static MDImporterInterfaceStruct testInterfaceFtbl = {
 //
 MetadataImporterPluginType *AllocMetadataImporterPluginType(CFUUIDRef inFactoryID)
 {
-    MetadataImporterPluginType *theNewInstance;
+	MetadataImporterPluginType *theNewInstance;
 
-    theNewInstance = (MetadataImporterPluginType *)malloc(sizeof(MetadataImporterPluginType));
-    memset(theNewInstance,0,sizeof(MetadataImporterPluginType));
+	theNewInstance = (MetadataImporterPluginType *)malloc(sizeof(MetadataImporterPluginType));
+	memset(theNewInstance, 0, sizeof(MetadataImporterPluginType));
 
-        /* Point to the function table */
-    theNewInstance->conduitInterface = &testInterfaceFtbl;
+	/* Point to the function table */
+	theNewInstance->conduitInterface = &testInterfaceFtbl;
 
-        /*  Retain and keep an open instance refcount for each factory. */
-    theNewInstance->factoryID = CFRetain(inFactoryID);
-    CFPlugInAddInstanceForFactory(inFactoryID);
+	/*  Retain and keep an open instance refcount for each factory. */
+	theNewInstance->factoryID = CFRetain(inFactoryID);
+	CFPlugInAddInstanceForFactory(inFactoryID);
 
-        /* This function returns the IUnknown interface so set the refCount to one. */
-    theNewInstance->refCount = 1;
-    return theNewInstance;
+	/* This function returns the IUnknown interface so set the refCount to one. */
+	theNewInstance->refCount = 1;
+	return theNewInstance;
 }
 
 // -----------------------------------------------------------------------------
@@ -123,14 +104,14 @@ MetadataImporterPluginType *AllocMetadataImporterPluginType(CFUUIDRef inFactoryI
 //
 void DeallocMetadataImporterPluginType(MetadataImporterPluginType *thisInstance)
 {
-    CFUUIDRef theFactoryID;
+	CFUUIDRef theFactoryID;
 
-    theFactoryID = thisInstance->factoryID;
-    free(thisInstance);
-    if (theFactoryID){
-        CFPlugInRemoveInstanceForFactory(theFactoryID);
-        CFRelease(theFactoryID);
-    }
+	theFactoryID = thisInstance->factoryID;
+	free(thisInstance);
+	if (theFactoryID) {
+		CFPlugInRemoveInstanceForFactory(theFactoryID);
+		CFRelease(theFactoryID);
+	}
 }
 
 // -----------------------------------------------------------------------------
@@ -138,35 +119,35 @@ void DeallocMetadataImporterPluginType(MetadataImporterPluginType *thisInstance)
 // -----------------------------------------------------------------------------
 //	Implementation of the IUnknown QueryInterface function.
 //
-HRESULT MetadataImporterQueryInterface(void *thisInstance,REFIID iid,LPVOID *ppv)
+HRESULT MetadataImporterQueryInterface(void *thisInstance, REFIID iid, LPVOID *ppv)
 {
-    CFUUIDRef interfaceID;
+	CFUUIDRef interfaceID;
 
-    interfaceID = CFUUIDCreateFromUUIDBytes(kCFAllocatorDefault,iid);
+	interfaceID = CFUUIDCreateFromUUIDBytes(kCFAllocatorDefault, iid);
 
-    if (CFEqual(interfaceID,kMDImporterInterfaceID)){
-            /* If the Right interface was requested, bump the ref count,
-             * set the ppv parameter equal to the instance, and
-             * return good status.
-             */
-        ((MetadataImporterPluginType*)thisInstance)->conduitInterface->AddRef(thisInstance);
-        *ppv = thisInstance;
-        CFRelease(interfaceID);
-        return S_OK;
-    }else{
-        if (CFEqual(interfaceID,IUnknownUUID)){
-                /* If the IUnknown interface was requested, same as above. */
-            ((MetadataImporterPluginType*)thisInstance )->conduitInterface->AddRef(thisInstance);
-            *ppv = thisInstance;
-            CFRelease(interfaceID);
-            return S_OK;
-        }else{
-                /* Requested interface unknown, bail with error. */
-            *ppv = NULL;
-            CFRelease(interfaceID);
-            return E_NOINTERFACE;
-        }
-    }
+	if (CFEqual(interfaceID, kMDImporterInterfaceID)) {
+		/* If the Right interface was requested, bump the ref count,
+		 * set the ppv parameter equal to the instance, and
+		 * return good status.
+		 */
+		((MetadataImporterPluginType *)thisInstance)->conduitInterface->AddRef(thisInstance);
+		*ppv = thisInstance;
+		CFRelease(interfaceID);
+		return S_OK;
+	} else {
+		if (CFEqual(interfaceID, IUnknownUUID)) {
+			/* If the IUnknown interface was requested, same as above. */
+			((MetadataImporterPluginType *)thisInstance)->conduitInterface->AddRef(thisInstance);
+			*ppv = thisInstance;
+			CFRelease(interfaceID);
+			return S_OK;
+		} else {
+			/* Requested interface unknown, bail with error. */
+			*ppv = NULL;
+			CFRelease(interfaceID);
+			return E_NOINTERFACE;
+		}
+	}
 }
 
 // -----------------------------------------------------------------------------
@@ -178,8 +159,8 @@ HRESULT MetadataImporterQueryInterface(void *thisInstance,REFIID iid,LPVOID *ppv
 //
 ULONG MetadataImporterPluginAddRef(void *thisInstance)
 {
-    ((MetadataImporterPluginType *)thisInstance )->refCount += 1;
-    return ((MetadataImporterPluginType*) thisInstance)->refCount;
+	((MetadataImporterPluginType *)thisInstance)->refCount += 1;
+	return ((MetadataImporterPluginType *)thisInstance)->refCount;
 }
 
 // -----------------------------------------------------------------------------
@@ -190,13 +171,13 @@ ULONG MetadataImporterPluginAddRef(void *thisInstance)
 //
 ULONG MetadataImporterPluginRelease(void *thisInstance)
 {
-    ((MetadataImporterPluginType*)thisInstance)->refCount -= 1;
-    if (((MetadataImporterPluginType*)thisInstance)->refCount == 0){
-        DeallocMetadataImporterPluginType((MetadataImporterPluginType*)thisInstance );
-        return 0;
-    }else{
-        return ((MetadataImporterPluginType*) thisInstance )->refCount;
-    }
+	((MetadataImporterPluginType *)thisInstance)->refCount -= 1;
+	if (((MetadataImporterPluginType *)thisInstance)->refCount == 0) {
+		DeallocMetadataImporterPluginType((MetadataImporterPluginType *)thisInstance);
+		return 0;
+	} else {
+		return ((MetadataImporterPluginType *)thisInstance)->refCount;
+	}
 }
 
 // -----------------------------------------------------------------------------
@@ -204,21 +185,20 @@ ULONG MetadataImporterPluginRelease(void *thisInstance)
 // -----------------------------------------------------------------------------
 //	Implementation of the factory function for this type.
 //
-void *MetadataImporterPluginFactory(CFAllocatorRef allocator,CFUUIDRef typeID)
+void *MetadataImporterPluginFactory(CFAllocatorRef allocator, CFUUIDRef typeID)
 {
-    MetadataImporterPluginType *result;
-    CFUUIDRef                 uuid;
+	MetadataImporterPluginType *result;
+	CFUUIDRef uuid;
 
-        /* If correct type is being requested, allocate an
-         * instance of TestType and return the IUnknown interface.
-         */
-    if (CFEqual(typeID,kMDImporterTypeID)){
-        uuid = CFUUIDCreateFromString(kCFAllocatorDefault,CFSTR(PLUGIN_ID));
-        result = AllocMetadataImporterPluginType(uuid);
-        CFRelease(uuid);
-        return result;
-    }
-        /* If the requested type is incorrect, return NULL. */
-    return NULL;
+	/* If correct type is being requested, allocate an
+	 * instance of TestType and return the IUnknown interface.
+	 */
+	if (CFEqual(typeID, kMDImporterTypeID)) {
+		uuid = CFUUIDCreateFromString(kCFAllocatorDefault, CFSTR(PLUGIN_ID));
+		result = AllocMetadataImporterPluginType(uuid);
+		CFRelease(uuid);
+		return result;
+	}
+	/* If the requested type is incorrect, return NULL. */
+	return NULL;
 }
-

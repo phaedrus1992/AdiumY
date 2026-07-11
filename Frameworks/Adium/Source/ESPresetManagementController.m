@@ -1,22 +1,22 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #import <Adium/ESPresetManagementController.h>
 
-#define	PRESET_DRAG_TYPE @"Adium:PresetDrag"
+#define PRESET_DRAG_TYPE @"Adium:PresetDrag"
 
 @interface ESPresetManagementController ()
 - (void)configureControlDimming;
@@ -34,10 +34,10 @@
 {
 	if (parentWindow) {
 		[NSApp beginSheet:self.window
-		   modalForWindow:parentWindow
-			modalDelegate:self
-		   didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			  contextInfo:nil];
+			modalForWindow:parentWindow
+			 modalDelegate:self
+			didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
+			   contextInfo:nil];
 
 	} else {
 		[self showWindow:nil];
@@ -46,28 +46,28 @@
 	}
 }
 
-
 /*!
  * @brief Begin managing presets
  *
  * @param inPresets An array of either NSString or NSDictionary objects.
  * @param inNameKey If inPresets contains NSDictionary objects, the key used to look up the name ot present to the user.
- * @param inDelegate The delegate for preset management.  It must implement all methods in the ESPresetManagementControllerDelegate informal protocol.
+ * @param inDelegate The delegate for preset management.  It must implement all methods in the
+ * ESPresetManagementControllerDelegate informal protocol.
  */
 - (id)initWithPresets:(NSArray *)inPresets namedByKey:(NSString *)inNameKey withDelegate:(id)inDelegate
 {
-	
+
 	NSParameterAssert([inDelegate respondsToSelector:@selector(renamePreset:toName:inPresets:renamedPreset:)]);
 	NSParameterAssert([inDelegate respondsToSelector:@selector(duplicatePreset:inPresets:createdDuplicate:)]);
 	NSParameterAssert([inDelegate respondsToSelector:@selector(deletePreset:inPresets:)]);
-	
-    if ((self = [super initWithWindowNibName:@"PresetManagement"])) {
+
+	if ((self = [super initWithWindowNibName:@"PresetManagement"])) {
 		presets = [inPresets retain];
 		nameKey = [inNameKey retain];
 		delegate = [inDelegate retain];
 	}
-	
-	return self;	
+
+	return self;
 }
 
 /*!
@@ -77,7 +77,7 @@
 {
 	[presets release];
 	[nameKey release];
-	
+
 	[super dealloc];
 }
 
@@ -86,11 +86,11 @@
  */
 - (void)windowDidLoad
 {
-	//Enable dragging of presets
+	// Enable dragging of presets
 	[tableView_presets registerForDraggedTypes:[NSArray arrayWithObject:PRESET_DRAG_TYPE]];
 
 	[label_editPresets setLocalizedString:AILocalizedString(@"Edit presets:", nil)];
-	
+
 	[button_duplicate setAlignment:NSLeftTextAlignment];
 	[button_duplicate setLocalizedString:AILocalizedString(@"Duplicate", "Button which duplicates the selection")];
 	[button_duplicate setAlignment:NSCenterTextAlignment];
@@ -98,15 +98,16 @@
 	[button_delete setAlignment:NSLeftTextAlignment];
 	[button_delete setLocalizedString:AILocalizedString(@"Delete", "Button which deletes the selection")];
 	[button_delete setAlignment:NSCenterTextAlignment];
-	
+
 	[button_rename setAlignment:NSLeftTextAlignment];
 	[button_rename setLocalizedString:AILocalizedString(@"Rename", "Button which renames the selection")];
 	[button_rename setAlignment:NSCenterTextAlignment];
 
 	[button_done setAlignment:NSLeftTextAlignment];
-	[button_done setLocalizedString:AILocalizedString(@"Done", "Button which indicates that the editing sheet is done")];
+	[button_done
+		setLocalizedString:AILocalizedString(@"Done", "Button which indicates that the editing sheet is done")];
 	[button_done setAlignment:NSCenterTextAlignment];
-	
+
 	[self configureControlDimming];
 }
 
@@ -117,7 +118,7 @@
  */
 - (IBAction)okay:(id)sender
 {
-	
+
 	[self closeWindow:nil];
 }
 
@@ -125,9 +126,9 @@
  * Invoked as the sheet closes, dismiss the sheet
  */
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
-{	
-    [sheet orderOut:nil];
-	
+{
+	[sheet orderOut:nil];
+
 	[self autorelease];
 }
 
@@ -139,7 +140,7 @@
 - (void)windowWillClose:(id)sender
 {
 	[super windowWillClose:sender];
-		
+
 	[self autorelease];
 }
 
@@ -152,39 +153,36 @@
 	if (selectedRow != -1) {
 		id duplicatePreset, selectedPreset;
 		NSInteger duplicatePresetIndex;
-		
-		//Finish any editing before continuing		
+
+		// Finish any editing before continuing
 		//[tableView_presets validateEditing] doesn't work?
 		[tableView_presets validateEditing];
 		[tableView_presets abortEditing];
 
 		selectedPreset = [presets objectAtIndex:selectedRow];
-		
-		//Inform the delegate of the duplicate request
-		NSArray	*newPresets;
-		newPresets = [delegate duplicatePreset:selectedPreset 
-									 inPresets:presets
-							  createdDuplicate:&duplicatePreset];
-		
-		[presets autorelease]; presets = [newPresets retain];
-		
-		//The delegate returned a potentially changed presets array; reload table data
+
+		// Inform the delegate of the duplicate request
+		NSArray *newPresets;
+		newPresets = [delegate duplicatePreset:selectedPreset inPresets:presets createdDuplicate:&duplicatePreset];
+
+		[presets autorelease];
+		presets = [newPresets retain];
+
+		// The delegate returned a potentially changed presets array; reload table data
 		[tableView_presets reloadData];
 
-		//Set up for a rename of the new duplicate if possible
+		// Set up for a rename of the new duplicate if possible
 		if (duplicatePreset) {
 			duplicatePresetIndex = [presets indexOfObject:duplicatePreset];
 			if (duplicatePresetIndex != NSNotFound) {
-				[tableView_presets selectRowIndexes:[NSIndexSet indexSetWithIndex:duplicatePresetIndex] byExtendingSelection:NO];
-				[tableView_presets editColumn:0
-										  row:duplicatePresetIndex
-									withEvent:nil
-									   select:YES];
+				[tableView_presets selectRowIndexes:[NSIndexSet indexSetWithIndex:duplicatePresetIndex]
+							   byExtendingSelection:NO];
+				[tableView_presets editColumn:0 row:duplicatePresetIndex withEvent:nil select:YES];
 			}
 		} else {
-			NSLog(@"Failed to retrieve duplicate preset while duplicating %@ in %@",selectedPreset,presets);
+			NSLog(@"Failed to retrieve duplicate preset while duplicating %@ in %@", selectedPreset, presets);
 		}
-	}	
+	}
 }
 
 /*!
@@ -194,20 +192,21 @@
 {
 	NSInteger selectedRow = [tableView_presets selectedRow];
 	if (selectedRow != -1) {
-		//Abort any editing before continuing
+		// Abort any editing before continuing
 		[tableView_presets abortEditing];
 
 		id selectedPreset = [presets objectAtIndex:selectedRow];
 
-		//Inform the delegate of the deletion
-		NSArray	*newPresets;
+		// Inform the delegate of the deletion
+		NSArray *newPresets;
 		newPresets = [delegate deletePreset:selectedPreset inPresets:presets];
-		[presets autorelease]; presets = [newPresets retain];
-		
-		//The delegate returned a potentially changed presets array; reload table data
+		[presets autorelease];
+		presets = [newPresets retain];
+
+		// The delegate returned a potentially changed presets array; reload table data
 		[tableView_presets reloadData];
-		
-		//Reloading after the deletion changed our selection
+
+		// Reloading after the deletion changed our selection
 		[self tableViewSelectionDidChange:[NSNotification notificationWithName:@"SelectionChanged" object:nil]];
 	}
 }
@@ -229,20 +228,20 @@
 - (void)configureControlDimming
 {
 	NSInteger selectedRow = [tableView_presets selectedRow];
-	
+
 	if (selectedRow != -1) {
-		id	preset = [presets objectAtIndex:selectedRow];
-		BOOL	allowDelete = (![delegate respondsToSelector:@selector(allowDeleteOfPreset:)] ||
-							   [delegate allowDeleteOfPreset:preset]);
-		BOOL	allowRename = (![delegate respondsToSelector:@selector(allowRenameOfPreset:)] ||
-							   [delegate allowRenameOfPreset:preset]);
+		id preset = [presets objectAtIndex:selectedRow];
+		BOOL allowDelete =
+			(![delegate respondsToSelector:@selector(allowDeleteOfPreset:)] || [delegate allowDeleteOfPreset:preset]);
+		BOOL allowRename =
+			(![delegate respondsToSelector:@selector(allowRenameOfPreset:)] || [delegate allowRenameOfPreset:preset]);
 
 		[button_delete setEnabled:allowDelete];
 		[button_rename setEnabled:allowRename];
-		
-		//Always allow duplication
+
+		// Always allow duplication
 		[button_duplicate setEnabled:YES];
-		
+
 	} else {
 		[button_duplicate setEnabled:NO];
 		[button_delete setEnabled:NO];
@@ -252,7 +251,8 @@
 
 #pragma mark Table view data source and delegate
 
-//State List Table Delegate --------------------------------------------------------------------------------------------
+// State List Table Delegate
+// --------------------------------------------------------------------------------------------
 #pragma mark State List (Table Delegate)
 /*!
  * @brief Number of rows
@@ -267,23 +267,26 @@
  */
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-	id	preset = [presets objectAtIndex:row];
+	id preset = [presets objectAtIndex:row];
 
 	if ([preset isKindOfClass:[NSDictionary class]]) {
 		return [preset objectForKey:(nameKey ? nameKey : @"Name")];
-		
+
 	} else if ([preset isKindOfClass:[NSString class]]) {
 		return preset;
 	}
-	
+
 	return @"";
 }
 
-- (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)row
+- (void)tableView:(NSTableView *)aTableView
+	setObjectValue:(id)anObject
+	forTableColumn:(NSTableColumn *)aTableColumn
+			   row:(NSInteger)row
 {
 	if ([anObject isKindOfClass:[NSString class]]) {
-		id			preset = [presets objectAtIndex:row];
-		NSString	*oldName = nil;
+		id preset = [presets objectAtIndex:row];
+		NSString *oldName = nil;
 
 		if ([preset isKindOfClass:[NSDictionary class]]) {
 			oldName = [preset objectForKey:(nameKey ? nameKey : @"Name")];
@@ -293,20 +296,26 @@
 		}
 
 		if (![(NSString *)anObject isEqualToString:oldName]) {
-			//Inform the delegate of the rename
-			NSArray	*newPresets;
-			id			renamedPreset;
-			
-			newPresets = [delegate renamePreset:preset toName:(NSString *)anObject inPresets:presets renamedPreset:&renamedPreset];
-			[presets autorelease]; presets = [newPresets retain];
-			
-			//The delegate returned a potentially changed presets array; reload table data
+			// Inform the delegate of the rename
+			NSArray *newPresets;
+			id renamedPreset;
+
+			newPresets = [delegate renamePreset:preset
+										 toName:(NSString *)anObject
+									  inPresets:presets
+								  renamedPreset:&renamedPreset];
+			[presets autorelease];
+			presets = [newPresets retain];
+
+			// The delegate returned a potentially changed presets array; reload table data
 			[tableView_presets reloadData];
-						
-			//Select the new row
-			[tableView_presets selectRowIndexes:[NSIndexSet indexSetWithIndex:[presets indexOfObjectIdenticalTo:renamedPreset]] byExtendingSelection:NO];
+
+			// Select the new row
+			[tableView_presets
+					selectRowIndexes:[NSIndexSet indexSetWithIndex:[presets indexOfObjectIdenticalTo:renamedPreset]]
+				byExtendingSelection:NO];
 		}
-	}		
+	}
 }
 
 /*!
@@ -314,7 +323,7 @@
  */
 - (void)tableViewDeleteSelectedRows:(NSTableView *)tableView
 {
-    [self deletePreset:nil];
+	[self deletePreset:nil];
 }
 
 /*!
@@ -330,15 +339,15 @@
  *
  * Only allow the drag to start if the delegate responds to @selector(movePreset:toIndex:inPresets:)
  */
-- (BOOL)tableView:(NSTableView *)tv writeRows:(NSArray*)rows toPasteboard:(NSPasteboard*)pboard
+- (BOOL)tableView:(NSTableView *)tv writeRows:(NSArray *)rows toPasteboard:(NSPasteboard *)pboard
 {
 	if ([delegate respondsToSelector:@selector(movePreset:toIndex:inPresets:presetAfterMove:)]) {
 		[tempDragPreset release];
 		tempDragPreset = [[presets objectAtIndex:[[rows objectAtIndex:0] integerValue]] retain];
-		
+
 		[pboard declareTypes:[NSArray arrayWithObject:PRESET_DRAG_TYPE] owner:self];
-		[pboard setString:@"Preset" forType:PRESET_DRAG_TYPE]; //Arbitrary state
-		
+		[pboard setString:@"Preset" forType:PRESET_DRAG_TYPE]; // Arbitrary state
+
 		return YES;
 	} else {
 		return NO;
@@ -348,44 +357,57 @@
 /*!
  * @brief Drag validate
  */
-- (NSDragOperation)tableView:(NSTableView*)tv validateDrop:(id <NSDraggingInfo>)info proposedRow:(NSInteger)row proposedDropOperation:(NSTableViewDropOperation)op
+- (NSDragOperation)tableView:(NSTableView *)tv
+				validateDrop:(id<NSDraggingInfo>)info
+				 proposedRow:(NSInteger)row
+	   proposedDropOperation:(NSTableViewDropOperation)op
 {
-    if (op == NSTableViewDropAbove && row != -1) {
-        return NSDragOperationPrivate;
-    } else {
-        return NSDragOperationNone;
-    }
+	if (op == NSTableViewDropAbove && row != -1) {
+		return NSDragOperationPrivate;
+	} else {
+		return NSDragOperationNone;
+	}
 }
 
 /*!
  * @brief Drag complete
  */
-- (BOOL)tableView:(NSTableView*)tv acceptDrop:(id <NSDraggingInfo>)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)op
+- (BOOL)tableView:(NSTableView *)tv
+	   acceptDrop:(id<NSDraggingInfo>)info
+			  row:(NSInteger)row
+	dropOperation:(NSTableViewDropOperation)op
 {
-    NSString	*availableType = [[info draggingPasteboard] availableTypeFromArray:[NSArray arrayWithObject:PRESET_DRAG_TYPE]];
-	BOOL		success = NO;
-    if ([availableType isEqualToString:PRESET_DRAG_TYPE]) {		
-		NSDictionary	*presetAfterMove = tempDragPreset;
-		
-		//Inform the delegate of the move; it may pass back a changed preset by reference
-		NSArray	*newPresets;
-		newPresets = [delegate movePreset:tempDragPreset toIndex:row inPresets:presets presetAfterMove:&presetAfterMove];
-		[presets autorelease]; presets = [newPresets retain];
+	NSString *availableType =
+		[[info draggingPasteboard] availableTypeFromArray:[NSArray arrayWithObject:PRESET_DRAG_TYPE]];
+	BOOL success = NO;
+	if ([availableType isEqualToString:PRESET_DRAG_TYPE]) {
+		NSDictionary *presetAfterMove = tempDragPreset;
 
-		//Reload with the new data
+		// Inform the delegate of the move; it may pass back a changed preset by reference
+		NSArray *newPresets;
+		newPresets = [delegate movePreset:tempDragPreset
+								  toIndex:row
+								inPresets:presets
+						  presetAfterMove:&presetAfterMove];
+		[presets autorelease];
+		presets = [newPresets retain];
+
+		// Reload with the new data
 		[tableView_presets reloadData];
-		
-		//Reselect the moved preset if possible
+
+		// Reselect the moved preset if possible
 		NSInteger movedPresetIndex = [presets indexOfObject:presetAfterMove];
 		if (movedPresetIndex != NSNotFound) {
-			[tableView_presets selectRowIndexes:[NSIndexSet indexSetWithIndex:movedPresetIndex] byExtendingSelection:NO];
+			[tableView_presets selectRowIndexes:[NSIndexSet indexSetWithIndex:movedPresetIndex]
+						   byExtendingSelection:NO];
 		}
 
-        success = YES;
-    }
-	
-	[tempDragPreset release]; tempDragPreset = nil;
-	
+		success = YES;
+	}
+
+	[tempDragPreset release];
+	tempDragPreset = nil;
+
 	return success;
 }
 

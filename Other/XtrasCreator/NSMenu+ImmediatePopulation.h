@@ -17,6 +17,6 @@
 
 @interface NSMenu (ImmediatePopulation)
 
-- (void) populateFromDelegate;
+- (void)populateFromDelegate;
 
 @end

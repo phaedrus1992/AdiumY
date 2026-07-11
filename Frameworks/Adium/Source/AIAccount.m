@@ -1,45 +1,46 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import "AILoggerPlugin.h"
+#import "AIStatus.h"
+#import "AIStatusItem.h"
+#import "AdiumAccounts.h"
 #import <Adium/AIAbstractAccount.h>
 #import <Adium/AIAccount.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
+#import <Adium/AIChat.h>
 #import <Adium/AIContentMessage.h>
 #import <Adium/AIContentNotification.h>
+#import <Adium/AIListContact.h>
+#import <Adium/AIListGroup.h>
 #import <Adium/AIService.h>
-#import <Adium/AIChat.h>
 #import <Adium/ESFileTransfer.h>
-#import "AIStatusItem.h"
-#import "AIStatus.h"
-#import "AdiumAccounts.h"
-#import "AILoggerPlugin.h"
 
+#import <Adium/AIAccountControllerProtocol.h>
 #import <Adium/AIContactControllerProtocol.h>
 #import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIAccountControllerProtocol.h>
 
-#import "DCJoinChatViewController.h"
 #import "AIChatControllerProtocol.h"
-#import "AIMessageWindowController.h"
-#import "AIMessageWindow.h"
 #import "AIInterfaceControllerProtocol.h"
+#import "AIMessageWindow.h"
+#import "AIMessageWindowController.h"
 #import "AIStatusControllerProtocol.h"
+#import "DCJoinChatViewController.h"
 
-#define NEW_ACCOUNT_DISPLAY_TEXT			AILocalizedString(@"<New Account>", "Placeholder displayed as the name of a new account")
+#define NEW_ACCOUNT_DISPLAY_TEXT                                                                                       \
+	AILocalizedString(@"<New Account>", "Placeholder displayed as the name of a new account")
 
 @interface AIAccountDeletionDialog : NSObject <AIAccountControllerRemoveConfirmationDialog> {
 	AIAccount *account;
@@ -47,9 +48,9 @@
 	id userData;
 }
 
-- (id)initWithAccount:(AIAccount*)ac alert:(NSAlert*)al;
+- (id)initWithAccount:(AIAccount *)ac alert:(NSAlert *)al;
 
-@property (readwrite, retain, nonatomic) id userData;
+@property(readwrite, retain, nonatomic) id userData;
 
 - (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 
@@ -57,15 +58,17 @@
 
 @implementation AIAccountDeletionDialog
 
-- (id)initWithAccount:(AIAccount*)ac alert:(NSAlert*)al {
-	if((self = [super init])) {
+- (id)initWithAccount:(AIAccount *)ac alert:(NSAlert *)al
+{
+	if ((self = [super init])) {
 		account = ac;
 		alert = [al retain];
 	}
 	return self;
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
 	[alert release];
 	[userData release];
 	[super dealloc];
@@ -73,23 +76,28 @@
 
 @synthesize userData;
 
-- (void)runModal {
+- (void)runModal
+{
 	[self alertDidEnd:alert returnCode:[alert runModal] contextInfo:NULL];
 }
 
-- (void)beginSheetModalForWindow:(NSWindow*)window {
-	[alert beginSheetModalForWindow:window modalDelegate:self didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:) contextInfo:NULL];
+- (void)beginSheetModalForWindow:(NSWindow *)window
+{
+	[alert beginSheetModalForWindow:window
+					  modalDelegate:self
+					 didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
+						contextInfo:NULL];
 }
 
-- (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
+- (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
 	[account alertForAccountDeletion:self didReturn:returnCode];
 }
 
 @end
 
-//Proxy types for applescript
-typedef enum
-{
+// Proxy types for applescript
+typedef enum {
 	Adium_Proxy_HTTP_AS = 'HTTP',
 	Adium_Proxy_SOCKS4_AS = 'SCK4',
 	Adium_Proxy_SOCKS5_AS = 'SCK5',
@@ -99,7 +107,7 @@ typedef enum
 	Adium_Proxy_None_AS = 'NONE'
 } AdiumProxyTypeApplescript;
 
-@interface AIAccount(AppleScriptPRIVATE)
+@interface AIAccount (AppleScriptPRIVATE)
 - (AdiumProxyType)proxyTypeFromApplescript:(AdiumProxyTypeApplescript)proxyTypeAS;
 - (AdiumProxyTypeApplescript)applescriptProxyType:(AdiumProxyType)proxyType;
 @end
@@ -118,31 +126,38 @@ typedef enum
  * Init this account instance
  */
 - (void)initAccount
-{
-}
+{}
 
 - (void)dealloc
 {
-	[formattedUID release]; formattedUID = nil;
-	[accountStatus release]; accountStatus = nil;
-	[waitingToReconnect release]; waitingToReconnect = nil;
-	[connectionProgressString release]; connectionProgressString = nil;
-	[currentDisplayName release]; currentDisplayName = nil;
+	[formattedUID release];
+	formattedUID = nil;
+	[accountStatus release];
+	accountStatus = nil;
+	[waitingToReconnect release];
+	waitingToReconnect = nil;
+	[connectionProgressString release];
+	connectionProgressString = nil;
+	[currentDisplayName release];
+	currentDisplayName = nil;
 
-    [lastDisconnectionError release];
-    [delayedUpdateStatusTargets release];
-    [delayedUpdateStatusTimer invalidate]; [delayedUpdateStatusTimer release];
+	[lastDisconnectionError release];
+	[delayedUpdateStatusTargets release];
+	[delayedUpdateStatusTimer invalidate];
+	[delayedUpdateStatusTimer release];
 
-    /* Our superclass releases internalObjectID in its dealloc, so we should set it to nil when do.
-     * We could just depend upon its implementation, but this is more robust.
-     */
-    [internalObjectID release]; internalObjectID = nil; 
+	/* Our superclass releases internalObjectID in its dealloc, so we should set it to nil when do.
+	 * We could just depend upon its implementation, but this is more robust.
+	 */
+	[internalObjectID release];
+	internalObjectID = nil;
 
-    [self _stopAttributedRefreshTimer];
-    [autoRefreshingKeys release]; autoRefreshingKeys = nil;
+	[self _stopAttributedRefreshTimer];
+	[autoRefreshingKeys release];
+	autoRefreshingKeys = nil;
 
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [adium.preferenceController unregisterPreferenceObserver:self];
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[adium.preferenceController unregisterPreferenceObserver:self];
 
 	[super dealloc];
 }
@@ -154,19 +169,19 @@ typedef enum
  */
 - (void)connect
 {
-	//We are connecting
+	// We are connecting
 	[self setValue:[NSNumber numberWithBool:YES] forProperty:@"isConnecting" notify:NotifyNow];
 }
 
 /*!
  * @brief rejoinChat
- * 
+ *
  * Rejoin the open group chats after disconnect
  */
--(BOOL)rejoinChat:(AIChat*)chat
+- (BOOL)rejoinChat:(AIChat *)chat
 {
 	return NO;
-}	
+}
 
 /*!
  * @brief Do group chats support topics?
@@ -182,8 +197,7 @@ typedef enum
  * This only has an effect on group chats.
  */
 - (void)setTopic:(NSString *)topic forChat:(AIChat *)chat
-{
-}
+{}
 
 /*!
  * @brief Disconnect
@@ -218,9 +232,7 @@ typedef enum
  * in-client registration such as jabber.
  */
 - (void)performRegisterWithPassword:(NSString *)inPassword
-{
-
-}
+{}
 
 /*!
  * @brief The UID will be changed. The account has a chance to perform modifications
@@ -239,9 +251,7 @@ typedef enum
  * @brief The account's UID changed
  */
 - (void)didChangeUID
-{
-
-}
+{}
 
 /*!
  * @brief The account will be deleted
@@ -253,7 +263,7 @@ typedef enum
 {
 	[self setShouldBeOnline:NO];
 
-	//Remove our contacts immediately.
+	// Remove our contacts immediately.
 	[self removeAllContacts];
 }
 
@@ -269,22 +279,24 @@ typedef enum
 
 - (id<AIAccountControllerRemoveConfirmationDialog>)confirmationDialogForAccountDeletion
 {
-	//Will be released in alertForAccountDeletion:didReturn:
+	// Will be released in alertForAccountDeletion:didReturn:
 	return [[AIAccountDeletionDialog alloc] initWithAccount:self alert:[self alertForAccountDeletion]];
 }
 
 /*!
  * @brief The alert used for confirming the account deletion
  *
- * Meant for subclassers. By default, returns the dialog that asks the user if the account should really be deleted (and how).
+ * Meant for subclassers. By default, returns the dialog that asks the user if the account should really be deleted (and
+ * how).
  */
-- (NSAlert*)alertForAccountDeletion
+- (NSAlert *)alertForAccountDeletion
 {
-	return [NSAlert alertWithMessageText:AILocalizedString(@"Delete Account",nil)
-						   defaultButton:AILocalizedString(@"Delete",nil)
-						 alternateButton:AILocalizedString(@"Cancel",nil)
+	return [NSAlert alertWithMessageText:AILocalizedString(@"Delete Account", nil)
+						   defaultButton:AILocalizedString(@"Delete", nil)
+						 alternateButton:AILocalizedString(@"Cancel", nil)
 							 otherButton:nil
-			   informativeTextWithFormat:AILocalizedString(@"Delete the account %@?",nil), ([self.formattedUID length] ? self.formattedUID : NEW_ACCOUNT_DISPLAY_TEXT)];
+			   informativeTextWithFormat:AILocalizedString(@"Delete the account %@?", nil),
+										 ([self.formattedUID length] ? self.formattedUID : NEW_ACCOUNT_DISPLAY_TEXT)];
 }
 
 /*!
@@ -293,18 +305,19 @@ typedef enum
  * @param dialog The dialog that has completed
  * @param returnCode One of the regular NSAlert return codes
  *
- * This method should be overridden when alertForAccountDeletion: was overridden, and/or asynchronous behavior is required.
- * This implementation disconnects and deletes the account from the accounts list when returnCode == NSAlertDefaultReturn.
+ * This method should be overridden when alertForAccountDeletion: was overridden, and/or asynchronous behavior is
+ * required. This implementation disconnects and deletes the account from the accounts list when returnCode ==
+ * NSAlertDefaultReturn.
  *
  * If this implementation is not called, dialog should be released by the subclass.
  */
 - (void)alertForAccountDeletion:(id<AIAccountControllerRemoveConfirmationDialog>)dialog didReturn:(NSInteger)returnCode
 {
-	if(returnCode == NSAlertDefaultReturn) {
+	if (returnCode == NSAlertDefaultReturn) {
 		[self performDelete];
 	}
 
-	[(AIAccountDeletionDialog*)dialog release];
+	[(AIAccountDeletionDialog *)dialog release];
 }
 
 /*!
@@ -332,15 +345,16 @@ typedef enum
 /*!
  * @brief Use our internal object ID for the username when storing password
  *
- * For accounts whose signup process may not be contingent upon the UID. For example, a Twitter account using OAuth might
- * not know its UID when it wants to save itself.
+ * For accounts whose signup process may not be contingent upon the UID. For example, a Twitter account using OAuth
+ * might not know its UID when it wants to save itself.
  */
 - (BOOL)useInternalObjectIDForPasswordName
 {
 	return NO;
 }
 
-//Properties -----------------------------------------------------------------------------------------------------------
+// Properties
+// -----------------------------------------------------------------------------------------------------------
 #pragma mark Properties
 /*!
  * @brief Send Autoresponses while away
@@ -391,7 +405,7 @@ typedef enum
 /*!
  * @brief Support server-side storing of messages to offline users?
  *
- * Some protocols store messages to offline contacts on the server. Subclasses may return YES if their service supports 
+ * Some protocols store messages to offline contacts on the server. Subclasses may return YES if their service supports
  * this. Adium will not store the message as an Event, and will just send it along to the server. This may cause a Gaim
  * error on Jabber if the Jabber server they are using is down.
  */
@@ -403,7 +417,7 @@ typedef enum
 /*!
  * @brief Support messaging invisible contacts?
  *
- * This will only be called if the protocol returns NO to -[self canSendOfflineMessageToContact:] 
+ * This will only be called if the protocol returns NO to -[self canSendOfflineMessageToContact:]
  * If invisible contacts exist and can be messaged, return YES.
  * If the protocol has no concept of invisible contacts, or invisible contacts can't be messaged, return NO.
  */
@@ -415,8 +429,9 @@ typedef enum
 /*!
  * @brief Should offline messages be sent without prompting the user?
  *
- * If -[self canSendOfflineMessageToContact:] returns YES, Adium typically asks the user whether or not to send a message
- * to be stored on the server. If sendOfflineMessagesWithoutPrompting returns YES, this prompt is always suppressed.
+ * If -[self canSendOfflineMessageToContact:] returns YES, Adium typically asks the user whether or not to send a
+ * message to be stored on the server. If sendOfflineMessagesWithoutPrompting returns YES, this prompt is always
+ * suppressed.
  *
  * This should only be true if offline messaging is a well-established expectation for the service. We assume that
  * this is the case by default.
@@ -458,13 +473,14 @@ typedef enum
 
 - (NSImage *)userIcon
 {
-	NSData	*iconData = [self userIconData];
+	NSData *iconData = [self userIconData];
 	return (iconData ? [[[NSImage alloc] initWithData:iconData] autorelease] : nil);
 }
 
 @synthesize isTemporary;
 
-//Status ---------------------------------------------------------------------------------------------------------------
+// Status
+// ---------------------------------------------------------------------------------------------------------------
 #pragma mark Status
 /*!
  * @brief Supported properties
@@ -477,17 +493,11 @@ typedef enum
  */
 - (NSSet *)supportedPropertyKeys
 {
-	static	NSSet	*supportedPropertyKeys = nil;
+	static NSSet *supportedPropertyKeys = nil;
 	if (!supportedPropertyKeys) {
-		supportedPropertyKeys = [[NSSet alloc] initWithObjects:
-			@"isOnline",
-			KEY_FORMATTED_UID,
-			KEY_ACCOUNT_DISPLAY_NAME,
-			@"Display Name",
-			@"accountStatus",
-			KEY_USE_USER_ICON, KEY_USER_ICON, KEY_DEFAULT_USER_ICON,
-			@"Enabled",
-			nil];
+		supportedPropertyKeys = [[NSSet alloc] initWithObjects:@"isOnline", KEY_FORMATTED_UID, KEY_ACCOUNT_DISPLAY_NAME,
+															   @"Display Name", @"accountStatus", KEY_USE_USER_ICON,
+															   KEY_USER_ICON, KEY_DEFAULT_USER_ICON, @"Enabled", nil];
 	}
 
 	return supportedPropertyKeys;
@@ -527,9 +537,7 @@ typedef enum
  * are not a problem if the delayedUpdateStatusInterval is set correctly.
  */
 - (void)delayedUpdateContactStatus:(AIListContact *)inContact
-{
-	
-}
+{}
 
 /*!
  * @brief Update contact interval
@@ -554,9 +562,7 @@ typedef enum
  * @param statusMessage The filtered status message to use.
  */
 - (void)setStatusState:(AIStatus *)statusState usingStatusMessage:(NSAttributedString *)statusMessage
-{
-	
-}
+{}
 
 /*!
  * @brief Set the social networking status message for this account
@@ -566,9 +572,7 @@ typedef enum
  * @param statusMessage The status message, which has already been filtered.
  */
 - (void)setSocialNetworkingStatusMessage:(NSAttributedString *)statusMessage
-{
-	
-}
+{}
 /*!
  * @brief Should the autorefreshing attributed string associated with a key be updated at the moment?
  *
@@ -581,7 +585,8 @@ typedef enum
 	return self.online;
 }
 
-//Messaging, Chatting, Strings -----------------------------------------------------------------------------------------
+// Messaging, Chatting, Strings
+// -----------------------------------------------------------------------------------------
 #pragma mark Messaging, Chatting, Strings
 /*!
  * @brief Available for sending content
@@ -597,11 +602,10 @@ typedef enum
  */
 - (BOOL)availableForSendingContentType:(NSString *)inType toContact:(AIListContact *)inContact
 {
-	if ([inType isEqualToString:CONTENT_MESSAGE_TYPE] ||
-		[inType isEqualToString:CONTENT_NOTIFICATION_TYPE]) {
-		return (self.online &&
-				(!inContact || inContact.online || inContact.isStranger || [self canSendOfflineMessageToContact:inContact]));
-				
+	if ([inType isEqualToString:CONTENT_MESSAGE_TYPE] || [inType isEqualToString:CONTENT_NOTIFICATION_TYPE]) {
+		return (self.online && (!inContact || inContact.online || inContact.isStranger ||
+								[self canSendOfflineMessageToContact:inContact]));
+
 	} else if ([inType isEqualToString:CONTENT_FILE_TRANSFER_TYPE]) {
 		return (self.online && [self conformsToProtocol:@protocol(AIAccount_Files)] &&
 				(!inContact || inContact.online || inContact.isStranger));
@@ -631,7 +635,8 @@ typedef enum
  * response to this method or perhaps make no actions at all.  This method is used by both one-on-one chats and
  * multi-user chats.
  *
- * This method should *only* be called by a core controller.  Call [adium.interfaceController closeChat:chat] to perform a close from other code.
+ * This method should *only* be called by a core controller.  Call [adium.interfaceController closeChat:chat] to perform
+ * a close from other code.
  *
  * @param chat The chat to close
  * @return YES on success
@@ -664,9 +669,7 @@ typedef enum
  * including the destination contact.
  */
 - (void)sendTypingObject:(AIContentTyping *)inTypingObject
-{
-
-}
+{}
 
 /*!
  * @brief Send a message
@@ -699,15 +702,17 @@ typedef enum
  * @brief Encode attributed string (generic)
  *
  * Encode an NSAttributedString into a NSString for this account.  Accounts that support formatted text or require
- * special encoding on strings should do that work here.  For example, HTML based accounts should convert the 
+ * special encoding on strings should do that work here.  For example, HTML based accounts should convert the
  * NSAttributedString to HTML appropriate for their protocol (Adium can help with this).
  * @param inAttributedString String to encode
- * @param inListObject List object associated with the string; nil if the string is not associated with a particular list object, which is the case if encoding for a status message or a group chat message.
+ * @param inListObject List object associated with the string; nil if the string is not associated with a particular
+ * list object, which is the case if encoding for a status message or a group chat message.
  * @return NSString result from encoding
  */
-- (NSString *)encodedAttributedString:(NSAttributedString *)inAttributedString forListObject:(AIListObject *)inListObject
+- (NSString *)encodedAttributedString:(NSAttributedString *)inAttributedString
+						forListObject:(AIListObject *)inListObject
 {
-    return [inAttributedString string];
+	return [inAttributedString string];
 }
 
 /*!
@@ -715,7 +720,7 @@ typedef enum
  */
 - (NSString *)encodedAttributedStringForSendingContentMessage:(AIContentMessage *)inContentMessage
 {
-    return [self encodedAttributedString:inContentMessage.message forListObject:[inContentMessage destination]];
+	return [self encodedAttributedString:inContentMessage.message forListObject:[inContentMessage destination]];
 }
 
 /*!
@@ -737,7 +742,8 @@ typedef enum
 	return YES;
 }
 
-//Presence Tracking ----------------------------------------------------------------------------------------------------
+// Presence Tracking
+// ----------------------------------------------------------------------------------------------------
 #pragma mark Presence Tracking
 /*!
  * @brief Contact list editable?
@@ -761,7 +767,8 @@ typedef enum
  */
 - (void)addContact:(AIListContact *)contact toGroup:(AIListGroup *)group
 {
-	//XXX - Our behavior for duplicate contacts isn't specified here.  Should we handle that adium-side automatically? -ai
+	// XXX - Our behavior for duplicate contacts isn't specified here.  Should we handle that adium-side automatically?
+	// -ai
 }
 
 /*!
@@ -772,9 +779,7 @@ typedef enum
  * @param groups NSArray of AIListGroup objects to remove from.
  */
 - (void)removeContacts:(NSArray *)objects fromGroups:(NSArray *)groups
-{
-	
-}
+{}
 
 /*!
  * @brief Remove a group
@@ -784,7 +789,8 @@ typedef enum
  */
 - (void)deleteGroup:(AIListGroup *)group
 {
-	//XXX - Adium's current behavior is to delete all the contacts within a group, and then delete the group.  This is innefficient on protocols which support deleting groups. -ai
+	// XXX - Adium's current behavior is to delete all the contacts within a group, and then delete the group.  This is
+	// innefficient on protocols which support deleting groups. -ai
 }
 
 /*!
@@ -856,10 +862,8 @@ typedef enum
  *
  * This method allows the opportunity to update the account menu item, e.g. to add information to it
  */
-- (void)accountMenuDidUpdate:(NSMenuItem*)menuItem
-{
-
-}
+- (void)accountMenuDidUpdate:(NSMenuItem *)menuItem
+{}
 
 /*!
  * @brief Is a contact on the contact list intentionally listed?
@@ -887,17 +891,17 @@ typedef enum
  * @brief Allow secure messaging toggling on a chat?
  *
  * Returns YES if secure (encrypted) messaging's status for this chat should be able to be changed.
- * This allows the account to determine on a per-chat basis whether the chat's initial security setting should be permanently
- * maintained.  If it returns NO, the user can not request for the chat to become encrypted or unencrypted.
+ * This allows the account to determine on a per-chat basis whether the chat's initial security setting should be
+ * permanently maintained.  If it returns NO, the user can not request for the chat to become encrypted or unencrypted.
  * This is currently implemented by Gaim accounts to return YES for one-on-one chats and NO for group chats to indicate
  * the functionality provided by Off-the-Record Messaging (OTR).
  *
- * @param inChat The query chat 
+ * @param inChat The query chat
  * @result Should the state of secure messaging be allowed to change?
  */
 - (BOOL)allowSecureMessagingTogglingForChat:(AIChat *)inChat
 {
-	//Allow secure messaging via OTR for one-on-one chats
+	// Allow secure messaging via OTR for one-on-one chats
 	return !inChat.isGroupChat;
 }
 
@@ -910,9 +914,15 @@ typedef enum
  */
 - (NSString *)aboutEncryption
 {
-	return [NSString stringWithFormat:
-		AILocalizedStringFromTableInBundle(@"Adium provides encryption, authentication, deniability, and perfect forward secrecy over %@ via Off-the-Record Messaging (OTR). If your contact is not using an OTR-compatible messaging system, your contact will be sent a link to the OTR web site when you attempt to connect. For more information on OTR, visit https://otr.cypherpunks.ca/.", nil, [NSBundle bundleForClass:[AIAccount class]], nil),
-		[self.service shortDescription]];
+	return
+		[NSString stringWithFormat:
+					  AILocalizedStringFromTableInBundle(
+						  @"Adium provides encryption, authentication, deniability, and perfect forward secrecy over "
+						  @"%@ via Off-the-Record Messaging (OTR). If your contact is not using an OTR-compatible "
+						  @"messaging system, your contact will be sent a link to the OTR web site when you attempt to "
+						  @"connect. For more information on OTR, visit https://otr.cypherpunks.ca/.",
+						  nil, [NSBundle bundleForClass:[AIAccount class]], nil),
+					  [self.service shortDescription]];
 }
 
 /*!
@@ -921,11 +931,9 @@ typedef enum
  * @param inSecureMessaging The desired state of the chat in terms of encryption
  * @param inChat The chat to change
  */
-- (void)requestSecureMessaging:(BOOL)inSecureMessaging
-						inChat:(AIChat *)inChat
+- (void)requestSecureMessaging:(BOOL)inSecureMessaging inChat:(AIChat *)inChat
 {
-	[adium.contentController requestSecureOTRMessaging:inSecureMessaging
-												  inChat:inChat];
+	[adium.contentController requestSecureOTRMessaging:inSecureMessaging inChat:inChat];
 }
 
 /*!
@@ -954,7 +962,8 @@ typedef enum
  * @brief An authorization prompt closed, granting or denying a contact's request for authorization
  *
  * @param inDict A dictionary of authorization information created by the account originally and unmodified
- * @param authorizationResponse An AIAuthorizationResponse indicating if authorization was granted or denied or if there was no response
+ * @param authorizationResponse An AIAuthorizationResponse indicating if authorization was granted or denied or if there
+ * was no response
  */
 - (void)authorizationWithDict:(NSDictionary *)infoDict response:(AIAuthorizationResponse)authorizationResponse;
 {}
@@ -974,8 +983,7 @@ typedef enum
 - (NSString *)suffixForAutocomplete:(AIChat *)inChat forPartialWordRange:(NSRange)charRange
 {
 	NSString *suffix = nil;
-	if (charRange.location == 0)
-	{
+	if (charRange.location == 0) {
 		suffix = @": ";
 	}
 	return suffix;
@@ -989,8 +997,7 @@ typedef enum
 	return nil;
 }
 
-
--(NSMenu*)actionMenuForChat:(AIChat*)chat
+- (NSMenu *)actionMenuForChat:(AIChat *)chat
 {
 	return nil;
 }
@@ -1026,20 +1033,18 @@ typedef enum
  * @param chat The AIChat the inContact is a member of.
  */
 - (void)setContact:(AIListContact *)inContact ignored:(BOOL)inIgnored inChat:(AIChat *)chat
-{
-	
-}
+{}
 
 #pragma mark Logging
 - (BOOL)shouldLogChat:(AIChat *)chat
 {
 	BOOL shouldLog = ![self isTemporary];
-	
-	if(shouldLog && [[adium.preferenceController preferenceForKey:KEY_LOGGER_CERTAIN_ACCOUNTS group:PREF_GROUP_LOGGING] boolValue]) {
-		shouldLog = ![[self preferenceForKey:KEY_LOGGER_OBJECT_DISABLE
-									   group:PREF_GROUP_LOGGING] boolValue];
+
+	if (shouldLog && [[adium.preferenceController preferenceForKey:KEY_LOGGER_CERTAIN_ACCOUNTS
+															 group:PREF_GROUP_LOGGING] boolValue]) {
+		shouldLog = ![[self preferenceForKey:KEY_LOGGER_OBJECT_DISABLE group:PREF_GROUP_LOGGING] boolValue];
 	}
-	
+
 	return shouldLog;
 }
 
@@ -1057,14 +1062,15 @@ typedef enum
  */
 - (NSScriptObjectSpecifier *)objectSpecifier
 {
-	//get my service
+	// get my service
 	AIService *theService = self.service;
 	NSScriptObjectSpecifier *containerRef = [theService objectSpecifier];
 
-	return [[[NSUniqueIDSpecifier alloc]
-			 initWithContainerClassDescription:[containerRef keyClassDescription]
-			 containerSpecifier:containerRef key:@"accounts"
-			 uniqueID:[self scriptingInternalObjectID]] autorelease];
+	return
+		[[[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:[containerRef keyClassDescription]
+													 containerSpecifier:containerRef
+																	key:@"accounts"
+															   uniqueID:[self scriptingInternalObjectID]] autorelease];
 }
 
 /**
@@ -1089,7 +1095,7 @@ typedef enum
 
 /**
  * @brief Make a contact, according to the passed dictionary of AppleScript properties
- * 
+ *
  * @param properties A dictionary of the following keys:
  *		@"KeyDictionary" is the list of the properties in the "with properties" clause of the AS make command.
  *			@"UID" key of KeyDictionary is the required "name" property of contacts
@@ -1101,33 +1107,36 @@ typedef enum
 	NSDictionary *keyDictionary = [properties objectForKey:@"KeyDictionary"];
 	if (!keyDictionary) {
 		[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
-		[[NSScriptCommand currentCommand] setScriptErrorString:@"Can't create a contact without specifying contact properties."];
+		[[NSScriptCommand currentCommand]
+			setScriptErrorString:@"Can't create a contact without specifying contact properties."];
 		return nil;
 	}
 	NSString *contactUID = [keyDictionary objectForKey:@"UID"];
 	if (!contactUID) {
 		[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
-		[[NSScriptCommand currentCommand] setScriptErrorString:@"Can't create a contact without specifying the contact name."];
+		[[NSScriptCommand currentCommand]
+			setScriptErrorString:@"Can't create a contact without specifying the contact name."];
 		return nil;
 	}
 	AIListContact *newContact = [adium.contactController contactWithService:self.service account:self UID:contactUID];
 	NSScriptObjectSpecifier *groupSpecifier = [keyDictionary objectForKey:@"parentGroup"];
 	AIListGroup *group = [groupSpecifier objectsByEvaluatingSpecifier];
-	//If we have a group, we add this contact to the contact list.
+	// If we have a group, we add this contact to the contact list.
 	if (groupSpecifier && group) {
 		[self addContact:newContact toGroup:group];
 	}
-	
+
 	return newContact;
 }
 - (void)insertObject:(AIListObject *)contact inContactsAtIndex:(int)idx
 {
-	//Intentially unimplemented. This should never be called (contacts are created a different way), but is required for KVC-compliance.
+	// Intentially unimplemented. This should never be called (contacts are created a different way), but is required
+	// for KVC-compliance.
 }
 - (void)removeObjectFromContactsAtIndex:(NSInteger)idx
 {
 	AIListObject *object = [self.contacts objectAtIndex:idx];
-	
+
 	for (AIListGroup *group in object.groups) {
 		[object removeFromGroup:group];
 	}
@@ -1139,7 +1148,7 @@ typedef enum
  *
  * This uses my own custom make<Key>WithProperties KVC method. :)
  * The idea is that be default Cocoa-AS will try to make an object using the standard alloc/init routines
- * However, you may not want that to be the case. If an AS model object implements this method, then when its the 
+ * However, you may not want that to be the case. If an AS model object implements this method, then when its the
  * target of a 'make' command, it will be called. The method should return a new object, already assigned to a
  * container, as AICreateCommand will not do that for you.
  */
@@ -1152,13 +1161,14 @@ typedef enum
 		[[NSScriptCommand currentCommand] setScriptErrorString:@"Can't create a chat without a contact!"];
 		return nil;
 	}
-	if (![resolvedKeyDictionary objectForKey:@"newChatWindow"] && ![resolvedKeyDictionary objectForKey:@"Location"] 
-	    && ![resolvedKeyDictionary objectForKey:@"inWindow"]) {
+	if (![resolvedKeyDictionary objectForKey:@"newChatWindow"] && ![resolvedKeyDictionary objectForKey:@"Location"] &&
+		![resolvedKeyDictionary objectForKey:@"inWindow"]) {
 		[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
-		[[NSScriptCommand currentCommand] setScriptErrorString:@"Can't create a chat without specifying its containing window."];
+		[[NSScriptCommand currentCommand]
+			setScriptErrorString:@"Can't create a chat without specifying its containing window."];
 		return nil;
 	}
-	
+
 	if ([participants count] == 1) {
 		AIListContact *contact = [[participants objectAtIndex:0] objectsByEvaluatingSpecifier];
 		if (!contact) {
@@ -1167,30 +1177,31 @@ typedef enum
 			return nil;
 		}
 		AIMessageWindowController *chatWindowController = nil;
-		NSInteger index = -1; //at end by default
+		NSInteger index = -1; // at end by default
 		if ([resolvedKeyDictionary objectForKey:@"newChatWindow"]) {
-			//I need to put this in a new chat window
+			// I need to put this in a new chat window
 			chatWindowController = [adium.interfaceController openContainerWithID:nil name:nil];
 		} else if ([resolvedKeyDictionary objectForKey:@"inWindow"]) {
 			AIMessageWindow *chatWindow = [resolvedKeyDictionary objectForKey:@"inWindow"];
-            index = [[chatWindow chats] count];
+			index = [[chatWindow chats] count];
 			chatWindowController = (AIMessageWindowController *)[chatWindow windowController];
 		} else {
-			//I need to figure out to which chat window the location specifier is referring.			
+			// I need to figure out to which chat window the location specifier is referring.
 			NSPositionalSpecifier *location = [resolvedKeyDictionary objectForKey:@"Location"];
 			AIMessageWindow *chatWindow = [location insertionContainer];
-            index = [location insertionIndex];
+			index = [location insertionIndex];
 			chatWindowController = (AIMessageWindowController *)[chatWindow windowController];
 		}
-		
+
 		if (!chatWindowController) {
 			[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
 			[[NSScriptCommand currentCommand] setScriptErrorString:@"Can't create chat in that chat window."];
 			return nil;
 		}
-		
+
 		AIChat *newChat = [adium.chatController chatWithContact:contact];
-		//		NSLog(@"Making new chat %@ in chat window %@:%@",newChat,chatWindowController,[chatWindowController containerID]);
+		//		NSLog(@"Making new chat %@ in chat window %@:%@",newChat,chatWindowController,[chatWindowController
+		// containerID]);
 		[adium.interfaceController openChat:newChat inContainerWithID:[chatWindowController containerID] atIndex:index];
 		return newChat;
 	} else {
@@ -1205,15 +1216,20 @@ typedef enum
 			[[NSScriptCommand currentCommand] setScriptErrorString:@"Can't create a group chat without a name!"];
 			return nil;
 		}
-		//this can take a while...
+		// this can take a while...
 		NSMutableArray *newParticipants = [[[NSMutableArray alloc] init] autorelease];
-		for (int i=0;i<[participants count];i++) {
+		for (int i = 0; i < [participants count]; i++) {
 			[newParticipants addObject:[[participants objectAtIndex:i] objectsByEvaluatingSpecifier]];
 		}
-		
-		//AIChat *newChat = [adium.chatController chatWithName:name identifier:nil onAccount:self chatCreationInfo:nil];
+
+		// AIChat *newChat = [adium.chatController chatWithName:name identifier:nil onAccount:self
+		// chatCreationInfo:nil];
 		DCJoinChatViewController *chatController = [DCJoinChatViewController joinChatView];
-		[chatController doJoinChatWithName:name onAccount:self chatCreationInfo:nil invitingContacts:newParticipants withInvitationMessage:@"Hey, wanna join my chat?"];
+		[chatController doJoinChatWithName:name
+								 onAccount:self
+						  chatCreationInfo:nil
+						  invitingContacts:newParticipants
+					 withInvitationMessage:@"Hey, wanna join my chat?"];
 		return [adium.chatController existingChatWithName:name onAccount:self];
 	}
 }
@@ -1236,36 +1252,37 @@ typedef enum
 {
 	AIStatusType type;
 	switch (scriptingType) {
-		case AIAvailableStatusTypeAS:
-			type = AIAvailableStatusType;
-			break;
-		case AIAwayStatusTypeAS:
-			type = AIAwayStatusType;
-			break;
-		case AIInvisibleStatusTypeAS:
-			type = AIInvisibleStatusType;
-			break;
-		case AIOfflineStatusTypeAS:
-		default:
-			type = AIOfflineStatusType;
-			break;
+	case AIAvailableStatusTypeAS:
+		type = AIAvailableStatusType;
+		break;
+	case AIAwayStatusTypeAS:
+		type = AIAwayStatusType;
+		break;
+	case AIInvisibleStatusTypeAS:
+		type = AIInvisibleStatusType;
+		break;
+	case AIOfflineStatusTypeAS:
+	default:
+		type = AIOfflineStatusType;
+		break;
 	}
-	
+
 	AIStatus *currentStatus = self.statusState;
-	if ([currentStatus mutabilityType] == AILockedStatusState || [currentStatus mutabilityType] == AISecondaryLockedStatusState) {
+	if ([currentStatus mutabilityType] == AILockedStatusState ||
+		[currentStatus mutabilityType] == AISecondaryLockedStatusState) {
 		switch (type) {
-			case AIAvailableStatusType:
-				currentStatus = [adium.statusController availableStatus];
-				break;
-			case AIAwayStatusType:
-				currentStatus = [adium.statusController awayStatus];
-				break;
-			case AIInvisibleStatusType:
-				currentStatus = [adium.statusController invisibleStatus];
-				break;
-			case AIOfflineStatusType:
-				currentStatus = [adium.statusController offlineStatus];
-				break;
+		case AIAvailableStatusType:
+			currentStatus = [adium.statusController availableStatus];
+			break;
+		case AIAwayStatusType:
+			currentStatus = [adium.statusController awayStatus];
+			break;
+		case AIInvisibleStatusType:
+			currentStatus = [adium.statusController invisibleStatus];
+			break;
+		case AIOfflineStatusType:
+			currentStatus = [adium.statusController offlineStatus];
+			break;
 		}
 	} else {
 		if ([currentStatus mutabilityType] != AITemporaryEditableStatusState) {
@@ -1288,12 +1305,12 @@ typedef enum
 - (AIStatus *)modifiableCurrentStatus
 {
 	AIStatus *currentStatus = self.statusState;
-	
+
 	if ([currentStatus mutabilityType] != AITemporaryEditableStatusState) {
 		currentStatus = [[currentStatus mutableCopy] autorelease];
 		[currentStatus setMutabilityType:AITemporaryEditableStatusState];
-	}	
-	
+	}
+
 	return currentStatus;
 }
 
@@ -1305,18 +1322,18 @@ typedef enum
 - (void)setScriptingStatusMessageWithAttributedString:(id)message
 {
 	AIStatus *currentStatus = [self modifiableCurrentStatus];
-	
+
 	if ([message isKindOfClass:[NSAttributedString class]])
 		[currentStatus setStatusMessage:(NSAttributedString *)message];
 	else
 		[currentStatus setStatusMessageString:message];
-	
+
 	[adium.statusController setActiveStatusState:currentStatus forAccount:self];
 }
 
 - (void)setScriptingStatusMessage:(NSString *)message
 {
-  [self setScriptingStatusMessageWithAttributedString:message];
+	[self setScriptingStatusMessageWithAttributedString:message];
 }
 
 /**
@@ -1324,10 +1341,10 @@ typedef enum
  */
 - (void)setScriptingStatusMessageFromScriptCommand:(NSScriptCommand *)c
 {
-	//messageString could also be an NSTextStorage, due to WithMessage being able to also accept rich text
+	// messageString could also be an NSTextStorage, due to WithMessage being able to also accept rich text
 	NSString *messageString = [[c evaluatedArguments] objectForKey:@"WithMessage"];
 	if (messageString)
-		[self setScriptingStatusMessageWithAttributedString:messageString];	
+		[self setScriptingStatusMessageWithAttributedString:messageString];
 }
 
 /**
@@ -1336,7 +1353,7 @@ typedef enum
 - (void)scriptingGoAvailable:(NSScriptCommand *)c
 {
 	[adium.statusController setActiveStatusState:[adium.statusController availableStatus] forAccount:self];
-	
+
 	[self setScriptingStatusMessageFromScriptCommand:c];
 }
 
@@ -1348,9 +1365,9 @@ typedef enum
 	if (self.statusType == AIInvisibleStatusType) {
 		[self scriptingGoAvailable:c];
 
-	} else {		
+	} else {
 		[self setShouldBeOnline:YES];
-		
+
 		[self setScriptingStatusMessageFromScriptCommand:c];
 	}
 }
@@ -1381,7 +1398,7 @@ typedef enum
 - (void)scriptingGoInvisible:(NSScriptCommand *)c
 {
 	[adium.statusController setActiveStatusState:[adium.statusController invisibleStatus] forAccount:self];
-	
+
 	[self setScriptingStatusMessageFromScriptCommand:c];
 }
 
@@ -1398,7 +1415,9 @@ typedef enum
  */
 - (void)setProxyEnabled:(BOOL)proxyEnabled
 {
-	[self setPreference:[NSNumber numberWithBool:proxyEnabled] forKey:KEY_ACCOUNT_PROXY_ENABLED group:GROUP_ACCOUNT_STATUS];
+	[self setPreference:[NSNumber numberWithBool:proxyEnabled]
+				 forKey:KEY_ACCOUNT_PROXY_ENABLED
+				  group:GROUP_ACCOUNT_STATUS];
 }
 /**
  * @brief Gets the type of the proxy (one of the defined AdiumProxyTypes)
@@ -1489,45 +1508,43 @@ typedef enum
 
 @end
 
-@implementation AIAccount(AppleScriptPRIVATE)
+@implementation AIAccount (AppleScriptPRIVATE)
 - (AdiumProxyType)proxyTypeFromApplescript:(AdiumProxyTypeApplescript)proxyTypeAS
 {
-	switch(proxyTypeAS)
-	{
-		case Adium_Proxy_HTTP_AS:
-			return Adium_Proxy_HTTP;
-		case Adium_Proxy_SOCKS4_AS:
-			return Adium_Proxy_SOCKS4;
-		case Adium_Proxy_SOCKS5_AS:
-			return Adium_Proxy_SOCKS5;
-		case Adium_Proxy_Default_HTTP_AS:
-			return Adium_Proxy_Default_HTTP;
-		case Adium_Proxy_Default_SOCKS4_AS:
-			return Adium_Proxy_Default_SOCKS4;
-		case Adium_Proxy_Default_SOCKS5_AS:
-			return Adium_Proxy_Default_SOCKS5;
-		default:
-			return Adium_Proxy_None;
+	switch (proxyTypeAS) {
+	case Adium_Proxy_HTTP_AS:
+		return Adium_Proxy_HTTP;
+	case Adium_Proxy_SOCKS4_AS:
+		return Adium_Proxy_SOCKS4;
+	case Adium_Proxy_SOCKS5_AS:
+		return Adium_Proxy_SOCKS5;
+	case Adium_Proxy_Default_HTTP_AS:
+		return Adium_Proxy_Default_HTTP;
+	case Adium_Proxy_Default_SOCKS4_AS:
+		return Adium_Proxy_Default_SOCKS4;
+	case Adium_Proxy_Default_SOCKS5_AS:
+		return Adium_Proxy_Default_SOCKS5;
+	default:
+		return Adium_Proxy_None;
 	}
 }
 - (AdiumProxyTypeApplescript)applescriptProxyType:(AdiumProxyType)proxyType
 {
-	switch(proxyType)
-	{
-		case Adium_Proxy_HTTP:
-			return Adium_Proxy_HTTP_AS;
-		case Adium_Proxy_SOCKS4:
-			return Adium_Proxy_SOCKS4_AS;
-		case Adium_Proxy_SOCKS5:
-			return Adium_Proxy_SOCKS5_AS;
-		case Adium_Proxy_Default_HTTP:
-			return Adium_Proxy_Default_HTTP_AS;
-		case Adium_Proxy_Default_SOCKS4:
-			return Adium_Proxy_Default_SOCKS4_AS;
-		case Adium_Proxy_Default_SOCKS5:
-			return Adium_Proxy_Default_SOCKS5_AS;
-		default:
-			return Adium_Proxy_None_AS;
+	switch (proxyType) {
+	case Adium_Proxy_HTTP:
+		return Adium_Proxy_HTTP_AS;
+	case Adium_Proxy_SOCKS4:
+		return Adium_Proxy_SOCKS4_AS;
+	case Adium_Proxy_SOCKS5:
+		return Adium_Proxy_SOCKS5_AS;
+	case Adium_Proxy_Default_HTTP:
+		return Adium_Proxy_Default_HTTP_AS;
+	case Adium_Proxy_Default_SOCKS4:
+		return Adium_Proxy_Default_SOCKS4_AS;
+	case Adium_Proxy_Default_SOCKS5:
+		return Adium_Proxy_Default_SOCKS5_AS;
+	default:
+		return Adium_Proxy_None_AS;
 	}
 }
 

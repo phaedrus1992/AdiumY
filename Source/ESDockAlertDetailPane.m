@@ -1,22 +1,22 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import "ESDockAlertDetailPane.h"
 #import "AIDockBehaviorPlugin.h"
 #import "AIDockController.h"
-#import "ESDockAlertDetailPane.h"
 #import <AIUtilities/AIMenuAdditions.h>
 #import <Adium/AILocalizationTextField.h>
 
@@ -34,8 +34,9 @@
 /*!
  * @brief Nib name
  */
-- (NSString *)nibName{
-    return @"DockBehaviorContactAlert";    
+- (NSString *)nibName
+{
+	return @"DockBehaviorContactAlert";
 }
 
 /*!
@@ -45,9 +46,9 @@
 {
 	[super viewDidLoad];
 
-	[label_behavior setLocalizedString:AILocalizedString(@"Behavior","Dock behavior contact alert label")];
+	[label_behavior setLocalizedString:AILocalizedString(@"Behavior", "Dock behavior contact alert label")];
 
-    [popUp_actionDetails setMenu:[self behaviorListMenu]];
+	[popUp_actionDetails setMenu:[self behaviorListMenu]];
 }
 
 /*!
@@ -55,9 +56,10 @@
  */
 - (void)configureForActionDetails:(NSDictionary *)inDetails listObject:(AIListObject *)inObject
 {
-	NSInteger behaviorIndex = [popUp_actionDetails indexOfItemWithRepresentedObject:[inDetails objectForKey:KEY_DOCK_BEHAVIOR_TYPE]];
+	NSInteger behaviorIndex =
+		[popUp_actionDetails indexOfItemWithRepresentedObject:[inDetails objectForKey:KEY_DOCK_BEHAVIOR_TYPE]];
 	if (behaviorIndex >= 0 && behaviorIndex < [popUp_actionDetails numberOfItems]) {
-		[popUp_actionDetails selectItemAtIndex:behaviorIndex];        
+		[popUp_actionDetails selectItemAtIndex:behaviorIndex];
 	}
 }
 
@@ -66,13 +68,13 @@
  */
 - (NSDictionary *)actionDetails
 {
-	NSString	*behavior = [[popUp_actionDetails selectedItem] representedObject];
-	
+	NSString *behavior = [[popUp_actionDetails selectedItem] representedObject];
+
 	if (behavior) {
 		return [NSDictionary dictionaryWithObject:behavior forKey:KEY_DOCK_BEHAVIOR_TYPE];
 	} else {
 		return nil;
-	}	
+	}
 }
 
 /*!
@@ -88,17 +90,17 @@
  */
 - (NSMenu *)behaviorListMenu
 {
-    NSMenu			*behaviorMenu = [[[NSMenu allocWithZone:[NSMenu menuZone]] init] autorelease];
-    AIDockBehavior	behavior;
+	NSMenu *behaviorMenu = [[[NSMenu allocWithZone:[NSMenu menuZone]] init] autorelease];
+	AIDockBehavior behavior;
 
 	for (behavior = AIDockBehaviorBounceOnce; behavior <= AIDockBehaviorBounceDelay_OneMinute; behavior++) {
 		NSString *name = [adium.dockController descriptionForBehavior:behavior];
 		[behaviorMenu addItem:[self menuItemForBehavior:behavior withName:name]];
 	}
-    
-    [behaviorMenu setAutoenablesItems:NO];
-    
-    return behaviorMenu;
+
+	[behaviorMenu setAutoenablesItems:NO];
+
+	return behaviorMenu;
 }
 
 /*!
@@ -107,16 +109,14 @@
  */
 - (NSMenuItem *)menuItemForBehavior:(AIDockBehavior)behavior withName:(NSString *)name
 {
-    NSMenuItem		*menuItem;
-    menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:name
+	NSMenuItem *menuItem;
+	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:name
 																	 target:self
 																	 action:@selector(selectBehavior:)
 															  keyEquivalent:@""] autorelease];
-    [menuItem setRepresentedObject:[NSNumber numberWithInteger:behavior]];
-    
-    return menuItem;
+	[menuItem setRepresentedObject:[NSNumber numberWithInteger:behavior]];
+
+	return menuItem;
 }
 
-
 @end
-

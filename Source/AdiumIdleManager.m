@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -17,9 +17,9 @@
 #import "AdiumIdleManager.h"
 #import "AIStatusController.h"
 
-#define MACHINE_IDLE_THRESHOLD			30 	//30 seconds of inactivity is considered idle
-#define MACHINE_ACTIVE_POLL_INTERVAL	30	//Poll every 30 seconds when the user is active
-#define MACHINE_IDLE_POLL_INTERVAL		1	//Poll every second when the user is idle
+#define MACHINE_IDLE_THRESHOLD 30       // 30 seconds of inactivity is considered idle
+#define MACHINE_ACTIVE_POLL_INTERVAL 30 // Poll every 30 seconds when the user is active
+#define MACHINE_IDLE_POLL_INTERVAL 1    // Poll every second when the user is idle
 
 @interface AdiumIdleManager ()
 - (void)_setMachineIsIdle:(BOOL)inIdle;
@@ -54,7 +54,7 @@
 																name:@"com.apple.screensaver.didstop"
 															  object:nil];
 	}
-	
+
 	return self;
 }
 
@@ -98,28 +98,32 @@
  */
 - (void)_idleCheckTimer:(NSTimer *)inTimer
 {
-	CFTimeInterval	currentIdle = [self currentMachineIdle];
+	CFTimeInterval currentIdle = [self currentMachineIdle];
 
 	if (machineIsIdle) {
 		if (currentIdle < lastSeenIdle) {
 			/* If the machine is less idle than the last time we recorded, it means that activity has occured and the
-			* user is no longer idle.
-			*/
+			 * user is no longer idle.
+			 */
 			[self _setMachineIsIdle:NO];
 		} else {
-			//Periodically broadcast a 'MachineIdleUpdate' notification
-			[[NSNotificationCenter defaultCenter] postNotificationName:AIMachineIdleUpdateNotification
-													  object:nil
-													userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-														[NSNumber numberWithDouble:currentIdle], @"Duration",
-														[NSDate dateWithTimeIntervalSinceNow:-currentIdle], @"idleSince",
-														nil]];
+			// Periodically broadcast a 'MachineIdleUpdate' notification
+			[[NSNotificationCenter defaultCenter]
+				postNotificationName:AIMachineIdleUpdateNotification
+							  object:nil
+							userInfo:[NSDictionary
+										 dictionaryWithObjectsAndKeys:[NSNumber numberWithDouble:currentIdle],
+																	  @"Duration",
+																	  [NSDate
+																		  dateWithTimeIntervalSinceNow:-currentIdle],
+																	  @"idleSince", nil]];
 		}
 	} else {
-		//If machine inactivity is over the threshold, the user has gone idle.
-		if (currentIdle > MACHINE_IDLE_THRESHOLD) [self _setMachineIsIdle:YES];
+		// If machine inactivity is over the threshold, the user has gone idle.
+		if (currentIdle > MACHINE_IDLE_THRESHOLD)
+			[self _setMachineIsIdle:YES];
 	}
-	
+
 	lastSeenIdle = currentIdle;
 }
 
@@ -133,22 +137,23 @@
 - (void)_setMachineIsIdle:(BOOL)inIdle
 {
 	machineIsIdle = inIdle;
-	
-	//Post the appropriate idle or active notification
+
+	// Post the appropriate idle or active notification
 	if (machineIsIdle) {
 		[[NSNotificationCenter defaultCenter] postNotificationName:AIMachineIsIdleNotification object:nil];
 	} else {
 		[[NSNotificationCenter defaultCenter] postNotificationName:AIMachineIsActiveNotification object:nil];
 	}
-	
-	//Update our timer interval for either idle or active polling
+
+	// Update our timer interval for either idle or active polling
 	[idleTimer invalidate];
 	[idleTimer release];
-	idleTimer = [[NSTimer scheduledTimerWithTimeInterval:(machineIsIdle ? MACHINE_IDLE_POLL_INTERVAL : MACHINE_ACTIVE_POLL_INTERVAL)
-												  target:self
-												selector:@selector(_idleCheckTimer:)
-												userInfo:nil
-												 repeats:YES] retain];
+	idleTimer = [[NSTimer
+		scheduledTimerWithTimeInterval:(machineIsIdle ? MACHINE_IDLE_POLL_INTERVAL : MACHINE_ACTIVE_POLL_INTERVAL)
+								target:self
+							  selector:@selector(_idleCheckTimer:)
+							  userInfo:nil
+							   repeats:YES] retain];
 }
 
 /*!
@@ -174,6 +179,5 @@
 	[self _setMachineIsIdle:NO];
 	[pool release];
 }
-
 
 @end

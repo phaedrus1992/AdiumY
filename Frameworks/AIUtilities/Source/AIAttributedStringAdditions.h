@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -38,19 +38,24 @@ extern NSString *AIFontStyleAttributeName;
 /*!
  * @brief Find and replace on an attributed string
  *
- * Operation is identical to <tt>NSMutableString</tt>'s method of the same name.  The replacement string has the attributes of the string it replaced.
+ * Operation is identical to <tt>NSMutableString</tt>'s method of the same name.  The replacement string has the
+ * attributes of the string it replaced.
  * @param target The string to search for
  * @param replacement The string with which to replace <b>target</b>
  * @param opts Search options, as with NSMutableString's method
  * @param searchRange The range in which to search
  * @return Returns the number of replacements made
  */
-- (NSUInteger)replaceOccurrencesOfString:(NSString *)target withString:(NSString*)replacement options:(NSStringCompareOptions)opts range:(NSRange)searchRange;
+- (NSUInteger)replaceOccurrencesOfString:(NSString *)target
+							  withString:(NSString *)replacement
+								 options:(NSStringCompareOptions)opts
+								   range:(NSRange)searchRange;
 
 /*!
  * @brief Find and replace on an attributed string setting the attributes of the replacements
  *
- * Operation is identical to <tt>NSMutableString</tt>'s method of the same name.  The replacement string has the specified attributes.
+ * Operation is identical to <tt>NSMutableString</tt>'s method of the same name.  The replacement string has the
+ * specified attributes.
  * @param target The string to search for
  * @param replacement The string with which to replace <b>target</b>
  * @param attributes The attributes to apply to <b>replacement</b> for each replacement
@@ -58,7 +63,11 @@ extern NSString *AIFontStyleAttributeName;
  * @param searchRange The range in which to search
  * @return Returns the number of replacements made
  */
-- (NSUInteger)replaceOccurrencesOfString:(NSString *)target withString:(NSString*)replacement attributes:(NSDictionary*)attributes options:(NSStringCompareOptions)opts range:(NSRange)searchRange;
+- (NSUInteger)replaceOccurrencesOfString:(NSString *)target
+							  withString:(NSString *)replacement
+							  attributes:(NSDictionary *)attributes
+								 options:(NSStringCompareOptions)opts
+								   range:(NSRange)searchRange;
 
 /*!
  * @brief Apply color adjustments for a background
@@ -71,7 +80,8 @@ extern NSString *AIFontStyleAttributeName;
 /*!
  * @brief Apply color adjustments for a background
  *
- * Adjust all colors in the attributed string so they are visible on the background, adjusting brightness in a manner proportional to the original background
+ * Adjust all colors in the attributed string so they are visible on the background, adjusting brightness in a manner
+ * proportional to the original background
  * @param backgroundColor The background color
  */
 - (void)adjustColorsToShowOnBackgroundRelativeToOriginalBackground:(NSColor *)backgroundColor;
@@ -97,14 +107,16 @@ extern NSString *AIFontStyleAttributeName;
  * @category NSData(AIAppleScriptAdditions)
  * @brief Adds the ability to obtain an <tt>NSAttributedString</tt> from data.
  *
- * This category on <tt>NSData</tt> complements a method in the NSAttributedString(AIAttributedStringAdditions) category.
+ * This category on <tt>NSData</tt> complements a method in the NSAttributedString(AIAttributedStringAdditions)
+ * category.
  */
 @interface NSData (AIAttributedStringAdditions)
 
 /*!
  * @brief Return an <tt>NSAttributedString</tt> from this data
  *
- * Return an <tt>NSAttributedString</tt> from this data. The data should have been created via -[NSAttributedString dataRepresentation].
+ * Return an <tt>NSAttributedString</tt> from this data. The data should have been created via -[NSAttributedString
+ * dataRepresentation].
  * @return An <tt>NSAttributedString</tt>
  */
 - (NSAttributedString *)attributedString;
@@ -112,7 +124,8 @@ extern NSString *AIFontStyleAttributeName;
 
 @interface NSAttributedString (AIAttributedStringAdditions)
 /*!
- *	@brief Returns the set of \c NSAttributedString attributes that can be represented in CSS by \c +CSSStringForTextAttributes:.
+ *	@brief Returns the set of \c NSAttributedString attributes that can be represented in CSS by \c
+ * +CSSStringForTextAttributes:.
  *	@return An \c NSSet.
  *
  */
@@ -125,14 +138,16 @@ extern NSString *AIFontStyleAttributeName;
 	-[NSColor  CSSRepresentation]: Returns color name when color space is named; else, # + hexString
 	-[NSShadow CSSRepresentation]: Color, space, offset, space, blur radius
 	-[NSCursor CSSRepresentation]: Cursor name
-	-[NSFont   CSSRepresentation]: [Font weight, space, ]size, space, family(?) name (name in quotes if >1 words); example: @"12pt \"Lucida Grande\""
+	-[NSFont   CSSRepresentation]: [Font weight, space, ]size, space, family(?) name (name in quotes if >1 words);
+ example: @"12pt \"Lucida Grande\""
 
 	Not currently used:
 	-[NSURL    CSSRepresentation]: &#64;url
 	-[NSString CSSRepresentation]: Quoted form, unless it's a URL, in which case &#64;url
 	-[NSValue  CSSRepresentation]: If NSRect, &#64;"top right bottom left". Else, nil.
 
-	Note that NSLinkAttributeName and NSAttachmentAttributeName will not be included in the CSS. Those must be implemented as HTML (\<a\> and \<img\>).
+	Note that NSLinkAttributeName and NSAttachmentAttributeName will not be included in the CSS. Those must be
+ implemented as HTML (\<a\> and \<img\>).
 
 	Attribute                            CSS property
 	NSFontAttributeName                  font             (use -CSSRepresentation)
@@ -213,7 +228,8 @@ extern NSString *AIFontStyleAttributeName;
 /*!
  * @brief Create a new NSAttributedString, apply link appearance attributes where appropriate
  *
- * Sets color and underline attributes for any areas with NSLinkAttributeName set and returns the resulting <tt>NSAttributedString</tt>
+ * Sets color and underline attributes for any areas with NSLinkAttributeName set and returns the resulting
+ * <tt>NSAttributedString</tt>
  * @return A formatted <tt>NSAttributedString</tt>
  */
 - (NSAttributedString *)stringByAddingFormattingForLinks;
@@ -228,7 +244,8 @@ extern NSString *AIFontStyleAttributeName;
 /*!	@brief	Create a new NSAttributedString from an NSString and a URL.
  *
  *	@param	inString	The string that will be the hot text.
- *	@param	link	An NSURL or NSString representing an absolute URL. This method will convert the object to an NSURL if necessary.
+ *	@param	link	An NSURL or NSString representing an absolute URL. This method will convert the object to an NSURL
+ * if necessary.
  *	@throws	NSInvalidArgumentException	\a inString or \a link is \c nil.
  *	@return	An autoreleased \c NSAttributedString.
  */
@@ -240,10 +257,14 @@ extern NSString *AIFontStyleAttributeName;
  *
  *	@param	inString	The string that will contain the hot text.
  *	@param	linkRange	The range defining the substring of \a inString to linkify.
- *	@param	link	An NSURL or NSString representing an absolute URL. This method will convert the object to an NSURL if necessary.
- *	@throws	NSInvalidArgumentException	\a inString or \a link is \c nil, or \a linkRange falls outside the extent of \a inString.
+ *	@param	link	An NSURL or NSString representing an absolute URL. This method will convert the object to an NSURL
+ * if necessary.
+ *	@throws	NSInvalidArgumentException	\a inString or \a link is \c nil, or \a linkRange falls outside the extent of \a
+ * inString.
  *	@return	An autoreleased \c NSAttributedString.
  */
-+ (NSAttributedString *)attributedStringWithString:(NSString *)inString linkRange:(NSRange)linkRange linkDestination:(id)inLink;
++ (NSAttributedString *)attributedStringWithString:(NSString *)inString
+										 linkRange:(NSRange)linkRange
+								   linkDestination:(id)inLink;
 
 @end

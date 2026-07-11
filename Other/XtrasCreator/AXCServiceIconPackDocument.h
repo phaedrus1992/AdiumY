@@ -9,7 +9,6 @@
 #import "AXCIconPackDocument.h"
 
 @interface AXCServiceIconPackDocument : AXCIconPackDocument {
-
 }
 
 @end

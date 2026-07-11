@@ -1,28 +1,28 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 /*
-    Holds attributes that can be applied to a block of text
+	Holds attributes that can be applied to a block of text
 */
 
 #import "AITextAttributes.h"
 #import "AIApplicationAdditions.h"
 #import "AIFontManagerAdditions.h"
 
-#define FONT_DEFAULT_NAME	@"Helvetica"
+#define FONT_DEFAULT_NAME @"Helvetica"
 
 @interface AITextAttributes ()
 - (id)initWithFontFamily:(NSString *)inFamilyName traits:(NSFontTraitMask)inTraits size:(NSInteger)inSize;
@@ -32,10 +32,10 @@
 
 @implementation AITextAttributes
 
-//Creates a new instance of AITextAttributes
+// Creates a new instance of AITextAttributes
 + (id)textAttributesWithFontFamily:(NSString *)inFamilyName traits:(NSFontTraitMask)inTraits size:(NSInteger)inSize
 {
-    return [[self alloc] initWithFontFamily:inFamilyName traits:inTraits size:inSize];
+	return [[self alloc] initWithFontFamily:inFamilyName traits:inTraits size:inSize];
 }
 
 + (id)textAttributesWithDictionary:(NSDictionary *)inAttributes
@@ -43,7 +43,7 @@
 	return [[self alloc] initWithDictionary:inAttributes];
 }
 
-//init
+// init
 - (id)initWithFontFamily:(NSString *)inFamilyName traits:(NSFontTraitMask)inTraits size:(NSInteger)inSize
 {
 	if ((self = [self init])) {
@@ -60,7 +60,7 @@
 	if ((self = [self init])) {
 		dictionary = [inAttributes mutableCopy];
 
-		NSFont	*font = [dictionary objectForKey:NSFontAttributeName];
+		NSFont *font = [dictionary objectForKey:NSFontAttributeName];
 
 		if (font) {
 			fontFamilyName = [font familyName];
@@ -80,7 +80,7 @@
 {
 	if ((self = [super init])) {
 		dictionary = [[NSMutableDictionary alloc] init];
-		
+
 		fontFamilyName = nil;
 		fontTraitsMask = 0;
 		fontSize = 0;
@@ -89,11 +89,9 @@
 	return self;
 }
 
-
-
 - (id)copyWithZone:(NSZone *)zone
 {
-	AITextAttributes	*newTextAttributes = [[AITextAttributes alloc] init];
+	AITextAttributes *newTextAttributes = [[AITextAttributes alloc] init];
 
 	newTextAttributes->dictionary = [dictionary mutableCopy];
 	newTextAttributes->fontFamilyName = fontFamilyName;
@@ -108,11 +106,11 @@
 	return fontFamilyName;
 }
 
-//Set the font family (name)
+// Set the font family (name)
 - (void)setFontFamily:(NSString *)inName
 {
-    if (fontFamilyName != inName) {
-        fontFamilyName = inName;
+	if (fontFamilyName != inName) {
+		fontFamilyName = inName;
 
 		[dictionary removeObjectForKey:NSFontAttributeName];
 	}
@@ -123,12 +121,12 @@
 	return fontSize;
 }
 
-//Set the font size
+// Set the font size
 - (void)setFontSize:(NSInteger)inSize
 {
 	if (fontSize != inSize) {
 		fontSize = inSize;
-		
+
 		[dictionary removeObjectForKey:NSFontAttributeName];
 	}
 }
@@ -143,7 +141,7 @@
 	return [dictionary objectForKey:NSForegroundColorAttributeName];
 }
 
-//Set the text foreground color
+// Set the text foreground color
 - (void)setTextColor:(NSColor *)inColor
 {
 	if (inColor) {
@@ -158,7 +156,7 @@
 	return [dictionary objectForKey:NSBackgroundColorAttributeName];
 }
 
-//Sub-backround color (drawn just behind the text)
+// Sub-backround color (drawn just behind the text)
 - (void)setTextBackgroundColor:(NSColor *)inColor
 {
 	if (inColor) {
@@ -173,13 +171,13 @@
 	return [dictionary objectForKey:AIBodyColorAttributeName];
 }
 
-//Set the background color
+// Set the background color
 - (void)setBackgroundColor:(NSColor *)inColor
 {
 	if (inColor) {
 		[dictionary setObject:inColor forKey:AIBodyColorAttributeName];
 	} else {
-		[dictionary removeObjectForKey:AIBodyColorAttributeName];	
+		[dictionary removeObjectForKey:AIBodyColorAttributeName];
 	}
 }
 
@@ -188,10 +186,10 @@
 	return fontTraitsMask;
 }
 
-//Enable a masked trait (bold, italic)
+// Enable a masked trait (bold, italic)
 - (void)enableTrait:(NSFontTraitMask)inTrait
 {
-    fontTraitsMask |= inTrait;
+	fontTraitsMask |= inTrait;
 	[dictionary removeObjectForKey:NSFontAttributeName];
 }
 
@@ -201,13 +199,13 @@
 	[dictionary removeObjectForKey:NSFontAttributeName];
 }
 
-//Disable a masked trait (bold, italic)
+// Disable a masked trait (bold, italic)
 - (void)disableTrait:(NSFontTraitMask)inTrait
 {
-    if (fontTraitsMask && inTrait) {
-        fontTraitsMask ^= inTrait;
-    }
-    
+	if (fontTraitsMask && inTrait) {
+		fontTraitsMask ^= inTrait;
+	}
+
 	[dictionary removeObjectForKey:NSFontAttributeName];
 }
 
@@ -216,14 +214,14 @@
 	return [[dictionary objectForKey:NSUnderlineStyleAttributeName] boolValue];
 }
 
-//Enable/Disable underlining
+// Enable/Disable underlining
 - (void)setUnderline:(BOOL)inUnderline
 {
-    if (inUnderline) {
-        [dictionary setObject:[NSNumber numberWithBool:inUnderline] forKey:NSUnderlineStyleAttributeName];
-    } else {
-        [dictionary removeObjectForKey:NSUnderlineStyleAttributeName];
-    }
+	if (inUnderline) {
+		[dictionary setObject:[NSNumber numberWithBool:inUnderline] forKey:NSUnderlineStyleAttributeName];
+	} else {
+		[dictionary removeObjectForKey:NSUnderlineStyleAttributeName];
+	}
 }
 
 - (BOOL)strikethrough
@@ -232,25 +230,28 @@
 }
 
 // Enable or disable strikethrough
-- (void)setStrikethrough:(BOOL)inStrikethrough{
+- (void)setStrikethrough:(BOOL)inStrikethrough
+{
 	if (inStrikethrough) {
 		[dictionary setObject:[NSNumber numberWithBool:inStrikethrough] forKey:NSStrikethroughStyleAttributeName];
 	} else {
 		[dictionary removeObjectForKey:NSStrikethroughStyleAttributeName];
 	}
-} 
+}
 
 - (BOOL)subscript
 {
-	return [[dictionary objectForKey:NSBaselineOffsetAttributeName] floatValue]  < 0.0f;
+	return [[dictionary objectForKey:NSBaselineOffsetAttributeName] floatValue] < 0.0f;
 }
 
 // Enable or disable subscript
-- (void)setSubscript:(BOOL)inSubscript{
+- (void)setSubscript:(BOOL)inSubscript
+{
 	if (inSubscript) {
-		[dictionary setObject:[NSNumber numberWithFloat:((float)fontSize / -2.0f)] forKey:NSBaselineOffsetAttributeName];
+		[dictionary setObject:[NSNumber numberWithFloat:((float)fontSize / -2.0f)]
+					   forKey:NSBaselineOffsetAttributeName];
 		[self setFontSize:(fontSize - 2)];
-		
+
 	} else {
 		[dictionary removeObjectForKey:NSBaselineOffsetAttributeName];
 		[self setFontSize:(fontSize + 2)];
@@ -259,11 +260,12 @@
 
 - (BOOL)superscript
 {
-	return [[dictionary objectForKey:NSBaselineOffsetAttributeName] floatValue]  > 0.0f;
+	return [[dictionary objectForKey:NSBaselineOffsetAttributeName] floatValue] > 0.0f;
 }
 
 // Enable or disable superscript
-- (void)setSuperscript:(BOOL)inSuperscript{
+- (void)setSuperscript:(BOOL)inSuperscript
+{
 	if (inSuperscript) {
 		[dictionary setObject:[NSNumber numberWithFloat:((float)fontSize / 2.0f)] forKey:NSBaselineOffsetAttributeName];
 		[self setFontSize:(fontSize - 2)];
@@ -276,11 +278,11 @@
 
 - (void)setLinkURL:(NSURL *)inURL
 {
-    if (inURL) {
-        [dictionary setObject:inURL forKey:NSLinkAttributeName];
-    } else {
-        [dictionary removeObjectForKey:NSLinkAttributeName];
-    }
+	if (inURL) {
+		[dictionary setObject:inURL forKey:NSLinkAttributeName];
+	} else {
+		[dictionary removeObjectForKey:NSLinkAttributeName];
+	}
 }
 
 - (void)setLanguageValue:(id)languageValue
@@ -288,7 +290,7 @@
 	if (languageValue) {
 		[dictionary setObject:languageValue forKey:@"LanguageValue"];
 	} else {
-		[dictionary removeObjectForKey:@"LanguageValue"];		
+		[dictionary removeObjectForKey:@"LanguageValue"];
 	}
 }
 
@@ -297,13 +299,14 @@
 	return [dictionary objectForKey:@"LanguageValue"];
 }
 
-//Returns a dictinary of attributes
+// Returns a dictinary of attributes
 - (NSDictionary *)dictionary
 {
-	//If the dictionary doesn't specify a font, it means our font has changed since the last call here. Update now.
-	if (![dictionary objectForKey:NSFontAttributeName]) [self updateFont];
+	// If the dictionary doesn't specify a font, it means our font has changed since the last call here. Update now.
+	if (![dictionary objectForKey:NSFontAttributeName])
+		[self updateFont];
 
-    return dictionary;
+	return dictionary;
 }
 
 - (void)resetFontAttributes
@@ -315,46 +318,48 @@
 	[dictionary removeObjectForKey:@"LanguageValue"];
 }
 
-//Updates the cached font
+// Updates the cached font
 - (void)updateFont
 {
-    NSFont	*font = nil;
+	NSFont *font = nil;
 
-    //Ensure font size isn't 0
-    if (!fontSize) fontSize = 12;
+	// Ensure font size isn't 0
+	if (!fontSize)
+		fontSize = 12;
 
-    //Create the font
-    if (fontFamilyName) {
-		font = [[NSFontManager sharedFontManager] fontWithFamilyInsensitively:fontFamilyName 
+	// Create the font
+	if (fontFamilyName) {
+		font = [[NSFontManager sharedFontManager] fontWithFamilyInsensitively:fontFamilyName
 																	   traits:fontTraitsMask
 																	   weight:5
 																		 size:fontSize];
-    }
-    
-    //If no name was specified or the font is not available, use the default font
-    if (!font) {
-        font = [[NSFontManager sharedFontManager] fontWithFamily:FONT_DEFAULT_NAME
+	}
+
+	// If no name was specified or the font is not available, use the default font
+	if (!font) {
+		font = [[NSFontManager sharedFontManager] fontWithFamily:FONT_DEFAULT_NAME
 														  traits:fontTraitsMask
 														  weight:5
 															size:fontSize];
-		//Ensure that fontTraitsMask was actually respected; fontWithFamily:traits:weight:size: may not do it for us depending on the font
+		// Ensure that fontTraitsMask was actually respected; fontWithFamily:traits:weight:size: may not do it for us
+		// depending on the font
 		font = [[NSFontManager sharedFontManager] convertFont:font toHaveTrait:fontTraitsMask];
-    }
+	}
 
-    if (font) { //Just to be safe, incase the default font was unavailable for some reason
-        [dictionary setObject:font forKey:NSFontAttributeName];
-    }
+	if (font) { // Just to be safe, incase the default font was unavailable for some reason
+		[dictionary setObject:font forKey:NSFontAttributeName];
+	}
 }
 
 - (void)setWritingDirection:(NSWritingDirection)inDirection
 {
-	NSParagraphStyle			*paragraphStyle;
-	NSMutableParagraphStyle		*newParagraphStyle;
-	
+	NSParagraphStyle *paragraphStyle;
+	NSMutableParagraphStyle *newParagraphStyle;
+
 	if (!(paragraphStyle = [dictionary objectForKey:NSParagraphStyleAttributeName])) {
 		paragraphStyle = [NSParagraphStyle defaultParagraphStyle];
 	}
-	
+
 	newParagraphStyle = [paragraphStyle mutableCopy];
 	[newParagraphStyle setBaseWritingDirection:inDirection];
 	[dictionary setObject:newParagraphStyle forKey:NSParagraphStyleAttributeName];

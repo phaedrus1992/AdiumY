@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -18,66 +18,79 @@
 #import "ESIRCAccount.h"
 #import "ESIRCAccountViewController.h"
 #import "ESIRCJoinChatViewController.h"
+#import <AIUtilities/AICharacterSetAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIImageDrawingAdditions.h>
-#import <AIUtilities/AICharacterSetAdditions.h>
 
 @implementation ESIRCService
-//Account Creation
-- (Class)accountClass{
+// Account Creation
+- (Class)accountClass
+{
 	return [ESIRCAccount class];
 }
 
-- (AIAccountViewController *)accountViewController{
-    return [ESIRCAccountViewController accountViewController];
+- (AIAccountViewController *)accountViewController
+{
+	return [ESIRCAccountViewController accountViewController];
 }
 
-- (DCJoinChatViewController *)joinChatView{
+- (DCJoinChatViewController *)joinChatView
+{
 	return [ESIRCJoinChatViewController joinChatView];
 }
 
-//Service Description
-- (NSString *)serviceCodeUniqueID{
+// Service Description
+- (NSString *)serviceCodeUniqueID
+{
 	return @"libpurple-IRC";
 }
-- (NSString *)serviceID{
+- (NSString *)serviceID
+{
 	return @"IRC";
 }
-- (NSString *)serviceClass{
+- (NSString *)serviceClass
+{
 	return @"IRC";
 }
-- (NSString *)shortDescription{
+- (NSString *)shortDescription
+{
 	return @"IRC";
 }
-- (NSString *)longDescription{
+- (NSString *)longDescription
+{
 	return AILocalizedString(@"IRC (Internet Relay Chat)", nil);
 }
-- (NSCharacterSet *)allowedCharacters{
-	//Per RFC-2812: http://www.ietf.org/rfc/rfc2812.txt
-	NSMutableCharacterSet	*allowedCharacters = [[NSCharacterSet alphanumericCharacterSet] mutableCopy];
-	NSCharacterSet			*returnSet;
-	
+- (NSCharacterSet *)allowedCharacters
+{
+	// Per RFC-2812: http://www.ietf.org/rfc/rfc2812.txt
+	NSMutableCharacterSet *allowedCharacters = [[NSCharacterSet alphanumericCharacterSet] mutableCopy];
+	NSCharacterSet *returnSet;
+
 	[allowedCharacters addCharactersInString:@"[]\\`_^{|}-"];
 	returnSet = [allowedCharacters immutableCopy];
 	[allowedCharacters release];
 
 	return [returnSet autorelease];
 }
-- (BOOL)caseSensitive{
+- (BOOL)caseSensitive
+{
 	return NO;
 }
-- (BOOL)canCreateGroupChats{
+- (BOOL)canCreateGroupChats
+{
 	return YES;
 }
-- (BOOL)supportsPassword{
+- (BOOL)supportsPassword
+{
 	return YES;
 }
-//Passwords are supported but optional
+// Passwords are supported but optional
 - (BOOL)requiresPassword
 {
 	return NO;
 }
-- (AIServiceImportance)serviceImportance{
+- (AIServiceImportance)serviceImportance
+{
 	return AIServiceSecondary;
 }
 /*!
@@ -85,7 +98,7 @@
  */
 - (NSString *)UIDPlaceholder
 {
-	return AILocalizedString(@"nickname","Sample name and server for new IRC accounts");
+	return AILocalizedString(@"nickname", "Sample name and server for new IRC accounts");
 }
 /*!
  * @brief Username label
@@ -96,7 +109,7 @@
 }
 
 /*!
-* @brief Default icon
+ * @brief Default icon
  *
  * Service Icon packs should always include images for all the built-in Adium services.  This method allows external
  * service plugins to specify an image which will be used when the service icon pack does not specify one.  It will

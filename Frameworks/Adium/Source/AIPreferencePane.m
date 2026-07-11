@@ -1,38 +1,38 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #import <Adium/AIPreferencePane.h>
 
-#define PREFERENCE_VIEW_NIB		@"PreferenceView"	//Filename of the preference view nib
+#define PREFERENCE_VIEW_NIB @"PreferenceView" // Filename of the preference view nib
 
 @implementation AIPreferencePane
 
-//Return a new preference pane
+// Return a new preference pane
 + (AIPreferencePane *)preferencePane
 {
-    return [[[self alloc] init] autorelease];
+	return [[[self alloc] init] autorelease];
 }
 
-//Return a new preference pane, passing plugin
+// Return a new preference pane, passing plugin
 + (AIPreferencePane *)preferencePaneForPlugin:(id)inPlugin
 {
-    return [[[self alloc] initForPlugin:inPlugin] autorelease];
+	return [[[self alloc] initForPlugin:inPlugin] autorelease];
 }
 
-//Init
+// Init
 - (id)init
 {
 	if ((self = [super init])) {
@@ -63,8 +63,8 @@
 
 int getRandomNumber()
 {
-	return 4;	// chosen by fair dice roll.
-				// guaranteed to be random.
+	return 4; // chosen by fair dice roll.
+			  // guaranteed to be random.
 }
 
 - (NSString *)paneIdentifier
@@ -73,7 +73,7 @@ int getRandomNumber()
 	/* The subclass should implement paneIdentifier. If it doesn't, which can happen for an old external plugin,
 	 * generate a random paneIdentifier for this instance so that we can still function properly.
 	 */
-	return [NSString stringWithFormat:@"uniquePaneIdentifier-%i",getRandomNumber()];
+	return [NSString stringWithFormat:@"uniquePaneIdentifier-%i", getRandomNumber()];
 }
 
 - (NSImage *)paneIcon
@@ -88,7 +88,7 @@ int getRandomNumber()
 
 - (BOOL)allowsHorizontalResizing
 {
-	return NO;	
+	return NO;
 }
 
 - (BOOL)allowsVerticalResizing
@@ -97,4 +97,3 @@ int getRandomNumber()
 }
 
 @end
-

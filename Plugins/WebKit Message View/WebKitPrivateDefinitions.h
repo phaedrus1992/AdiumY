@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -17,11 +17,10 @@
 #import <WebKit/WebKit.h>
 
 @interface NSScrollView (NSScrollViewWebKitPrivate)
-- (void) setAllowsHorizontalScrolling:(BOOL) allow;
+- (void)setAllowsHorizontalScrolling:(BOOL)allow;
 @end
 
-@interface WebCoreScrollView:NSScrollView
-{
+@interface WebCoreScrollView : NSScrollView {
 }
 
 - (void)scrollWheel:fp8;
@@ -37,13 +36,12 @@
 - (void)setHorizontalScrollingMode:(NSInteger)fp8;
 @end
 
-@interface WebDynamicScrollBarsView:WebCoreScrollView <WebCoreFrameView>
-{
-    NSInteger hScroll;
-    NSInteger vScroll;
-    char suppressLayout;
-    char suppressScrollers;
-    char inUpdateScrollers;
+@interface WebDynamicScrollBarsView : WebCoreScrollView <WebCoreFrameView> {
+	NSInteger hScroll;
+	NSInteger vScroll;
+	char suppressLayout;
+	char suppressScrollers;
+	char inUpdateScrollers;
 }
 
 - (void)setSuppressLayout:(char)fp8;
@@ -64,14 +62,13 @@
 
 @end
 
-@interface WebFrameViewPrivate:NSObject
-{
-    WebView *webView;
-    WebDynamicScrollBarsView *frameScrollView;
-    NSInteger marginWidth;
-    NSInteger marginHeight;
-    NSArray *draggingTypes;
-    char hasBorder;
+@interface WebFrameViewPrivate : NSObject {
+	WebView *webView;
+	WebDynamicScrollBarsView *frameScrollView;
+	NSInteger marginWidth;
+	NSInteger marginHeight;
+	NSArray *draggingTypes;
+	char hasBorder;
 }
 
 - init;
@@ -79,10 +76,8 @@
 
 @end
 
-
-@interface WebHTMLView:NSView <WebDocumentView, WebDocumentSearching, WebDocumentText>
-{
-    id  _private;
+@interface WebHTMLView : NSView <WebDocumentView, WebDocumentSearching, WebDocumentText> {
+	id _private;
 }
 
 + (void)initialize;
@@ -138,7 +133,13 @@
 - (char)acceptsFirstMouse:fp8;
 - (char)shouldDelayWindowOrderingForEvent:fp8;
 - (void)mouseDown:fp8;
-- (void)dragImage:fp8 at:(struct _NSPoint)fp12 offset:(struct _NSSize)fp20 event:fp28 pasteboard:fp32 source:fp36 slideBack:(char)fp40;
+- (void)dragImage:fp8
+			   at:(struct _NSPoint)fp12
+		   offset:(struct _NSSize)fp20
+			event:fp28
+	   pasteboard:fp32
+		   source:fp36
+		slideBack:(char)fp40;
 - (void)mouseDragged:fp8;
 - (NSUInteger)draggingSourceOperationMaskForLocal:(char)fp8;
 - (void)draggedImage:fp8 endedAt:(struct _NSPoint)fp12 operation:(NSUInteger)fp20;
@@ -177,11 +178,10 @@
 - (void)showURL:fp8 inFrame:fp12;
 @end
 
-@interface WebPluginController:NSObject <WebPluginContainer>
-{
-    id				_HTMLView;
-    NSMutableArray *_views;
-    char _started;
+@interface WebPluginController : NSObject <WebPluginContainer> {
+	id _HTMLView;
+	NSMutableArray *_views;
+	char _started;
 }
 
 - initWithHTMLView:fp8;
@@ -194,14 +194,18 @@
 
 @end
 
-@interface NSPasteboard(NSTypeConversion)
+@interface NSPasteboard (NSTypeConversion)
 + _cocoaTypeNameFromIdentifier:(struct __CFString *)fp8;
 + (struct __CFString *)_typeIdentifierFromCocoaName:fp8;
 #warning 64BIT: Inspect use of unsigned long
 + (struct __CFString *)_typeIdentifierFromCarbonCode:(unsigned long)fp8;
 + _typesIncludingConversionsFromTypes:fp8;
 #warning 64BIT: Inspect use of long
-+ (void)_setConversionFromData:fp8 type:fp12 inPasteboard:(struct __CFPasteboard *)fp16 generation:(long)fp20 item:(void *)fp24;
++ (void)_setConversionFromData:fp8
+						  type:fp12
+				  inPasteboard:(struct __CFPasteboard *)fp16
+					generation:(long)fp20
+						  item:(void *)fp24;
 - _dataWithConversionForType:fp8;
 - (void)_addConversionsFromTypes:fp8;
 @end

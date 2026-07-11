@@ -10,14 +10,14 @@
 
 @implementation AXCIconPackEntry
 
-+ (id) entryWithKey:(NSString *)newKey path:(NSString *)newPath
++ (id)entryWithKey:(NSString *)newKey path:(NSString *)newPath
 {
 	return [[[self alloc] initWithKey:newKey path:newPath] autorelease];
 }
 
-- (id) initWithKey:(NSString *)newKey path:(NSString *)newPath
+- (id)initWithKey:(NSString *)newKey path:(NSString *)newPath
 {
-	if((self = [super init])) {
+	if ((self = [super init])) {
 		key = [newKey copy];
 		path = [newPath copy];
 	}
@@ -26,16 +26,16 @@
 
 #pragma mark -
 
-- (NSString *) key
+- (NSString *)key
 {
 	return key;
 }
 
-- (NSString *) path
+- (NSString *)path
 {
 	return path;
 }
-- (void) setPath:(NSString *)newPath
+- (void)setPath:(NSString *)newPath
 {
 	[path release];
 	path = [newPath copy];
@@ -43,7 +43,7 @@
 
 #pragma mark -
 
-- (NSString *) description
+- (NSString *)description
 {
 	return [NSString stringWithFormat:@"<%@ %p key:%@ path:%@>", [self class], self, key, path];
 }

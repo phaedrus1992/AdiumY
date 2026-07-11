@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -29,10 +29,10 @@
 	NSString *countText;
 	AIListObject *listObject = [proxyObject listObject];
 
-	if ([listObject boolValueForProperty:@"showCount"] &&
-		(countText = [listObject valueForProperty:@"countText"])) {
-		return [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@ (%@)", [self labelString], countText]
-												attributes:[self labelAttributes]] autorelease];
+	if ([listObject boolValueForProperty:@"showCount"] && (countText = [listObject valueForProperty:@"countText"])) {
+		return [[[NSAttributedString alloc]
+			initWithString:[NSString stringWithFormat:@"%@ (%@)", [self labelString], countText]
+				attributes:[self labelAttributes]] autorelease];
 
 	} else {
 		return super.displayName;
@@ -46,18 +46,17 @@
  */
 - (CGFloat)cellWidth
 {
-    AIListObject *listObject = [proxyObject listObject];
+	AIListObject *listObject = [proxyObject listObject];
 	CGFloat width = [super cellWidth];
 
-	if ([listObject boolValueForProperty:@"showCount"] && 
-		[listObject valueForProperty:@"countText"]) {
-		//We'll be added a space and parenthesis to the group count if it's displayed
+	if ([listObject boolValueForProperty:@"showCount"] && [listObject valueForProperty:@"countText"]) {
+		// We'll be added a space and parenthesis to the group count if it's displayed
 		NSAttributedString *countText = [[NSAttributedString alloc] initWithString:@" ()"
 																		attributes:[self labelAttributes]];
 		width += AIceil([countText size].width);
 		[countText release];
 	}
-	
+
 	return width;
 }
 
@@ -77,34 +76,36 @@
  */
 - (NSRect)bubbleRectForFrame:(NSRect)rect
 {
-	NSSize				nameSize = [self.displayName size];
-	CGFloat				originalWidth = rect.size.width;
-	CGFloat				originalX = rect.origin.x;
+	NSSize nameSize = [self.displayName size];
+	CGFloat originalWidth = rect.size.width;
+	CGFloat originalX = rect.origin.x;
 
-	//Alignment
+	// Alignment
 	switch ([self textAlignment]) {
-		case NSCenterTextAlignment:
-			rect.origin.x += ((rect.size.width - nameSize.width) / 2.0f) - [self leftPadding];
+	case NSCenterTextAlignment:
+		rect.origin.x += ((rect.size.width - nameSize.width) / 2.0f) - [self leftPadding];
 		break;
-		case NSRightTextAlignment:
-			rect.origin.x += (rect.size.width - nameSize.width) - [self leftPadding] - [self rightPadding];
+	case NSRightTextAlignment:
+		rect.origin.x += (rect.size.width - nameSize.width) - [self leftPadding] - [self rightPadding];
 		break;
-		default:
+	default:
 		break;
 	}
-	
-	//Fit the bubble to their name
+
+	// Fit the bubble to their name
 	rect.size.width = nameSize.width + [self leftPadding] + [self rightPadding];
-	
-	//Until we get right aligned/centered flippies, this will do
+
+	// Until we get right aligned/centered flippies, this will do
 	if ([self textAlignment] == NSLeftTextAlignment) {
 		rect.size.width += [self flippyIndent];
 	}
-	
-	//Don't let the bubble try to draw larger than the width we were passed, which was the full width possible
-	if (rect.size.width > originalWidth) rect.size.width = originalWidth;
-	if (rect.origin.x < originalX) rect.origin.x = originalX;
-	
+
+	// Don't let the bubble try to draw larger than the width we were passed, which was the full width possible
+	if (rect.size.width > originalWidth)
+		rect.size.width = originalWidth;
+	if (rect.origin.x < originalX)
+		rect.origin.x = originalX;
+
 	return rect;
 }
 

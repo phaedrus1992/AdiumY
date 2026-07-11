@@ -13,10 +13,10 @@
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#import <CoreFoundation/CoreFoundation.h>
-#import <CoreServices/CoreServices.h>
 #import "GetMetadataForHTMLLog.h"
 #import <AIUtilities/ISO8601DateFormatter.h>
+#import <CoreFoundation/CoreFoundation.h>
+#import <CoreServices/CoreServices.h>
 
 /*
  Relevant keys from MDItem.h we use or may want to use:
@@ -47,60 +47,69 @@ and return it as a dictionary
 Boolean GetMetadataForXMLLog(NSMutableDictionary *attributes, NSString *pathToFile);
 NS_RETURNS_RETAINED NSString *CopyTextContentForXMLLogData(NSData *logData);
 
-Boolean GetMetadataForFile(void* thisInterface,
-						   CFMutableDictionaryRef attributes,
-						   CFStringRef contentTypeUTI,
+Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attributes, CFStringRef contentTypeUTI,
 						   CFStringRef pathToFile)
 {
-    /* Pull any available metadata from the file at the specified path */
-    /* Return the attribute keys and attribute values in the dict */
-    /* Return TRUE if successful, FALSE if there was no data provided */
+	/* Pull any available metadata from the file at the specified path */
+	/* Return the attribute keys and attribute values in the dict */
+	/* Return TRUE if successful, FALSE if there was no data provided */
 
-	Boolean				success = FALSE;
+	Boolean success = FALSE;
 	@autoreleasepool {
-		if (CFStringCompare(contentTypeUTI, (__bridge CFStringRef)@"com.github.phaedrus1992.adiumy.htmllog", kCFCompareBackwards) == kCFCompareEqualTo) {
-			success = GetMetadataForHTMLLog((__bridge NSMutableDictionary *)attributes, (__bridge NSString *)pathToFile);
-		} else if (CFStringCompare(contentTypeUTI, (__bridge CFStringRef)@"com.github.phaedrus1992.adiumy.xmllog", kCFCompareBackwards) == kCFCompareEqualTo) {
+		if (CFStringCompare(contentTypeUTI, (__bridge CFStringRef) @"com.github.phaedrus1992.adiumy.htmllog",
+							kCFCompareBackwards) == kCFCompareEqualTo) {
+			success =
+				GetMetadataForHTMLLog((__bridge NSMutableDictionary *)attributes, (__bridge NSString *)pathToFile);
+		} else if (CFStringCompare(contentTypeUTI, (__bridge CFStringRef) @"com.github.phaedrus1992.adiumy.xmllog",
+								   kCFCompareBackwards) == kCFCompareEqualTo) {
 			success = GetMetadataForXMLLog((__bridge NSMutableDictionary *)attributes, (__bridge NSString *)pathToFile);
 		} else {
-			NSLog(@"We were passed %@, of type %@, which is an unknown type",pathToFile,contentTypeUTI);
+			NSLog(@"We were passed %@, of type %@, which is an unknown type", pathToFile, contentTypeUTI);
 		}
 	}
 
-    return success;
+	return success;
 }
 
-static CFStringRef ResolveUTI(CFStringRef contentTypeUTI, NSURL *urlToFile) {
-    //Deteremine the UTI type if we weren't passed one
-    CFStringRef pathExtension = (__bridge CFStringRef)[urlToFile pathExtension];
+static CFStringRef ResolveUTI(CFStringRef contentTypeUTI, NSURL *urlToFile)
+{
+	// Deteremine the UTI type if we weren't passed one
+	CFStringRef pathExtension = (__bridge CFStringRef)[urlToFile pathExtension];
 	if (contentTypeUTI == NULL) {
-		if (CFStringCompare(pathExtension, CFSTR("chatLog"), (kCFCompareBackwards | kCFCompareCaseInsensitive)) == kCFCompareEqualTo) {
+		if (CFStringCompare(pathExtension, CFSTR("chatLog"), (kCFCompareBackwards | kCFCompareCaseInsensitive)) ==
+			kCFCompareEqualTo) {
 			contentTypeUTI = CFSTR("com.github.phaedrus1992.adiumy.xmllog");
-		} else if (CFStringCompare(pathExtension, CFSTR("AdiumXMLLog"), (kCFCompareBackwards | kCFCompareCaseInsensitive)) == kCFCompareEqualTo) {
+		} else if (CFStringCompare(pathExtension, CFSTR("AdiumXMLLog"),
+								   (kCFCompareBackwards | kCFCompareCaseInsensitive)) == kCFCompareEqualTo) {
 			contentTypeUTI = CFSTR("com.github.phaedrus1992.adiumy.xmllog");
 		} else {
-			//Treat all other log extensions as HTML logs (plaintext will come out fine this way, too)
+			// Treat all other log extensions as HTML logs (plaintext will come out fine this way, too)
 			contentTypeUTI = CFSTR("com.github.phaedrus1992.adiumy.htmllog");
 		}
 	}
-    return contentTypeUTI;
+	return contentTypeUTI;
 }
 
-NS_RETURNS_RETAINED NSData *CopyDataForURL(CFStringRef contentTypeUTI, NSURL *urlToFile) {
-    @autoreleasepool {
-		NSData			*content = nil;
+NS_RETURNS_RETAINED NSData *CopyDataForURL(CFStringRef contentTypeUTI, NSURL *urlToFile)
+{
+	@autoreleasepool {
+		NSData *content = nil;
 		contentTypeUTI = ResolveUTI(contentTypeUTI, urlToFile);
 
 		if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.htmllog"))) {
 			content = [[NSData alloc] initWithContentsOfURL:urlToFile options:NSDataReadingUncached error:NULL];
 		} else if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.xmllog"))) {
 			BOOL isDir;
-	        NSString *path = [urlToFile path];
+			NSString *path = [urlToFile path];
 			if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir]) {
-	            if (isDir) {
-	                /* If we have a chatLog bundle, we want to get the text content for the xml file inside */
-	                urlToFile = [NSURL fileURLWithPath:[path stringByAppendingPathComponent:[[[path lastPathComponent] stringByDeletingPathExtension] stringByAppendingPathExtension:@"xml"]]];
-	            }
+				if (isDir) {
+					/* If we have a chatLog bundle, we want to get the text content for the xml file inside */
+					urlToFile = [NSURL
+						fileURLWithPath:[path
+											stringByAppendingPathComponent:[[[path lastPathComponent]
+																			   stringByDeletingPathExtension]
+																			   stringByAppendingPathExtension:@"xml"]]];
+				}
 
 				content = [[NSData alloc] initWithContentsOfURL:urlToFile options:NSUncachedRead error:NULL];
 
@@ -117,23 +126,26 @@ NS_RETURNS_RETAINED NSData *CopyDataForURL(CFStringRef contentTypeUTI, NSURL *ur
 	}
 }
 
-NS_RETURNS_RETAINED NSData *CopyDataForFile(CFStringRef contentTypeUTI, CFStringRef pathToFile) {
-    return CopyDataForURL(contentTypeUTI, [NSURL fileURLWithPath:(__bridge NSString *)pathToFile]);
+NS_RETURNS_RETAINED NSData *CopyDataForFile(CFStringRef contentTypeUTI, CFStringRef pathToFile)
+{
+	return CopyDataForURL(contentTypeUTI, [NSURL fileURLWithPath:(__bridge NSString *)pathToFile]);
 }
 
-CFStringRef CopyTextContentForFileData(CFStringRef contentTypeUTI, NSURL *urlToFile, NSData *fileData) {
-    if (!fileData) return NULL;
+CFStringRef CopyTextContentForFileData(CFStringRef contentTypeUTI, NSURL *urlToFile, NSData *fileData)
+{
+	if (!fileData)
+		return NULL;
 
-    contentTypeUTI = ResolveUTI(contentTypeUTI, urlToFile);
+	contentTypeUTI = ResolveUTI(contentTypeUTI, urlToFile);
 
-    NSString *result = nil;
+	NSString *result = nil;
 
-    if (CFEqual(contentTypeUTI,CFSTR("com.github.phaedrus1992.adiumy.htmllog"))) {
-        result = CopyTextContentForHTMLLogData(fileData);
+	if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.htmllog"))) {
+		result = CopyTextContentForHTMLLogData(fileData);
 	} else if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.xmllog"))) {
-        result = CopyTextContentForXMLLogData(fileData);
-    }
-    return (__bridge_retained CFStringRef)result;
+		result = CopyTextContentForXMLLogData(fileData);
+	}
+	return (__bridge_retained CFStringRef)result;
 }
 
 /*!
@@ -146,12 +158,12 @@ CFStringRef CopyTextContentForFileData(CFStringRef contentTypeUTI, NSURL *urlToF
  *
  * @result The kMDItemTextContent. Follows the Copy rule.
  */
-CFStringRef CopyTextContentForFile(CFStringRef contentTypeUTI,
-								   CFStringRef pathToFile)
+CFStringRef CopyTextContentForFile(CFStringRef contentTypeUTI, CFStringRef pathToFile)
 {
 	@autoreleasepool {
-	    NSData *logData = CopyDataForFile(contentTypeUTI, pathToFile);
-		CFStringRef	textContent = CopyTextContentForFileData(contentTypeUTI, [NSURL fileURLWithPath:(__bridge NSString *)pathToFile], logData);
+		NSData *logData = CopyDataForFile(contentTypeUTI, pathToFile);
+		CFStringRef textContent = CopyTextContentForFileData(
+			contentTypeUTI, [NSURL fileURLWithPath:(__bridge NSString *)pathToFile], logData);
 
 		return textContent;
 	}
@@ -170,56 +182,48 @@ Boolean GetMetadataForXMLLog(NSMutableDictionary *attributes, NSString *pathToFi
 {
 	Boolean ret = YES;
 	NSXMLDocument *xmlDoc = nil;
-	NSError *err=nil;
+	NSError *err = nil;
 	NSURL *furl = [NSURL fileURLWithPath:pathToFile];
 	NSData *data = [NSData dataWithContentsOfURL:furl options:NSUncachedRead error:&err];
 	if (data) {
 		xmlDoc = [[NSXMLDocument alloc] initWithData:data options:NSXMLNodePreserveCDATA error:&err];
 	}
 
-	if (xmlDoc)
-	{
-		NSArray *senderNodes = [xmlDoc nodesForXPath:@"//message/@sender"
-												error:&err];
-		NSSet *duplicatesRemover = [NSSet setWithArray: senderNodes];
+	if (xmlDoc) {
+		NSArray *senderNodes = [xmlDoc nodesForXPath:@"//message/@sender" error:&err];
+		NSSet *duplicatesRemover = [NSSet setWithArray:senderNodes];
 		// XPath returns an array of NSXMLNodes. Must convert them to strings containing just the attribute value.
 		NSMutableArray *authorsArray = [NSMutableArray arrayWithCapacity:[duplicatesRemover count]];
 		NSXMLNode *senderNode = nil;
 
-		for( senderNode in duplicatesRemover ) {
+		for (senderNode in duplicatesRemover) {
 			[authorsArray addObject:[senderNode objectValue]];
 		}
 
-		[attributes setObject:authorsArray
-					   forKey:(__bridge NSString *)kMDItemAuthors];
+		[attributes setObject:authorsArray forKey:(__bridge NSString *)kMDItemAuthors];
 
-		[attributes setObject:authorsArray
-					   forKey:(__bridge NSString *)kMDItemInstantMessageAddresses];
+		[attributes setObject:authorsArray forKey:(__bridge NSString *)kMDItemInstantMessageAddresses];
 
-		NSArray *contentArray = [xmlDoc nodesForXPath:@"//message//text()"
-												error:&err];
+		NSArray *contentArray = [xmlDoc nodesForXPath:@"//message//text()" error:&err];
 		NSString *contentString = [contentArray componentsJoinedByString:@" "];
 
-		[attributes setObject:contentString
-					   forKey:(__bridge NSString *)kMDItemTextContent];
+		[attributes setObject:contentString forKey:(__bridge NSString *)kMDItemTextContent];
 
 		NSString *serviceString = [[[xmlDoc rootElement] attributeForName:@"service"] objectValue];
-		if(serviceString != nil)
-			[attributes setObject:serviceString
-						   forKey:@"com_github_phaedrus1992_adiumY_service"];
+		if (serviceString != nil)
+			[attributes setObject:serviceString forKey:@"com_github_phaedrus1992_adiumY_service"];
 
-		NSArray			*children = [[xmlDoc rootElement] children];
-		NSDate			*startDate = nil, *endDate = nil;
+		NSArray *children = [[xmlDoc rootElement] children];
+		NSDate *startDate = nil, *endDate = nil;
 
 		if ([children count]) {
-			NSString		*dateStr;
+			NSString *dateStr;
 			ISO8601DateFormatter *formatter = [[ISO8601DateFormatter alloc] init];
 
 			dateStr = [[(NSXMLElement *)[children objectAtIndex:0] attributeForName:@"time"] objectValue];
 			startDate = (dateStr ? [formatter dateFromString:dateStr] : nil);
 			if (startDate)
-				[attributes setObject:startDate
-							   forKey:(__bridge NSString *)kMDItemContentCreationDate];
+				[attributes setObject:startDate forKey:(__bridge NSString *)kMDItemContentCreationDate];
 
 			dateStr = [[(NSXMLElement *)[children lastObject] attributeForName:@"time"] objectValue];
 			endDate = (dateStr ? [formatter dateFromString:dateStr] : nil);
@@ -230,28 +234,24 @@ Boolean GetMetadataForXMLLog(NSMutableDictionary *attributes, NSString *pathToFi
 
 		NSString *accountString = [[[xmlDoc rootElement] attributeForName:@"account"] objectValue];
 		if (accountString) {
-			[attributes setObject:accountString
-						   forKey:@"com_github_phaedrus1992_adiumY_chatSource"];
+			[attributes setObject:accountString forKey:@"com_github_phaedrus1992_adiumY_chatSource"];
 			NSMutableArray *otherAuthors = [authorsArray mutableCopy];
 			[otherAuthors removeObject:accountString];
-			[attributes setObject:otherAuthors
-						   forKey:@"com_github_phaedrus1992_adiumY_chatDestinations"];
-			//pick the first author for this.  likely a bad idea
+			[attributes setObject:otherAuthors forKey:@"com_github_phaedrus1992_adiumY_chatDestinations"];
+			// pick the first author for this.  likely a bad idea
 			if (startDate && [otherAuthors count]) {
 				NSString *toUID = [otherAuthors objectAtIndex:0];
 				NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
 				dateFormatter.dateFormat = @"yyyy'-'MM'-'dd";
 
-				[attributes setObject:[NSString stringWithFormat:@"%@ on %@",toUID,[dateFormatter stringFromDate:startDate]]
-							   forKey:(__bridge NSString *)kMDItemDisplayName];
+				[attributes
+					setObject:[NSString stringWithFormat:@"%@ on %@", toUID, [dateFormatter stringFromDate:startDate]]
+					   forKey:(__bridge NSString *)kMDItemDisplayName];
 			}
 		}
-		[attributes setObject:@"Chat log"
-					   forKey:(__bridge NSString *)kMDItemKind];
-		[attributes setObject:@"Adium"
-					   forKey:(__bridge NSString *)kMDItemCreator];
-	}
-	else
+		[attributes setObject:@"Chat log" forKey:(__bridge NSString *)kMDItemKind];
+		[attributes setObject:@"Adium" forKey:(__bridge NSString *)kMDItemCreator];
+	} else
 		ret = NO;
 
 	return ret;
@@ -259,52 +259,53 @@ Boolean GetMetadataForXMLLog(NSMutableDictionary *attributes, NSString *pathToFi
 
 NSString *killXMLTags(NSString *inString)
 {
-    NSScanner *scan = [NSScanner scannerWithString:inString];
-    NSString *tempString = nil;
-    NSMutableString *ret = [NSMutableString string];
-    NSRange rng;
+	NSScanner *scan = [NSScanner scannerWithString:inString];
+	NSString *tempString = nil;
+	NSMutableString *ret = [NSMutableString string];
+	NSRange rng;
 
-    while(![scan isAtEnd]){
-        tempString = nil;
-        [scan scanUpToString:@"<" intoString:&tempString];
-        if(tempString != nil)
-            [ret appendFormat:@"%@ ", tempString];
-        [scan scanString:@"<" intoString:nil];
-        [scan scanUpToString:@">" intoString:&tempString];
-        if([tempString hasPrefix:@"br"])
-            [ret appendString:@"\n"];
-        [scan scanString:@">" intoString:nil];
-    }
-    rng.location = -1;
-    do {
-        NSRange searchRange = NSMakeRange(rng.location+1, [ret length]-rng.location-1);
-        rng = [ret rangeOfString:@"&lt;" options:0 range:searchRange];
-        if (rng.length > 0)
-            [ret replaceCharactersInRange: rng withString: @"<"];
-    } while (rng.length > 0);
-    rng.location = -1;
-    do {
-        NSRange searchRange = NSMakeRange(rng.location+1, [ret length]-rng.location-1);
-        rng = [ret rangeOfString:@"&gt;" options:0 range:searchRange];
-        if (rng.length > 0)
-            [ret replaceCharactersInRange: rng withString: @">"];
-    } while (rng.length > 0);
-    rng.location = -1;
-    do {
-        NSRange searchRange = NSMakeRange(rng.location+1, [ret length]-rng.location-1);
-        rng = [ret rangeOfString:@"&amp;" options:0 range:searchRange];
-        if (rng.length > 0)
-            [ret replaceCharactersInRange: rng withString: @"&"];
-    } while (rng.length > 0);
-    return ret;
+	while (![scan isAtEnd]) {
+		tempString = nil;
+		[scan scanUpToString:@"<" intoString:&tempString];
+		if (tempString != nil)
+			[ret appendFormat:@"%@ ", tempString];
+		[scan scanString:@"<" intoString:nil];
+		[scan scanUpToString:@">" intoString:&tempString];
+		if ([tempString hasPrefix:@"br"])
+			[ret appendString:@"\n"];
+		[scan scanString:@">" intoString:nil];
+	}
+	rng.location = -1;
+	do {
+		NSRange searchRange = NSMakeRange(rng.location + 1, [ret length] - rng.location - 1);
+		rng = [ret rangeOfString:@"&lt;" options:0 range:searchRange];
+		if (rng.length > 0)
+			[ret replaceCharactersInRange:rng withString:@"<"];
+	} while (rng.length > 0);
+	rng.location = -1;
+	do {
+		NSRange searchRange = NSMakeRange(rng.location + 1, [ret length] - rng.location - 1);
+		rng = [ret rangeOfString:@"&gt;" options:0 range:searchRange];
+		if (rng.length > 0)
+			[ret replaceCharactersInRange:rng withString:@">"];
+	} while (rng.length > 0);
+	rng.location = -1;
+	do {
+		NSRange searchRange = NSMakeRange(rng.location + 1, [ret length] - rng.location - 1);
+		rng = [ret rangeOfString:@"&amp;" options:0 range:searchRange];
+		if (rng.length > 0)
+			[ret replaceCharactersInRange:rng withString:@"&"];
+	} while (rng.length > 0);
+	return ret;
 }
 
-NS_RETURNS_RETAINED NSString *CopyTextContentForXMLLogData(NSData *data) {
-    NSString *contentString = nil;
+NS_RETURNS_RETAINED NSString *CopyTextContentForXMLLogData(NSData *data)
+{
+	NSString *contentString = nil;
 	NSError *err;
-    NSXMLDocument *xmlDoc = [[NSXMLDocument alloc] initWithData:data options:NSXMLNodePreserveCDATA error:&err];
+	NSXMLDocument *xmlDoc = [[NSXMLDocument alloc] initWithData:data options:NSXMLNodePreserveCDATA error:&err];
 
-    if (xmlDoc) {
+	if (xmlDoc) {
 		NSArray *children = [[xmlDoc rootElement] children];
 		NSMutableArray *messages = [NSMutableArray array];
 
@@ -314,12 +315,13 @@ NS_RETURNS_RETAINED NSString *CopyTextContentForXMLLogData(NSData *data) {
 			}
 		}
 
-		if (messages.count) contentString = [messages componentsJoinedByString:@" "];
-    } else {
+		if (messages.count)
+			contentString = [messages componentsJoinedByString:@" "];
+	} else {
 #ifdef AILogWithSignature
 		AILogWithSignature(@"Parsing log failed: %@", err);
 #endif
 	}
 
-    return contentString;
+	return contentString;
 }

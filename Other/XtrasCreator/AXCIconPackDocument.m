@@ -8,17 +8,17 @@
 
 #import "AXCIconPackDocument.h"
 
-#import "NSMutableArrayAdditions.h"
-#import "NSMenu+ImmediatePopulation.h"
 #import "AXCIconPackEntry.h"
+#import "NSMenu+ImmediatePopulation.h"
+#import "NSMutableArrayAdditions.h"
 
-//columns of the icon keys outline view.
+// columns of the icon keys outline view.
 #define KEY_COLUMN_NAME @"key"
 #define RESOURCE_COLUMN_NAME @"file"
 
 @implementation AXCIconPackDocument
 
-- (id) init
+- (id)init
 {
 	if ((self = [super init])) {
 		categoryNames = [[self categoryNames] copy];
@@ -27,7 +27,8 @@
 		NSEnumerator *categoryNamesEnum = [categoryNames objectEnumerator];
 		NSString *categoryName;
 		while ((categoryName = [categoryNamesEnum nextObject]))
-			[temp setObject:[[[self entriesForNewDocumentInCategory:categoryName] mutableCopy] autorelease] forKey:categoryName];
+			[temp setObject:[[[self entriesForNewDocumentInCategory:categoryName] mutableCopy] autorelease]
+					 forKey:categoryName];
 
 		categoryStorage = [temp copy];
 		[temp release];
@@ -35,7 +36,7 @@
 	return self;
 }
 
-- (void) dealloc
+- (void)dealloc
 {
 	[categoryNames release];
 	[categoryStorage release];
@@ -55,7 +56,7 @@
 	[[[[iconPlistView tableColumnWithIdentifier:RESOURCE_COLUMN_NAME] dataCell] menu] populateFromDelegate];
 }
 
-- (BOOL) writeToFile:(NSString *)path ofType:(NSString *)docType
+- (BOOL)writeToFile:(NSString *)path ofType:(NSString *)docType
 {
 	BOOL success = [super writeToFile:path ofType:docType];
 	if (success) {
@@ -79,19 +80,21 @@
 			[iconsPlist setObject:categoryPlist forKey:categoryName];
 		}
 
-		NSString *iconsPlistPath = [[[path stringByAppendingPathComponent:@"Contents"] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent:@"Icons.plist"];
+		NSString *iconsPlistPath = [[[path stringByAppendingPathComponent:@"Contents"]
+			stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent:@"Icons.plist"];
 		success = [iconsPlist writeToFile:iconsPlistPath atomically:NO];
 	}
 	return success;
 }
 
-- (BOOL) readFromFile:(NSString *)path ofType:(NSString *)type
+- (BOOL)readFromFile:(NSString *)path ofType:(NSString *)type
 {
 	BOOL success = [super readFromFile:path ofType:type];
 	if (success) {
 		[self removeResource:@"Icons.plist"];
 
-		NSDictionary *iconsPlist = [NSDictionary dictionaryWithContentsOfFile:[bundle pathForResource:@"Icons" ofType:@"plist"]];
+		NSDictionary *iconsPlist = [NSDictionary dictionaryWithContentsOfFile:[bundle pathForResource:@"Icons"
+																							   ofType:@"plist"]];
 		categoryNames = [[iconsPlist allKeys] retain];
 
 		NSMutableDictionary *storage = [[NSMutableDictionary alloc] initWithCapacity:[categoryNames count]];
@@ -112,7 +115,9 @@
 					[entries addObject:entry];
 					[entry release];
 				} else {
-					NSLog(@"Error while loading %@: Icons.plist contains a key (%@) in category %@ whose resource path (%@) does not exist in this bundle", path, key, categoryName, iconPath);
+					NSLog(@"Error while loading %@: Icons.plist contains a key (%@) in category %@ whose resource path "
+						  @"(%@) does not exist in this bundle",
+						  path, key, categoryName, iconPath);
 				}
 			}
 
@@ -121,33 +126,33 @@
 		}
 
 		[categoryStorage release];
-		 categoryStorage = [storage retain];
+		categoryStorage = [storage retain];
 	}
 	return success;
 }
 
 #pragma mark Bindings
 
-//use this, NOT -categoryNames, for bindings.
-- (NSArray *) categoryNamesArray
+// use this, NOT -categoryNames, for bindings.
+- (NSArray *)categoryNamesArray
 {
 	return categoryNames;
 }
 
 #pragma mark Outline view data source conformance
 
-- (id) outlineView:(NSOutlineView *)outlineView child:(int)idx ofItem:(id)item
+- (id)outlineView:(NSOutlineView *)outlineView child:(int)idx ofItem:(id)item
 {
-	if (!item) //return a category name
+	if (!item) // return a category name
 		return [categoryNames objectAtIndex:idx];
-	else //return category storage
+	else // return category storage
 		return [[categoryStorage objectForKey:item] objectAtIndex:idx];
 }
-- (BOOL) outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
+- (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
 	return ([categoryStorage objectForKey:item] != nil);
 }
-- (int) outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
+- (int)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
 	if (!item)
 		return [categoryNames count];
@@ -159,7 +164,7 @@
 		return 0;
 }
 
-- (id) outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)col byItem:(id)item
+- (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)col byItem:(id)item
 {
 	BOOL isKeyColumn = [KEY_COLUMN_NAME isEqualToString:[col identifier]];
 	unsigned categoryIndex = [categoryNames indexOfObjectIdenticalTo:item];
@@ -167,9 +172,13 @@
 	if (categoryIndex != NSNotFound)
 		return isKeyColumn ? item : [NSNumber numberWithInt:-1];
 	else
-		return isKeyColumn ? (NSObject *)[item key] : (NSObject *)[NSNumber numberWithUnsignedInt:[resources indexOfObject:[item path]]];
+		return isKeyColumn ? (NSObject *)[item key]
+						   : (NSObject *)[NSNumber numberWithUnsignedInt:[resources indexOfObject:[item path]]];
 }
-- (void) outlineView:(NSOutlineView *)outlineView setObjectValue:(id)newValue forTableColumn:(NSTableColumn *)col byItem:(id)item
+- (void)outlineView:(NSOutlineView *)outlineView
+	 setObjectValue:(id)newValue
+	 forTableColumn:(NSTableColumn *)col
+			 byItem:(id)item
 {
 	int index = [(NSNumber *)newValue intValue];
 	if (index > -1)
@@ -178,45 +187,53 @@
 		[(AXCIconPackEntry *)item setPath:nil];
 }
 
-- (NSDragOperation)outlineView:(NSOutlineView *)outlineView validateDrop:(id <NSDraggingInfo>)info proposedItem:(id)item proposedChildIndex:(int)index
+- (NSDragOperation)outlineView:(NSOutlineView *)outlineView
+				  validateDrop:(id<NSDraggingInfo>)info
+				  proposedItem:(id)item
+			proposedChildIndex:(int)index
 {
 	NSArray *plist = [[info draggingPasteboard] propertyListForType:NSFilenamesPboardType];
 
-	if ([item isKindOfClass:[AXCIconPackEntry class]] //it's an icon pack entry
-		&& ([plist count] == 1) //the user is only dragging one file
-		&& (index == NSOutlineViewDropOnItemIndex) //we're dropping onto the entry
+	if ([item isKindOfClass:[AXCIconPackEntry class]] // it's an icon pack entry
+		&& ([plist count] == 1)                       // the user is only dragging one file
+		&& (index == NSOutlineViewDropOnItemIndex)    // we're dropping onto the entry
 	) {
 		return NSDragOperationLink;
 	} else
 		return NSDragOperationNone;
 }
-- (BOOL)outlineView:(NSOutlineView *)outlineView acceptDrop:(id <NSDraggingInfo>)info item:(id)item childIndex:(int)index
+- (BOOL)outlineView:(NSOutlineView *)outlineView acceptDrop:(id<NSDraggingInfo>)info item:(id)item childIndex:(int)index
 {
-	[(AXCIconPackEntry *)item setPath:[[[info draggingPasteboard] propertyListForType:NSFilenamesPboardType] objectAtIndex:0]];
+	[(AXCIconPackEntry *)item
+		setPath:[[[info draggingPasteboard] propertyListForType:NSFilenamesPboardType] objectAtIndex:0]];
 	return YES;
 }
 
 #pragma mark NSOutlineView delegate conformance
 
-- (void)outlineView:(NSOutlineView *)outlineView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn item:(id)item {
+- (void)outlineView:(NSOutlineView *)outlineView
+	willDisplayCell:(id)cell
+	 forTableColumn:(NSTableColumn *)tableColumn
+			   item:(id)item
+{
 	if ([cell isKindOfClass:[NSPopUpButtonCell class]]) {
 		if ([categoryNames containsObject:item]) {
 			[cell setMenu:emptyMenu];
-			[cell setArrowPosition:NSPopUpNoArrow]; //hide arrow for categories
+			[cell setArrowPosition:NSPopUpNoArrow]; // hide arrow for categories
 		} else {
 			[cell setMenu:menuWithResourceFiles];
-			[cell setArrowPosition:NSPopUpArrowAtBottom]; //show arrow for item pairs
+			[cell setArrowPosition:NSPopUpArrowAtBottom]; // show arrow for item pairs
 
-			//we have to do this because of an NSMenu bug.
-			//http://www.corbinstreehouse.com/blog/archives/2005/07/dynamically_pop.html
+			// we have to do this because of an NSMenu bug.
+			// http://www.corbinstreehouse.com/blog/archives/2005/07/dynamically_pop.html
 			NSMenu *menu = [cell menu];
 			[menu setDelegate:self];
 			[menu populateFromDelegate];
 
-			//this is lame but necessary too.
+			// this is lame but necessary too.
 			if (![item path])
 				[cell selectItemAtIndex:-1];
-			else //because we just changed the menu of the cell...
+			else // because we just changed the menu of the cell...
 				[cell selectItemAtIndex:[resources indexOfObject:[item path]]];
 		}
 	}
@@ -225,32 +242,32 @@
 /*keep the outline view from changing the width of the Key column (thereby
  *	 hiding the pop-up menu arrows and showing a scroll-bar) whenever the user expands or collapses a category.
  */
-- (void) restoreKeyColumnMaxWidth
+- (void)restoreKeyColumnMaxWidth
 {
 	[[iconPlistView tableColumnWithIdentifier:KEY_COLUMN_NAME] setMaxWidth:previousColumnMaxWidth];
 }
-- (void) outlineViewItemWillExpand:(NSNotification *)notification
+- (void)outlineViewItemWillExpand:(NSNotification *)notification
 {
 	NSTableColumn *col = [iconPlistView tableColumnWithIdentifier:KEY_COLUMN_NAME];
 	previousColumnMaxWidth = [col maxWidth];
 	[col setMaxWidth:[col width]];
 }
-- (void) outlineViewItemDidExpand:(NSNotification *)notification
+- (void)outlineViewItemDidExpand:(NSNotification *)notification
 {
 	[self performSelector:@selector(restoreKeyColumnMaxWidth) withObject:nil afterDelay:0.05];
 }
 
 #pragma mark NSMenu delegate conformance
 
-- (int) numberOfItemsInMenu:(NSMenu *)menu
+- (int)numberOfItemsInMenu:(NSMenu *)menu
 {
 	return [resources count];
 }
-- (BOOL) menu:(NSMenu *)menu updateItem:(NSMenuItem *)item atIndex:(int)index shouldCancel:(BOOL)shouldCancel
+- (BOOL)menu:(NSMenu *)menu updateItem:(NSMenuItem *)item atIndex:(int)index shouldCancel:(BOOL)shouldCancel
 {
 	NSString *path = [resources objectAtIndex:index];
 
-	[item setTitle:[displayNames  objectForKey:path]];
+	[item setTitle:[displayNames objectForKey:path]];
 
 	NSImage *image = [[imagePreviews objectForKey:path] copy];
 	[image setFlipped:NO];
@@ -262,12 +279,12 @@
 
 #pragma mark Implementation of Xtra-document methods
 
-- (NSArray *) validResourceTypes
+- (NSArray *)validResourceTypes
 {
 	return [NSImage imageFileTypes];
 }
 
-- (NSArray *) tabViewItems
+- (NSArray *)tabViewItems
 {
 	if (!tabViewItems) {
 		if (!iconPlistView)
@@ -275,7 +292,7 @@
 
 		NSTabViewItem *tvi = [[NSTabViewItem alloc] initWithIdentifier:@"IconPlist"];
 		[tvi setView:topLevelView];
-		[tvi setLabel:@"Icon keys"]; //XXX LOCALIZEME
+		[tvi setLabel:@"Icon keys"]; // XXX LOCALIZEME
 
 		tabViewItems = [[NSArray alloc] initWithObjects:&tvi count:1];
 		[tvi release];
@@ -286,17 +303,17 @@
 
 #pragma mark Implementation of icon-pack abstract methods
 
-- (NSArray *) categoryNames
+- (NSArray *)categoryNames
 {
 	return [NSArray array];
 }
 
-- (NSArray *) entriesInCategory:(NSString *)categoryName
+- (NSArray *)entriesInCategory:(NSString *)categoryName
 {
 	return [categoryStorage objectForKey:categoryName];
 }
 
-- (NSArray *) entriesForNewDocumentInCategory:(NSString *)categoryName
+- (NSArray *)entriesForNewDocumentInCategory:(NSString *)categoryName
 {
 	return [NSArray array];
 }

@@ -1,33 +1,33 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #import "AICachedUserIconSource.h"
-#import <Adium/AIUserIcons.h>
-#import <Adium/AIListObject.h>
 #import <Adium/AIListContact.h>
+#import <Adium/AIListObject.h>
+#import <Adium/AIUserIcons.h>
 
 static AICachedUserIconSource *sharedCachedUserIconSourceInstance = nil;
 
 @implementation AICachedUserIconSource
 
-+ (AICachedUserIconSource  *)sharedCachedUserIconSourceInstance
++ (AICachedUserIconSource *)sharedCachedUserIconSourceInstance
 {
 	if (!sharedCachedUserIconSourceInstance)
 		sharedCachedUserIconSourceInstance = [[self alloc] init];
-	
+
 	return sharedCachedUserIconSourceInstance;
 }
 
@@ -49,26 +49,23 @@ static AICachedUserIconSource *sharedCachedUserIconSourceInstance = nil;
  */
 + (BOOL)cacheUserIconData:(NSData *)inData forObject:(AIListObject *)inObject
 {
-	if ([inObject isKindOfClass:[AIListContact class]] && 
+	if ([inObject isKindOfClass:[AIListContact class]] &&
 		([[(AIListContact *)inObject account] managesOwnContactIconCache])) {
-		//Don't cache if the account manages its own cache
+		// Don't cache if the account manages its own cache
 		return NO;
 
 	} else {
-		BOOL		success;
-		NSString	*cachedImagePath = [self _cachedImagePathForObject:inObject];
-		
+		BOOL success;
+		NSString *cachedImagePath = [self _cachedImagePathForObject:inObject];
+
 		if (inData && [inData length]) {
-			success = ([inData writeToFile:cachedImagePath
-								atomically:YES]);
+			success = ([inData writeToFile:cachedImagePath atomically:YES]);
 		} else {
-			success = [[NSFileManager defaultManager] removeItemAtPath:cachedImagePath
-																 error:NULL];
+			success = [[NSFileManager defaultManager] removeItemAtPath:cachedImagePath error:NULL];
 		}
-		
-		[AIUserIcons userIconSource:[self sharedCachedUserIconSourceInstance] 
-				 didChangeForObject:inObject];
-		
+
+		[AIUserIcons userIconSource:[self sharedCachedUserIconSourceInstance] didChangeForObject:inObject];
+
 		return success;
 	}
 }
@@ -83,7 +80,7 @@ static AICachedUserIconSource *sharedCachedUserIconSourceInstance = nil;
 			sharedCachedUserIconSourceInstance = [self retain];
 		}
 	}
-	
+
 	return self;
 }
 
@@ -96,21 +93,21 @@ static AICachedUserIconSource *sharedCachedUserIconSourceInstance = nil;
  */
 - (AIUserIconSourceQueryResult)updateUserIconForObject:(AIListObject *)inObject
 {
-	if ([inObject isKindOfClass:[AIListContact class]] && 
+	if ([inObject isKindOfClass:[AIListContact class]] &&
 		([[(AIListContact *)inObject account] managesOwnContactIconCache])) {
-		//Don't look for an icon if the account manages its own cache
+		// Don't look for an icon if the account manages its own cache
 		return AIUserIconSourceDidNotFindIcon;
-		
+
 	} else {
 		NSData *iconData = [self cachedUserIconDataForObject:inObject];
-		
+
 		if (iconData) {
 			[AIUserIcons userIconSource:self
 				   didDetermineUserIcon:[[[NSImage alloc] initWithData:iconData] autorelease]
 						 asynchronously:NO
 							  forObject:inObject];
 		}
-		
+
 		return (iconData ? AIUserIconSourceFoundIcon : AIUserIconSourceDidNotFindIcon);
 	}
 }
@@ -122,16 +119,16 @@ static AICachedUserIconSource *sharedCachedUserIconSourceInstance = nil;
  */
 - (NSData *)cachedUserIconDataForObject:(AIListObject *)inObject
 {
-	NSString	*cachedImagePath = [[self class] _cachedImagePathForObject:inObject];
-	
+	NSString *cachedImagePath = [[self class] _cachedImagePathForObject:inObject];
+
 	if ([[NSFileManager defaultManager] fileExistsAtPath:cachedImagePath]) {
-		NSData				*cachedImage;
-		
+		NSData *cachedImage;
+
 		if ((cachedImage = [[NSData alloc] initWithContentsOfFile:cachedImagePath])) {
 			return [cachedImage autorelease];
 		}
-	}	
-	
+	}
+
 	return nil;
 }
 

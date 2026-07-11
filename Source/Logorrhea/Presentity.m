@@ -8,7 +8,6 @@
 
 #import "Presentity.h"
 
-
 @implementation Presentity
 
 - (void)encodeWithCoder:(NSCoder *)encoder
@@ -18,21 +17,18 @@
 
 - (id)initWithCoder:(NSCoder *)decoder
 {
-	if ([decoder allowsKeyedCoding])
-	{
+	if ([decoder allowsKeyedCoding]) {
 		service = [[decoder decodeObjectForKey:@"ServiceName"] retain];
 		senderID = [[decoder decodeObjectForKey:@"ID"] retain];
-	}
-	else
-	{
+	} else {
 		service = [[decoder decodeObject] retain];
 		senderID = [[decoder decodeObject] retain];
 	}
-	
+
 	return self;
 }
 
-- (NSString *) senderID
+- (NSString *)senderID
 {
 	return senderID;
 }

@@ -22,7 +22,7 @@
 	NSMutableArray *callbackLog;
 }
 
-@property (readonly, retain) NSArray *callbackLog;
+@property(readonly, retain) NSArray *callbackLog;
 
 @end
 
@@ -30,35 +30,42 @@
 
 @synthesize callbackLog;
 
-- (instancetype)init {
+- (instancetype)init
+{
 	if ((self = [super init])) {
 		callbackLog = [[NSMutableArray alloc] init];
 	}
 	return self;
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
 	[callbackLog release];
 	[super dealloc];
 }
 
-- (void)parserDidStartDocument:(LMXParser *)parser {
+- (void)parserDidStartDocument:(LMXParser *)parser
+{
 	[callbackLog addObject:@"parserDidStartDocument"];
 }
 
-- (void)parser:(LMXParser *)parser elementEnded:(NSString *)elementName {
+- (void)parser:(LMXParser *)parser elementEnded:(NSString *)elementName
+{
 	[callbackLog addObject:[NSString stringWithFormat:@"elementEnded:%@", elementName]];
 }
 
-- (void)parser:(LMXParser *)parser foundCharacters:(NSString *)string {
+- (void)parser:(LMXParser *)parser foundCharacters:(NSString *)string
+{
 	[callbackLog addObject:[NSString stringWithFormat:@"foundCharacters:%@", string]];
 }
 
-- (void)parser:(LMXParser *)parser elementStarted:(NSString *)elementName attributes:(NSDictionary *)attributes {
+- (void)parser:(LMXParser *)parser elementStarted:(NSString *)elementName attributes:(NSDictionary *)attributes
+{
 	[callbackLog addObject:[NSString stringWithFormat:@"elementStarted:%@", elementName]];
 }
 
-- (void)parserDidEndDocument:(LMXParser *)parser {
+- (void)parserDidEndDocument:(LMXParser *)parser
+{
 	[callbackLog addObject:@"parserDidEndDocument"];
 }
 
@@ -66,7 +73,8 @@
 
 @implementation TestLMXParser
 
-- (void)testReverseParse {
+- (void)testReverseParse
+{
 	// LMXParser parses XML from the end, so callbacks arrive in reverse document order.
 	// Input: <a><b>c</b></a>
 	// Expected callback order:
@@ -85,17 +93,11 @@
 	[parser setDelegate:delegate];
 
 	enum LMXParseResult result = [parser parse];
-	STAssertEquals(result, LMXParsedCompletely,
-				   @"Parser should completely consume the input");
+	STAssertEquals(result, LMXParsedCompletely, @"Parser should completely consume the input");
 
 	NSArray *expectedLog = @[
-		@"parserDidStartDocument",
-		@"elementEnded:a",
-		@"elementEnded:b",
-		@"foundCharacters:c",
-		@"elementStarted:b",
-		@"elementStarted:a",
-		@"parserDidEndDocument"
+		@"parserDidStartDocument", @"elementEnded:a", @"elementEnded:b", @"foundCharacters:c", @"elementStarted:b",
+		@"elementStarted:a", @"parserDidEndDocument"
 	];
 
 	AISimplifiedAssertEqualObjects([delegate callbackLog], expectedLog,

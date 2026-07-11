@@ -1,45 +1,44 @@
 /* SS_PrefsController */
 #import <Cocoa/Cocoa.h>
 
-@interface SS_PrefsController : NSObject <NSWindowDelegate, NSToolbarDelegate>
-{
-    NSWindow *prefsWindow;
-    NSMutableDictionary *preferencePanes;
-    NSMutableArray *panesOrder;
+@interface SS_PrefsController : NSObject <NSWindowDelegate, NSToolbarDelegate> {
+	NSWindow *prefsWindow;
+	NSMutableDictionary *preferencePanes;
+	NSMutableArray *panesOrder;
 
-    NSString *bundleExtension;
-    NSString *searchPath;
-    
-    NSToolbar *prefsToolbar;
-    NSMutableDictionary *prefsToolbarItems;
+	NSString *bundleExtension;
+	NSString *searchPath;
 
-    NSToolbarDisplayMode toolbarDisplayMode;
+	NSToolbar *prefsToolbar;
+	NSMutableDictionary *prefsToolbarItems;
+
+	NSToolbarDisplayMode toolbarDisplayMode;
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_2
-    NSToolbarSizeMode toolbarSizeMode;
+	NSToolbarSizeMode toolbarSizeMode;
 #endif
-    BOOL usesTexturedWindow;
-    BOOL alwaysShowsToolbar;
-    BOOL alwaysOpensCentered;
-    
-    BOOL debug;
-	
+	BOOL usesTexturedWindow;
+	BOOL alwaysShowsToolbar;
+	BOOL alwaysOpensCentered;
+
+	BOOL debug;
+
 	CGFloat minimumWidthForToolbar;
-	
+
 	id delegate;
 }
 
 // Convenience constructors
-+ (id)preferencesWithPanesSearchPath:(NSString*)path bundleExtension:(NSString *)ext;
++ (id)preferencesWithPanesSearchPath:(NSString *)path bundleExtension:(NSString *)ext;
 + (id)preferencesWithBundleExtension:(NSString *)ext;
-+ (id)preferencesWithPanesSearchPath:(NSString*)path;
++ (id)preferencesWithPanesSearchPath:(NSString *)path;
 + (id)preferencesWithPanes:(NSArray *)inArray delegate:(id)inDelegate;
 + (id)preferences;
 
 // Designated initializer
-- (id)initWithPanesSearchPath:(NSString*)path bundleExtension:(NSString *)ext;
+- (id)initWithPanesSearchPath:(NSString *)path bundleExtension:(NSString *)ext;
 
 - (id)initWithBundleExtension:(NSString *)ext;
-- (id)initWithPanesSearchPath:(NSString*)path;
+- (id)initWithPanesSearchPath:(NSString *)path;
 
 - (void)showPreferencesWindow;
 - (void)createPreferencesWindowAndDisplay:(BOOL)shouldDisplay;
@@ -47,12 +46,12 @@
 - (void)destroyPreferencesWindow;
 - (BOOL)loadPrefsWithIdentifier:(NSString *)name display:(BOOL)disp;
 - (BOOL)loadPreferencePaneNamed:(NSString *)name;
-- (void)activatePane:(NSString*)path;
-- (void)debugLog:(NSString*)msg;
+- (void)activatePane:(NSString *)path;
+- (void)debugLog:(NSString *)msg;
 
 CGFloat ToolbarHeightForWindow(NSWindow *window);
 - (void)createPrefsToolbar;
-- (void)prefsToolbarItemClicked:(NSToolbarItem*)item;
+- (void)prefsToolbarItemClicked:(NSToolbarItem *)item;
 
 // Accessors
 - (NSWindow *)preferencesWindow;

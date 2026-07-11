@@ -12,13 +12,21 @@
  ****
  Copyright © 2006 Peter Hosey, Colin Barrett
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- Neither the name of Peter Hosey nor the names of his contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ following conditions are met: Redistributions of source code must retain the above copyright notice, this list of
+ conditions and the following disclaimer. Redistributions in binary form must reproduce the above copyright notice, this
+ list of conditions and the following disclaimer in the documentation and/or other materials provided with the
+ distribution. Neither the name of Peter Hosey nor the names of his contributors may be used to endorse or promote
+ products derived from this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #import <Adium/AIXMLElement.h>
@@ -27,40 +35,40 @@
 
 #import <ESDebugAILog.h>
 
-@interface AIXMLElement()
-@property (readwrite, retain, nonatomic) NSMutableArray *attributeNames;
-@property (readwrite, retain, nonatomic) NSMutableArray *attributeValues;
+@interface AIXMLElement ()
+@property(readwrite, retain, nonatomic) NSMutableArray *attributeNames;
+@property(readwrite, retain, nonatomic) NSMutableArray *attributeValues;
 @end
 
 @implementation AIXMLElement
 
-+ (id) elementWithNamespaceName:(NSString *)namespace elementName:(NSString *)newName
++ (id)elementWithNamespaceName:(NSString *)namespace elementName:(NSString *)newName
 {
 	if (namespace)
 		newName = [NSString stringWithFormat:@"%@:%@", namespace, newName];
 	return [self elementWithName:newName];
 }
-- (id) initWithNamespaceName:(NSString *)namespace elementName:(NSString *)newName
+- (id)initWithNamespaceName:(NSString *)namespace elementName:(NSString *)newName
 {
 	if (namespace)
 		newName = [NSString stringWithFormat:@"%@:%@", namespace, newName];
 	return [self initWithName:newName];
 }
-+ (id) elementWithName:(NSString *)newName
++ (id)elementWithName:(NSString *)newName
 {
 	return [[[self alloc] initWithName:newName] autorelease];
 }
-- (id) initWithName:(NSString *)newName
+- (id)initWithName:(NSString *)newName
 {
 	NSParameterAssert(newName != nil);
 
 	if ((self = [super init])) {
 		name = [newName copy];
-		self.attributeNames  = [NSMutableArray array];
+		self.attributeNames = [NSMutableArray array];
 		self.attributeValues = [NSMutableArray array];
 		contents = [[NSMutableArray alloc] init];
 
-		//If a list of self-closing tags exists, this could change to a lookup into a static NSSet
+		// If a list of self-closing tags exists, this could change to a lookup into a static NSSet
 		selfCloses = (([newName caseInsensitiveCompare:@"br"] == NSOrderedSame) ? YES : NO);
 	}
 	return self;
@@ -68,31 +76,33 @@
 
 @synthesize attributeNames, attributeValues;
 
-- (id) init
+- (id)init
 {
-	NSException *exc = [NSException exceptionWithName:@"Can't init AIXMLElement"
-											   reason:@"AIXMLElement does not support the -init method; use -initWithName: instead."
-											 userInfo:nil];
+	NSException *exc =
+		[NSException exceptionWithName:@"Can't init AIXMLElement"
+								reason:@"AIXMLElement does not support the -init method; use -initWithName: instead."
+							  userInfo:nil];
 	[exc raise];
 	return nil;
 }
 
-- (void) dealloc
+- (void)dealloc
 {
 	[name release];
-	[attributeNames  release];
+	[attributeNames release];
 	[attributeValues release];
 	[contents release];
 
 	[super dealloc];
 }
 
-- (id) copyWithZone:(NSZone *)zone {
+- (id)copyWithZone:(NSZone *)zone
+{
 	AIXMLElement *other = [[AIXMLElement allocWithZone:zone] initWithName:name];
-	other.attributeNames  = [NSMutableArray arrayWithArray:attributeNames];
+	other.attributeNames = [NSMutableArray arrayWithArray:attributeNames];
 	other.attributeValues = [NSMutableArray arrayWithArray:attributeValues];
 	other.selfCloses = selfCloses;
-	other.contents = self.contents; //uses setArray, so this copies
+	other.contents = self.contents; // uses setArray, so this copies
 
 	return other;
 }
@@ -141,10 +151,13 @@
  */
 - (void)setAttributeNames:(NSArray *)newAttrNames values:(NSArray *)newAttrVals
 {
-	NSAssert2([newAttrNames count] == [newAttrVals count], @"Attribute names and values have different lengths, %lui and %lui respectively", (unsigned long)[newAttrNames count], [newAttrVals count]);
+	NSAssert2([newAttrNames count] == [newAttrVals count],
+			  @"Attribute names and values have different lengths, %lui and %lui respectively",
+			  (unsigned long)[newAttrNames count], [newAttrVals count]);
 	NSUInteger numberOfDuplicates = [newAttrNames count] - [[NSSet setWithArray:newAttrNames] count];
-    NSAssert1(numberOfDuplicates == 0, @"Duplicate attributes are not allowed; found %lui duplicate(s)", (unsigned long)numberOfDuplicates);
-	
+	NSAssert1(numberOfDuplicates == 0, @"Duplicate attributes are not allowed; found %lui duplicate(s)",
+			  (unsigned long)numberOfDuplicates);
+
 	[attributeNames setArray:newAttrNames];
 	[attributeValues setArray:newAttrVals];
 }
@@ -198,14 +211,16 @@
  */
 - (void)addEscapedObject:(id)obj
 {
-	//Warn but don't assert if null is added.  Adding nothing is a no-op, but we may want to investigate where this is happening further.
+	// Warn but don't assert if null is added.  Adding nothing is a no-op, but we may want to investigate where this is
+	// happening further.
 	if (!obj) {
 		AILog(@"Attempted to add null to AIXMLElement %@, backtrace available in debug mode", obj);
 		AILogBacktrace();
 		return;
 	}
-	NSAssert2(([obj isKindOfClass:[NSString class]] || [obj isKindOfClass:[AIXMLElement class]]), @"%@: addObject: %@ is of incorrect class",self,obj);
-	
+	NSAssert2(([obj isKindOfClass:[NSString class]] || [obj isKindOfClass:[AIXMLElement class]]),
+			  @"%@: addObject: %@ is of incorrect class", self, obj);
+
 	[contents addObject:obj];
 }
 
@@ -213,12 +228,13 @@
  * @brief Add an unescaped object
  *
  * @param obj The unescaped object, either an NSString or an AIXMLelement
- * 
+ *
  * Adds the object as a child for this element at the last index.
  */
 - (void)addObject:(id)obj
 {
-	//Warn but don't assert if null is added.  Adding nothing is a no-op, but we may want to investigate where this is happening further.
+	// Warn but don't assert if null is added.  Adding nothing is a no-op, but we may want to investigate where this is
+	// happening further.
 	if (!obj) {
 		AILog(@"Attempted to add null to AIXMLElement %@, backtrace available in debug mode", obj);
 		AILogBacktrace();
@@ -226,9 +242,10 @@
 	}
 
 	BOOL isString = [obj isKindOfClass:[NSString class]];
-	NSAssert2((isString || [obj isKindOfClass:[AIXMLElement class]]), @"%@: addObject: %@ is of incorrect class",self,obj);
+	NSAssert2((isString || [obj isKindOfClass:[AIXMLElement class]]), @"%@: addObject: %@ is of incorrect class", self,
+			  obj);
 
-	if(isString) {
+	if (isString) {
 		obj = [obj stringByEscapingForXMLWithEntities:nil];
 	}
 
@@ -242,9 +259,9 @@
  *
  * Calls -addObject: on all of the elements in the array, so they must all be valid inputs for -addObject:
  */
-- (void) addObjectsFromArray:(NSArray *)array
+- (void)addObjectsFromArray:(NSArray *)array
 {
-	//We do it this way for the assertion, and to get free escaping of strings.
+	// We do it this way for the assertion, and to get free escaping of strings.
 	for (id obj in array) {
 		[self addObject:obj];
 	}
@@ -261,7 +278,7 @@
 - (void)insertEscapedObject:(id)obj atIndex:(NSUInteger)idx
 {
 	NSParameterAssert([obj isKindOfClass:[NSString class]] || [obj isKindOfClass:[AIXMLElement class]]);
-	
+
 	[contents insertObject:obj atIndex:idx];
 }
 
@@ -273,12 +290,12 @@
  *
  * Much like -addObject:, this inserts an object at a specific index after escaping it.
  */
-- (void) insertObject:(id)obj atIndex:(NSUInteger)idx
+- (void)insertObject:(id)obj atIndex:(NSUInteger)idx
 {
 	BOOL isString = [obj isKindOfClass:[NSString class]];
 	NSParameterAssert(isString || [obj isKindOfClass:[AIXMLElement class]]);
 
-	if(isString) {
+	if (isString) {
 		obj = [obj stringByEscapingForXMLWithEntities:nil];
 	}
 
@@ -341,7 +358,7 @@
 
 /*!
  * @brief Append an XML representation of the element string to a mutable string
- * 
+ *
  * @param string The NSMutableString to append to
  */
 - (void)appendXMLStringtoString:(NSMutableString *)string
@@ -369,7 +386,7 @@
 	for (obj in contents) {
 		if ([obj isKindOfClass:[NSString class]]) {
 			[string appendString:(NSString *)obj];
-		} else if([obj isKindOfClass:[AIXMLElement class]]) {
+		} else if ([obj isKindOfClass:[AIXMLElement class]]) {
 			[(AIXMLElement *)obj appendXMLStringtoString:string];
 		}
 	}
@@ -397,7 +414,7 @@
 
 /*!
  * @brief Append a UTF-8 XML representation of the element string to a mutable string
- * 
+ *
  * @param string The NSMutableString to append to
  */
 - (void)appendUTF8XMLBytesToData:(NSMutableData *)data
@@ -426,7 +443,7 @@
 	for (obj in contents) {
 		if ([obj isKindOfClass:[NSString class]]) {
 			[data appendData:[(NSString *)obj dataUsingEncoding:NSUTF8StringEncoding]];
-		} else if([obj isKindOfClass:[AIXMLElement class]]) {
+		} else if ([obj isKindOfClass:[AIXMLElement class]]) {
 			[(AIXMLElement *)obj appendUTF8XMLBytesToData:data];
 		}
 	}
@@ -455,7 +472,8 @@
 - (NSString *)description
 {
 	NSMutableString *string = [NSMutableString stringWithFormat:@"<%@ AIXMLElement:id=\"%p\"", name, self];
-	if ([attributeNames count] && [attributeValues count]) { //there's no way these could be different values, but whatever
+	if ([attributeNames count] &&
+		[attributeValues count]) { // there's no way these could be different values, but whatever
 		NSUInteger attributeIdx = 0U;
 		NSString *key;
 		for (key in attributeNames) {
@@ -478,12 +496,13 @@
 /*
 These aren't working. I recommend calling -objectForKey on the return value of -attributes.
 
-Adium[302:117] The following unhandled exception was ignored: NSUnknownKeyException ([<AIXMLElement 0xce582b0> valueForUndefinedKey:]: this class is not key value coding-compliant for the key auto.)
+Adium[302:117] The following unhandled exception was ignored: NSUnknownKeyException ([<AIXMLElement 0xce582b0>
+valueForUndefinedKey:]: this class is not key value coding-compliant for the key auto.)
 
 */
 /*
 - (id) valueForKey:(NSString *)key {
-	NSUInteger idx = [attributeNames indexOfObject:key];	
+	NSUInteger idx = [attributeNames indexOfObject:key];
 	return (idx != NSNotFound) ? [attributeValues objectAtIndex:idx] : [super valueForKey:key];
 }
 //FIXME: this shouldn't clobber setObject:forKey: on NSObject.

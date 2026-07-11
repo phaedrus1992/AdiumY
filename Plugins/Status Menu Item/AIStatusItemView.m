@@ -1,38 +1,39 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <AIUtilities/AIImageTextCell.h>
 #import "AIStatusItemView.h"
 #import "AIImageTextCellView.h"
+#import <AIUtilities/AIImageTextCell.h>
 
 @implementation AIStatusItemView
 
-- (id)initWithFrame:(NSRect)frame {
-    self = [super initWithFrame:frame];
-    if (self) {
+- (id)initWithFrame:(NSRect)frame
+{
+	self = [super initWithFrame:frame];
+	if (self) {
 		statusItem = nil;
 		regularImage = nil;
 		alternateImage = nil;
 		menu = nil;
 		alternateMenu = nil;
-		
+
 		[cell setHighlightWhenNotKey:YES];
 		[cell setImageTextPadding:0];
-    }
-    return self;
+	}
+	return self;
 }
 
 - (void)dealloc
@@ -42,7 +43,7 @@
 	[alternateImage release];
 	[menu release];
 	[alternateMenu release];
-	
+
 	[super dealloc];
 }
 
@@ -52,10 +53,10 @@
 {
 	// A known bug with screen flashing and updating: http://www.cocoabuilder.com/archive/message/cocoa/2008/4/22/204861
 	NSDisableScreenUpdates();
-		
+
 	[statusItem drawStatusBarBackgroundInRect:[self frame] withHighlight:mouseDown];
 	[super drawRect:rect];
-	
+
 	NSEnableScreenUpdates();
 }
 
@@ -68,21 +69,21 @@
 	if (alternateImage) {
 		[self setImage:alternateImage];
 	}
-	
+
 	[cell setHighlighted:YES];
-	
+
 	[self display];
-	
+
 	[cell setHighlighted:NO];
-	
+
 	[statusItem popUpStatusItemMenu:menuToDisplay];
-	
+
 	mouseDown = NO;
 	if (alternateImage) {
 		[self setImage:regularImage];
 	}
-	
-	[self setNeedsDisplay:YES];	
+
+	[self setNeedsDisplay:YES];
 }
 
 #pragma mark Events
@@ -110,7 +111,7 @@
  */
 - (NSUInteger)desiredWidth
 {
-	return [cell cellSizeForBounds:NSMakeRect(0,0,1e6f,1e6f)].width;
+	return [cell cellSizeForBounds:NSMakeRect(0, 0, 1e6f, 1e6f)].width;
 }
 
 #pragma mark Accessors
@@ -124,14 +125,14 @@
 {
 	[regularImage release];
 	regularImage = [image copy];
-	
+
 	if (!mouseDown) {
 		[self setImage:regularImage];
 		[self setNeedsDisplay:YES];
 	}
 }
 
-/*! 
+/*!
  * @brief The regular image
  *
  * This is the image that is normally displayed, when a menu is not popping up.

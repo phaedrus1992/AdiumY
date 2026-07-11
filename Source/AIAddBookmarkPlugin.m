@@ -1,36 +1,36 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #import "AIAddBookmarkPlugin.h"
-#import "AINewBookmarkWindowController.h"
 #import "AIMessageWindowController.h"
-#import <AIUtilities/AIToolbarUtilities.h>
-#import <Adium/AIToolbarControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <AIUtilities/AIMenuAdditions.h>
+#import "AINewBookmarkWindowController.h"
 #import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIMenuAdditions.h>
+#import <AIUtilities/AIToolbarUtilities.h>
 #import <Adium/AIChat.h>
-#import <Adium/AIListGroup.h>
+#import <Adium/AIContactControllerProtocol.h>
+#import <Adium/AIInterfaceControllerProtocol.h>
 #import <Adium/AIListBookmark.h>
+#import <Adium/AIListGroup.h>
+#import <Adium/AIMenuControllerProtocol.h>
+#import <Adium/AIToolbarControllerProtocol.h>
 
-#define ADD_BOOKMARKTOOLBAR_ITEM_IDENTIFIER		@"AddBookmark"
-#define ADD_BOOKMARK							AILocalizedString(@"Add Group Chat Bookmark", "Add a chat bookmark")
-#define ADD_BOOKMARK_CONTEXT_MENU				AILocalizedString(@"Add Bookmark", "Add a chat bookmark (context menu)")
+#define ADD_BOOKMARKTOOLBAR_ITEM_IDENTIFIER @"AddBookmark"
+#define ADD_BOOKMARK AILocalizedString(@"Add Group Chat Bookmark", "Add a chat bookmark")
+#define ADD_BOOKMARK_CONTEXT_MENU AILocalizedString(@"Add Bookmark", "Add a chat bookmark (context menu)")
 
 @interface AIAddBookmarkPlugin ()
 - (void)addBookmark:(id)sender;
@@ -44,40 +44,40 @@
  */
 - (void)installPlugin
 {
-	addBookmarkToolbarItem = [AIToolbarUtilities toolbarItemWithIdentifier:ADD_BOOKMARKTOOLBAR_ITEM_IDENTIFIER
-																		  label:ADD_BOOKMARK
-																   paletteLabel:ADD_BOOKMARK
-																		toolTip:AILocalizedString(@"Bookmark the current chat", "tooltip text for Add Bookmark")
-																  		 target:self
-																settingSelector:@selector(setImage:)
-																	itemContent:[NSImage imageNamed:@"msg-bookmark-chat" forClass:[self class] loadLazily:YES]
-																		 action:@selector(addBookmark:)
-																		   menu:nil];
-	
+	addBookmarkToolbarItem = [AIToolbarUtilities
+		toolbarItemWithIdentifier:ADD_BOOKMARKTOOLBAR_ITEM_IDENTIFIER
+							label:ADD_BOOKMARK
+					 paletteLabel:ADD_BOOKMARK
+						  toolTip:AILocalizedString(@"Bookmark the current chat", "tooltip text for Add Bookmark")
+						   target:self
+				  settingSelector:@selector(setImage:)
+					  itemContent:[NSImage imageNamed:@"msg-bookmark-chat" forClass:[self class] loadLazily:YES]
+						   action:@selector(addBookmark:)
+							 menu:nil];
+
 	addBookmarkMenuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:ADD_BOOKMARK
 																			   target:self
 																			   action:@selector(addBookmark:)
 																		keyEquivalent:@""];
-	
+
 	[adium.menuController addMenuItem:addBookmarkMenuItem toLocation:LOC_Contact_Manage];
 
-	addBookmarkContextMenuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:ADD_BOOKMARK_CONTEXT_MENU
-																					  target:self
-																					  action:@selector(addBookmarkContext:)
-																			   keyEquivalent:@""];
+	addBookmarkContextMenuItem =
+		[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:ADD_BOOKMARK_CONTEXT_MENU
+															 target:self
+															 action:@selector(addBookmarkContext:)
+													  keyEquivalent:@""];
 
-	
 	[adium.menuController addContextualMenuItem:addBookmarkContextMenuItem toLocation:Context_GroupChat_Action];
-	
+
 	[adium.toolbarController registerToolbarItem:addBookmarkToolbarItem forToolbarType:@"MessageWindow"];
-	
 }
 
 - (void)uninstallPlugin
 {
-	[addBookmarkMenuItem release]; 
+	[addBookmarkMenuItem release];
 	[addBookmarkContextMenuItem release];
-	
+
 	[adium.toolbarController unregisterToolbarItem:addBookmarkToolbarItem forToolbarType:@"MessageWindow"];
 }
 
@@ -87,9 +87,10 @@
  */
 - (void)addBookmark:(id)sender
 {
-	AINewBookmarkWindowController *newBookmarkWindowController = [[AINewBookmarkWindowController alloc] initWithChat:adium.interfaceController.activeChat
-																									 notifyingTarget:self];
-	[newBookmarkWindowController showOnWindow:[adium.interfaceController.activeChat.chatContainer.windowController window]];
+	AINewBookmarkWindowController *newBookmarkWindowController =
+		[[AINewBookmarkWindowController alloc] initWithChat:adium.interfaceController.activeChat notifyingTarget:self];
+	[newBookmarkWindowController
+		showOnWindow:[adium.interfaceController.activeChat.chatContainer.windowController window]];
 }
 
 /*!
@@ -99,9 +100,11 @@
  */
 - (void)addBookmarkContext:(id)sender
 {
-	AINewBookmarkWindowController *newBookmarkWindowController = [[AINewBookmarkWindowController alloc] initWithChat:adium.menuController.currentContextMenuChat
-																									 notifyingTarget:self];
-	[newBookmarkWindowController showOnWindow:[adium.menuController.currentContextMenuChat.chatContainer.windowController window]];
+	AINewBookmarkWindowController *newBookmarkWindowController =
+		[[AINewBookmarkWindowController alloc] initWithChat:adium.menuController.currentContextMenuChat
+											notifyingTarget:self];
+	[newBookmarkWindowController
+		showOnWindow:[adium.menuController.currentContextMenuChat.chatContainer.windowController window]];
 }
 
 // @brief: create a bookmark for the given chat with the given name in the given group

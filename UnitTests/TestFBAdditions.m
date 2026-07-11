@@ -21,35 +21,36 @@
 @implementation TestFBAdditions
 
 // RTL script (Arabic) should return RightToLeft
-- (void)testBaseWritingDirectionRTL {
+- (void)testBaseWritingDirectionRTL
+{
 	NSString *str = @"مرحبا"; // "مرحبا" (Arabic)
-	STAssertEquals([str baseWritingDirection], NSWritingDirectionRightToLeft,
-				   @"Arabic string should be RTL");
+	STAssertEquals([str baseWritingDirection], NSWritingDirectionRightToLeft, @"Arabic string should be RTL");
 }
 
 // LTR script (Latin) should return LeftToRight
-- (void)testBaseWritingDirectionLTR {
+- (void)testBaseWritingDirectionLTR
+{
 	NSString *str = @"Hello, world!";
-	STAssertEquals([str baseWritingDirection], NSWritingDirectionLeftToRight,
-				   @"Latin string should be LTR");
+	STAssertEquals([str baseWritingDirection], NSWritingDirectionLeftToRight, @"Latin string should be LTR");
 }
 
 // Empty string should return Natural
-- (void)testBaseWritingDirectionEmpty {
+- (void)testBaseWritingDirectionEmpty
+{
 	NSString *str = @"";
-	STAssertEquals([str baseWritingDirection], NSWritingDirectionNatural,
-				   @"Empty string should be Natural");
+	STAssertEquals([str baseWritingDirection], NSWritingDirectionNatural, @"Empty string should be Natural");
 }
 
 // Neutral-only characters (spaces, digits, punctuation) should return Natural
-- (void)testBaseWritingDirectionNeutral {
+- (void)testBaseWritingDirectionNeutral
+{
 	NSString *str = @"  123 456  ";
-	STAssertEquals([str baseWritingDirection], NSWritingDirectionNatural,
-				   @"Neutral-only string should be Natural");
+	STAssertEquals([str baseWritingDirection], NSWritingDirectionNatural, @"Neutral-only string should be Natural");
 }
 
 // Mixed content should resolve to the first strong directional character
-- (void)testBaseWritingDirectionMixed {
+- (void)testBaseWritingDirectionMixed
+{
 	// "abc مرحبا def" — first strong char is RTL Arabic
 	NSString *str = @"abc مرحبا def";
 	STAssertEquals([str baseWritingDirection], NSWritingDirectionRightToLeft,

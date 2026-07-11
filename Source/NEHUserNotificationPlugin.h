@@ -18,7 +18,7 @@
 #import <Adium/AIPlugin.h>
 #import <UserNotifications/UserNotifications.h>
 
-#define USER_NOTIFICATION_ALERT_IDENTIFIER	@"Growl"
+#define USER_NOTIFICATION_ALERT_IDENTIFIER @"Growl"
 
 @interface NEHUserNotificationPlugin : AIPlugin <AIActionHandler, UNUserNotificationCenterDelegate> {
 }

@@ -8,18 +8,18 @@
 
 @interface AXCStartingPointsController : NSObject {
 	NSArray *documentTypes;
-	NSMutableSet *usableDocTypes; //document types with a class name that exists
+	NSMutableSet *usableDocTypes; // document types with a class name that exists
 
 	IBOutlet NSPanel *startingPointsWindow;
 	IBOutlet NSTableView *startingPointsTableView;
 }
 
-- (NSArray *) documentTypes;
+- (NSArray *)documentTypes;
 
-- (void) setStartingPointsVisible:(BOOL)flag;
-- (BOOL) isStartingPointsVisible;
+- (void)setStartingPointsVisible:(BOOL)flag;
+- (BOOL)isStartingPointsVisible;
 
-- (IBAction) displayStartingPoints:(id)sender;
-- (IBAction) makeNewDocumentOfSelectedType:(id)sender;
+- (IBAction)displayStartingPoints:(id)sender;
+- (IBAction)makeNewDocumentOfSelectedType:(id)sender;
 
 @end

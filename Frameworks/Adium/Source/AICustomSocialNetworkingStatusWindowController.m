@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -18,15 +18,17 @@
 
 @implementation AICustomSocialNetworkingStatusWindowController
 
-static	AICustomSocialNetworkingStatusWindowController	*sharedController = nil;
+static AICustomSocialNetworkingStatusWindowController *sharedController = nil;
 
-+ (void)showCustomSocialNetworkingStatusWindowWithInitialMessage:(NSAttributedString *)inMessage forAccount:(AIAccount *)inAccount notifyingTarget:(id)inTarget
++ (void)showCustomSocialNetworkingStatusWindowWithInitialMessage:(NSAttributedString *)inMessage
+													  forAccount:(AIAccount *)inAccount
+												 notifyingTarget:(id)inTarget
 {
 	if (!sharedController) {
 		sharedController = [[self alloc] initWithWindowNibName:@"SocialNetworkingCustomStatus"];
 	}
 
-	//Ensure the window has loaded
+	// Ensure the window has loaded
 	[sharedController window];
 
 	[sharedController setAccount:inAccount];
@@ -50,7 +52,7 @@ static	AICustomSocialNetworkingStatusWindowController	*sharedController = nil;
 {
 	[account release];
 	[target release];
-	
+
 	[super dealloc];
 }
 
@@ -59,7 +61,7 @@ static	AICustomSocialNetworkingStatusWindowController	*sharedController = nil;
 	if (inAccount != account) {
 		[account release];
 		account = [inAccount retain];
-	}	
+	}
 }
 
 - (void)setTarget:(id)inTarget
@@ -67,18 +69,18 @@ static	AICustomSocialNetworkingStatusWindowController	*sharedController = nil;
 	if (inTarget != target) {
 		[target release];
 		target = [inTarget retain];
-	}	
+	}
 }
 
 - (void)setMessage:(NSAttributedString *)inMessage
 {
-	[[textview_message textStorage] setAttributedString:(inMessage ? inMessage : [[[NSAttributedString alloc] initWithString:@""] autorelease])];
+	[[textview_message textStorage]
+		setAttributedString:(inMessage ? inMessage : [[[NSAttributedString alloc] initWithString:@""] autorelease])];
 }
 
 - (IBAction)okay:(id)sender
 {
-	[target setSocialNetworkingStatus:[[[textview_message textStorage] copy] autorelease]
-						   forAccount:account];
+	[target setSocialNetworkingStatus:[[[textview_message textStorage] copy] autorelease] forAccount:account];
 
 	[self closeWindow:nil];
 }
@@ -107,15 +109,16 @@ static	AICustomSocialNetworkingStatusWindowController	*sharedController = nil;
 
 	if (aSelector == @selector(cancelOperation:)) {
 		equivalentButton = button_cancel;
-		
-	} else if ((aSelector == @selector(insertNewline:)) || (aSelector == @selector(insertNewlineIgnoringFieldEditor:))) {
+
+	} else if ((aSelector == @selector(insertNewline:)) ||
+			   (aSelector == @selector(insertNewlineIgnoringFieldEditor:))) {
 		equivalentButton = button_okay;
 	}
 
 	if (equivalentButton) {
 		[equivalentButton performClick:aTextView];
 		return YES;
-		
+
 	} else {
 		return NO;
 	}
@@ -130,9 +133,9 @@ static	AICustomSocialNetworkingStatusWindowController	*sharedController = nil;
 - (void)windowWillClose:(id)sender
 {
 	[super windowWillClose:sender];
-	
-	[sharedController autorelease]; sharedController = nil;
-}
 
+	[sharedController autorelease];
+	sharedController = nil;
+}
 
 @end

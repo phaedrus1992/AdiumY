@@ -20,43 +20,41 @@
 #pragma mark -
 #pragma mark accessors
 
-
 - (AWEzvContact *)contact
 {
-    //NSLog(@"in -contact, returned contact = %@", contact);
+	// NSLog(@"in -contact, returned contact = %@", contact);
 
-    return contact; 
+	return contact;
 }
 - (void)setContact:(AWEzvContact *)aContact
 {
-    //NSLog(@"in -setContact:, old value of contact: %@, changed to: %@", contact, aContact);
+	// NSLog(@"in -setContact:, old value of contact: %@, changed to: %@", contact, aContact);
 
-    if (contact != aContact) {
-        [contact release];
-        contact = [aContact retain];
-    }
+	if (contact != aContact) {
+		[contact release];
+		contact = [aContact retain];
+	}
 }
-
 
 - (AWEzvContactManager *)manager
 {
-    //NSLog(@"in -manager, returned manager = %@", manager);
+	// NSLog(@"in -manager, returned manager = %@", manager);
 
-    return manager; 
+	return manager;
 }
 - (void)setManager:(AWEzvContactManager *)aManager
 {
-    //NSLog(@"in -setManager:, old value of manager: %@, changed to: %@", manager, aManager);
+	// NSLog(@"in -setManager:, old value of manager: %@, changed to: %@", manager, aManager);
 
-    if (manager != aManager) {
-        [manager release];
-        manager = [aManager retain];
-    }
+	if (manager != aManager) {
+		[manager release];
+		manager = [aManager retain];
+	}
 }
 
 - (EKFileTransferDirection)direction
 {
-    return direction;
+	return direction;
 }
 - (void)setDirection:(EKFileTransferDirection)aDirection
 {
@@ -65,142 +63,136 @@
 
 - (EKFileTransferType)type
 {
-    //NSLog(@"in -type, returned type = (null)", type);
+	// NSLog(@"in -type, returned type = (null)", type);
 
-    return type;
+	return type;
 }
 - (void)setType:(EKFileTransferType)aType
 {
-    //NSLog(@"in -setType, old value of type: (null), changed to: (null)", type, aType);
+	// NSLog(@"in -setType, old value of type: (null), changed to: (null)", type, aType);
 
-    type = aType;
+	type = aType;
 }
-
 
 - (float)percentComplete
 {
-    //NSLog(@"in -percentComplete, returned percentComplete = %f", percentComplete);
+	// NSLog(@"in -percentComplete, returned percentComplete = %f", percentComplete);
 
-    return percentComplete;
+	return percentComplete;
 }
 - (void)setPercentComplete:(float)aPercentComplete
 {
-    //NSLog(@"in -setPercentComplete, old value of percentComplete: %f, changed to: %f", percentComplete, aPercentComplete);
+	// NSLog(@"in -setPercentComplete, old value of percentComplete: %f, changed to: %f", percentComplete,
+	// aPercentComplete);
 
-    percentComplete = aPercentComplete;
+	percentComplete = aPercentComplete;
 }
-
 
 - (int)status
 {
-    //NSLog(@"in -status, returned status = %i", status);
+	// NSLog(@"in -status, returned status = %i", status);
 
-    return status;
+	return status;
 }
 - (void)setStatus:(int)aStatus
 {
-    //NSLog(@"in -setStatus, old value of status: %i, changed to: %i", status, aStatus);
+	// NSLog(@"in -setStatus, old value of status: %i, changed to: %i", status, aStatus);
 
-    status = aStatus;
+	status = aStatus;
 }
-
 
 - (NSString *)localFilename
 {
-    //NSLog(@"in -localFilename, returned localFilename = %@", localFilename);
+	// NSLog(@"in -localFilename, returned localFilename = %@", localFilename);
 
-    return localFilename; 
+	return localFilename;
 }
 - (void)setLocalFilename:(NSString *)aLocalFilename
 {
-    //NSLog(@"in -setLocalFilename:, old value of localFilename: %@, changed to: %@", localFilename, aLocalFilename);
+	// NSLog(@"in -setLocalFilename:, old value of localFilename: %@, changed to: %@", localFilename, aLocalFilename);
 
-    if (localFilename != aLocalFilename) {
-        [localFilename release];
-        localFilename = [aLocalFilename retain];
-    }
+	if (localFilename != aLocalFilename) {
+		[localFilename release];
+		localFilename = [aLocalFilename retain];
+	}
 }
-
 
 - (NSString *)remoteFilename
 {
-    //NSLog(@"in -remoteFilename, returned remoteFilename = %@", remoteFilename);
+	// NSLog(@"in -remoteFilename, returned remoteFilename = %@", remoteFilename);
 
-    return remoteFilename; 
+	return remoteFilename;
 }
 - (void)setRemoteFilename:(NSString *)aRemoteFilename
 {
-    //NSLog(@"in -setRemoteFilename:, old value of remoteFilename: %@, changed to: %@", remoteFilename, aRemoteFilename);
+	// NSLog(@"in -setRemoteFilename:, old value of remoteFilename: %@, changed to: %@", remoteFilename,
+	// aRemoteFilename);
 
-    if (remoteFilename != aRemoteFilename) {
-        [remoteFilename release];
-        remoteFilename = [aRemoteFilename retain];
-    }
+	if (remoteFilename != aRemoteFilename) {
+		[remoteFilename release];
+		remoteFilename = [aRemoteFilename retain];
+	}
 }
-
 
 - (NSString *)url
 {
-    //NSLog(@"in -url, returned url = %@", url);
+	// NSLog(@"in -url, returned url = %@", url);
 
-    return url; 
+	return url;
 }
 - (void)setUrl:(NSString *)anUrl
 {
-    //NSLog(@"in -setUrl:, old value of url: %@, changed to: %@", url, anUrl);
+	// NSLog(@"in -setUrl:, old value of url: %@, changed to: %@", url, anUrl);
 
-    if (url != anUrl) {
-        [url release];
-        url = [anUrl retain];
-    }
+	if (url != anUrl) {
+		[url release];
+		url = [anUrl retain];
+	}
 }
-
 
 - (NSString *)mimeType
 {
-    //NSLog(@"in -mimeType, returned mimeType = %@", mimeType);
+	// NSLog(@"in -mimeType, returned mimeType = %@", mimeType);
 
-    return mimeType; 
+	return mimeType;
 }
 - (void)setMimeType:(NSString *)aMimeType
 {
-    //NSLog(@"in -setMimeType:, old value of mimeType: %@, changed to: %@", mimeType, aMimeType);
+	// NSLog(@"in -setMimeType:, old value of mimeType: %@, changed to: %@", mimeType, aMimeType);
 
-    if (mimeType != aMimeType) {
-        [mimeType release];
-        mimeType = [aMimeType retain];
-    }
+	if (mimeType != aMimeType) {
+		[mimeType release];
+		mimeType = [aMimeType retain];
+	}
 }
-
 
 - (id)accountData
 {
-    //NSLog(@"in -accountData, returned accountData = %@", accountData);
+	// NSLog(@"in -accountData, returned accountData = %@", accountData);
 
-    return accountData; 
+	return accountData;
 }
 - (void)setAccountData:(id)anAccountData
 {
-    //NSLog(@"in -setAccountData:, old value of accountData: %@, changed to: %@", accountData, anAccountData);
+	// NSLog(@"in -setAccountData:, old value of accountData: %@, changed to: %@", accountData, anAccountData);
 
-    if (accountData != anAccountData) {
-        [accountData release];
-        accountData = [anAccountData retain];
-    }
+	if (accountData != anAccountData) {
+		[accountData release];
+		accountData = [anAccountData retain];
+	}
 }
-
 
 - (unsigned long long)size
 {
-    // NSLog(@"in -size, returned size = %qu", size);
+	// NSLog(@"in -size, returned size = %qu", size);
 
-    return size;
+	return size;
 }
 - (void)setSize:(unsigned long long)aSize
 {
-    // NSLog(@"in -setSize, old value of size: %qu, changed to: %qu", size, aSize);
+	// NSLog(@"in -setSize, old value of size: %qu, changed to: %qu", size, aSize);
 
-    size = aSize;
+	size = aSize;
 }
 
 - (void)setSizeWithNSNumber:(NSNumber *)number
@@ -214,36 +206,35 @@
 }
 - (unsigned long long)bytesSent
 {
-    //NSLog(@"in -bytesSent, returned bytesSent = %qu", bytesSent);
+	// NSLog(@"in -bytesSent, returned bytesSent = %qu", bytesSent);
 
-    return bytesSent;
+	return bytesSent;
 }
 - (void)setBytesSent:(unsigned long long)aBytesSent
 {
-    //NSLog(@"in -setBytesSent, old value of bytesSent: %qu, changed to: %qu", bytesSent, aBytesSent);
+	// NSLog(@"in -setBytesSent, old value of bytesSent: %qu, changed to: %qu", bytesSent, aBytesSent);
 
-    bytesSent = aBytesSent;
+	bytesSent = aBytesSent;
 }
-
 
 - (NSString *)uniqueID
 {
-    //NSLog(@"in -uniqueID, returned uniqueID = %@", uniqueID);
+	// NSLog(@"in -uniqueID, returned uniqueID = %@", uniqueID);
 
-    return uniqueID; 
+	return uniqueID;
 }
 - (void)setUniqueID:(NSString *)anUniqueID
 {
-    //NSLog(@"in -setUniqueID:, old value of uniqueID: %@, changed to: %@", uniqueID, anUniqueID);
+	// NSLog(@"in -setUniqueID:, old value of uniqueID: %@, changed to: %@", uniqueID, anUniqueID);
 
-    if (uniqueID != anUniqueID) {
-        [uniqueID release];
-        uniqueID = [anUniqueID retain];
-    }
+	if (uniqueID != anUniqueID) {
+		[uniqueID release];
+		uniqueID = [anUniqueID retain];
+	}
 }
 
 #pragma mark Process File Transfers
-- (void) begin
+- (void)begin
 {
 	if (direction == EKEzvIncomingTransfer) {
 		EKEzvIncomingFileTransfer *incoming = (EKEzvIncomingFileTransfer *)self;
@@ -252,11 +243,10 @@
 		EKEzvOutgoingFileTransfer *outgoing = (EKEzvOutgoingFileTransfer *)self;
 		[outgoing startSending];
 	} else {
-		
 	}
 }
 
-- (void) cancel
+- (void)cancel
 {
 	if (direction == EKEzvIncomingTransfer) {
 		EKEzvIncomingFileTransfer *incoming = (EKEzvIncomingFileTransfer *)self;
@@ -265,7 +255,6 @@
 		EKEzvOutgoingFileTransfer *outgoing = (EKEzvOutgoingFileTransfer *)self;
 		[outgoing cancelTransfer];
 	} else {
-		
 	}
 }
 

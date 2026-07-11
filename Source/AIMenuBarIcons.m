@@ -15,11 +15,11 @@
  */
 
 #import "AIMenuBarIcons.h"
-#import <Adium/AIXtraInfo.h>
 #import <AIUtilities/AIImageAdditions.h>
+#import <Adium/AIXtraInfo.h>
 #import <QuartzCore/CoreImage.h>
 
-#define KEY_ICONS_DICT	@"Icons"
+#define KEY_ICONS_DICT @"Icons"
 
 @interface AIMenuBarIcons ()
 - (NSImage *)imageForKey:(NSString *)keyName;
@@ -94,14 +94,14 @@
 	[super dealloc];
 }
 
-#define	PREVIEW_MENU_IMAGE_SIZE		18
-#define	PREVIEW_MENU_IMAGE_MARGIN	2
+#define PREVIEW_MENU_IMAGE_SIZE 18
+#define PREVIEW_MENU_IMAGE_MARGIN 2
 
 + (NSImage *)previewMenuImageForIconPackAtPath:(NSString *)inPath
 {
-	NSImage			*image;
-	NSBundle		*menuIconsBundle = [[[NSBundle alloc] initWithPath:inPath] autorelease];
-	NSDictionary	*imageInfo;
+	NSImage *image;
+	NSBundle *menuIconsBundle = [[[NSBundle alloc] initWithPath:inPath] autorelease];
+	NSDictionary *imageInfo;
 
 	if (!menuIconsBundle) {
 		return nil;
@@ -116,39 +116,38 @@
 	image = [[[NSImage alloc] initWithSize:NSMakeSize((PREVIEW_MENU_IMAGE_SIZE + PREVIEW_MENU_IMAGE_MARGIN) * 2,
 													  PREVIEW_MENU_IMAGE_SIZE)] autorelease];
 
-
 	if ([[menuIconsBundle objectForInfoDictionaryKey:@"XtraBundleVersion"] integerValue] == 1) {
-		NSInteger				xOrigin = 0;
+		NSInteger xOrigin = 0;
 
 		[image lockFocus];
-		for (NSString *iconID in [NSArray arrayWithObjects:@"Online",@"Offline",nil]) {
-			NSString	*anIconPath = [menuIconsBundle pathForImageResource:[imageInfo objectForKey:iconID]];
-			NSImage		*anIcon;
+		for (NSString *iconID in [NSArray arrayWithObjects:@"Online", @"Offline", nil]) {
+			NSString *anIconPath = [menuIconsBundle pathForImageResource:[imageInfo objectForKey:iconID]];
+			NSImage *anIcon;
 
 			if ((anIcon = [[[NSImage alloc] initWithContentsOfFile:anIconPath] autorelease])) {
-				NSSize	anIconSize = [anIcon size];
-				NSRect	targetRect = NSMakeRect(xOrigin, 0, PREVIEW_MENU_IMAGE_SIZE, PREVIEW_MENU_IMAGE_SIZE);
+				NSSize anIconSize = [anIcon size];
+				NSRect targetRect = NSMakeRect(xOrigin, 0, PREVIEW_MENU_IMAGE_SIZE, PREVIEW_MENU_IMAGE_SIZE);
 
 				if (anIconSize.width < targetRect.size.width) {
-					CGFloat difference = (targetRect.size.width - anIconSize.width)/2;
+					CGFloat difference = (targetRect.size.width - anIconSize.width) / 2;
 
 					targetRect.size.width -= difference;
 					targetRect.origin.x += difference;
 				}
 
 				if (anIconSize.height < targetRect.size.height) {
-					CGFloat difference = (targetRect.size.height - anIconSize.height)/2;
+					CGFloat difference = (targetRect.size.height - anIconSize.height) / 2;
 
 					targetRect.size.height -= difference;
 					targetRect.origin.y += difference;
 				}
 
 				[anIcon drawInRect:targetRect
-							fromRect:NSMakeRect(0,0,anIconSize.width,anIconSize.height)
-						   operation:NSCompositeCopy
-							fraction:1.0f];
+						  fromRect:NSMakeRect(0, 0, anIconSize.width, anIconSize.height)
+						 operation:NSCompositeCopy
+						  fraction:1.0f];
 
-				//Shift right in preparation for next image
+				// Shift right in preparation for next image
 				xOrigin += PREVIEW_MENU_IMAGE_SIZE + PREVIEW_MENU_IMAGE_MARGIN;
 			}
 		}
@@ -161,28 +160,23 @@
 // Returns an inverted image.
 - (NSImage *)alternateImageForImage:(NSImage *)inImage
 {
-	NSImage				*altImage = [[NSImage alloc] initWithSize:[inImage size]];
-	NSBitmapImageRep	*srcImageRep = [inImage largestBitmapImageRep];
+	NSImage *altImage = [[NSImage alloc] initWithSize:[inImage size]];
+	NSBitmapImageRep *srcImageRep = [inImage largestBitmapImageRep];
 
 	id monochromeFilter, invertFilter, alphaFilter;
 
 	monochromeFilter = [CIFilter filterWithName:@"CIColorMonochrome"];
-	[monochromeFilter setValue:[[[CIImage alloc] initWithBitmapImageRep:srcImageRep] autorelease]
-						forKey:@"inputImage"];
-	[monochromeFilter setValue:[NSNumber numberWithDouble:1.0]
-						forKey:@"inputIntensity"];
-	[monochromeFilter setValue:[[[CIColor alloc] initWithColor:[NSColor whiteColor]] autorelease]
-						forKey:@"inputColor"];
+	[monochromeFilter setValue:[[[CIImage alloc] initWithBitmapImageRep:srcImageRep] autorelease] forKey:@"inputImage"];
+	[monochromeFilter setValue:[NSNumber numberWithDouble:1.0] forKey:@"inputIntensity"];
+	[monochromeFilter setValue:[[[CIColor alloc] initWithColor:[NSColor whiteColor]] autorelease] forKey:@"inputColor"];
 
-	//Now invert our greyscale image
+	// Now invert our greyscale image
 	invertFilter = [CIFilter filterWithName:@"CIColorInvert"];
-	[invertFilter setValue:[monochromeFilter valueForKey:@"outputImage"]
-					forKey:@"inputImage"];
+	[invertFilter setValue:[monochromeFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
 
-	//And turn the parts that were previously white (are now black) into transparent
+	// And turn the parts that were previously white (are now black) into transparent
 	alphaFilter = [CIFilter filterWithName:@"CIMaskToAlpha"];
-	[alphaFilter setValue:[invertFilter valueForKey:@"outputImage"]
-				   forKey:@"inputImage"];
+	[alphaFilter setValue:[invertFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
 
 	[altImage addRepresentation:[NSCIImageRep imageRepWithCIImage:[alphaFilter valueForKey:@"outputImage"]]];
 

@@ -1,28 +1,28 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #import "AISocialNetworkingStatusMenu.h"
 #import "AICustomSocialNetworkingStatusWindowController.h"
-#import <Adium/AIAccount.h>
-#import <Adium/AIService.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIStatusControllerProtocol.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+#import <Adium/AIAccount.h>
+#import <Adium/AIAccountControllerProtocol.h>
+#import <Adium/AIContentControllerProtocol.h>
+#import <Adium/AIService.h>
+#import <Adium/AIStatusControllerProtocol.h>
 
 @interface AISocialNetworkingStatusMenu ()
 + (void)setToCurrentAdiumStatus:(NSMenuItem *)sender;
@@ -46,7 +46,7 @@
 					action:@selector(showCustomSocialNetworkingStatusWindow:)
 			 keyEquivalent:@""
 		 representedObject:inAccount];
-	
+
 	return [menu autorelease];
 }
 
@@ -58,20 +58,19 @@
 											   keyEquivalent:@""];
 	[menuItem setSubmenu:[self socialNetworkingSubmenuForAccount:nil]];
 
-	return [menuItem autorelease];	
+	return [menuItem autorelease];
 }
 
 + (void)showCustomSocialNetworkingStatusWindow:(NSMenuItem *)sender
 {
 	AIAccount *account = [sender representedObject];
-	NSAttributedString *currentStatusMessage = (account ?
-												account.statusMessage :
-												[adium.statusController.activeStatusState statusMessage]);
+	NSAttributedString *currentStatusMessage =
+		(account ? account.statusMessage : [adium.statusController.activeStatusState statusMessage]);
 
-	[AICustomSocialNetworkingStatusWindowController showCustomSocialNetworkingStatusWindowWithInitialMessage:currentStatusMessage
-																								  forAccount:account
-																							 notifyingTarget:self];
-
+	[AICustomSocialNetworkingStatusWindowController
+		showCustomSocialNetworkingStatusWindowWithInitialMessage:currentStatusMessage
+													  forAccount:account
+												 notifyingTarget:self];
 }
 
 + (void)gotFilteredSocialNetworkingStatus:(NSAttributedString *)inStatusMessage context:(AIAccount *)inAccount
@@ -88,14 +87,14 @@
 
 + (void)setSocialNetworkingStatus:(NSAttributedString *)inStatusMessage forAccount:(AIAccount *)inAccount
 {
-	//Filter the content
+	// Filter the content
 	[adium.contentController filterAttributedString:inStatusMessage
-															   usingFilterType:AIFilterContent
-																	 direction:AIFilterOutgoing
-																 filterContext:self
-															   notifyingTarget:self
-																	  selector:@selector(gotFilteredSocialNetworkingStatus:context:)
-																	   context:inAccount];
+									usingFilterType:AIFilterContent
+										  direction:AIFilterOutgoing
+									  filterContext:self
+									notifyingTarget:self
+										   selector:@selector(gotFilteredSocialNetworkingStatus:context:)
+											context:inAccount];
 }
 
 + (void)setToCurrentAdiumStatus:(NSMenuItem *)sender
@@ -103,8 +102,7 @@
 	AIAccount *account = [sender representedObject];
 	NSAttributedString *currentStatusMessage = [adium.statusController.activeStatusState statusMessage];
 
-	[self setSocialNetworkingStatus:currentStatusMessage
-						 forAccount:account];
+	[self setSocialNetworkingStatus:currentStatusMessage forAccount:account];
 }
 
 @end

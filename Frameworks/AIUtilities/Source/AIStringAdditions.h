@@ -1,19 +1,18 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 
 @interface NSString (AIStringAdditions)
 
@@ -44,7 +43,8 @@
 - (NSString *)string;
 
 /*!
- * @brief Wraps CFXMLCreateStringByEscapingEntities() with the addition of escaping whitespace if no entities dictionary is specified. See its documentation.
+ * @brief Wraps CFXMLCreateStringByEscapingEntities() with the addition of escaping whitespace if no entities dictionary
+ * is specified. See its documentation.
  */
 - (NSString *)stringByEscapingForXMLWithEntities:(NSDictionary *)entities;
 
@@ -87,13 +87,15 @@
  * NEXT LINE (U+0085), LINE SEPARATOR (U+2028), or PARAGRAPH SEPARATOR (U+2029).
  *
  * @par
- * If this method detects a CRLF sequence, it will turn the range covering both characters. For all other line breaks, the range it returns has length 1.
+ * If this method detects a CRLF sequence, it will turn the range covering both characters. For all other line breaks,
+ * the range it returns has length 1.
  *
  * @param range The range (within the receiver) where you want to look for a line-break character.
  * @throws NSRangeException Some part of \a range lies outside the receiver's bounds.
- * @result The range of the line break, or { NSNotFound, 0 } if no line-breaking character is present within the substring.
+ * @result The range of the line break, or { NSNotFound, 0 } if no line-breaking character is present within the
+ * substring.
  */
-- (NSRange) rangeOfLineBreakCharacterInRange:(NSRange)range;
+- (NSRange)rangeOfLineBreakCharacterInRange:(NSRange)range;
 /*!
  * @brief Finds a line-breaking character in the latter portion of a string.
  *
@@ -101,16 +103,18 @@
  * NEXT LINE (U+0085), LINE SEPARATOR (U+2028), or PARAGRAPH SEPARATOR (U+2029).
  *
  * @par
- * If this method detects a CRLF sequence, it will turn the range covering both characters. For all other line breaks, the range it returns has length 1.
+ * If this method detects a CRLF sequence, it will turn the range covering both characters. For all other line breaks,
+ * the range it returns has length 1.
  *
  * @par
  * This method will look for the character within the range { startIdx, length - startIdx }.
  *
  * @param startIdx The index (within the receiver) from which you want to start looking for a line-break character.
  * @throws NSRangeException \a startIdx lies outside the receiver's bounds.
- * @result The range of the line break, or { NSNotFound, 0 } if no line-breaking character is present within the substring.
+ * @result The range of the line break, or { NSNotFound, 0 } if no line-breaking character is present within the
+ * substring.
  */
-- (NSRange) rangeOfLineBreakCharacterFromIndex:(NSUInteger)startIdx;
+- (NSRange)rangeOfLineBreakCharacterFromIndex:(NSUInteger)startIdx;
 /*!
  * @brief Finds a line-breaking character within a string.
  *
@@ -118,19 +122,21 @@
  * NEXT LINE (U+0085), LINE SEPARATOR (U+2028), or PARAGRAPH SEPARATOR (U+2029).
  *
  * @par
- * If this method detects a CRLF sequence, it will turn the range covering both characters. For all other line breaks, the range it returns has length 1.
+ * If this method detects a CRLF sequence, it will turn the range covering both characters. For all other line breaks,
+ * the range it returns has length 1.
  *
  * @result The range of the line break, or { NSNotFound, 0 } if no line-breaking character is present within the string.
  */
-- (NSRange) rangeOfLineBreakCharacter;
+- (NSRange)rangeOfLineBreakCharacter;
 
-//If you provide a separator object, it will be recorded in the array whenever a newline is encountered.
-//Newline is any of CR, LF, CRLF, LINE SEPARATOR, or PARAGRAPH SEPARATOR.
-//If you do not provide a separator object (pass nil or use the other method), separators are not recorded; you get only the lines, with nothing between them.
+// If you provide a separator object, it will be recorded in the array whenever a newline is encountered.
+// Newline is any of CR, LF, CRLF, LINE SEPARATOR, or PARAGRAPH SEPARATOR.
+// If you do not provide a separator object (pass nil or use the other method), separators are not recorded; you get
+// only the lines, with nothing between them.
 - (NSArray *)allLinesWithSeparator:(NSObject *)separatorObj;
 - (NSArray *)allLines;
 
-- (BOOL) isCaseInsensitivelyEqualToString:(NSString *)other;
+- (BOOL)isCaseInsensitivelyEqualToString:(NSString *)other;
 
 - (NSComparisonResult)compareLength:(NSString *)aString;
 

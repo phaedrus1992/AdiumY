@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -17,38 +17,37 @@
 #import <Adium/AIAccount.h>
 #import <AdiumLibpurple/PurpleCommon.h>
 
-#define KEY_DISPLAY_CUSTOM_EMOTICONS	@"Display Custom Emoticons"
-#define KEY_BROADCAST_MUSIC_INFO		@"Broadcast Music Information"
+#define KEY_DISPLAY_CUSTOM_EMOTICONS @"Display Custom Emoticons"
+#define KEY_BROADCAST_MUSIC_INFO @"Broadcast Music Information"
 
-#define KEY_KEY		@"Key"
-#define KEY_VALUE	@"Value"
-#define KEY_TYPE	@"Type"
+#define KEY_KEY @"Key"
+#define KEY_VALUE @"Value"
+#define KEY_TYPE @"Type"
 
 @class SLPurpleCocoaAdapter, ESFileTransfer, AIService, AIContentMessage, AIStatus, AIWindowController;
 @protocol AIAccountControllerRemoveConfirmationDialog;
 
-@interface CBPurpleAccount : AIAccount <AIAccount_Privacy>
-{   	
-    PurpleAccount         *account;
+@interface CBPurpleAccount : AIAccount <AIAccount_Privacy> {
+	PurpleAccount *account;
 
-	NSMutableDictionary	*customEmoticonWaitingDict;
+	NSMutableDictionary *customEmoticonWaitingDict;
 
-	NSMutableArray		*permittedContactsArray;
-	NSMutableArray		*deniedContactsArray;	
-	
-	NSDictionary		*tuneinfo;
-	
-	BOOL				unregisterAfterConnecting;
-	BOOL				deletePurpleAccountAfterDisconnecting;
-	BOOL				finishedConnectProcess;
-	BOOL				openPsychicChats;
-	BOOL				shouldIncludeNowPlayingInformationInAllStatuses;
+	NSMutableArray *permittedContactsArray;
+	NSMutableArray *deniedContactsArray;
+
+	NSDictionary *tuneinfo;
+
+	BOOL unregisterAfterConnecting;
+	BOOL deletePurpleAccountAfterDisconnecting;
+	BOOL finishedConnectProcess;
+	BOOL openPsychicChats;
+	BOOL shouldIncludeNowPlayingInformationInAllStatuses;
 
 	PurpleConnectionError lastDisconnectionReason;
 }
 
-- (const char*)protocolPlugin;
-- (PurpleAccount*)purpleAccount;
+- (const char *)protocolPlugin;
+- (PurpleAccount *)purpleAccount;
 - (PurplePluginProtocolInfo *)protocolInfo;
 - (void)setPurpleAccount:(PurpleAccount *)inAccount;
 - (const char *)purpleAccountName;
@@ -64,25 +63,25 @@
 - (void)unregisteredAccount:(BOOL)success;
 
 #pragma mark Subclass-reuse but not declared
-	//Instructs the account to accept a file transfer request
+// Instructs the account to accept a file transfer request
 - (void)acceptFileTransferRequest:(ESFileTransfer *)fileTransfer;
-	//Instructs the account to reject a file receive request
+// Instructs the account to reject a file receive request
 - (void)rejectFileReceiveRequest:(ESFileTransfer *)fileTransfer;
-	//Instructs the account to cancel a file transfer in progress
+// Instructs the account to cancel a file transfer in progress
 - (void)cancelFileTransfer:(ESFileTransfer *)fileTransfer;
 
 #pragma mark -
 
-	//Private (for subclasses only) file transfer methods
+// Private (for subclasses only) file transfer methods
 - (PurpleXfer *)newOutgoingXferForFileTransfer:(ESFileTransfer *)fileTransfer;
 - (void)_beginSendOfFileTransfer:(ESFileTransfer *)fileTransfer;
 
-	//AIAccount_Privacy
--(BOOL)addListObject:(AIListObject *)inObject toPrivacyList:(AIPrivacyType)type;
--(BOOL)removeListObject:(AIListObject *)inObject fromPrivacyList:(AIPrivacyType)type;
--(NSArray *)listObjectsOnPrivacyList:(AIPrivacyType)type;
+// AIAccount_Privacy
+- (BOOL)addListObject:(AIListObject *)inObject toPrivacyList:(AIPrivacyType)type;
+- (BOOL)removeListObject:(AIListObject *)inObject fromPrivacyList:(AIPrivacyType)type;
+- (NSArray *)listObjectsOnPrivacyList:(AIPrivacyType)type;
 
-	//Connectivity
+// Connectivity
 - (void)connect;
 - (void)configureAccountProxyNotifyingTarget:(id)target selector:(SEL)selector;
 - (void)disconnect;
@@ -91,14 +90,16 @@
 - (void)configurePurpleAccount;
 - (PurpleSslConnection *)secureConnection;
 
-//Account status
+// Account status
 - (NSSet *)supportedPropertyKeys;
 - (void)updateStatusForKey:(NSString *)key;
 - (void)setAccountIdleSinceTo:(NSDate *)idleSince;
 
-- (void)setStatusState:(AIStatus *)statusState statusID:(const char *)statusID isActive:(NSNumber *)isActive arguments:(NSMutableDictionary *)arguments;
-- (const char *)purpleStatusIDForStatus:(AIStatus *)statusState
-							arguments:(NSMutableDictionary *)arguments;
+- (void)setStatusState:(AIStatus *)statusState
+			  statusID:(const char *)statusID
+			  isActive:(NSNumber *)isActive
+			 arguments:(NSMutableDictionary *)arguments;
+- (const char *)purpleStatusIDForStatus:(AIStatus *)statusState arguments:(NSMutableDictionary *)arguments;
 
 - (void)setAccountProfileTo:(NSAttributedString *)profile;
 
@@ -114,9 +115,7 @@
 - (void)accountConnectionProgressStep:(NSNumber *)step percentDone:(NSNumber *)connectionProgressPrecent;
 
 - (void)newContact:(AIListContact *)theContact withName:(NSString *)inName;
-- (void)addContact:(AIListContact *)theContact
-				 toGroupName:(NSString *)groupName
-				 contactName:(NSString *)contactName;
+- (void)addContact:(AIListContact *)theContact toGroupName:(NSString *)groupName contactName:(NSString *)contactName;
 - (void)removeContact:(AIListContact *)theContact fromGroupName:(NSString *)groupName;
 - (void)updateContact:(AIListContact *)theContact toAlias:(NSString *)purpleAlias;
 - (void)updateContact:(AIListContact *)theContact forEvent:(NSNumber *)event;
@@ -135,7 +134,7 @@
 
 - (void)removeContact:(AIListContact *)theContact;
 
-- (NSWindowController *)authorizationRequestWithDict:(NSDictionary*)dict __attribute__((ns_returns_retained));
+- (NSWindowController *)authorizationRequestWithDict:(NSDictionary *)dict __attribute__((ns_returns_retained));
 
 - (void)addChat:(AIChat *)chat;
 - (void)typingUpdateForIMChat:(AIChat *)chat typing:(NSNumber *)typing;
@@ -153,9 +152,9 @@
 - (void)leftChat:(AIChat *)chat;
 
 - (void)requestReceiveOfFileTransfer:(ESFileTransfer *)fileTransfer;
-- (void)updateProgressForFileTransfer:(ESFileTransfer *)fileTransfer 
-									 percent:(NSNumber *)percent
-								   bytesSent:(NSNumber *)bytesSent;
+- (void)updateProgressForFileTransfer:(ESFileTransfer *)fileTransfer
+							  percent:(NSNumber *)percent
+							bytesSent:(NSNumber *)bytesSent;
 - (void)fileTransferCancelledRemotely:(ESFileTransfer *)fileTransfer;
 - (void)fileTransferCancelledLocally:(ESFileTransfer *)fileTransfer;
 - (void)destroyFileTransfer:(ESFileTransfer *)fileTransfer;
@@ -171,8 +170,7 @@
 
 - (void)gotGroupForContact:(AIListContact *)contact;
 
-- (NSString *)encodedAttributedString:(NSAttributedString *)inAttributedString 
-					   forStatusState:(AIStatus *)statusState;
+- (NSString *)encodedAttributedString:(NSAttributedString *)inAttributedString forStatusState:(AIStatus *)statusState;
 - (BOOL)inviteContact:(AIListContact *)contact toChat:(AIChat *)chat withMessage:(NSString *)inviteMessage;
 
 - (NSString *)titleForContactMenuLabel:(const char *)label forContact:(AIListContact *)inContact;
@@ -185,7 +183,8 @@
 - (void)renameContact:(AIListContact *)theContact toUID:(NSString *)newUID;
 - (void)updateWentIdle:(AIListContact *)theContact withData:(NSDate *)idleSinceDate;
 - (void)updateIdleReturn:(AIListContact *)theContact withData:(void *)data;
-- (NSMutableArray *)arrayOfDictionariesFromPurpleNotifyUserInfo:(PurpleNotifyUserInfo *)user_info forContact:(AIListContact *)contact;
+- (NSMutableArray *)arrayOfDictionariesFromPurpleNotifyUserInfo:(PurpleNotifyUserInfo *)user_info
+													 forContact:(AIListContact *)contact;
 - (void)updateUserInfo:(AIListContact *)theContact withData:(PurpleNotifyUserInfo *)user_info;
 - (void)openInspectorForContactInfo:(AIListContact *)theContact;
 
@@ -195,10 +194,18 @@
 - (void)updateTopic:(NSString *)inTopic forChat:(AIChat *)chat withSource:(NSString *)source;
 - (void)updateTitle:(NSString *)inTitle forChat:(AIChat *)chat;
 - (void)convUpdateForChat:(AIChat *)chat type:(NSNumber *)type;
-- (void)renameParticipant:(NSString *)oldUID newName:(NSString *)newUID newAlias:(NSString *)newAlias flags:(PurpleConvChatBuddyFlags)flags inChat:(AIChat *)chat;
+- (void)renameParticipant:(NSString *)oldUID
+				  newName:(NSString *)newUID
+				 newAlias:(NSString *)newAlias
+					flags:(PurpleConvChatBuddyFlags)flags
+				   inChat:(AIChat *)chat;
 - (void)removeUser:(NSString *)contactName fromChat:(AIChat *)chat;
 - (void)updateUserListForChat:(AIChat *)chat users:(NSArray *)users newlyAdded:(BOOL)newlyAdded;
-- (void)updateUser:(NSString *)user forChat:(AIChat *)chat flags:(PurpleConvChatBuddyFlags)flags alias:(NSString *)alias attributes:(NSDictionary *)attributes;
+- (void)updateUser:(NSString *)user
+		   forChat:(AIChat *)chat
+			 flags:(PurpleConvChatBuddyFlags)flags
+			 alias:(NSString *)alias
+		attributes:(NSDictionary *)attributes;
 - (NSDictionary *)willJoinChatUsingDictionary:(NSDictionary *)chatCreationDictionary;
 - (BOOL)chatCreationDictionary:(NSDictionary *)chatCreationDict isEqualToDictionary:(NSDictionary *)baseDict;
 - (NSDictionary *)extractChatCreationDictionaryFromConversation:(PurpleConversation *)conv;

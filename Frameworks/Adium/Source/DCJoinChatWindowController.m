@@ -1,19 +1,20 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import <AIUtilities/AIPopUpButtonAdditions.h>
 #import <Adium/AIAccount.h>
 #import <Adium/AIAccountControllerProtocol.h>
 #import <Adium/AIContactControllerProtocol.h>
@@ -22,9 +23,8 @@
 #import <Adium/AIService.h>
 #import <Adium/DCJoinChatViewController.h>
 #import <Adium/DCJoinChatWindowController.h>
-#import <AIUtilities/AIPopUpButtonAdditions.h>
 
-#define JOIN_CHAT_NIB		@"JoinChatWindow"
+#define JOIN_CHAT_NIB @"JoinChatWindow"
 
 @interface DCJoinChatWindowController ()
 
@@ -43,19 +43,19 @@ static DCJoinChatWindowController *sharedJoinChatInstance = nil;
 // Create a new join chat window
 + (DCJoinChatWindowController *)showJoinChatWindow
 {
-    if (!sharedJoinChatInstance) {
-        sharedJoinChatInstance = [[self alloc] initWithWindowNibName:JOIN_CHAT_NIB];
-    }
+	if (!sharedJoinChatInstance) {
+		sharedJoinChatInstance = [[self alloc] initWithWindowNibName:JOIN_CHAT_NIB];
+	}
 
-    [[sharedJoinChatInstance window] makeKeyAndOrderFront:nil];
-    return sharedJoinChatInstance;
+	[[sharedJoinChatInstance window] makeKeyAndOrderFront:nil];
+	return sharedJoinChatInstance;
 }
 
 + (void)closeSharedInstance
 {
-    if (sharedJoinChatInstance) {
-        [sharedJoinChatInstance closeWindow:nil];
-    }
+	if (sharedJoinChatInstance) {
+		[sharedJoinChatInstance closeWindow:nil];
+	}
 }
 
 - (IBAction)joinChat:(id)sender
@@ -64,14 +64,14 @@ static DCJoinChatWindowController *sharedJoinChatInstance = nil;
 	if (self.joinChatViewController) {
 		[self.joinChatViewController joinChatWithAccount:[[popUp_service selectedItem] representedObject]];
 	}
-	
+
 	[self closeWindow:nil];
 }
 
 - (void)configureForAccount:(AIAccount *)inAccount
 {
-	NSRect 	windowFrame = [[self window] frame];
-	CGFloat		diff;
+	NSRect windowFrame = [[self window] frame];
+	CGFloat diff;
 
 	// Remove the previous view controller's view
 	[[self.joinChatViewController view] removeFromSuperview];
@@ -97,7 +97,7 @@ static DCJoinChatWindowController *sharedJoinChatInstance = nil;
 		[self.joinChatViewController configureForAccount:inAccount];
 	}
 
-    [popUp_service selectItemWithRepresentedObject:inAccount];
+	[popUp_service selectItemWithRepresentedObject:inAccount];
 
 	if ([[self window] respondsToSelector:@selector(recalculateKeyViewLoop)]) {
 		[[self window] recalculateKeyViewLoop];
@@ -111,13 +111,13 @@ static DCJoinChatWindowController *sharedJoinChatInstance = nil;
 		self.joinChatViewController = nil;
 	}
 
-    return self;
+	return self;
 }
 
 - (void)dealloc
 {
 	self.joinChatViewController = nil;
-	
+
 	[super dealloc];
 }
 
@@ -132,14 +132,13 @@ static DCJoinChatWindowController *sharedJoinChatInstance = nil;
 	[button_cancel setLocalizedString:AILocalizedString(@"Cancel", nil)];
 
 	// Account menu
-	accountMenu = [[AIAccountMenu accountMenuWithDelegate:self
-											  submenuType:AIAccountNoSubmenu
+	accountMenu = [[AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu
 										   showTitleVerbs:NO] retain];
 
 	[self configureForAccount:[[popUp_service selectedItem] representedObject]];
 
-    // Center the window
-    [[self window] center];
+	// Center the window
+	[[self window] center];
 	[super windowDidLoad];
 }
 
@@ -147,8 +146,9 @@ static DCJoinChatWindowController *sharedJoinChatInstance = nil;
 {
 	[super windowWillClose:sender];
 	sharedJoinChatInstance = nil;
-	[accountMenu release]; accountMenu = nil;
-    [self autorelease]; //Close the shared instance
+	[accountMenu release];
+	accountMenu = nil;
+	[self autorelease]; // Close the shared instance
 }
 
 #pragma mark DCJoinChatViewController delegate
@@ -160,19 +160,17 @@ static DCJoinChatWindowController *sharedJoinChatInstance = nil;
 
 - (AIListContact *)contactFromText:(NSString *)text
 {
-	AIListContact	*contact;
-	AIAccount		*account;
-	NSString		*UID;
-	
+	AIListContact *contact;
+	AIAccount *account;
+	NSString *UID;
+
 	// Get the service type and UID
 	account = [[popUp_service selectedItem] representedObject];
 	UID = [account.service normalizeUID:text removeIgnoredCharacters:YES];
-	
+
 	// Find the contact
-	contact = [adium.contactController contactWithService:account.service
-													account:account 
-														UID:UID];
-	
+	contact = [adium.contactController contactWithService:account.service account:account UID:UID];
+
 	return contact;
 }
 
@@ -200,17 +198,18 @@ static DCJoinChatWindowController *sharedJoinChatInstance = nil;
 {
 	if ([popUp_service numberOfItems]) {
 		// First online account in our list
-		AIAccount    *preferredAccount;
+		AIAccount *preferredAccount;
 
 		for (preferredAccount in adium.accountController.accounts) {
 			if (preferredAccount.online) {
 				break;
 			}
 		}
-		
-		NSMenuItem	*menuItem = [inAccountMenu menuItemForAccount:preferredAccount];
 
-		AILog(@"%@: _selectPreferredAccountInAccountMenu: %@: menuItem for %@ is %@",self,inAccountMenu,preferredAccount,menuItem);
+		NSMenuItem *menuItem = [inAccountMenu menuItemForAccount:preferredAccount];
+
+		AILog(@"%@: _selectPreferredAccountInAccountMenu: %@: menuItem for %@ is %@", self, inAccountMenu,
+			  preferredAccount, menuItem);
 
 		if (menuItem) {
 			[popUp_service selectItem:menuItem];

@@ -1,38 +1,43 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccount.h>
-#import <Adium/AIEditStateWindowController.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIAutoScrollView.h>
 #import <AIUtilities/AIStringFormatter.h>
 #import <AIUtilities/AITextAttributes.h>
 #import <AIUtilities/AIWindowAdditions.h>
+#import <Adium/AIAccount.h>
+#import <Adium/AIContentControllerProtocol.h>
+#import <Adium/AIEditStateWindowController.h>
 #import <Adium/AIMessageEntryTextView.h>
+#import <Adium/AIStatus.h>
+#import <Adium/AIStatusControllerProtocol.h>
 
-#define CONTROL_SPACING			8
-#define WINDOW_HEIGHT_PADDING	30
+#define CONTROL_SPACING 8
+#define WINDOW_HEIGHT_PADDING 30
 
-#define	SEND_ON_ENTER					@"Send On Enter"
+#define SEND_ON_ENTER @"Send On Enter"
 
 @interface AIEditStateWindowController ()
-- (id)initWithWindowNibName:(NSString *)windowNibName forType:(AIStatusType)inStatusType andAccount:(AIAccount *)inAccount customState:(AIStatus *)inStatusState notifyingTarget:(id)inTarget showSaveCheckbox:(BOOL)inShowSaveCheckbox;
+- (id)initWithWindowNibName:(NSString *)windowNibName
+					forType:(AIStatusType)inStatusType
+				 andAccount:(AIAccount *)inAccount
+				customState:(AIStatus *)inStatusState
+			notifyingTarget:(id)inTarget
+		   showSaveCheckbox:(BOOL)inShowSaveCheckbox;
 - (id)_positionControl:(id)control relativeTo:(id)guide height:(CGFloat *)height;
 - (void)configureStateMenu;
 
@@ -52,7 +57,7 @@
  */
 @implementation AIEditStateWindowController
 
-static	NSMutableDictionary	*controllerDict = nil;
+static NSMutableDictionary *controllerDict = nil;
 
 /*!
  * @brief Open a custom state editor window or sheet
@@ -64,42 +69,49 @@ static	NSMutableDictionary	*controllerDict = nil;
  * @param inStatusState Initial AIStatus
  * @param inStatusType AIStatusType to use initially if inStatusState is nil
  * @param inAccount The account which to configure the custom state window; nil to configure globally
- * @param inShowSaveCheckbox YES if the save checkbox should be shown; NO if it should not. If YES, the title on an incoming status will be cleared to make it auto-update.
+ * @param inShowSaveCheckbox YES if the save checkbox should be shown; NO if it should not. If YES, the title on an
+ * incoming status will be cleared to make it auto-update.
  * @param parentWindow Parent window for a sheet, nil for a stand alone editor
  * @param inTarget Target object to notify when editing is complete
  */
-+ (id)editCustomState:(AIStatus *)inStatusState forType:(AIStatusType)inStatusType andAccount:(AIAccount *)inAccount withSaveOption:(BOOL)inShowSaveCheckbox onWindow:(id)parentWindow notifyingTarget:(id)inTarget
++ (id)editCustomState:(AIStatus *)inStatusState
+			  forType:(AIStatusType)inStatusType
+		   andAccount:(AIAccount *)inAccount
+	   withSaveOption:(BOOL)inShowSaveCheckbox
+			 onWindow:(id)parentWindow
+	  notifyingTarget:(id)inTarget
 {
-	AIEditStateWindowController	*controller;
+	AIEditStateWindowController *controller;
 
-	NSNumber	*targetHash = [NSNumber numberWithUnsignedInteger:[inTarget hash]];
-		
+	NSNumber *targetHash = [NSNumber numberWithUnsignedInteger:[inTarget hash]];
+
 	if ((controller = [controllerDict objectForKey:targetHash])) {
 		[controller setAccount:inAccount];
 
 		if ([[controller currentConfiguration] statusType] != inStatusType) {
-			//It's not currently editing a status of the type requested; configure based on the passed status
+			// It's not currently editing a status of the type requested; configure based on the passed status
 			[controller setOriginalStatusState:inStatusState forType:inStatusType];
 			[controller configureForAccountAndWorkingStatusState];
 		}
 
 	} else {
-		controller = [[self alloc] initWithWindowNibName:@"EditStateSheet" 
-												 forType:inStatusType 
+		controller = [[self alloc] initWithWindowNibName:@"EditStateSheet"
+												 forType:inStatusType
 											  andAccount:inAccount
-											 customState:inStatusState 
+											 customState:inStatusState
 										 notifyingTarget:inTarget
 										showSaveCheckbox:inShowSaveCheckbox];
-		if (!controllerDict) controllerDict = [[NSMutableDictionary alloc] init];
+		if (!controllerDict)
+			controllerDict = [[NSMutableDictionary alloc] init];
 		[controllerDict setObject:controller forKey:targetHash];
 	}
-	
+
 	if (parentWindow) {
 		[NSApp beginSheet:[controller window]
-		   modalForWindow:parentWindow
-			modalDelegate:controller
-		   didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			  contextInfo:nil];
+			modalForWindow:parentWindow
+			 modalDelegate:controller
+			didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
+			   contextInfo:nil];
 	} else {
 		[controller showWindow:nil];
 		[[controller window] makeKeyAndOrderFront:nil];
@@ -112,16 +124,21 @@ static	NSMutableDictionary	*controllerDict = nil;
 /*!
  * @brief Init the window controller
  */
-- (id)initWithWindowNibName:(NSString *)windowNibName forType:(AIStatusType)inStatusType andAccount:(AIAccount *)inAccount customState:(AIStatus *)inStatusState notifyingTarget:(id)inTarget showSaveCheckbox:(BOOL)inShowSaveCheckbox
+- (id)initWithWindowNibName:(NSString *)windowNibName
+					forType:(AIStatusType)inStatusType
+				 andAccount:(AIAccount *)inAccount
+				customState:(AIStatus *)inStatusState
+			notifyingTarget:(id)inTarget
+		   showSaveCheckbox:(BOOL)inShowSaveCheckbox
 {
-    if ((self = [super initWithWindowNibName:windowNibName])) {
+	if ((self = [super initWithWindowNibName:windowNibName])) {
 		target = inTarget;
 		showSaveCheckbox = inShowSaveCheckbox;
 
 		[self setOriginalStatusState:inStatusState forType:inStatusType];
 		[self setAccount:inAccount];
 	}
-	
+
 	return self;
 }
 
@@ -137,12 +154,11 @@ static	NSMutableDictionary	*controllerDict = nil;
 		[originalStatusState release];
 		originalStatusState = [inStatusState retain];
 	}
-	
+
 	[workingStatusState release];
-	workingStatusState = (originalStatusState ? 
-						  [originalStatusState mutableCopy] :
-						  [[AIStatus statusOfType:inStatusType] retain]);
-	
+	workingStatusState =
+		(originalStatusState ? [originalStatusState mutableCopy] : [[AIStatus statusOfType:inStatusType] retain]);
+
 	/* Reset to the default for this status type if we're not on it already */
 	if (workingStatusState.statusType != inStatusType) {
 		[workingStatusState setStatusType:inStatusType];
@@ -151,8 +167,9 @@ static	NSMutableDictionary	*controllerDict = nil;
 		[workingStatusState setHasAutoReply:(inStatusType == AIAwayStatusType)];
 	}
 
-	//Clear the title if the save checkbox is showing so it will autoupdate.
-	if (showSaveCheckbox) [workingStatusState setTitle:nil];
+	// Clear the title if the save checkbox is showing so it will autoupdate.
+	if (showSaveCheckbox)
+		[workingStatusState setTitle:nil];
 }
 
 - (void)setAccount:(AIAccount *)inAccount
@@ -180,12 +197,11 @@ static	NSMutableDictionary	*controllerDict = nil;
  */
 - (void)windowDidLoad
 {
-//	NSNumberFormatter	*intFormatter;
-	BOOL				sendOnEnter;
+	//	NSNumberFormatter	*intFormatter;
+	BOOL sendOnEnter;
 
-	sendOnEnter = [[adium.preferenceController preferenceForKey:SEND_ON_ENTER
-															group:PREF_GROUP_GENERAL] boolValue];
-	
+	sendOnEnter = [[adium.preferenceController preferenceForKey:SEND_ON_ENTER group:PREF_GROUP_GENERAL] boolValue];
+
 	[scrollView_statusMessage setAutohidesScrollers:YES];
 	[scrollView_statusMessage setAlwaysDrawFocusRingIfFocused:YES];
 	[textView_statusMessage setTarget:self action:@selector(okay:)];
@@ -196,19 +212,19 @@ static	NSMutableDictionary	*controllerDict = nil;
 
 	[textView_statusMessage setSendOnReturn:NO];
 	[textView_statusMessage setSendOnEnter:sendOnEnter];
-	
+
 	if ([textView_statusMessage isKindOfClass:[AIMessageEntryTextView class]]) {
 		[(AIMessageEntryTextView *)textView_statusMessage setClearOnEscape:NO];
 		[(AIMessageEntryTextView *)textView_statusMessage setPushPopEnabled:NO];
 		[(AIMessageEntryTextView *)textView_statusMessage setHistoryEnabled:NO];
 	}
-	
+
 	[scrollView_autoReply setAutohidesScrollers:YES];
 	[scrollView_autoReply setAlwaysDrawFocusRingIfFocused:YES];
 	[textView_autoReply setTarget:self action:@selector(okay:)];
 	[textView_autoReply setDelegate:self];
 
-	//Return inserts a new line
+	// Return inserts a new line
 	[textView_autoReply setSendOnReturn:NO];
 
 	/* Enter follows the user's preference. By default, then, enter will send the okay: selector.
@@ -220,9 +236,9 @@ static	NSMutableDictionary	*controllerDict = nil;
 		[(AIMessageEntryTextView *)textView_autoReply setPushPopEnabled:NO];
 		[(AIMessageEntryTextView *)textView_autoReply setHistoryEnabled:NO];
 	}
-	
+
 	[self configureForAccountAndWorkingStatusState];
-	
+
 	[textView_statusMessage setTypingAttributes:[adium.contentController defaultFormattingAttributes]];
 	[textView_autoReply setTypingAttributes:[adium.contentController defaultFormattingAttributes]];
 
@@ -238,9 +254,9 @@ static	NSMutableDictionary	*controllerDict = nil;
 	if (!showSaveCheckbox) {
 		[checkBox_save setHidden:YES];
 	}
-	
+
 	[super windowDidLoad];
-	
+
 	[self updateControlVisibilityAndResizeWindow];
 }
 
@@ -253,9 +269,9 @@ static	NSMutableDictionary	*controllerDict = nil;
 - (void)configureForAccountAndWorkingStatusState
 {
 	[self configureStateMenu];
-	
-	//Configure our editor for the working state
-	[self configureForState:workingStatusState];	
+
+	// Configure our editor for the working state
+	[self configureForState:workingStatusState];
 }
 
 /*!
@@ -263,9 +279,9 @@ static	NSMutableDictionary	*controllerDict = nil;
  */
 - (void)configureStateMenu
 {
-	[popUp_state setMenu:[adium.statusController menuOfStatusesForService:(account ? account.service : nil)
-																 withTarget:self]];
-	needToRebuildPopUpState = NO;	
+	[popUp_state
+		setMenu:[adium.statusController menuOfStatusesForService:(account ? account.service : nil) withTarget:self]];
+	needToRebuildPopUpState = NO;
 }
 
 /*!
@@ -278,8 +294,8 @@ static	NSMutableDictionary	*controllerDict = nil;
 {
 	[super windowWillClose:sender];
 
-	//Stop tracking with the controllerDict
-	NSNumber	*targetHash = [NSNumber numberWithUnsignedInteger:[target hash]];
+	// Stop tracking with the controllerDict
+	NSNumber *targetHash = [NSNumber numberWithUnsignedInteger:[target hash]];
 	[controllerDict removeObjectForKey:targetHash];
 
 	[self autorelease];
@@ -290,11 +306,11 @@ static	NSMutableDictionary	*controllerDict = nil;
  */
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
-	//Stop tracking with the controllerDict
-	NSNumber	*targetHash = [NSNumber numberWithUnsignedInteger:[target hash]];
+	// Stop tracking with the controllerDict
+	NSNumber *targetHash = [NSNumber numberWithUnsignedInteger:[target hash]];
 	[controllerDict removeObjectForKey:targetHash];
-	
-    [sheet orderOut:nil];
+
+	[sheet orderOut:nil];
 }
 
 - (NSString *)adiumFrameAutosaveName
@@ -302,7 +318,8 @@ static	NSMutableDictionary	*controllerDict = nil;
 	return @"EditStateWindow";
 }
 
-//Behavior -------------------------------------------------------------------------------------------------------------
+// Behavior
+// -------------------------------------------------------------------------------------------------------------
 #pragma mark Behavior
 /*!
  * @brief Okay
@@ -312,12 +329,10 @@ static	NSMutableDictionary	*controllerDict = nil;
 - (IBAction)okay:(id)sender
 {
 	if (target && [target respondsToSelector:@selector(customStatusState:changedTo:forAccount:)]) {
-		//Perform on a delay so the sheet can begin closing immediately.
-		[self performSelector:@selector(notifyOfStateChange)
-				   withObject:nil
-				   afterDelay:0];
+		// Perform on a delay so the sheet can begin closing immediately.
+		[self performSelector:@selector(notifyOfStateChange) withObject:nil afterDelay:0];
 	}
-	
+
 	[self closeWindow:nil];
 }
 
@@ -363,16 +378,16 @@ static	NSMutableDictionary	*controllerDict = nil;
 - (IBAction)statusControlChanged:(id)sender
 {
 	if (sender == checkbox_autoReply)
-		[workingStatusState setHasAutoReply:[checkbox_autoReply state]];	
-	else if (sender == checkbox_customAutoReply) 
-		[workingStatusState setAutoReplyIsStatusMessage:![checkbox_customAutoReply state]];	
+		[workingStatusState setHasAutoReply:[checkbox_autoReply state]];
+	else if (sender == checkbox_customAutoReply)
+		[workingStatusState setAutoReplyIsStatusMessage:![checkbox_customAutoReply state]];
 	else if (sender == checkbox_idle)
 		[workingStatusState setShouldForceInitialIdleTime:[checkbox_idle state]];
 	else if (sender == checkBox_muteSounds)
 		[workingStatusState setMutesSound:[checkBox_muteSounds state]];
 	else if (sender == checkBox_silenceGrowl)
-		[workingStatusState setSilencesGrowl:[checkBox_silenceGrowl state]];	
-	
+		[workingStatusState setSilencesGrowl:[checkBox_silenceGrowl state]];
+
 	[self updateControlVisibilityAndResizeWindow];
 	[self updateTitleDisplay];
 }
@@ -385,9 +400,10 @@ static	NSMutableDictionary	*controllerDict = nil;
 	id sender = [notification object];
 
 	if (sender == textField_title) {
-		NSString	*newTitle = [textField_title stringValue];
-		
-		if ([newTitle length]) [workingStatusState setTitle:newTitle];
+		NSString *newTitle = [textField_title stringValue];
+
+		if ([newTitle length])
+			[workingStatusState setTitle:newTitle];
 	}
 }
 
@@ -400,12 +416,11 @@ static	NSMutableDictionary	*controllerDict = nil;
 
 	if (sender == textView_statusMessage) {
 		[workingStatusState setStatusMessage:[[[textView_statusMessage textStorage] copy] autorelease]];
-		
+
 	} else if (sender == textView_autoReply) {
 		[workingStatusState setAutoReply:[[[textView_autoReply textStorage] copy] autorelease]];
-		
 	}
-	
+
 	[self updateTitleDisplay];
 }
 
@@ -419,12 +434,12 @@ static	NSMutableDictionary	*controllerDict = nil;
 	id sender = [notification object];
 
 	if (sender == textField_title) {
-		NSString	*newTitle = [textField_title stringValue];
-		
-		//Set to nil if the field is cleared to get back to the automatically generated value
+		NSString *newTitle = [textField_title stringValue];
+
+		// Set to nil if the field is cleared to get back to the automatically generated value
 		if (![newTitle length]) {
 			[workingStatusState setTitle:nil];
-			
+
 			[self updateTitleDisplay];
 		}
 	}
@@ -435,7 +450,7 @@ static	NSMutableDictionary	*controllerDict = nil;
  */
 - (IBAction)selectStatus:(id)sender
 {
-	NSDictionary	*stateDict = [[popUp_state selectedItem] representedObject];
+	NSDictionary *stateDict = [[popUp_state selectedItem] representedObject];
 	if (stateDict) {
 		[workingStatusState setStatusType:[[stateDict objectForKey:KEY_STATUS_TYPE] intValue]];
 		[workingStatusState setStatusName:[stateDict objectForKey:KEY_STATUS_NAME]];
@@ -447,7 +462,8 @@ static	NSMutableDictionary	*controllerDict = nil;
 /*!
  * @brief Override AIWindowController's stringWithSavedFrame to provide a custom saved frame
  *
- * We want our savedframe to match the way the window will load, which means it needs to be as if all controls were visible.
+ * We want our savedframe to match the way the window will load, which means it needs to be as if all controls were
+ * visible.
  */
 - (NSString *)stringWithSavedFrame
 {
@@ -455,18 +471,20 @@ static	NSMutableDictionary	*controllerDict = nil;
 	NSString *stringWithSavedFrame;
 
 	NSRect frame = [window frame];
-	CGFloat delta  = 0;
+	CGFloat delta = 0;
 	delta += ([scrollView_autoReply isHidden] ? ([scrollView_autoReply frame].size.height + CONTROL_SPACING) : 0);
-	delta += ([checkbox_customAutoReply isHidden] ? ([checkbox_customAutoReply frame].size.height + CONTROL_SPACING) : 0);
+	delta +=
+		([checkbox_customAutoReply isHidden] ? ([checkbox_customAutoReply frame].size.height + CONTROL_SPACING) : 0);
 	delta += ([box_idle isHidden] ? ([box_idle frame].size.height + CONTROL_SPACING) : 0);
 
 	frame.size.height += delta;
 	frame.origin.y -= delta;
 
 	NSRect screenFrame = [[window screen] frame];
-	stringWithSavedFrame = [NSString stringWithFormat:@"%0f %0f %0f %0f %0f %0f %0f %0f",
-		frame.origin.x, frame.origin.y, frame.size.width, frame.size.height,
-		screenFrame.origin.x, screenFrame.origin.y, screenFrame.size.width, screenFrame.size.height];
+	stringWithSavedFrame =
+		[NSString stringWithFormat:@"%0f %0f %0f %0f %0f %0f %0f %0f", frame.origin.x, frame.origin.y, frame.size.width,
+								   frame.size.height, screenFrame.origin.x, screenFrame.origin.y,
+								   screenFrame.size.width, screenFrame.size.height];
 
 	return stringWithSavedFrame;
 }
@@ -474,21 +492,22 @@ static	NSMutableDictionary	*controllerDict = nil;
 - (NSRect)savedFrameFromString:(NSString *)frameString
 {
 	NSRect savedFrame = [super savedFrameFromString:frameString];
-	
-	CGFloat delta  = 0;
+
+	CGFloat delta = 0;
 	delta += ([scrollView_autoReply isHidden] ? ([scrollView_autoReply frame].size.height + CONTROL_SPACING) : 0);
-	delta += ([checkbox_customAutoReply isHidden] ? ([checkbox_customAutoReply frame].size.height + CONTROL_SPACING) : 0);
-	delta += ([box_idle isHidden] ? ([box_idle frame].size.height + CONTROL_SPACING) : 0);	
+	delta +=
+		([checkbox_customAutoReply isHidden] ? ([checkbox_customAutoReply frame].size.height + CONTROL_SPACING) : 0);
+	delta += ([box_idle isHidden] ? ([box_idle frame].size.height + CONTROL_SPACING) : 0);
 
 	savedFrame.size.height -= delta;
 	savedFrame.origin.y += delta;
 
-	//Magic? This is the amount our numbers are off from the nib... if the nib changes, this magic will probably change, too.
-	savedFrame.size.height += CONTROL_SPACING*3;
+	// Magic? This is the amount our numbers are off from the nib... if the nib changes, this magic will probably
+	// change, too.
+	savedFrame.size.height += CONTROL_SPACING * 3;
 
 	return savedFrame;
 }
-
 
 /*!
  * @brief Update control visibility and resize the editor window
@@ -498,20 +517,20 @@ static	NSMutableDictionary	*controllerDict = nil;
  */
 - (void)updateControlVisibilityAndResizeWindow
 {
-	//Visibility
-	NSWindow	*window = [self window];
-		
+	// Visibility
+	NSWindow *window = [self window];
+
 	[scrollView_autoReply setHidden:(![checkbox_autoReply state] || ![checkbox_customAutoReply state])];
 	[checkbox_customAutoReply setHidden:![checkbox_autoReply state]];
 	[box_idle setHidden:![checkbox_idle state]];
-		
-	//Sizing
-	//XXX - This is quick & dirty -ai
-	id	current = box_title;
-	CGFloat	height = WINDOW_HEIGHT_PADDING + [current frame].size.height;
+
+	// Sizing
+	// XXX - This is quick & dirty -ai
+	id current = box_title;
+	CGFloat height = WINDOW_HEIGHT_PADDING + [current frame].size.height;
 
 	current = [self _positionControl:box_separatorLine relativeTo:current height:&height];
-	current = [self _positionControl:box_state relativeTo:current height:&height];	
+	current = [self _positionControl:box_state relativeTo:current height:&height];
 	current = [self _positionControl:box_statusMessage relativeTo:current height:&height];
 	current = [self _positionControl:checkbox_autoReply relativeTo:current height:&height];
 	current = [self _positionControl:checkbox_customAutoReply relativeTo:current height:&height];
@@ -522,9 +541,7 @@ static	NSMutableDictionary	*controllerDict = nil;
 	current = [self _positionControl:checkBox_silenceGrowl relativeTo:current height:&height];
 	[self _positionControl:checkBox_save relativeTo:current height:&height];
 
-	[window setContentSize:NSMakeSize([[window contentView] frame].size.width, height)
-				   display:YES
-				   animate:NO];
+	[window setContentSize:NSMakeSize([[window contentView] frame].size.width, height) display:YES animate:NO];
 }
 
 /*!
@@ -540,22 +557,22 @@ static	NSMutableDictionary	*controllerDict = nil;
 - (id)_positionControl:(id)control relativeTo:(id)guide height:(CGFloat *)height
 {
 	if (![control isHidden]) {
-		NSRect	frame = [control frame];
-		
-		//Position this control relative to the one above it
+		NSRect frame = [control frame];
+
+		// Position this control relative to the one above it
 		frame.origin.y = [guide frame].origin.y - CONTROL_SPACING - frame.size.height;
-		
+
 		[control setFrame:frame];
 		(*height) += frame.size.height + CONTROL_SPACING;
-		
+
 		return control;
 	} else {
 		return guide;
 	}
 }
 
-
-//Configuration --------------------------------------------------------------------------------------------------------
+// Configuration
+// --------------------------------------------------------------------------------------------------------
 #pragma mark Configuration
 /*!
  * @brief Configure the editor for a state
@@ -565,9 +582,9 @@ static	NSMutableDictionary	*controllerDict = nil;
  */
 - (void)configureForState:(AIStatus *)statusState
 {
-	//State menu
-	NSString	*description;
-	NSUInteger			idx;
+	// State menu
+	NSString *description;
+	NSUInteger idx;
 
 	if (needToRebuildPopUpState) {
 		[self configureStateMenu];
@@ -580,62 +597,68 @@ static	NSMutableDictionary	*controllerDict = nil;
 
 	} else {
 		if (description) {
-			[popUp_state setTitle:[NSString stringWithFormat:@"%@ (%@)",
-				description,
-				AILocalizedString(@"No compatible accounts connected", nil)]];
+			[popUp_state
+				setTitle:[NSString stringWithFormat:@"%@ (%@)", description,
+													AILocalizedString(@"No compatible accounts connected", nil)]];
 
 		} else {
-			[popUp_state setTitle:AILocalizedString(@"Unknown", nil)];			
+			[popUp_state setTitle:AILocalizedString(@"Unknown", nil)];
 		}
 
 		needToRebuildPopUpState = YES;
 	}
 
-	//Toggles
+	// Toggles
 	[checkbox_idle setState:[statusState shouldForceInitialIdleTime]];
 	[checkbox_autoReply setState:[statusState hasAutoReply]];
 	[checkbox_customAutoReply setState:![statusState autoReplyIsStatusMessage]];
 	[checkBox_muteSounds setState:[statusState mutesSound]];
 	[checkBox_silenceGrowl setState:[statusState silencesGrowl]];
-	
-	//Strings
-	NSAttributedString	*statusMessage = statusState.statusMessage;
-	NSAttributedString	*autoReply = [statusState autoReply];
 
-	NSAttributedString	*blankString = [NSAttributedString stringWithString:@""];
-	
-	if (!statusMessage) statusMessage = blankString;
+	// Strings
+	NSAttributedString *statusMessage = statusState.statusMessage;
+	NSAttributedString *autoReply = [statusState autoReply];
+
+	NSAttributedString *blankString = [NSAttributedString stringWithString:@""];
+
+	if (!statusMessage)
+		statusMessage = blankString;
 	[[textView_statusMessage textStorage] setAttributedString:statusMessage];
 	[textView_statusMessage setSelectedRange:NSMakeRange(0, [statusMessage length])];
 
-	if (!autoReply) autoReply = blankString;
+	if (!autoReply)
+		autoReply = blankString;
 	[[textView_autoReply textStorage] setAttributedString:autoReply];
-	
-	//Set Background Colors
-	if([autoReply attribute:AIBodyColorAttributeName atIndex:0 effectiveRange:nil]) {
-			[textView_autoReply setBackgroundColor:[autoReply attribute:AIBodyColorAttributeName atIndex:0 effectiveRange:nil]];
+
+	// Set Background Colors
+	if ([autoReply attribute:AIBodyColorAttributeName atIndex:0 effectiveRange:nil]) {
+		[textView_autoReply setBackgroundColor:[autoReply attribute:AIBodyColorAttributeName
+															atIndex:0
+													 effectiveRange:nil]];
 	}
-	
-	if([statusMessage attribute:AIBodyColorAttributeName atIndex:0 effectiveRange:nil]) {
-			[textView_statusMessage setBackgroundColor:[statusMessage attribute:AIBodyColorAttributeName atIndex:0 effectiveRange:nil]];
+
+	if ([statusMessage attribute:AIBodyColorAttributeName atIndex:0 effectiveRange:nil]) {
+		[textView_statusMessage setBackgroundColor:[statusMessage attribute:AIBodyColorAttributeName
+																	atIndex:0
+															 effectiveRange:nil]];
 	}
-	
-	//Disallow an undo to before this point
+
+	// Disallow an undo to before this point
 	[[textView_autoReply undoManager] removeAllActions];
 	[[textView_statusMessage undoManager] removeAllActions];
 
-	//Idle start
-	double	idleStart = [statusState forcedInitialIdleTime];
-	[textField_idleMinutes setIntValue:(int)((((int)idleStart)%3600)/60)];
-	[stepper_idleMinutes setIntValue:(int)((((int)idleStart)%3600)/60)];
-	
-	[textField_idleHours setIntValue:(int)(idleStart/3600)];
-	[stepper_idleHours setIntValue:(int)(idleStart/3600)];
+	// Idle start
+	double idleStart = [statusState forcedInitialIdleTime];
+	[textField_idleMinutes setIntValue:(int)((((int)idleStart) % 3600) / 60)];
+	[stepper_idleMinutes setIntValue:(int)((((int)idleStart) % 3600) / 60)];
 
-	//Update visiblity and size
+	[textField_idleHours setIntValue:(int)(idleStart / 3600)];
+	[stepper_idleHours setIntValue:(int)(idleStart / 3600)];
+
+	// Update visiblity and size
 	[self updateControlVisibilityAndResizeWindow];
-	
-	//Update our title
+
+	// Update our title
 	[self updateTitleDisplay];
 }
 
@@ -648,20 +671,20 @@ static	NSMutableDictionary	*controllerDict = nil;
  */
 - (AIStatus *)currentConfiguration
 {
-	double		idleStart = [textField_idleHours intValue]*3600 + [textField_idleMinutes intValue]*60;
-	
-	[workingStatusState setMutabilityType:((!showSaveCheckbox || ([checkBox_save state] == NSOnState)) ?
-										   AIEditableStatusState :
-										   AITemporaryEditableStatusState)];
+	double idleStart = [textField_idleHours intValue] * 3600 + [textField_idleMinutes intValue] * 60;
+
+	[workingStatusState setMutabilityType:((!showSaveCheckbox || ([checkBox_save state] == NSOnState))
+											   ? AIEditableStatusState
+											   : AITemporaryEditableStatusState)];
 
 	[workingStatusState setForcedInitialIdleTime:idleStart];
 
-	//Set the title if necessary
+	// Set the title if necessary
 	if (![[workingStatusState title] isEqualToString:[textField_title stringValue]]) {
 		[workingStatusState setTitle:[textField_title stringValue]];
 	}
 
-	//Do not allow the creation of a Now Playing status
+	// Do not allow the creation of a Now Playing status
 	if ([workingStatusState specialStatusType] == AINowPlayingSpecialStatusType) {
 		[workingStatusState setSpecialStatusType:AINoSpecialStatusType];
 	}
@@ -670,4 +693,3 @@ static	NSMutableDictionary	*controllerDict = nil;
 }
 
 @end
-

@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -23,12 +23,12 @@
 @implementation AIRolloverButton
 
 - (void)awakeFromNib
-{	
+{
 	if ([[self superclass] instancesRespondToSelector:@selector(awakeFromNib)]) {
-        [super awakeFromNib];
+		[super awakeFromNib];
 	}
 
-	[[NSNotificationCenter defaultCenter] addObserver:self 
+	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(rolloverFrameDidChange:)
 												 name:NSViewFrameDidChangeNotification
 											   object:self];
@@ -44,26 +44,26 @@
 		[self removeTrackingRect:trackingTag];
 		trackingTag = -1;
 	}
-	
 }
 
 #pragma mark Configuration
-//Set our delegate
+// Set our delegate
 - (void)setDelegate:(NSObject<AIRolloverButtonDelegate> *)inDelegate
 {
-    delegate = inDelegate;
-	
-	//Make sure this delegate responds to the required method
+	delegate = inDelegate;
+
+	// Make sure this delegate responds to the required method
 	NSParameterAssert([delegate respondsToSelector:@selector(rolloverButton:mouseChangedToInsideButton:)]);
 }
-- (NSObject<AIRolloverButtonDelegate> *)delegate{
-    return delegate;
+- (NSObject<AIRolloverButtonDelegate> *)delegate
+{
+	return delegate;
 }
 
-//Cursor Tracking  -----------------------------------------------------------------------------------------------------
+// Cursor Tracking -----------------------------------------------------------------------------------------------------
 #pragma mark Cursor Tracking
 
-//Remove old tracking rects when we change superviews
+// Remove old tracking rects when we change superviews
 - (void)viewWillMoveToSuperview:(NSView *)newSuperview
 {
 	if (trackingTag != -1) {
@@ -87,7 +87,7 @@
 		[self removeTrackingRect:trackingTag];
 		trackingTag = -1;
 	}
-	
+
 	[super viewWillMoveToWindow:newWindow];
 }
 
@@ -103,43 +103,44 @@
 	[self resetCursorRects];
 }
 
-//Reset our cursor tracking
+// Reset our cursor tracking
 - (void)resetCursorRects
 {
-	//Stop any existing tracking
+	// Stop any existing tracking
 	if (trackingTag != -1) {
 		[self removeTrackingRect:trackingTag];
 		trackingTag = -1;
 	}
-	
-	//Add a tracking rect if our superview and window are ready
+
+	// Add a tracking rect if our superview and window are ready
 	if ([self superview] && [self window]) {
-		NSRect	myFrame = [self frame];
-		NSRect	trackRect = NSMakeRect(0, 0, myFrame.size.width, myFrame.size.height);
+		NSRect myFrame = [self frame];
+		NSRect trackRect = NSMakeRect(0, 0, myFrame.size.width, myFrame.size.height);
 
-    NSPoint localPoint = [self convertPoint:[[self window] convertScreenToBase:[NSEvent mouseLocation]]
-                                   fromView:nil];
+		NSPoint localPoint = [self convertPoint:[[self window] convertScreenToBase:[NSEvent mouseLocation]]
+									   fromView:nil];
 
-// FIX - replacement for deprecation; reverted for 10.11 fix.
-//		NSPoint	localPoint = [self convertPoint:[[self window] convertPointFromScreen:[NSEvent mouseLocation]]
-//									   fromView:nil];
+		// FIX - replacement for deprecation; reverted for 10.11 fix.
+		//		NSPoint	localPoint = [self convertPoint:[[self window] convertPointFromScreen:[NSEvent mouseLocation]]
+		//									   fromView:nil];
 
-		BOOL	mouseInside = NSPointInRect(localPoint, myFrame);
-		
+		BOOL mouseInside = NSPointInRect(localPoint, myFrame);
+
 		trackingTag = [self addTrackingRect:trackRect owner:self userData:nil assumeInside:mouseInside];
-		if (mouseInside) [self mouseEntered:[[NSEvent alloc] init]];
+		if (mouseInside)
+			[self mouseEntered:[[NSEvent alloc] init]];
 	}
 }
 
-//Cursor entered our view
+// Cursor entered our view
 - (void)mouseEntered:(NSEvent *)theEvent
 {
 	[delegate rolloverButton:self mouseChangedToInsideButton:YES];
-	
+
 	[super mouseEntered:theEvent];
 }
 
-//Cursor left our view
+// Cursor left our view
 - (void)mouseExited:(NSEvent *)theEvent
 {
 	[delegate rolloverButton:self mouseChangedToInsideButton:NO];

@@ -25,6 +25,16 @@ Adium is a free and open source instant messaging application for [OS X](https:/
 * A beautiful icon, the "Adiumy" duck
 * Translations: Adium speaks 27 different languages
 
+## Development Tooling ##
+
+* **Code style**: `.clang-format` (LLVM-based, tabs, 4-char indent, 120 cols, Allman brace style).
+  Run `make format` to reformat, `make format-check` for CI-style validation.
+  Requires `clang-format` 22+ (`brew install clang-format`).
+* **Coverage gate**: `make coverage-check` enforces a minimum 50% line coverage
+  on production targets (configurable via `COVERAGE_THRESHOLD`). Coverage
+  instrumentation is enabled for Debug builds.
+* **CI**: GitHub Actions enforces both checks on every push.
+
 ## System requirements ##
 - **Adium 1.5 or later**: Mac OS X 10.6.8 or newer, an Apple-branded Macintosh computer
 - [Adium 1.4.5](https://adiumx.cachefly.net/Adium_1.4.5.dmg): Mac OS X 10.5.8

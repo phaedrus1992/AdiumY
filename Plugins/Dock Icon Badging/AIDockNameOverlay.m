@@ -1,17 +1,16 @@
 #import "AIDockNameOverlay.h"
 #import "AIDockController.h"
-#import <AIUtilities/AIParagraphStyleAdditions.h>
-#import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIAccount.h>
 #import <AIUtilities/AIArrayAdditions.h>
-#import <Adium/AIAbstractListController.h>
-#import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIBezierPathAdditions.h>
+#import <AIUtilities/AIColorAdditions.h>
+#import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIParagraphStyleAdditions.h>
+#import <Adium/AIAbstractListController.h>
+#import <Adium/AIAccount.h>
+#import <Adium/AIChat.h>
 
-
-#define DOCK_OVERLAY_ALERT_SHORT	AILocalizedString(@"Display name in the dock icon",nil)
-#define DOCK_OVERLAY_ALERT_LONG		DOCK_OVERLAY_ALERT_SHORT
+#define DOCK_OVERLAY_ALERT_SHORT AILocalizedString(@"Display name in the dock icon", nil)
+#define DOCK_OVERLAY_ALERT_LONG DOCK_OVERLAY_ALERT_SHORT
 
 @interface AIDockNameOverlay ()
 - (void)flushPreferenceColorCache;
@@ -22,31 +21,34 @@
 @implementation AIDockNameOverlay
 - (void)installPlugin
 {
-	//Install our contact alert
+	// Install our contact alert
 	[adium.contactAlertsController registerActionID:DOCK_OVERLAY_ALERT_IDENTIFIER withHandler:self];
 
 	overlayObjectsArray = [[NSMutableArray alloc] init];
-	
-	//Register as a contact observer (For signed on / signed off)
+
+	// Register as a contact observer (For signed on / signed off)
 	[[AIContactObserverManager sharedManager] registerListObjectObserver:self];
-	
+
 	[adium.chatController registerChatObserver:self];
-	
-	//Observe pref changes
+
+	// Observe pref changes
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_APPEARANCE];
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_LIST_THEME];
 }
 
-- (void)preferencesChangedForGroup:(NSString *)group key:(NSString *)key
-							object:(AIListObject *)object preferenceDict:(NSDictionary *)prefDict firstTime:(BOOL)firstTime
-{	
+- (void)preferencesChangedForGroup:(NSString *)group
+							   key:(NSString *)key
+							object:(AIListObject *)object
+					preferenceDict:(NSDictionary *)prefDict
+						 firstTime:(BOOL)firstTime
+{
 	if ([group isEqualToString:PREF_GROUP_LIST_THEME]) {
-		//Grab colors from status coloring plugin's prefs
+		// Grab colors from status coloring plugin's prefs
 		[self flushPreferenceColorCache];
 		signedOffColor = [[[prefDict objectForKey:KEY_SIGNED_OFF_COLOR] representedColor] retain];
 		signedOnColor = [[[prefDict objectForKey:KEY_SIGNED_ON_COLOR] representedColor] retain];
 		unviewedContentColor = [[[prefDict objectForKey:KEY_UNVIEWED_COLOR] representedColor] retain];
-		
+
 		backSignedOffColor = [[[prefDict objectForKey:KEY_LABEL_SIGNED_OFF_COLOR] representedColor] retain];
 		backSignedOnColor = [[[prefDict objectForKey:KEY_LABEL_SIGNED_ON_COLOR] representedColor] retain];
 		backUnviewedContentColor = [[[prefDict objectForKey:KEY_LABEL_UNVIEWED_COLOR] representedColor] retain];
@@ -55,12 +57,18 @@
 
 - (void)flushPreferenceColorCache
 {
-	[signedOffColor release]; signedOffColor = nil;
-	[signedOnColor release]; signedOnColor = nil;
-	[unviewedContentColor release]; unviewedContentColor = nil;
-	[backSignedOffColor release]; backSignedOffColor = nil;
-	[backSignedOnColor release]; backSignedOnColor = nil;
-	[backUnviewedContentColor release]; backUnviewedContentColor = nil;
+	[signedOffColor release];
+	signedOffColor = nil;
+	[signedOnColor release];
+	signedOnColor = nil;
+	[unviewedContentColor release];
+	unviewedContentColor = nil;
+	[backSignedOffColor release];
+	backSignedOffColor = nil;
+	[backSignedOnColor release];
+	backSignedOnColor = nil;
+	[backUnviewedContentColor release];
+	backUnviewedContentColor = nil;
 }
 
 - (void)uninstallPlugin
@@ -80,7 +88,8 @@
 
 /*!
  * @brief Long description
- * @result A longer localized description of the action which should take into account the details dictionary as appropraite.
+ * @result A longer localized description of the action which should take into account the details dictionary as
+ * appropraite.
  */
 - (NSString *)longDescriptionForActionID:(NSString *)actionID withDetails:(NSDictionary *)details
 {
@@ -109,50 +118,52 @@
  *
  * @param actionID The ID of the action to perform
  * @param listObject The listObject associated with the event triggering the action. It may be nil
- * @param details If set by the details pane when the action was created, the details dictionary for this particular action
+ * @param details If set by the details pane when the action was created, the details dictionary for this particular
+ * action
  * @param eventID The eventID which triggered this action
  * @param userInfo Additional information associated with the event; userInfo's type will vary with the actionID.
  */
-- (BOOL)performActionID:(NSString *)actionID forListObject:(AIListObject *)listObject withDetails:(NSDictionary *)details triggeringEventID:(NSString *)eventID userInfo:(id)userInfo
+- (BOOL)performActionID:(NSString *)actionID
+		  forListObject:(AIListObject *)listObject
+			withDetails:(NSDictionary *)details
+	  triggeringEventID:(NSString *)eventID
+			   userInfo:(id)userInfo
 {
 	BOOL isMessageEvent = [adium.contactAlertsController isMessageEvent:eventID];
-	
+
 	if (isMessageEvent) {
 		AIChat *chat;
-		
-		if ((chat = [userInfo objectForKey:@"AIChat"]) &&
-			(chat != adium.interfaceController.activeChat)) {
+
+		if ((chat = [userInfo objectForKey:@"AIChat"]) && (chat != adium.interfaceController.activeChat)) {
 			if (![overlayObjectsArray containsObjectIdenticalTo:chat])
 				[overlayObjectsArray addObject:chat];
-			
-			//Wait until the next run loop so that this event is done processing and our unviewed content count is correct
-			[self performSelector:@selector(drawOverlay)
-					   withObject:nil
-					   afterDelay:0];
+
+			// Wait until the next run loop so that this event is done processing and our unviewed content count is
+			// correct
+			[self performSelector:@selector(drawOverlay) withObject:nil afterDelay:0];
 		}
-		
+
 	} else if (listObject) {
 		NSTimer *removeTimer;
-		
-		//Clear any current timer for this object to have its overlay removed
-		if ((removeTimer = [listObject valueForProperty:@"DockOverlayRemoveTimer"])) [removeTimer invalidate];
-		
-		//Add a timer to remove this overlay
+
+		// Clear any current timer for this object to have its overlay removed
+		if ((removeTimer = [listObject valueForProperty:@"DockOverlayRemoveTimer"]))
+			[removeTimer invalidate];
+
+		// Add a timer to remove this overlay
 		removeTimer = [NSTimer scheduledTimerWithTimeInterval:5
 													   target:self
 													 selector:@selector(removeDockOverlay:)
 													 userInfo:listObject
 													  repeats:NO];
-		[listObject setValue:removeTimer
-				 forProperty:@"DockOverlayRemoveTimer"
-					  notify:NotifyNever];
-		
+		[listObject setValue:removeTimer forProperty:@"DockOverlayRemoveTimer" notify:NotifyNever];
+
 		if (![overlayObjectsArray containsObjectIdenticalTo:listObject])
 			[overlayObjectsArray addObject:listObject];
-		
+
 		[self drawOverlay];
 	}
-	
+
 	return YES;
 }
 
@@ -178,7 +189,7 @@
 			[self drawOverlay];
 		}
 	}
-	
+
 	return nil;
 }
 
@@ -190,20 +201,20 @@
 	if ([inObject isKindOfClass:[AIAccount class]]) {
 		if ([inModifiedKeys containsObject:@"isOnline"]) {
 			BOOL madeChanges = NO;
-			
+
 			for (AIListObject *listObject in [[overlayObjectsArray copy] autorelease]) {
-				if (([listObject respondsToSelector:@selector(account)]) &&
-					([(id)listObject account] == inObject) &&
+				if (([listObject respondsToSelector:@selector(account)]) && ([(id)listObject account] == inObject) &&
 					([overlayObjectsArray containsObjectIdenticalTo:listObject])) {
 					[overlayObjectsArray removeObjectIdenticalTo:listObject];
 					madeChanges = YES;
 				}
 			}
-			
-			if (madeChanges) [self drawOverlay];
+
+			if (madeChanges)
+				[self drawOverlay];
 		}
 	}
-	
+
 	return nil;
 }
 
@@ -211,71 +222,69 @@
 {
 	AIListObject *inObject = [removeTimer userInfo];
 	[overlayObjectsArray removeObjectIdenticalTo:inObject];
-	
-	[inObject setValue:nil
-		   forProperty:@"DockOverlayRemoveTimer"
-				notify:NotifyNever];
-	
+
+	[inObject setValue:nil forProperty:@"DockOverlayRemoveTimer" notify:NotifyNever];
+
 	[self drawOverlay];
 }
 
 - (void)drawOverlay
 {
-	NSFont				*font;
-	NSParagraphStyle	*paragraphStyle;
-	CGFloat				iconHeight;
-	CGFloat				top, bottom;
-	NSImage				*image = [[NSImage alloc] initWithSize:NSMakeSize(128, 128)];
-	
+	NSFont *font;
+	NSParagraphStyle *paragraphStyle;
+	CGFloat iconHeight;
+	CGFloat top, bottom;
+	NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(128, 128)];
+
 	iconHeight = 30.0f;
 	bottom = 2;
 	top = bottom + iconHeight;
-	
-	//Set up the string details
+
+	// Set up the string details
 	font = [NSFont boldSystemFontOfSize:24.0f];
 	paragraphStyle = [NSParagraphStyle styleWithAlignment:NSCenterTextAlignment lineBreakMode:NSLineBreakByClipping];
-	
+
 	[image lockFocus];
-	
-	//Clear our image
+
+	// Clear our image
 	[[NSColor clearColor] set];
 	NSRectFillUsingOperation(NSMakeRect(0, 0, 128, 128), NSCompositeCopy);
-	
-	//Draw overlays for each contact
+
+	// Draw overlays for each contact
 	for (ESObjectWithProperties *object in [overlayObjectsArray reverseObjectEnumerator]) {
 		if (top >= 128)
 			break;
-		
-		CGFloat			arcRadius, stringInset;
-		NSBezierPath	*path;
-		NSRect			pillRect;
-		NSColor			*backColor = nil, *textColor = nil, *borderColor = nil;
-		
-		//Create the pill frame
+
+		CGFloat arcRadius, stringInset;
+		NSBezierPath *path;
+		NSRect pillRect;
+		NSColor *backColor = nil, *textColor = nil, *borderColor = nil;
+
+		// Create the pill frame
 		arcRadius = (iconHeight / 2.0f);
 		stringInset = (iconHeight / 4.0f);
 		pillRect = NSMakeRect(0, bottom, 127, iconHeight);
-		
+
 		path = [NSBezierPath bezierPathWithRoundedRect:pillRect radius:arcRadius];
-		[path setLineWidth:((iconHeight/2.0f) * 0.13333f)];
-		
-		if ([object integerValueForProperty:KEY_UNVIEWED_CONTENT]) { //Unviewed
+		[path setLineWidth:((iconHeight / 2.0f) * 0.13333f)];
+
+		if ([object integerValueForProperty:KEY_UNVIEWED_CONTENT]) { // Unviewed
 			backColor = backUnviewedContentColor;
 			textColor = unviewedContentColor;
-		} else if ([object boolValueForProperty:@"signedOn"]) { //Signed on
+		} else if ([object boolValueForProperty:@"signedOn"]) { // Signed on
 			backColor = backSignedOnColor;
 			textColor = signedOnColor;
-		} else if ([object boolValueForProperty:@"signedOff"]) { //Signed off
+		} else if ([object boolValueForProperty:@"signedOff"]) { // Signed off
 			backColor = backSignedOffColor;
 			textColor = signedOffColor;
 		}
-		
+
 		if (!backColor)
 			backColor = [NSColor whiteColor];
 		if (!textColor)
 			textColor = [NSColor blackColor];
-		
-		//Lighten/Darken the back color slightly
+
+		// Lighten/Darken the back color slightly
 		if ([backColor colorIsDark]) {
 			backColor = [backColor darkenBy:-0.15f];
 			borderColor = [backColor darkenBy:-0.3f];
@@ -283,24 +292,27 @@
 			backColor = [backColor darkenBy:0.15f];
 			borderColor = [backColor darkenBy:0.3f];
 		}
-		
-		//Draw
+
+		// Draw
 		[backColor set];
 		[path fill];
 		[borderColor set];
 		[path stroke];
-		
-		//Get the object's display name
-		[object.displayName drawInRect:NSMakeRect(stringInset + 1, bottom - 1, 127 - (stringInset * 2), top - bottom)
-						withAttributes:[NSDictionary dictionaryWithObjectsAndKeys:font, NSFontAttributeName, paragraphStyle, NSParagraphStyleAttributeName, textColor, NSForegroundColorAttributeName, nil]];
-		
-		//Move up to the next pill
+
+		// Get the object's display name
+		[object.displayName
+				drawInRect:NSMakeRect(stringInset + 1, bottom - 1, 127 - (stringInset * 2), top - bottom)
+			withAttributes:[NSDictionary dictionaryWithObjectsAndKeys:font, NSFontAttributeName, paragraphStyle,
+																	  NSParagraphStyleAttributeName, textColor,
+																	  NSForegroundColorAttributeName, nil]];
+
+		// Move up to the next pill
 		bottom = top + 3.0f;
 		top = bottom + iconHeight;
 	}
-	
+
 	[image unlockFocus];
-	
+
 	[adium.dockController setOverlay:image];
 	[image release];
 }

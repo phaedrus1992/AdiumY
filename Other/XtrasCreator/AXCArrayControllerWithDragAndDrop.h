@@ -18,12 +18,18 @@
 	id dragValidator;
 }
 
-- (id) dragValidator;
-- (void) setDragValidator:(id)newValidator;
+- (id)dragValidator;
+- (void)setDragValidator:(id)newValidator;
 
 #pragma mark -
 
-- (NSDragOperation) tableView:(NSTableView *)tableView validateDrop:(id <NSDraggingInfo>)info proposedRow:(int)row proposedDropOperation:(NSTableViewDropOperation)operation;
-- (BOOL) tableView:(NSTableView *)tableView acceptDrop:(id <NSDraggingInfo>)info row:(int)row dropOperation:(NSTableViewDropOperation)operation;
+- (NSDragOperation)tableView:(NSTableView *)tableView
+				validateDrop:(id<NSDraggingInfo>)info
+				 proposedRow:(int)row
+	   proposedDropOperation:(NSTableViewDropOperation)operation;
+- (BOOL)tableView:(NSTableView *)tableView
+	   acceptDrop:(id<NSDraggingInfo>)info
+			  row:(int)row
+	dropOperation:(NSTableViewDropOperation)operation;
 
 @end

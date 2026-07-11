@@ -10,12 +10,11 @@
 
 #import "Presentity.h"
 
-@interface InstantMessage : NSObject <NSCoding>
-{
+@interface InstantMessage : NSObject <NSCoding> {
 	Presentity *sender;
 	NSDate *date;
 	NSAttributedString *text;
-	NSUInteger flags; 
+	NSUInteger flags;
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder;
@@ -24,6 +23,5 @@
 - (Presentity *)sender;
 - (NSDate *)date;
 - (NSAttributedString *)text;
-
 
 @end

@@ -1,28 +1,28 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #import "AIDockIconSelectionSheet.h"
-#import "AIDockController.h"
 #import "AIAppearancePreferencesPlugin.h"
+#import "AIDockController.h"
 #import <AIUtilities/AIFileManagerAdditions.h>
-#import <Adium/AIIconState.h>
 #import <Adium/AIDockControllerProtocol.h>
+#import <Adium/AIIconState.h>
 
-#define PREF_GROUP_DOCK_ICON	@"Dock Icon"
-#define DEFAULT_DOCK_ICON_NAME	@"Adiumy Green"
+#define PREF_GROUP_DOCK_ICON @"Dock Icon"
+#define DEFAULT_DOCK_ICON_NAME @"Adiumy Green"
 
 @interface AIDockIconSelectionSheet ()
 
@@ -30,7 +30,9 @@
 - (void)xtrasChanged:(NSNotification *)notification;
 
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
-- (void)trashConfirmSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(NSString *)selectedIconPath;
+- (void)trashConfirmSheetDidEnd:(NSWindow *)sheet
+					 returnCode:(NSInteger)returnCode
+					contextInfo:(NSString *)selectedIconPath;
 
 @end
 
@@ -42,9 +44,8 @@
 - (id)init
 {
 	if (self = [super initWithWindowNibName:@"DockIconSelectionSheet"]) {
-		
 	}
-	
+
 	return self;
 }
 
@@ -52,10 +53,10 @@
 {
 	if (parentWindow) {
 		[NSApp beginSheet:self.window
-		   modalForWindow:parentWindow
-			modalDelegate:self
-		   didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			  contextInfo:nil];
+			modalForWindow:parentWindow
+			 modalDelegate:self
+			didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
+			   contextInfo:nil];
 	} else {
 		[self showWindow:nil];
 		[self.window makeKeyAndOrderFront:nil];
@@ -70,7 +71,7 @@
 	[iconsData release], iconsData = nil;
 	[animatedIconState release], animatedIconState = nil;
 	[animationTimer release], animationTimer = nil;
-	
+
 	[super dealloc];
 }
 
@@ -82,15 +83,15 @@
 	[self setIconsData:nil];
 	[self setAnimatedIndex:NSNotFound];
 	[self setPreviousIndex:NSNotFound];
-	
+
 	// Set-up collection view
 	[[self imageCollectionView] setMaxNumberOfColumns:7];
 	[[self imageCollectionView] setMaxItemSize:NSMakeSize(64.0f, 64.0f)];
 	[[self imageCollectionView] setMinItemSize:NSMakeSize(64.0f, 64.0f)];
 	[[self imageCollectionView] setHighlightStyle:AIImageCollectionViewHighlightBackgroundStyle];
 	[[self imageCollectionView] setHighlightCornerRadius:4.0f];
-	
-    // Observe xtras changes
+
+	// Observe xtras changes
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(xtrasChanged:)
 												 name:AIXtrasDidChangeNotification
@@ -106,8 +107,8 @@
 - (void)windowWillClose:(id)sender
 {
 	[super windowWillClose:sender];
-	
-    [self setAnimatedDockIconAtIndex:NSNotFound];
+
+	[self setAnimatedDockIconAtIndex:NSNotFound];
 	[self autorelease];
 }
 
@@ -116,9 +117,9 @@
 // Invoked as the sheet closes, dismiss the sheet
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
-    [sheet orderOut:nil];
-	
-    [self setAnimatedDockIconAtIndex:NSNotFound];
+	[sheet orderOut:nil];
+
+	[self setAnimatedDockIconAtIndex:NSNotFound];
 	[self autorelease];
 }
 
@@ -128,14 +129,15 @@
 	if (!notification || [[notification object] caseInsensitiveCompare:@"AdiumIcon"] == NSOrderedSame) {
 		[self setIconsData:[NSMutableArray array]];
 		NSMutableArray *dockIcons = [[NSMutableArray alloc] init];
-		
+
 		// Fetch the pack previews
 		for (NSString *path in [adium.dockController availableDockIconPacks]) {
 			AIIconState *previewState = [adium.dockController previewStateForIconPackAtPath:path];
-			[[self iconsData] addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:path, @"Path", previewState, @"State", nil]];
+			[[self iconsData] addObject:[NSMutableDictionary
+											dictionaryWithObjectsAndKeys:path, @"Path", previewState, @"State", nil]];
 			[dockIcons addObject:[previewState image]];
 		}
-		
+
 		[self setIcons:dockIcons];
 		[dockIcons release];
 
@@ -149,12 +151,12 @@
 {
 	NSDictionary *iconDictionary;
 	NSInteger anIndex = 0;
-	
+
 	// Set previous index
 	if (![[[self imageCollectionView] selectionIndexes] isEqualToIndexSet:[NSIndexSet indexSet]]) {
 		[self setPreviousIndex:[[[self imageCollectionView] selectionIndexes] firstIndex]];
 	}
-	
+
 	for (iconDictionary in [self iconsData]) {
 		NSString *iconName = [[[iconDictionary objectForKey:@"Path"] lastPathComponent] stringByDeletingPathExtension];
 
@@ -165,9 +167,10 @@
 
 		anIndex++;
 	}
-	
+
 	// Set previous index - in case it wasn't set first time
-	if ([self previousIndex] == NSNotFound && ![[[self imageCollectionView] selectionIndexes] isEqualToIndexSet:[NSIndexSet indexSet]]) {
+	if ([self previousIndex] == NSNotFound &&
+		![[[self imageCollectionView] selectionIndexes] isEqualToIndexSet:[NSIndexSet indexSet]]) {
 		[self setPreviousIndex:[[[self imageCollectionView] selectionIndexes] firstIndex]];
 	}
 }
@@ -178,18 +181,18 @@
 - (void)setAnimatedDockIconAtIndex:(NSInteger)anIndex
 {
 	// Stop the current animation
-    if ([self animationTimer]) {
-        [[self animationTimer] invalidate];
-        [self setAnimationTimer:nil];
+	if ([self animationTimer]) {
+		[[self animationTimer] invalidate];
+		[self setAnimationTimer:nil];
 	}
-	
+
 	//
 	if ([self animatedIndex] != NSNotFound) {
-		[[self imageCollectionView] setImage:[[[[self iconsData] objectAtIndex:[self animatedIndex]] objectForKey:@"State"] image]
-							  forItemAtIndex:[self animatedIndex]];
+		[[self imageCollectionView]
+				  setImage:[[[[self iconsData] objectAtIndex:[self animatedIndex]] objectForKey:@"State"] image]
+			forItemAtIndex:[self animatedIndex]];
 	}
-	
-	
+
 	[self setAnimatedIconState:nil];
 	[self setAnimatedIndex:NSNotFound];
 
@@ -199,13 +202,13 @@
 
 		[self setAnimatedIconState:[self animatedStateForDockIconAtPath:path]];
 		[self setAnimatedIndex:anIndex];
-		
+
 		[self setAnimationTimer:[NSTimer scheduledTimerWithTimeInterval:[[self animatedIconState] animationDelay]
 																 target:self
 															   selector:@selector(animate:)
 															   userInfo:nil
-														  		repeats:YES]];
-    }
+																repeats:YES]];
+	}
 }
 
 // Returns an animated AIIconState for the dock icon pack at the specified path
@@ -213,11 +216,11 @@
 {
 	NSDictionary *iconPackDict = [adium.dockController iconPackAtPath:path];
 	NSDictionary *stateDict = [iconPackDict objectForKey:@"State"];
-	
-	return [[[AIIconState alloc] initByCompositingStates:[NSArray arrayWithObjects:[stateDict objectForKey:@"Base"],
-																					[stateDict objectForKey:@"Online"],
-														  							[stateDict objectForKey:@"Alert"],
-														  							nil]] autorelease];
+
+	return [[[AIIconState alloc]
+		initByCompositingStates:[NSArray arrayWithObjects:[stateDict objectForKey:@"Base"],
+														  [stateDict objectForKey:@"Online"],
+														  [stateDict objectForKey:@"Alert"], nil]] autorelease];
 }
 
 // Animate the hovered icon
@@ -236,7 +239,7 @@
 	if (anIndex == NSNotFound) {
 		[self setAnimatedDockIconAtIndex:NSNotFound];
 	}
-	
+
 	return (anIndex < [[self icons] count]);
 }
 
@@ -251,11 +254,12 @@
 			[[self imageCollectionView] setSelectionIndexes:[NSIndexSet indexSetWithIndex:previousIndex]];
 		}
 	}
-		
+
 	return (anIndex < [[self icons] count]);
 }
 
-- (BOOL)imageCollectionView:(AIImageCollectionView *)imageCollectionView shouldDeleteItemsAtIndexes:(NSIndexSet *)indexes
+- (BOOL)imageCollectionView:(AIImageCollectionView *)imageCollectionView
+	shouldDeleteItemsAtIndexes:(NSIndexSet *)indexes
 {
 	return ([indexes firstIndex] < [[self icons] count]);
 }
@@ -267,11 +271,13 @@
 
 - (void)imageCollectionView:(AIImageCollectionView *)imageCollectionView didSelectItemAtIndex:(NSUInteger)anIndex
 {
-	NSString *iconName = [[[[[self iconsData] objectAtIndex:anIndex] objectForKey:@"Path"] lastPathComponent] stringByDeletingPathExtension];
-	
-	if (![[adium.preferenceController preferenceForKey:KEY_ACTIVE_DOCK_ICON group:PREF_GROUP_APPEARANCE] isEqualToString:iconName]) {
+	NSString *iconName = [[[[[self iconsData] objectAtIndex:anIndex] objectForKey:@"Path"] lastPathComponent]
+		stringByDeletingPathExtension];
+
+	if (![[adium.preferenceController preferenceForKey:KEY_ACTIVE_DOCK_ICON
+												 group:PREF_GROUP_APPEARANCE] isEqualToString:iconName]) {
 		[adium.preferenceController setPreference:iconName forKey:KEY_ACTIVE_DOCK_ICON group:PREF_GROUP_APPEARANCE];
-		
+
 		// Set previous index
 		[self setPreviousIndex:anIndex];
 	}
@@ -281,34 +287,33 @@
 
 // Delete the selected dock icon
 - (void)imageCollectionView:(AIImageCollectionView *)imageCollectionView didDeleteItemsAtIndexes:(NSIndexSet *)indexes
-{            
-	NSString *selectedIconPath = [[iconsData objectAtIndex:[[[self imageCollectionView] selectionIndexes] firstIndex]] valueForKey:@"Path"];
+{
+	NSString *selectedIconPath =
+		[[iconsData objectAtIndex:[[[self imageCollectionView] selectionIndexes] firstIndex]] valueForKey:@"Path"];
 	NSString *name = [[selectedIconPath lastPathComponent] stringByDeletingPathExtension];
-	
+
 	// We need at least one icon installed, so prevent the user from deleting the default icon
 	if (![name isEqualToString:DEFAULT_DOCK_ICON_NAME]) {
-		NSBeginAlertSheet(AILocalizedString(@"Delete Dock Icon",nil),
-						  AILocalizedString(@"Delete",nil),
-						  AILocalizedString(@"Cancel",nil),
-						  @"",
-						  [self window], 
-						  self, 
-						  @selector(trashConfirmSheetDidEnd:returnCode:contextInfo:),
-						  nil,
-						  selectedIconPath,
-						  AILocalizedString(@"Are you sure you want to delete the %@ Dock Icon? It will be moved to the Trash.", nil), name);
+		NSBeginAlertSheet(
+			AILocalizedString(@"Delete Dock Icon", nil), AILocalizedString(@"Delete", nil),
+			AILocalizedString(@"Cancel", nil), @"", [self window], self,
+			@selector(trashConfirmSheetDidEnd:returnCode:contextInfo:), nil, selectedIconPath,
+			AILocalizedString(@"Are you sure you want to delete the %@ Dock Icon? It will be moved to the Trash.", nil),
+			name);
 	}
 }
 
-- (void)trashConfirmSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(NSString *)selectedIconPath
+- (void)trashConfirmSheetDidEnd:(NSWindow *)sheet
+					 returnCode:(NSInteger)returnCode
+					contextInfo:(NSString *)selectedIconPath
 {
-    if (returnCode == NSOKButton) {
+	if (returnCode == NSOKButton) {
 		NSInteger deletedIndex = [[[self imageCollectionView] selectionIndexes] firstIndex];
-		
+
 		// Deselect and stop animating
 		[self setAnimatedDockIconAtIndex:NSNotFound];
 		[[self imageCollectionView] setSelectionIndexes:[NSIndexSet indexSet]];
-		
+
 		// Trash the file & Rebuild our icons
 		[[NSFileManager defaultManager] trashFileAtPath:selectedIconPath];
 		[self xtrasChanged:nil];
@@ -316,7 +321,7 @@
 		// Select the next available icon (prevent empty selection)
 		NSUInteger newIndex = (deletedIndex == [[self icons] count]) ? --deletedIndex : deletedIndex;
 		[[self imageCollectionView] setSelectionIndexes:[NSIndexSet indexSetWithIndex:newIndex]];
-    }
+	}
 }
 
 @end

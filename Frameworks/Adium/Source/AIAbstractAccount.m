@@ -1,50 +1,49 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import <AIUtilities/AIAttributedStringAdditions.h>
+#import <AIUtilities/AIDictionaryAdditions.h>
+#import <AIUtilities/AIMutableOwnerArray.h>
+#import <AIUtilities/AIStringAdditions.h>
+#import <AIUtilities/AISystemNetworkDefaults.h>
 #import <Adium/AIAbstractAccount.h>
 #import <Adium/AIAccountControllerProtocol.h>
+#import <Adium/AIChat.h>
 #import <Adium/AIChatControllerProtocol.h>
 #import <Adium/AIContactControllerProtocol.h>
 #import <Adium/AIContactObserverManager.h>
-#import <Adium/AIContactControllerProtocol.h>
 #import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIChat.h>
 #import <Adium/AIContentEvent.h>
+#import <Adium/AIInterfaceControllerProtocol.h>
 #import <Adium/AIListContact.h>
+#import <Adium/AIPasswordPromptController.h>
 #import <Adium/AIService.h>
 #import <Adium/AIStatus.h>
-#import <Adium/AIPasswordPromptController.h>
+#import <Adium/AIStatusControllerProtocol.h>
 #import <Adium/AIUserIcons.h>
-#import <AIUtilities/AIAttributedStringAdditions.h>
-#import <AIUtilities/AIMutableOwnerArray.h>
-#import <AIUtilities/AIStringAdditions.h>
-#import <AIUtilities/AIDictionaryAdditions.h>
-#import <AIUtilities/AISystemNetworkDefaults.h>
 
-#define FILTERED_STRING_REFRESH    30.0    //delay in seconds between refresh of our attributed string statuses when needed
+#define FILTERED_STRING_REFRESH 30.0 // delay in seconds between refresh of our attributed string statuses when needed
 
-#define RECONNECT_BASE_TIME				1.75	//Reconnect wait time is base^(try) in seconds
-#define RECONNECT_MIN_TIME				5.0		//Minimum time in seconds to wait between reconnect attempts
-#define RECONNECT_MAX_TIME				600.0	//Maximum time in seconds to wait between reconnect attempts
+#define RECONNECT_BASE_TIME 1.75 // Reconnect wait time is base^(try) in seconds
+#define RECONNECT_MIN_TIME 5.0   // Minimum time in seconds to wait between reconnect attempts
+#define RECONNECT_MAX_TIME 600.0 // Maximum time in seconds to wait between reconnect attempts
 
-#define	ACCOUNT_DEFAULTS			@"AccountDefaults"
+#define ACCOUNT_DEFAULTS @"AccountDefaults"
 
-#define ACCOUNT_STATUS_UPDATE_COALESCING_KEY	@"Account Status Update"
+#define ACCOUNT_STATUS_UPDATE_COALESCING_KEY @"Account Status Update"
 
 @interface AIAccount (Abstract_PRIVATE)
 - (void)requestImmediateDynamicContentUpdate:(NSNotification *)notification;
@@ -56,7 +55,9 @@
 - (void)performAutoreconnect;
 - (void)fastUserSwitchLeave:(NSNotification *)notification;
 - (void)fastUserSwitchReturn:(NSNotification *)notification;
-- (void)gotProxyServerPassword:(NSString *)inPassword returnCode:(AIPasswordPromptReturn)returnCode proxyConfiguration:(NSMutableDictionary *)proxyConfiguration;
+- (void)gotProxyServerPassword:(NSString *)inPassword
+					returnCode:(AIPasswordPromptReturn)returnCode
+			proxyConfiguration:(NSMutableDictionary *)proxyConfiguration;
 @end
 
 /*!
@@ -66,7 +67,7 @@
  * This category exists to move as much 'meat' as possible out of <tt>AIAccount</tt> for simplification.  The methods
  * here provide default and common behavior for account code.
  */
-@implementation AIAccount(Abstract)
+@implementation AIAccount (Abstract)
 
 /*!
  * @brief Init an account
@@ -75,25 +76,22 @@
 {
 	internalObjectID = [inInternalObjectID retain];
 
-    if ((self = [super initWithUID:inUID service:inService])) {
+	if ((self = [super initWithUID:inUID service:inService])) {
 		isTemporary = NO;
-		
+
 		[self accountWillSetUID:UID];
 
-		//Register the defaults
-		static NSDictionary	*defaults = nil;
-		
+		// Register the defaults
+		static NSDictionary *defaults = nil;
+
 		if (!defaults) {
-			defaults = [[NSDictionary dictionaryNamed:ACCOUNT_DEFAULTS
-											 forClass:[AIAccount class]] retain];
+			defaults = [[NSDictionary dictionaryNamed:ACCOUNT_DEFAULTS forClass:[AIAccount class]] retain];
 		}
-		
-		[adium.preferenceController registerDefaults:defaults
-											  forGroup:GROUP_ACCOUNT_STATUS
-												object:self];
+
+		[adium.preferenceController registerDefaults:defaults forGroup:GROUP_ACCOUNT_STATUS object:self];
 
 		namesAreCaseSensitive = self.service.caseSensitive;
-		
+
 		enabled = [[self preferenceForKey:KEY_ENABLED group:GROUP_ACCOUNT_STATUS] boolValue];
 
 		autoRefreshingKeys = [[NSMutableSet alloc] init];
@@ -105,41 +103,40 @@
 		lastDisconnectionError = nil;
 		disconnectedByFastUserSwitch = NO;
 
-		//Register to be notified of dynamic content updates
+		// Register to be notified of dynamic content updates
 		[[NSNotificationCenter defaultCenter] addObserver:self
-									   selector:@selector(requestImmediateDynamicContentUpdate:)
-										   name:Adium_RequestImmediateDynamicContentUpdate
-										 object:nil];	
+												 selector:@selector(requestImmediateDynamicContentUpdate:)
+													 name:Adium_RequestImmediateDynamicContentUpdate
+												   object:nil];
 
-		//Some actions must wait until Adium is finished loading so that all plugins are available
+		// Some actions must wait until Adium is finished loading so that all plugins are available
 		[[NSNotificationCenter defaultCenter] addObserver:self
-									   selector:@selector(adiumDidLoad:)
-										   name:AIApplicationDidFinishLoadingNotification
-										 object:nil];
+												 selector:@selector(adiumDidLoad:)
+													 name:AIApplicationDidFinishLoadingNotification
+												   object:nil];
 
-		//Handle the preference changed monitoring (for account status) for our subclass
+		// Handle the preference changed monitoring (for account status) for our subclass
 		[adium.preferenceController registerPreferenceObserver:self forGroup:GROUP_ACCOUNT_STATUS];
 
-		//Update our display name and formattedUID immediately
+		// Update our display name and formattedUID immediately
 		[self updateStatusForKey:KEY_FORMATTED_UID];
-		
-		//Init the account
+
+		// Init the account
 		[self initFUSDisconnecting];
 		[self initAccount];
-    }
-	
-    return self;
+	}
+
+	return self;
 }
 
 - (void)adiumDidLoad:(NSNotification *)inNotification
 {
 	[self updateStatusForKey:KEY_ACCOUNT_DISPLAY_NAME];
 
-	[[NSNotificationCenter defaultCenter] removeObserver:self 
-										  name:AIApplicationDidFinishLoadingNotification
-										object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:AIApplicationDidFinishLoadingNotification
+												  object:nil];
 }
-   
 
 /*!
  * @brief Use our account number as internalObjectID
@@ -158,7 +155,7 @@
  */
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"%@:%@",[super description],self.UID];
+	return [NSString stringWithFormat:@"%@:%@", [super description], self.UID];
 }
 
 /*!
@@ -168,35 +165,38 @@
  */
 - (NSString *)pathToPreferences
 {
-    return ACCOUNT_PREFS_PATH;
+	return ACCOUNT_PREFS_PATH;
 }
 
 /*!
  * @brief User icon
  *
- * Method for accessing the user icon data for this account. This should always be used to retrieve the account's image data.
+ * Method for accessing the user icon data for this account. This should always be used to retrieve the account's image
+ * data.
  * @return NSData for this account's user icon
  */
 - (NSData *)userIconData
 {
-	NSData	*userIconData = nil;
+	NSData *userIconData = nil;
 
 	if ([[self preferenceForKey:KEY_USE_USER_ICON group:GROUP_ACCOUNT_STATUS] boolValue]) {
 		/* If this account is set to use an account-specific icon, load it */
-		userIconData = [self preferenceForKey:KEY_USER_ICON group:GROUP_ACCOUNT_STATUS];		
+		userIconData = [self preferenceForKey:KEY_USER_ICON group:GROUP_ACCOUNT_STATUS];
 
 		/* Note that we don't load KEY_DEFAULT_USER_ICON; if the user chooses to have an account-specific icon, then
 		 * deletes that icon, this indicates that no icon at all should be used for the account.
-		 */		
-	} else if (!isTemporary && [[adium.preferenceController preferenceForKey:KEY_USE_USER_ICON group:GROUP_ACCOUNT_STATUS] boolValue]) {
-		/* For non-temporary accounts, load the global icon if it is to be used. The user may have set a global icon, then selected
-		 * not to send an icon at all, so we must check the boolean preference first.
+		 */
+	} else if (!isTemporary && [[adium.preferenceController preferenceForKey:KEY_USE_USER_ICON
+																	   group:GROUP_ACCOUNT_STATUS] boolValue]) {
+		/* For non-temporary accounts, load the global icon if it is to be used. The user may have set a global icon,
+		 * then selected not to send an icon at all, so we must check the boolean preference first.
 		 */
 		userIconData = [adium.preferenceController preferenceForKey:KEY_USER_ICON group:GROUP_ACCOUNT_STATUS];
-		
-		/* If there isn't an icon set manually at the global level, we still need to check for one under KEY_DEFAULT_USER_ICON.
-		 * KEY_DEFAULT_USER_ICON is used by a fallback icon source (e.g. via the Address Book 'me' card via the AB plugin)
-		 * and stored under a separate key so that it can be distinguished from a manually specified icon.
+
+		/* If there isn't an icon set manually at the global level, we still need to check for one under
+		 * KEY_DEFAULT_USER_ICON. KEY_DEFAULT_USER_ICON is used by a fallback icon source (e.g. via the Address Book
+		 * 'me' card via the AB plugin) and stored under a separate key so that it can be distinguished from a manually
+		 * specified icon.
 		 */
 		if (!userIconData)
 			userIconData = [adium.preferenceController preferenceForKey:KEY_DEFAULT_USER_ICON
@@ -214,9 +214,7 @@
  */
 - (void)setUserIconData:(NSData *)inData
 {
-	[self setPreference:inData
-				 forKey:KEY_USER_ICON
-				  group:GROUP_ACCOUNT_STATUS];
+	[self setPreference:inData forKey:KEY_USER_ICON group:GROUP_ACCOUNT_STATUS];
 }
 
 /*!
@@ -259,15 +257,13 @@
 		[self cancelAutoReconnect];
 	}
 
-	[self setPreference:[NSNumber numberWithBool:inEnabled]
-				 forKey:KEY_ENABLED
-				  group:GROUP_ACCOUNT_STATUS];
+	[self setPreference:[NSNumber numberWithBool:inEnabled] forKey:KEY_ENABLED group:GROUP_ACCOUNT_STATUS];
 
-	//We don't update the display name unless we're enabled, so update it now
+	// We don't update the display name unless we're enabled, so update it now
 	[self updateStatusForKey:KEY_ACCOUNT_DISPLAY_NAME];
-	
-    //Reset reconnection attempts
-    reconnectAttemptsPerformed = 0;
+
+	// Reset reconnection attempts
+	reconnectAttemptsPerformed = 0;
 }
 
 /*!
@@ -275,30 +271,30 @@
  */
 - (void)filterAndSetUID:(NSString *)inUID
 {
-	//Filter our UID both with and without removing ignored characters
-	NSString	*newProposedUID = [self.service normalizeUID:inUID removeIgnoredCharacters:YES];
-	NSString	*newProposedFormattedUID = [self.service normalizeUID:inUID removeIgnoredCharacters:NO];
-	BOOL		didChangeUID = NO;
+	// Filter our UID both with and without removing ignored characters
+	NSString *newProposedUID = [self.service normalizeUID:inUID removeIgnoredCharacters:YES];
+	NSString *newProposedFormattedUID = [self.service normalizeUID:inUID removeIgnoredCharacters:NO];
+	BOOL didChangeUID = NO;
 
-	//Give the account a chance to modify the UID
+	// Give the account a chance to modify the UID
 	newProposedUID = [self accountWillSetUID:newProposedUID];
 
-	//Set our UID first (since self.formattedUID uses the UID as necessary)
+	// Set our UID first (since self.formattedUID uses the UID as necessary)
 	if (![newProposedUID isEqualToString:self.UID]) {
 		[UID release];
 		UID = [newProposedUID retain];
 
-		//Inform the account controller of the changed UID
+		// Inform the account controller of the changed UID
 		[adium.accountController accountDidChangeUID:self];
 
 		didChangeUID = YES;
 	}
 
-	//Set our formatted UID if necessary
+	// Set our formatted UID if necessary
 	if (![newProposedFormattedUID isEqualToString:self.formattedUID]) {
 		[self setFormattedUID:newProposedFormattedUID notify:NotifyNow];
 	}
-	
+
 	if (didChangeUID) {
 		[self didChangeUID];
 	}
@@ -312,13 +308,14 @@
 	// Do nothing by default.
 }
 
-//Status ---------------------------------------------------------------------------------------------------------------
+// Status
+// ---------------------------------------------------------------------------------------------------------------
 #pragma mark Status
 - (NSString *)effectiveStatusKeyForKey:(NSString *)key
 {
 	if ([key isEqualToString:KEY_USE_USER_ICON] || [key isEqualToString:KEY_DEFAULT_USER_ICON])
 		key = KEY_USER_ICON;
-	
+
 	return key;
 }
 
@@ -327,8 +324,11 @@
  *
  * For convenience, we let the account know when an account status preference for it has changed
  */
-- (void)preferencesChangedForGroup:(NSString *)group key:(NSString *)key
-							object:(AIListObject *)object preferenceDict:(NSDictionary *)prefDict firstTime:(BOOL)firstTime
+- (void)preferencesChangedForGroup:(NSString *)group
+							   key:(NSString *)key
+							object:(AIListObject *)object
+					preferenceDict:(NSDictionary *)prefDict
+						 firstTime:(BOOL)firstTime
 {
 	if (!object || object == self) {
 		if ([self.supportedPropertyKeys containsObject:key]) {
@@ -346,13 +346,14 @@
  */
 - (void)silenceAllContactUpdatesForInterval:(NSTimeInterval)interval
 {
-    silentAndDelayed = YES;
-	
+	silentAndDelayed = YES;
+
 	if (silenceAllContactUpdatesTimer) {
 		[silenceAllContactUpdatesTimer invalidate];
-		[silenceAllContactUpdatesTimer release]; silenceAllContactUpdatesTimer = nil;
+		[silenceAllContactUpdatesTimer release];
+		silenceAllContactUpdatesTimer = nil;
 	}
-    silenceAllContactUpdatesTimer = [[NSTimer scheduledTimerWithTimeInterval:interval
+	silenceAllContactUpdatesTimer = [[NSTimer scheduledTimerWithTimeInterval:interval
 																	  target:self
 																	selector:@selector(_endSilenceAllUpdates)
 																	userInfo:nil
@@ -360,8 +361,9 @@
 }
 - (void)_endSilenceAllUpdates
 {
-	[silenceAllContactUpdatesTimer release]; silenceAllContactUpdatesTimer = nil;
-    silentAndDelayed = NO;
+	[silenceAllContactUpdatesTimer release];
+	silenceAllContactUpdatesTimer = nil;
+	silentAndDelayed = NO;
 }
 
 /*!
@@ -373,20 +375,21 @@
  */
 - (void)updateContactStatus:(AIListContact *)inContact
 {
-	//If there is no outstanding delay
+	// If there is no outstanding delay
 	if (!delayedUpdateStatusTimer) {
-		//Update this contact's status immediately.
+		// Update this contact's status immediately.
 		[self delayedUpdateContactStatus:inContact];
-		
-		//Guard against subsequent updates
+
+		// Guard against subsequent updates
 		delayedUpdateStatusTimer = [[NSTimer scheduledTimerWithTimeInterval:[self delayedUpdateStatusInterval]
 																	 target:self
 																   selector:@selector(_delayedUpdateStatusTimer:)
 																   userInfo:nil
 																	repeats:YES] retain];
 	} else {
-		//If there is an outstanding delay, set this contact as the target
-		if (!delayedUpdateStatusTargets) delayedUpdateStatusTargets = [[NSMutableArray alloc] init];
+		// If there is an outstanding delay, set this contact as the target
+		if (!delayedUpdateStatusTargets)
+			delayedUpdateStatusTargets = [[NSMutableArray alloc] init];
 		[delayedUpdateStatusTargets addObject:inContact];
 	}
 }
@@ -400,30 +403,30 @@
 
 	/* If we're done, release the array and stop the repeating timer */
 	if (![delayedUpdateStatusTargets count]) {
-		[delayedUpdateStatusTargets release]; delayedUpdateStatusTargets = nil;
+		[delayedUpdateStatusTargets release];
+		delayedUpdateStatusTargets = nil;
 
 		[delayedUpdateStatusTimer invalidate];
-		[delayedUpdateStatusTimer release]; delayedUpdateStatusTimer = nil;		
+		[delayedUpdateStatusTimer release];
+		delayedUpdateStatusTimer = nil;
 	}
 }
 
 - (void)updateLocalDisplayNameTo:(NSAttributedString *)attributedDisplayName
 {
-	NSString	*displayName = [attributedDisplayName string];
-	if ([displayName length] == 0) displayName = nil;
-	
-	//Apply the display name for local display
-	[[self displayArrayForKey:@"Display Name"] setObject:displayName
-											   withOwner:self];
+	NSString *displayName = [attributedDisplayName string];
+	if ([displayName length] == 0)
+		displayName = nil;
 
-	//Note the actual value we've set in CurrentDisplayName so we can compare against it later
-	[self setValue:displayName
-				   forProperty:@"currentDisplayName"
-				   notify:NotifyNever];
-	
-	//Notify
+	// Apply the display name for local display
+	[[self displayArrayForKey:@"Display Name"] setObject:displayName withOwner:self];
+
+	// Note the actual value we've set in CurrentDisplayName so we can compare against it later
+	[self setValue:displayName forProperty:@"currentDisplayName" notify:NotifyNever];
+
+	// Notify
 	[[AIContactObserverManager sharedManager] listObjectAttributesChanged:self
-											  modifiedKeys:[NSSet setWithObject:@"Display Name"]];	
+															 modifiedKeys:[NSSet setWithObject:@"Display Name"]];
 }
 
 /*!
@@ -439,19 +442,19 @@
 - (void)retrievePasswordThenConnect
 {
 	AIPromptOption promptOption = AIPromptAsNeeded;
-	if ([self boolValueForProperty:@"mustPromptForPasswordOnNextConnect"]) 
+	if ([self boolValueForProperty:@"mustPromptForPasswordOnNextConnect"])
 		promptOption = AIPromptAlways;
 	else if (!self.service.requiresPassword)
 		promptOption = AIPromptNever;
 
-	//Retrieve the user's password and then call connect
+	// Retrieve the user's password and then call connect
 	AILogWithSignature(@"Retrieving %@'s password (promptOption %i)", self, promptOption);
 
-	[adium.accountController passwordForAccount:self 
-									 promptOption:promptOption
-								  notifyingTarget:self
-										 selector:@selector(passwordReturnedForConnect:returnCode:context:)
-										  context:nil];	
+	[adium.accountController passwordForAccount:self
+								   promptOption:promptOption
+								notifyingTarget:self
+									   selector:@selector(passwordReturnedForConnect:returnCode:context:)
+										context:nil];
 }
 
 /*!
@@ -461,13 +464,9 @@
  */
 - (void)setFormattedUID:(NSString *)inFormattedUID notify:(NotifyTiming)notify
 {
-	[self setPreference:inFormattedUID
-				 forKey:KEY_FORMATTED_UID
-				  group:GROUP_ACCOUNT_STATUS];
-	
-	[self setValue:inFormattedUID
-	   forProperty:KEY_FORMATTED_UID
-			notify:notify];	
+	[self setPreference:inFormattedUID forKey:KEY_FORMATTED_UID group:GROUP_ACCOUNT_STATUS];
+
+	[self setValue:inFormattedUID forProperty:KEY_FORMATTED_UID notify:notify];
 }
 
 /*!
@@ -478,58 +477,60 @@
  */
 - (void)updateCommonStatusForKey:(NSString *)key
 {
-    BOOL    areOnline = [self boolValueForProperty:@"isOnline"];
-    
-    //Online status changed
-    //Call connect or disconnect as appropriate
-		if ([key isEqualToString:@"isOnline"]) {
-			if (self.shouldBeOnline && self.enabled) {
-				if (!areOnline && ![self boolValueForProperty:@"isConnecting"]) {
-					if (self.service.supportsPassword && (!password || [self boolValueForProperty:@"mustPromptForPasswordOnNextConnect"])) {
-						[self retrievePasswordThenConnect];
+	BOOL areOnline = [self boolValueForProperty:@"isOnline"];
 
-					} else {
-						/* Connect immediately without retrieving a password because we either don't need one or
-						* already have one.
-						*/
-						[self connect];
-					}
+	// Online status changed
+	// Call connect or disconnect as appropriate
+	if ([key isEqualToString:@"isOnline"]) {
+		if (self.shouldBeOnline && self.enabled) {
+			if (!areOnline && ![self boolValueForProperty:@"isConnecting"]) {
+				if (self.service.supportsPassword &&
+					(!password || [self boolValueForProperty:@"mustPromptForPasswordOnNextConnect"])) {
+					[self retrievePasswordThenConnect];
 
+				} else {
+					/* Connect immediately without retrieving a password because we either don't need one or
+					 * already have one.
+					 */
+					[self connect];
 				}
-			} else if ((areOnline || ([self boolValueForProperty:@"isConnecting"])) && ![self boolValueForProperty:@"isDisconnecting"]) {
-				//Disconnect
-				[self disconnect];
 			}
+		} else if ((areOnline || ([self boolValueForProperty:@"isConnecting"])) &&
+				   ![self boolValueForProperty:@"isDisconnecting"]) {
+			// Disconnect
+			[self disconnect];
+		}
 
-		} else if ([key isEqualToString:@"accountStatus"]) {
+	} else if ([key isEqualToString:@"accountStatus"]) {
 		if (areOnline) {
-			//Set the status state after filtering its statusMessage as appropriate
+			// Set the status state after filtering its statusMessage as appropriate
 			[self autoRefreshingOutgoingContentForStatusKey:@"accountStatus"
 												   selector:@selector(gotFilteredStatusMessage:forStatusState:)
 													context:[self valueForProperty:@"accountStatus"]];
 		} else {
-			//Check if account is 'enabled' in the accounts preferences.  If so, bring it online in the specified state.
+			// Check if account is 'enabled' in the accounts preferences.  If so, bring it online in the specified
+			// state.
 			[self setShouldBeOnline:YES];
 		}
 
-    } else if ([key isEqualToString:KEY_ACCOUNT_DISPLAY_NAME]) {
+	} else if ([key isEqualToString:KEY_ACCOUNT_DISPLAY_NAME]) {
 		if (self.enabled) {
-			[self autoRefreshingOutgoingContentForStatusKey:key selector:@selector(gotFilteredDisplayName:) context:nil];
+			[self autoRefreshingOutgoingContentForStatusKey:key
+												   selector:@selector(gotFilteredDisplayName:)
+													context:nil];
 		}
 
 	} else if ([key isEqualToString:KEY_FORMATTED_UID]) {
-		//Transfer formatted UID from the stored preference to an in-memory property
+		// Transfer formatted UID from the stored preference to an in-memory property
 		[self setValue:[self preferenceForKey:KEY_FORMATTED_UID group:GROUP_ACCOUNT_STATUS]
-					   forProperty:KEY_FORMATTED_UID
-					   notify:NotifyNow];
-		
+			forProperty:KEY_FORMATTED_UID
+				 notify:NotifyNow];
+
 	} else if ([key isEqualToString:@"Enabled"]) {
-		//Set a property so observers are notified
-		[self setValue:[NSNumber numberWithBool:enabled]
-					   forProperty:@"Enabled"
-					   notify:NotifyNow];
-		
-		//We are now enabled so should go online, or we are now disabled so should disconnect
+		// Set a property so observers are notified
+		[self setValue:[NSNumber numberWithBool:enabled] forProperty:@"Enabled" notify:NotifyNow];
+
+		// We are now enabled so should go online, or we are now disabled so should disconnect
 		[self setShouldBeOnline:enabled];
 
 	} else if ([key isEqualToString:KEY_USER_ICON]) {
@@ -550,13 +551,14 @@
  * Subclasses MUST call super's implementation.
  *
  * @param image An NSImage of the user icon, or nil if no image.
- * @param originalData The original data which made the image, which may be in any NSImage-compatible format, or nil if no image.
+ * @param originalData The original data which made the image, which may be in any NSImage-compatible format, or nil if
+ * no image.
  */
 - (void)setAccountUserImage:(NSImage *)image withData:(NSData *)originalData;
 {
-	//Notify
+	// Notify
 	[[AIContactObserverManager sharedManager] listObjectAttributesChanged:self
-															 modifiedKeys:[NSSet setWithObject:KEY_USER_ICON]];	
+															 modifiedKeys:[NSSet setWithObject:KEY_USER_ICON]];
 }
 
 #pragma mark Status States
@@ -573,33 +575,32 @@
  */
 - (void)setStatusState:(AIStatus *)statusState
 {
-	if ((statusState.statusType == AIOfflineStatusType) &&
-		![self handleOfflineAsStatusChange]) {
+	if ((statusState.statusType == AIOfflineStatusType) && ![self handleOfflineAsStatusChange]) {
 		[self setShouldBeOnline:NO];
-		
+
 	} else {
-		//Store the status state as a property so it can be easily used elsewhere
+		// Store the status state as a property so it can be easily used elsewhere
 		[self setValue:statusState forProperty:@"accountStatus" notify:NotifyLater];
-		
-		//Update us to the new state
+
+		// Update us to the new state
 		[self updateStatusForKey:@"accountStatus"];
-		
+
 		/* Set our IdleSince time if appropriate... this will just be set when the state is selected; the account
-		 * is thereafter responsible for updating any serverside settings as needed.  All of our current services will handle
-		 * updating idle time as it changes automatically. This is a per-account preference setting; it will override
-		 * any global idle setting for this account but won't change it. */	
+		 * is thereafter responsible for updating any serverside settings as needed.  All of our current services will
+		 * handle updating idle time as it changes automatically. This is a per-account preference setting; it will
+		 * override any global idle setting for this account but won't change it. */
 		if ([self.supportedPropertyKeys containsObject:@"idleSince"]) {
-			NSDate	*idleSince;
-			
-			idleSince = ([statusState shouldForceInitialIdleTime] ?
-						 [NSDate dateWithTimeIntervalSinceNow:-([statusState forcedInitialIdleTime]+1)] :
-						 nil);
+			NSDate *idleSince;
+
+			idleSince = ([statusState shouldForceInitialIdleTime]
+							 ? [NSDate dateWithTimeIntervalSinceNow:-([statusState forcedInitialIdleTime] + 1)]
+							 : nil);
 
 			if ([self preferenceForKey:@"idleSince" group:GROUP_ACCOUNT_STATUS] != idleSince) {
 				[self setPreference:idleSince forKey:@"idleSince" group:GROUP_ACCOUNT_STATUS];
 			}
 		}
-		
+
 		[self notifyOfChangedPropertiesSilently:YES];
 	}
 }
@@ -613,19 +614,19 @@
  */
 - (void)setStatusStateAndRemainOffline:(AIStatus *)statusState
 {
-	//Store the status state as a property so it can be easily used elsewhere
+	// Store the status state as a property so it can be easily used elsewhere
 	[self setValue:statusState forProperty:@"accountStatus" notify:NotifyNever];
 
 	if ([self.supportedPropertyKeys containsObject:@"idleSince"]) {
-		NSDate	*idleSince;
-		
-		idleSince = (statusState.shouldForceInitialIdleTime ?
-					 [NSDate dateWithTimeIntervalSinceNow:-statusState.forcedInitialIdleTime] :
-					 nil);
-		
+		NSDate *idleSince;
+
+		idleSince = (statusState.shouldForceInitialIdleTime
+						 ? [NSDate dateWithTimeIntervalSinceNow:-statusState.forcedInitialIdleTime]
+						 : nil);
+
 		if ([self preferenceForKey:@"idleSince" group:GROUP_ACCOUNT_STATUS] != idleSince) {
 			[self setPreference:idleSince forKey:@"idleSince" group:GROUP_ACCOUNT_STATUS];
-		}		
+		}
 	}
 }
 
@@ -635,15 +636,14 @@
 - (void)gotFilteredStatusMessage:(NSAttributedString *)inStatusMessage forStatusState:(AIStatus *)statusState
 {
 	[statusState setFilteredStatusMessage:[inStatusMessage string]];
-	
-	[self setStatusState:statusState
-	  usingStatusMessage:inStatusMessage];
+
+	[self setStatusState:statusState usingStatusMessage:inStatusMessage];
 }
 
 - (AIStatusSummary)statusSummary
 {
-	AIStatusType	statusType = self.statusState.statusType;
-	
+	AIStatusType statusType = self.statusState.statusType;
+
 	if (statusType == AIOfflineStatusType) {
 		return AIOfflineStatus;
 	} else {
@@ -659,7 +659,6 @@
 
 		} else {
 			return AIAvailableStatus;
-
 		}
 	}
 }
@@ -667,20 +666,21 @@
 - (AIStatus *)statusState
 {
 	if ([self boolValueForProperty:@"isOnline"]) {
-		AIStatus	*statusState = [self valueForProperty:@"accountStatus"];
+		AIStatus *statusState = [self valueForProperty:@"accountStatus"];
 		if (!statusState) {
 			statusState = [adium.statusController defaultInitialStatusState];
-			[self setStatusStateAndRemainOffline:statusState];		
+			[self setStatusStateAndRemainOffline:statusState];
 		}
-		
+
 		return statusState;
 	} else {
-		AIStatus	*statusState = [self valueForProperty:@"accountStatus"];
+		AIStatus *statusState = [self valueForProperty:@"accountStatus"];
 		if (statusState && statusState.statusType == AIOfflineStatusType) {
-			//We're in an actual offline status; return it
+			// We're in an actual offline status; return it
 			return statusState;
 		} else {
-			//We're offline, but our status is keeping track of what we'll be when we sign back on. Return the generic offline status.
+			// We're offline, but our status is keeping track of what we'll be when we sign back on. Return the generic
+			// offline status.
 			return [adium.statusController offlineStatusState];
 		}
 	}
@@ -729,8 +729,9 @@
 - (void)setPasswordTemporarily:(NSString *)inPassword
 {
 	if (password != inPassword) {
-		[password release]; password = [inPassword retain];
-	}	
+		[password release];
+		password = [inPassword retain];
+	}
 }
 
 /*!
@@ -748,23 +749,23 @@
  *
  * Callback after the user enters her password for connecting; finish the connect process.
  */
-- (void)passwordReturnedForConnect:(NSString *)inPassword returnCode:(AIPasswordPromptReturn)returnCode context:(id)inContext
+- (void)passwordReturnedForConnect:(NSString *)inPassword
+						returnCode:(AIPasswordPromptReturn)returnCode
+						   context:(id)inContext
 {
-    //If a password was returned, and we're still waiting to connect
-    if ((returnCode == AIPasswordPromptOKReturn) &&
+	// If a password was returned, and we're still waiting to connect
+	if ((returnCode == AIPasswordPromptOKReturn) &&
 		((inPassword && [inPassword length]) || ![self.service requiresPassword])) {
-		[self setValue:nil
-					   forProperty:@"mustPromptForPasswordOnNextConnect"
-					   notify:NotifyNever];
+		[self setValue:nil forProperty:@"mustPromptForPasswordOnNextConnect" notify:NotifyNever];
 
 		if (![self boolValueForProperty:@"isOnline"] && ![self boolValueForProperty:@"isConnecting"]) {
 			[self setPasswordTemporarily:inPassword];
 
-			//Time to connect!
+			// Time to connect!
 			[self connect];
 		}
 
-    } else {
+	} else {
 		[self setShouldBeOnline:NO];
 	}
 }
@@ -773,13 +774,12 @@
 {
 	AILogWithSignature(@"%@", self);
 
-	[self setValue:[NSNumber numberWithBool:YES]
-				   forProperty:@"mustPromptForPasswordOnNextConnect"
-				   notify:NotifyNever];
+	[self setValue:[NSNumber numberWithBool:YES] forProperty:@"mustPromptForPasswordOnNextConnect" notify:NotifyNever];
 	[self setPasswordTemporarily:nil];
 }
 
-//Auto-Refreshing Status String ----------------------------------------------------------------------------------------
+// Auto-Refreshing Status String
+// ----------------------------------------------------------------------------------------
 #pragma mark Auto-Refreshing Status String
 /*!
  * @brief Schedule/Unschedule a status string for auto-refreshing if it contains dynamic content
@@ -787,24 +787,24 @@
  * Tests an attributed status string.  If the string contains dynamic content, the key is noted.  If it also requires
  * periodic polling to refresh its value, it will be scheduled for automatic refreshing and periodically updated.
  *
- * If the string does not contain dynamic content any existing scheduling for it will be removed.  Call this method when the
- * value of an attributed status that supports automatic refreshing is changed by the user.
+ * If the string does not contain dynamic content any existing scheduling for it will be removed.  Call this method when
+ * the value of an attributed status that supports automatic refreshing is changed by the user.
  *
  * @param key Property to check for auto-refreshing content
  * @result The current value of the auto-refreshing string for you to use.
  */
 - (NSAttributedString *)autoRefreshingOutgoingContentForStatusKey:(NSString *)key
 {
-	NSAttributedString	*originalValue = [self autoRefreshingOriginalAttributedStringForStatusKey:key];
-	NSAttributedString  *filteredValue;
-	NSString			*originalValueString = [originalValue string];
-	
-	filteredValue = [adium.contentController filterAttributedString:originalValue
-													  usingFilterType:AIFilterContent
-															direction:AIFilterOutgoing
-															  context:self];
+	NSAttributedString *originalValue = [self autoRefreshingOriginalAttributedStringForStatusKey:key];
+	NSAttributedString *filteredValue;
+	NSString *originalValueString = [originalValue string];
 
-	//Refresh periodically if the filtered string is different from the original one
+	filteredValue = [adium.contentController filterAttributedString:originalValue
+													usingFilterType:AIFilterContent
+														  direction:AIFilterOutgoing
+															context:self];
+
+	// Refresh periodically if the filtered string is different from the original one
 	if (originalValue && (![originalValueString isEqualToString:[filteredValue string]])) {
 		[self startAutoRefreshingStatusKey:key forOriginalValueString:originalValueString];
 	} else {
@@ -826,28 +826,28 @@
  */
 - (void)autoRefreshingOutgoingContentForStatusKey:(NSString *)key selector:(SEL)selector context:(id)originalContext
 {
-	NSAttributedString	*originalValue = [self autoRefreshingOriginalAttributedStringForStatusKey:key];
-	NSMutableDictionary	*contextDict;
-	
-	contextDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NSStringFromSelector(selector), @"selectorString",
-		key, @"key", nil];
-	
+	NSAttributedString *originalValue = [self autoRefreshingOriginalAttributedStringForStatusKey:key];
+	NSMutableDictionary *contextDict;
+
+	contextDict = [NSMutableDictionary
+		dictionaryWithObjectsAndKeys:NSStringFromSelector(selector), @"selectorString", key, @"key", nil];
+
 	if (originalValue) {
 		[contextDict setObject:originalValue forKey:@"originalValue"];
 	}
-	
+
 	if (originalContext) {
 		[contextDict setObject:originalContext forKey:@"originalContext"];
 	}
-	
-	//Filter the content
+
+	// Filter the content
 	[adium.contentController filterAttributedString:originalValue
-									  usingFilterType:AIFilterContent
-											direction:AIFilterOutgoing
-										filterContext:self
-									  notifyingTarget:self
-											 selector:@selector(gotFilteredOutgoingContent:context:)
-											  context:contextDict];
+									usingFilterType:AIFilterContent
+										  direction:AIFilterOutgoing
+									  filterContext:self
+									notifyingTarget:self
+										   selector:@selector(gotFilteredOutgoingContent:context:)
+											context:contextDict];
 }
 
 /*!
@@ -858,25 +858,27 @@
  */
 - (NSAttributedString *)autoRefreshingOriginalAttributedStringForStatusKey:(NSString *)key
 {
-	NSAttributedString	*originalValue;
-	
+	NSAttributedString *originalValue;
+
 	if ([key isEqualToString:@"accountStatus"]) {
 		AIStatus *statusState = [self actualStatusState];
 		/* -[AIAccount actualStatusState] won't set usinto an initial state if we don't have one yet,
 		 * unlike -AIAccount.statusState. Although I expect that the default state will never have an associated
 		 * statusMessage,  it's good form to check it.
 		 */
-		if (!statusState) statusState = [adium.statusController defaultInitialStatusState];
+		if (!statusState)
+			statusState = [adium.statusController defaultInitialStatusState];
 
 		originalValue = statusState.statusMessage;
 
 	} else {
 		// First look for an account-specific preference
-		originalValue = [[self preferenceForKey:key group:GROUP_ACCOUNT_STATUS] attributedString];	
-		
+		originalValue = [[self preferenceForKey:key group:GROUP_ACCOUNT_STATUS] attributedString];
+
 		// Failing that, if this account isn't temporary, try to get a global preference
-		if(!isTemporary && !originalValue) {
-			originalValue = [[adium.preferenceController preferenceForKey:key group:GROUP_ACCOUNT_STATUS] attributedString];
+		if (!isTemporary && !originalValue) {
+			originalValue = [[adium.preferenceController preferenceForKey:key
+																	group:GROUP_ACCOUNT_STATUS] attributedString];
 		}
 	}
 
@@ -892,29 +894,26 @@
  */
 - (void)gotFilteredOutgoingContent:(NSAttributedString *)filteredValue context:(NSDictionary *)contextDict
 {
-	NSAttributedString	*originalValue = [contextDict objectForKey:@"originalValue"];
-	NSString			*key = [contextDict objectForKey:@"key"];
-	
-	SEL					selector = NSSelectorFromString([contextDict objectForKey:@"selectorString"]);
-	id					originalContext = [contextDict objectForKey:@"originalContext"];
-	
-	NSString			*originalValueString = [originalValue string];
-	
-	//Refresh periodically if the filtered string is different from the original one
+	NSAttributedString *originalValue = [contextDict objectForKey:@"originalValue"];
+	NSString *key = [contextDict objectForKey:@"key"];
+
+	SEL selector = NSSelectorFromString([contextDict objectForKey:@"selectorString"]);
+	id originalContext = [contextDict objectForKey:@"originalContext"];
+
+	NSString *originalValueString = [originalValue string];
+
+	// Refresh periodically if the filtered string is different from the original one
 	if (originalValue && (![originalValueString isEqualToString:[filteredValue string]])) {
 		[self startAutoRefreshingStatusKey:key forOriginalValueString:originalValueString];
 	} else {
 		[self stopAutoRefreshingStatusKey:key];
 	}
-	
+
 	//
 	if (originalContext) {
-		[self performSelector:selector
-				   withObject:filteredValue
-				   withObject:originalContext];
+		[self performSelector:selector withObject:filteredValue withObject:originalContext];
 	} else {
-		[self performSelector:selector
-				   withObject:filteredValue];
+		[self performSelector:selector withObject:filteredValue];
 	}
 }
 
@@ -952,7 +951,8 @@
 		[autoRefreshingKeys removeAllObjects];
 	}
 
-	if ([autoRefreshingKeys count] == 0) [self _stopAttributedRefreshTimer];
+	if ([autoRefreshingKeys count] == 0)
+		[self _stopAttributedRefreshTimer];
 }
 
 /*!
@@ -965,16 +965,17 @@
 {
 	if ([key isEqualToString:@"isOnline"]) {
 		if ([value boolValue]) {
-			if ([autoRefreshingKeys count])	[self _startAttributedRefreshTimer];
+			if ([autoRefreshingKeys count])
+				[self _startAttributedRefreshTimer];
 		} else {
 			[self _stopAttributedRefreshTimer];
 		}
 	} else if ([key isEqualToString:@"isDisconnecting"]) {
 		if ([value boolValue]) {
-			[self _stopAttributedRefreshTimer];	
+			[self _stopAttributedRefreshTimer];
 		}
 	}
-	
+
 	[super setValue:value forProperty:key notify:notify];
 }
 
@@ -986,7 +987,7 @@
 	if (!attributedRefreshTimer) {
 		attributedRefreshTimer = [[NSTimer scheduledTimerWithTimeInterval:FILTERED_STRING_REFRESH
 																   target:self
-																 selector:@selector(_refreshAttributedStrings:) 
+																 selector:@selector(_refreshAttributedStrings:)
 																 userInfo:nil
 																  repeats:YES] retain];
 	}
@@ -1011,33 +1012,33 @@
  */
 - (void)_refreshAttributedStrings:(NSTimer *)inTimer
 {
-    NSString        *key;
-    for (key in autoRefreshingKeys) {
+	NSString *key;
+	for (key in autoRefreshingKeys) {
 		if ([self shouldUpdateAutorefreshingAttributedStringForKey:key]) {
 			[self updateStatusForKey:key];
 		}
-    }
+	}
 }
 
-//We were informed that some of our dynamic content may have just changed; update it
+// We were informed that some of our dynamic content may have just changed; update it
 - (void)requestImmediateDynamicContentUpdate:(NSNotification *)notification
 {
 	if ([dynamicKeys count]) {
-		NSString        *key;
-		
+		NSString *key;
+
 		for (key in [[dynamicKeys copy] autorelease]) {
 			[self updateStatusForKey:key];
 		}
-		
-		//Move the next fire date forward since we just updated them all
+
+		// Move the next fire date forward since we just updated them all
 		if (attributedRefreshTimer) {
 			[attributedRefreshTimer setFireDate:[NSDate dateWithTimeIntervalSinceNow:FILTERED_STRING_REFRESH]];
 		}
 	}
 }
 
-
-//Contacts -------------------------------------------------------------------------------------------------------------
+// Contacts
+// -------------------------------------------------------------------------------------------------------------
 #pragma mark Contacts
 /*!
  * @brief All contacts on this account
@@ -1048,7 +1049,7 @@
 {
 	NSMutableArray *results = [NSMutableArray array];
 	for (AIListContact *contact in adium.contactController.allContacts) {
-		if(contact.account == self)
+		if (contact.account == self)
 			[results addObject:contact];
 	}
 	return results;
@@ -1062,14 +1063,12 @@
  * @return AIListContact with the desired UID
  */
 - (AIListContact *)contactWithUID:(NSString *)sourceUID
-{	
+{
 	if (!namesAreCaseSensitive) {
 		sourceUID = [sourceUID compactedString];
 	}
-	
-	return [adium.contactController contactWithService:service
-												 account:self
-													 UID:sourceUID];
+
+	return [adium.contactController contactWithService:service account:self UID:sourceUID];
 }
 
 /*!
@@ -1089,10 +1088,10 @@
 /*!
  * @brief How should deletion of a particular group be handled?
  *
- * If the account returns AIAccountGroupDeletionShouldRemoveContacts, then each contact will be removed from the contact list
- * If instead AIAccountGroupDeletionShouldIgnoreContacts is returned, the group is removed from the contact list's display
- *   but contacts are not affected.  In this case, the account should take action to avoid redisplaying the group in
- *   the future. This is used for, for example, the Twitter timeline; a deletion is unlikely to mean the user actually
+ * If the account returns AIAccountGroupDeletionShouldRemoveContacts, then each contact will be removed from the contact
+ * list If instead AIAccountGroupDeletionShouldIgnoreContacts is returned, the group is removed from the contact list's
+ * display but contacts are not affected.  In this case, the account should take action to avoid redisplaying the group
+ * in the future. This is used for, for example, the Twitter timeline; a deletion is unlikely to mean the user actually
  *   wanted to stop following all contained contacts.
  */
 - (AIAccountGroupDeletionResponse)willDeleteGroup:(AIListGroup *)group
@@ -1103,10 +1102,11 @@
 #pragma mark Chats
 - (BOOL)joiningGroupChatRequiresCreationDictionary
 {
-    return NO;
+	return NO;
 }
 
-//Connectivity ---------------------------------------------------------------------------------------------------------
+// Connectivity
+// ---------------------------------------------------------------------------------------------------------
 #pragma mark Connectivity
 
 /*!
@@ -1130,14 +1130,12 @@
  */
 - (void)setShouldBeOnline:(BOOL)shouldBeOnline
 {
-	[self setPreference:[NSNumber numberWithBool:shouldBeOnline]
-				 forKey:@"isOnline"
-				  group:GROUP_ACCOUNT_STATUS];
-	
+	[self setPreference:[NSNumber numberWithBool:shouldBeOnline] forKey:@"isOnline" group:GROUP_ACCOUNT_STATUS];
+
 	/* If the users says we should no longer be online, clear out any stored password.
-	 * Note that we can de disconnected via -[AIAccount disconnect] without going through this method; this is how we will be disconnected
-	 * in an automatic fashoin, such as if network connectivity drops. This allows us, when reconnected after such a disconnection, to still
-	 * have the password 'on tap' for use at that time.
+	 * Note that we can de disconnected via -[AIAccount disconnect] without going through this method; this is how we
+	 * will be disconnected in an automatic fashoin, such as if network connectivity drops. This allows us, when
+	 * reconnected after such a disconnection, to still have the password 'on tap' for use at that time.
 	 */
 	if (!shouldBeOnline) {
 		[self setPasswordTemporarily:nil];
@@ -1148,12 +1146,12 @@
 
 - (void)toggleOnline
 {
-	BOOL    online = self.online;
-	BOOL	connecting = [self boolValueForProperty:@"isConnecting"];
-	BOOL	reconnecting = ([self valueForProperty:@"waitingToReconnect"] != nil);
-	
-	//If online or connecting set the account offline, otherwise set it to online
-	[self setShouldBeOnline:!(online || connecting || reconnecting)]; 	
+	BOOL online = self.online;
+	BOOL connecting = [self boolValueForProperty:@"isConnecting"];
+	BOOL reconnecting = ([self valueForProperty:@"waitingToReconnect"] != nil);
+
+	// If online or connecting set the account offline, otherwise set it to online
+	[self setShouldBeOnline:!(online || connecting || reconnecting)];
 }
 
 /*!
@@ -1172,16 +1170,21 @@
 
 - (void)displayYouHaveConnectedInChat:(AIChat *)chat
 {
-	//Display a connected message
-	AIContentEvent *eventMessage = [AIContentEvent eventInChat:chat
-													withSource:nil
-												   destination:chat.account
-														  date:[NSDate date]
-													   message:[[[NSAttributedString alloc] initWithString:AILocalizedStringFromTableInBundle(@"You have connected", nil, [NSBundle bundleForClass:[AIAccount class]], "Displayed in an open chat when its account has been connected")] autorelease]
-													  withType:@"connected"];
-	
+	// Display a connected message
+	AIContentEvent *eventMessage = [AIContentEvent
+		eventInChat:chat
+		 withSource:nil
+		destination:chat.account
+			   date:[NSDate date]
+			message:[[[NSAttributedString alloc]
+						initWithString:AILocalizedStringFromTableInBundle(
+										   @"You have connected", nil, [NSBundle bundleForClass:[AIAccount class]],
+										   "Displayed in an open chat when its account has been connected")]
+						autorelease]
+		   withType:@"connected"];
+
 	[eventMessage setCoalescingKey:ACCOUNT_STATUS_UPDATE_COALESCING_KEY];
-	
+
 	[adium.contentController receiveContentObject:eventMessage];
 }
 
@@ -1192,13 +1195,13 @@
  */
 - (void)didConnect
 {
-	//Display a status message in all open chats for this account.
-	
+	// Display a status message in all open chats for this account.
+
 	for (AIChat *chat in adium.interfaceController.openChats) {
 		if (chat.account == self && chat.isOpen) {
 			if (chat.isGroupChat) {
 				// Returns BOOL result, however since there is no callback from
-				// libpurple if the chat failed, the result of rejoining will 
+				// libpurple if the chat failed, the result of rejoining will
 				// always be true at the moment
 				[self rejoinChat:chat];
 			} else {
@@ -1206,31 +1209,32 @@
 			}
 		}
 	}
-    
-	//We are now online
-    [self setValue:nil forProperty:@"isConnecting" notify:NotifyLater];
-    [self setValue:[NSNumber numberWithBool:YES] forProperty:@"isOnline" notify:NotifyLater];
+
+	// We are now online
+	[self setValue:nil forProperty:@"isConnecting" notify:NotifyLater];
+	[self setValue:[NSNumber numberWithBool:YES] forProperty:@"isOnline" notify:NotifyLater];
 	[self setValue:nil forProperty:@"connectionProgressString" notify:NotifyLater];
-	[self setValue:nil forProperty:@"connectionProgressPercent" notify:NotifyLater];	
-    [self setValue:nil forProperty:@"waitingToReconnect" notify:NotifyLater];
+	[self setValue:nil forProperty:@"connectionProgressPercent" notify:NotifyLater];
+	[self setValue:nil forProperty:@"waitingToReconnect" notify:NotifyLater];
 	AILogWithSignature(@"*** status dictionary is now %@", propertiesDictionary);
-	
-	//Apply any changes
+
+	// Apply any changes
 	[self notifyOfChangedPropertiesSilently:NO];
-	
-    //Reset reconnection attempts
-    reconnectAttemptsPerformed = 0;
-	
-	//Update our status and idle status to ensure our newly connected account is in the states we want it to be
+
+	// Reset reconnection attempts
+	reconnectAttemptsPerformed = 0;
+
+	// Update our status and idle status to ensure our newly connected account is in the states we want it to be
 	if (self.statusState.statusType == AIOfflineStatusType) {
-		/* If our account thinks it's still in an offline status, that means it went offline previously via an offline status.
-		 * Set to the status being used by other accounts if possible; otherwise, set to our default initial status.
+		/* If our account thinks it's still in an offline status, that means it went offline previously via an offline
+		 * status. Set to the status being used by other accounts if possible; otherwise, set to our default initial
+		 * status.
 		 */
 		AIStatus *newStatus = adium.statusController.activeStatusState;
 		if (newStatus.statusType == AIOfflineStatusType) {
 			newStatus = [adium.statusController defaultInitialStatusState];
 		}
-		
+
 		[self setStatusState:newStatus];
 
 	} else {
@@ -1244,13 +1248,11 @@
 
 - (void)cancelAutoReconnect
 {
-    [self setValue:nil forProperty:@"waitingToReconnect" notify:NotifyNow];
+	[self setValue:nil forProperty:@"waitingToReconnect" notify:NotifyNow];
 
 	reconnectAttemptsPerformed = 0;
 
-	[NSObject cancelPreviousPerformRequestsWithTarget:self
-											 selector:@selector(performAutoreconnect)
-											   object:nil];
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(performAutoreconnect) object:nil];
 }
 
 /*!
@@ -1260,18 +1262,15 @@
  */
 - (void)autoReconnectAfterDelay:(NSTimeInterval)delay
 {
-    [self setValue:[NSDate dateWithTimeIntervalSinceNow:delay] forProperty:@"waitingToReconnect" notify:NotifyNow];
-	[self performSelector:@selector(performAutoreconnect)
-			   withObject:nil
-			   afterDelay:delay];
+	[self setValue:[NSDate dateWithTimeIntervalSinceNow:delay] forProperty:@"waitingToReconnect" notify:NotifyNow];
+	[self performSelector:@selector(performAutoreconnect) withObject:nil afterDelay:delay];
 }
 - (void)performAutoreconnect
 {
-	//If we still want to be online, and we're not yet online, continue with the reconnect
-    if ([self shouldBeOnline] &&
-	   !self.online && ![self boolValueForProperty:@"isConnecting"]) {
+	// If we still want to be online, and we're not yet online, continue with the reconnect
+	if ([self shouldBeOnline] && !self.online && ![self boolValueForProperty:@"isConnecting"]) {
 		[self updateStatusForKey:@"isOnline"];
-    }
+	}
 }
 
 /*!
@@ -1284,18 +1283,18 @@
 	for (NSString *key in self.contactProperties) {
 		[listContact setValue:nil forProperty:key notify:NotifyLater];
 	}
-	
-	//Apply any changes
+
+	// Apply any changes
 	[listContact notifyOfChangedPropertiesSilently:silent];
 }
 
 /*!
-* @brief Remove all contacts owned by this account and clear their properties set by this account
+ * @brief Remove all contacts owned by this account and clear their properties set by this account
  */
 - (void)removeAllContacts
 {
 	[[AIContactObserverManager sharedManager] delayListObjectNotifications];
-	
+
 	NSArray *myContacts = [self contacts];
 
 	/* Clear status flags on all contacts for this account, and set their remote group to nil.
@@ -1312,8 +1311,8 @@
 		if (![adium.chatController existingChatWithContact:[listContact parentContact]])
 			[adium.contactController accountDidStopTrackingContact:listContact];
 	}
-	
- 	[[AIContactObserverManager sharedManager] endListObjectNotificationsDelaysImmediately];
+
+	[[AIContactObserverManager sharedManager] endListObjectNotificationsDelaysImmediately];
 }
 
 /*!
@@ -1324,11 +1323,13 @@
 - (NSSet *)contactProperties
 {
 	static NSSet *_contactProperties = nil;
-	
+
 	if (!_contactProperties)
-		_contactProperties = [[NSSet alloc] initWithObjects:@"isOnline",@"Warning",@"idleSince",
-							  @"idle",@"isIdle",@"Signon Date",@"listObjectStatusName",@"listObjectStatusType",@"listObjectStatusMessage",@"Client",KEY_TYPING,nil];
-	
+		_contactProperties =
+			[[NSSet alloc] initWithObjects:@"isOnline", @"Warning", @"idleSince", @"idle", @"isIdle", @"Signon Date",
+										   @"listObjectStatusName", @"listObjectStatusType", @"listObjectStatusMessage",
+										   @"Client", KEY_TYPING, nil];
+
 	return _contactProperties;
 }
 
@@ -1342,44 +1343,51 @@
  */
 - (void)didDisconnect
 {
-	//If we were online, display a status message in all of our open chats noting our disconnection
+	// If we were online, display a status message in all of our open chats noting our disconnection
 	if ([self boolValueForProperty:@"isOnline"]) {
 		for (AIChat *chat in adium.interfaceController.openChats) {
 			if (chat.account != self || !chat.isOpen)
 				continue;
-			
-			//Display a connected message in all open chats
-			AIContentEvent *newStatusMessage = [AIContentEvent eventInChat:chat
-															 withSource:chat.account
-															destination:chat.account
-																   date:[NSDate date]
-																message:[[[NSAttributedString alloc] initWithString:AILocalizedStringFromTableInBundle(@"You have disconnected", nil, [NSBundle bundleForClass:[AIAccount class]], "Displayed in an open chat when its account has been connected")] autorelease]
-															   withType:@"disconnected"];
-			
+
+			// Display a connected message in all open chats
+			AIContentEvent *newStatusMessage = [AIContentEvent
+				eventInChat:chat
+				 withSource:chat.account
+				destination:chat.account
+					   date:[NSDate date]
+					message:[[[NSAttributedString alloc]
+								initWithString:AILocalizedStringFromTableInBundle(
+												   @"You have disconnected", nil,
+												   [NSBundle bundleForClass:[AIAccount class]],
+												   "Displayed in an open chat when its account has been connected")]
+								autorelease]
+				   withType:@"disconnected"];
+
 			[newStatusMessage setCoalescingKey:ACCOUNT_STATUS_UPDATE_COALESCING_KEY];
 
 			[adium.contentController receiveContentObject:newStatusMessage];
-			
+
 			if (chat.isGroupChat)
 				[chat removeAllParticipatingContactsSilently];
 		}
 	}
-	
-	//We are now offline
+
+	// We are now offline
 	[self setValue:nil forProperty:@"isDisconnecting" notify:NotifyLater];
 	[self setValue:nil forProperty:@"isConnecting" notify:NotifyLater];
 	[self setValue:nil forProperty:@"isOnline" notify:NotifyLater];
-	
-	//Stop all autorefreshing keys
+
+	// Stop all autorefreshing keys
 	[self stopAutoRefreshingStatusKey:nil];
 
-	//Apply any changes
+	// Apply any changes
 	[self notifyOfChangedPropertiesSilently:NO];
 
-	//Remove all contacts
+	// Remove all contacts
 	[self removeAllContacts];
-	
-	//If we were disconnected unexpectedly, attempt a reconnect. Give subclasses a chance to handle the disconnection error.
+
+	// If we were disconnected unexpectedly, attempt a reconnect. Give subclasses a chance to handle the disconnection
+	// error.
 	if (reconnectAttemptsPerformed > 1 && [self boolValueForProperty:@"isWaitingForNetwork"]) {
 		// If we know this connection is waiting for the network to return, don't bother continuing to reconnect.
 		// Let it try for 2 times and then cancel and wait for the network to return.
@@ -1387,21 +1395,22 @@
 		AILog(@"%@: Disconnected (\"%@\"): Waiting until network returns.", self, lastDisconnectionError);
 
 	} else if ([self shouldBeOnline] && lastDisconnectionError) {
-		AIReconnectDelayType shouldReconnect = [self shouldAttemptReconnectAfterDisconnectionError:&lastDisconnectionError];
+		AIReconnectDelayType shouldReconnect =
+			[self shouldAttemptReconnectAfterDisconnectionError:&lastDisconnectionError];
 		if (shouldReconnect == AIReconnectNormally) {
 			// Set our retry time to RECONNECT_BASE_TIME^reconnectAttemptsPerformed
 			double reconnectDelay = pow(RECONNECT_BASE_TIME, (double)reconnectAttemptsPerformed);
-			
+
 			// Make sure we're not going too fast
 			if (reconnectDelay < [self minimumReconnectTime])
 				reconnectDelay = [self minimumReconnectTime];
 			// Or too slow
 			else if (reconnectDelay > RECONNECT_MAX_TIME)
 				reconnectDelay = RECONNECT_MAX_TIME;
-			
-			AILog(@"%@: Disconnected (\"%@\"): Automatically reconnecting in %0f seconds (%i attempts performed)",
-				  self, lastDisconnectionError, reconnectDelay, reconnectAttemptsPerformed);
-			
+
+			AILog(@"%@: Disconnected (\"%@\"): Automatically reconnecting in %0f seconds (%i attempts performed)", self,
+				  lastDisconnectionError, reconnectDelay, reconnectAttemptsPerformed);
+
 			[self autoReconnectAfterDelay:reconnectDelay];
 			reconnectAttemptsPerformed++;
 		} else if (shouldReconnect == AIReconnectImmediately) {
@@ -1409,18 +1418,20 @@
 			[self performAutoreconnect];
 		} else {
 			AILog(@"%@: Disconnected: Will not reconnect", self);
-			
-			if(shouldReconnect != AIReconnectNeverNoMessage && lastDisconnectionError) {
-				[adium.interfaceController handleErrorMessage:[NSString stringWithFormat:@"%@ (%@) : Error",self.UID,[self.service shortDescription]]
-												withDescription:lastDisconnectionError];
+
+			if (shouldReconnect != AIReconnectNeverNoMessage && lastDisconnectionError) {
+				[adium.interfaceController
+					handleErrorMessage:[NSString stringWithFormat:@"%@ (%@) : Error", self.UID,
+																  [self.service shortDescription]]
+					   withDescription:lastDisconnectionError];
 			}
-			
-			//Reset reconnection attempts
+
+			// Reset reconnection attempts
 			reconnectAttemptsPerformed = 0;
 		}
 	} else {
-		AILog(@"%@: Disconnected; should be online? %@; lastDisconnectionError %@",
-			  self, ([self shouldBeOnline] ? @"Yes" : @"No"), lastDisconnectionError);
+		AILog(@"%@: Disconnected; should be online? %@; lastDisconnectionError %@", self,
+			  ([self shouldBeOnline] ? @"Yes" : @"No"), lastDisconnectionError);
 	}
 }
 
@@ -1457,12 +1468,12 @@
  */
 - (void)setLastDisconnectionError:(NSString *)inError
 {
-    // If we already have an error, ignore the new one, unless
-    // we're resetting to nil.
-    if (lastDisconnectionError && inError) {
-        return;
-    }
-        
+	// If we already have an error, ignore the new one, unless
+	// we're resetting to nil.
+	if (lastDisconnectionError && inError) {
+		return;
+	}
+
 	if (lastDisconnectionError != inError) {
 		[lastDisconnectionError release];
 		lastDisconnectionError = [inError retain];
@@ -1472,8 +1483,9 @@
 /*!
  * @brief By default, always attempt to reconnect.  Subclasses may override this to manage reconnect behavior.
  *
- * Subclasses should return AIReconnectImmediately for invalid passwords or situations where immediate reconnect is possible,
- * AIReconnectNormally to use the builtin exponential reconnect delay, and AIReconnectNever on unrecoverable errors.
+ * Subclasses should return AIReconnectImmediately for invalid passwords or situations where immediate reconnect is
+ * possible, AIReconnectNormally to use the builtin exponential reconnect delay, and AIReconnectNever on unrecoverable
+ * errors.
  */
 - (AIReconnectDelayType)shouldAttemptReconnectAfterDisconnectionError:(NSString **)disconnectionError
 {
@@ -1488,7 +1500,8 @@
 	return NO;
 }
 
-//Fast user switch disconnecting ---------------------------------------------------------------------------------------
+// Fast user switch disconnecting
+// ---------------------------------------------------------------------------------------
 #pragma mark Fast user switch disconnecting
 /*!
  * @brief Init FUS disconnecting/reconnecting
@@ -1498,13 +1511,13 @@
 - (void)initFUSDisconnecting
 {
 	if ([self disconnectOnFastUserSwitch]) {
-		[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self 
-															   selector:@selector(fastUserSwitchLeave:) 
+		[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+															   selector:@selector(fastUserSwitchLeave:)
 																   name:NSWorkspaceSessionDidResignActiveNotification
 																 object:nil];
 		[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
-															   selector:@selector(fastUserSwitchReturn:) 
-																   name:NSWorkspaceSessionDidBecomeActiveNotification 
+															   selector:@selector(fastUserSwitchReturn:)
+																   name:NSWorkspaceSessionDidBecomeActiveNotification
 																 object:nil];
 	}
 }
@@ -1542,14 +1555,13 @@
  */
 - (void)setDisplayName:(NSString *)displayName
 {
-	if ([displayName length] == 0) displayName = nil; 
-	
-	[self setPreference:(displayName ?
-						 [[NSAttributedString stringWithString:displayName] dataRepresentation] :
-						 nil)
+	if ([displayName length] == 0)
+		displayName = nil;
+
+	[self setPreference:(displayName ? [[NSAttributedString stringWithString:displayName] dataRepresentation] : nil)
 				 forKey:KEY_ACCOUNT_DISPLAY_NAME
 				  group:GROUP_ACCOUNT_STATUS];
-}	
+}
 
 #pragma mark Proxy Configuration Retrieval
 
@@ -1571,95 +1583,97 @@
 - (void)getProxyConfigurationNotifyingTarget:(id)target selector:(SEL)selector context:(id)context
 {
 	NSMutableDictionary *proxyConfiguration = [NSMutableDictionary dictionary];
-	BOOL				notifyTargetNow = YES;
-	
+	BOOL notifyTargetNow = YES;
+
 	if ([[self preferenceForKey:KEY_ACCOUNT_PROXY_ENABLED group:GROUP_ACCOUNT_STATUS] boolValue]) {
-		NSNumber		*proxyPref = [self preferenceForKey:KEY_ACCOUNT_PROXY_TYPE group:GROUP_ACCOUNT_STATUS];
-		AdiumProxyType	proxyType = (proxyPref ? [proxyPref intValue] : Adium_Proxy_Default_SOCKS5);
+		NSNumber *proxyPref = [self preferenceForKey:KEY_ACCOUNT_PROXY_TYPE group:GROUP_ACCOUNT_STATUS];
+		AdiumProxyType proxyType = (proxyPref ? [proxyPref intValue] : Adium_Proxy_Default_SOCKS5);
 
-		NSNumber		*port = nil;
-		NSString		*host = nil, *username = nil, *proxyPassword = nil;
-		BOOL			promptForPassword = NO;
+		NSNumber *port = nil;
+		NSString *host = nil, *username = nil, *proxyPassword = nil;
+		BOOL promptForPassword = NO;
 
-		if ((proxyType == Adium_Proxy_Default_SOCKS5) || 
-			(proxyType == Adium_Proxy_Default_HTTP) || 
+		if ((proxyType == Adium_Proxy_Default_SOCKS5) || (proxyType == Adium_Proxy_Default_HTTP) ||
 			(proxyType == Adium_Proxy_Default_SOCKS4)) {
-			NSDictionary	*systemProxySettingsDictionary;
-			ProxyType		systemConfigurationProxyType = Proxy_None;
+			NSDictionary *systemProxySettingsDictionary;
+			ProxyType systemConfigurationProxyType = Proxy_None;
 
 			if (proxyType == Adium_Proxy_Default_SOCKS5) {
 				systemConfigurationProxyType = Proxy_SOCKS5;
-				
+
 			} else if (proxyType == Adium_Proxy_Default_HTTP) {
 				systemConfigurationProxyType = Proxy_HTTP;
-				
-			} else /*if (proxyType == Adium_Proxy_Default_SOCKS4) */{
+
+			} else /*if (proxyType == Adium_Proxy_Default_SOCKS4) */ {
 				systemConfigurationProxyType = Proxy_SOCKS4;
 			}
-			
-			if ((systemProxySettingsDictionary = [AISystemNetworkDefaults systemProxySettingsDictionaryForType:systemConfigurationProxyType
-																									 forServer:self.host])) {
+
+			if ((systemProxySettingsDictionary =
+					 [AISystemNetworkDefaults systemProxySettingsDictionaryForType:systemConfigurationProxyType
+																		 forServer:self.host])) {
 				host = [systemProxySettingsDictionary objectForKey:@"Host"];
 				port = [systemProxySettingsDictionary objectForKey:@"Port"];
-				
+
 				username = [systemProxySettingsDictionary objectForKey:@"Username"];
 				proxyPassword = [systemProxySettingsDictionary objectForKey:@"Password"];
-				if ((username && [username length]) &&
-					(!proxyPassword || ![proxyPassword length])) {
+				if ((username && [username length]) && (!proxyPassword || ![proxyPassword length])) {
 					promptForPassword = YES;
 				}
 			}
 		} else {
 			host = [self preferenceForKey:KEY_ACCOUNT_PROXY_HOST group:GROUP_ACCOUNT_STATUS];
 			port = [self preferenceForKey:KEY_ACCOUNT_PROXY_PORT group:GROUP_ACCOUNT_STATUS];
-			
+
 			if (host && [host length]) {
-				//If we need to authenticate, request the password and finish setting up the proxy in gotProxyServerPassword:returnCode:proxyConfiguration:
+				// If we need to authenticate, request the password and finish setting up the proxy in
+				// gotProxyServerPassword:returnCode:proxyConfiguration:
 				username = [self preferenceForKey:KEY_ACCOUNT_PROXY_USERNAME group:GROUP_ACCOUNT_STATUS];
 				if (username && [username length]) {
-					promptForPassword = YES;					
+					promptForPassword = YES;
 				}
 			}
 		}
-		
+
 		if (host) {
 			[proxyConfiguration setObject:host forKey:@"Host"];
-			
-			if (port) [proxyConfiguration setObject:port forKey:@"Port"];
-			if (username) [proxyConfiguration setObject:username forKey:@"Username"];
-			if (proxyPassword) [proxyConfiguration setObject:proxyPassword forKey:@"Password"];
-			
-			[proxyConfiguration setObject:[NSNumber numberWithInt:proxyType]
-								   forKey:@"AdiumProxyType"];
+
+			if (port)
+				[proxyConfiguration setObject:port forKey:@"Port"];
+			if (username)
+				[proxyConfiguration setObject:username forKey:@"Username"];
+			if (proxyPassword)
+				[proxyConfiguration setObject:proxyPassword forKey:@"Password"];
+
+			[proxyConfiguration setObject:[NSNumber numberWithInt:proxyType] forKey:@"AdiumProxyType"];
 		} else {
-			[proxyConfiguration setObject:[NSNumber numberWithInt:Adium_Proxy_None]
-								   forKey:@"AdiumProxyType"];
+			[proxyConfiguration setObject:[NSNumber numberWithInt:Adium_Proxy_None] forKey:@"AdiumProxyType"];
 		}
-		
+
 		if (promptForPassword) {
-			if (target) [proxyConfiguration setObject:target forKey:@"NotificationTarget"];
-			if (selector) [proxyConfiguration setObject:NSStringFromSelector(selector) forKey:@"NotificationSelector"];
-			if (context) [proxyConfiguration setObject:context forKey:@"NotificationContext"];
-			
-			[adium.accountController passwordForProxyServer:host 
-													 userName:username 
-											  notifyingTarget:self 
-													 selector:@selector(gotProxyServerPassword:returnCode:proxyConfiguration:)
-													  context:proxyConfiguration];
-			
-			//gotProxyServerPassword:returnCode:proxyConfiguration: is responsible for notifying the target
+			if (target)
+				[proxyConfiguration setObject:target forKey:@"NotificationTarget"];
+			if (selector)
+				[proxyConfiguration setObject:NSStringFromSelector(selector) forKey:@"NotificationSelector"];
+			if (context)
+				[proxyConfiguration setObject:context forKey:@"NotificationContext"];
+
+			[adium.accountController
+				passwordForProxyServer:host
+							  userName:username
+					   notifyingTarget:self
+							  selector:@selector(gotProxyServerPassword:returnCode:proxyConfiguration:)
+							   context:proxyConfiguration];
+
+			// gotProxyServerPassword:returnCode:proxyConfiguration: is responsible for notifying the target
 			notifyTargetNow = NO;
 		}
-		
+
 	} else {
-		[proxyConfiguration setObject:[NSNumber numberWithInt:Adium_Proxy_None]
-							   forKey:@"AdiumProxyType"];
+		[proxyConfiguration setObject:[NSNumber numberWithInt:Adium_Proxy_None] forKey:@"AdiumProxyType"];
 	}
-	
+
 	if (notifyTargetNow) {
-		[target performSelector:selector
-					 withObject:proxyConfiguration
-					 withObject:context];
+		[target performSelector:selector withObject:proxyConfiguration withObject:context];
 	}
 }
 
@@ -1667,23 +1681,24 @@
  * @brief Callback for the accountController's passwordForProxyServer:... method
  *
  * @param inPassword The retrieved password
- * @param proxyConfiguration The proxy configuration dictionary, which also includes the original target/selector/context passed to getProxyConfigurationNotifyingTarget:selector:context:
+ * @param proxyConfiguration The proxy configuration dictionary, which also includes the original
+ * target/selector/context passed to getProxyConfigurationNotifyingTarget:selector:context:
  */
-- (void)gotProxyServerPassword:(NSString *)inPassword returnCode:(AIPasswordPromptReturn)returnCode proxyConfiguration:(NSMutableDictionary *)proxyConfiguration
+- (void)gotProxyServerPassword:(NSString *)inPassword
+					returnCode:(AIPasswordPromptReturn)returnCode
+			proxyConfiguration:(NSMutableDictionary *)proxyConfiguration
 {
 	if ((returnCode == AIPasswordPromptOKReturn) && inPassword) {
 		id target = [proxyConfiguration objectForKey:@"NotificationTarget"];
 		SEL selector = NSSelectorFromString([proxyConfiguration objectForKey:@"NotificationSelector"]);
 		id context = [proxyConfiguration objectForKey:@"NotificationContext"];
-		
+
 		[proxyConfiguration setObject:inPassword forKey:@"Password"];
-		
-		[target performSelector:selector
-					 withObject:proxyConfiguration
-					 withObject:context];
-		
+
+		[target performSelector:selector withObject:proxyConfiguration withObject:context];
+
 	} else {
-		//If passed a nil password, cancel the connection attempt
+		// If passed a nil password, cancel the connection attempt
 		[self disconnect];
 	}
 }

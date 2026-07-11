@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -17,18 +17,18 @@
 #import "OWABSearchWindowController.h"
 #import <Adium/AIAccountControllerProtocol.h>
 
-#import <Adium/AIService.h>
-#import <Adium/AIServiceMenu.h>
-#import <Adium/AIServiceIcons.h>
 #import "AIAddressBookController.h"
+#import <AIUtilities/AIImageViewWithImagePicker.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIPopUpButtonAdditions.h>
-#import <AIUtilities/AIImageViewWithImagePicker.h>
-#import <AddressBook/AddressBook.h>
 #import <AddressBook/ABPeoplePickerView.h>
 #import <AddressBook/ABPerson.h>
+#import <AddressBook/AddressBook.h>
+#import <Adium/AIService.h>
+#import <Adium/AIServiceIcons.h>
+#import <Adium/AIServiceMenu.h>
 
-#define AB_SEARCH_NIB	@"ABSearch"
+#define AB_SEARCH_NIB @"ABSearch"
 
 @interface NSObject (OWABSearchWindowControllerDelegate_Weak)
 - (void)OWABSearchWindowControllerDidSelectPerson:(OWABSearchWindowController *)controller;
@@ -48,14 +48,13 @@
 - (void)_setScreenName:(NSString *)inName;
 @end
 
-
 /*!
  * @class OWABSearchWindowController
  * @brief Window controller for searching people in the Address Book database.
  */
 @implementation OWABSearchWindowController
 
-static	ABAddressBook	*sharedAddressBook = nil;
+static ABAddressBook *sharedAddressBook = nil;
 
 /*!
  * @brief Prompt for searching a person within the AB database.
@@ -66,20 +65,20 @@ static	ABAddressBook	*sharedAddressBook = nil;
 + (id)promptForNewPersonSearchOnWindow:(NSWindow *)parentWindow initialService:(AIService *)inService
 {
 	OWABSearchWindowController *newABSearchWindow;
-	
+
 	newABSearchWindow = [[self alloc] initWithWindowNibName:AB_SEARCH_NIB initialService:inService];
-	
+
 	if (parentWindow) {
 		[NSApp beginSheet:[newABSearchWindow window]
-		   modalForWindow:parentWindow
-			modalDelegate:newABSearchWindow
-		   didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			  contextInfo:nil];
+			modalForWindow:parentWindow
+			 modalDelegate:newABSearchWindow
+			didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
+			   contextInfo:nil];
 		[newABSearchWindow _setCarryingWindow:parentWindow];
 	} else {
 		[newABSearchWindow showWindow:nil];
 	}
-	
+
 	return [newABSearchWindow autorelease];
 }
 
@@ -89,7 +88,7 @@ static	ABAddressBook	*sharedAddressBook = nil;
 - (id)initWithWindowNibName:(NSString *)windowNibName initialService:(AIService *)inService
 {
 	self = [super initWithWindowNibName:windowNibName];
-	
+
 	if (self) {
 		delegate = nil;
 		person = nil;
@@ -101,7 +100,7 @@ static	ABAddressBook	*sharedAddressBook = nil;
 		if (!sharedAddressBook)
 			sharedAddressBook = [[ABAddressBook sharedAddressBook] retain];
 	}
-	
+
 	return self;
 }
 
@@ -116,7 +115,8 @@ static	ABAddressBook	*sharedAddressBook = nil;
 	[service release];
 	[carryingWindow release];
 	[contactImage release];
-	[sharedAddressBook release]; sharedAddressBook = nil;
+	[sharedAddressBook release];
+	sharedAddressBook = nil;
 	[super dealloc];
 }
 
@@ -126,26 +126,28 @@ static	ABAddressBook	*sharedAddressBook = nil;
 - (void)windowDidLoad
 {
 	[[self window] center];
-	
-	//Localized strings
-	//Search window
+
+	// Localized strings
+	// Search window
 	[[self window] setTitle:AILocalizedString(@"Search In Address Book", nil)];
 	[selectButton setLocalizedString:AILocalizedString(@"Select Buddy", nil)];
 	[cancelButton setLocalizedString:AILocalizedString(@"Cancel", nil)];
 	[newPersonButton setLocalizedString:AILocalizedString(@"New Person", nil)];
-	//New contact window
+	// New contact window
 	[newContactPanel setTitle:AILocalizedString(@"Create New Person", nil)];
 	[label_mainTitle setLocalizedString:AILocalizedString(@"Enter the contact's type and screen name/number:", nil)];
-	[label_contactType setLocalizedString:AILocalizedString(@"Contact Type:", "Contact type service dropdown label in Add Contact")];
+	[label_contactType
+		setLocalizedString:AILocalizedString(@"Contact Type:", "Contact type service dropdown label in Add Contact")];
 	[label_secondaryTitle setLocalizedString:AILocalizedString(@"Address Book Information (optional):", nil)];
 	[label_firstName setLocalizedString:AILocalizedString(@"First Name:", nil)];
 	[label_lastName setLocalizedString:AILocalizedString(@"Last Name:", nil)];
 	[label_nickname setLocalizedString:AILocalizedString(@"Nickname:", nil)];
 	[label_email setLocalizedString:AILocalizedString(@"Email:", nil)];
-	[label_contactIcon setLocalizedString:AILocalizedString(@"Contact Icon", "Contact icon label in create new AB person")];
+	[label_contactIcon
+		setLocalizedString:AILocalizedString(@"Contact Icon", "Contact icon label in create new AB person")];
 	[addContactButton setLocalizedString:AILocalizedString(@"Add Contact", nil)];
 	[addContactCancelButton setLocalizedString:AILocalizedString(@"Cancel", nil)];
-	
+
 	[imageView_contactIcon setMaxSize:NSMakeSize(256, 256)];
 
 	[self _configurePeoplePicker];
@@ -158,35 +160,35 @@ static	ABAddressBook	*sharedAddressBook = nil;
  */
 - (void)_configurePeoplePicker
 {
-	NSTextField		*accessoryView = [[[NSTextField alloc] init] autorelease];
-	NSString		*property;
-	
-	//Create a small explanation text
-	[accessoryView setStringValue:AILocalizedString(@"Select an entry from your address book, or add a new person.",
-													nil)];
+	NSTextField *accessoryView = [[[NSTextField alloc] init] autorelease];
+	NSString *property;
+
+	// Create a small explanation text
+	[accessoryView
+		setStringValue:AILocalizedString(@"Select an entry from your address book, or add a new person.", nil)];
 	[accessoryView setFont:[NSFont systemFontOfSize:10.0f]];
 	[accessoryView setDrawsBackground:NO];
 	[accessoryView setEnabled:NO];
 	[accessoryView setBezeled:NO];
 	[accessoryView sizeToFit];
-	//And attach it to our people picker view
+	// And attach it to our people picker view
 	[peoplePicker setAccessoryView:accessoryView];
-	
-	//Configure our people picker
+
+	// Configure our people picker
 	[peoplePicker setAllowsGroupSelection:NO];
 	[peoplePicker setAllowsMultipleSelection:NO];
 	[peoplePicker setValueSelectionBehavior:ABSingleValueSelection];
 	[peoplePicker setTarget:self];
 	[peoplePicker setNameDoubleAction:@selector(select:)];
-	
-	//We show only the active services
+
+	// We show only the active services
 	for (AIService *aService in [adium.accountController activeServicesIncludingCompatibleServices:YES]) {
 		property = [AIAddressBookController propertyFromService:aService];
 		if (property && ![[peoplePicker properties] containsObject:property])
 			[peoplePicker addProperty:property];
 	}
 
-	//Display our initial service if we were passed one
+	// Display our initial service if we were passed one
 	if (service) {
 		property = [AIAddressBookController propertyFromService:service];
 		if (property && [[peoplePicker properties] containsObject:property]) {
@@ -202,7 +204,7 @@ static	ABAddressBook	*sharedAddressBook = nil;
 {
 	if (delegate && returnCode == NSOKButton)
 		[delegate absearchWindowControllerDidSelectPerson:self];
-	
+
 	[sheet orderOut:nil];
 }
 
@@ -226,16 +228,16 @@ static	ABAddressBook	*sharedAddressBook = nil;
 - (IBAction)select:(id)sender
 {
 	NSArray *selectedValues = [peoplePicker selectedValues];
-	
-	//Set the selected screen name
+
+	// Set the selected screen name
 	if ([selectedValues count] > 0)
 		[self _setScreenName:[selectedValues objectAtIndex:0]];
-	//Set the selected service
+	// Set the selected service
 	[self _setService:[AIAddressBookController serviceFromProperty:[peoplePicker displayedProperty]]];
-	//Set the selected person
+	// Set the selected person
 	[self _setPerson:[[peoplePicker selectedRecords] objectAtIndex:0]];
-	
-	//Close our window
+
+	// Close our window
 	if ([self windowShouldClose:self.window]) {
 		if ([[self window] isSheet]) {
 			[NSApp endSheet:[self window] returnCode:NSOKButton];
@@ -252,26 +254,26 @@ static	ABAddressBook	*sharedAddressBook = nil;
  */
 - (IBAction)createNewPerson:(id)sender
 {
-	//Close the first sheet
+	// Close the first sheet
 	[self cancel:nil];
-	
-	//Setup our new window,
+
+	// Setup our new window,
 	[self setWindow:newContactPanel];
 	[newContactPanel setDelegate:self];
-	
-	//and show it
+
+	// and show it
 	if (carryingWindow) {
 		[NSApp beginSheet:newContactPanel
-		   modalForWindow:carryingWindow
-			modalDelegate:self
-		   didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			  contextInfo:nil];
+			modalForWindow:carryingWindow
+			 modalDelegate:self
+			didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
+			   contextInfo:nil];
 	} else {
 		[self showWindow:nil];
 		[[self window] center];
 	}
-	
-	//Configure the views of our new window
+
+	// Configure the views of our new window
 	[self buildContactTypeMenu];
 	[self configureForCurrentServiceType];
 }
@@ -281,57 +283,52 @@ static	ABAddressBook	*sharedAddressBook = nil;
  */
 - (IBAction)addPerson:(id)sender
 {
-	ABPerson		*newPerson = [[[ABPerson alloc] init] autorelease];
-	NSString		*contactID = [[textField_contactID stringValue] stringByTrimmingCharactersInSet:
-									[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-	
-	//Create the new contact
+	ABPerson *newPerson = [[[ABPerson alloc] init] autorelease];
+	NSString *contactID = [[textField_contactID stringValue]
+		stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+	// Create the new contact
 	if (![contactID isEqualToString:@""]) {
-		ABMutableMultiValue		*value = [[ABMutableMultiValue alloc] init];
-		NSString				*identifier = nil;
-		NSString				*serviceIndentifier = [AIAddressBookController propertyFromService:service];
-		
+		ABMutableMultiValue *value = [[ABMutableMultiValue alloc] init];
+		NSString *identifier = nil;
+		NSString *serviceIndentifier = [AIAddressBookController propertyFromService:service];
+
 		identifier = [value addValue:contactID withLabel:serviceIndentifier];
 		if (identifier) {
-			NSString *email = [[textField_email stringValue] stringByTrimmingCharactersInSet:
-								[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			
-			//Set the person's IM id
-			[newPerson setValue:value
-					forProperty:serviceIndentifier];
-			
-			//Clean our multi value
+			NSString *email = [[textField_email stringValue]
+				stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+			// Set the person's IM id
+			[newPerson setValue:value forProperty:serviceIndentifier];
+
+			// Clean our multi value
 			[value removeValueAndLabelAtIndex:[value indexForIdentifier:identifier]];
-			
-			//Set the person's email address
+
+			// Set the person's email address
 			if (![email isEqualToString:@""]) {
 				identifier = [value addValue:[textField_email stringValue] withLabel:kABEmailProperty];
-				
+
 				if (identifier) {
-					[newPerson setValue:value
-							forProperty:kABEmailProperty];
+					[newPerson setValue:value forProperty:kABEmailProperty];
 				}
 			}
-			
-			//Set the person's first name
-			[newPerson setValue:[textField_firstName stringValue]
-					forProperty:kABFirstNameProperty];
-			//Set the person's last name
-			[newPerson setValue:[textField_lastName stringValue]
-					forProperty:kABLastNameProperty];
-			//Set the person's nickname
-			[newPerson setValue:[textField_nickname stringValue]
-					forProperty:kABNicknameProperty];
-			//Set the person's image
+
+			// Set the person's first name
+			[newPerson setValue:[textField_firstName stringValue] forProperty:kABFirstNameProperty];
+			// Set the person's last name
+			[newPerson setValue:[textField_lastName stringValue] forProperty:kABLastNameProperty];
+			// Set the person's nickname
+			[newPerson setValue:[textField_nickname stringValue] forProperty:kABNicknameProperty];
+			// Set the person's image
 			if (contactImage)
 				[newPerson setImageData:contactImage];
-			
-			//Add our newly created person to the AB database
+
+			// Add our newly created person to the AB database
 			if ([sharedAddressBook addRecord:newPerson] && [sharedAddressBook save]) {
 				[self _setPerson:newPerson];
 				[self _setScreenName:contactID];
-				
-				//Close our window
+
+				// Close our window
 				if ([self windowShouldClose:self.window]) {
 					if ([[self window] isSheet]) {
 						[NSApp endSheet:[self window] returnCode:NSOKButton];
@@ -342,17 +339,17 @@ static	ABAddressBook	*sharedAddressBook = nil;
 					}
 				}
 			} else {
-				//Cancel if we can't add our person to the AB database.
+				// Cancel if we can't add our person to the AB database.
 				[self cancel:nil];
 			}
 		}
-		
-		//Clean up
+
+		// Clean up
 		[value release];
-		
+
 	} else {
-		//We didn't get a contact id.
-		//This is equal to pressing the cancel button.
+		// We didn't get a contact id.
+		// This is equal to pressing the cancel button.
 		[self cancel:nil];
 	}
 }
@@ -362,21 +359,19 @@ static	ABAddressBook	*sharedAddressBook = nil;
  */
 - (void)setDelegate:(id)newDelegate
 {
-	NSNotificationCenter	*nc = [NSNotificationCenter defaultCenter];
-	
+	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+
 	if (delegate) {
-		[nc removeObserver:delegate
-					  name:OWABSearchWindowControllerDidSelectPersonNotification
-					object:self];
+		[nc removeObserver:delegate name:OWABSearchWindowControllerDidSelectPersonNotification object:self];
 	}
-	
+
 	if (newDelegate) {
 		[nc addObserver:newDelegate
 			   selector:@selector(OWABSearchWindowControllerDidSelectPerson:)
 				   name:OWABSearchWindowControllerDidSelectPersonNotification
 				 object:self];
 	}
-	
+
 	[delegate release];
 	delegate = [newDelegate retain];
 }
@@ -415,19 +410,18 @@ static	ABAddressBook	*sharedAddressBook = nil;
 	NSString *result = nil;
 	NSString *firstName = [person valueForProperty:kABFirstNameProperty];
 	NSString *lastName = [person valueForProperty:kABLastNameProperty];
-	
-	//Make sure we don't get "(null)" in our result
+
+	// Make sure we don't get "(null)" in our result
 	if (firstName && lastName) {
 		if ([sharedAddressBook defaultNameOrdering] == kABFirstNameFirst)
 			result = [firstName stringByAppendingFormat:@" %@", lastName];
 		else
 			result = [lastName stringByAppendingFormat:@" %@", firstName];
-	}
-	else if (firstName)
+	} else if (firstName)
 		result = firstName;
 	else if (lastName)
 		result = lastName;
-	
+
 	return result;
 }
 
@@ -455,13 +449,13 @@ static	ABAddressBook	*sharedAddressBook = nil;
  */
 - (void)buildContactTypeMenu
 {
-	//Rebuild the menu
+	// Rebuild the menu
 	[popUp_contactType setMenu:[AIServiceMenu menuOfServicesWithTarget:self
 													activeServicesOnly:YES
 													   longDescription:NO
 																format:nil]];
 
-	//Ensure our selection is still valid
+	// Ensure our selection is still valid
 	[self ensureValidContactTypeSelection];
 }
 
@@ -470,8 +464,11 @@ static	ABAddressBook	*sharedAddressBook = nil;
  */
 - (BOOL)serviceMenuShouldIncludeService:(AIService *)inService
 {
-	return (([AIAddressBookController propertyFromService:inService] &&
-			 [[[adium.accountController accountsCompatibleWithService:inService] valueForKeyPath:@"@sum.online"] boolValue]) ? YES : NO);
+	return (
+		([AIAddressBookController propertyFromService:inService] &&
+		 [[[adium.accountController accountsCompatibleWithService:inService] valueForKeyPath:@"@sum.online"] boolValue])
+			? YES
+			: NO);
 }
 
 /*!
@@ -479,25 +476,26 @@ static	ABAddressBook	*sharedAddressBook = nil;
  */
 - (void)ensureValidContactTypeSelection
 {
-	NSInteger			serviceIndex = -1;
-	
-	//Force our menu to update.. it needs to be correctly validated for the code below to work
+	NSInteger serviceIndex = -1;
+
+	// Force our menu to update.. it needs to be correctly validated for the code below to work
 	[[popUp_contactType menu] update];
-	
-	//Find the menu item for our current service
-	if (service) serviceIndex = [popUp_contactType indexOfItemWithRepresentedObject:service];		
-	
-	//If our service is not available we'll have to pick another one
+
+	// Find the menu item for our current service
+	if (service)
+		serviceIndex = [popUp_contactType indexOfItemWithRepresentedObject:service];
+
+	// If our service is not available we'll have to pick another one
 	if (service && (serviceIndex == -1 || ![[popUp_contactType itemAtIndex:serviceIndex] isEnabled])) {
 		[self _setService:nil];
 	}
-	
-	//If we don't have a service, pick the first availbale one
+
+	// If we don't have a service, pick the first availbale one
 	if (!service) {
 		[self _setService:[[[popUp_contactType menu] firstEnabledMenuItem] representedObject]];
 	}
-	
-	//Update our menu and window for the current service
+
+	// Update our menu and window for the current service
 	[popUp_contactType selectItemWithRepresentedObject:service];
 	[self configureForCurrentServiceType];
 }
@@ -507,17 +505,20 @@ static	ABAddressBook	*sharedAddressBook = nil;
  */
 - (void)configureForCurrentServiceType
 {
-	NSString	*userNameLabel = [service userNameLabel];
-	
-	[label_contactID setStringValue:[(userNameLabel ? userNameLabel :
-									  AILocalizedString(@"Contact ID",nil)) stringByAppendingString:AILocalizedString(@":", "Colon which will be appended after a label such as 'User Name', before an input field")]];
+	NSString *userNameLabel = [service userNameLabel];
+
+	[label_contactID
+		setStringValue:[(userNameLabel ? userNameLabel : AILocalizedString(@"Contact ID", nil))
+						   stringByAppendingString:AILocalizedString(@":",
+																	 "Colon which will be appended after a label such "
+																	 "as 'User Name', before an input field")]];
 }
 
 /*!
  * @brief User selected a new service type
  */
 - (IBAction)selectServiceType:(id)sender
-{	
+{
 	[self _setService:[[popUp_contactType selectedItem] representedObject]];
 	[self configureForCurrentServiceType];
 }
@@ -578,11 +579,11 @@ static	ABAddressBook	*sharedAddressBook = nil;
 
 - (void)deleteInImageViewWithImagePicker:(AIImageViewWithImagePicker *)sender
 {
-	[contactImage release]; contactImage = nil;
+	[contactImage release];
+	contactImage = nil;
 }
 
 @end
-
 
 #pragma mark -
 @implementation NSObject (OWABSearchWindowControllerDelegate)
@@ -592,7 +593,7 @@ static	ABAddressBook	*sharedAddressBook = nil;
  */
 - (void)absearchWindowControllerDidSelectPerson:(OWABSearchWindowController *)controller
 {
-	//Do nothing by default
+	// Do nothing by default
 }
 
 @end

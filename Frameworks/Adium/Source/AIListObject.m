@@ -1,44 +1,44 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIListObject.h>
+#import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIMutableOwnerArray.h>
 #import <Adium/AIContactControllerProtocol.h>
+#import <Adium/AIContactHidingController.h>
+#import <Adium/AIContactObserverManager.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIListGroup.h>
+#import <Adium/AIListObject.h>
 #import <Adium/AIService.h>
-#import <Adium/AIUserIcons.h>
-#import <AIUtilities/AIMutableOwnerArray.h>
-#import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIContactObserverManager.h>
-#import <Adium/AIContactHidingController.h>
 #import <Adium/AIStatus.h>
+#import <Adium/AIUserIcons.h>
 
-#define DisplayName			@"Display Name"
-#define LongDisplayName		@"Long Display Name"
-#define Key					@"Key"
-#define Group				@"Group"
-#define DisplayServiceID	@"DisplayServiceID"
-#define AlwaysVisible		@"alwaysVisible"
+#define DisplayName @"Display Name"
+#define LongDisplayName @"Long Display Name"
+#define Key @"Key"
+#define Group @"Group"
+#define DisplayServiceID @"DisplayServiceID"
+#define AlwaysVisible @"alwaysVisible"
 
 @interface AIListObject ()
 - (void)setContainingGroup:(AIListGroup *)inGroup;
 - (void)setupObservedValues;
 - (void)updateOrderCache;
 
-@property (nonatomic, assign) AIService *service;
+@property(nonatomic, assign) AIService *service;
 
 @end
 
@@ -58,9 +58,9 @@
 	if ((self = [super init])) {
 		m_groups = [[NSMutableSet alloc] initWithCapacity:1];
 
-		UID = [inUID retain];	
+		UID = [inUID retain];
 		service = inService;
-		
+
 		// Delay until the next run loop so bookmarks can instantiate their values first.
 		[self performSelector:@selector(setupObservedValues) withObject:nil afterDelay:0.0];
 	}
@@ -73,17 +73,27 @@
  */
 - (void)dealloc
 {
-	[UID release]; UID = nil;
-	[internalObjectID release]; internalObjectID = nil;
-	[m_groups release]; m_groups = nil;
-	
-	[listObjectStatusMessage release]; listObjectStatusMessage = nil;
-	[listStateIcon release]; listStateIcon = nil;
-	[listStatusIcon release]; listStatusIcon = nil;
-	[listObjectStatusType release]; listObjectStatusType = nil;
-	[extendedStatus release]; extendedStatus = nil;
-	[listObjectStatusName release]; listObjectStatusName = nil;
-	[webKitUserIconPath release]; webKitUserIconPath = nil;
+	[UID release];
+	UID = nil;
+	[internalObjectID release];
+	internalObjectID = nil;
+	[m_groups release];
+	m_groups = nil;
+
+	[listObjectStatusMessage release];
+	listObjectStatusMessage = nil;
+	[listStateIcon release];
+	listStateIcon = nil;
+	[listStatusIcon release];
+	listStatusIcon = nil;
+	[listObjectStatusType release];
+	listObjectStatusType = nil;
+	[extendedStatus release];
+	extendedStatus = nil;
+	[listObjectStatusName release];
+	listObjectStatusName = nil;
+	[webKitUserIconPath release];
+	webKitUserIconPath = nil;
 
 	[super dealloc];
 }
@@ -91,11 +101,12 @@
 - (void)setupObservedValues
 {
 	[self setValue:[self preferenceForKey:@"Visible" group:PREF_GROUP_ALWAYS_VISIBLE]
-	   forProperty:AlwaysVisible
-			notify:NotifyNow];
+		forProperty:AlwaysVisible
+			 notify:NotifyNow];
 }
 
-//Identification -------------------------------------------------------------------------------------------------------
+// Identification
+// -------------------------------------------------------------------------------------------------------
 #pragma mark Identification
 
 /*!
@@ -134,10 +145,11 @@
  */
 + (NSString *)internalObjectIDForServiceID:(NSString *)inServiceID UID:(NSString *)inUID
 {
-	return [NSString stringWithFormat:@"%@.%@",inServiceID, inUID];
+	return [NSString stringWithFormat:@"%@.%@", inServiceID, inUID];
 }
 
-//Visibility -----------------------------------------------------------------------------------------------------------
+// Visibility
+// -----------------------------------------------------------------------------------------------------------
 #pragma mark Visibility
 
 /*!
@@ -145,14 +157,10 @@
  */
 - (void)setAlwaysVisible:(BOOL)inVisible
 {
-	[self setPreference:[NSNumber numberWithBool:inVisible] 
-				 forKey:@"Visible" 
-				  group:PREF_GROUP_ALWAYS_VISIBLE];
-	
+	[self setPreference:[NSNumber numberWithBool:inVisible] forKey:@"Visible" group:PREF_GROUP_ALWAYS_VISIBLE];
+
 	// This causes our container to update our visibility.
-	[self setValue:[NSNumber numberWithBool:inVisible]
-				   forProperty:AlwaysVisible
-				   notify:NotifyNow];
+	[self setValue:[NSNumber numberWithBool:inVisible] forProperty:AlwaysVisible notify:NotifyNow];
 }
 
 /*!
@@ -165,26 +173,27 @@
 	return [self boolValueForProperty:AlwaysVisible];
 }
 
-//Grouping / Ownership -------------------------------------------------------------------------------------------------
+// Grouping / Ownership
+// -------------------------------------------------------------------------------------------------
 #pragma mark Grouping / Ownership
 
-- (NSSet *) groups
+- (NSSet *)groups
 {
 #warning Very inefficient
 	return [[m_groups copy] autorelease];
 }
 
-- (void) addContainingGroup:(AIListGroup *)inGroup
+- (void)addContainingGroup:(AIListGroup *)inGroup
 {
 	NSParameterAssert(inGroup && [inGroup canContainObject:self]);
 	if (![self.groups containsObject:inGroup]) {
-		
+
 		if (inGroup)
 			[m_groups addObject:inGroup];
 	}
 }
 
-- (void) removeContainingGroup:(AIListGroup *)group
+- (void)removeContainingGroup:(AIListGroup *)group
 {
 	NSParameterAssert(group != nil && [m_groups containsObject:group]);
 	[m_groups removeObject:group];
@@ -195,9 +204,10 @@
 	return self.groups;
 }
 
-- (void)removeFromGroup:(AIListObject <AIContainingObject> *)group
+- (void)removeFromGroup:(AIListObject<AIContainingObject> *)group
 {
-	NSString *error = [NSString stringWithFormat:@"%@ needs an implementation of -removeFromGroup:", NSStringFromClass([self class])];
+	NSString *error =
+		[NSString stringWithFormat:@"%@ needs an implementation of -removeFromGroup:", NSStringFromClass([self class])];
 	NSAssert(NO, error);
 }
 
@@ -209,65 +219,65 @@
 - (void)setContainingGroup:(AIListGroup *)inGroup
 {
 	[m_groups removeAllObjects];
-	if(inGroup)
+	if (inGroup)
 		[self addContainingGroup:inGroup];
 }
 
-- (void) moveContainedObject:(AIListObject *)listObject toIndex:(NSInteger)idx
+- (void)moveContainedObject:(AIListObject *)listObject toIndex:(NSInteger)idx
 {
-	id<AIContainingObject>container = (id<AIContainingObject>)self;
-	
+	id<AIContainingObject> container = (id<AIContainingObject>)self;
+
 	// We can't enforce this, since we're asked to set it for objects we don't yet *officially* contain.
-	//NSAssert([container.containedObjects containsObject:listObject], @"Asked to set an index for an object which doesn't exist.");
-	
+	// NSAssert([container.containedObjects containsObject:listObject], @"Asked to set an index for an object which
+	// doesn't exist.");
+
 	if (idx == 0) {
-		//Moved to the top of a group.  New index is between 0 and the lowest current index
-		[container listObject:listObject didSetOrderIndex: self.smallestOrder / 2];
-		
+		// Moved to the top of a group.  New index is between 0 and the lowest current index
+		[container listObject:listObject didSetOrderIndex:self.smallestOrder / 2];
+
 	} else if (idx >= container.visibleCount) {
-		//Moved to the bottom of a group.  New index is one higher than the highest current index
-		[container listObject:listObject didSetOrderIndex: self.largestOrder + 1];
-		
+		// Moved to the bottom of a group.  New index is one higher than the highest current index
+		[container listObject:listObject didSetOrderIndex:self.largestOrder + 1];
+
 	} else {
-		//Moved somewhere in the middle.  New index is the average of the next largest and smallest index
-		AIListObject	*previousObject = [container.visibleContainedObjects objectAtIndex:idx-1];
-		AIListObject	*nextObject = [container.visibleContainedObjects objectAtIndex:idx];
+		// Moved somewhere in the middle.  New index is the average of the next largest and smallest index
+		AIListObject *previousObject = [container.visibleContainedObjects objectAtIndex:idx - 1];
+		AIListObject *nextObject = [container.visibleContainedObjects objectAtIndex:idx];
 		float nextLowest = [container orderIndexForObject:previousObject];
 		float nextHighest = [container orderIndexForObject:nextObject];
-		
+
 		/* XXX - Fixme as per below
-		 * It's possible that nextLowest > nextHighest if ordering is not strictly based on the ordering indexes themselves.
-		 * For example, a group sorted by status then manually could look like (status - ordering index):
+		 * It's possible that nextLowest > nextHighest if ordering is not strictly based on the ordering indexes
+		 * themselves. For example, a group sorted by status then manually could look like (status - ordering index):
 		 *
 		 * Away Contact - 100
 		 * Away Contact - 120
 		 * Offline Contact - 110
 		 * Offline Contact - 113
 		 * Offline Contact - 125
-		 * 
-		 * Dropping between Away Contact and Offline Contact should make an Away Contact be > 120 but an Offline Contact be < 110.
-		 * Only the sort controller knows the answer as to where this contact should be positioned in the end.
+		 *
+		 * Dropping between Away Contact and Offline Contact should make an Away Contact be > 120 but an Offline Contact
+		 * be < 110. Only the sort controller knows the answer as to where this contact should be positioned in the end.
 		 */
-		AILogWithSignature(@"%@: Moving %@ into %@'s index %li using order index %f (between %@ and %@)",
-						   container, listObject, container.visibleContainedObjects, (long)idx, 
-						   (nextHighest + nextLowest) / 2, nextObject, previousObject);
-		[container listObject: listObject didSetOrderIndex: (nextHighest + nextLowest) / 2];
-	}	
+		AILogWithSignature(@"%@: Moving %@ into %@'s index %li using order index %f (between %@ and %@)", container,
+						   listObject, container.visibleContainedObjects, (long)idx, (nextHighest + nextLowest) / 2,
+						   nextObject, previousObject);
+		[container listObject:listObject didSetOrderIndex:(nextHighest + nextLowest) / 2];
+	}
 }
 
-//Properties ------------------------------------------------------------------------------------------------------
+// Properties ------------------------------------------------------------------------------------------------------
 #pragma mark Properties
 /*!
  * @brief Called after properties have been modified; informs the contact controller.
  *
  * @param keys The properties
- * @param silent YES indicates that this should not trigger 'noisy' notifications - it is appropriate for notifications as an account signs on and notes tons of contacts.
+ * @param silent YES indicates that this should not trigger 'noisy' notifications - it is appropriate for notifications
+ * as an account signs on and notes tons of contacts.
  */
 - (void)didModifyProperties:(NSSet *)keys silent:(BOOL)silent
 {
-	[[AIContactObserverManager sharedManager] listObjectStatusChanged:self
-									modifiedStatusKeys:keys
-												silent:silent];
+	[[AIContactObserverManager sharedManager] listObjectStatusChanged:self modifiedStatusKeys:keys silent:silent];
 }
 /*!
  * @brief Called after status changes have been modified and notifications posted
@@ -275,11 +285,12 @@
  * When we notify of queued status changes, our containing group should notify as well so it can stay in sync with
  * any changes it may have made in object:didChangeValueForProperty:notify:
  *
- * @param silent YES indicates that this should not trigger 'noisy' notifications - it is appropriate for notifications as an account signs on and notes tons of contacts.
+ * @param silent YES indicates that this should not trigger 'noisy' notifications - it is appropriate for notifications
+ * as an account signs on and notes tons of contacts.
  */
 - (void)didNotifyOfChangedPropertiesSilently:(BOOL)silent
 {
-	//Let our containing objects know about the notification request
+	// Let our containing objects know about the notification request
 	for (AIListContact<AIContainingObject> *container in self.containingObjects)
 		[container notifyOfChangedPropertiesSilently:silent];
 }
@@ -290,15 +301,16 @@
  * Subclasses may wish to override these - they must be sure to call super's implementation, too!
  */
 - (void)object:(id)inObject didChangeValueForProperty:(NSString *)key notify:(NotifyTiming)notify
-{				
-	//Inform our containing groups about the new property value
+{
+	// Inform our containing groups about the new property value
 	for (AIListContact<AIContainingObject> *container in self.containingObjects)
 		[container object:self didChangeValueForProperty:key notify:notify];
-	
+
 	[super object:inObject didChangeValueForProperty:key notify:notify];
 }
 
-//AIMutableOwnerArray delegate ------------------------------------------------------------------------------------------
+// AIMutableOwnerArray delegate
+// ------------------------------------------------------------------------------------------
 #pragma mark AIMutableOwnerArray delegate
 
 /*!
@@ -306,10 +318,17 @@
  *
  * A mutable owner array (one of our displayArrays) set an object
  */
-- (void)mutableOwnerArray:(AIMutableOwnerArray *)inArray didSetObject:(id)anObject withOwner:(id)inOwner priorityLevel:(float)priority
+- (void)mutableOwnerArray:(AIMutableOwnerArray *)inArray
+			 didSetObject:(id)anObject
+				withOwner:(id)inOwner
+			priorityLevel:(float)priority
 {
 	for (AIListContact<AIContainingObject> *container in self.containingObjects)
-		[container listObject:self mutableOwnerArray:inArray didSetObject:anObject withOwner:inOwner priorityLevel:priority];
+		[container listObject:self
+			mutableOwnerArray:inArray
+				 didSetObject:anObject
+					withOwner:inOwner
+				priorityLevel:priority];
 }
 
 /*!
@@ -317,30 +336,31 @@
  *
  * Empty implementation by default - we do not need to take any action when a mutable owner array changes
  */
-- (void)listObject:(AIListObject *)listObject mutableOwnerArray:(AIMutableOwnerArray *)inArray didSetObject:(id)anObject withOwner:(AIListObject *)inOwner priorityLevel:(float)priority
-{
+- (void)listObject:(AIListObject *)listObject
+	mutableOwnerArray:(AIMutableOwnerArray *)inArray
+		 didSetObject:(id)anObject
+			withOwner:(AIListObject *)inOwner
+		priorityLevel:(float)priority
+{}
 
-}
-
-//Object specific preferences ------------------------------------------------------------------------------------------
+// Object specific preferences
+// ------------------------------------------------------------------------------------------
 #pragma mark Object specific preferences
 /*!
  * @brief Set a preference value
  */
 - (void)setPreference:(id)value forKey:(NSString *)key group:(NSString *)group
-{   
+{
 	[adium.preferenceController setPreference:value forKey:key group:group object:self];
 }
 - (void)setPreferences:(NSDictionary *)prefs inGroup:(NSString *)group
 {
-	[adium.preferenceController setPreferences:prefs inGroup:group object:self];	
+	[adium.preferenceController setPreferences:prefs inGroup:group object:self];
 }
 
 - (void)setFormattedUID:(NSString *)inFormattedUID notify:(NotifyTiming)notify
 {
-	[self setValue:inFormattedUID
-				   forProperty:KEY_FORMATTED_UID
-				   notify:notify];
+	[self setValue:inFormattedUID forProperty:KEY_FORMATTED_UID notify:notify];
 }
 
 /*!
@@ -348,7 +368,7 @@
  */
 - (id)preferenceForKey:(NSString *)key group:(NSString *)group
 {
-		return [adium.preferenceController preferenceForKey:key group:group objectIgnoringInheritance:self];
+	return [adium.preferenceController preferenceForKey:key group:group objectIgnoringInheritance:self];
 }
 
 /*!
@@ -356,11 +376,11 @@
  */
 - (NSString *)pathToPreferences
 {
-    return OBJECT_PREFS_PATH;
+	return OBJECT_PREFS_PATH;
 }
 
-//Display Name  -------------------------------------------------------------------------------------
-#pragma mark Display Name 
+// Display Name  -------------------------------------------------------------------------------------
+#pragma mark Display Name
 /*
  * A list object basically has 4 different variations of display.
  *
@@ -381,8 +401,8 @@
  */
 - (NSString *)formattedUID
 {
-	NSString  *outName = [self valueForProperty:KEY_FORMATTED_UID];
-	return outName ? outName : UID;	
+	NSString *outName = [self valueForProperty:KEY_FORMATTED_UID];
+	return outName ? outName : UID;
 }
 
 /*!
@@ -393,52 +413,52 @@
  */
 - (NSString *)longDisplayName
 {
-    NSString	*outName = [self displayArrayObjectForKey:LongDisplayName];
-	
-    return outName ? outName : self.displayName;
+	NSString *outName = [self displayArrayObjectForKey:LongDisplayName];
+
+	return outName ? outName : self.displayName;
 }
 
 /*!
-* @brief Display name
+ * @brief Display name
  *
- * Display name, drawing first from any externally-provided display name, then falling back to 
+ * Display name, drawing first from any externally-provided display name, then falling back to
  * the formatted UID.
  */
 - (NSString *)displayName
 {
-    NSString	*displayName = [self displayArrayObjectForKey:DisplayName];
-    return displayName ? displayName : self.formattedUID;
+	NSString *displayName = [self displayArrayObjectForKey:DisplayName];
+	return displayName ? displayName : self.formattedUID;
 }
 
 /*!
-* @brief The way this object's name should be spoken
+ * @brief The way this object's name should be spoken
  *
  * If not found, the display name is returned.
  */
 - (NSString *)phoneticName
 {
-	NSString	*phoneticName = [self displayArrayObjectForKey:@"Phonetic Name"];
-    return phoneticName ? phoneticName : self.displayName;
+	NSString *phoneticName = [self displayArrayObjectForKey:@"Phonetic Name"];
+	return phoneticName ? phoneticName : self.displayName;
 }
 
-//Apply an alias
+// Apply an alias
 - (void)setDisplayName:(NSString *)alias
 {
-	if ([alias length] == 0) alias = nil; 
-	
-	NSString	*oldAlias = [self preferenceForKey:@"Alias" group:PREF_GROUP_ALIASES];
-	
-	if ((!alias && oldAlias) ||
-		(alias && !([alias isEqualToString:oldAlias]))) {
-		//Save the alias
+	if ([alias length] == 0)
+		alias = nil;
+
+	NSString *oldAlias = [self preferenceForKey:@"Alias" group:PREF_GROUP_ALIASES];
+
+	if ((!alias && oldAlias) || (alias && !([alias isEqualToString:oldAlias]))) {
+		// Save the alias
 		AILogWithSignature(@"%@: %@", self, alias);
 		[self setPreference:alias forKey:@"Alias" group:PREF_GROUP_ALIASES];
-		
-		//XXX - There must be a cleaner way to do this alias stuff!  This works for now :)
-		[[NSNotificationCenter defaultCenter] postNotificationName:Contact_ApplyDisplayName
-												  object:self
-												userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES]
-																					 forKey:@"Notify"]];
+
+		// XXX - There must be a cleaner way to do this alias stuff!  This works for now :)
+		[[NSNotificationCenter defaultCenter]
+			postNotificationName:Contact_ApplyDisplayName
+						  object:self
+						userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:@"Notify"]];
 	}
 }
 
@@ -467,28 +487,30 @@
 	return [self integerValueForProperty:@"idle"];
 }
 
-//A standard listObject is never a stranger
-- (BOOL)isStranger{
+// A standard listObject is never a stranger
+- (BOOL)isStranger
+{
 	return NO;
 }
 
 - (NSString *)notes
 {
 	NSString *notes;
-	
-    notes = [self preferenceForKey:@"Notes" group:PREF_GROUP_NOTES];
-	if (!notes) notes = [self valueForProperty:@"Notes"];
-	
+
+	notes = [self preferenceForKey:@"Notes" group:PREF_GROUP_NOTES];
+	if (!notes)
+		notes = [self valueForProperty:@"Notes"];
+
 	return notes;
 }
 - (void)setNotes:(NSString *)notes
 {
-	if ([notes length] == 0) notes = nil; 
+	if ([notes length] == 0)
+		notes = nil;
 
-	NSString	*oldNotes = [self preferenceForKey:@"Notes" group:PREF_GROUP_NOTES];
-	if ((!notes && oldNotes) ||
-		(notes && (![notes isEqualToString:oldNotes]))) {
-		//Save the note
+	NSString *oldNotes = [self preferenceForKey:@"Notes" group:PREF_GROUP_NOTES];
+	if ((!notes && oldNotes) || (notes && (![notes isEqualToString:oldNotes]))) {
+		// Save the note
 		[self setPreference:notes forKey:@"Notes" group:PREF_GROUP_NOTES];
 	}
 }
@@ -539,18 +561,19 @@
  */
 - (void)setStatusWithName:(NSString *)statusName statusType:(AIStatusType)statusType notify:(NotifyTiming)notify
 {
-	AIStatusType	currentStatusType = self.statusType;
-	NSString		*oldStatusName = self.statusName;
-	
+	AIStatusType currentStatusType = self.statusType;
+	NSString *oldStatusName = self.statusName;
+
 	if (currentStatusType != statusType) {
 		[self setValue:[NSNumber numberWithInt:statusType] forProperty:@"listObjectStatusType" notify:NotifyLater];
 	}
-	
+
 	if ((!statusName && oldStatusName) || (statusName && ![statusName isEqualToString:oldStatusName])) {
 		[self setValue:statusName forProperty:@"listObjectStatusName" notify:NotifyLater];
 	}
-	
-	if (notify) [self notifyOfChangedPropertiesSilently:NO];
+
+	if (notify)
+		[self notifyOfChangedPropertiesSilently:NO];
 }
 
 /*!
@@ -569,8 +592,8 @@
 /*!
  * @brief Return the status message for this object as NSString
  *
- * The statusMessageString may supplement the statusType and statusName with a message describing the object's status; in AIM,
- * for example, both available and away statuses can have an associated, user-set message.
+ * The statusMessageString may supplement the statusType and statusName with a message describing the object's status;
+ * in AIM, for example, both available and away statuses can have an associated, user-set message.
  *
  * @result The NSString statusMessage, or nil if none is set
  */
@@ -608,21 +631,18 @@
  */
 - (void)setStatusMessage:(NSAttributedString *)inStatusMessage notify:(NotifyTiming)notify
 {
-	if (!inStatusMessage ||
-	   ![listObjectStatusMessage isEqualToAttributedString:inStatusMessage]) {
+	if (!inStatusMessage || ![listObjectStatusMessage isEqualToAttributedString:inStatusMessage]) {
 		[self setValue:inStatusMessage forProperty:@"listObjectStatusMessage" notify:notify];
 	}
 }
 
 - (void)setBaseAvailableStatusAndNotify:(NotifyTiming)notify
 {
-	[self setStatusWithName:nil
-				 statusType:AIAvailableStatusType
-					 notify:NotifyLater];
-	[self setStatusMessage:nil
-					 notify:NotifyLater];
+	[self setStatusWithName:nil statusType:AIAvailableStatusType notify:NotifyLater];
+	[self setStatusMessage:nil notify:NotifyLater];
 
-	if (notify) [self notifyOfChangedPropertiesSilently:NO];
+	if (notify)
+		[self notifyOfChangedPropertiesSilently:NO];
 }
 
 - (BOOL)online
@@ -632,17 +652,17 @@
 
 - (AIStatusSummary)statusSummary
 {
-	if (self.online) {		
+	if (self.online) {
 		if (self.statusType == AIAwayStatusType || self.statusType == AIInvisibleStatusType)
 			return [self boolValueForProperty:@"isIdle"] ? AIAwayAndIdleStatus : AIAwayStatus;
-		
+
 		if ([self boolValueForProperty:@"isIdle"])
 			return AIIdleStatus;
-		
+
 		return AIAvailableStatus;
-	} 
-	
-	//We don't know the status of an stranger who isn't showing up as online
+	}
+
+	// We don't know the status of an stranger who isn't showing up as online
 	return self.isStranger ? AIUnknownStatus : AIOfflineStatus;
 }
 
@@ -662,44 +682,44 @@
 #pragma mark Methods for AIContainingObject-compliant classes to inherit
 - (void)listObject:(AIListObject *)listObject didSetOrderIndex:(float)orderIndexForObject
 {
-	NSDictionary		*dict = [self preferenceForKey:@"OrderIndexDictionary"
-												 group:PREF_GROUP_OBJECT_STATUS_CACHE];
+	NSDictionary *dict = [self preferenceForKey:@"OrderIndexDictionary" group:PREF_GROUP_OBJECT_STATUS_CACHE];
 	NSMutableDictionary *newDict = (dict ? [[dict mutableCopy] autorelease] : [NSMutableDictionary dictionary]);
-	
+
 	// Sanity check - are we trying to assign infinity?
 	if (orderIndexForObject == INFINITY) {
-		AILogWithSignature(@"Correcting for INFINITY index, inObj=%@ allObj=%@", listObject, [newDict allKeysForObject:[NSNumber numberWithFloat:INFINITY]]);
-		
-		// Remove any objects that currently are currently set to INFINITY, they'll regenerate their position to the last place.
+		AILogWithSignature(@"Correcting for INFINITY index, inObj=%@ allObj=%@", listObject,
+						   [newDict allKeysForObject:[NSNumber numberWithFloat:INFINITY]]);
+
+		// Remove any objects that currently are currently set to INFINITY, they'll regenerate their position to the
+		// last place.
 		for (NSString *key in [newDict allKeysForObject:[NSNumber numberWithFloat:INFINITY]]) {
 			[newDict removeObjectForKey:key];
 		}
-		
+
 		// Update the preference.
-		[self setPreference:newDict
-					 forKey:@"OrderIndexDictionary"
-					  group:PREF_GROUP_OBJECT_STATUS_CACHE];
-		
+		[self setPreference:newDict forKey:@"OrderIndexDictionary" group:PREF_GROUP_OBJECT_STATUS_CACHE];
+
 		// Update our largest cache.
 		[self updateOrderCache];
-		
+
 		// Assume an index of largest+1
 		orderIndexForObject = self.largestOrder + 1;
 	}
-	
+
 	NSNumber *orderIndexForObjectNumber = [NSNumber numberWithFloat:orderIndexForObject];
-	
-	//Prevent setting an order index which we already have
+
+	// Prevent setting an order index which we already have
 	NSArray *existingKeys = [dict allKeysForObject:orderIndexForObjectNumber];
 	while (existingKeys.count && ![existingKeys isEqualToArray:[NSArray arrayWithObject:listObject.internalObjectID]]) {
 		if (existingKeys.count == 1) {
-			AILogWithSignature(@"*** Warning: %@ had order index %f, but %@ already had an object with that order index. Setting to %f instead. Incrementing.",
-							   listObject, orderIndexForObject, self, orderIndexForObject+1);
+			AILogWithSignature(@"*** Warning: %@ had order index %f, but %@ already had an object with that order "
+							   @"index. Setting to %f instead. Incrementing.",
+							   listObject, orderIndexForObject, self, orderIndexForObject + 1);
 
 			orderIndexForObject++;
 			orderIndexForObjectNumber = [NSNumber numberWithFloat:orderIndexForObject];
 			existingKeys = [dict allKeysForObject:orderIndexForObjectNumber];
-			
+
 		} else {
 			/* How could this happen? -evands */
 			AILogWithSignature(@"More than one object has %f! We'll grant it to %@", orderIndexForObject, listObject);
@@ -709,37 +729,34 @@
 			}
 
 			existingKeys = nil;
-		}		
+		}
 	}
 
-	[newDict setObject:orderIndexForObjectNumber
-				forKey:listObject.internalObjectID];
-	
-	[self setPreference:newDict
-				 forKey:@"OrderIndexDictionary"
-				  group:PREF_GROUP_OBJECT_STATUS_CACHE];
-	
+	[newDict setObject:orderIndexForObjectNumber forKey:listObject.internalObjectID];
+
+	[self setPreference:newDict forKey:@"OrderIndexDictionary" group:PREF_GROUP_OBJECT_STATUS_CACHE];
+
 	[self updateOrderCache];
 }
 
-//Order index
+// Order index
 - (float)orderIndexForObject:(AIListObject *)listObject
 {
-	NSDictionary *dict = [self preferenceForKey:@"OrderIndexDictionary"
-										  group:PREF_GROUP_OBJECT_STATUS_CACHE];
+	NSDictionary *dict = [self preferenceForKey:@"OrderIndexDictionary" group:PREF_GROUP_OBJECT_STATUS_CACHE];
 	NSNumber *orderIndexForObjectNumber = [dict objectForKey:listObject.internalObjectID];
 	float orderIndexForObject = (orderIndexForObjectNumber ? [orderIndexForObjectNumber floatValue] : 0);
-	
-	//Evan: I don't know how we got up to infinity.. perhaps pref corruption in a previous version?
-	//In any case, check against it; if we stored it, reset to a reasonable number.
-	//XXX is this still needed?
-	if  (!(orderIndexForObject < INFINITY)) orderIndexForObject = 0;
+
+	// Evan: I don't know how we got up to infinity.. perhaps pref corruption in a previous version?
+	// In any case, check against it; if we stored it, reset to a reasonable number.
+	// XXX is this still needed?
+	if (!(orderIndexForObject < INFINITY))
+		orderIndexForObject = 0;
 
 	if (!orderIndexForObject) {
 		orderIndexForObject = self.largestOrder + 1;
-		[(id<AIContainingObject>)self listObject:listObject didSetOrderIndex: orderIndexForObject];
+		[(id<AIContainingObject>)self listObject:listObject didSetOrderIndex:orderIndexForObject];
 	}
-	
+
 	return orderIndexForObject;
 }
 
@@ -757,21 +774,21 @@
 	if (!cachedLargestOrder) {
 		[self updateOrderCache];
 	}
-	
-	return cachedLargestOrder;	
+
+	return cachedLargestOrder;
 }
 
 - (void)updateOrderCache
 {
 	float smallest = INFINITY, largest = 0;
-	
+
 	NSDictionary *orderIndex = [self preferenceForKey:@"OrderIndexDictionary" group:PREF_GROUP_OBJECT_STATUS_CACHE];
-	
+
 	for (NSNumber *idx in orderIndex.allValues) {
 		smallest = MIN(smallest, idx.floatValue);
 		largest = MAX(largest, idx.floatValue);
 	}
-	
+
 	cachedSmallestOrder = (smallest == INFINITY ? 1 : smallest);
 	cachedLargestOrder = largest;
 }
@@ -785,7 +802,8 @@
 }
 */
 
-- (NSComparisonResult)compare:(AIListObject *)other {
+- (NSComparisonResult)compare:(AIListObject *)other
+{
 	NSParameterAssert([other isKindOfClass:[AIListObject class]]);
 	return [self.internalObjectID caseInsensitiveCompare:other.internalObjectID];
 }
@@ -799,16 +817,17 @@
 - (NSImage *)statusIcon
 {
 	NSImage *statusIcon = [self valueForProperty:@"listStateIcon"];
-	if (!statusIcon) statusIcon = [self valueForProperty:@"listStatusIcon"];
-	if (!statusIcon) statusIcon = [AIStatusIcons statusIconForUnknownStatusWithIconType:AIStatusIconList
-																			 direction:AIIconNormal];
+	if (!statusIcon)
+		statusIcon = [self valueForProperty:@"listStatusIcon"];
+	if (!statusIcon)
+		statusIcon = [AIStatusIcons statusIconForUnknownStatusWithIconType:AIStatusIconList direction:AIIconNormal];
 	return statusIcon;
 }
 
 #pragma mark Debugging
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"<%@:%p %@>",NSStringFromClass([self class]), self, self.internalObjectID];
+	return [NSString stringWithFormat:@"<%@:%p %@>", NSStringFromClass([self class]), self, self.internalObjectID];
 }
 
 #pragma mark Applescript
@@ -816,14 +835,14 @@
 {
 	AIStatusType statusType = self.statusType;
 	switch (statusType) {
-		case AIAvailableStatusType:
-			return AIAvailableStatusTypeAS;
-		case AIOfflineStatusType:
-			return AIOfflineStatusTypeAS;
-		case AIAwayStatusType:
-			return AIAwayStatusTypeAS;
-		case AIInvisibleStatusType:
-			return AIInvisibleStatusTypeAS;
+	case AIAvailableStatusType:
+		return AIAvailableStatusTypeAS;
+	case AIOfflineStatusType:
+		return AIOfflineStatusTypeAS;
+	case AIAwayStatusType:
+		return AIAwayStatusTypeAS;
+	case AIInvisibleStatusType:
+		return AIInvisibleStatusTypeAS;
 	}
 	return 0;
 }

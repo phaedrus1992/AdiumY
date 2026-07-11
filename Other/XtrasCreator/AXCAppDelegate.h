@@ -6,11 +6,11 @@
 //  Copyright 2005 Mac-arena the Bored Zo. All rights reserved.
 //
 
-//ganked from LMX.
+// ganked from LMX.
 @class AXCStartingPointsController;
 
 @interface AXCAppDelegate : NSObject {
-	IBOutlet AXCStartingPointsController * startingPointsController;
+	IBOutlet AXCStartingPointsController *startingPointsController;
 }
 
 @end

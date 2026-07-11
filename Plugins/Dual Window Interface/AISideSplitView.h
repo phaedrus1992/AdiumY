@@ -2,7 +2,6 @@
 
 #import <AIUtilities/AISplitView.h>
 
-@interface AISideSplitView : AISplitView
-{
+@interface AISideSplitView : AISplitView {
 }
 @end

@@ -8,18 +8,16 @@
 
 #import <Foundation/Foundation.h>
 
-
-@interface Presentity : NSObject <NSCoding>
-{
+@interface Presentity : NSObject <NSCoding> {
 	NSString *service;
 	NSString *senderID;
-	
+
 	id myPerson;
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder;
 - (id)initWithCoder:(NSCoder *)decoder;
 
-- (NSString *) senderID;
+- (NSString *)senderID;
 
 @end

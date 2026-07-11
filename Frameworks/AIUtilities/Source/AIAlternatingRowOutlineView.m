@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -23,9 +23,9 @@
  */
 
 #import "AIAlternatingRowOutlineView.h"
-#import "AIOutlineView.h"
-#import "AIGradientAdditions.h"
 #import "AIColorAdditions.h"
+#import "AIGradientAdditions.h"
+#import "AIOutlineView.h"
 
 @interface AIAlternatingRowOutlineView ()
 - (void)initAlternatingRowOutlineView;
@@ -59,16 +59,16 @@
 	[self setUsesAlternatingRowBackgroundColors:NO];
 	drawsBackground = YES;
 	drawsGradientSelection = NO;
-	alternatingRowColor = [NSColor colorWithCalibratedRed:(237.0f/255.0f) green:(243.0f/255.0f) blue:(254.0f/255.0f) alpha:1.0f];
+	alternatingRowColor = [NSColor colorWithCalibratedRed:(237.0f / 255.0f)
+													green:(243.0f / 255.0f)
+													 blue:(254.0f / 255.0f)
+													alpha:1.0f];
 }
 
 - (void)dealloc
-{
+{}
 
-}
-
-
-//Configuring ----------------------------------------------------------------------
+// Configuring ----------------------------------------------------------------------
 
 - (void)setDrawsGradientSelection:(BOOL)inDrawsGradientSelection
 {
@@ -81,7 +81,7 @@
 	return drawsGradientSelection;
 }
 
-//Set the alternating row color
+// Set the alternating row color
 - (void)setAlternatingRowColor:(NSColor *)color
 {
 	if (color != alternatingRowColor) {
@@ -89,22 +89,24 @@
 		[self setNeedsDisplay:YES];
 	}
 }
-- (NSColor *)alternatingRowColor{
+- (NSColor *)alternatingRowColor
+{
 	return alternatingRowColor;
 }
 
-//Toggle drawing of our background (Including the alternating grid)
-//Set this to NO if cells are going to take responsibility for drawing the background or grid
+// Toggle drawing of our background (Including the alternating grid)
+// Set this to NO if cells are going to take responsibility for drawing the background or grid
 - (void)setDrawsBackground:(BOOL)inDraw
 {
 	drawsBackground = inDraw;
 	[self setNeedsDisplay:YES];
 }
-- (BOOL)drawsBackground{
+- (BOOL)drawsBackground
+{
 	return drawsBackground;
 }
 
-//Returns the color which will be drawn behind the specified row
+// Returns the color which will be drawn behind the specified row
 - (NSColor *)backgroundColorForRow:(NSInteger)row
 {
 	return ((row % 2) ? [self backgroundColor] : [self alternatingRowColor]);
@@ -112,26 +114,27 @@
 
 #pragma mark Drawing
 
-//Draw the alternating colors and grid below the "bottom" of the outlineview
+// Draw the alternating colors and grid below the "bottom" of the outlineview
 - (void)drawAlternatingRowsInRect:(NSRect)rect
 {
-	if (!drawsBackground || ![self usesAlternatingRowBackgroundColors]) 
-	    return;
+	if (!drawsBackground || ![self usesAlternatingRowBackgroundColors])
+		return;
 
-	unsigned	rectNumber = 0;
-	
-	//Setup
+	unsigned rectNumber = 0;
+
+	// Setup
 	NSInteger numberOfRows = [self numberOfRows];
 	CGFloat rowHeight = [self rowHeight];
-    
-	NSRectArray gridRects = (NSRectArray)alloca(sizeof(NSRect) * (numberOfRows + ((NSInteger)round(((rect.size.height / rowHeight) / 2) + 0.5f))));
+
+	NSRectArray gridRects = (NSRectArray)alloca(
+		sizeof(NSRect) * (numberOfRows + ((NSInteger)round(((rect.size.height / rowHeight) / 2) + 0.5f))));
 	for (unsigned row = 0; row < numberOfRows; row += 2) {
 		if (row < numberOfRows) {
-			NSRect	thisRect = [self rectOfRow:row];
-			if (NSIntersectsRect(thisRect, rect)) { 
+			NSRect thisRect = [self rectOfRow:row];
+			if (NSIntersectsRect(thisRect, rect)) {
 				gridRects[rectNumber++] = thisRect;
 			} else {
-				NSLog(@"Not drawing because %@ is not in %@",NSStringFromRect(thisRect),NSStringFromRect(rect));
+				NSLog(@"Not drawing because %@ is not in %@", NSStringFromRect(thisRect), NSStringFromRect(rect));
 			}
 		}
 	}
@@ -157,24 +160,24 @@
 {
 	NSIndexSet *indices = [self selectedRowIndexes];
 	NSUInteger bufSize = [indices count];
-	
-	if (drawsGradientSelection && bufSize > 0 && [[self window] isKeyWindow] && ([[self window] firstResponder] == self)) {
+
+	if (drawsGradientSelection && bufSize > 0 && [[self window] isKeyWindow] &&
+		([[self window] firstResponder] == self)) {
 		NSUInteger *buf = malloc(bufSize * sizeof(NSUInteger));
 		NSUInteger i = 0, j = 0;
 
 		NSGradient *gradient = [NSGradient selectedControlGradient];
-		
-		NSRange range = NSMakeRange([indices firstIndex], ([indices lastIndex]-[indices firstIndex]) + 1);
+
+		NSRange range = NSMakeRange([indices firstIndex], ([indices lastIndex] - [indices firstIndex]) + 1);
 		[indices getIndexes:buf maxCount:bufSize inIndexRange:&range];
-		
+
 		NSRect *selectionLineRects = (NSRect *)malloc(sizeof(NSRect) * bufSize);
-		
+
 		while (i < bufSize) {
 			NSUInteger startIndex = buf[i];
 			NSUInteger lastIndex = buf[i];
 
-			while ((i + 1 < bufSize) &&
-				   (buf[i + 1] == lastIndex + 1)){
+			while ((i + 1 < bufSize) && (buf[i + 1] == lastIndex + 1)) {
 				i++;
 				lastIndex++;
 			}
@@ -190,27 +193,27 @@
 				}
 
 				[gradient drawInRect:thisRect angle:90.0f];
-				
-				//Draw a line at the light side, to make it look a lot cleaner
+
+				// Draw a line at the light side, to make it look a lot cleaner
 				thisRect.size.height = 1;
-				selectionLineRects[j++] = thisRect;			
+				selectionLineRects[j++] = thisRect;
 			}
 
-			i++;		
+			i++;
 		}
 
 		[[NSColor alternateSelectedControlColor] set];
 		NSRectFillListUsingOperation(selectionLineRects, j, NSCompositeSourceOver);
-		
+
 		free(buf);
 		free(selectionLineRects);
-	
+
 	} else {
 		[super highlightSelectionInClipRect:clipRect];
 	}
 }
 
-//Override to prevent drawing glitches; otherwise, the cell will try to draw a highlight, too
+// Override to prevent drawing glitches; otherwise, the cell will try to draw a highlight, too
 - (id)_highlightColorForCell:(NSCell *)cell
 {
 	if (drawsGradientSelection && [[self window] isKeyWindow] && ([[self window] firstResponder] == self)) {
@@ -224,8 +227,8 @@
 
 - (void)drawGridInClipRect:(NSRect)rect
 {
-    if (drawsBackground && [self usesAlternatingRowBackgroundColors]) {
-		//We do our grid drawing later
+	if (drawsBackground && [self usesAlternatingRowBackgroundColors]) {
+		// We do our grid drawing later
 	} else {
 		[super drawGridInClipRect:rect];
 	}
@@ -233,21 +236,21 @@
 
 - (void)_drawGridInClipRect:(NSRect)rect
 {
-    NSEnumerator	*enumerator;
-    NSTableColumn	*column;
-    CGFloat		xPos = 0.5f;
-    CGFloat			intercellWidth = [self intercellSpacing].width;
-    
-    [[self gridColor] set];
-    [NSBezierPath setDefaultLineWidth:1.0f];
+	NSEnumerator *enumerator;
+	NSTableColumn *column;
+	CGFloat xPos = 0.5f;
+	CGFloat intercellWidth = [self intercellSpacing].width;
 
-    enumerator = [[self tableColumns] objectEnumerator];
-    while ((column = [enumerator nextObject])) {
-        xPos += [column width] + intercellWidth;
+	[[self gridColor] set];
+	[NSBezierPath setDefaultLineWidth:1.0f];
 
-        [NSBezierPath strokeLineFromPoint:NSMakePoint(xPos, rect.origin.y)
-                                  toPoint:NSMakePoint(xPos, rect.origin.y + rect.size.height)];
-    }
+	enumerator = [[self tableColumns] objectEnumerator];
+	while ((column = [enumerator nextObject])) {
+		xPos += [column width] + intercellWidth;
+
+		[NSBezierPath strokeLineFromPoint:NSMakePoint(xPos, rect.origin.y)
+								  toPoint:NSMakePoint(xPos, rect.origin.y + rect.size.height)];
+	}
 }
 
 @end

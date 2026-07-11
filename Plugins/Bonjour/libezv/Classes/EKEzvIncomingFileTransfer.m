@@ -45,7 +45,7 @@ typedef struct AppleSingleEntry AppleSingleEntry;
 
 struct AppleSingleFinderInfo {
 	struct FileInfo finderInfo;
-	struct FXInfo extendedFinderInfo; 
+	struct FXInfo extendedFinderInfo;
 };
 typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
@@ -58,10 +58,10 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	[encodedDownloads release];
 	[super dealloc];
 }
-- (void) startDownload
+- (void)startDownload
 {
-	currentDownloads = [[NSMutableArray alloc] initWithCapacity: 10];
-	encodedDownloads = [[NSMutableArray alloc] initWithCapacity: 10];
+	currentDownloads = [[NSMutableArray alloc] initWithCapacity:10];
+	encodedDownloads = [[NSMutableArray alloc] initWithCapacity:10];
 	if (type == EKEzvFile_Transfer) {
 		[self downloadFile];
 	} else if (type == EKEzvDirectory_Transfer) {
@@ -70,26 +70,28 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		[[[manager client] client] reportError:@"Don't know what type of item we are downloading" ofLevel:AWEzvError];
 		[[[manager client] client] remoteCanceledFileTransfer:self];
 	}
-
 }
 
-- (void) cancelDownload
+- (void)cancelDownload
 {
 	if ([currentDownloads count] > 0) {
 		NSURLDownload *download;
-		for ( download in currentDownloads) {
+		for (download in currentDownloads) {
 			[download cancel];
 		}
-		[currentDownloads release]; currentDownloads = nil;
-		[encodedDownloads release]; encodedDownloads = nil;
+		[currentDownloads release];
+		currentDownloads = nil;
+		[encodedDownloads release];
+		encodedDownloads = nil;
 	}
 }
-- (void) downloadFolder
+- (void)downloadFolder
 {
 	/*We need to first get the xml for the layout */
 	NSURL *URL = [NSURL URLWithString:url];
 	NSError *error = nil;
-	NSXMLDocument *documentRoot = [[[NSXMLDocument alloc] initWithContentsOfURL:URL options:0 error:&error] autorelease];
+	NSXMLDocument *documentRoot = [[[NSXMLDocument alloc] initWithContentsOfURL:URL options:0
+																		  error:&error] autorelease];
 	if (error) {
 		[[[[self manager] client] client] remoteCanceledFileTransfer:self];
 		return;
@@ -113,47 +115,49 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	}
 
 	if (![fileManager createDirectoryAtPath:localFilename
-                withIntermediateDirectories:YES
-                                 attributes:[self posixAttributesFromString:posixFlags]
-                                      error:NULL]) {
-		[[[[self manager] client] client] reportError:@"There was an error creating the root directory for the file tranfer" ofLevel:AWEzvError];
+				withIntermediateDirectories:YES
+								 attributes:[self posixAttributesFromString:posixFlags]
+									  error:NULL]) {
+		[[[[self manager] client] client]
+			reportError:@"There was an error creating the root directory for the file tranfer"
+				ofLevel:AWEzvError];
 		[[[[self manager] client] client] remoteCanceledFileTransfer:self];
 		return;
 	}
-
 
 	bool folderSuccess = YES;
 	bool fileSuccess = YES;
 
 	itemsToDownload = [NSMutableDictionary dictionaryWithCapacity:10];
-	permissionsToApply = [[NSMutableDictionary  alloc] initWithCapacity:10];
-		
+	permissionsToApply = [[NSMutableDictionary alloc] initWithCapacity:10];
+
 	/*Call downloadFolder:path:url: for dir children */
 	for (NSXMLElement *nextElement in [root elementsForName:@"dir"]) {
 		folderSuccess = [self downloadFolder:nextElement path:localFilename url:[self url]];
 	}
-	
+
 	/*Call downloadFolder:path:url: for file children */
 	for (NSXMLElement *nextElement in [root elementsForName:@"file"]) {
 		fileSuccess = [self downloadFolder:nextElement path:localFilename url:[self url]];
 	}
-	
+
 	if (folderSuccess && fileSuccess) {
 
 		/*Now go through itemsToDownload and download the files*/
 		NSURL *downloadURL;
-		for (NSString* path in [itemsToDownload keyEnumerator]) {
+		for (NSString *path in [itemsToDownload keyEnumerator]) {
 			/* code that uses the returned key */
 			downloadURL = [itemsToDownload valueForKey:path];
 			if (downloadURL) {
 				[self downloadURL:downloadURL toPath:path];
 				downloadURL = nil;
 			} else {
-				[[[[self manager] client] client] reportError:[NSString stringWithFormat:@"Error downloading file from %@ to %@", downloadURL, path] ofLevel:AWEzvError];
+				[[[[self manager] client] client]
+					reportError:[NSString stringWithFormat:@"Error downloading file from %@ to %@", downloadURL, path]
+						ofLevel:AWEzvError];
 				[[[[self manager] client] client] remoteCanceledFileTransfer:self];
 			}
 		}
-
 
 		[permissionsToApply retain];
 	} else {
@@ -167,19 +171,21 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	/*rootPath will be the path -without- root's name appended */
 	if ([[root name] isEqualToString:@"file"]) {
 		/*We have a file so get it's info and then download it*/
-	//	NSString *mimeType = [[root attributeForName:@"mimetype"] objectValue];
+		//	NSString *mimeType = [[root attributeForName:@"mimetype"] objectValue];
 		NSString *posixFlags = [[root attributeForName:@"posixflags"] objectValue];
-	//	NSString *hfsFlags = [[root attributeForName:@"hfsflags"] objectValue];
-	//	NSString *size = [[root attributeForName:@"size"] objectValue];
+		//	NSString *hfsFlags = [[root attributeForName:@"hfsflags"] objectValue];
+		//	NSString *size = [[root attributeForName:@"size"] objectValue];
 
 		NSArray *nameChildren = [root elementsForName:@"name"];
 		if (!nameChildren) {
-			[[[[self manager] client] client] reportError:@"Could not download file because there is no name" ofLevel:AWEzvError];
+			[[[[self manager] client] client] reportError:@"Could not download file because there is no name"
+												  ofLevel:AWEzvError];
 			return NO;
 		}
 		NSString *name = [[nameChildren objectAtIndex:0] stringValue];
 		NSString *newPath = [rootPath stringByAppendingPathComponent:name];
-		NSString *newURL = [rootURL stringByAppendingPathComponent:[name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+		NSString *newURL = [rootURL
+			stringByAppendingPathComponent:[name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 
 		/*Download file to newPath from newURL*/
 		[itemsToDownload setValue:[NSURL URLWithString:newURL] forKey:newPath];
@@ -194,7 +200,8 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		/*Find the name of the directory*/
 		NSArray *nameChildren = [root elementsForName:@"name"];
 		if (!nameChildren) {
-			[[[[self manager] client] client] reportError:@"Could not download directory because there was no name." ofLevel: AWEzvError];
+			[[[[self manager] client] client] reportError:@"Could not download directory because there was no name."
+												  ofLevel:AWEzvError];
 			return NO;
 		}
 		NSString *name = [[nameChildren objectAtIndex:0] stringValue];
@@ -204,19 +211,20 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		NSString *newPath = [rootPath stringByAppendingPathComponent:name];
 
 		if (![defaultManager createDirectoryAtPath:newPath
-                       withIntermediateDirectories:YES
-                                        attributes:[self posixAttributesFromString:posixFlags]
-                                             error:NULL]) {
-			[[[[self manager] client] client] reportError:@"Could not create directory for transfer." ofLevel: AWEzvError];
-			
-			return NO;	
-		}
+					   withIntermediateDirectories:YES
+										attributes:[self posixAttributesFromString:posixFlags]
+											 error:NULL]) {
+			[[[[self manager] client] client] reportError:@"Could not create directory for transfer."
+												  ofLevel:AWEzvError];
 
+			return NO;
+		}
 
 		bool folderSuccess = YES;
 		bool fileSuccess = YES;
 		/* Now call downloadFolder for dir and file children */
-		NSString *newURL = [rootURL stringByAppendingPathComponent:[name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+		NSString *newURL = [rootURL
+			stringByAppendingPathComponent:[name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 
 		for (NSXMLElement *nextElement in [root elementsForName:@"dir"]) {
 			folderSuccess = [self downloadFolder:nextElement path:newPath url:newURL];
@@ -226,13 +234,15 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		}
 		return fileSuccess && folderSuccess;
 	} else {
-		[[[[self manager] client] client] reportError:@"Error, attempting to download something which is not a directory or a file." ofLevel: AWEzvError];
-		
+		[[[[self manager] client] client]
+			reportError:@"Error, attempting to download something which is not a directory or a file."
+				ofLevel:AWEzvError];
+
 		return NO;
 	}
 	return NO;
 }
-- (void) downloadFile
+- (void)downloadFile
 {
 	[self downloadURL:[NSURL URLWithString:url] toPath:localFilename];
 }
@@ -255,16 +265,16 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		[attributes setValue:number forKey:@"NSFilePosixPermissions"];
 	}
 	return attributes;
-
 }
-- (BOOL) applyPermissions
+- (BOOL)applyPermissions
 {
 	/*Now go through and apply the permissions*/
 	if (!permissionsToApply) {
 		return YES;
 	}
 	if ([permissionsToApply count] <= 0) {
-		[permissionsToApply release]; permissionsToApply = nil;
+		[permissionsToApply release];
+		permissionsToApply = nil;
 		return YES;
 	}
 	NSEnumerator *enumerator = [permissionsToApply keyEnumerator];
@@ -273,22 +283,29 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	NSFileManager *defaultManager = [NSFileManager defaultManager];
 	while ((path = [enumerator nextObject])) {
 		/* code that uses the returned key */
-		attributes = [permissionsToApply valueForKey:path];		
+		attributes = [permissionsToApply valueForKey:path];
 		if (![defaultManager setAttributes:attributes ofItemAtPath:path error:NULL]) {
-			[[[manager client] client] reportError:[NSString stringWithFormat:@"Error applying permissions of %@ to file at %@", attributes, path] ofLevel: AWEzvError];
+			[[[manager client] client]
+				reportError:[NSString
+								stringWithFormat:@"Error applying permissions of %@ to file at %@", attributes, path]
+					ofLevel:AWEzvError];
 			[[[manager client] client] remoteCanceledFileTransfer:self];
-			[permissionsToApply release]; permissionsToApply = nil;
+			[permissionsToApply release];
+			permissionsToApply = nil;
 			return NO;
 		}
 	}
-	[permissionsToApply release]; permissionsToApply = nil;
+	[permissionsToApply release];
+	permissionsToApply = nil;
 	return YES;
 }
 - (void)downloadURL:(NSURL *)downloadURL toPath:(NSString *)path
 {
 	/* This should be easy.  We have a url and a location so let's download things to a location! */
 
-	NSMutableURLRequest *theRequest=[NSMutableURLRequest requestWithURL:downloadURL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0];
+	NSMutableURLRequest *theRequest = [NSMutableURLRequest requestWithURL:downloadURL
+															  cachePolicy:NSURLRequestUseProtocolCachePolicy
+														  timeoutInterval:60.0];
 	NSString *value = @"AppleSingle";
 	[theRequest addValue:value forHTTPHeaderField:@"Accept-Encoding"];
 	[theRequest setHTTPShouldHandleCookies:NO];
@@ -302,10 +319,9 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		[theDownload setDestination:path allowOverwrite:YES];
 	} else {
 		// inform the user that the download could not be made
-		[[[manager client] client] reportError:@"Error starting download of file transfer." ofLevel: AWEzvError];
+		[[[manager client] client] reportError:@"Error starting download of file transfer." ofLevel:AWEzvError];
 		[[[manager client] client] remoteCanceledFileTransfer:self];
 	}
-
 }
 
 #pragma mark NSURLDownload Delegate Methods
@@ -313,9 +329,10 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 {
 	[[[manager client] client] remoteCanceledFileTransfer:self];
 	// inform the user
-	[[[manager client] client] reportError:[NSString stringWithFormat: @"Download failed! Error - %@ %@",
-	         [error localizedDescription],
-	         [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]] ofLevel: AWEzvError];
+	[[[manager client] client]
+		reportError:[NSString stringWithFormat:@"Download failed! Error - %@ %@", [error localizedDescription],
+											   [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]]
+			ofLevel:AWEzvError];
 	[currentDownloads removeObject:download];
 }
 - (void)downloadDidFinish:(NSURLDownload *)download
@@ -326,18 +343,20 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	NSURL *itemURL = [[download request] URL];
 	if ([encodedDownloads containsObject:itemURL]) {
 		NSString *itemPath = [self urlToPath:itemURL];
-		BOOL decoded = [self decodeAppleSingleAtPath: itemPath];
+		BOOL decoded = [self decodeAppleSingleAtPath:itemPath];
 		if (!decoded) {
-			[[[manager client] client] remoteCanceledFileTransfer: self];
+			[[[manager client] client] remoteCanceledFileTransfer:self];
 		}
 	}
-	percentComplete=((float)bytesReceived/(float)size);
+	percentComplete = ((float)bytesReceived / (float)size);
 	BOOL success = TRUE;
 	if (percentComplete >= 1.0) {
 		success = [self applyPermissions];
 	}
 	if (success)
-		[[[manager client] client] updateProgressForFileTransfer:self percent:[NSNumber numberWithFloat:percentComplete] bytesSent:[NSNumber numberWithLongLong:bytesReceived]];
+		[[[manager client] client] updateProgressForFileTransfer:self
+														 percent:[NSNumber numberWithFloat:percentComplete]
+													   bytesSent:[NSNumber numberWithLongLong:bytesReceived]];
 
 	[currentDownloads removeObject:download];
 }
@@ -345,18 +364,20 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 {
 	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
 	if ([(NSString *)[headers objectForKey:@"Content-Encoding"] isEqualToString:@"AppleSingle"]) {
-		[encodedDownloads addObject: [[download request] URL]];
+		[encodedDownloads addObject:[[download request] URL]];
 	}
 }
 - (void)download:(NSURLDownload *)download didReceiveDataOfLength:(NSUInteger)length
 {
-	bytesReceived=bytesReceived+length;
-	percentComplete=((float)bytesReceived/(float)size);
+	bytesReceived = bytesReceived + length;
+	percentComplete = ((float)bytesReceived / (float)size);
 	if (percentComplete >= 1.0) {
 		/*This will prevent Adium from believing that the download is complete before possible decoding */
 		return;
 	}
-	[[[manager client] client] updateProgressForFileTransfer:self percent:[NSNumber numberWithFloat:percentComplete] bytesSent:[NSNumber numberWithLongLong:bytesReceived]];
+	[[[manager client] client] updateProgressForFileTransfer:self
+													 percent:[NSNumber numberWithFloat:percentComplete]
+												   bytesSent:[NSNumber numberWithLongLong:bytesReceived]];
 }
 
 #pragma mark Encoding Helper Methods
@@ -383,7 +404,9 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 {
 	/*Get NSData from path*/
 	if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-		[[[manager client] client] reportError:@"AppleSingle: Could not apply permissions to file because it does not exist." ofLevel: AWEzvError];
+		[[[manager client] client]
+			reportError:@"AppleSingle: Could not apply permissions to file because it does not exist."
+				ofLevel:AWEzvError];
 		return NO;
 	}
 	NSData *data = [[NSFileManager defaultManager] contentsAtPath:path];
@@ -398,9 +421,8 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	BOOL resourceExist = NO;
 	offset = 0;
 
-
-	if (length < APPLE_SINGLE_HEADER_LENGTH ) {
-		[[[manager client] client] reportError:@"AppleSingle: Invalid AppleSingle File." ofLevel: AWEzvError];
+	if (length < APPLE_SINGLE_HEADER_LENGTH) {
+		[[[manager client] client] reportError:@"AppleSingle: Invalid AppleSingle File." ofLevel:AWEzvError];
 		return NO;
 	}
 	[data getBytes:&header length:APPLE_SINGLE_HEADER_LENGTH];
@@ -412,19 +434,20 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	header.numberEntries = ntohs(header.numberEntries);
 
 	if (!(header.magicNumber == APPLE_SINGLE_MAGIC_NUMBER && header.versionNumber == APPLE_SINGLE_VERSION_NUMBER)) {
-		[[[manager client] client] reportError:@"AppleSingle: Supposed AppleSingle file is not AppleSingle." ofLevel: AWEzvError];
+		[[[manager client] client] reportError:@"AppleSingle: Supposed AppleSingle file is not AppleSingle."
+									   ofLevel:AWEzvError];
 		return NO;
 	}
 	/* The magicNumber and versionNumber are correct so we have an AppleSingle file */
 	/*Now let's read the entries */
-	for (unsigned i = 0; i < header.numberEntries; ++i)
-	{
+	for (unsigned i = 0; i < header.numberEntries; ++i) {
 		if (length < (offset + sizeof(entry))) {
-			[[[manager client] client] reportError:@"AppleSingle: Not enough reoom for declared number of entries." ofLevel: AWEzvError];
-			
+			[[[manager client] client] reportError:@"AppleSingle: Not enough reoom for declared number of entries."
+										   ofLevel:AWEzvError];
+
 			return NO;
 		}
-		[data getBytes:&entry range: NSMakeRange(offset, sizeof(entry))];
+		[data getBytes:&entry range:NSMakeRange(offset, sizeof(entry))];
 		offset += sizeof(entry);
 
 		/* switch items to host from network byteorder*/
@@ -433,81 +456,80 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		entry.length = ntohl(entry.length);
 		/*Validate the entry*/
 		if (entry.entryID == 0) {
-			[[[manager client] client] reportError:@"AppleSingle: Invalid Entry ID of value 0." ofLevel: AWEzvError];
+			[[[manager client] client] reportError:@"AppleSingle: Invalid Entry ID of value 0." ofLevel:AWEzvError];
 			return NO;
 		}
 
 		if (entry.offset > length) {
-			[[[manager client] client] reportError:@"AppleSingle: Invalid AppleSingle Encoding." ofLevel: AWEzvError];
-			
+			[[[manager client] client] reportError:@"AppleSingle: Invalid AppleSingle Encoding." ofLevel:AWEzvError];
+
 			return NO;
 		}
 
 		if ((entry.offset + entry.length) > length) {
-			[[[manager client] client] reportError:@"AppleSingle: Invalid AppleSingle Encoding." ofLevel: AWEzvError];
+			[[[manager client] client] reportError:@"AppleSingle: Invalid AppleSingle Encoding." ofLevel:AWEzvError];
 			return NO;
 		}
-		switch(entry.entryID) {
-			case AS_ENTRY_DATA_FORK:
-				//NSLog(@"AS_ENTRY_DATA_FORK");
-				resourceRange = NSMakeRange(entry.offset, entry.length);
-				resourceExist = YES;
-				break;
-			case AS_ENTRY_RESOURCE_FORK:
-				//NSLog(@"AS_ENTRY_RESOURCE_FORK");
-				resourceRange = NSMakeRange(entry.offset, entry.length);
-				resourceExist = YES;
-				break;
-			case AS_ENTRY_FINDER_INFO:
-				//NSLog(@"AS_ENTRY_FINDER_INFO");
-				[data getBytes:&info range:NSMakeRange(entry.offset, entry.length)];
-				info.finderInfo.finderFlags = ntohs(info.finderInfo.finderFlags);
-				break;
-			case AS_ENTRY_REAL_NAME:
-				// NSLog(@"AS_ENTRY_REAL_NAME");
-				break;
-			case AS_ENTRY_COMMENT:
-				// NSLog(@"AS_ENTRY_COMMENT");
-				break;
-			case AS_ENTRY_ICON_BW:
-				// NSLog(@"AS_ENTRY_ICON_BW");
-				break;
-			case AS_ENTRY_ICON_COLOR:
-				// NSLog(@"AS_ENTRY_ICON_COLOR");
-				break;
-			case AS_ENTRY_DATE_INFO:
-				// NSLog(@"AS_ENTRY_DATE_INFO");
-				break;
-			case AS_ENTRY_MACINTOSH_FILE_INFO:
-				// NSLog(@"AS_ENTRY_MACINTOSH_FILE_INFO");
-				break;
-			case AS_ENTRY_PRODOS_FILE_INFO:
-				// NSLog(@"AS_ENTRY_PRODOS_FILE_INFO");
-				break;
-			case AS_ENTRY_MSDOS_FILE_INFO:
-				// NSLog(@"AS_ENTRY_MSDOS_FILE_INFO");
-				break;
-			case AS_ENTRY_AFP_SHORT_NAME:
-				// NSLog(@"AS_ENTRY_AFP_SHORT_NAME");
-				break;
-			case AS_ENTRY_AFP_FILE_INFO:
-				// NSLog(@"AS_ENTRY_AFP_FILE_INFO");
-				break;
-			case AS_ENTRY_AFP_DIRECTORY_ID:
-				// NSLog(@"AS_ENTRY_AFP_DIRECTORY_ID");
-				break;
-			default:
-				// NSLog(@"default");
-				break;
+		switch (entry.entryID) {
+		case AS_ENTRY_DATA_FORK:
+			// NSLog(@"AS_ENTRY_DATA_FORK");
+			resourceRange = NSMakeRange(entry.offset, entry.length);
+			resourceExist = YES;
+			break;
+		case AS_ENTRY_RESOURCE_FORK:
+			// NSLog(@"AS_ENTRY_RESOURCE_FORK");
+			resourceRange = NSMakeRange(entry.offset, entry.length);
+			resourceExist = YES;
+			break;
+		case AS_ENTRY_FINDER_INFO:
+			// NSLog(@"AS_ENTRY_FINDER_INFO");
+			[data getBytes:&info range:NSMakeRange(entry.offset, entry.length)];
+			info.finderInfo.finderFlags = ntohs(info.finderInfo.finderFlags);
+			break;
+		case AS_ENTRY_REAL_NAME:
+			// NSLog(@"AS_ENTRY_REAL_NAME");
+			break;
+		case AS_ENTRY_COMMENT:
+			// NSLog(@"AS_ENTRY_COMMENT");
+			break;
+		case AS_ENTRY_ICON_BW:
+			// NSLog(@"AS_ENTRY_ICON_BW");
+			break;
+		case AS_ENTRY_ICON_COLOR:
+			// NSLog(@"AS_ENTRY_ICON_COLOR");
+			break;
+		case AS_ENTRY_DATE_INFO:
+			// NSLog(@"AS_ENTRY_DATE_INFO");
+			break;
+		case AS_ENTRY_MACINTOSH_FILE_INFO:
+			// NSLog(@"AS_ENTRY_MACINTOSH_FILE_INFO");
+			break;
+		case AS_ENTRY_PRODOS_FILE_INFO:
+			// NSLog(@"AS_ENTRY_PRODOS_FILE_INFO");
+			break;
+		case AS_ENTRY_MSDOS_FILE_INFO:
+			// NSLog(@"AS_ENTRY_MSDOS_FILE_INFO");
+			break;
+		case AS_ENTRY_AFP_SHORT_NAME:
+			// NSLog(@"AS_ENTRY_AFP_SHORT_NAME");
+			break;
+		case AS_ENTRY_AFP_FILE_INFO:
+			// NSLog(@"AS_ENTRY_AFP_FILE_INFO");
+			break;
+		case AS_ENTRY_AFP_DIRECTORY_ID:
+			// NSLog(@"AS_ENTRY_AFP_DIRECTORY_ID");
+			break;
+		default:
+			// NSLog(@"default");
+			break;
 		}
 	}
 
 	/*Now we can write the date and apply the attributes */
 	if (resourceExist) {
-		NSData *decodedData = [data subdataWithRange: resourceRange];
-		if (![decodedData writeToFile: path atomically:YES]) {
-			[[[manager client] client] reportError:@"AppleSingle: Could not write decoded data." ofLevel: AWEzvError];
-			
+		NSData *decodedData = [data subdataWithRange:resourceRange];
+		if (![decodedData writeToFile:path atomically:YES]) {
+			[[[manager client] client] reportError:@"AppleSingle: Could not write decoded data." ofLevel:AWEzvError];
 		}
 		/*Now apply attributes */
 		FSRef ref;
@@ -515,21 +537,21 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		Boolean isDirectory = NO;
 		err = FSPathMakeRef((const UInt8 *)[path fileSystemRepresentation], &ref, &isDirectory);
 		if (err != noErr) {
-			[[[manager client] client] reportError:@"AppleSingle: Error creating FSRef" ofLevel: AWEzvError];
-			
+			[[[manager client] client] reportError:@"AppleSingle: Error creating FSRef" ofLevel:AWEzvError];
+
 			return NO;
 		}
 		struct FSCatalogInfo catalogInfo;
 		memset(&catalogInfo, 0, sizeof(catalogInfo));
 		Size byteCount = sizeof(info.finderInfo);
-		if(byteCount > 0)
-		    memmove(&(info.finderInfo), &(catalogInfo.finderInfo), byteCount);
+		if (byteCount > 0)
+			memmove(&(info.finderInfo), &(catalogInfo.finderInfo), byteCount);
 		OSErr error = FSSetCatalogInfo(/*(const FSRef *)*/ &ref,
-		                               /*(FSCatalogInfoBitmap)*/ (kFSCatInfoFinderInfo),
-		                               /*(const FSCatalogInfo *)*/ &catalogInfo);
+									   /*(FSCatalogInfoBitmap)*/ (kFSCatInfoFinderInfo),
+									   /*(const FSCatalogInfo *)*/ &catalogInfo);
 		if (error != noErr) {
-			[[[manager client] client] reportError:@"AppleSingle: Error setting catalog info." ofLevel: AWEzvError];
-			
+			[[[manager client] client] reportError:@"AppleSingle: Error setting catalog info." ofLevel:AWEzvError];
+
 			return NO;
 		}
 	}

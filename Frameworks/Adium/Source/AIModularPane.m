@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -18,109 +18,101 @@
 
 @implementation AIModularPane
 
-//Return a new modular pane
+// Return a new modular pane
 + (AIModularPane *)modularPane
 {
-    return [[[self alloc] init] autorelease];
+	return [[[self alloc] init] autorelease];
 }
 
-//Return a new modular pane, passing plugin
+// Return a new modular pane, passing plugin
 + (AIModularPane *)modularPaneForPlugin:(id)inPlugin
 {
-    return [[[self alloc] initForPlugin:inPlugin] autorelease];
+	return [[[self alloc] initForPlugin:inPlugin] autorelease];
 }
 
-//Init, passing plugin
+// Init, passing plugin
 - (id)initForPlugin:(id)inPlugin
 {
-    plugin = inPlugin;
-    return [self init];
+	plugin = inPlugin;
+	return [self init];
 }
 
-//Init
+// Init
 - (id)init
 {
-    if ((self = [super init]))
-	{
+	if ((self = [super init])) {
 		view = nil;
 	}
-    
-    return self;
+
+	return self;
 }
 
-//Compare to another category view (for sorting on the preference window)
+// Compare to another category view (for sorting on the preference window)
 - (NSComparisonResult)compare:(AIModularPane *)inPane
 {
-    return [[self label] caseInsensitiveCompare:[inPane label]];
+	return [[self label] caseInsensitiveCompare:[inPane label]];
 }
 
-//Returns our view
+// Returns our view
 - (NSView *)view
 {
-    if (!view) {
-        //Load and configure our view
-        [NSBundle loadNibNamed:[self nibName] owner:self];
-        [self viewDidLoad];
+	if (!view) {
+		// Load and configure our view
+		[NSBundle loadNibNamed:[self nibName] owner:self];
+		[self viewDidLoad];
 		[self localizePane];
-		if (![self resizable]) [view setAutoresizingMask:(NSViewMaxYMargin)];
-    }
-    
-    return view;
+		if (![self resizable])
+			[view setAutoresizingMask:(NSViewMaxYMargin)];
+	}
+
+	return view;
 }
 
-//Close our view
+// Close our view
 - (void)closeView
 {
 	if (view) {
 		[self viewWillClose];
-		[view release]; view = nil;
+		[view release];
+		view = nil;
 	}
 }
 
-
-//For subclasses -------------------------------------------------------------------------------
-//Pane label
+// For subclasses -------------------------------------------------------------------------------
+// Pane label
 - (NSString *)label
 {
 	return @"";
 }
 
-//Nib to load
+// Nib to load
 - (NSString *)nibName
 {
-    return @"";    
+	return @"";
 }
 
-//Configure the preference view
+// Configure the preference view
 - (void)viewDidLoad
-{
-    
-}
+{}
 
 - (void)localizePane
-{
-	
-}
+{}
 
-//Preference view is closing
+// Preference view is closing
 - (void)viewWillClose
-{
-    
-}
+{}
 
-//Apply a changed controls
+// Apply a changed controls
 - (IBAction)changePreference:(id)sender
 {
-    [self configureControlDimming];
+	[self configureControlDimming];
 }
 
-//Configure control dimming
+// Configure control dimming
 - (void)configureControlDimming
-{
-    
-}
+{}
 
-//Resizable
+// Resizable
 - (BOOL)resizable
 {
 	return NO;

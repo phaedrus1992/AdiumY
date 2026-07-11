@@ -1,37 +1,40 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#define Highest_Priority  	0.0f
-#define High_Priority  		0.25f
-#define Medium_Priority  	0.5f
-#define Low_Priority  		0.75f
-#define Lowest_Priority  	1.0f
+#define Highest_Priority 0.0f
+#define High_Priority 0.25f
+#define Medium_Priority 0.5f
+#define Low_Priority 0.75f
+#define Lowest_Priority 1.0f
 
 @class AIMutableOwnerArray;
 
-//Delegate protocol for documentation purposes; it is not necessary to declare conformance to this protocol.
+// Delegate protocol for documentation purposes; it is not necessary to declare conformance to this protocol.
 @protocol AIMutableOwnerArrayDelegate
-- (void)mutableOwnerArray:(AIMutableOwnerArray *)inArray didSetObject:(id)anObject withOwner:(id)inOwner priorityLevel:(float)priority;
+- (void)mutableOwnerArray:(AIMutableOwnerArray *)inArray
+			 didSetObject:(id)anObject
+				withOwner:(id)inOwner
+			priorityLevel:(float)priority;
 @end
 
 /*!
  * @class AIMutableOwnerArray
  * @brief An container object that keeps track of who owns each of its objects.
  *
- * Every object in the \c AIMutableOwnerArray has an associated owner.  The best use for this class is when 
+ * Every object in the \c AIMutableOwnerArray has an associated owner.  The best use for this class is when
  * multiple pieces of code may be trying to control the same thing.  For instance, if there are several events that can
  * cause something to change colors, by using an owner-array it is possible to prevent conflicts and determine an
  * average color based on all the values.  It's also easy for a specific owner to remove the value they contributed,
@@ -43,14 +46,14 @@
  * Lower numbers have higher priority.
  */
 @interface AIMutableOwnerArray : NSObject <NSFastEnumeration> {
-	NSMutableArray	*contentArray;
-	NSMutableArray	*ownerArray;
-	NSMutableArray	*priorityArray;
-	
-	BOOL			valueIsSortedToFront;
-	
-	id				delegate;
-	BOOL			delegateRespondsToDidSetObjectWithOwnerPriorityLevel;
+	NSMutableArray *contentArray;
+	NSMutableArray *ownerArray;
+	NSMutableArray *priorityArray;
+
+	BOOL valueIsSortedToFront;
+
+	id delegate;
+	BOOL delegateRespondsToDidSetObjectWithOwnerPriorityLevel;
 }
 
 #pragma mark Value Storage
@@ -68,7 +71,8 @@
  *	<p>Stores an object in the array with a specified owner at a given priority</p>
  *	@param anObject An object to store
  *	@param inOwner The owner of the object
- *  @param priority priority is a float from 0.0 to 1.0, with 0.0 the highest-priority (earliest in the array). Possible preset values are:
+ *  @param priority priority is a float from 0.0 to 1.0, with 0.0 the highest-priority (earliest in the array). Possible
+ * preset values are:
  *			- Highest_Priority
  *			- High_Priority
  *			- Medium_Priority
@@ -84,35 +88,37 @@
  *
  * @result The object with the highest priority, performing no other comparison
  */
-@property (readonly, nonatomic) id objectValue;
+@property(readonly, nonatomic) id objectValue;
 /*!
  * @brief Greatest NSNumber value
  *
  * Assumes the \c AIMutableOwnerArray contains \c NSNumber instances
  * @result Returns the greatest (highest value) contained \c NSNumber value.
  */
-@property (readonly, nonatomic) NSNumber *numberValue;
+@property(readonly, nonatomic) NSNumber *numberValue;
 /*!
  * @brief Greatest integer value
  *
- * Assuming the \c AIMutableOwnerArray contains \c NSNumber instances, returns the \c intValue of the greatest (highest-valued) one.
+ * Assuming the \c AIMutableOwnerArray contains \c NSNumber instances, returns the \c intValue of the greatest
+ * (highest-valued) one.
  * @return  Returns the greatest contained integer value.
  */
-@property (readonly, nonatomic) NSInteger intValue;
+@property(readonly, nonatomic) NSInteger intValue;
 /*!
  * @brief Greatest double value
  *
- * Assuming the \c AIMutableOwnerArray contains \c NSNumber instances, returns the \c doubleValue of the greatest (highest-valued) one.
+ * Assuming the \c AIMutableOwnerArray contains \c NSNumber instances, returns the \c doubleValue of the greatest
+ * (highest-valued) one.
  * @return  Returns the greatest contained double value.
  */
-@property (readonly, nonatomic) double doubleValue;
+@property(readonly, nonatomic) double doubleValue;
 /*!
  * @brief Earliest date
  *
  * Assuming the \c AIMutableOwnerArray contains \c NSDate instances, returns the earliest one.
  * @return  Returns the earliest contained date.
  */
-@property (readonly, nonatomic) NSDate *date;
+@property(readonly, nonatomic) NSDate *date;
 /*!
  * @brief Retrieve object by owner
  *
@@ -121,7 +127,7 @@
  * @return  Returns the object owned by \a inOwner.
  */
 - (id)objectWithOwner:(id)inOwner;
-/*! 
+/*!
  * @brief Retrieve priority by owner
  *
  * Retrieve the priority of the object within the \c AIMutableOwnerArray owned by the specified owner.
@@ -132,12 +138,13 @@
 /*!
  * @brief Retrieve owner by object
  *
- * Retrieve the owner within the \c AIMutableOwnerArray which owns the specified object.  If multiple owners own a single object, returns the one with the highest priority.
+ * Retrieve the owner within the \c AIMutableOwnerArray which owns the specified object.  If multiple owners own a
+ * single object, returns the one with the highest priority.
  * @param anObject An object
  * @return  Returns the owner which owns \a inObject.
  */
 - (id)ownerWithObject:(id)anObject;
-/*! 
+/*!
  * @brief Retrieve priority by object
  *
  * Retrieve the priority of an object within the \c AIMutableOwnerArray.
@@ -147,35 +154,35 @@
 - (float)priorityOfObject:(id)inObject;
 /*!
  * @brief Retrieve enumerator for objects
- * 
+ *
  * Retrieve an \c NSEnumerator for all objects in the \c AIMutableOwnerArray. Order is not guaranteed.
  * @return  Returns \c NSEnumerator for all objects.
  */
-@property (readonly, nonatomic) NSEnumerator *objectEnumerator;
+@property(readonly, nonatomic) NSEnumerator *objectEnumerator;
 /*!
  * @brief Retrieve array of values
- * 
+ *
  * Retrieve an \c NSArray for all objects in the \c AIMutableOwnerArray. Order is not guaranteed.
  * @return  Returns \c NSArray for all objects.
  */
-@property (readonly, nonatomic) NSArray *allValues;
+@property(readonly, nonatomic) NSArray *allValues;
 /*!
  * @brief Retrieve number of objects
- * 
+ *
  * Retrieve the number of objects in the \c AIMutableOwnerArray.
  * @return  Returns an unsigned of the number of objects.
  */
-@property (readonly, nonatomic) NSUInteger count;
+@property(readonly, nonatomic) NSUInteger count;
 
-//Delegation
+// Delegation
 /*!
  * @brief Delegate
- * 
+ *
  * The delegate may implement:<br>
- * <code>- (void)mutableOwnerArray:(AIMutableOwnerArray *)inArray didSetObject:(id)anObject withOwner:(id)inOwner priorityLevel:(float)priority</code><br>
- * to be notified with the \c AIMutableOwnerArray is modified.
+ * <code>- (void)mutableOwnerArray:(AIMutableOwnerArray *)inArray didSetObject:(id)anObject withOwner:(id)inOwner
+ * priorityLevel:(float)priority</code><br> to be notified with the \c AIMutableOwnerArray is modified.
  * @param inDelegate The delegate
  */
-@property (readwrite, nonatomic, weak) id delegate;
+@property(readwrite, nonatomic, weak) id delegate;
 
 @end

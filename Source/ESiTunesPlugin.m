@@ -1,68 +1,72 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-// Thanks to GrowlTunes from the Growl project for demonstrating how to receive notifications when 
+// Thanks to GrowlTunes from the Growl project for demonstrating how to receive notifications when
 // the iTunes track changes.
 
 #import "ESiTunesPlugin.h"
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIToolbarControllerProtocol.h>
 #import "AIStatusController.h"
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIAccount.h>
-#import <AIUtilities/AIAttributedStringAdditions.h>
-#import <AIUtilities/AIToolbarUtilities.h>
-#import <AIUtilities/AIImageAdditions.h>
-#import <AIUtilities/MVMenuButton.h>
-#import <AIUtilities/AIMenuAdditions.h>
-#import <AIUtilities/AIWindowAdditions.h>
-#import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIApplicationAdditions.h>
+#import <AIUtilities/AIAttributedStringAdditions.h>
+#import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIMenuAdditions.h>
+#import <AIUtilities/AIStringAdditions.h>
+#import <AIUtilities/AIToolbarUtilities.h>
+#import <AIUtilities/AIWindowAdditions.h>
+#import <AIUtilities/MVMenuButton.h>
+#import <Adium/AIAccount.h>
+#import <Adium/AIContentControllerProtocol.h>
 #import <Adium/AIHTMLDecoder.h>
+#import <Adium/AIMenuControllerProtocol.h>
 #import <Adium/AIStatus.h>
+#import <Adium/AIToolbarControllerProtocol.h>
 #import <WebKit/WebKit.h>
 
-#define STRING_TRIGGERS_MENU		AILocalizedString(@"Insert iTunes Token", "Label used for edit and contextual menus of iTunes triggers")
-#define STRING_TRIGGERS_TOOLBAR		AILocalizedString(@"iTunes","Label for iTunes toolbar menu item.")
-#define STRING_ALBUM				AILocalizedString(@"Album", "Album of current song")
-#define STRING_ARTIST				AILocalizedString(@"Artist", "Artist of current song")
-#define STRING_COMPOSER				AILocalizedString(@"Composer", "Composer of current song")
-#define STRING_GENRE				AILocalizedString(@"Genre", "Genre of current song")
-#define STRING_STATUS				AILocalizedString(@"Player State", "Playing-status of current song (e.g. paused, playing)")
-#define STRING_TRACK				AILocalizedString(@"Track", "Track name of current song")
-#define STRING_YEAR					AILocalizedString(@"Year", "Year of current song")
-#define	STRING_STORE_URL			AILocalizedString(@"iTunes Music Store Link", "iTUnes Music Store link for current song")
-#define STRING_MUSIC				AILocalizedString(@"Listening Status", "Listening status string (*is listening to XXX by YYY)")
-#define STRING_CURRENT_TRACK		AILocalizedString(@"iTunes Status", "Current track information (Track - Artist)")
+#define STRING_TRIGGERS_MENU                                                                                           \
+	AILocalizedString(@"Insert iTunes Token", "Label used for edit and contextual menus of iTunes triggers")
+#define STRING_TRIGGERS_TOOLBAR AILocalizedString(@"iTunes", "Label for iTunes toolbar menu item.")
+#define STRING_ALBUM AILocalizedString(@"Album", "Album of current song")
+#define STRING_ARTIST AILocalizedString(@"Artist", "Artist of current song")
+#define STRING_COMPOSER AILocalizedString(@"Composer", "Composer of current song")
+#define STRING_GENRE AILocalizedString(@"Genre", "Genre of current song")
+#define STRING_STATUS AILocalizedString(@"Player State", "Playing-status of current song (e.g. paused, playing)")
+#define STRING_TRACK AILocalizedString(@"Track", "Track name of current song")
+#define STRING_YEAR AILocalizedString(@"Year", "Year of current song")
+#define STRING_STORE_URL AILocalizedString(@"iTunes Music Store Link", "iTUnes Music Store link for current song")
+#define STRING_MUSIC AILocalizedString(@"Listening Status", "Listening status string (*is listening to XXX by YYY)")
+#define STRING_CURRENT_TRACK AILocalizedString(@"iTunes Status", "Current track information (Track - Artist)")
 
 #pragma mark -
 
-#define ITUNES_MINIMUM_VERSION		4.6f
-#define ITUNES_STATUS_ID			-8000
-#define ITUNES_ITMS_SEARCH_URL		@"itms://itunes.com/link?"
+#define ITUNES_MINIMUM_VERSION 4.6f
+#define ITUNES_STATUS_ID -8000
+#define ITUNES_ITMS_SEARCH_URL @"itms://itunes.com/link?"
 
 #pragma mark -
 
-#define	KEY_ITUNES_PLAYING			@"Playing"
-#define	KEY_ITUNES_PAUSED			@"Paused"
-#define	KEY_ITUNES_STOPPED			@"Stopped"
+#define KEY_ITUNES_PLAYING @"Playing"
+#define KEY_ITUNES_PAUSED @"Paused"
+#define KEY_ITUNES_STOPPED @"Stopped"
 
 #pragma mark -
 
 @interface ESiTunesPlugin ()
-- (NSMenuItem *)menuItemWithTitle:(NSString *)title action:(SEL)action representedObject:(id)representedObject kind:(KGiTunesPluginMenuItemKind)itemKind;
+- (NSMenuItem *)menuItemWithTitle:(NSString *)title
+						   action:(SEL)action
+				representedObject:(id)representedObject
+							 kind:(KGiTunesPluginMenuItemKind)itemKind;
 - (void)createiTunesCurrentTrackStatusState;
 - (void)updateiTunesCurrentTrackFormat;
 - (void)createiTunesToolbarItemWithPath:(NSString *)path;
@@ -101,8 +105,9 @@
  */
 - (BOOL)iTunesIsStopped
 {
-	//Get the info if we don't already have it
-	if (!iTunesCurrentInfo) [self loadiTunesCurrentInfoViaApplescript];
+	// Get the info if we don't already have it
+	if (!iTunesCurrentInfo)
+		[self loadiTunesCurrentInfoViaApplescript];
 
 	return iTunesIsStopped;
 }
@@ -116,13 +121,14 @@
 }
 
 /*!
-* @brief Is iTunes paused?
+ * @brief Is iTunes paused?
  */
 - (BOOL)iTunesIsPaused
 {
-	//Get the info if we don't already have it
-	if (!iTunesCurrentInfo) [self loadiTunesCurrentInfoViaApplescript];
-	
+	// Get the info if we don't already have it
+	if (!iTunesCurrentInfo)
+		[self loadiTunesCurrentInfoViaApplescript];
+
 	return iTunesIsPaused;
 }
 
@@ -131,9 +137,8 @@
  */
 - (void)setiTunesIsPaused:(BOOL)yesOrNo
 {
-  iTunesIsPaused = yesOrNo;
+	iTunesIsPaused = yesOrNo;
 }
-
 
 /*!
  * @brief Get current iTunes info dictionary
@@ -145,53 +150,55 @@
 
 /*!
  * @brief Store local copy of iTunes information
- * 
+ *
  * Retains new information, requests immediate content update and lets the plugin know what iTunes is doing.
  */
 - (void)setiTunesCurrentInfo:(NSDictionary *)newInfo
 {
- 	if (newInfo != iTunesCurrentInfo) {
- 		[iTunesCurrentInfo release];
- 		NSMutableDictionary *mutableNewInfo = [newInfo mutableCopy];
+	if (newInfo != iTunesCurrentInfo) {
+		[iTunesCurrentInfo release];
+		NSMutableDictionary *mutableNewInfo = [newInfo mutableCopy];
 
-		//If we get a stream title, use that as the track name
-		if ([mutableNewInfo objectForKey:KEY_ITUNES_STREAM_TITLE] && [(NSString *)[mutableNewInfo objectForKey:KEY_ITUNES_STREAM_TITLE] length])
-			[mutableNewInfo setObject:[mutableNewInfo objectForKey:KEY_ITUNES_STREAM_TITLE]
-							   forKey:KEY_ITUNES_NAME];
+		// If we get a stream title, use that as the track name
+		if ([mutableNewInfo objectForKey:KEY_ITUNES_STREAM_TITLE] &&
+			[(NSString *)[mutableNewInfo objectForKey:KEY_ITUNES_STREAM_TITLE] length])
+			[mutableNewInfo setObject:[mutableNewInfo objectForKey:KEY_ITUNES_STREAM_TITLE] forKey:KEY_ITUNES_NAME];
 
 		NSEnumerator *enumerator = [newInfo keyEnumerator];
 		NSString *key;
 		while ((key = [enumerator nextObject])) {
-			//Some versions of iTunes may send numbers as numbers rather than strings. Change these to numbers for our use.
+			// Some versions of iTunes may send numbers as numbers rather than strings. Change these to numbers for our
+			// use.
 			id value = [newInfo objectForKey:key];
 			if (![value isKindOfClass:[NSString class]]) {
 				if ([value respondsToSelector:@selector(stringValue)]) {
-					[mutableNewInfo setObject:[value stringValue]
-									   forKey:key];
+					[mutableNewInfo setObject:[value stringValue] forKey:key];
 				} else {
-					//A future version might send some other data entirely.  Drop it rather than having non-strings in the dict.
+					// A future version might send some other data entirely.  Drop it rather than having non-strings in
+					// the dict.
 					[mutableNewInfo removeObjectForKey:key];
 				}
 			}
 		}
 
 		iTunesCurrentInfo = mutableNewInfo;
- 		[self setiTunesIsStopped:[[iTunesCurrentInfo objectForKey:KEY_ITUNES_PLAYER_STATE]
-								  isEqualToString:KEY_ITUNES_STOPPED]];
- 		[self setiTunesIsPaused:[[iTunesCurrentInfo objectForKey:KEY_ITUNES_PLAYER_STATE]
-								 isEqualToString:KEY_ITUNES_PAUSED]];
+		[self setiTunesIsStopped:[[iTunesCurrentInfo objectForKey:KEY_ITUNES_PLAYER_STATE]
+									 isEqualToString:KEY_ITUNES_STOPPED]];
+		[self setiTunesIsPaused:[[iTunesCurrentInfo objectForKey:KEY_ITUNES_PLAYER_STATE]
+									isEqualToString:KEY_ITUNES_PAUSED]];
 
-        //Cancel any requests we had to fire updates.
-        [[self class] cancelPreviousPerformRequestsWithTarget:self selector:@selector(fireUpdateiTunesInfo) object:nil];
-        //fire an iTunes update in three seconds.
-        [self performSelector:@selector(fireUpdateiTunesInfo) withObject:nil afterDelay:3.0];
- 	}
+		// Cancel any requests we had to fire updates.
+		[[self class] cancelPreviousPerformRequestsWithTarget:self selector:@selector(fireUpdateiTunesInfo) object:nil];
+		// fire an iTunes update in three seconds.
+		[self performSelector:@selector(fireUpdateiTunesInfo) withObject:nil afterDelay:3.0];
+	}
 }
 
 - (void)fireUpdateiTunesInfo
 {
 	/* First, note that the track changed; code elsewhere cares, promise. */
-	[[NSNotificationCenter defaultCenter] postNotificationName:Adium_iTunesTrackChangedNotification object:iTunesCurrentInfo];
+	[[NSNotificationCenter defaultCenter] postNotificationName:Adium_iTunesTrackChangedNotification
+														object:iTunesCurrentInfo];
 
 	/* Next, update any dynamic content which includes iTunes triggers, including the Now Playing status itself */
 	[[NSNotificationCenter defaultCenter] postNotificationName:Adium_RequestImmediateDynamicContentUpdate object:nil];
@@ -205,46 +212,40 @@
  */
 - (void)installPlugin
 {
-	NSString		*itunesPath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:@"com.apple.iTunes"];
+	NSString *itunesPath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:@"com.apple.iTunes"];
 
 	iTunesCurrentInfo = nil;
 
-	//Only install our items if a copy of iTunes which meets the minimum requirements is found
-	if ([[[NSBundle bundleWithPath:itunesPath] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] doubleValue] > ITUNES_MINIMUM_VERSION) {		
-		//Perform substitutions on outgoing content
-		[adium.contentController registerContentFilter:self
-												ofType:AIFilterContent
-											 direction:AIFilterOutgoing];	
+	// Only install our items if a copy of iTunes which meets the minimum requirements is found
+	if ([[[NSBundle bundleWithPath:itunesPath] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] doubleValue] >
+		ITUNES_MINIMUM_VERSION) {
+		// Perform substitutions on outgoing content
+		[adium.contentController registerContentFilter:self ofType:AIFilterContent direction:AIFilterOutgoing];
 		[[NSDistributedNotificationCenter defaultCenter] addObserver:self
 															selector:@selector(iTunesUpdate:)
 																name:@"com.apple.iTunes.playerInfo"
 															  object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:self 
+		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(currentTrackFormatDidChange:)
 													 name:Adium_CurrentTrackFormatChangedNotification
 												   object:nil];
-		
-		substitutionDict = [[NSDictionary alloc] initWithObjectsAndKeys:
-			KEY_ITUNES_ALBUM, TRIGGER_ALBUM,
-			KEY_ITUNES_ARTIST, TRIGGER_ARTIST,
-			KEY_ITUNES_COMPOSER, TRIGGER_COMPOSER,
-			KEY_ITUNES_GENRE, TRIGGER_GENRE,
-			KEY_ITUNES_PLAYER_STATE, TRIGGER_STATUS,
-			KEY_ITUNES_NAME, TRIGGER_TRACK,
-			KEY_ITUNES_YEAR, TRIGGER_YEAR,
-			KEY_ITUNES_STORE_URL, TRIGGER_STORE_URL,
-			nil];
-		
-		//Update the format for "Current iTunes Track"
+
+		substitutionDict = [[NSDictionary alloc]
+			initWithObjectsAndKeys:KEY_ITUNES_ALBUM, TRIGGER_ALBUM, KEY_ITUNES_ARTIST, TRIGGER_ARTIST,
+								   KEY_ITUNES_COMPOSER, TRIGGER_COMPOSER, KEY_ITUNES_GENRE, TRIGGER_GENRE,
+								   KEY_ITUNES_PLAYER_STATE, TRIGGER_STATUS, KEY_ITUNES_NAME, TRIGGER_TRACK,
+								   KEY_ITUNES_YEAR, TRIGGER_YEAR, KEY_ITUNES_STORE_URL, TRIGGER_STORE_URL, nil];
+
+		// Update the format for "Current iTunes Track"
 		[self updateiTunesCurrentTrackFormat];
-		
-		//Create the "Current iTunes Track" status item
+
+		// Create the "Current iTunes Track" status item
 		[self createiTunesCurrentTrackStatusState];
-		
-		//Create the toolbar item
+
+		// Create the toolbar item
 		[self createiTunesToolbarItemWithPath:itunesPath];
-		
-		//Create the Edit > Insert and contextual menus
+
+		// Create the Edit > Insert and contextual menus
 		[self insertTriggerMenu];
 	}
 }
@@ -263,60 +264,62 @@
 /*!
  * @brief Get current iTunes track info
  *
- * Execute an applescript located in the resources folder that obtains current iTunes track info and assembles the dictionary
+ * Execute an applescript located in the resources folder that obtains current iTunes track info and assembles the
+ * dictionary
  */
 - (void)loadiTunesCurrentInfoViaApplescript
 {
 	/*
 	 * 1. get a url pointing to the script in the resources folder
- 	 * 2. prepare the script for execution
+	 * 2. prepare the script for execution
 	 * 3. get results and create the dictionary based off it
 	 */
-	
-	//get the path
-	NSString				*path = [[NSBundle mainBundle] pathForResource:@"CurrentTunes" ofType:@"scpt"];
-	NSURL					*pathURL = [NSURL fileURLWithPath:path];
-	
-	//create the script complete with an error dictionary
-	NSDictionary			*errors = [NSDictionary dictionary];
-	NSAppleScript			*playingScript = [[NSAppleScript alloc] initWithContentsOfURL:pathURL error:&errors];
-	
-	//execute the script and get the results as a string
-    NSAppleEventDescriptor	*result = [playingScript executeAndReturnError:&errors];
-	NSString				*concatenatediTunesData = [result stringValue];
 
-	//if the player was playing when the script was executed
+	// get the path
+	NSString *path = [[NSBundle mainBundle] pathForResource:@"CurrentTunes" ofType:@"scpt"];
+	NSURL *pathURL = [NSURL fileURLWithPath:path];
+
+	// create the script complete with an error dictionary
+	NSDictionary *errors = [NSDictionary dictionary];
+	NSAppleScript *playingScript = [[NSAppleScript alloc] initWithContentsOfURL:pathURL error:&errors];
+
+	// execute the script and get the results as a string
+	NSAppleEventDescriptor *result = [playingScript executeAndReturnError:&errors];
+	NSString *concatenatediTunesData = [result stringValue];
+
+	// if the player was playing when the script was executed
 	if (concatenatediTunesData && ![concatenatediTunesData isEqualToString:@"None"]) {
-		
-		//get the expected number of entries in the dictionary
+
+		// get the expected number of entries in the dictionary
 		NSUInteger infoCount = [substitutionDict count];
-		//get the values for the current iTunes song from the string
-		NSArray * iTunesValues = [concatenatediTunesData componentsSeparatedByString:@",$!$,"];
-		
-		//if the two are properly matched (which they always will be, but just in case)
+		// get the values for the current iTunes song from the string
+		NSArray *iTunesValues = [concatenatediTunesData componentsSeparatedByString:@",$!$,"];
+
+		// if the two are properly matched (which they always will be, but just in case)
 		if ([iTunesValues count] == infoCount) {
-			//create the dictionary
-			[self setiTunesCurrentInfo:[NSDictionary dictionaryWithObjects:iTunesValues
-																   forKeys:[NSArray arrayWithObjects:
-																			KEY_ITUNES_ALBUM,
-																			KEY_ITUNES_ARTIST,
-																			KEY_ITUNES_COMPOSER,
-																			KEY_ITUNES_GENRE,
-																			KEY_ITUNES_PLAYER_STATE,
-																			KEY_ITUNES_NAME,
-																			KEY_ITUNES_YEAR,
-																			KEY_ITUNES_STORE_URL,
-																			nil]]];
+			// create the dictionary
+			[self
+				setiTunesCurrentInfo:[NSDictionary
+										 dictionaryWithObjects:iTunesValues
+													   forKeys:[NSArray
+																   arrayWithObjects:KEY_ITUNES_ALBUM, KEY_ITUNES_ARTIST,
+																					KEY_ITUNES_COMPOSER,
+																					KEY_ITUNES_GENRE,
+																					KEY_ITUNES_PLAYER_STATE,
+																					KEY_ITUNES_NAME, KEY_ITUNES_YEAR,
+																					KEY_ITUNES_STORE_URL, nil]]];
 		} else {
-			NSLog(@"iTunesValues was %@ (%lu items), but I was expecting %lu. Perhaps CurrentTunes is not updated to match ESiTunesPlugin?",
+			NSLog(@"iTunesValues was %@ (%lu items), but I was expecting %lu. Perhaps CurrentTunes is not updated to "
+				  @"match ESiTunesPlugin?",
 				  iTunesValues, (unsigned long)[iTunesValues count], (unsigned long)infoCount);
 		}
-		
+
 	} else {
-		//create a dictionary saying that iTunes is stopped
-		[self setiTunesCurrentInfo:[NSDictionary dictionaryWithObjectsAndKeys:KEY_ITUNES_STOPPED, KEY_ITUNES_PLAYER_STATE, nil]];
+		// create a dictionary saying that iTunes is stopped
+		[self setiTunesCurrentInfo:[NSDictionary
+									   dictionaryWithObjectsAndKeys:KEY_ITUNES_STOPPED, KEY_ITUNES_PLAYER_STATE, nil]];
 	}
-	
+
 	[playingScript release];
 }
 
@@ -330,10 +333,10 @@
  */
 - (void)createiTunesCurrentTrackStatusState
 {
-	//create an iTunes status of state "Available" with default available status settings
-	AIStatus		   *currentiTunesStatusState = [[AIStatus statusOfType:AIAvailableStatusType] retain];
-	
-	//set status attributes
+	// create an iTunes status of state "Available" with default available status settings
+	AIStatus *currentiTunesStatusState = [[AIStatus statusOfType:AIAvailableStatusType] retain];
+
+	// set status attributes
 	NSAttributedString *trackAndArtist = [NSAttributedString stringWithString:TRIGGER_CURRENT_TRACK];
 	[currentiTunesStatusState setStatusMessage:trackAndArtist];
 	[currentiTunesStatusState setTitle:STRING_CURRENT_TRACK];
@@ -341,26 +344,30 @@
 	[currentiTunesStatusState setUniqueStatusID:[NSNumber numberWithInteger:ITUNES_STATUS_ID]];
 	[currentiTunesStatusState setSpecialStatusType:AINowPlayingSpecialStatusType];
 
-	//give it to the AIStatusController
+	// give it to the AIStatusController
 	[adium.statusController addStatusState:currentiTunesStatusState];
 	[currentiTunesStatusState release];
 }
 
 - (void)updateiTunesCurrentTrackFormat
 {
-	NSDictionary	*slashMusicDict = nil;
-	NSDictionary	*conditionalArtistTrackDict = nil;
-	NSString		*currentITunesTrackFormat = nil;
-	
-	slashMusicDict = [[NSDictionary alloc] initWithObjectsAndKeys:
-					  [NSString stringWithFormat:AILocalizedString(@"*is listening to %@ by %@*","Phrase sent in response to %_music.  The first %%@ is the track; the second %%@ is the artist."), TRIGGER_TRACK, TRIGGER_ARTIST],
-					  KEY_ITUNES_PLAYING,
-					  AILocalizedString(@"*is listening to nothing*","Phrase sent in response to %_music when nothing is playing."),
-					  KEY_ITUNES_STOPPED,
-					  nil];
-	
+	NSDictionary *slashMusicDict = nil;
+	NSDictionary *conditionalArtistTrackDict = nil;
+	NSString *currentITunesTrackFormat = nil;
+
+	slashMusicDict = [[NSDictionary alloc]
+		initWithObjectsAndKeys:[NSString stringWithFormat:AILocalizedString(
+															  @"*is listening to %@ by %@*",
+															  "Phrase sent in response to %_music.  The first %%@ is "
+															  "the track; the second %%@ is the artist."),
+														  TRIGGER_TRACK, TRIGGER_ARTIST],
+							   KEY_ITUNES_PLAYING,
+							   AILocalizedString(@"*is listening to nothing*",
+												 "Phrase sent in response to %_music when nothing is playing."),
+							   KEY_ITUNES_STOPPED, nil];
+
 	/* Provide flexibility with the %_iTunes substitution. By default, just store @"" for this key.
-	 * But still not hardcoded to a particular format. This is done so that a default installation 
+	 * But still not hardcoded to a particular format. This is done so that a default installation
 	 * doesn't have its format broken if the locale switches...
 	 * since the format specifiers are themselves localized.
 	 */
@@ -372,26 +379,18 @@
 											group:PREF_GROUP_STATUS_PREFERENCES];
 		currentITunesTrackFormat = @"";
 	}
-	
-	if (![currentITunesTrackFormat length]) {
-		currentITunesTrackFormat  = [NSString stringWithFormat:@"%@ - %@", TRIGGER_TRACK, TRIGGER_ARTIST];
-	}
-	
-	conditionalArtistTrackDict = [[NSDictionary alloc] initWithObjectsAndKeys:
-								  currentITunesTrackFormat,
-								  KEY_ITUNES_PLAYING,
-								  @"",
-								  KEY_ITUNES_STOPPED,
-								  nil];
-	
-	phraseSubstitutionDict = [[NSDictionary alloc] initWithObjectsAndKeys:
-							  slashMusicDict,
-							  TRIGGER_MUSIC,
-							  conditionalArtistTrackDict,
-							  TRIGGER_CURRENT_TRACK,
-							  nil];
 
-    [self fireUpdateiTunesInfo];
+	if (![currentITunesTrackFormat length]) {
+		currentITunesTrackFormat = [NSString stringWithFormat:@"%@ - %@", TRIGGER_TRACK, TRIGGER_ARTIST];
+	}
+
+	conditionalArtistTrackDict = [[NSDictionary alloc]
+		initWithObjectsAndKeys:currentITunesTrackFormat, KEY_ITUNES_PLAYING, @"", KEY_ITUNES_STOPPED, nil];
+
+	phraseSubstitutionDict = [[NSDictionary alloc]
+		initWithObjectsAndKeys:slashMusicDict, TRIGGER_MUSIC, conditionalArtistTrackDict, TRIGGER_CURRENT_TRACK, nil];
+
+	[self fireUpdateiTunesInfo];
 
 	[slashMusicDict release];
 	[conditionalArtistTrackDict release];
@@ -409,7 +408,7 @@
  */
 - (void)insertFilteredString:(id)sender
 {
-	[self filterAndInsertString:[sender representedObject]];	
+	[self filterAndInsertString:[sender representedObject]];
 }
 
 /*!
@@ -419,91 +418,96 @@
  */
 - (NSAttributedString *)filterAttributedString:(NSAttributedString *)inAttributedString context:(id)context
 {
-    NSMutableAttributedString	*filteredMessage = nil;
-	NSString					*stringMessage;
-	
-	//get the attributed string as a regular string so we can do string processing
+	NSMutableAttributedString *filteredMessage = nil;
+	NSString *stringMessage;
+
+	// get the attributed string as a regular string so we can do string processing
 	if ((stringMessage = [inAttributedString string])) {
-		NSEnumerator	*enumerator;
-		NSString		*trigger;
-		BOOL			addStoreLinkAsSubtext = NO;
-		
+		NSEnumerator *enumerator;
+		NSString *trigger;
+		BOOL addStoreLinkAsSubtext = NO;
+
 		/* Replace the phrases with the string containing the triggers.
 		 * For example, /music will become *is listening to %_track by %_artist*.
 		 * This will then become the actual track information in the next while().
 		 */
 		enumerator = [phraseSubstitutionDict keyEnumerator];
-		
+
 		while ((trigger = [enumerator nextObject])) {
-			//search for phrase in the string that needs to be filtered
-			if (([stringMessage rangeOfString:trigger options:(NSLiteralSearch | NSCaseInsensitiveSearch)].location != NSNotFound)) {
-				NSDictionary	*replacementDict;
-				NSString		*replacement;
-				
-				//get the format for the current trigger
+			// search for phrase in the string that needs to be filtered
+			if (([stringMessage rangeOfString:trigger options:(NSLiteralSearch | NSCaseInsensitiveSearch)].location !=
+				 NSNotFound)) {
+				NSDictionary *replacementDict;
+				NSString *replacement;
+
+				// get the format for the current trigger
 				replacementDict = [phraseSubstitutionDict objectForKey:trigger];
-				
-				//replacement of phrase should reflect iTunes player state
+
+				// replacement of phrase should reflect iTunes player state
 				if (![self iTunesIsStopped] && ![self iTunesIsPaused]) {
 					replacement = [replacementDict objectForKey:KEY_ITUNES_PLAYING];
 
-					/* If the trigger is the trigger used for the Current iTunes Track status, we'll want to add a subtext of the store link
-					 * so account code can send it out later on.
+					/* If the trigger is the trigger used for the Current iTunes Track status, we'll want to add a
+					 * subtext of the store link so account code can send it out later on.
 					 */
 					if ([trigger isEqualToString:TRIGGER_CURRENT_TRACK]) {
 						addStoreLinkAsSubtext = YES;
 					}
-					
+
 				} else {
-					replacement = [replacementDict objectForKey:KEY_ITUNES_STOPPED];					
+					replacement = [replacementDict objectForKey:KEY_ITUNES_STOPPED];
 				}
-				
-				//create a attributedstring if it hasn't been created already
-				if (!filteredMessage) filteredMessage = [[inAttributedString mutableCopy] autorelease];
-				
-				//Perform the replacement
+
+				// create a attributedstring if it hasn't been created already
+				if (!filteredMessage)
+					filteredMessage = [[inAttributedString mutableCopy] autorelease];
+
+				// Perform the replacement
 				[filteredMessage replaceOccurrencesOfString:trigger
 												 withString:replacement
 													options:(NSLiteralSearch | NSCaseInsensitiveSearch)
 													  range:NSMakeRange(0, [filteredMessage length])];
 			}
 		}
-		
+
 		if (filteredMessage) {
-			//Update our string for the simple trigger replacement process so we can replace the %_ tokens
+			// Update our string for the simple trigger replacement process so we can replace the %_ tokens
 			stringMessage = [filteredMessage string];
 		}
-		
-		//Substitute simple triggers as appropriate
+
+		// Substitute simple triggers as appropriate
 		enumerator = [substitutionDict keyEnumerator];
 		while ((trigger = [enumerator nextObject])) {
-			
-			//Find if the current trigger is in the string
-			if (([stringMessage rangeOfString:trigger options:(NSLiteralSearch | NSCaseInsensitiveSearch)].location != NSNotFound)) {
-				//Get the info if we don't already have it
-				if (!iTunesCurrentInfo) [self loadiTunesCurrentInfoViaApplescript];
-				
+
+			// Find if the current trigger is in the string
+			if (([stringMessage rangeOfString:trigger options:(NSLiteralSearch | NSCaseInsensitiveSearch)].location !=
+				 NSNotFound)) {
+				// Get the info if we don't already have it
+				if (!iTunesCurrentInfo)
+					[self loadiTunesCurrentInfoViaApplescript];
+
 				NSString *replacement = [iTunesCurrentInfo objectForKey:[substitutionDict objectForKey:trigger]];
 				if (replacement == nil) {
-					//If no replacement is found, replace the trigger with an empty string
+					// If no replacement is found, replace the trigger with an empty string
 					replacement = @"";
 				}
-				
-				//if a mutable attributed string for the string to be filtered doesn't exist, create it. 
+
+				// if a mutable attributed string for the string to be filtered doesn't exist, create it.
 				if (filteredMessage == nil) {
-					filteredMessage = [[inAttributedString mutableCopy] autorelease];	
+					filteredMessage = [[inAttributedString mutableCopy] autorelease];
 				}
-				
-				//Replace the current trigger with the value we found above
+
+				// Replace the current trigger with the value we found above
 				[filteredMessage replaceOccurrencesOfString:trigger
 												 withString:replacement
 													options:(NSLiteralSearch | NSCaseInsensitiveSearch)
 													  range:NSMakeRange(0, [filteredMessage length])];
 			}
 		}
-		
+
 		if (addStoreLinkAsSubtext && filteredMessage) {
-			NSString *storeLinkForSubtext = [iTunesCurrentInfo objectForKey:[substitutionDict objectForKey:TRIGGER_STORE_URL]];
+			NSString *storeLinkForSubtext =
+				[iTunesCurrentInfo objectForKey:[substitutionDict objectForKey:TRIGGER_STORE_URL]];
 			if (storeLinkForSubtext) {
 				[filteredMessage addAttribute:@"AIMessageSubtext"
 										value:storeLinkForSubtext
@@ -511,8 +515,8 @@
 			}
 		}
 	}
-	
-	//Give back the processed string
+
+	// Give back the processed string
 	return (filteredMessage ? filteredMessage : inAttributedString);
 }
 
@@ -540,7 +544,7 @@
 
 	NSDictionary *newInfo = [aNotification userInfo];
 	[self setiTunesCurrentInfo:newInfo];
-	
+
 	[pool release];
 }
 
@@ -552,7 +556,6 @@
 	[self updateiTunesCurrentTrackFormat];
 }
 
-
 #pragma mark -
 #pragma mark Toolbar Item Methods
 
@@ -563,46 +566,48 @@
  */
 - (void)createiTunesToolbarItemWithPath:(NSString *)iTunesPath
 {
-	NSMenu		  *menu = [[NSMenu alloc] init];
-	MVMenuButton  *button = [[MVMenuButton alloc] initWithFrame:NSMakeRect(0,0,32,32)];
+	NSMenu *menu = [[NSMenu alloc] init];
+	MVMenuButton *button = [[MVMenuButton alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
 
-	//configure the popup button and its menu
+	// configure the popup button and its menu
 
-    /* XXX Remove after 10.6: Apparently with iTunes 10.6.3 on Mac OS X 10.6.8, the NSIconRefImageRep
-     * that is returned by -iconfForFile: for iTunes fails to encode itself for NSCopying. Make a copy
-     * here via -TIFFRepresentation to avoid this bug.
-     * rdar://11930126 http://trac.adium.im/ticket/16046
-     */
-    if ([NSApp isOnLionOrNewer]) {
-        [button setImage:[[NSWorkspace sharedWorkspace] iconForFile:iTunesPath]];
-    } else {
-        NSData *imageData = [[[NSWorkspace sharedWorkspace] iconForFile:iTunesPath] TIFFRepresentation];
-	    [button setImage:[[[NSImage alloc] initWithData:imageData] autorelease]];
-    }
+	/* XXX Remove after 10.6: Apparently with iTunes 10.6.3 on Mac OS X 10.6.8, the NSIconRefImageRep
+	 * that is returned by -iconfForFile: for iTunes fails to encode itself for NSCopying. Make a copy
+	 * here via -TIFFRepresentation to avoid this bug.
+	 * rdar://11930126 http://trac.adium.im/ticket/16046
+	 */
+	if ([NSApp isOnLionOrNewer]) {
+		[button setImage:[[NSWorkspace sharedWorkspace] iconForFile:iTunesPath]];
+	} else {
+		NSData *imageData = [[[NSWorkspace sharedWorkspace] iconForFile:iTunesPath] TIFFRepresentation];
+		[button setImage:[[[NSImage alloc] initWithData:imageData] autorelease]];
+	}
 	[self createiTunesToolbarItemMenuItems:menu];
 
-	NSToolbarItem * iTunesItem = [AIToolbarUtilities toolbarItemWithIdentifier:KEY_TRIGGERS_TOOLBAR
-																		 label:STRING_TRIGGERS_TOOLBAR
-																  paletteLabel:STRING_TRIGGERS_TOOLBAR
-																	   toolTip:AILocalizedString(@"Insert current iTunes track information.","Label for iTunes toolbar menu item.")
-																		target:self
-															   settingSelector:@selector(setView:)
-																   itemContent:button
-																		action:NULL
-																		  menu:nil];
-	//configure the toolbar and button for use
+	NSToolbarItem *iTunesItem =
+		[AIToolbarUtilities toolbarItemWithIdentifier:KEY_TRIGGERS_TOOLBAR
+												label:STRING_TRIGGERS_TOOLBAR
+										 paletteLabel:STRING_TRIGGERS_TOOLBAR
+											  toolTip:AILocalizedString(@"Insert current iTunes track information.",
+																		"Label for iTunes toolbar menu item.")
+											   target:self
+									  settingSelector:@selector(setView:)
+										  itemContent:button
+											   action:NULL
+												 menu:nil];
+	// configure the toolbar and button for use
 	[[iTunesItem view] setMenu:menu];
-	[iTunesItem setMinSize:NSMakeSize(32,32)];
-	[iTunesItem setMaxSize:NSMakeSize(32,32)];
+	[iTunesItem setMinSize:NSMakeSize(32, 32)];
+	[iTunesItem setMaxSize:NSMakeSize(32, 32)];
 	[button setToolbarItem:iTunesItem];
-	
-	//Add menu to toolbar item (for text mode)
-	NSMenuItem	*mItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] init] autorelease];
+
+	// Add menu to toolbar item (for text mode)
+	NSMenuItem *mItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] init] autorelease];
 	[mItem setSubmenu:menu];
 	[mItem setTitle:STRING_TRIGGERS_TOOLBAR];
 	[iTunesItem setMenuFormRepresentation:mItem];
-	
-	//give it to adium to use
+
+	// give it to adium to use
 	[adium.toolbarController registerToolbarItem:iTunesItem forToolbarType:@"TextEntry"];
 	[button release];
 	[menu release];
@@ -615,38 +620,51 @@
  */
 
 - (void)createiTunesToolbarItemMenuItems:(NSMenu *)iTunesMenu
-{	
+{
 
-	
-	//submenu of actions related to a track
-	NSMenuItem *submenuRoot = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Track Information","Submenu for iTunes toolbar item menu for inserting current track information.")
-														 action:NULL
-												  keyEquivalent:@""];
+	// submenu of actions related to a track
+	NSMenuItem *submenuRoot = [[NSMenuItem alloc]
+		initWithTitle:AILocalizedString(@"Track Information",
+										"Submenu for iTunes toolbar item menu for inserting current track information.")
+			   action:NULL
+		keyEquivalent:@""];
 	[iTunesMenu addItem:submenuRoot];
 	[iTunesMenu setSubmenu:[self createTriggerMenu] forItem:submenuRoot];
 	[iTunesMenu addItem:[NSMenuItem separatorItem]];
 
-	//this isn't implemented yet, need some advice on this one
-	[iTunesMenu addItem:[self menuItemWithTitle:[AILocalizedString(@"Search Selection in Music Store","iTunes toolbar menu item title to search selection in iTMS.") stringByAppendingEllipsis]
-										 action:@selector(gatherSelection)
-							  representedObject:nil
-										   kind:RESPONDER_IS_WEBVIEW]];
+	// this isn't implemented yet, need some advice on this one
+	[iTunesMenu
+		addItem:[self
+					menuItemWithTitle:[AILocalizedString(@"Search Selection in Music Store",
+														 "iTunes toolbar menu item title to search selection in iTMS.")
+										  stringByAppendingEllipsis]
+							   action:@selector(gatherSelection)
+					representedObject:nil
+								 kind:RESPONDER_IS_WEBVIEW]];
 	[iTunesMenu addItem:[NSMenuItem separatorItem]];
 
-	[iTunesMenu addItem:[self menuItemWithTitle:[AILocalizedString(@"Bring iTunes to Front","iTunes toolbar menu item title to make iTunes frontmost app.") stringByAppendingEllipsis]
-										 action:@selector(bringiTunesToFront)
-							  representedObject:nil
-										   kind:ALWAYS_ENABLED]];
-	
+	[iTunesMenu
+		addItem:[self
+					menuItemWithTitle:[AILocalizedString(@"Bring iTunes to Front",
+														 "iTunes toolbar menu item title to make iTunes frontmost app.")
+										  stringByAppendingEllipsis]
+							   action:@selector(bringiTunesToFront)
+					representedObject:nil
+								 kind:ALWAYS_ENABLED]];
+
 	[submenuRoot release];
 }
 
 /*!
  * @brief Create a menu item
  *
- * create a menu item targeting this plugin. Determine if it should disable itself when firstResponder != [textView class].
+ * create a menu item targeting this plugin. Determine if it should disable itself when firstResponder != [textView
+ * class].
  */
-- (NSMenuItem *)menuItemWithTitle:(NSString *)title action:(SEL)action representedObject:(id)representedObject kind:(KGiTunesPluginMenuItemKind)itemKind
+- (NSMenuItem *)menuItemWithTitle:(NSString *)title
+						   action:(SEL)action
+				representedObject:(id)representedObject
+							 kind:(KGiTunesPluginMenuItemKind)itemKind
 {
 	NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:title action:action keyEquivalent:@""];
 	[item setTarget:self];
@@ -667,64 +685,70 @@
  */
 - (void)insertiTMSLink
 {
-	NSMutableString		*url = [[NSMutableString alloc] init];
-	NSString			*urlLabel = nil;
+	NSMutableString *url = [[NSMutableString alloc] init];
+	NSString *urlLabel = nil;
 
-	//get current information
-	NSString			*artist = [iTunesCurrentInfo objectForKey:[substitutionDict objectForKey:TRIGGER_ARTIST]];
-	NSString			*trackName = [iTunesCurrentInfo objectForKey:[substitutionDict objectForKey:TRIGGER_TRACK]];
-	
-	//see if we have a URL for us
-	NSString			*storeURL = [iTunesCurrentInfo objectForKey:[substitutionDict objectForKey:TRIGGER_STORE_URL]];
+	// get current information
+	NSString *artist = [iTunesCurrentInfo objectForKey:[substitutionDict objectForKey:TRIGGER_ARTIST]];
+	NSString *trackName = [iTunesCurrentInfo objectForKey:[substitutionDict objectForKey:TRIGGER_TRACK]];
+
+	// see if we have a URL for us
+	NSString *storeURL = [iTunesCurrentInfo objectForKey:[substitutionDict objectForKey:TRIGGER_STORE_URL]];
 	if ([storeURL length]) {
 		[url appendString:storeURL];
 	}
-	
-	//if we have no url data from the iTunes notification to begin with - probably because we got the info using the applescript
+
+	// if we have no url data from the iTunes notification to begin with - probably because we got the info using the
+	// applescript
 	if (![url length]) {
-		
-		//if iTunes is playing or paused something
+
+		// if iTunes is playing or paused something
 		if (![self iTunesIsStopped] || ![self iTunesIsPaused]) {
 			[url appendString:ITUNES_ITMS_SEARCH_URL];
-			
-			//if there is a name given to this song put it in the url
+
+			// if there is a name given to this song put it in the url
 			if ([trackName length]) {
 				[url appendFormat:@"n=%@", [trackName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 			} else {
 				trackName = @"";
 			}
-			
-			//if there is a name and an artist, we'll use both to refine our search
+
+			// if there is a name and an artist, we'll use both to refine our search
 			if ([artist length] && [trackName length]) {
-				//[url appendFormat:@"?artistTerm=%@", [artist stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+				//[url appendFormat:@"?artistTerm=%@", [artist
+				// stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 				[url appendFormat:@"&an=%@", [artist stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-				
+
 			} else if ([artist length]) {
-				//no proper track name but we have a decent artist name to include in the url
-				//[url appendFormat:@"artistTerm=%@", [trackName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+				// no proper track name but we have a decent artist name to include in the url
+				//[url appendFormat:@"artistTerm=%@", [trackName
+				// stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 				[url appendFormat:@"an=%@", [trackName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 			} else {
 				artist = @"";
 			}
 		}
 	}
-	
-	//if something has been added to our search request, create a lovely label for it
+
+	// if something has been added to our search request, create a lovely label for it
 	if (![url isEqualToString:ITUNES_ITMS_SEARCH_URL] && [url length]) {
 		urlLabel = [[NSString alloc] initWithFormat:@"%@ - %@", trackName, artist];
 	} else {
-		[url release]; url = nil;
+		[url release];
+		url = nil;
 	}
-	
-	//if we have a url, give it to the user as a nice, formatted <a> tag
+
+	// if we have a url, give it to the user as a nice, formatted <a> tag
 	if (url) {
-		NSAttributedString *attributedLink = [[NSAttributedString alloc] initWithAttributedString:[AIHTMLDecoder decodeHTML:[NSString stringWithFormat:@"<A HREF=\"%@\">%@</A>", url, urlLabel]]];
+		NSAttributedString *attributedLink = [[NSAttributedString alloc]
+			initWithAttributedString:[AIHTMLDecoder decodeHTML:[NSString stringWithFormat:@"<A HREF=\"%@\">%@</A>", url,
+																						  urlLabel]]];
 		[self insertAttributedStringIntoMessageEntryView:attributedLink];
 		[attributedLink release];
 		[url release];
 		[urlLabel release];
 	} else {
-		//the artist name and or the track name is literally @""
+		// the artist name and or the track name is literally @""
 		NSBeep();
 	}
 }
@@ -736,11 +760,12 @@
  */
 - (void)searchMusicStoreWithSelection:(NSString *)selectedText
 {
-	//Create a general search request
-	NSString *url = [NSString stringWithFormat:@"itms://phobos.apple.com/WebObjects/MZSearch.woa/wa/search?term=%@", [selectedText stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+	// Create a general search request
+	NSString *url =
+		[NSString stringWithFormat:@"itms://phobos.apple.com/WebObjects/MZSearch.woa/wa/search?term=%@",
+								   [selectedText stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:url]];
 }
-
 
 /*!
  * @brief Get the selection from the webmessageview
@@ -788,14 +813,14 @@
 {
 	id responder = [[[NSApplication sharedApplication] keyWindow] firstResponder];
 	if (responder && [responder isKindOfClass:[NSTextView class]]) {
-		NSAttributedString *attributedResult = [[NSAttributedString alloc] initWithString:inString
-																			   attributes:[(NSTextView *)responder typingAttributes]];
+		NSAttributedString *attributedResult =
+			[[NSAttributedString alloc] initWithString:inString attributes:[(NSTextView *)responder typingAttributes]];
 		NSAttributedString *filteredString = [self filterAttributedString:attributedResult context:nil];
-		
+
 		if (filteredString && [filteredString length] > 0) {
 			[self insertAttributedStringIntoMessageEntryView:filteredString];
 		}
-		
+
 		[attributedResult release];
 	}
 }
@@ -810,8 +835,8 @@
 {
 	id responder = [[[NSApplication sharedApplication] keyWindow] firstResponder];
 	if (responder && [responder isKindOfClass:[NSTextView class]]) {
-		NSAttributedString *attributedResult = [[NSAttributedString alloc] initWithString:inString 
-																			   attributes:[(NSTextView *)responder typingAttributes]];
+		NSAttributedString *attributedResult =
+			[[NSAttributedString alloc] initWithString:inString attributes:[(NSTextView *)responder typingAttributes]];
 		[self insertAttributedStringIntoMessageEntryView:attributedResult];
 		[attributedResult release];
 	}
@@ -828,7 +853,7 @@
 {
 	NSResponder *textView = [[[NSApplication sharedApplication] keyWindow] firstResponder];
 	[textView insertText:inString];
-	
+
 	if (![inString length]) {
 		NSBeep();
 	}
@@ -847,7 +872,7 @@
 {
 	NSMenu *triggersMenu = [[NSMenu alloc] init];
 
-	[triggersMenu addItem:[self menuItemWithTitle:STRING_CURRENT_TRACK 
+	[triggersMenu addItem:[self menuItemWithTitle:STRING_CURRENT_TRACK
 										   action:@selector(insertUnfilteredString:)
 								representedObject:TRIGGER_CURRENT_TRACK
 											 kind:AUTODISABLES]];
@@ -857,7 +882,7 @@
 											 kind:AUTODISABLES]];
 
 	[triggersMenu addItem:[NSMenuItem separatorItem]];
-	
+
 	[triggersMenu addItem:[self menuItemWithTitle:STRING_TRACK
 										   action:@selector(insertUnfilteredString:)
 								representedObject:TRIGGER_TRACK
@@ -890,7 +915,7 @@
 										   action:@selector(insertiTMSLink)
 								representedObject:TRIGGER_STORE_URL
 											 kind:AUTODISABLES]];
-	
+
 	return [triggersMenu autorelease];
 }
 
@@ -901,13 +926,16 @@
  */
 - (void)insertTriggerMenu
 {
-	NSMenuItem	*menuItem = [[NSMenuItem alloc] initWithTitle:STRING_TRIGGERS_MENU target:self action:NULL keyEquivalent:@""];
-	NSMenu		*menuOfTriggers = [self createTriggerMenu];
-	
+	NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:STRING_TRIGGERS_MENU
+													  target:self
+													  action:NULL
+											   keyEquivalent:@""];
+	NSMenu *menuOfTriggers = [self createTriggerMenu];
+
 	[menuItem setSubmenu:menuOfTriggers];
 	[adium.menuController addMenuItem:menuItem toLocation:LOC_Edit_Additions];
 	[menuItem release];
-	
+
 	menuItem = [[NSMenuItem alloc] initWithTitle:STRING_TRIGGERS_MENU target:self action:NULL keyEquivalent:@""];
 	[menuItem setSubmenu:[[menuOfTriggers copy] autorelease]];
 	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_TextView_Edit];
@@ -921,25 +949,26 @@
  */
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
-	NSResponder					*responder = [[[NSApplication sharedApplication] keyWindow] firstResponder];
-	KGiTunesPluginMenuItemKind	tag = (KGiTunesPluginMenuItemKind)[menuItem tag];
-	BOOL						enable;
+	NSResponder *responder = [[[NSApplication sharedApplication] keyWindow] firstResponder];
+	KGiTunesPluginMenuItemKind tag = (KGiTunesPluginMenuItemKind)[menuItem tag];
+	BOOL enable;
 
-	//we only insert things into textviews
+	// we only insert things into textviews
 	if (responder && [responder isKindOfClass:[NSTextView class]]) {
-		
-		//some menu items are only enabled if itunes is playing something
-		if ((([self iTunesIsStopped] || [self iTunesIsPaused]) && (tag == ENABLED_IF_ITUNES_PLAYING)) || (tag == RESPONDER_IS_WEBVIEW)) {
+
+		// some menu items are only enabled if itunes is playing something
+		if ((([self iTunesIsStopped] || [self iTunesIsPaused]) && (tag == ENABLED_IF_ITUNES_PLAYING)) ||
+			(tag == RESPONDER_IS_WEBVIEW)) {
 			enable = NO;
 		} else {
 			enable = [(NSTextView *)responder isEditable];
 		}
 
 	} else if (tag == RESPONDER_IS_WEBVIEW) {
-		
+
 		if ([responder respondsToSelector:@selector(selectedString)]) {
-			NSString	*selectedString = [(id)responder selectedString];
-			
+			NSString *selectedString = [(id)responder selectedString];
+
 			if (selectedString && [selectedString length]) {
 				enable = YES;
 			} else {
@@ -947,31 +976,33 @@
 			}
 
 		} else {
-			enable = NO;			
+			enable = NO;
 		}
-		
+
 	} else {
 		// enable it if it is always supposed to be on, disable if otherwise
 		enable = (tag == ALWAYS_ENABLED);
 	}
-	
+
 	return enable;
 }
-
 
 #pragma mark -
 #pragma mark Deallocation
 
 - (void)dealloc
 {
-	//Remove self from notifications list
+	// Remove self from notifications list
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
-	
-	//Release class variables
-	if (iTunesCurrentInfo) [iTunesCurrentInfo release];
-	if (substitutionDict) [substitutionDict release];
-	if (phraseSubstitutionDict) [phraseSubstitutionDict release];
-	
+
+	// Release class variables
+	if (iTunesCurrentInfo)
+		[iTunesCurrentInfo release];
+	if (substitutionDict)
+		[substitutionDict release];
+	if (phraseSubstitutionDict)
+		[phraseSubstitutionDict release];
+
 	[super dealloc];
 }
 

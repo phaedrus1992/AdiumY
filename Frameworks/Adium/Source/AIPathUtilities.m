@@ -1,41 +1,40 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #import <Adium/AIPathUtilities.h>
 
-#define CACHES_DIRECTORY			@"Caches"
-#define ADIUM_CACHES				@"Adium"
+#define CACHES_DIRECTORY @"Caches"
+#define ADIUM_CACHES @"Adium"
 
-#define BUNDLE_CONTENTS				@"Contents"
-#define BUNDLE_RESOURCES			@"Resources"
+#define BUNDLE_CONTENTS @"Contents"
+#define BUNDLE_RESOURCES @"Resources"
 
-#define APPLICATION_SUPPORT			@"Application Support"
-#define ADIUM_APP_SUPPORT			@"Adium 2.0"
+#define APPLICATION_SUPPORT @"Application Support"
+#define ADIUM_APP_SUPPORT @"Adium 2.0"
 
-#define PLUGINS_DIRECTORY			@"PlugIns"
-#define CONTACT_LIST_DIRECTORY		@"Contact List"
-#define DOCK_ICONS_DIRECTORY		@"Dock Icons"
-#define EMOTICONS_DIRECTORY			@"Emoticons"
-#define MESSAGE_STYLES_DIRECTORY	@"Message Styles"
-#define SCRIPTS_DIRECTORY			@"Scripts"
-#define SERVICE_ICONS_DIRECTORY		@"Service Icons"
-#define SOUNDS_DIRECTORY			@"Sounds"
-#define STATUS_ICONS_DIRECTORY		@"Status Icons"
-#define MENU_BAR_ICONS_DIRECTORY	@"Menu Bar Icons"
-
+#define PLUGINS_DIRECTORY @"PlugIns"
+#define CONTACT_LIST_DIRECTORY @"Contact List"
+#define DOCK_ICONS_DIRECTORY @"Dock Icons"
+#define EMOTICONS_DIRECTORY @"Emoticons"
+#define MESSAGE_STYLES_DIRECTORY @"Message Styles"
+#define SCRIPTS_DIRECTORY @"Scripts"
+#define SERVICE_ICONS_DIRECTORY @"Service Icons"
+#define SOUNDS_DIRECTORY @"Sounds"
+#define STATUS_ICONS_DIRECTORY @"Status Icons"
+#define MENU_BAR_ICONS_DIRECTORY @"Menu Bar Icons"
 
 NSArray *AISearchPathForDirectories(NSUInteger directory)
 {
@@ -65,7 +64,7 @@ NSArray *AISearchPathForDirectoriesInDomainsExpanding(NSUInteger directory, NSUI
 		domainMask &= NSUserDomainMask; // Only search ~
 		externalRelativePath = [NSArray arrayWithObjects:CACHES_DIRECTORY, ADIUM_CACHES, nil];
 	} else if (directory == AIPluginsDirectory) {
-		//Special case; PlugIns isn't inside Resources/
+		// Special case; PlugIns isn't inside Resources/
 		internalRelativePath = [NSArray arrayWithObjects:BUNDLE_CONTENTS, PLUGINS_DIRECTORY, nil];
 		adiumResourceName = PLUGINS_DIRECTORY;
 	} else if (directory == AIContactListDirectory) {
@@ -97,7 +96,8 @@ NSArray *AISearchPathForDirectoriesInDomainsExpanding(NSUInteger directory, NSUI
 		domainMask &= ~(NSSystemDomainMask);
 
 		directory = NSLibraryDirectory;
-		externalRelativePath = [NSArray arrayWithObjects:APPLICATION_SUPPORT, ADIUM_APP_SUPPORT, adiumResourceName, nil];
+		externalRelativePath =
+			[NSArray arrayWithObjects:APPLICATION_SUPPORT, ADIUM_APP_SUPPORT, adiumResourceName, nil];
 	}
 
 	// Internal directories.
@@ -123,20 +123,19 @@ NSArray *AISearchPathForDirectoriesInDomainsExpanding(NSUInteger directory, NSUI
 		} else {
 			[dirs addObjectsFromArray:searchPaths];
 		}
-		
-		/* If we are retrieving directories in the user domain, be sure to include the current Adium app support folder, which
-		 * may not be covered above if we are installed as Portable Adium
+
+		/* If we are retrieving directories in the user domain, be sure to include the current Adium app support folder,
+		 * which may not be covered above if we are installed as Portable Adium
 		 */
-		if (adiumResourceName &&
-			((domainMask & NSUserDomainMask) != 0)) {
+		if (adiumResourceName && ((domainMask & NSUserDomainMask) != 0)) {
 			NSString *path = [[adium applicationSupportDirectory] stringByAppendingPathComponent:adiumResourceName];
 
 			if (![dirs containsObject:path]) {
-				//Our application support directory should always be first
+				// Our application support directory should always be first
 				if ([dirs count]) {
 					[dirs insertObject:path atIndex:0];
 				} else {
-					[dirs addObject:path];			
+					[dirs addObject:path];
 				}
 			}
 		}

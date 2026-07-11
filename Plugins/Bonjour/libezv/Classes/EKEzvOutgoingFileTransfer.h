@@ -8,15 +8,15 @@
 #import "EKEzvFileTransfer.h"
 #import "HTTPServer.h"
 
-@interface EKEzvOutgoingFileTransfer : EKEzvFileTransfer{
+@interface EKEzvOutgoingFileTransfer : EKEzvFileTransfer {
 	bool isDirectory;
 	HTTPServer *server;
 	NSString *hfsflags;
 	NSString *posixflags;
 	NSString *contactUID;
-	
+
 	NSString *randomString;
-	
+
 	NSData *directoryXMLData;
 
 	NSMutableDictionary *urlSizes;
@@ -25,12 +25,12 @@
 }
 - (BOOL)isDirectory;
 - (NSString *)posixflags;
-- (void) setContactUID:(NSString *)newUID;
-- (void) startSending;
-- (bool) processTransfer;
+- (void)setContactUID:(NSString *)newUID;
+- (void)startSending;
+- (bool)processTransfer;
 - (bool)getData;
-- (bool) startHTTPServer;
-- (void) sendTransferMessage;
+- (bool)startHTTPServer;
+- (void)sendTransferMessage;
 - (NSData *)generateDirectoryXML;
 - (NSArray *)generateXMLFromDirectory:(NSString *)basePath;
 - (NSString *)baseURL;
@@ -42,10 +42,10 @@
 - (NSString *)mimeTypeForPath:(NSString *)filePath;
 - (NSString *)sizeForPath:(NSString *)filePath;
 - (NSNumber *)sizeNumberForPath:(NSString *)filePath;
-- (void) cancelTransfer;
-- (void) userFailedDownload;
-- (void) userBeganDownload;
-- (void) userFinishedDownload;
+- (void)cancelTransfer;
+- (void)userFailedDownload;
+- (void)userBeganDownload;
+- (void)userFinishedDownload;
 - (void)didSendDataWithLength:(UInt32)length;
 - (BOOL)moreFilesToDownload;
 - (NSData *)directoryXMLData;

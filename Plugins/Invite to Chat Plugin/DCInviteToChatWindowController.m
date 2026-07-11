@@ -1,30 +1,30 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIChatControllerProtocol.h>
 #import "DCInviteToChatWindowController.h"
 #import <AIUtilities/AIPopUpButtonAdditions.h>
 #import <Adium/AIAccount.h>
 #import <Adium/AIChat.h>
+#import <Adium/AIChatControllerProtocol.h>
+#import <Adium/AIContactControllerProtocol.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIMetaContact.h>
 #import <Adium/AIService.h>
 
-#define INVITE_NIB_NAME		@"InviteToChatWindow"
+#define INVITE_NIB_NAME @"InviteToChatWindow"
 
 @interface DCInviteToChatWindowController ()
 - (id)initWithWindowNibName:(NSString *)windowNibName;
@@ -32,67 +32,69 @@
 - (void)setChat:(AIChat *)inChat contact:(AIListContact *)inContact;
 - (void)setContact:(AIListContact *)inContact;
 - (void)localize;
-@end 
+@end
 @implementation DCInviteToChatWindowController
 
 static DCInviteToChatWindowController *sharedInviteToChatInstance = nil;
 
-//Create a new invite to chat window
+// Create a new invite to chat window
 + (void)inviteToChatWindowForChat:(AIChat *)inChat contact:(AIListContact *)inContact
 {
-    if (!sharedInviteToChatInstance) {
-        sharedInviteToChatInstance = [[self alloc] initWithWindowNibName:INVITE_NIB_NAME];
-    }
+	if (!sharedInviteToChatInstance) {
+		sharedInviteToChatInstance = [[self alloc] initWithWindowNibName:INVITE_NIB_NAME];
+	}
 
 	[sharedInviteToChatInstance setChat:inChat contact:inContact];
-    [[sharedInviteToChatInstance window] makeKeyAndOrderFront:nil];
+	[[sharedInviteToChatInstance window] makeKeyAndOrderFront:nil];
 }
 
 + (void)closeSharedInstance
 {
-    if (sharedInviteToChatInstance) {
-        [sharedInviteToChatInstance closeWindow:nil];
-    }
+	if (sharedInviteToChatInstance) {
+		[sharedInviteToChatInstance closeWindow:nil];
+	}
 }
 
-//Init
+// Init
 - (id)initWithWindowNibName:(NSString *)windowNibName
-{	
+{
 	if ((self = [super initWithWindowNibName:windowNibName])) {
 		contact = nil;
 		service = nil;
 		chat = nil;
 	}
-	
-    return self;
+
+	return self;
 }
 
-
-//Dealloc
+// Dealloc
 - (void)dealloc
-{    
-	[contact release]; contact = nil;
-	[service release]; service = nil;
-	[chat release]; chat = nil;
+{
+	[contact release];
+	contact = nil;
+	[service release];
+	service = nil;
+	[chat release];
+	chat = nil;
 	[contactMenu release];
 
 	[super dealloc];
 }
 
-//Setup the window before it is displayed
+// Setup the window before it is displayed
 - (void)windowDidLoad
 {
-    //Center the window
-    [[self window] center];
-	
+	// Center the window
+	[[self window] center];
+
 	[self localize];
 }
 
 - (IBAction)invite:(id)sender
-{	
+{
 	// Sanity check: is there really a list object and a chat?
 	if (contact && [contact isKindOfClass:[AIListContact class]] && chat) {
-		
+
 		// Sanity check: is it a group chat?
 		if (chat.isGroupChat) {
 			NSString *message = [textField_message stringValue];
@@ -101,64 +103,69 @@ static DCInviteToChatWindowController *sharedInviteToChatInstance = nil;
 			}
 			[chat inviteListContact:(AIListContact *)contact withMessage:message];
 		}
-	}	
-	
-	[self closeWindow:nil];}
+	}
+
+	[self closeWindow:nil];
+}
 
 - (void)configureForChatAndContact
 {
-	//Ensure the window is loaded
+	// Ensure the window is loaded
 	[self window];
-		
-	//Configure the contact menu (primarily for handling metacontacts)
+
+	// Configure the contact menu (primarily for handling metacontacts)
 	[contactMenu release];
-    contactMenu = [[AIContactMenu contactMenuWithDelegate:self forContactsInObject:contact] retain];
+	contactMenu = [[AIContactMenu contactMenuWithDelegate:self forContactsInObject:contact] retain];
 
 	if ([contact isKindOfClass:[AIMetaContact class]]) {
-		[menu_contacts selectItemWithRepresentedObject:[(AIMetaContact *)contact preferredContactWithCompatibleService:service]];
+		[menu_contacts
+			selectItemWithRepresentedObject:[(AIMetaContact *)contact preferredContactWithCompatibleService:service]];
 	} else {
 		[menu_contacts selectItemAtIndex:0];
 	}
 
-	//Update to know that we are working with this contact
+	// Update to know that we are working with this contact
 	[self setContact:[[menu_contacts selectedItem] representedObject]];
-	
+
 	// Set the chat's name in the window
-	[textField_chatName setStringValue:chat.name];	
+	[textField_chatName setStringValue:chat.name];
 }
 
-//Setting methods
+// Setting methods
 #pragma mark Setting methods
 - (void)setChat:(AIChat *)inChat contact:(AIListContact *)inContact
 {
 	[self setContact:inContact];
-	
+
 	if (chat != inChat) {
-		[chat release]; chat = [inChat retain];
-		[service release]; service = [chat.account.service retain];
+		[chat release];
+		chat = [inChat retain];
+		[service release];
+		service = [chat.account.service retain];
 	}
-	
+
 	[self configureForChatAndContact];
 }
 
 - (void)setContact:(AIListContact *)inContact
-{	
+{
 	if (contact != inContact) {
-		[contact release]; contact = [inContact retain];
+		[contact release];
+		contact = [inContact retain];
 	}
 }
 
-//Window behavior and closing
+// Window behavior and closing
 #pragma mark Window behavior and closing
 - (void)windowWillClose:(id)sender
 {
 	[super windowWillClose:sender];
-	
+
 	sharedInviteToChatInstance = nil;
-    [self autorelease]; //Close the shared instance
+	[self autorelease]; // Close the shared instance
 }
 
-//Close this window
+// Close this window
 - (IBAction)cancel:(id)sender
 {
 	[self closeWindow:nil];
@@ -167,24 +174,27 @@ static DCInviteToChatWindowController *sharedInviteToChatInstance = nil;
 /*!
  * @brief Contact menu delegate
  */
-- (void)contactMenuDidRebuild:(AIContactMenu *)inContactMenu {
+- (void)contactMenuDidRebuild:(AIContactMenu *)inContactMenu
+{
 	[menu_contacts setMenu:[inContactMenu menu]];
 }
 
-- (void)contactMenu:(AIContactMenu *)inContactMenu didSelectContact:(AIListContact *)inContact {
+- (void)contactMenu:(AIContactMenu *)inContactMenu didSelectContact:(AIListContact *)inContact
+{
 	[self setContact:inContact];
 }
 
-- (BOOL)contactMenu:(AIContactMenu *)inContactMenu shouldIncludeContact:(AIListContact *)inContact {
+- (BOOL)contactMenu:(AIContactMenu *)inContactMenu shouldIncludeContact:(AIListContact *)inContact
+{
 	return ([inContact.service.serviceClass isEqualToString:service.serviceClass] &&
 			(!contact.online || inContact.online));
 }
 
--(void)inviteToChat:(AIListContact*)inContact
+- (void)inviteToChat:(AIListContact *)inContact
 {
 	// Sanity check: is there really a list object and a chat?
 	if (inContact && [inContact isKindOfClass:[AIListContact class]] && chat) {
-		
+
 		// Sanity check: is it a group chat?
 		if (chat.isGroupChat) {
 			NSString *message = [textField_message stringValue];
@@ -193,8 +203,8 @@ static DCInviteToChatWindowController *sharedInviteToChatInstance = nil;
 			}
 			[chat inviteListContact:inContact withMessage:message];
 		}
-	}	
-	
+	}
+
 	[self closeWindow:nil];
 }
 

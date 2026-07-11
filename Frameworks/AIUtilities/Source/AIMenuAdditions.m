@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -18,36 +18,47 @@
 
 @implementation NSMenu (ItemCreationAdditions)
 
-- (NSMenuItem *)addItemWithTitle:(NSString *)aString target:(id)target action:(SEL)aSelector keyEquivalent:(NSString *)charCode
+- (NSMenuItem *)addItemWithTitle:(NSString *)aString
+						  target:(id)target
+						  action:(SEL)aSelector
+				   keyEquivalent:(NSString *)charCode
 {
-    NSMenuItem	*theMenuItem = [[NSMenuItem alloc] initWithTitle:aString action:aSelector keyEquivalent:charCode];
-    [theMenuItem setTarget:target];
+	NSMenuItem *theMenuItem = [[NSMenuItem alloc] initWithTitle:aString action:aSelector keyEquivalent:charCode];
+	[theMenuItem setTarget:target];
 
-    [self addItem:theMenuItem];
-    
-    return theMenuItem;
+	[self addItem:theMenuItem];
+
+	return theMenuItem;
 }
 
-- (NSMenuItem *)addItemWithTitle:(NSString *)aString target:(id)target action:(SEL)aSelector keyEquivalent:(NSString *)charCode tag:(NSInteger)tag
+- (NSMenuItem *)addItemWithTitle:(NSString *)aString
+						  target:(id)target
+						  action:(SEL)aSelector
+				   keyEquivalent:(NSString *)charCode
+							 tag:(NSInteger)tag
 {
-    NSMenuItem	*theMenuItem = [[NSMenuItem alloc] initWithTitle:aString action:aSelector keyEquivalent:charCode];
-    [theMenuItem setTarget:target];
+	NSMenuItem *theMenuItem = [[NSMenuItem alloc] initWithTitle:aString action:aSelector keyEquivalent:charCode];
+	[theMenuItem setTarget:target];
 	[theMenuItem setTag:tag];
-	
-    [self addItem:theMenuItem];
-    
-    return theMenuItem;
+
+	[self addItem:theMenuItem];
+
+	return theMenuItem;
 }
 
-- (NSMenuItem *)addItemWithTitle:(NSString *)aString target:(id)target action:(SEL)aSelector keyEquivalent:(NSString *)charCode representedObject:(id)object
+- (NSMenuItem *)addItemWithTitle:(NSString *)aString
+						  target:(id)target
+						  action:(SEL)aSelector
+				   keyEquivalent:(NSString *)charCode
+			   representedObject:(id)object
 {
-    NSMenuItem	*theMenuItem = [[NSMenuItem alloc] initWithTitle:aString action:aSelector keyEquivalent:charCode];
-    [theMenuItem setTarget:target];
-    [theMenuItem setRepresentedObject:object];
+	NSMenuItem *theMenuItem = [[NSMenuItem alloc] initWithTitle:aString action:aSelector keyEquivalent:charCode];
+	[theMenuItem setTarget:target];
+	[theMenuItem setRepresentedObject:object];
 
-    [self addItem:theMenuItem];
-    
-    return theMenuItem;
+	[self addItem:theMenuItem];
+
+	return theMenuItem;
 }
 
 - (void)removeAllItemsButFirst
@@ -63,7 +74,7 @@
 - (void)removeAllItemsAfterIndex:(NSInteger)idx
 {
 	NSParameterAssert(idx < self.numberOfItems);
-	
+
 	NSInteger count = self.numberOfItems;
 	while (--count > idx) {
 		[self removeItemAtIndex:count];
@@ -76,34 +87,45 @@
 
 - (id)initWithTitle:(NSString *)aString target:(id)target action:(SEL)aSelector keyEquivalent:(NSString *)charCode
 {
-    if (!aString) aString = @"";
-    self = [self initWithTitle:aString action:aSelector keyEquivalent:charCode];
+	if (!aString)
+		aString = @"";
+	self = [self initWithTitle:aString action:aSelector keyEquivalent:charCode];
 
-    [self setTarget:target];
-    
-    return self;
+	[self setTarget:target];
+
+	return self;
 }
 
-- (id)initWithTitle:(NSString *)aString target:(id)target action:(SEL)aSelector keyEquivalent:(NSString *)charCode representedObject:(id)object
+- (id)initWithTitle:(NSString *)aString
+			   target:(id)target
+			   action:(SEL)aSelector
+		keyEquivalent:(NSString *)charCode
+	representedObject:(id)object
 {
-    if (!aString) aString = @"";
-    self = [self initWithTitle:aString action:aSelector keyEquivalent:charCode];
-	
-    [self setTarget:target];
-    [self setRepresentedObject:object];
-	
-    return self;
+	if (!aString)
+		aString = @"";
+	self = [self initWithTitle:aString action:aSelector keyEquivalent:charCode];
+
+	[self setTarget:target];
+	[self setRepresentedObject:object];
+
+	return self;
 }
 
-- (id)initWithTitle:(NSString *)aString target:(id)target action:(SEL)aSelector keyEquivalent:(NSString *)charCode keyMask:(unsigned int)keyMask
+- (id)initWithTitle:(NSString *)aString
+			 target:(id)target
+			 action:(SEL)aSelector
+	  keyEquivalent:(NSString *)charCode
+			keyMask:(unsigned int)keyMask
 {
-    if (!aString) aString = @"";
-    self = [self initWithTitle:aString action:aSelector keyEquivalent:charCode];
+	if (!aString)
+		aString = @"";
+	self = [self initWithTitle:aString action:aSelector keyEquivalent:charCode];
 
-    [self setTarget:target];
-    [self setKeyEquivalentModifierMask:keyMask];
-    
-    return self;
+	[self setTarget:target];
+	[self setKeyEquivalentModifierMask:keyMask];
+
+	return self;
 }
 
 /*Remove the key equivalent from a menu item
@@ -116,8 +138,8 @@
  */
 - (void)removeKeyEquivalent
 {
-	NSMenu	*menu = [self menu];
-	NSInteger		idx = [menu indexOfItem:self];
+	NSMenu *menu = [self menu];
+	NSInteger idx = [menu indexOfItem:self];
 
 	[menu removeItemAtIndex:idx];
 	[self setKeyEquivalent:@""];
@@ -126,7 +148,7 @@
 
 - (NSComparisonResult)titleCompare:(NSMenuItem *)inMenuItem
 {
-	return [[self title] compare:[inMenuItem title] options:NSNumericSearch|NSCaseInsensitiveSearch];
+	return [[self title] compare:[inMenuItem title] options:NSNumericSearch | NSCaseInsensitiveSearch];
 }
 
 @end
@@ -135,36 +157,38 @@
 
 - (void)setAllMenuItemsToState:(int)state
 {
-	NSEnumerator	*enumerator = [[self itemArray] objectEnumerator];
-	NSMenuItem		*menuItem;
+	NSEnumerator *enumerator = [[self itemArray] objectEnumerator];
+	NSMenuItem *menuItem;
 	while ((menuItem = [enumerator nextObject])) {
 		[menuItem setState:state];
 	}
 }
 
-//Finds and returns the first enabled menu item, or nil if there are none
+// Finds and returns the first enabled menu item, or nil if there are none
 - (NSMenuItem *)firstEnabledMenuItem
 {
-	NSEnumerator	*enumerator = [[self itemArray] objectEnumerator];
-	NSMenuItem		*menuItem;
-	
+	NSEnumerator *enumerator = [[self itemArray] objectEnumerator];
+	NSMenuItem *menuItem;
+
 	while ((menuItem = [enumerator nextObject])) {
-		if ([menuItem isEnabled]) return menuItem;
+		if ([menuItem isEnabled])
+			return menuItem;
 	}
-	
+
 	return nil;
 }
 
-//Swap two menu items
+// Swap two menu items
 + (void)swapMenuItem:(NSMenuItem *)itemA with:(NSMenuItem *)itemB
 {
-	if (itemA == itemB) return;
+	if (itemA == itemB)
+		return;
 
-	NSMenu	*menuA  = [itemA menu];
-	NSInteger		 indexA = menuA ? [menuA indexOfItem:itemA] : -1;
+	NSMenu *menuA = [itemA menu];
+	NSInteger indexA = menuA ? [menuA indexOfItem:itemA] : -1;
 
-	NSMenu	*menuB  = [itemB menu];
-	NSInteger		 indexB = menuB ? [menuB indexOfItem:itemB] : -1;
+	NSMenu *menuB = [itemB menu];
+	NSInteger indexB = menuB ? [menuB indexOfItem:itemB] : -1;
 
 	if ((menuA == menuB) && (indexA < indexB)) {
 		if (indexB > -1) {
@@ -187,22 +211,22 @@
 	}
 }
 
-//Alternate menu items are supposed to 'collapse into' their primary item, showing only one menu item
-//However, when the menu updates, they uncollapse; removing and readding both the primary and the alternate items
-//makes them recollapse.
+// Alternate menu items are supposed to 'collapse into' their primary item, showing only one menu item
+// However, when the menu updates, they uncollapse; removing and readding both the primary and the alternate items
+// makes them recollapse.
 + (void)updateAlternateMenuItem:(NSMenuItem *)alternateItem
 {
-    NSMenu		*containingMenu = [alternateItem menu];
-    NSInteger			menuItemIndex = [containingMenu indexOfItem:alternateItem];
-    NSMenuItem  *primaryItem = [containingMenu itemAtIndex:(menuItemIndex-1)];
-	
-	//Remove the primary item and readd it
-	[containingMenu removeItemAtIndex:(menuItemIndex-1)];
-	[containingMenu insertItem:primaryItem atIndex:(menuItemIndex-1)];
-	
-	//Remove the alternate item and readd it
-    [containingMenu removeItemAtIndex:menuItemIndex];
-    [containingMenu insertItem:alternateItem atIndex:menuItemIndex];
+	NSMenu *containingMenu = [alternateItem menu];
+	NSInteger menuItemIndex = [containingMenu indexOfItem:alternateItem];
+	NSMenuItem *primaryItem = [containingMenu itemAtIndex:(menuItemIndex - 1)];
+
+	// Remove the primary item and readd it
+	[containingMenu removeItemAtIndex:(menuItemIndex - 1)];
+	[containingMenu insertItem:primaryItem atIndex:(menuItemIndex - 1)];
+
+	// Remove the alternate item and readd it
+	[containingMenu removeItemAtIndex:menuItemIndex];
+	[containingMenu insertItem:alternateItem atIndex:menuItemIndex];
 }
 
 @end

@@ -8,8 +8,8 @@
 
 @interface NSFileManager (BundleBit)
 
-//both of these can work on a directory as well.
-- (BOOL) bundleBitOfFile:(NSString *)path;
-- (void) setBundleBitOfFile:(NSString *)path toBool:(BOOL)newValue;
+// both of these can work on a directory as well.
+- (BOOL)bundleBitOfFile:(NSString *)path;
+- (void)setBundleBitOfFile:(NSString *)path toBool:(BOOL)newValue;
 
 @end

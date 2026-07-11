@@ -16,8 +16,8 @@
 #import <Foundation/Foundation.h>
 #import <SenTestingKit/SenTestingKit.h>
 
-@interface TestLMXParser: SenTestCase
-{}
+@interface TestLMXParser : SenTestCase {
+}
 
 - (void)testReverseParse;
 

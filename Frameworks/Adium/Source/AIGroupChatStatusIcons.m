@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -18,7 +18,7 @@
 
 #import <AIUtilities/AIColorAdditions.h>
 
-@interface AIGroupChatStatusIcons()
+@interface AIGroupChatStatusIcons ()
 + (NSURL *)currentPackURL;
 - (NSString *)keyForFlags:(AIGroupChatFlags)flags;
 - (NSImage *)imageForKey:(NSString *)key;
@@ -40,7 +40,7 @@ static AIGroupChatStatusIcons *sharedIconsInstance = nil;
 	if (!sharedIconsInstance) {
 		sharedIconsInstance = [[self alloc] initWithURL:[self currentPackURL]];
 	}
-	
+
 	return sharedIconsInstance;
 }
 
@@ -53,11 +53,11 @@ static AIGroupChatStatusIcons *sharedIconsInstance = nil;
 		[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_APPEARANCE];
 		iconInfo = [xtraBundle objectForInfoDictionaryKey:KEY_ICONS_DICT];
 		colorInfo = [xtraBundle objectForInfoDictionaryKey:KEY_COLORS_DICT];
-		
+
 		icons = [[NSMutableDictionary alloc] init];
 		colors = [[NSMutableDictionary alloc] init];
 	}
-	
+
 	return self;
 }
 
@@ -67,9 +67,11 @@ static AIGroupChatStatusIcons *sharedIconsInstance = nil;
 - (void)dealloc
 {
 	sharedIconsInstance = nil;
-	[icons release]; [colors release];
-	[iconInfo release]; [colorInfo release];
-	
+	[icons release];
+	[colors release];
+	[iconInfo release];
+	[colorInfo release];
+
 	[adium.preferenceController unregisterPreferenceObserver:self];
 	[super dealloc];
 }
@@ -89,7 +91,7 @@ static AIGroupChatStatusIcons *sharedIconsInstance = nil;
 {
 	NSString *key = [self keyForFlags:flags];
 	NSImage *image = [icons objectForKey:key];
-	
+
 	// If we don't have it already saved, try to get the image from the pack.
 	if (!image) {
 		image = [self imageForKey:key];
@@ -102,7 +104,7 @@ static AIGroupChatStatusIcons *sharedIconsInstance = nil;
 			image = [self imageForKey:NONE];
 		}
 	}
-	
+
 	return image;
 }
 
@@ -117,11 +119,11 @@ static AIGroupChatStatusIcons *sharedIconsInstance = nil;
 - (NSImage *)imageForKey:(NSString *)key
 {
 	NSString *imagePath = nil;
-	
+
 	if (!iconInfo || ![iconInfo objectForKey:key]) {
 		return nil;
 	}
-	
+
 	imagePath = [xtraBundle pathForImageResource:[iconInfo objectForKey:key]];
 	return [[[NSImage alloc] initWithContentsOfFile:imagePath] autorelease];
 }
@@ -139,19 +141,19 @@ static AIGroupChatStatusIcons *sharedIconsInstance = nil;
  */
 - (NSColor *)colorForFlag:(AIGroupChatFlags)flags
 {
-	NSString	*key = [self keyForFlags:flags];
-	NSColor		*color = [colors objectForKey:key];
-	
+	NSString *key = [self keyForFlags:flags];
+	NSColor *color = [colors objectForKey:key];
+
 	if (!color) {
 		color = [self colorForKey:key];
-		
+
 		if (color) {
 			[colors setObject:color forKey:key];
 		} else {
 			color = [self colorForKey:NONE];
 		}
 	}
-	
+
 	return color;
 }
 
@@ -168,7 +170,7 @@ static AIGroupChatStatusIcons *sharedIconsInstance = nil;
 	if (!colorInfo || ![colorInfo objectForKey:key]) {
 		return nil;
 	}
-	
+
 	return [[colorInfo objectForKey:key] representedColor];
 }
 
@@ -184,16 +186,16 @@ static AIGroupChatStatusIcons *sharedIconsInstance = nil;
 {
 	if ((flags & AIGroupChatFounder) == AIGroupChatFounder)
 		return FOUNDER;
-	
+
 	if ((flags & AIGroupChatOp) == AIGroupChatOp)
 		return OP;
-	
+
 	if ((flags & AIGroupChatHalfOp) == AIGroupChatHalfOp)
 		return HOP;
-	
+
 	if ((flags & AIGroupChatVoice) == AIGroupChatVoice)
 		return VOICE;
-	
+
 	return NONE;
 }
 
@@ -207,18 +209,18 @@ static AIGroupChatStatusIcons *sharedIconsInstance = nil;
 + (NSURL *)currentPackURL
 {
 	NSString *packName = nil, *path = nil;
-	
+
 	packName = [adium.preferenceController preferenceForKey:KEY_GROUP_CHAT_STATUS_ICONS
 													  group:PREF_GROUP_APPEARANCE
 													 object:nil];
-	
+
 	// Get the path of the pack if found.
 	if (packName) {
 		path = [adium pathOfPackWithName:packName
 							   extension:EXTENSION_GROUP_CHAT_STATUS_ICONS
 					  resourceFolderName:RESOURCE_GROUP_CHAT_STATUS_ICONS];
 	}
-	
+
 	// If the pack is not found, get the default one.
 	if (!path || !packName) {
 		packName = [adium.preferenceController defaultPreferenceForKey:KEY_GROUP_CHAT_STATUS_ICONS
@@ -232,17 +234,22 @@ static AIGroupChatStatusIcons *sharedIconsInstance = nil;
 	return [NSURL fileURLWithPath:path];
 }
 
-- (void)preferencesChangedForGroup:(NSString *)group key:(NSString *)key object:(AIListObject *)object preferenceDict:(NSDictionary *)prefDict firstTime:(BOOL)firstTime
+- (void)preferencesChangedForGroup:(NSString *)group
+							   key:(NSString *)key
+							object:(AIListObject *)object
+					preferenceDict:(NSDictionary *)prefDict
+						 firstTime:(BOOL)firstTime
 {
 	if ([group isEqualToString:PREF_GROUP_APPEARANCE]) {
 		if ([key isEqualToString:KEY_GROUP_CHAT_STATUS_ICONS]) {
 			// We're going to be killing ourself off, so retain until the end.
 			[self retain];
-			
+
 			// Create a new shared controller.
-			[sharedIconsInstance release]; sharedIconsInstance = nil;
+			[sharedIconsInstance release];
+			sharedIconsInstance = nil;
 			[AIGroupChatStatusIcons sharedIcons];
-			
+
 			// Suicide. :'(
 			[self release];
 		}

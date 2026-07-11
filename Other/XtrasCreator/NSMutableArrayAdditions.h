@@ -9,7 +9,7 @@
 
 @interface NSMutableArray (NSMutableArrayAdditions)
 
-//assumes a sorted array. does the Right Thing for empty arrays.
-- (unsigned) indexForInsortingObject:(id)obj usingSelector:(SEL)compareCmd;
+// assumes a sorted array. does the Right Thing for empty arrays.
+- (unsigned)indexForInsortingObject:(id)obj usingSelector:(SEL)compareCmd;
 
 @end

@@ -15,26 +15,26 @@
  */
 
 #import "NEHUserNotificationPlugin.h"
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIStatusControllerProtocol.h>
+#import <AIUtilities/AIImageAdditions.h>
 #import <Adium/AIChat.h>
+#import <Adium/AIChatControllerProtocol.h>
+#import <Adium/AIContactAlertsControllerProtocol.h>
+#import <Adium/AIContactControllerProtocol.h>
 #import <Adium/AIContentObject.h>
+#import <Adium/AIInterfaceControllerProtocol.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIListObject.h>
 #import <Adium/AIStatus.h>
+#import <Adium/AIStatusControllerProtocol.h>
 #import <Adium/ESFileTransfer.h>
-#import <AIUtilities/AIImageAdditions.h>
 
 // UserNotifications requires macOS 10.14+. Runtime guards are in place below.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
 
-#define KEY_FILE_TRANSFER_ID	@"fileTransferUniqueID"
-#define KEY_CHAT_ID				@"uniqueChatID"
-#define KEY_LIST_OBJECT_ID		@"internalObjectID"
+#define KEY_FILE_TRANSFER_ID @"fileTransferUniqueID"
+#define KEY_CHAT_ID @"uniqueChatID"
+#define KEY_LIST_OBJECT_ID @"internalObjectID"
 
 @interface NEHUserNotificationPlugin ()
 - (void)adiumFinishedLaunching:(NSNotification *)notification;
@@ -56,9 +56,9 @@
 - (void)installPlugin
 {
 	[[NSNotificationCenter defaultCenter] addObserver:self
-											selector:@selector(adiumFinishedLaunching:)
-												name:AIApplicationDidFinishLoadingNotification
-											  object:nil];
+											 selector:@selector(adiumFinishedLaunching:)
+												 name:AIApplicationDidFinishLoadingNotification
+											   object:nil];
 }
 
 - (void)uninstallPlugin
@@ -73,13 +73,11 @@
  */
 - (void)adiumFinishedLaunching:(NSNotification *)notification
 {
-	[self performSelector:@selector(beginNotifications)
-			   withObject:nil
-			   afterDelay:0];
+	[self performSelector:@selector(beginNotifications) withObject:nil afterDelay:0];
 
 	[[NSNotificationCenter defaultCenter] removeObserver:self
-												  name:AIApplicationDidFinishLoadingNotification
-												object:nil];
+													name:AIApplicationDidFinishLoadingNotification
+												  object:nil];
 }
 
 /*!
@@ -96,12 +94,13 @@
 	center.delegate = self;
 
 	// Request authorization. We need alert and sound for notification display.
-	[center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge)
+	[center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert | UNAuthorizationOptionSound |
+											 UNAuthorizationOptionBadge)
 						  completionHandler:^(BOOL granted, NSError *error) {
-		if (error) {
-			AILog(@"UserNotification authorization error: %@", error);
-		}
-	}];
+							  if (error) {
+								  AILog(@"UserNotification authorization error: %@", error);
+							  }
+						  }];
 
 	// Register the action handler
 	[adium.contactAlertsController registerActionID:USER_NOTIFICATION_ALERT_IDENTIFIER withHandler:self];
@@ -166,11 +165,12 @@
 																		  trigger:nil];
 
 	UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-	[center addNotificationRequest:request withCompletionHandler:^(NSError *error) {
-		if (error) {
-			AILog(@"Notification request error: %@", error);
-		}
-	}];
+	[center addNotificationRequest:request
+			 withCompletionHandler:^(NSError *error) {
+				 if (error) {
+					 AILog(@"Notification request error: %@", error);
+				 }
+			 }];
 
 	return YES;
 }
@@ -233,13 +233,10 @@
 				title = [NSString stringWithFormat:@"%@ (%@)", title, chat.displayName];
 			}
 		} else {
-			if ([userInfo isKindOfClass:[ESFileTransfer class]] &&
-				[eventID isEqualToString:FILE_TRANSFER_COMPLETE]) {
-				[clickContext setObject:[(ESFileTransfer *)userInfo uniqueID]
-								 forKey:KEY_FILE_TRANSFER_ID];
+			if ([userInfo isKindOfClass:[ESFileTransfer class]] && [eventID isEqualToString:FILE_TRANSFER_COMPLETE]) {
+				[clickContext setObject:[(ESFileTransfer *)userInfo uniqueID] forKey:KEY_FILE_TRANSFER_ID];
 			} else {
-				[clickContext setObject:listObject.internalObjectID
-								 forKey:KEY_LIST_OBJECT_ID];
+				[clickContext setObject:listObject.internalObjectID forKey:KEY_LIST_OBJECT_ID];
 			}
 		}
 
@@ -290,8 +287,8 @@
  * @brief Handle notification click
  */
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
-didReceiveNotificationResponse:(UNNotificationResponse *)response
-		 withCompletionHandler:(void (^)(void))completionHandler
+	didReceiveNotificationResponse:(UNNotificationResponse *)response
+			 withCompletionHandler:(void (^)(void))completionHandler
 {
 	if (!@available(macOS 10.14, *)) {
 		completionHandler();
@@ -309,8 +306,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 		if ([listObject isKindOfClass:[AIListContact class]]) {
 			chat = [adium.chatController existingChatWithContact:(AIListContact *)listObject];
 			if (!chat) {
-				chat = [adium.chatController openChatWithContact:(AIListContact *)listObject
-											   onPreferredAccount:YES];
+				chat = [adium.chatController openChatWithContact:(AIListContact *)listObject onPreferredAccount:YES];
 			}
 		}
 
@@ -319,8 +315,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 		if (!chat) {
 			listObject = [adium.contactController existingListObjectWithUniqueID:uniqueChatID];
 			if ([listObject isKindOfClass:[AIListContact class]]) {
-				chat = [adium.chatController openChatWithContact:(AIListContact *)listObject
-											   onPreferredAccount:YES];
+				chat = [adium.chatController openChatWithContact:(AIListContact *)listObject onPreferredAccount:YES];
 			}
 		}
 	}

@@ -1,37 +1,42 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #import "ESContactAlertsController.h"
 #import "AIDoNothingContactAlertPlugin.h"
-#import <Adium/AIListObject.h>
-#import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIImageDrawingAdditions.h>
+#import <AIUtilities/AIMenuAdditions.h>
+#import <Adium/AIListObject.h>
 
 @interface ESContactAlertsController ()
 - (NSArray *)arrayOfMenuItemsForEventsWithTarget:(id)target forGlobalMenu:(BOOL)global;
 
-- (NSMutableArray *)appendEventsForObject:(AIListObject *)listObject eventID:(NSString *)eventID toArray:(NSMutableArray *)events;
-- (void)addMenuItemsForEventHandlers:(NSDictionary *)inEventHandlers toArray:(NSMutableArray *)menuItemArray withTarget:(id)target forGlobalMenu:(BOOL)global;
+- (NSMutableArray *)appendEventsForObject:(AIListObject *)listObject
+								  eventID:(NSString *)eventID
+								  toArray:(NSMutableArray *)events;
+- (void)addMenuItemsForEventHandlers:(NSDictionary *)inEventHandlers
+							 toArray:(NSMutableArray *)menuItemArray
+						  withTarget:(id)target
+					   forGlobalMenu:(BOOL)global;
 - (void)removeAllAlertsFromListObject:(AIListObject *)listObject;
 @end
 
 @implementation ESContactAlertsController
 
-static	NSMutableDictionary		*eventHandlersByGroup[EVENT_HANDLER_GROUP_COUNT];
-static	NSMutableDictionary		*globalOnlyEventHandlersByGroup[EVENT_HANDLER_GROUP_COUNT];
+static NSMutableDictionary *eventHandlersByGroup[EVENT_HANDLER_GROUP_COUNT];
+static NSMutableDictionary *globalOnlyEventHandlersByGroup[EVENT_HANDLER_GROUP_COUNT];
 
 /*!
  * @brief Init
@@ -43,73 +48,76 @@ static	NSMutableDictionary		*globalOnlyEventHandlersByGroup[EVENT_HANDLER_GROUP_
 		eventHandlers = [[NSMutableDictionary alloc] init];
 		actionHandlers = [[NSMutableDictionary alloc] init];
 	}
-	
+
 	return self;
 }
 
 - (void)controllerDidLoad
-{
-}
+{}
 
 - (void)controllerWillClose
-{
-	
-}
+{}
 
 /*!
  * @brief Deallocate
  */
 - (void)dealloc
 {
-	[globalOnlyEventHandlers release]; globalOnlyEventHandlers = nil;
-	[eventHandlers release]; eventHandlers = nil;
-	[actionHandlers release]; actionHandlers = nil;
-	
+	[globalOnlyEventHandlers release];
+	globalOnlyEventHandlers = nil;
+	[eventHandlers release];
+	eventHandlers = nil;
+	[actionHandlers release];
+	actionHandlers = nil;
+
 	[super dealloc];
 }
 
-
-//Events ---------------------------------------------------------------------------------------------------------------
+// Events
+// ---------------------------------------------------------------------------------------------------------------
 #pragma mark Events
 
 /*!
  * @brief Register an event
  *
  * An event must have a unique eventID. handler is responsible for providing information
- * about the event, such as short and long descriptions. The group determines how the event will be displayed in the events
- * preferences; events in the same group are displayed together.
+ * about the event, such as short and long descriptions. The group determines how the event will be displayed in the
+ * events preferences; events in the same group are displayed together.
  *
  * @param eventID Unique event ID
  * @param handler The handler, which must conform to AIEventHandler
  * @param inGroup The group
- * @param global If YES, the event will only be displayed in the global Events preferences; if NO, the event is available for contacts and groups via Get Info, as well.
+ * @param global If YES, the event will only be displayed in the global Events preferences; if NO, the event is
+ * available for contacts and groups via Get Info, as well.
  */
 - (void)registerEventID:(NSString *)eventID
-			withHandler:(id <AIEventHandler>)handler
+			withHandler:(id<AIEventHandler>)handler
 				inGroup:(AIEventHandlerGroupType)inGroup
 			 globalOnly:(BOOL)global
 {
 	if (global) {
 		[globalOnlyEventHandlers setObject:handler forKey:eventID];
-		
-		if (!globalOnlyEventHandlersByGroup[inGroup]) globalOnlyEventHandlersByGroup[inGroup] = [[NSMutableDictionary alloc] init];
+
+		if (!globalOnlyEventHandlersByGroup[inGroup])
+			globalOnlyEventHandlersByGroup[inGroup] = [[NSMutableDictionary alloc] init];
 		[globalOnlyEventHandlersByGroup[inGroup] setObject:handler forKey:eventID];
-		
+
 	} else {
 		[eventHandlers setObject:handler forKey:eventID];
-		
-		if (!eventHandlersByGroup[inGroup]) eventHandlersByGroup[inGroup] = [[NSMutableDictionary alloc] init];
+
+		if (!eventHandlersByGroup[inGroup])
+			eventHandlersByGroup[inGroup] = [[NSMutableDictionary alloc] init];
 		[eventHandlersByGroup[inGroup] setObject:handler forKey:eventID];
 	}
 }
 
-//Return all event IDs
+// Return all event IDs
 - (NSArray *)allEventIDs
 {
 	return [[eventHandlers allKeys] arrayByAddingObjectsFromArray:[globalOnlyEventHandlers allKeys]];
 }
 
-//Return event IDs which aren't global
+// Return event IDs which aren't global
 - (NSArray *)nonGlobalEventIDs
 {
 	return [eventHandlers allKeys];
@@ -117,50 +125,52 @@ static	NSMutableDictionary		*globalOnlyEventHandlersByGroup[EVENT_HANDLER_GROUP_
 
 - (NSString *)longDescriptionForEventID:(NSString *)eventID forListObject:(AIListObject *)listObject
 {
-	id <AIEventHandler> handler;
-	
+	id<AIEventHandler> handler;
+
 	handler = [eventHandlers objectForKey:eventID];
-	if (!handler) handler = [globalOnlyEventHandlers objectForKey:eventID];
-	
+	if (!handler)
+		handler = [globalOnlyEventHandlers objectForKey:eventID];
+
 	return [handler longDescriptionForEventID:eventID forListObject:listObject];
 }
 
 /*!
  * @brief Returns a menu of all events
- * 
+ *
  * A menu item's represented object is the dictionary describing the event it represents
  *
  * @param target The target on which @selector(selectEvent:) will be called on selection.
- * @param global If YES, the events listed will include global ones (such as Error Occurred) in addition to contact-specific ones.
+ * @param global If YES, the events listed will include global ones (such as Error Occurred) in addition to
+ * contact-specific ones.
  * @result An NSMenu of the events
  */
 - (NSMenu *)menuOfEventsWithTarget:(id)target forGlobalMenu:(BOOL)global
 {
-	NSMenu				*menu;
+	NSMenu *menu;
 
-	//Prepare our menu
+	// Prepare our menu
 	menu = [[NSMenu allocWithZone:[NSMenu zone]] init];
 	[menu setAutoenablesItems:NO];
-	
+
 	for (NSMenuItem *item in [self arrayOfMenuItemsForEventsWithTarget:target forGlobalMenu:global]) {
 		[menu addItem:item];
 	}
-	
+
 	return [menu autorelease];
 }
 
 - (NSArray *)arrayOfMenuItemsForEventsWithTarget:(id)target forGlobalMenu:(BOOL)global
 {
-	NSMutableArray		*menuItemArray = [NSMutableArray array];
-	BOOL				addedItems = NO;
-	NSInteger					i;
-	
-	for (i = 0; i < EVENT_HANDLER_GROUP_COUNT; i++) {
-		NSMutableArray		*groupMenuItemArray;
+	NSMutableArray *menuItemArray = [NSMutableArray array];
+	BOOL addedItems = NO;
+	NSInteger i;
 
-		//Create an array of menu items for this group
+	for (i = 0; i < EVENT_HANDLER_GROUP_COUNT; i++) {
+		NSMutableArray *groupMenuItemArray;
+
+		// Create an array of menu items for this group
 		groupMenuItemArray = [NSMutableArray array];
-		
+
 		[self addMenuItemsForEventHandlers:eventHandlersByGroup[i]
 								   toArray:groupMenuItemArray
 								withTarget:target
@@ -171,82 +181,88 @@ static	NSMutableDictionary		*globalOnlyEventHandlersByGroup[EVENT_HANDLER_GROUP_
 									withTarget:target
 								 forGlobalMenu:global];
 		}
-		
+
 		if ([groupMenuItemArray count]) {
-			//Add a separator if we are adding a group and we have added before
+			// Add a separator if we are adding a group and we have added before
 			if (addedItems) {
 				[menuItemArray addObject:[NSMenuItem separatorItem]];
 			} else {
 				addedItems = YES;
 			}
-			
-			//Sort the array of menuItems alphabetically by title within this group
+
+			// Sort the array of menuItems alphabetically by title within this group
 			[groupMenuItemArray sortUsingSelector:@selector(titleCompare:)];
 
 			[menuItemArray addObjectsFromArray:groupMenuItemArray];
 		}
 	}
-	
-	return menuItemArray;
-}	
 
-- (void)addMenuItemsForEventHandlers:(NSDictionary *)inEventHandlers toArray:(NSMutableArray *)menuItemArray withTarget:(id)target forGlobalMenu:(BOOL)global
-{	
-	NSMenuItem			*menuItem;
-	
+	return menuItemArray;
+}
+
+- (void)addMenuItemsForEventHandlers:(NSDictionary *)inEventHandlers
+							 toArray:(NSMutableArray *)menuItemArray
+						  withTarget:(id)target
+					   forGlobalMenu:(BOOL)global
+{
+	NSMenuItem *menuItem;
+
 	for (NSString *eventID in inEventHandlers) {
-		id <AIEventHandler>	eventHandler = [inEventHandlers objectForKey:eventID];		
-		
-        menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:(global ?
-																				[eventHandler globalShortDescriptionForEventID:eventID] :
-																				[eventHandler shortDescriptionForEventID:eventID])
-																		target:target 
-																		action:@selector(selectEvent:) 
-																 keyEquivalent:@""];
-        [menuItem setRepresentedObject:eventID];
+		id<AIEventHandler> eventHandler = [inEventHandlers objectForKey:eventID];
+
+		menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
+			initWithTitle:(global ? [eventHandler globalShortDescriptionForEventID:eventID]
+								  : [eventHandler shortDescriptionForEventID:eventID])
+				   target:target
+				   action:@selector(selectEvent:)
+			keyEquivalent:@""];
+		[menuItem setRepresentedObject:eventID];
 		[menuItemArray addObject:menuItem];
 		[menuItem release];
-    }
+	}
 }
 
 /*!
  * @brief Sort event IDs by group and then by global short description
  */
-NSInteger eventIDSort(id objectA, id objectB, void *context) {
-	NSInteger					groupA, groupB;
-	id <AIEventHandler> eventHandlerA;
-	id <AIEventHandler> eventHandlerB;
-	
-	//Determine the group of the first event ID
+NSInteger eventIDSort(id objectA, id objectB, void *context)
+{
+	NSInteger groupA, groupB;
+	id<AIEventHandler> eventHandlerA;
+	id<AIEventHandler> eventHandlerB;
+
+	// Determine the group of the first event ID
 	for (groupA = 0; groupA < EVENT_HANDLER_GROUP_COUNT; groupA++) {
 		eventHandlerA = [eventHandlersByGroup[groupA] objectForKey:objectA];
 		if (!eventHandlerA) {
 			eventHandlerA = [globalOnlyEventHandlersByGroup[groupA] objectForKey:objectA];
 		}
-		
-		if (eventHandlerA) break;
+
+		if (eventHandlerA)
+			break;
 	}
-	
-	//Determine the group of the second ID
+
+	// Determine the group of the second ID
 	for (groupB = 0; groupB < EVENT_HANDLER_GROUP_COUNT; groupB++) {
 		eventHandlerB = [eventHandlersByGroup[groupB] objectForKey:objectB];
 		if (!eventHandlerB) {
 			eventHandlerB = [globalOnlyEventHandlersByGroup[groupB] objectForKey:objectB];
 		}
-		
-		if (eventHandlerB) break;
+
+		if (eventHandlerB)
+			break;
 	}
-	
+
 	if (groupA < groupB) {
 		return NSOrderedAscending;
-		
+
 	} else if (groupB < groupA) {
 		return NSOrderedDescending;
-		
+
 	} else {
-		NSString	*descriptionA = [eventHandlerA globalShortDescriptionForEventID:objectA];
-		NSString	*descriptionB = [eventHandlerA globalShortDescriptionForEventID:objectB];
-		
+		NSString *descriptionA = [eventHandlerA globalShortDescriptionForEventID:objectA];
+		NSString *descriptionB = [eventHandlerA globalShortDescriptionForEventID:objectB];
+
 		return ([descriptionA caseInsensitiveCompare:descriptionB]);
 	}
 }
@@ -267,10 +283,11 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  */
 - (NSImage *)imageForEventID:(NSString *)eventID
 {
-	id <AIEventHandler>	eventHandler;
-	
-	eventHandler = [eventHandlers objectForKey:eventID];		
-	if (!eventHandler) eventHandler = [globalOnlyEventHandlers objectForKey:eventID];
+	id<AIEventHandler> eventHandler;
+
+	eventHandler = [eventHandlers objectForKey:eventID];
+	if (!eventHandler)
+		eventHandler = [globalOnlyEventHandlers objectForKey:eventID];
 
 	return [eventHandler imageForEventID:eventID];
 }
@@ -281,51 +298,54 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  * @param eventID The event which occurred
  * @param listObject The object for which the event occurred
  * @param userInfo Event-specific user info
- * @param previouslyPerformedActionIDs If non-nil, a set of actionIDs which should be treated as if they had already been performed in this invocation.
+ * @param previouslyPerformedActionIDs If non-nil, a set of actionIDs which should be treated as if they had already
+ * been performed in this invocation.
  *
- * @result The set of actions which were performed, suitable for being passed back in for another event generation via previouslyPerformedActionIDs
+ * @result The set of actions which were performed, suitable for being passed back in for another event generation via
+ * previouslyPerformedActionIDs
  */
-- (NSSet *)generateEvent:(NSString *)eventID forListObject:(AIListObject *)listObject userInfo:(id)userInfo previouslyPerformedActionIDs:(NSSet *)previouslyPerformedActionIDs
+- (NSSet *)generateEvent:(NSString *)eventID
+				   forListObject:(AIListObject *)listObject
+						userInfo:(id)userInfo
+	previouslyPerformedActionIDs:(NSSet *)previouslyPerformedActionIDs
 {
-	NSArray			*alerts = [self appendEventsForObject:listObject eventID:eventID toArray:nil];
-	NSMutableSet	*performedActionIDs = nil;
-	
-	if (alerts && [alerts count]) {
-		performedActionIDs = (previouslyPerformedActionIDs ?
-							  [[previouslyPerformedActionIDs mutableCopy] autorelease]:
-							  [NSMutableSet set]);
-		
-		//We go from contact->group->root; a given action will only fire once for this event
+	NSArray *alerts = [self appendEventsForObject:listObject eventID:eventID toArray:nil];
+	NSMutableSet *performedActionIDs = nil;
 
-		//Process each alert (There may be more than one for an event)
+	if (alerts && [alerts count]) {
+		performedActionIDs = (previouslyPerformedActionIDs ? [[previouslyPerformedActionIDs mutableCopy] autorelease]
+														   : [NSMutableSet set]);
+
+		// We go from contact->group->root; a given action will only fire once for this event
+
+		// Process each alert (There may be more than one for an event)
 		for (NSDictionary *alert in alerts) {
 			NSString *actionID = [alert objectForKey:KEY_ACTION_ID];
-			id <AIActionHandler> actionHandler = [actionHandlers objectForKey:actionID];
-			
-			if ((![performedActionIDs containsObject:actionID]) || ([actionHandler allowMultipleActionsWithID:actionID])) {
+			id<AIActionHandler> actionHandler = [actionHandlers objectForKey:actionID];
+
+			if ((![performedActionIDs containsObject:actionID]) ||
+				([actionHandler allowMultipleActionsWithID:actionID])) {
 				if ([actionHandler performActionID:actionID
-											 forListObject:listObject
-											   withDetails:[alert objectForKey:KEY_ACTION_DETAILS] 
-										 triggeringEventID:eventID
+									 forListObject:listObject
+									   withDetails:[alert objectForKey:KEY_ACTION_DETAILS]
+								 triggeringEventID:eventID
 										  userInfo:userInfo]) {
-					
-					//If this alert was a single-fire alert, we can delete it now
+
+					// If this alert was a single-fire alert, we can delete it now
 					if ([[alert objectForKey:KEY_ONE_TIME_ALERT] integerValue]) {
 						AILogWithSignature(@"One time alert, so removing %@ from %@", alert, listObject);
 						[self removeAlert:alert fromListObject:listObject];
 					}
-					
-					//We don't want to perform this action again for this event
+
+					// We don't want to perform this action again for this event
 					[performedActionIDs addObject:actionID];
 				}
 			}
 		}
 	}
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:eventID
-											  object:listObject 
-											userInfo:userInfo];
-	
+
+	[[NSNotificationCenter defaultCenter] postNotificationName:eventID object:listObject userInfo:userInfo];
+
 	/* If we generated a new perfromedActionIDs, return it.  If we didn't, return the original
 	 * previouslyPerformedActionIDs, which may also be nil or may be actionIDs performed on some previous invocation.
 	 */
@@ -343,28 +363,32 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  *
  * @result An array which contains the object's own events followed by its containingObject's events.
  */
-- (NSMutableArray *)appendEventsForObject:(AIListObject *)listObject eventID:(NSString *)eventID toArray:(NSMutableArray *)events
+- (NSMutableArray *)appendEventsForObject:(AIListObject *)listObject
+								  eventID:(NSString *)eventID
+								  toArray:(NSMutableArray *)events
 {
-	NSArray			*newEvents;
+	NSArray *newEvents;
 
-	//Add events for this object (replacing any inherited from the containing object so that this object takes precendence)
+	// Add events for this object (replacing any inherited from the containing object so that this object takes
+	// precendence)
 	newEvents = [[adium.preferenceController preferenceForKey:KEY_CONTACT_ALERTS
-														  group:PREF_GROUP_CONTACT_ALERTS
-									  objectIgnoringInheritance:listObject] objectForKey:eventID];
-	
+														group:PREF_GROUP_CONTACT_ALERTS
+									objectIgnoringInheritance:listObject] objectForKey:eventID];
+
 	if (newEvents && [newEvents count]) {
-		if (!events) events = [NSMutableArray array];
+		if (!events)
+			events = [NSMutableArray array];
 		[events addObjectsFromArray:newEvents];
-		
-		//Don't add any more events if there's a Do Nothing action
-		for (NSDictionary *event in newEvents){
+
+		// Don't add any more events if there's a Do Nothing action
+		for (NSDictionary *event in newEvents) {
 			NSString *actionID = [event objectForKey:KEY_ACTION_ID];
 			if ([actionID isEqualToString:DO_NOTHING_ALERT_IDENTIFIER])
 				return events;
 		}
 	}
 
-	//Get all events from the contanining object if we have an object
+	// Get all events from the contanining object if we have an object
 	if (listObject) {
 		if (listObject.containingObjects.count > 0) {
 			for (AIListObject<AIContainingObject> *container in listObject.containingObjects) {
@@ -383,11 +407,11 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
 - (NSString *)defaultEventID
 {
 	NSString *defaultEventID = [adium.preferenceController preferenceForKey:KEY_DEFAULT_EVENT_ID
-																		group:PREF_GROUP_CONTACT_ALERTS];
+																	  group:PREF_GROUP_CONTACT_ALERTS];
 	if (![eventHandlers objectForKey:defaultEventID]) {
 		defaultEventID = [[eventHandlers allKeys] objectAtIndex:0];
 	}
-	
+
 	return defaultEventID;
 }
 
@@ -397,21 +421,21 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  * This exists for compatibility with old AdiumYExtras...
  */
 - (NSString *)eventIDForEnglishDisplayName:(NSString *)displayName
-{	
+{
 	for (NSString *eventID in eventHandlers) {
-		id <AIEventHandler>	eventHandler = [eventHandlers objectForKey:eventID];		
+		id<AIEventHandler> eventHandler = [eventHandlers objectForKey:eventID];
 		if ([[eventHandler englishGlobalShortDescriptionForEventID:eventID] isEqualToString:displayName]) {
 			return eventID;
 		}
 	}
 
 	for (NSString *eventID in globalOnlyEventHandlers) {
-		id <AIEventHandler>	eventHandler = [globalOnlyEventHandlers objectForKey:eventID];		
+		id<AIEventHandler> eventHandler = [globalOnlyEventHandlers objectForKey:eventID];
 		if ([[eventHandler englishGlobalShortDescriptionForEventID:eventID] isEqualToString:displayName]) {
 			return eventID;
 		}
 	}
-	
+
 	return nil;
 }
 
@@ -420,15 +444,16 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  */
 - (NSString *)globalShortDescriptionForEventID:(NSString *)eventID
 {
-	id <AIEventHandler>	eventHandler;
-	
+	id<AIEventHandler> eventHandler;
+
 	eventHandler = [eventHandlers objectForKey:eventID];
-	if (!eventHandler) eventHandler = [globalOnlyEventHandlers objectForKey:eventID];
-	
+	if (!eventHandler)
+		eventHandler = [globalOnlyEventHandlers objectForKey:eventID];
+
 	if (eventHandler) {
 		return [eventHandler globalShortDescriptionForEventID:eventID];
 	}
-	
+
 	return @"";
 }
 
@@ -440,7 +465,8 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  * @param eventID The event
  * @param listObject The object for which the event occurred
  * @param userInfo Event-specific userInfo
- * @param includeSubject If YES, the return value is a complete sentence. If NO, the return value is suitable for display after a name or other identifier.
+ * @param includeSubject If YES, the return value is a complete sentence. If NO, the return value is suitable for
+ * display after a name or other identifier.
  * @result The natural language description
  */
 - (NSString *)naturalLanguageDescriptionForEventID:(NSString *)eventID
@@ -448,10 +474,11 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
 										  userInfo:(id)userInfo
 									includeSubject:(BOOL)includeSubject
 {
-	id <AIEventHandler>	eventHandler;
+	id<AIEventHandler> eventHandler;
 
 	eventHandler = [eventHandlers objectForKey:eventID];
-	if (!eventHandler) eventHandler = [globalOnlyEventHandlers objectForKey:eventID];
+	if (!eventHandler)
+		eventHandler = [globalOnlyEventHandlers objectForKey:eventID];
 
 	if (eventHandler) {
 		return [eventHandler naturalLanguageDescriptionForEventID:eventID
@@ -468,22 +495,24 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
 									forChat:(AIChat *)chat
 								  withCount:(NSUInteger)count
 {
-	id <AIEventHandler>	eventHandler;
-	
+	id<AIEventHandler> eventHandler;
+
 	eventHandler = [eventHandlers objectForKey:eventID];
-	if (!eventHandler) eventHandler = [globalOnlyEventHandlers objectForKey:eventID];
-	
+	if (!eventHandler)
+		eventHandler = [globalOnlyEventHandlers objectForKey:eventID];
+
 	if (eventHandler) {
 		return [eventHandler descriptionForCombinedEventID:eventID
 											 forListObject:listObject
 												   forChat:chat
 												 withCount:count];
 	}
-	
-	return @"";	
+
+	return @"";
 }
 
-//Actions --------------------------------------------------------------------------------------------------------------
+// Actions
+// --------------------------------------------------------------------------------------------------------------
 #pragma mark Actions
 /*!
  * @brief Register an actionID and its handler
@@ -496,7 +525,7 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  * @param actionID The actionID
  * @param handler The handler, which must conform to the AIActionHandler protocol
  */
-- (void)registerActionID:(NSString *)actionID withHandler:(id <AIActionHandler>)handler
+- (void)registerActionID:(NSString *)actionID withHandler:(id<AIActionHandler>)handler
 {
 	[actionHandlers setObject:handler forKey:actionID];
 }
@@ -519,42 +548,43 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  */
 - (NSMenu *)menuOfActionsWithTarget:(id)target
 {
-	NSMenu			*menu;
-	NSMutableArray	*menuItemArray;
-	
-	//Prepare our menu
+	NSMenu *menu;
+	NSMutableArray *menuItemArray;
+
+	// Prepare our menu
 	menu = [[NSMenu alloc] init];
 	[menu setAutoenablesItems:NO];
-	
+
 	menuItemArray = [[NSMutableArray alloc] init];
-	
-    //Insert a menu item for each available action
+
+	// Insert a menu item for each available action
 	for (NSString *actionID in actionHandlers) {
-		id <AIActionHandler> actionHandler = [actionHandlers objectForKey:actionID];		
-		NSMenuItem			 *menuItem;
+		id<AIActionHandler> actionHandler = [actionHandlers objectForKey:actionID];
+		NSMenuItem *menuItem;
 
-        menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:[actionHandler shortDescriptionForActionID:actionID]
-																		target:target 
-																		action:@selector(selectAction:) 
-																 keyEquivalent:@""];
-        [menuItem setRepresentedObject:actionID];
+		menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
+			initWithTitle:[actionHandler shortDescriptionForActionID:actionID]
+				   target:target
+				   action:@selector(selectAction:)
+			keyEquivalent:@""];
+		[menuItem setRepresentedObject:actionID];
 		[menuItem setImage:[[actionHandler imageForActionID:actionID] imageByScalingForMenuItem]];
-		
-        [menuItemArray addObject:menuItem];
-		[menuItem release];
-    }
 
-	//Sort the array of menuItems alphabetically by title	
+		[menuItemArray addObject:menuItem];
+		[menuItem release];
+	}
+
+	// Sort the array of menuItems alphabetically by title
 	[menuItemArray sortUsingSelector:@selector(titleCompare:)];
-	
-	for (NSMenuItem	*menuItem in menuItemArray) {
+
+	for (NSMenuItem *menuItem in menuItemArray) {
 		[menu addItem:menuItem];
 	}
-	
+
 	[menuItemArray release];
 
 	return [menu autorelease];
-}	
+}
 
 /*!
  * @brief Return the default action ID for a new alert
@@ -562,15 +592,16 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
 - (NSString *)defaultActionID
 {
 	NSString *defaultActionID = [adium.preferenceController preferenceForKey:KEY_DEFAULT_ACTION_ID
-																		 group:PREF_GROUP_CONTACT_ALERTS];
+																	   group:PREF_GROUP_CONTACT_ALERTS];
 	if (![actionHandlers objectForKey:defaultActionID]) {
 		defaultActionID = [[actionHandlers allKeys] objectAtIndex:0];
 	}
-	
+
 	return defaultActionID;
 }
 
-//Alerts ---------------------------------------------------------------------------------------------------------------
+// Alerts
+// ---------------------------------------------------------------------------------------------------------------
 #pragma mark Alerts
 /*!
  * @brief Returns an array of all the alerts of a given list object
@@ -589,37 +620,39 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  * @param eventID If specified, only return events matching eventID. If nil, don't filter based on events.
  * @param actionID If specified, only return actions matching actionID. If nil, don't filter based on actionID.
  */
-- (NSArray *)alertsForListObject:(AIListObject *)listObject withEventID:(NSString *)eventID actionID:(NSString *)actionID
+- (NSArray *)alertsForListObject:(AIListObject *)listObject
+					 withEventID:(NSString *)eventID
+						actionID:(NSString *)actionID
 {
-	NSDictionary	*contactAlerts = [adium.preferenceController preferenceForKey:KEY_CONTACT_ALERTS
-																			  group:PREF_GROUP_CONTACT_ALERTS
-														  objectIgnoringInheritance:listObject];
-	NSMutableArray	*alertArray = [NSMutableArray array];
+	NSDictionary *contactAlerts = [adium.preferenceController preferenceForKey:KEY_CONTACT_ALERTS
+																		 group:PREF_GROUP_CONTACT_ALERTS
+													 objectIgnoringInheritance:listObject];
+	NSMutableArray *alertArray = [NSMutableArray array];
 
 	if (eventID) {
-		/* If we have an eventID, just look at the alerts for this eventID */		
+		/* If we have an eventID, just look at the alerts for this eventID */
 		for (NSDictionary *alert in [[contactAlerts objectForKey:eventID] objectEnumerator]) {
-			//If we don't have a specific actionID, or this one is right, add it
+			// If we don't have a specific actionID, or this one is right, add it
 			if (!actionID || [actionID isEqualToString:[alert objectForKey:KEY_ACTION_ID]]) {
 				[alertArray addObject:alert];
 			}
 		}
-		
+
 	} else {
 		/* If we don't have an eventID, look at all alerts */
-		
-		//Flatten the alert dict into an array
+
+		// Flatten the alert dict into an array
 		for (NSString *anEventID in contactAlerts) {
 			for (NSDictionary *alert in [[contactAlerts objectForKey:anEventID] objectEnumerator]) {
-				//If we don't have a specific actionID, or this one is right, add it
+				// If we don't have a specific actionID, or this one is right, add it
 				if (!actionID || [actionID isEqualToString:[alert objectForKey:KEY_ACTION_ID]]) {
 					[alertArray addObject:alert];
 				}
 			}
-		}	
+		}
 	}
-	
-	return alertArray;	
+
+	return alertArray;
 }
 
 /*!
@@ -629,51 +662,55 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  * @param listObject The object to which to add, or nil for global
  * @param setAsNewDefaults YES to make the type and details of newAlert be the new default for new alerts
  */
-- (void)addAlert:(NSDictionary *)newAlert toListObject:(AIListObject *)listObject setAsNewDefaults:(BOOL)setAsNewDefaults
+- (void)addAlert:(NSDictionary *)newAlert
+		toListObject:(AIListObject *)listObject
+	setAsNewDefaults:(BOOL)setAsNewDefaults
 {
-	NSString			*newAlertEventID = [newAlert objectForKey:KEY_EVENT_ID];
-	NSMutableDictionary	*contactAlerts;
-	NSMutableArray		*eventArray;
-	
+	NSString *newAlertEventID = [newAlert objectForKey:KEY_EVENT_ID];
+	NSMutableDictionary *contactAlerts;
+	NSMutableArray *eventArray;
+
 	[adium.preferenceController delayPreferenceChangedNotifications:YES];
-	
-	//Get the alerts for this list object
+
+	// Get the alerts for this list object
 	contactAlerts = [[adium.preferenceController preferenceForKey:KEY_CONTACT_ALERTS
-															  group:PREF_GROUP_CONTACT_ALERTS
-										  objectIgnoringInheritance:listObject] mutableCopy];
-	if (!contactAlerts) contactAlerts = [[NSMutableDictionary alloc] init];
-	
-	//Get the event array for the new alert, making a copy so we can modify it
+															group:PREF_GROUP_CONTACT_ALERTS
+										objectIgnoringInheritance:listObject] mutableCopy];
+	if (!contactAlerts)
+		contactAlerts = [[NSMutableDictionary alloc] init];
+
+	// Get the event array for the new alert, making a copy so we can modify it
 	eventArray = [[contactAlerts objectForKey:newAlertEventID] mutableCopy];
-	if (!eventArray) eventArray = [[NSMutableArray alloc] init];
-	
-	//Avoid putting the exact same alert into the array twice
+	if (!eventArray)
+		eventArray = [[NSMutableArray alloc] init];
+
+	// Avoid putting the exact same alert into the array twice
 	if ([eventArray indexOfObject:newAlert] == NSNotFound) {
-		//Add the new alert
+		// Add the new alert
 		[eventArray addObject:newAlert];
-		
-		//Put the modified event array back into the contact alert dict, and save our changes
+
+		// Put the modified event array back into the contact alert dict, and save our changes
 		[contactAlerts setObject:eventArray forKey:newAlertEventID];
 		[adium.preferenceController setPreference:contactAlerts
-											 forKey:KEY_CONTACT_ALERTS
-											  group:PREF_GROUP_CONTACT_ALERTS
-											 object:listObject];	
+										   forKey:KEY_CONTACT_ALERTS
+											group:PREF_GROUP_CONTACT_ALERTS
+										   object:listObject];
 	}
 
-	//Update the default events if requested
+	// Update the default events if requested
 	if (setAsNewDefaults) {
 		[adium.preferenceController setPreference:newAlertEventID
-											 forKey:KEY_DEFAULT_EVENT_ID
-											  group:PREF_GROUP_CONTACT_ALERTS];
+										   forKey:KEY_DEFAULT_EVENT_ID
+											group:PREF_GROUP_CONTACT_ALERTS];
 		[adium.preferenceController setPreference:[newAlert objectForKey:KEY_ACTION_ID]
-											 forKey:KEY_DEFAULT_ACTION_ID
-											  group:PREF_GROUP_CONTACT_ALERTS];	
+										   forKey:KEY_DEFAULT_ACTION_ID
+											group:PREF_GROUP_CONTACT_ALERTS];
 	}
-	
-	//Cleanup
+
+	// Cleanup
 	[contactAlerts release];
 	[eventArray release];
-	
+
 	[adium.preferenceController delayPreferenceChangedNotifications:NO];
 }
 
@@ -694,29 +731,29 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
 - (void)removeAlert:(NSDictionary *)victimAlert fromListObject:(AIListObject *)listObject
 {
 	AILogWithSignature(@"Removing %@ from %@", victimAlert, listObject);
-	NSMutableDictionary	*contactAlerts = [[adium.preferenceController preferenceForKey:KEY_CONTACT_ALERTS
-																				   group:PREF_GROUP_CONTACT_ALERTS
-															   objectIgnoringInheritance:listObject] mutableCopy];
-	NSString			*victimEventID = [victimAlert objectForKey:KEY_EVENT_ID];
-	NSMutableArray		*eventArray;
-	
-	//Get the event array containing the victim alert, making a copy so we can modify it
+	NSMutableDictionary *contactAlerts = [[adium.preferenceController preferenceForKey:KEY_CONTACT_ALERTS
+																				 group:PREF_GROUP_CONTACT_ALERTS
+															 objectIgnoringInheritance:listObject] mutableCopy];
+	NSString *victimEventID = [victimAlert objectForKey:KEY_EVENT_ID];
+	NSMutableArray *eventArray;
+
+	// Get the event array containing the victim alert, making a copy so we can modify it
 	eventArray = [[contactAlerts objectForKey:victimEventID] mutableCopy];
-	
-	//Remove the victim
+
+	// Remove the victim
 	[eventArray removeObject:victimAlert];
-	
-	//Put the modified event array back into the contact alert dict, and save our changes
+
+	// Put the modified event array back into the contact alert dict, and save our changes
 	if ([eventArray count]) {
 		[contactAlerts setObject:eventArray forKey:victimEventID];
 	} else {
-		[contactAlerts removeObjectForKey:victimEventID];	
+		[contactAlerts removeObjectForKey:victimEventID];
 	}
-	
+
 	[adium.preferenceController setPreference:contactAlerts
-										 forKey:KEY_CONTACT_ALERTS
-										  group:PREF_GROUP_CONTACT_ALERTS
-										 object:listObject];
+									   forKey:KEY_CONTACT_ALERTS
+										group:PREF_GROUP_CONTACT_ALERTS
+									   object:listObject];
 	[eventArray release];
 	[contactAlerts release];
 }
@@ -724,13 +761,11 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
 /*!
  * @brief Remove all alerts which are specifically applied to listObject
  *
- * This does not affect alerts set at higher (containing object, root) levels 
+ * This does not affect alerts set at higher (containing object, root) levels
  */
 - (void)removeAllAlertsFromListObject:(AIListObject *)listObject
 {
-	[listObject setPreference:nil
-					   forKey:KEY_CONTACT_ALERTS
-						group:PREF_GROUP_CONTACT_ALERTS];
+	[listObject setPreference:nil forKey:KEY_CONTACT_ALERTS group:PREF_GROUP_CONTACT_ALERTS];
 }
 
 /*!
@@ -738,45 +773,46 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  */
 - (void)removeAllGlobalAlertsWithActionID:(NSString *)actionID
 {
-	NSDictionary		*contactAlerts = [adium.preferenceController preferenceForKey:KEY_CONTACT_ALERTS 
-																				  group:PREF_GROUP_CONTACT_ALERTS];
+	NSDictionary *contactAlerts = [adium.preferenceController preferenceForKey:KEY_CONTACT_ALERTS
+																		 group:PREF_GROUP_CONTACT_ALERTS];
 	NSMutableDictionary *newContactAlerts = [contactAlerts mutableCopy];
-	
-	//The contact alerts preference is a dictionary keyed by event.  Each event key yields an array of dictionaries;
-	//each of these dictionaries represents an alert.  We want to remove all dictionaries which represent alerts with
-	//the passed actionID
+
+	// The contact alerts preference is a dictionary keyed by event.  Each event key yields an array of dictionaries;
+	// each of these dictionaries represents an alert.  We want to remove all dictionaries which represent alerts with
+	// the passed actionID
 	for (NSString *victimEventID in contactAlerts) {
-		NSMutableArray  *newEventArray = nil;
-		NSArray			*eventArray;
+		NSMutableArray *newEventArray = nil;
+		NSArray *eventArray;
 
 		eventArray = [contactAlerts objectForKey:victimEventID];
 
-		//Enumerate each alert for this event
+		// Enumerate each alert for this event
 		for (NSDictionary *alertDict in eventArray) {
-			//We found an alertDict which needs to be removed
+			// We found an alertDict which needs to be removed
 			if ([[alertDict objectForKey:KEY_ACTION_ID] isEqualToString:actionID]) {
-				//If this is the first modification to the current eventArray, make a mutableCopy with which to work
-				if (!newEventArray) newEventArray = [eventArray mutableCopy];
+				// If this is the first modification to the current eventArray, make a mutableCopy with which to work
+				if (!newEventArray)
+					newEventArray = [eventArray mutableCopy];
 				[newEventArray removeObject:alertDict];
 			}
 		}
-		
-		//newEventArray will only be non-nil if we made changes; now that we have enumerated this eventArray, save them
+
+		// newEventArray will only be non-nil if we made changes; now that we have enumerated this eventArray, save them
 		if (newEventArray) {
 			if ([newEventArray count]) {
 				[newContactAlerts setObject:newEventArray forKey:victimEventID];
 			} else {
-				[newContactAlerts removeObjectForKey:victimEventID];	
+				[newContactAlerts removeObjectForKey:victimEventID];
 			}
-			
-			//Clean up
+
+			// Clean up
 			[newEventArray release];
 		}
 	}
-	
+
 	[adium.preferenceController setPreference:newContactAlerts
-										 forKey:KEY_CONTACT_ALERTS
-										  group:PREF_GROUP_CONTACT_ALERTS];
+									   forKey:KEY_CONTACT_ALERTS
+										group:PREF_GROUP_CONTACT_ALERTS];
 	[newContactAlerts release];
 }
 
@@ -787,36 +823,37 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  */
 - (void)setAllGlobalAlerts:(NSArray *)allGlobalAlerts
 {
-	NSMutableDictionary	*contactAlerts = [[NSMutableDictionary alloc] init];;
-	NSDictionary		*eventDict;
-	
-	[adium.preferenceController delayPreferenceChangedNotifications:YES];
-	
-	for (eventDict in allGlobalAlerts) {
-		NSMutableArray		*eventArray;
-		NSString			*eventID = [eventDict objectForKey:KEY_EVENT_ID];
+	NSMutableDictionary *contactAlerts = [[NSMutableDictionary alloc] init];
+	;
+	NSDictionary *eventDict;
 
-		/* Get the event array for this alert. Since we are creating the entire dictionary, we can be sure we are working
-		 * with an NSMutableArray.
+	[adium.preferenceController delayPreferenceChangedNotifications:YES];
+
+	for (eventDict in allGlobalAlerts) {
+		NSMutableArray *eventArray;
+		NSString *eventID = [eventDict objectForKey:KEY_EVENT_ID];
+
+		/* Get the event array for this alert. Since we are creating the entire dictionary, we can be sure we are
+		 * working with an NSMutableArray.
 		 */
 		eventArray = [contactAlerts objectForKey:eventID];
-		if (!eventArray) eventArray = [NSMutableArray array];		
+		if (!eventArray)
+			eventArray = [NSMutableArray array];
 
-		//Add the new alert
+		// Add the new alert
 		[eventArray addObject:eventDict];
-		
-		//Put the modified event array back into the contact alert dict
-		[contactAlerts setObject:eventArray forKey:eventID];		
+
+		// Put the modified event array back into the contact alert dict
+		[contactAlerts setObject:eventArray forKey:eventID];
 	}
-	
+
 	[adium.preferenceController setPreference:contactAlerts
-										 forKey:KEY_CONTACT_ALERTS
-										  group:PREF_GROUP_CONTACT_ALERTS
-										 object:nil];
+									   forKey:KEY_CONTACT_ALERTS
+										group:PREF_GROUP_CONTACT_ALERTS
+									   object:nil];
 	[contactAlerts release];
 
 	[adium.preferenceController delayPreferenceChangedNotifications:NO];
-	
 }
 
 /*!
@@ -830,19 +867,20 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
  */
 - (void)mergeAndMoveContactAlertsFromListObject:(AIListObject *)oldObject intoListObject:(AIListObject *)newObject
 {
-	NSArray				*oldAlerts = [self alertsForListObject:oldObject];
-	NSDictionary		*alertDict;
-	
+	NSArray *oldAlerts = [self alertsForListObject:oldObject];
+	NSDictionary *alertDict;
+
 	[adium.preferenceController delayPreferenceChangedNotifications:YES];
-	
-	//Add each alert to the target (addAlert:toListObject:setAsNewDefaults: will ensure identical alerts aren't added more than once)
+
+	// Add each alert to the target (addAlert:toListObject:setAsNewDefaults: will ensure identical alerts aren't added
+	// more than once)
 	for (alertDict in oldAlerts) {
 		[self addAlert:alertDict toListObject:newObject setAsNewDefaults:NO];
 	}
-	
-	//Remove the alerts from the originating list object
+
+	// Remove the alerts from the originating list object
 	[self removeAllAlertsFromListObject:oldObject];
-	
+
 	[adium.preferenceController delayPreferenceChangedNotifications:NO];
 }
 
@@ -857,7 +895,7 @@ NSInteger eventIDSort(id objectA, id objectB, void *context) {
 - (BOOL)isMessageEvent:(NSString *)eventID
 {
 	return ([eventHandlersByGroup[AIMessageEventHandlerGroup] objectForKey:eventID] != nil ||
-		   ([globalOnlyEventHandlersByGroup[AIMessageEventHandlerGroup] objectForKey:eventID] != nil));
+			([globalOnlyEventHandlersByGroup[AIMessageEventHandlerGroup] objectForKey:eventID] != nil));
 }
 
 /*!

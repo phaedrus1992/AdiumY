@@ -16,8 +16,8 @@
 #import <Foundation/Foundation.h>
 #import <SenTestingKit/SenTestingKit.h>
 
-@interface TestFBAdditions: SenTestCase
-{}
+@interface TestFBAdditions : SenTestCase {
+}
 
 - (void)testBaseWritingDirectionRTL;
 - (void)testBaseWritingDirectionLTR;

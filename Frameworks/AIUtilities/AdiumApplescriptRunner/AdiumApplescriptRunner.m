@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -26,7 +26,8 @@
 - (id)init
 {
 	if ((self = [super init])) {
-		NSDistributedNotificationCenter *distributedNotificationCenter = [NSDistributedNotificationCenter defaultCenter];
+		NSDistributedNotificationCenter *distributedNotificationCenter =
+			[NSDistributedNotificationCenter defaultCenter];
 		[distributedNotificationCenter addObserver:self
 										  selector:@selector(applescriptRunnerIsReady:)
 											  name:@"AdiumApplescriptRunner_IsReady"
@@ -35,31 +36,31 @@
 										  selector:@selector(applescriptRunnerDidQuit:)
 											  name:@"AdiumApplescriptRunner_DidQuit"
 											object:nil];
-		
+
 		[distributedNotificationCenter addObserver:self
 										  selector:@selector(applescriptDidRun:)
 											  name:@"AdiumApplescript_DidRun"
-											object:nil];	
-		
-		//Check for an existing AdiumApplescriptRunner; if there is one, it will respond with AdiumApplescriptRunner_IsReady
+											object:nil];
+
+		// Check for an existing AdiumApplescriptRunner; if there is one, it will respond with
+		// AdiumApplescriptRunner_IsReady
 		[distributedNotificationCenter postNotificationName:@"AdiumApplescriptRunner_RespondIfReady"
 													 object:nil
 												   userInfo:nil
 										 deliverImmediately:NO];
 	}
-	
+
 	return self;
 }
 
 - (void)dealloc
 {
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
-	
+
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"AdiumApplescriptRunner_Quit"
 																   object:nil
 																 userInfo:nil
 													   deliverImmediately:NO];
-
 }
 
 - (void)_executeApplescriptWithDict:(NSDictionary *)executionDict
@@ -75,8 +76,8 @@
 	NSString *applescriptRunnerPath = [[NSBundle mainBundle] pathForResource:@"AdiumApplescriptRunner"
 																	  ofType:nil
 																 inDirectory:nil];
-	
-	//Houston, we are go for launch.
+
+	// Houston, we are go for launch.
 	if (applescriptRunnerPath) {
 		LSLaunchFSRefSpec spec;
 		FSRef appRef;
@@ -89,9 +90,9 @@
 			spec.launchFlags = kLSLaunchDontAddToRecents | kLSLaunchDontSwitch | kLSLaunchNoParams | kLSLaunchAsync;
 			spec.asyncRefCon = NULL;
 			err = LSOpenFromRefSpec(&spec, NULL);
-			
+
 			if (err != noErr) {
-				NSLog(@"Could not launch %@",applescriptRunnerPath);
+				NSLog(@"Could not launch %@", applescriptRunnerPath);
 			}
 		}
 	} else {
@@ -100,37 +101,42 @@
 }
 
 /*!
- * @brief Run an applescript, optinally calling a function with arguments, and notify a target/selector with its output when it is done
+ * @brief Run an applescript, optinally calling a function with arguments, and notify a target/selector with its output
+ * when it is done
  */
-- (void)runApplescriptAtPath:(NSString *)path function:(NSString *)function arguments:(NSArray *)arguments notifyingTarget:(id)target selector:(SEL)selector userInfo:(id)userInfo
+- (void)runApplescriptAtPath:(NSString *)path
+					function:(NSString *)function
+				   arguments:(NSArray *)arguments
+			 notifyingTarget:(id)target
+					selector:(SEL)selector
+					userInfo:(id)userInfo
 {
 	NSString *uniqueID = [[NSProcessInfo processInfo] globallyUniqueString];
-	
-	if (!runningApplescriptsDict) runningApplescriptsDict = [[NSMutableDictionary alloc] init];
-	
+
+	if (!runningApplescriptsDict)
+		runningApplescriptsDict = [[NSMutableDictionary alloc] init];
+
 	if (target && selector) {
-		[runningApplescriptsDict setObject:[NSDictionary dictionaryWithObjectsAndKeys:
-			target, @"target",
-			NSStringFromSelector(selector), @"selector",
-			userInfo, @"userInfo", nil]
-									forKey:uniqueID];
+		[runningApplescriptsDict
+			setObject:[NSDictionary dictionaryWithObjectsAndKeys:target, @"target", NSStringFromSelector(selector),
+																 @"selector", userInfo, @"userInfo", nil]
+			   forKey:uniqueID];
 	}
 
-	NSDictionary *executionDict = [NSDictionary dictionaryWithObjectsAndKeys:
-		path, @"path",
-		(function ? function : @""), @"function",
-		(arguments ? arguments : [NSArray array]), @"arguments",
-		uniqueID, @"uniqueID",
-		nil];
-	
+	NSDictionary *executionDict =
+		[NSDictionary dictionaryWithObjectsAndKeys:path, @"path", (function ? function : @""), @"function",
+												   (arguments ? arguments : [NSArray array]), @"arguments", uniqueID,
+												   @"uniqueID", nil];
+
 	if (applescriptRunnerIsReady) {
 		[self _executeApplescriptWithDict:executionDict];
-		
+
 	} else {
-		if (!pendingApplescriptsArray) pendingApplescriptsArray = [[NSMutableArray alloc] init];
-		
+		if (!pendingApplescriptsArray)
+			pendingApplescriptsArray = [[NSMutableArray alloc] init];
+
 		[pendingApplescriptsArray addObject:executionDict];
-		
+
 		[self launchApplescriptRunner];
 	}
 }
@@ -138,15 +144,15 @@
 - (void)applescriptRunnerIsReady:(NSNotification *)inNotification
 {
 	@autoreleasepool {
-	NSDictionary	*executionDict;
+		NSDictionary *executionDict;
 
-	applescriptRunnerIsReady = YES;
+		applescriptRunnerIsReady = YES;
 
-	for (executionDict in pendingApplescriptsArray) {
-		[self _executeApplescriptWithDict:executionDict];
-	}
+		for (executionDict in pendingApplescriptsArray) {
+			[self _executeApplescriptWithDict:executionDict];
+		}
 
-	pendingApplescriptsArray = nil;
+		pendingApplescriptsArray = nil;
 	}
 }
 
@@ -158,28 +164,28 @@
 - (void)applescriptDidRun:(NSNotification *)inNotification
 {
 	@autoreleasepool {
-	NSDictionary *userInfo = [inNotification userInfo];
-	NSString	 *uniqueID = [userInfo objectForKey:@"uniqueID"];
+		NSDictionary *userInfo = [inNotification userInfo];
+		NSString *uniqueID = [userInfo objectForKey:@"uniqueID"];
 
-	NSDictionary *targetDict = [runningApplescriptsDict objectForKey:uniqueID];
-	if (targetDict) {
-		//No further need for this dictionary entry
-		[runningApplescriptsDict removeObjectForKey:uniqueID];
+		NSDictionary *targetDict = [runningApplescriptsDict objectForKey:uniqueID];
+		if (targetDict) {
+			// No further need for this dictionary entry
+			[runningApplescriptsDict removeObjectForKey:uniqueID];
 
-		//If there's no others, release the dictionary.
-		if (![runningApplescriptsDict count]) {
-			runningApplescriptsDict = nil;
+			// If there's no others, release the dictionary.
+			if (![runningApplescriptsDict count]) {
+				runningApplescriptsDict = nil;
+			}
+
+			id target = [targetDict objectForKey:@"target"];
+			// Selector will be of the form applescriptDidRun:resultString:
+			SEL selector = NSSelectorFromString([targetDict objectForKey:@"selector"]);
+
+			// Notify our target
+			[target performSelector:selector
+						 withObject:[targetDict objectForKey:@"userInfo"]
+						 withObject:[userInfo objectForKey:@"resultString"]];
 		}
-
-		id			 target = [targetDict objectForKey:@"target"];
-		//Selector will be of the form applescriptDidRun:resultString:
-		SEL			 selector = NSSelectorFromString([targetDict objectForKey:@"selector"]);
-
-		//Notify our target
-		[target performSelector:selector
-					 withObject:[targetDict objectForKey:@"userInfo"]
-					 withObject:[userInfo objectForKey:@"resultString"]];
-	}
 	}
 }
 

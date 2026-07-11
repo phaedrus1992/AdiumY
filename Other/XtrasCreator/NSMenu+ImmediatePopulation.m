@@ -10,7 +10,7 @@
 
 @implementation NSMenu (ImmediatePopulation)
 
-- (void) populateFromDelegate
+- (void)populateFromDelegate
 {
 	id delegate = [self delegate];
 
@@ -20,11 +20,11 @@
 
 	int existingCount = [self numberOfItems];
 	if (existingCount > newCount) {
-		//remove some items.
+		// remove some items.
 		while (existingCount-- > newCount)
 			[self removeItemAtIndex:existingCount];
 	} else {
-		//add some items.
+		// add some items.
 		while (existingCount++ < newCount) {
 			NSMenuItem *item = [[NSMenuItem alloc] init];
 			[self addItem:item];
@@ -34,10 +34,7 @@
 
 	for (int i = 0; i < newCount; ++i) {
 		NSMenuItem *item = [self itemAtIndex:i];
-		BOOL keepGoing = [delegate menu:self
-							 updateItem:item
-								atIndex:i
-						   shouldCancel:NO];
+		BOOL keepGoing = [delegate menu:self updateItem:item atIndex:i shouldCancel:NO];
 		if (!keepGoing)
 			break;
 	}

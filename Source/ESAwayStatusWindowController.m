@@ -1,34 +1,33 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #import "ESAwayStatusWindowController.h"
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusIcons.h>
-#import <Adium/AIServiceIcons.h>
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIImageTextCell.h>
 #import <AIUtilities/AITableViewAdditions.h>
+#import <Adium/AIAccount.h>
+#import <Adium/AIAccountControllerProtocol.h>
+#import <Adium/AIServiceIcons.h>
+#import <Adium/AIStatus.h>
+#import <Adium/AIStatusControllerProtocol.h>
+#import <Adium/AIStatusIcons.h>
 
-
-#define AWAY_STATUS_WINDOW_NIB					@"AwayStatusWindow"
-#define	KEY_AWAY_STATUS_WINDOW_FRAME			@"Away Status Window Frame"
+#define AWAY_STATUS_WINDOW_NIB @"AwayStatusWindow"
+#define KEY_AWAY_STATUS_WINDOW_FRAME @"Away Status Window Frame"
 
 @interface ESAwayStatusWindowController ()
 - (void)localizeButtons;
@@ -45,9 +44,9 @@
  */
 @implementation ESAwayStatusWindowController
 
-static ESAwayStatusWindowController	*sharedInstance = nil;
-static BOOL							alwaysOnTop = NO;
-static BOOL							hideInBackground = NO;
+static ESAwayStatusWindowController *sharedInstance = nil;
+static BOOL alwaysOnTop = NO;
+static BOOL hideInBackground = NO;
 
 /*!
  * @brief Update the visibility of the status window
@@ -61,17 +60,17 @@ static BOOL							hideInBackground = NO;
 {
 	if (shouldBeVisible) {
 		if (sharedInstance) {
-			//Update the window's configuration
+			// Update the window's configuration
 			[sharedInstance configureStatusWindow];
 		} else {
-			//Create a new shared instance, which will be configured automatically once the window loads
+			// Create a new shared instance, which will be configured automatically once the window loads
 			sharedInstance = [[self alloc] initWithWindowNibName:AWAY_STATUS_WINDOW_NIB];
 			[sharedInstance showWindow:nil];
 		}
-	
+
 	} else {
 		if (sharedInstance) {
-			//If the window is current visible, close it
+			// If the window is current visible, close it
 			[sharedInstance closeWindow:nil];
 		}
 	}
@@ -80,9 +79,9 @@ static BOOL							hideInBackground = NO;
 + (void)setAlwaysOnTop:(BOOL)flag
 {
 	alwaysOnTop = flag;
-	
+
 	if (sharedInstance) {
-		//Update any open window
+		// Update any open window
 		[[sharedInstance window] setLevel:(alwaysOnTop ? NSFloatingWindowLevel : NSNormalWindowLevel)];
 	}
 }
@@ -90,12 +89,12 @@ static BOOL							hideInBackground = NO;
 + (void)setHideInBackground:(BOOL)flag
 {
 	hideInBackground = flag;
-	
+
 	if (sharedInstance) {
-		//Update any open window
+		// Update any open window
 		[[sharedInstance window] setHidesOnDeactivate:hideInBackground];
 	}
-}	
+}
 
 /*!
  * @brief Window size and position autosave name
@@ -110,9 +109,9 @@ static BOOL							hideInBackground = NO;
  */
 - (void)windowDidLoad
 {
-	//Call super first so we get our placement before performing autosizing
+	// Call super first so we get our placement before performing autosizing
 	[super windowDidLoad];
-	
+
 	[[self window] setLevel:(alwaysOnTop ? NSFloatingWindowLevel : NSNormalWindowLevel)];
 	[[self window] setHidesOnDeactivate:hideInBackground];
 
@@ -120,23 +119,23 @@ static BOOL							hideInBackground = NO;
 	 * NSPanel behaves oddly with minimum size... it seems to increase the nib-specified minimum by 11.
 	 */
 	[[self window] setMinSize:NSMakeSize([[self window] minSize].width, 80)];
-	
-	//Setup the textviews
-    [textView_singleStatus setHorizontallyResizable:NO];
-    [textView_singleStatus setVerticallyResizable:YES];
-    [textView_singleStatus setDrawsBackground:NO];
+
+	// Setup the textviews
+	[textView_singleStatus setHorizontallyResizable:NO];
+	[textView_singleStatus setVerticallyResizable:YES];
+	[textView_singleStatus setDrawsBackground:NO];
 	[textView_singleStatus setMinSize:NSZeroSize];
-    [[textView_singleStatus enclosingScrollView] setDrawsBackground:NO];
+	[[textView_singleStatus enclosingScrollView] setDrawsBackground:NO];
 
 	[self localizeButtons];
 	[self setupMultistatusTable];
 
 	[self configureStatusWindow];
-	
+
 	[[NSNotificationCenter defaultCenter] addObserver:self
-								   selector:@selector(statusIconSetChanged:)
-									   name:AIStatusIconSetDidChangeNotification
-									 object:nil];	
+											 selector:@selector(statusIconSetChanged:)
+												 name:AIStatusIconSetDidChangeNotification
+											   object:nil];
 }
 
 /*!
@@ -148,14 +147,15 @@ static BOOL							hideInBackground = NO;
 {
 	[super windowWillClose:sender];
 
-	/* Hack of the day.  The table view crashes when the window is released out from under it after it has reloaded data because
-	 * it thinks it needs display. It thinks that because we are animating the window's resizing process.  We could do animate:NO
-	 * in configureStatusWindow, but that wouldn't be as pretty.
+	/* Hack of the day.  The table view crashes when the window is released out from under it after it has reloaded data
+	 * because it thinks it needs display. It thinks that because we are animating the window's resizing process.  We
+	 * could do animate:NO in configureStatusWindow, but that wouldn't be as pretty.
 	 */
 	[tableView_multiStatus setDataSource:nil];
 
-    //Clean up and release the shared instance
-    [sharedInstance autorelease]; sharedInstance = nil;
+	// Clean up and release the shared instance
+	[sharedInstance autorelease];
+	sharedInstance = nil;
 }
 
 /*!
@@ -163,7 +163,8 @@ static BOOL							hideInBackground = NO;
  */
 - (void)dealloc
 {
-	[_awayAccounts release]; _awayAccounts = nil;
+	[_awayAccounts release];
+	_awayAccounts = nil;
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
 	[super dealloc];
@@ -172,48 +173,48 @@ static BOOL							hideInBackground = NO;
 /*!
  * @brief Configure status window for the current account status(es)
  */
- - (void)configureStatusWindow
+- (void)configureStatusWindow
 {
-	NSWindow		*window = [self window];
-	BOOL			allOnlineAccountsAreUnvailable;
-	AIStatusType	activeUnvailableStatusType;
-	NSString		*activeUnvailableStatusName = nil;
-	NSSet			*relevantStatuses;
-	NSRect			frame = [window frame];
-	NSInteger				newHeight;
-	
-	[window setTitle:AILocalizedString(@"Current Status",nil)];
-	[_awayAccounts release]; _awayAccounts = nil;
+	NSWindow *window = [self window];
+	BOOL allOnlineAccountsAreUnvailable;
+	AIStatusType activeUnvailableStatusType;
+	NSString *activeUnvailableStatusName = nil;
+	NSSet *relevantStatuses;
+	NSRect frame = [window frame];
+	NSInteger newHeight;
 
-	relevantStatuses = [adium.statusController activeUnavailableStatusesAndType:&activeUnvailableStatusType 
-																		 withName:&activeUnvailableStatusName
-												   allOnlineAccountsAreUnvailable:&allOnlineAccountsAreUnvailable];
-	
+	[window setTitle:AILocalizedString(@"Current Status", nil)];
+	[_awayAccounts release];
+	_awayAccounts = nil;
+
+	relevantStatuses = [adium.statusController activeUnavailableStatusesAndType:&activeUnvailableStatusType
+																	   withName:&activeUnvailableStatusName
+												 allOnlineAccountsAreUnvailable:&allOnlineAccountsAreUnvailable];
+
 	if (allOnlineAccountsAreUnvailable && ([relevantStatuses count] == 1)) {
-		//Show the single status tab if all online accounts are unavailable and they are all in the same status state
-		NSImage				*statusIcon;
-		NSAttributedString	*statusTitle;
+		// Show the single status tab if all online accounts are unavailable and they are all in the same status state
+		NSImage *statusIcon;
+		NSAttributedString *statusTitle;
 
 		statusIcon = [AIStatusIcons statusIconForStatusName:activeUnvailableStatusName
-												  statusType:activeUnvailableStatusType
-													iconType:AIStatusIconTab
+												 statusType:activeUnvailableStatusType
+												   iconType:AIStatusIconTab
 												  direction:AIIconNormal];
-		statusTitle = [self attributedStatusTitleForStatus:[relevantStatuses anyObject]
-												  withIcon:statusIcon];
-		
+		statusTitle = [self attributedStatusTitleForStatus:[relevantStatuses anyObject] withIcon:statusIcon];
+
 		[[textView_singleStatus textStorage] setAttributedString:statusTitle];
 
 		newHeight = [statusTitle heightWithWidth:[textView_singleStatus frame].size.width] + 65;
 		frame.origin.y -= (newHeight - frame.size.height);
 		frame.size.height = newHeight;
-			
-		//Select the right tab view item
+
+		// Select the right tab view item
 		[tabView_configuration selectTabViewItemWithIdentifier:@"singlestatus"];
 	} else {
 		/* Show the multistatus tableview tab if accounts are in different states, which includes the case of only one
 		 * away state being in use but not all online accounts currently making use of it.
 		 */
-		NSInteger				requiredHeight;
+		NSInteger requiredHeight;
 
 		_awayAccounts = [[self awayAccounts] retain];
 
@@ -229,8 +230,8 @@ static BOOL							hideInBackground = NO;
 		/* Multiple statuses */
 		[tabView_configuration selectTabViewItemWithIdentifier:@"multistatus"];
 	}
-	
-	//Perform the window resizing as needed
+
+	// Perform the window resizing as needed
 	[window setFrame:frame display:YES animate:YES];
 }
 
@@ -241,30 +242,28 @@ static BOOL							hideInBackground = NO;
  */
 - (NSAttributedString *)attributedStatusTitleForStatus:(AIStatus *)statusState withIcon:(NSImage *)statusIcon
 {
-	NSMutableAttributedString	*statusTitle;
-	NSTextAttachment			*attachment;
-	NSTextAttachmentCell		*cell;
-	NSAttributedString			*statusMessage;
-	
-	if ((statusMessage = statusState.statusMessage) &&
-	   ([statusMessage length])) {
-		//Use the status message if it is set
+	NSMutableAttributedString *statusTitle;
+	NSTextAttachment *attachment;
+	NSTextAttachmentCell *cell;
+	NSAttributedString *statusMessage;
+
+	if ((statusMessage = statusState.statusMessage) && ([statusMessage length])) {
+		// Use the status message if it is set
 		statusTitle = [statusMessage mutableCopy];
-		[[statusTitle mutableString] insertString:@" "
-										  atIndex:0];
+		[[statusTitle mutableString] insertString:@" " atIndex:0];
 
 	} else {
-		//If it isn't, use the title
-		NSDictionary				*attributesDict;
+		// If it isn't, use the title
+		NSDictionary *attributesDict;
 
-		attributesDict = [NSDictionary dictionaryWithObject:[NSFont systemFontOfSize:0]
-													 forKey:NSFontAttributeName];
+		attributesDict = [NSDictionary dictionaryWithObject:[NSFont systemFontOfSize:0] forKey:NSFontAttributeName];
 
-		statusTitle = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@",[statusState title]]
-															  attributes:attributesDict];
+		statusTitle =
+			[[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@", [statusState title]]
+												   attributes:attributesDict];
 	}
 
-	//Insert the image at the beginning
+	// Insert the image at the beginning
 	cell = [[NSTextAttachmentCell alloc] init];
 	[cell setImage:statusIcon];
 
@@ -272,8 +271,7 @@ static BOOL							hideInBackground = NO;
 	[attachment setAttachmentCell:cell];
 	[cell release];
 
-	[statusTitle insertAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]
-								atIndex:0];
+	[statusTitle insertAttributedString:[NSAttributedString attributedStringWithAttachment:attachment] atIndex:0];
 	[attachment release];
 
 	return [statusTitle autorelease];
@@ -283,12 +281,12 @@ static BOOL							hideInBackground = NO;
  * @brief Return an array of all away accounts
  */
 - (NSArray *)awayAccounts
-{	
-	NSMutableArray	*awayAccounts = [NSMutableArray array];	
+{
+	NSMutableArray *awayAccounts = [NSMutableArray array];
 
 	for (AIAccount *account in adium.accountController.accounts) {
 		if (account.online || [account boolValueForProperty:@"isConnecting"]) {
-			AIStatus	*statusState = account.statusState;
+			AIStatus *statusState = account.statusState;
 			if (statusState.statusType != AIAvailableStatusType) {
 				[awayAccounts addObject:account];
 			}
@@ -303,35 +301,34 @@ static BOOL							hideInBackground = NO;
  */
 - (IBAction)returnFromAway:(id)sender
 {
-	NSTabViewItem	*selectedTabViewItem = [tabView_configuration selectedTabViewItem];
-	AIStatus		*availableStatusState = [adium.statusController defaultInitialStatusState];
+	NSTabViewItem *selectedTabViewItem = [tabView_configuration selectedTabViewItem];
+	AIStatus *availableStatusState = [adium.statusController defaultInitialStatusState];
 
 	[self retain];
 
 	if ([[selectedTabViewItem identifier] isEqualToString:@"singlestatus"]) {
-		//Put all accounts in the Available status state
-		//We can perform this on all accounts without fear of bringing them online;
-		//Those that are offline will remain offline since -setActiveStatusState considers this.
+		// Put all accounts in the Available status state
+		// We can perform this on all accounts without fear of bringing them online;
+		// Those that are offline will remain offline since -setActiveStatusState considers this.
 		[adium.statusController setActiveStatusState:availableStatusState];
 	} else {
-		//Multistatus
-		NSArray	*selectedAccounts;
-		
+		// Multistatus
+		NSArray *selectedAccounts;
+
 		selectedAccounts = [[tableView_multiStatus selectedItemsFromArray:_awayAccounts] copy];
-		
+
 		if ([selectedAccounts count]) {
-			//Apply the available status state to only the selected accounts
-			[adium.statusController applyState:availableStatusState
-									  toAccounts:selectedAccounts];
+			// Apply the available status state to only the selected accounts
+			[adium.statusController applyState:availableStatusState toAccounts:selectedAccounts];
 		} else {
-			//No selection: Put all accounts in the Available status state
-			//Like above, we can just call -setActiveStatusState and it will handle all accounts.
+			// No selection: Put all accounts in the Available status state
+			// Like above, we can just call -setActiveStatusState and it will handle all accounts.
 			[adium.statusController setActiveStatusState:availableStatusState];
 		}
 
 		[selectedAccounts release];
 	}
-	
+
 	[self release];
 }
 
@@ -340,12 +337,13 @@ static BOOL							hideInBackground = NO;
  */
 - (void)setupMultistatusTable
 {
-	[[tableView_multiStatus tableColumnWithIdentifier:@"status"] setDataCell:[[[AIImageTextCell alloc] init] autorelease]];
+	[[tableView_multiStatus tableColumnWithIdentifier:@"status"]
+		setDataCell:[[[AIImageTextCell alloc] init] autorelease]];
 }
 
 #pragma mark Multiservice table view datasource
 /*!
-* @brief Number of rows in the table
+ * @brief Number of rows in the table
  */
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
@@ -359,7 +357,7 @@ static BOOL							hideInBackground = NO;
  */
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-	AIAccount	*account = [_awayAccounts objectAtIndex:row];
+	AIAccount *account = [_awayAccounts objectAtIndex:row];
 
 	return account.formattedUID;
 }
@@ -369,22 +367,22 @@ static BOOL							hideInBackground = NO;
  *
  * Set the image (status icon) and substring (status title) before display.  Cell is an AIImageTextCell.
  */
-- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
+- (void)tableView:(NSTableView *)tableView
+	willDisplayCell:(id)cell
+	 forTableColumn:(NSTableColumn *)tableColumn
+				row:(NSInteger)row
 {
-	AIAccount	*account = [_awayAccounts objectAtIndex:row];
-    
-	[cell setImage:[AIStatusIcons statusIconForListObject:account
-													 type:AIStatusIconTab
-												direction:AIIconNormal]];
+	AIAccount *account = [_awayAccounts objectAtIndex:row];
+
+	[cell setImage:[AIStatusIcons statusIconForListObject:account type:AIStatusIconTab direction:AIIconNormal]];
 	[cell setSubString:[account.statusState title]];
 }
 
 - (void)localizeButtons
 {
-	[button_return setLocalizedString:AILocalizedStringFromTableInBundle(@"Return", 
-																		 @"Buttons",
-																		 [NSBundle bundleForClass:[self class]],
-																		 "Button to return from away in the away status window")];
+	[button_return setLocalizedString:AILocalizedStringFromTableInBundle(
+										  @"Return", @"Buttons", [NSBundle bundleForClass:[self class]],
+										  "Button to return from away in the away status window")];
 }
 
 - (void)statusIconSetChanged:(NSNotification *)inNotification

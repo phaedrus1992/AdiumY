@@ -1,33 +1,33 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #import "AdiumAccounts.h"
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIService.h>
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
+#import <Adium/AIAccount.h>
+#import <Adium/AIAccountControllerProtocol.h>
+#import <Adium/AIService.h>
 
-//Preference keys
-#define TOP_ACCOUNT_ID					@"TopAccountID"   	//Highest account object ID
-#define ACCOUNT_LIST					@"Accounts"   		//Array of accounts
-#define ACCOUNT_TYPE					@"Type"				//Account type
-#define ACCOUNT_SERVICE					@"Service"			//Account service
-#define ACCOUNT_UID						@"UID"				//Account UID
-#define ACCOUNT_OBJECT_ID				@"ObjectID"   		//Account object ID
+// Preference keys
+#define TOP_ACCOUNT_ID @"TopAccountID" // Highest account object ID
+#define ACCOUNT_LIST @"Accounts"       // Array of accounts
+#define ACCOUNT_TYPE @"Type"           // Account type
+#define ACCOUNT_SERVICE @"Service"     // Account service
+#define ACCOUNT_UID @"UID"             // Account UID
+#define ACCOUNT_OBJECT_ID @"ObjectID"  // Account object ID
 
 @interface AdiumAccounts ()
 - (void)_loadAccounts;
@@ -38,7 +38,7 @@
 @end
 
 @interface AIAccount (SekretsIKnow)
-@property (nonatomic, assign) AIService *service;
+@property(nonatomic, assign) AIService *service;
 @end
 
 /*!
@@ -49,17 +49,19 @@
  */
 @implementation AdiumAccounts
 
-- (id)init {
+- (id)init
+{
 	if ((self = [super init])) {
 		accounts = [[NSMutableArray alloc] init];
-		unloadableAccounts = [[NSMutableArray alloc] init];	
+		unloadableAccounts = [[NSMutableArray alloc] init];
 	}
-	
+
 	return self;
 }
 
-- (void)dealloc {
-    [accounts release];
+- (void)dealloc
+{
+	[accounts release];
 	[unloadableAccounts release];
 
 	[super dealloc];
@@ -73,12 +75,11 @@
 - (void)controllerDidLoad
 {
 	[self _loadAccounts];
-	
+
 	[self upgradeAccounts];
 }
 
-
-//Accounts -------------------------------------------------------------------------------------------------------
+// Accounts -------------------------------------------------------------------------------------------------------
 #pragma mark Accounts
 /*!
  * @brief Returns an array of all available accounts
@@ -87,7 +88,7 @@
  */
 - (NSArray *)accounts
 {
-    return accounts;
+	return accounts;
 }
 
 /*!
@@ -98,35 +99,36 @@
  */
 - (NSArray *)accountsCompatibleWithService:(AIService *)service
 {
-	NSMutableArray	*matchingAccounts = [NSMutableArray array];
-	AIAccount		*account;
-	NSString		*serviceClass = [service serviceClass];
-	
+	NSMutableArray *matchingAccounts = [NSMutableArray array];
+	AIAccount *account;
+	NSString *serviceClass = [service serviceClass];
+
 	for (account in accounts) {
-		if (account.enabled &&
-			[[account.service serviceClass] isEqualToString:serviceClass]) {
+		if (account.enabled && [[account.service serviceClass] isEqualToString:serviceClass]) {
 			[matchingAccounts addObject:account];
 		}
 	}
-	
-	return matchingAccounts;	
+
+	return matchingAccounts;
 }
 
 - (AIAccount *)accountWithInternalObjectID:(NSString *)objectID
 {
 	AIAccount *account = nil;
-	//Some ancient preferences have NSNumbers instead of NSStrings. Work properly, silently.
-	if ([objectID isKindOfClass:[NSNumber class]]) objectID = [(NSNumber *)objectID stringValue];
+	// Some ancient preferences have NSNumbers instead of NSStrings. Work properly, silently.
+	if ([objectID isKindOfClass:[NSNumber class]])
+		objectID = [(NSNumber *)objectID stringValue];
 
 	for (account in accounts) {
-        if ([objectID isEqualToString:account.internalObjectID]) break;
-    }
-    
-    return account;
+		if ([objectID isEqualToString:account.internalObjectID])
+			break;
+	}
+
+	return account;
 }
 
-
-//Editing --------------------------------------------------------------------------------------------------------------
+// Editing
+// --------------------------------------------------------------------------------------------------------------
 #pragma mark Editing
 /*!
  * @brief Create an account
@@ -137,7 +139,7 @@
  * @return AIAccount instance that was created
  */
 - (AIAccount *)createAccountWithService:(AIService *)service UID:(NSString *)inUID
-{	
+{
 	return [service accountWithUID:inUID internalObjectID:[self _generateUniqueInternalObjectID]];
 }
 
@@ -159,12 +161,12 @@
  */
 - (void)deleteAccount:(AIAccount *)inAccount
 {
-	//Shut down the account in preparation for release
-	//XXX - Is this sufficient?  Don't some accounts take a while to disconnect and all? -ai
+	// Shut down the account in preparation for release
+	// XXX - Is this sufficient?  Don't some accounts take a while to disconnect and all? -ai
 	[inAccount willBeDeleted];
 	[adium.accountController forgetPasswordForAccount:inAccount];
 
-	//Remove from our array
+	// Remove from our array
 	[accounts removeObject:inAccount];
 	[self _saveAccounts];
 }
@@ -178,8 +180,8 @@
  */
 - (NSUInteger)moveAccount:(AIAccount *)account toIndex:(NSUInteger)destIndex
 {
-    [accounts moveObject:account toIndex:destIndex];
-    [self _saveAccounts];
+	[accounts moveObject:account toIndex:destIndex];
+	[self _saveAccounts];
 	return [accounts indexOfObject:account];
 }
 
@@ -204,51 +206,53 @@
  *
  * @return NSString unique InternalObjectID
  */
-//XXX - This setup leaves the possibility that mangled preferences files would create multiple accounts with the same ID -ai
+// XXX - This setup leaves the possibility that mangled preferences files would create multiple accounts with the same
+// ID -ai
 - (NSString *)_generateUniqueInternalObjectID
 {
-	NSInteger			topAccountID = [[adium.preferenceController preferenceForKey:TOP_ACCOUNT_ID group:PREF_GROUP_ACCOUNTS] integerValue];
-	NSString 	*internalObjectID = [NSString stringWithFormat:@"%ld",topAccountID];
-	
+	NSInteger topAccountID = [[adium.preferenceController preferenceForKey:TOP_ACCOUNT_ID
+																	 group:PREF_GROUP_ACCOUNTS] integerValue];
+	NSString *internalObjectID = [NSString stringWithFormat:@"%ld", topAccountID];
+
 	[adium.preferenceController setPreference:[NSNumber numberWithInteger:topAccountID + 1]
-										 forKey:TOP_ACCOUNT_ID
-										  group:PREF_GROUP_ACCOUNTS];
+									   forKey:TOP_ACCOUNT_ID
+										group:PREF_GROUP_ACCOUNTS];
 
 	return internalObjectID;
 }
 
-
-//Storage --------------------------------------------------------------------------------------------------------------
+// Storage
+// --------------------------------------------------------------------------------------------------------------
 #pragma mark Storage
 /*!
  * @brief Load accounts from disk
  */
 - (void)_loadAccounts
 {
-    NSArray		 *accountList = [adium.preferenceController preferenceForKey:ACCOUNT_LIST group:PREF_GROUP_ACCOUNTS];
+	NSArray *accountList = [adium.preferenceController preferenceForKey:ACCOUNT_LIST group:PREF_GROUP_ACCOUNTS];
 	NSDictionary *accountDict;
 
-    //Create an instance of every saved account
+	// Create an instance of every saved account
 	for (accountDict in accountList) {
 		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		NSString		*serviceUniqueID = [self _upgradeServiceUniqueID:[accountDict objectForKey:ACCOUNT_TYPE] 
-													forAccountDict:accountDict];
-        AIAccount		*newAccount;
+		NSString *serviceUniqueID = [self _upgradeServiceUniqueID:[accountDict objectForKey:ACCOUNT_TYPE]
+												   forAccountDict:accountDict];
+		AIAccount *newAccount;
 
-		//Fetch the account service, UID, and ID
-		AIService	*service = [adium.accountController serviceWithUniqueID:serviceUniqueID];
-		NSString	*accountUID = [accountDict objectForKey:ACCOUNT_UID];
-		NSString	*internalObjectID = [accountDict objectForKey:ACCOUNT_OBJECT_ID];
+		// Fetch the account service, UID, and ID
+		AIService *service = [adium.accountController serviceWithUniqueID:serviceUniqueID];
+		NSString *accountUID = [accountDict objectForKey:ACCOUNT_UID];
+		NSString *internalObjectID = [accountDict objectForKey:ACCOUNT_OBJECT_ID];
 
-        //Create the account and add it to our array
-        if (service && accountUID && [accountUID length]) {
+		// Create the account and add it to our array
+		if (service && accountUID && [accountUID length]) {
 			if ((newAccount = [service accountWithUID:accountUID internalObjectID:internalObjectID])) {
-                [accounts addObject:newAccount];
-            } else {
-				NSLog(@"Could not load account %@",accountDict);
+				[accounts addObject:newAccount];
+			} else {
+				NSLog(@"Could not load account %@", accountDict);
 				[unloadableAccounts addObject:accountDict];
 			}
-        } else {
+		} else {
 			if ([accountUID length]) {
 				AILog(@"Available services are %@: could not load account %@ on service %@ (service %@)",
 					  adium.accountController.services, accountDict, serviceUniqueID, service);
@@ -258,10 +262,10 @@
 			}
 		}
 		[pool release];
-    }
+	}
 
-	//Broadcast an account list changed notification
-    [[NSNotificationCenter defaultCenter] postNotificationName:Account_ListChanged object:nil userInfo:nil];
+	// Broadcast an account list changed notification
+	[[NSNotificationCenter defaultCenter] postNotificationName:Account_ListChanged object:nil userInfo:nil];
 }
 
 /*!
@@ -277,7 +281,7 @@
  */
 - (NSString *)_upgradeServiceUniqueID:(NSString *)serviceID forAccountDict:(NSDictionary *)accountDict
 {
-	//Libgaim
+	// Libgaim
 	if ([serviceID hasPrefix:@"libgaim"]) {
 		NSMutableString *newServiceID = [serviceID mutableCopy];
 		[newServiceID replaceOccurrencesOfString:@"libgaim"
@@ -288,10 +292,10 @@
 
 	} else if ([serviceID hasSuffix:@"LIBGAIM"]) {
 		if ([serviceID isEqualToString:@"AIM-LIBGAIM"]) {
-			NSString 	*uid = [accountDict objectForKey:ACCOUNT_UID];
+			NSString *uid = [accountDict objectForKey:ACCOUNT_UID];
 			if (uid && [uid length]) {
-				const char	firstCharacter = [uid characterAtIndex:0];
-				
+				const char firstCharacter = [uid characterAtIndex:0];
+
 				if ([uid hasSuffix:@"@mac.com"]) {
 					serviceID = @"libpurple-oscar-Mac";
 				} else if (firstCharacter >= '0' && firstCharacter <= '9') {
@@ -323,7 +327,7 @@
 		serviceID = @"libpurple-oscar-AIM";
 	else if ([serviceID isEqualToString:@"joscar-OSCAR-dotMac"])
 		serviceID = @"libpurple-oscar-Mac";
-	
+
 	return serviceID;
 }
 
@@ -332,27 +336,27 @@
  */
 - (void)_saveAccounts
 {
-	NSMutableArray	*flatAccounts = [NSMutableArray array];
-	AIAccount		*account;
-	
-	//Build a flattened array of the accounts
+	NSMutableArray *flatAccounts = [NSMutableArray array];
+	AIAccount *account;
+
+	// Build a flattened array of the accounts
 	for (account in accounts) {
 		if (![account isTemporary]) {
-			NSMutableDictionary		*flatAccount = [NSMutableDictionary dictionary];
-			AIService				*service = account.service;
-			[flatAccount setObject:service.serviceCodeUniqueID forKey:ACCOUNT_TYPE]; 	//Unique plugin ID
-			[flatAccount setObject:service.serviceID forKey:ACCOUNT_SERVICE];	    	//Shared service ID
-			[flatAccount setObject:account.UID forKey:ACCOUNT_UID];		    					//Account UID
-			[flatAccount setObject:account.internalObjectID forKey:ACCOUNT_OBJECT_ID];  			//Account Object ID
-			
+			NSMutableDictionary *flatAccount = [NSMutableDictionary dictionary];
+			AIService *service = account.service;
+			[flatAccount setObject:service.serviceCodeUniqueID forKey:ACCOUNT_TYPE];   // Unique plugin ID
+			[flatAccount setObject:service.serviceID forKey:ACCOUNT_SERVICE];          // Shared service ID
+			[flatAccount setObject:account.UID forKey:ACCOUNT_UID];                    // Account UID
+			[flatAccount setObject:account.internalObjectID forKey:ACCOUNT_OBJECT_ID]; // Account Object ID
+
 			[flatAccounts addObject:flatAccount];
 		}
 	}
-	
-	//Add any unloadable accounts so they're not lost
+
+	// Add any unloadable accounts so they're not lost
 	[flatAccounts addObjectsFromArray:unloadableAccounts];
 
-	//Save and broadcast an account list changed notification
+	// Save and broadcast an account list changed notification
 	[adium.preferenceController setPreference:flatAccounts forKey:ACCOUNT_LIST group:PREF_GROUP_ACCOUNTS];
 	[[NSNotificationCenter defaultCenter] postNotificationName:Account_ListChanged object:nil userInfo:nil];
 }
@@ -364,66 +368,66 @@
  */
 - (void)upgradeAccounts
 {
-	NSUserDefaults	*userDefaults = [NSUserDefaults standardUserDefaults];
-	NSNumber		*upgradedAccounts = [userDefaults objectForKey:@"Adium:Account Prefs Upgraded for 1.0"];
-	
+	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+	NSNumber *upgradedAccounts = [userDefaults objectForKey:@"Adium:Account Prefs Upgraded for 1.0"];
+
 	if (!upgradedAccounts || ![upgradedAccounts boolValue]) {
 		[userDefaults setObject:[NSNumber numberWithBool:YES] forKey:@"Adium:Account Prefs Upgraded for 1.0"];
 
-		AIAccount		*account;
-		NSEnumerator	*enumerator, *keyEnumerator;
-		NSString		*key;
+		AIAccount *account;
+		NSEnumerator *enumerator, *keyEnumerator;
+		NSString *key;
 
-		//Adium 0.8x would store @"" in preferences which we now want to be able to inherit global values if they don't have a value.
-		NSSet	*keysWeNowUseGlobally = [NSSet setWithObjects:KEY_ACCOUNT_DISPLAY_NAME, @"textProfile", nil];
+		// Adium 0.8x would store @"" in preferences which we now want to be able to inherit global values if they don't
+		// have a value.
+		NSSet *keysWeNowUseGlobally = [NSSet setWithObjects:KEY_ACCOUNT_DISPLAY_NAME, @"textProfile", nil];
 
-		NSCharacterSet	*whitespaceAndNewlineCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+		NSCharacterSet *whitespaceAndNewlineCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
 
 		keyEnumerator = [keysWeNowUseGlobally objectEnumerator];
 		while ((key = [keyEnumerator nextObject])) {
-			NSAttributedString	*firstAttributedString = nil;
-			BOOL				allOnThisKeyAreTheSame = YES;
+			NSAttributedString *firstAttributedString = nil;
+			BOOL allOnThisKeyAreTheSame = YES;
 
 			enumerator = [[self accounts] objectEnumerator];
 			while ((account = [enumerator nextObject])) {
-				NSAttributedString *attributedString = [[account preferenceForKey:key
-																			group:GROUP_ACCOUNT_STATUS] attributedString];
+				NSAttributedString *attributedString =
+					[[account preferenceForKey:key group:GROUP_ACCOUNT_STATUS] attributedString];
 				if (attributedString && ![attributedString length]) {
-					[account setPreference:nil
-									forKey:key
-									 group:GROUP_ACCOUNT_STATUS];
+					[account setPreference:nil forKey:key group:GROUP_ACCOUNT_STATUS];
 					attributedString = nil;
 				}
-				
+
 				if (attributedString) {
 					if (firstAttributedString) {
 						/* If this string is not the same as the first one we found, all are not the same.
 						 * Only need to check if thus far they all have been the same
 						 */
 						if (allOnThisKeyAreTheSame &&
-							![[[attributedString string] stringByTrimmingCharactersInSet:whitespaceAndNewlineCharacterSet] isEqualToString:
-								[[firstAttributedString string] stringByTrimmingCharactersInSet:whitespaceAndNewlineCharacterSet]]) {
+							![[[attributedString string]
+								stringByTrimmingCharactersInSet:whitespaceAndNewlineCharacterSet]
+								isEqualToString:
+									[[firstAttributedString string]
+										stringByTrimmingCharactersInSet:whitespaceAndNewlineCharacterSet]]) {
 							allOnThisKeyAreTheSame = NO;
 						}
 					} else {
-						//Note the first one we find, which will be our reference
+						// Note the first one we find, which will be our reference
 						firstAttributedString = attributedString;
 					}
 				}
 			}
-			
+
 			if (allOnThisKeyAreTheSame && firstAttributedString) {
-				//All strings on this key are the same. Set the preference globally...
+				// All strings on this key are the same. Set the preference globally...
 				[adium.preferenceController setPreference:[firstAttributedString dataRepresentation]
-													 forKey:key
-													  group:GROUP_ACCOUNT_STATUS];
-				
-				//And remove it from all accounts
+												   forKey:key
+													group:GROUP_ACCOUNT_STATUS];
+
+				// And remove it from all accounts
 				enumerator = [[self accounts] objectEnumerator];
 				while ((account = [enumerator nextObject])) {
-					[account setPreference:nil
-									forKey:key
-									 group:GROUP_ACCOUNT_STATUS];
+					[account setPreference:nil forKey:key group:GROUP_ACCOUNT_STATUS];
 				}
 			}
 		}

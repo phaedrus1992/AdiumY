@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -17,16 +17,16 @@
 #import "AIMiniToolbarItem.h"
 #import "AIMiniToolbarButton.h"
 
-@protocol NSVIEW_SETENABLED //Used to prevent a warning below
+@protocol NSVIEW_SETENABLED // Used to prevent a warning below
 - (void)setEnabled:(BOOL)flag;
 @end
 
 @implementation AIMiniToolbarItem
 
-//Init
+// Init
 - (id)initWithIdentifier:(NSString *)inIdentifier
 {
-	if((self = [super init])) {
+	if ((self = [super init])) {
 		identifier = inIdentifier;
 		paletteLabel = nil;
 		allowsDuplicatesInToolbar = NO;
@@ -36,186 +36,191 @@
 }
 
 - (void)dealloc
-{
+{}
 
-}
-
-//Duplicate this object
+// Duplicate this object
 - (id)copyWithZone:(NSZone *)zone
 {
-    AIMiniToolbarItem	*newItem;
+	AIMiniToolbarItem *newItem;
 
-    newItem = [[AIMiniToolbarItem alloc] initWithIdentifier:[self identifier]];    
-    //Properties
-    [newItem setPaletteLabel:[self paletteLabel]];
-    [newItem setToolTip:[self toolTip]];
-    [newItem setEnabled:[self isEnabled]];
-    [newItem setAllowsDuplicatesInToolbar:[self allowsDuplicatesInToolbar]];
-    [newItem setFlexibleWidth:[self flexibleWidth]];
-    //Action
-    [newItem setTarget:[self target]];
-    [newItem setAction:[self action]];
-    [newItem setDelegate:[self delegate]];
-    //View
-    [newItem setView:[[self view] copy]];
-    if([[newItem view] respondsToSelector:@selector(setToolbarItem:)]){
-        [[newItem view] performSelector:@selector(setToolbarItem:) withObject:newItem]; //make sure it's setup to the new toolbar item
-    }
-    
-    [newItem configureForObjects:[self configurationObjects]];
+	newItem = [[AIMiniToolbarItem alloc] initWithIdentifier:[self identifier]];
+	// Properties
+	[newItem setPaletteLabel:[self paletteLabel]];
+	[newItem setToolTip:[self toolTip]];
+	[newItem setEnabled:[self isEnabled]];
+	[newItem setAllowsDuplicatesInToolbar:[self allowsDuplicatesInToolbar]];
+	[newItem setFlexibleWidth:[self flexibleWidth]];
+	// Action
+	[newItem setTarget:[self target]];
+	[newItem setAction:[self action]];
+	[newItem setDelegate:[self delegate]];
+	// View
+	[newItem setView:[[self view] copy]];
+	if ([[newItem view] respondsToSelector:@selector(setToolbarItem:)]) {
+		[[newItem view] performSelector:@selector(setToolbarItem:)
+							 withObject:newItem]; // make sure it's setup to the new toolbar item
+	}
 
-    return newItem;
+	[newItem configureForObjects:[self configurationObjects]];
+
+	return newItem;
 }
 
-//Toolbar item identifier
-- (NSString *)identifier{
-    return identifier;
+// Toolbar item identifier
+- (NSString *)identifier
+{
+	return identifier;
 }
 
-//Palette Label, displayed by the item on the customization palette
-- (void)setPaletteLabel:(NSString *)inPaletteLabel{
-    if(paletteLabel != inPaletteLabel){
-        paletteLabel = inPaletteLabel;
-    }
+// Palette Label, displayed by the item on the customization palette
+- (void)setPaletteLabel:(NSString *)inPaletteLabel
+{
+	if (paletteLabel != inPaletteLabel) {
+		paletteLabel = inPaletteLabel;
+	}
 }
-- (NSString *)paletteLabel{
-    return paletteLabel;
-}
-
-
-//Tooltip displayed for the item
-- (void)setToolTip:(NSString *)inToolTip{
-    if(toolTip != inToolTip){
-        toolTip = inToolTip;
-        
-        if(view && [view respondsToSelector:@selector(setToolTip:)]){
-            [view setToolTip:toolTip];
-        }
-    }
-}
-- (NSString *)toolTip{
-    return toolTip;
+- (NSString *)paletteLabel
+{
+	return paletteLabel;
 }
 
+// Tooltip displayed for the item
+- (void)setToolTip:(NSString *)inToolTip
+{
+	if (toolTip != inToolTip) {
+		toolTip = inToolTip;
 
-//Set and get the action of an item
+		if (view && [view respondsToSelector:@selector(setToolTip:)]) {
+			[view setToolTip:toolTip];
+		}
+	}
+}
+- (NSString *)toolTip
+{
+	return toolTip;
+}
+
+// Set and get the action of an item
 - (void)setTarget:(id)inTarget
 {
-    if(target != inTarget){
-        target = inTarget;
-    }
+	if (target != inTarget) {
+		target = inTarget;
+	}
 }
-- (id)target{
-    return target;
+- (id)target
+{
+	return target;
 }
 
 - (void)setAction:(SEL)inAction
 {
-    action = inAction;
+	action = inAction;
 }
-- (SEL)action{
-    return action;
-}
-
-
-//Enable/Disable the item
-- (void)setEnabled:(BOOL)inEnabled{
-    enabled = inEnabled;
-    if(view && [view respondsToSelector:@selector(setEnabled:)]){
-        [(NSView<NSVIEW_SETENABLED> *)view setEnabled:enabled];
-    }
-}
-- (BOOL)isEnabled{
-    return enabled;
+- (SEL)action
+{
+	return action;
 }
 
-
-//Set the item's image
-- (void)setImage:(NSImage *)inImage{
-    if(image != inImage){
-        image = inImage;
-
-        if(view && [view respondsToSelector:@selector(setImage:)]){
-            [view performSelector:@selector(setImage:) withObject:image];
-        }
-    }
+// Enable/Disable the item
+- (void)setEnabled:(BOOL)inEnabled
+{
+	enabled = inEnabled;
+	if (view && [view respondsToSelector:@selector(setEnabled:)]) {
+		[(NSView<NSVIEW_SETENABLED> *)view setEnabled:enabled];
+	}
 }
-- (NSImage *)image{
-    return image;
+- (BOOL)isEnabled
+{
+	return enabled;
 }
 
+// Set the item's image
+- (void)setImage:(NSImage *)inImage
+{
+	if (image != inImage) {
+		image = inImage;
 
-//Control whether this item can appear more than once in a toolbar
-- (void)setAllowsDuplicatesInToolbar:(BOOL)inValue{
-    allowsDuplicatesInToolbar = inValue;
+		if (view && [view respondsToSelector:@selector(setImage:)]) {
+			[view performSelector:@selector(setImage:) withObject:image];
+		}
+	}
 }
-- (BOOL)allowsDuplicatesInToolbar{
-    return allowsDuplicatesInToolbar;
-}
-
-
-//Access the view for this item
-- (void)setView:(NSView *)inView{
-    if(view == nil){
-        view = inView;
-    }
-}
-- (NSView *)view{
-    if(view == nil){ //Basic button
-        view = [AIMiniToolbarButton miniToolbarButtonWithImage:image];
-        [(AIMiniToolbarButton *)view setToolbarItem:self];
-        [(AIMiniToolbarButton *)view setToolTip:toolTip];
-        [(AIMiniToolbarButton *)view setEnabled:enabled];
-    }
-
-    return view;
+- (NSImage *)image
+{
+	return image;
 }
 
-
-//Get and set the delegate of this toolbar item
-- (void)setDelegate:(NSObject<AIMiniToolbarItemDelegate> *)inDelegate{
-    if(delegate != inDelegate){
-        NSParameterAssert([inDelegate conformsToProtocol:@protocol(AIMiniToolbarItemDelegate)]);
-
-        delegate = inDelegate;
-    }
+// Control whether this item can appear more than once in a toolbar
+- (void)setAllowsDuplicatesInToolbar:(BOOL)inValue
+{
+	allowsDuplicatesInToolbar = inValue;
 }
-- (NSObject<AIMiniToolbarItemDelegate> *)delegate{
-    return delegate;
+- (BOOL)allowsDuplicatesInToolbar
+{
+	return allowsDuplicatesInToolbar;
 }
 
-
-//Configure this item
-- (BOOL)configureForObjects:(NSDictionary *)inObjects{
-    //Retain the configuration objects
-    if(objects != inObjects){
-        objects = inObjects;
-    }
-
-    //Inform our delegate so it can configure this item
-    if(delegate){
-        return [delegate configureToolbarItem:self forObjects:inObjects];
-    }else{
-        return YES;
-    }
+// Access the view for this item
+- (void)setView:(NSView *)inView
+{
+	if (view == nil) {
+		view = inView;
+	}
 }
-- (NSDictionary *)configurationObjects{
-    return objects;
-}
+- (NSView *)view
+{
+	if (view == nil) { // Basic button
+		view = [AIMiniToolbarButton miniToolbarButtonWithImage:image];
+		[(AIMiniToolbarButton *)view setToolbarItem:self];
+		[(AIMiniToolbarButton *)view setToolTip:toolTip];
+		[(AIMiniToolbarButton *)view setEnabled:enabled];
+	}
 
-
-//Flexible
-- (void)setFlexibleWidth:(BOOL)inflexibleWidth{
-    flexibleWidth = inflexibleWidth;
-}
-- (BOOL)flexibleWidth{
-    return flexibleWidth;
+	return view;
 }
 
+// Get and set the delegate of this toolbar item
+- (void)setDelegate:(NSObject<AIMiniToolbarItemDelegate> *)inDelegate
+{
+	if (delegate != inDelegate) {
+		NSParameterAssert([inDelegate conformsToProtocol:@protocol(AIMiniToolbarItemDelegate)]);
+
+		delegate = inDelegate;
+	}
+}
+- (NSObject<AIMiniToolbarItemDelegate> *)delegate
+{
+	return delegate;
+}
+
+// Configure this item
+- (BOOL)configureForObjects:(NSDictionary *)inObjects
+{
+	// Retain the configuration objects
+	if (objects != inObjects) {
+		objects = inObjects;
+	}
+
+	// Inform our delegate so it can configure this item
+	if (delegate) {
+		return [delegate configureToolbarItem:self forObjects:inObjects];
+	} else {
+		return YES;
+	}
+}
+- (NSDictionary *)configurationObjects
+{
+	return objects;
+}
+
+// Flexible
+- (void)setFlexibleWidth:(BOOL)inflexibleWidth
+{
+	flexibleWidth = inflexibleWidth;
+}
+- (BOOL)flexibleWidth
+{
+	return flexibleWidth;
+}
 
 @end
-
-
-
-
-

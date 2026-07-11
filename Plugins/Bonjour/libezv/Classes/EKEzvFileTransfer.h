@@ -2,8 +2,8 @@
 
 typedef enum {
 	EKEzvUnknown_Transfer = 0,
-    EKEzvDirectory_Transfer,
-    EKEzvFile_Transfer,
+	EKEzvDirectory_Transfer,
+	EKEzvFile_Transfer,
 } EKFileTransferType;
 
 typedef enum {
@@ -18,19 +18,19 @@ typedef enum {
 	AWEzvContactManager *manager;
 	EKFileTransferType type;
 	EKFileTransferDirection direction;
-	
+
 	float percentComplete;
 	float previousPercentComplete;
 	int status;
-	
+
 	NSString *localFilename;
-    NSString *remoteFilename;
+	NSString *remoteFilename;
 	NSString *url;
 	NSString *mimeType;
-    id 	accountData;
+	id accountData;
 
-    unsigned long long size;
-    unsigned long long bytesSent;
+	unsigned long long size;
+	unsigned long long bytesSent;
 
 	long long bytesReceived;
 
@@ -67,8 +67,8 @@ typedef enum {
 - (NSString *)uniqueID;
 - (void)setUniqueID:(NSString *)anUniqueID;
 
-- (void) begin;
-- (void) cancel;
+- (void)begin;
+- (void)cancel;
 - (NSString *)mimeType;
 - (NSNumber *)sizeNumber;
 @end

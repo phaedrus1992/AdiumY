@@ -1,50 +1,47 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/ESObjectWithProperties.h>
 #import <Adium/AIContentTyping.h>
-#import <Adium/AIListObject.h>
 #import <Adium/AIInterfaceControllerProtocol.h>
+#import <Adium/AIListObject.h>
+#import <Adium/ESObjectWithProperties.h>
 
 @class AIAccount, AIListObject, AIListContact, AIContentObject, AIEmoticon;
 
-#define Chat_OrderDidChange						@"Chat_OrderDidChange"
-#define Chat_WillClose							@"Chat_WillClose"
-#define Chat_DidOpen							@"Chat_DidOpen"
-#define Chat_BecameActive						@"Chat_BecameActive"
-#define Chat_AttributesChanged					@"Chat_AttributesChanged"
-#define Chat_StatusChanged						@"Chat_StatusChagned"
-#define Chat_ParticipatingListObjectsChanged	@"Chat_ParticipatingListObjectsChanged"
-#define Chat_SourceChanged 						@"Chat_SourceChanged"
-#define Chat_DestinationChanged 				@"Chat_DestinationChanged"
+#define Chat_OrderDidChange @"Chat_OrderDidChange"
+#define Chat_WillClose @"Chat_WillClose"
+#define Chat_DidOpen @"Chat_DidOpen"
+#define Chat_BecameActive @"Chat_BecameActive"
+#define Chat_AttributesChanged @"Chat_AttributesChanged"
+#define Chat_StatusChanged @"Chat_StatusChagned"
+#define Chat_ParticipatingListObjectsChanged @"Chat_ParticipatingListObjectsChanged"
+#define Chat_SourceChanged @"Chat_SourceChanged"
+#define Chat_DestinationChanged @"Chat_DestinationChanged"
 
-#define KEY_UNVIEWED_CONTENT	@"unviewedContent"
-#define KEY_UNVIEWED_MENTION	@"unviewedMention"
-#define KEY_TYPING				@"typing"
+#define KEY_UNVIEWED_CONTENT @"unviewedContent"
+#define KEY_UNVIEWED_MENTION @"unviewedMention"
+#define KEY_TYPING @"typing"
 
-#define	KEY_CHAT_TIMED_OUT		@"Timed Out"
-#define KEY_CHAT_CLOSED_WINDOW	@"Closed Window"
+#define KEY_CHAT_TIMED_OUT @"Timed Out"
+#define KEY_CHAT_CLOSED_WINDOW @"Closed Window"
 
 #define KEY_TOPIC @"topic"
 #define KEY_TOPIC_SETTER @"topicSetter"
 
-typedef enum {
-	AIChatTimedOut = 0,
-	AIChatClosedWindow
-} AIChatUpdateType;
+typedef enum { AIChatTimedOut = 0, AIChatClosedWindow } AIChatUpdateType;
 
 typedef enum {
 	AIChatCanNotSendMessage = 0,
@@ -53,14 +50,14 @@ typedef enum {
 	AIChatCanSendViaServersideOfflineMessage
 } AIChatSendingAbilityType;
 
-#define KEY_ENCRYPTED_CHAT_PREFERENCE	@"Encrypted Chat Preference"
-#define GROUP_ENCRYPTION				@"Encryption"
+#define KEY_ENCRYPTED_CHAT_PREFERENCE @"Encrypted Chat Preference"
+#define GROUP_ENCRYPTION @"Encryption"
 
 typedef enum {
 	EncryptedChat_Default = -2, /* For use by a menu which wants to provide a 'no preference' option */
 	EncryptedChat_Never = -1,
 	EncryptedChat_Manually = 0, /* Manually is the default */
-	EncryptedChat_Automatically = 1, 
+	EncryptedChat_Automatically = 1,
 	EncryptedChat_RejectUnencryptedMessages = 2
 } AIEncryptedChatPreference;
 
@@ -71,13 +68,13 @@ typedef enum {
 	EncryptionStatus_Finished
 } AIEncryptionStatus;
 
-//Chat errors should be indicated by setting a property on this key 
-//with an NSNumber of the appropriate error type as its object
-#define	KEY_CHAT_ERROR			@"Chat Error"
+// Chat errors should be indicated by setting a property on this key
+// with an NSNumber of the appropriate error type as its object
+#define KEY_CHAT_ERROR @"Chat Error"
 
-//This key may be set before sending KEY_CHAT_ERROR to provide any data the
-//the error message should make use of.  It may be of any type.
-#define	KEY_CHAT_ERROR_DETAILS	@"Chat Error Details"
+// This key may be set before sending KEY_CHAT_ERROR to provide any data the
+// the error message should make use of.  It may be of any type.
+#define KEY_CHAT_ERROR_DETAILS @"Chat Error Details"
 
 typedef enum {
 	AIChatUnknownError = 0,
@@ -98,67 +95,67 @@ typedef enum {
 } AIChatErrorType;
 
 @interface AIChat : ESObjectWithProperties <AIContainingObject> {
-	AIAccount			*account;
-	NSDate				*dateOpened;
-	BOOL				isOpen;
-	BOOL				isGroupChat;
-	BOOL				hasSentOrReceivedContent;
+	AIAccount *account;
+	NSDate *dateOpened;
+	BOOL isOpen;
+	BOOL isGroupChat;
+	BOOL hasSentOrReceivedContent;
 
-	NSMutableArray		*pendingOutgoingContentObjects;
-	
-	BOOL				hideUserIconAndStatus;
-	BOOL				showJoinLeave;
-	
-	NSMutableDictionary	*participatingContactsFlags;
-	NSMutableDictionary	*participatingContactsAliases;
-	NSMutableArray		*participatingContacts;
-	
-	AIListContact		*preferredContact;
-	NSString			*name;
-	NSString			*uniqueChatID;
-	id					identifier;
-	
-	NSMutableSet		*ignoredListContacts;
-	
-	BOOL				expanded;
-	
-	BOOL				enableTypingNotifications;
-	
-	NSMutableSet		*customEmoticons;
-	
-	NSDate				*lastMessageDate;
-	
+	NSMutableArray *pendingOutgoingContentObjects;
+
+	BOOL hideUserIconAndStatus;
+	BOOL showJoinLeave;
+
+	NSMutableDictionary *participatingContactsFlags;
+	NSMutableDictionary *participatingContactsAliases;
+	NSMutableArray *participatingContacts;
+
+	AIListContact *preferredContact;
+	NSString *name;
+	NSString *uniqueChatID;
+	id identifier;
+
+	NSMutableSet *ignoredListContacts;
+
+	BOOL expanded;
+
+	BOOL enableTypingNotifications;
+
+	NSMutableSet *customEmoticons;
+
+	NSDate *lastMessageDate;
+
 	// Former properties
-	NSImage				*tabStateIcon;
-	
-	NSDictionary		*chatCreationInfo;
-	
-	NSInteger			unviewedMention;
-	NSInteger			unviewedContent;
-	
-	NSTimer				*enteredTextTimer;
-	
-	NSInteger			ourTypingState;
-	
-	NSDictionary		*securityDetails;
-	
-	NSString			*topic;
-    AIListContact		*topicSetter;
+	NSImage *tabStateIcon;
+
+	NSDictionary *chatCreationInfo;
+
+	NSInteger unviewedMention;
+	NSInteger unviewedContent;
+
+	NSTimer *enteredTextTimer;
+
+	NSInteger ourTypingState;
+
+	NSDictionary *securityDetails;
+
+	NSString *topic;
+	AIListContact *topicSetter;
 }
 
 + (id)chatForAccount:(AIAccount *)inAccount;
 
-@property (readwrite, nonatomic, retain) AIAccount *account;
+@property(readwrite, nonatomic, retain) AIAccount *account;
 
-@property (readonly, nonatomic) NSDate *dateOpened;
-@property (readwrite, nonatomic, retain) NSDictionary *chatCreationDictionary;
+@property(readonly, nonatomic) NSDate *dateOpened;
+@property(readwrite, nonatomic, retain) NSDictionary *chatCreationDictionary;
 
-@property (readwrite, nonatomic) BOOL isOpen;
+@property(readwrite, nonatomic) BOOL isOpen;
 
-@property (readwrite, nonatomic) BOOL hasSentOrReceivedContent;
+@property(readwrite, nonatomic) BOOL hasSentOrReceivedContent;
 
-@property (readonly, nonatomic) NSUInteger unviewedContentCount;
-@property (readonly, nonatomic) NSUInteger unviewedMentionCount;
+@property(readonly, nonatomic) NSUInteger unviewedContentCount;
+@property(readonly, nonatomic) NSUInteger unviewedMentionCount;
 
 - (void)incrementUnviewedContentCount;
 - (void)incrementUnviewedMentionCount;
@@ -183,52 +180,52 @@ typedef enum {
 - (void)removeObject:(AIListObject *)inObject;
 
 //
-@property (readwrite, nonatomic, retain) AIListContact *listObject;
-@property (readwrite, nonatomic, assign) AIListContact *preferredListObject;
+@property(readwrite, nonatomic, retain) AIListContact *listObject;
+@property(readwrite, nonatomic, assign) AIListContact *preferredListObject;
 - (BOOL)inviteListContact:(AIListContact *)inObject withMessage:(NSString *)inviteMessage;
 
 - (BOOL)shouldBeginSendingContentObject:(AIContentObject *)inObject;
 - (void)finishedSendingContentObject:(AIContentObject *)inObject;
 
-@property (readwrite, nonatomic, retain) NSString *name; 
-@property (readwrite, nonatomic, retain) id identifier;
+@property(readwrite, nonatomic, retain) NSString *name;
+@property(readwrite, nonatomic, retain) id identifier;
 
-@property (readonly, nonatomic) NSString *uniqueChatID;
+@property(readonly, nonatomic) NSString *uniqueChatID;
 
-@property (readonly, nonatomic) NSImage *chatImage;
-@property (readonly, nonatomic) NSImage *chatMenuImage;
+@property(readonly, nonatomic) NSImage *chatImage;
+@property(readonly, nonatomic) NSImage *chatMenuImage;
 
-@property (readwrite, nonatomic, retain) NSDictionary *securityDetails;
-@property (readonly, nonatomic) BOOL isSecure;
-@property (readonly, nonatomic) AIEncryptionStatus encryptionStatus;
-@property (readonly, nonatomic) BOOL supportsSecureMessagingToggling;
+@property(readwrite, nonatomic, retain) NSDictionary *securityDetails;
+@property(readonly, nonatomic) BOOL isSecure;
+@property(readonly, nonatomic) AIEncryptionStatus encryptionStatus;
+@property(readonly, nonatomic) BOOL supportsSecureMessagingToggling;
 
-@property (readonly, nonatomic) AIChatSendingAbilityType messageSendingAbility;
-@property (readonly, nonatomic) BOOL canSendImages;
+@property(readonly, nonatomic) AIChatSendingAbilityType messageSendingAbility;
+@property(readonly, nonatomic) BOOL canSendImages;
 
 - (BOOL)isListContactIgnored:(AIListObject *)inContact;
 - (void)setListContact:(AIListContact *)inContact isIgnored:(BOOL)isIgnored;
 
-@property (readwrite, nonatomic) BOOL isGroupChat;
-@property (readwrite, nonatomic) BOOL showJoinLeave;
+@property(readwrite, nonatomic) BOOL isGroupChat;
+@property(readwrite, nonatomic) BOOL showJoinLeave;
 
-@property (readwrite, nonatomic) BOOL hideUserIconAndStatus;
-@property (readonly, nonatomic) BOOL supportsTopic;
+@property(readwrite, nonatomic) BOOL hideUserIconAndStatus;
+@property(readonly, nonatomic) BOOL supportsTopic;
 
 - (void)updateTopic:(NSString *)inTopic withSource:(AIListContact *)contact;
 - (void)setTopic:(NSString *)inTopic;
 
 - (void)addCustomEmoticon:(AIEmoticon *)inEmoticon;
-@property (readonly, nonatomic) NSMutableSet *customEmoticons;
+@property(readonly, nonatomic) NSMutableSet *customEmoticons;
 
 - (void)receivedError:(NSNumber *)type;
 
-@property (readonly, nonatomic) id <AIChatContainer> chatContainer;
+@property(readonly, nonatomic) id<AIChatContainer> chatContainer;
 
-@property (readonly, nonatomic) NSMenu *actionMenu;
+@property(readonly, nonatomic) NSMenu *actionMenu;
 
-@property (readonly, nonatomic) BOOL shouldLog;
+@property(readonly, nonatomic) BOOL shouldLog;
 
-@property (readwrite, copy, nonatomic) NSDate *lastMessageDate;
+@property(readwrite, copy, nonatomic) NSDate *lastMessageDate;
 
 @end

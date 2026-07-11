@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -18,34 +18,25 @@
 
 @class AIService, AIAccount, AIListContact, AIStatus;
 
-#define Account_ListChanged 					@"Account_ListChanged"
-#define Adium_RequestSetManualIdleTime			@"Adium_RequestSetManualIdleTime"
+#define Account_ListChanged @"Account_ListChanged"
+#define Adium_RequestSetManualIdleTime @"Adium_RequestSetManualIdleTime"
 
 @protocol AIAccountControllerRemoveConfirmationDialog <NSObject>
 - (void)runModal;
-- (void)beginSheetModalForWindow:(NSWindow*)window;
+- (void)beginSheetModalForWindow:(NSWindow *)window;
 @end
 
 @interface NSObject (AIEditAccountWindowControllerTarget)
-//Optional
-- (void)editAccountWindow:(NSWindow*)window didOpenForAccount:(AIAccount *)inAccount;
+// Optional
+- (void)editAccountWindow:(NSWindow *)window didOpenForAccount:(AIAccount *)inAccount;
 
-//Required
+// Required
 - (void)editAccountSheetDidEndForAccount:(AIAccount *)inAccount withSuccess:(BOOL)successful;
 @end
 
-typedef enum {
-	AIPromptAsNeeded = 0,
-	AIPromptAlways,
-	AIPromptNever
-} AIPromptOption;
+typedef enum { AIPromptAsNeeded = 0, AIPromptAlways, AIPromptNever } AIPromptOption;
 
-typedef enum {
-	AINickServPassword,
-	AIQPassword,
-	AIXPassword,
-	AIAuthServPassword
-} AISpecialPasswordType;
+typedef enum { AINickServPassword, AIQPassword, AIXPassword, AIAuthServPassword } AISpecialPasswordType;
 
 @protocol AIAccountController <AIController>
 
@@ -62,7 +53,7 @@ typedef enum {
  *
  * @return NSArray of AIService instances
  */
-@property (nonatomic, readonly) NSArray *services;
+@property(nonatomic, readonly) NSArray *services;
 
 /*!
  * @brief Returns an array of all active services
@@ -109,7 +100,7 @@ typedef enum {
 
 /*!
  * @brief Retrieve the stored password of an account
- * 
+ *
  * @param inAccount account whose password is desired
  * @return account password, or nil if the password is not available without prompting
  */
@@ -119,12 +110,19 @@ typedef enum {
  * @brief Retrieve the password of an account, prompting the user if necessary
  *
  * @param inAccount account whose password is desired
- * @param promptOption An AIPromptOption determining whether and how a prompt for the password should be displayed if it is needed. This allows forcing or suppressing of the prompt dialogue. If AIPromptOptionNever is used, the returnCode sent to the target will always be AIPasswordPromptOKReturn.
+ * @param promptOption An AIPromptOption determining whether and how a prompt for the password should be displayed if it
+ * is needed. This allows forcing or suppressing of the prompt dialogue. If AIPromptOptionNever is used, the returnCode
+ * sent to the target will always be AIPasswordPromptOKReturn.
  * @param inTarget target to notify when password is available
- * @param inSelector selector to notify when password is available. Selector is of the form - (void)returnedPassword:(NSString *)p returnCode:(AIPasswordPromptReturn)returnCode context:(id)context
+ * @param inSelector selector to notify when password is available. Selector is of the form -
+ * (void)returnedPassword:(NSString *)p returnCode:(AIPasswordPromptReturn)returnCode context:(id)context
  * @param inContext context passed to target
  */
-- (void)passwordForAccount:(AIAccount *)inAccount promptOption:(AIPromptOption)promptOption notifyingTarget:(id)inTarget selector:(SEL)inSelector context:(id)inContext;
+- (void)passwordForAccount:(AIAccount *)inAccount
+			  promptOption:(AIPromptOption)promptOption
+		   notifyingTarget:(id)inTarget
+				  selector:(SEL)inSelector
+				   context:(id)inContext;
 
 /*!
  * @brief Set the password for a proxy server
@@ -139,7 +137,7 @@ typedef enum {
 
 /*!
  * @brief Retrieve the stored password for a proxy server
- * 
+ *
  * @param server proxy server name
  * @param userName proxy server user name
  * @return proxy server password, or nil if the password is not available without prompting
@@ -152,18 +150,32 @@ typedef enum {
  * @param server proxy server name
  * @param userName proxy server user name
  * @param inTarget target to notify when password is available
- * @param inSelector selector to notify when password is available. Selector is of the form - (void)returnedPassword:(NSString *)p returnCode:(AIPasswordPromptReturn)returnCode context:(id)context
+ * @param inSelector selector to notify when password is available. Selector is of the form -
+ * (void)returnedPassword:(NSString *)p returnCode:(AIPasswordPromptReturn)returnCode context:(id)context
  * @param inContext context passed to target
  */
-- (void)passwordForProxyServer:(NSString *)server userName:(NSString *)userName notifyingTarget:(id)inTarget selector:(SEL)inSelector context:(id)inContext;
+- (void)passwordForProxyServer:(NSString *)server
+					  userName:(NSString *)userName
+			   notifyingTarget:(id)inTarget
+					  selector:(SEL)inSelector
+					   context:(id)inContext;
 
 // document
-- (void)passwordForType:(AISpecialPasswordType)inType forAccount:(AIAccount *)inAccount promptOption:(AIPromptOption)inOption name:(NSString *)inName notifyingTarget:(id)inTarget selector:(SEL)inSelector context:(id)inContext;
+- (void)passwordForType:(AISpecialPasswordType)inType
+			 forAccount:(AIAccount *)inAccount
+		   promptOption:(AIPromptOption)inOption
+				   name:(NSString *)inName
+		notifyingTarget:(id)inTarget
+			   selector:(SEL)inSelector
+				context:(id)inContext;
 - (NSString *)passwordForType:(AISpecialPasswordType)inType forAccount:(AIAccount *)inAccount name:(NSString *)inName;
-- (void)setPassword:(NSString *)inPassword forType:(AISpecialPasswordType)inType forAccount:(AIAccount *)inAccount name:(NSString *)inName;
+- (void)setPassword:(NSString *)inPassword
+			forType:(AISpecialPasswordType)inType
+		 forAccount:(AIAccount *)inAccount
+			   name:(NSString *)inName;
 
 #pragma mark Accounts
-@property (nonatomic, readonly) NSArray *accounts;
+@property(nonatomic, readonly) NSArray *accounts;
 - (NSArray *)accountsCompatibleWithService:(AIService *)service;
 - (NSArray *)accountsWithCurrentStatus:(AIStatus *)status;
 - (AIAccount *)accountWithInternalObjectID:(NSString *)objectID;
@@ -176,7 +188,7 @@ typedef enum {
 /*!
  * @brief Change an account's current and future service
  *
- * This should only be used by an AIAccount to upgrade itself to a new service, as may happen when 
+ * This should only be used by an AIAccount to upgrade itself to a new service, as may happen when
  * transitioning from one implementation to another.
  *
  * Generally, this is not necessary, as migration can be performed by simply substituting the new service ID
@@ -189,20 +201,22 @@ typedef enum {
  */
 - (void)moveAccount:(AIAccount *)account toService:(AIService *)service;
 
-//Preferred Accounts
+// Preferred Accounts
 - (AIAccount *)preferredAccountForSendingContentType:(NSString *)inType toContact:(AIListContact *)inContact;
 
-//Connection convenience methods
+// Connection convenience methods
 - (void)disconnectAllAccounts;
-@property (nonatomic, readonly) BOOL oneOrMoreConnectedAccounts;
-@property (nonatomic, readonly) BOOL oneOrMoreConnectedOrConnectingAccounts;
+@property(nonatomic, readonly) BOOL oneOrMoreConnectedAccounts;
+@property(nonatomic, readonly) BOOL oneOrMoreConnectedOrConnectingAccounts;
 
 /*!
  * @brief Display account configuration for an account
  *
  * @param account The account to edit. Must not be nil.
- * @param window The window on which to attach the configuration as a sheet. If nil, the editor is shown as a free-standing window.
- * @param target The target to notify when editing is complete. See the AIEditAccountWindowControllerTarget informal protocol.
+ * @param window The window on which to attach the configuration as a sheet. If nil, the editor is shown as a
+ * free-standing window.
+ * @param target The target to notify when editing is complete. See the AIEditAccountWindowControllerTarget informal
+ * protocol.
  */
 - (void)editAccount:(AIAccount *)account onWindow:(NSWindow *)window notifyingTarget:(id)target;
 
