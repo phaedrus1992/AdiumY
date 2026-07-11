@@ -52,7 +52,7 @@
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
 	if ((self = [super initWithCoder:aDecoder])) {
-		[self _init];
+		self = [self _init];
 	}
 	return self;
 }
@@ -60,7 +60,7 @@
 - (id)initWithFrame:(NSRect)frameRect
 {
 	if ((self = [super initWithFrame:frameRect])) {
-		[self _init];
+		self = [self _init];
 	}
 	return self;
 }
@@ -78,10 +78,7 @@
 
 - (void)dealloc
 {
-    [stringSet release];
-	[impliedCompletionDictionary release];
 	
-    [super dealloc];
 }
 
 //Sets the minimum string length required before completion kicks in
@@ -98,10 +95,9 @@
 //Set the strings that this field will use to auto-complete
 - (void)setCompletingStrings:(NSArray *)strings
 {
-    [stringSet release];
-    stringSet = [[NSMutableSet setWithArray:strings] retain];
+    stringSet = [NSMutableSet setWithArray:strings];
 	
-	[impliedCompletionDictionary release]; impliedCompletionDictionary = nil;
+	impliedCompletionDictionary = nil;
 }
 
 //Adds a string to the existing string list
@@ -223,7 +219,6 @@
 
 	NSArray *sortedArray = [possibleCompletions sortedArrayUsingSelector:@selector(compareLength:)];
 	
-	[possibleCompletions release];
 	
 	if ([sortedArray count] > 0){
 		return [sortedArray objectAtIndex:0];

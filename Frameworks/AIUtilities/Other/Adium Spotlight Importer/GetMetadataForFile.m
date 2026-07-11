@@ -1,26 +1,26 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 #import <CoreFoundation/CoreFoundation.h>
-#import <CoreServices/CoreServices.h> 
+#import <CoreServices/CoreServices.h>
 #import "GetMetadataForHTMLLog.h"
 #import <AIUtilities/ISO8601DateFormatter.h>
 
 /*
  Relevant keys from MDItem.h we use or may want to use:
- 
+
  @constant kMDItemContentCreationDate
  This is the date that the contents of the file were created,
  has an application specific semantic.
@@ -28,7 +28,7 @@
 
  @constant kMDItemTextContent
  Contains the text content of the document. Type is a CFString.
- 
+
  @constant kMDItemDisplayName
  This is the localized version of the LaunchServices call
  LSCopyDisplayNameForURL()/LSCopyDisplayNameForRef().
@@ -36,7 +36,7 @@
  @const  kMDItemInstantMessageAddresses
  Instant message addresses for this item. Type is an Array of CFStrings.
  */
- 
+
 /* -----------------------------------------------------------------------------
 Get metadata attributes from file
 
@@ -45,37 +45,34 @@ and return it as a dictionary
 ----------------------------------------------------------------------------- */
 
 Boolean GetMetadataForXMLLog(NSMutableDictionary *attributes, NSString *pathToFile);
-NSString *CopyTextContentForXMLLogData(NSData *logData);
+NS_RETURNS_RETAINED NSString *CopyTextContentForXMLLogData(NSData *logData);
 
-Boolean GetMetadataForFile(void* thisInterface, 
-						   CFMutableDictionaryRef attributes, 
+Boolean GetMetadataForFile(void* thisInterface,
+						   CFMutableDictionaryRef attributes,
 						   CFStringRef contentTypeUTI,
 						   CFStringRef pathToFile)
 {
     /* Pull any available metadata from the file at the specified path */
     /* Return the attribute keys and attribute values in the dict */
     /* Return TRUE if successful, FALSE if there was no data provided */
-    
-	Boolean				success = FALSE;
-	NSAutoreleasePool	*pool;
-	pool = [[NSAutoreleasePool alloc] init];
 
-	if (CFStringCompare(contentTypeUTI, (CFStringRef)@"com.github.phaedrus1992.adiumy.htmllog", kCFCompareBackwards) == kCFCompareEqualTo) {
-		success = GetMetadataForHTMLLog((NSMutableDictionary *)attributes, (NSString *)pathToFile);
-	} else if (CFStringCompare(contentTypeUTI, (CFStringRef)@"com.github.phaedrus1992.adiumy.xmllog", kCFCompareBackwards) == kCFCompareEqualTo) {
-		success = GetMetadataForXMLLog((NSMutableDictionary *)attributes, (NSString *)pathToFile);
-	} else {
-		NSLog(@"We were passed %@, of type %@, which is an unknown type",pathToFile,contentTypeUTI);
+	Boolean				success = FALSE;
+	@autoreleasepool {
+		if (CFStringCompare(contentTypeUTI, (__bridge CFStringRef)@"com.github.phaedrus1992.adiumy.htmllog", kCFCompareBackwards) == kCFCompareEqualTo) {
+			success = GetMetadataForHTMLLog((__bridge NSMutableDictionary *)attributes, (__bridge NSString *)pathToFile);
+		} else if (CFStringCompare(contentTypeUTI, (__bridge CFStringRef)@"com.github.phaedrus1992.adiumy.xmllog", kCFCompareBackwards) == kCFCompareEqualTo) {
+			success = GetMetadataForXMLLog((__bridge NSMutableDictionary *)attributes, (__bridge NSString *)pathToFile);
+		} else {
+			NSLog(@"We were passed %@, of type %@, which is an unknown type",pathToFile,contentTypeUTI);
+		}
 	}
 
-	[pool release];
-	
     return success;
 }
 
 static CFStringRef ResolveUTI(CFStringRef contentTypeUTI, NSURL *urlToFile) {
     //Deteremine the UTI type if we weren't passed one
-    CFStringRef pathExtension = (CFStringRef)[urlToFile pathExtension];
+    CFStringRef pathExtension = (__bridge CFStringRef)[urlToFile pathExtension];
 	if (contentTypeUTI == NULL) {
 		if (CFStringCompare(pathExtension, CFSTR("chatLog"), (kCFCompareBackwards | kCFCompareCaseInsensitive)) == kCFCompareEqualTo) {
 			contentTypeUTI = CFSTR("com.github.phaedrus1992.adiumy.xmllog");
@@ -89,55 +86,54 @@ static CFStringRef ResolveUTI(CFStringRef contentTypeUTI, NSURL *urlToFile) {
     return contentTypeUTI;
 }
 
-NSData *CopyDataForURL(CFStringRef contentTypeUTI, NSURL *urlToFile) {
-    NSAutoreleasePool	*pool = [[NSAutoreleasePool alloc] init];
-	NSData			*content;
-	contentTypeUTI = ResolveUTI(contentTypeUTI, urlToFile);
-    
-	if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.htmllog"))) {
-		content = [[NSData alloc] initWithContentsOfURL:urlToFile options:NSDataReadingUncached error:NULL];
-	} else if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.xmllog"))) {
-		BOOL isDir;
-        NSString *path = [urlToFile path];
-		if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir]) {
-            if (isDir) {
-                /* If we have a chatLog bundle, we want to get the text content for the xml file inside */
-                urlToFile = [NSURL fileURLWithPath:[path stringByAppendingPathComponent:[[[path lastPathComponent] stringByDeletingPathExtension] stringByAppendingPathExtension:@"xml"]]];
-            }
-			
-			content = [[NSData alloc] initWithContentsOfURL:urlToFile options:NSUncachedRead error:NULL];
-            
+NS_RETURNS_RETAINED NSData *CopyDataForURL(CFStringRef contentTypeUTI, NSURL *urlToFile) {
+    @autoreleasepool {
+		NSData			*content = nil;
+		contentTypeUTI = ResolveUTI(contentTypeUTI, urlToFile);
+
+		if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.htmllog"))) {
+			content = [[NSData alloc] initWithContentsOfURL:urlToFile options:NSDataReadingUncached error:NULL];
+		} else if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.xmllog"))) {
+			BOOL isDir;
+	        NSString *path = [urlToFile path];
+			if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir]) {
+	            if (isDir) {
+	                /* If we have a chatLog bundle, we want to get the text content for the xml file inside */
+	                urlToFile = [NSURL fileURLWithPath:[path stringByAppendingPathComponent:[[[path lastPathComponent] stringByDeletingPathExtension] stringByAppendingPathExtension:@"xml"]]];
+	            }
+
+				content = [[NSData alloc] initWithContentsOfURL:urlToFile options:NSUncachedRead error:NULL];
+
+			} else {
+				content = nil;
+			}
+
 		} else {
 			content = nil;
+			NSLog(@"We were passed %@, of type %@, which is an unknown type", urlToFile, contentTypeUTI);
 		}
-		
-	} else {
-		content = nil;
-		NSLog(@"We were passed %@, of type %@, which is an unknown type", urlToFile, contentTypeUTI);
+
+		return content;
 	}
-    
-	[pool release];
-	
-	return content;
 }
 
-NSData *CopyDataForFile(CFStringRef contentTypeUTI, CFStringRef pathToFile) {
-    return CopyDataForURL(contentTypeUTI, [NSURL fileURLWithPath:(NSString *)pathToFile]);
+NS_RETURNS_RETAINED NSData *CopyDataForFile(CFStringRef contentTypeUTI, CFStringRef pathToFile) {
+    return CopyDataForURL(contentTypeUTI, [NSURL fileURLWithPath:(__bridge NSString *)pathToFile]);
 }
 
 CFStringRef CopyTextContentForFileData(CFStringRef contentTypeUTI, NSURL *urlToFile, NSData *fileData) {
     if (!fileData) return NULL;
-        
+
     contentTypeUTI = ResolveUTI(contentTypeUTI, urlToFile);
-    
+
     NSString *result = nil;
-    
+
     if (CFEqual(contentTypeUTI,CFSTR("com.github.phaedrus1992.adiumy.htmllog"))) {
         result = CopyTextContentForHTMLLogData(fileData);
 	} else if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.xmllog"))) {
         result = CopyTextContentForXMLLogData(fileData);
     }
-    return (CFStringRef)result;
+    return (__bridge_retained CFStringRef)result;
 }
 
 /*!
@@ -153,12 +149,12 @@ CFStringRef CopyTextContentForFileData(CFStringRef contentTypeUTI, NSURL *urlToF
 CFStringRef CopyTextContentForFile(CFStringRef contentTypeUTI,
 								   CFStringRef pathToFile)
 {
-	NSAutoreleasePool	*pool = [[NSAutoreleasePool alloc] init];
-    NSData *logData = CopyDataForFile(contentTypeUTI, pathToFile);
-	CFStringRef	textContent = CopyTextContentForFileData(contentTypeUTI, [NSURL fileURLWithPath:(NSString *)pathToFile], logData);
-	[pool release];
-	
-	return textContent;
+	@autoreleasepool {
+	    NSData *logData = CopyDataForFile(contentTypeUTI, pathToFile);
+		CFStringRef	textContent = CopyTextContentForFileData(contentTypeUTI, [NSURL fileURLWithPath:(__bridge NSString *)pathToFile], logData);
+
+		return textContent;
+	}
 }
 
 /*!
@@ -175,61 +171,61 @@ Boolean GetMetadataForXMLLog(NSMutableDictionary *attributes, NSString *pathToFi
 	Boolean ret = YES;
 	NSXMLDocument *xmlDoc = nil;
 	NSError *err=nil;
-	NSURL *furl = [NSURL fileURLWithPath:(NSString *)pathToFile];
+	NSURL *furl = [NSURL fileURLWithPath:pathToFile];
 	NSData *data = [NSData dataWithContentsOfURL:furl options:NSUncachedRead error:&err];
 	if (data) {
 		xmlDoc = [[NSXMLDocument alloc] initWithData:data options:NSXMLNodePreserveCDATA error:&err];
 	}
 
 	if (xmlDoc)
-	{   
+	{
 		NSArray *senderNodes = [xmlDoc nodesForXPath:@"//message/@sender"
 												error:&err];
 		NSSet *duplicatesRemover = [NSSet setWithArray: senderNodes];
 		// XPath returns an array of NSXMLNodes. Must convert them to strings containing just the attribute value.
 		NSMutableArray *authorsArray = [NSMutableArray arrayWithCapacity:[duplicatesRemover count]];
 		NSXMLNode *senderNode = nil;
-		
+
 		for( senderNode in duplicatesRemover ) {
 			[authorsArray addObject:[senderNode objectValue]];
 		}
-		
-		[(NSMutableDictionary *)attributes setObject:authorsArray
-											  forKey:(NSString *)kMDItemAuthors];
 
-		[(NSMutableDictionary *)attributes setObject:authorsArray
-											  forKey:(NSString *)kMDItemInstantMessageAddresses];
-		
+		[attributes setObject:authorsArray
+					   forKey:(__bridge NSString *)kMDItemAuthors];
+
+		[attributes setObject:authorsArray
+					   forKey:(__bridge NSString *)kMDItemInstantMessageAddresses];
+
 		NSArray *contentArray = [xmlDoc nodesForXPath:@"//message//text()"
 												error:&err];
 		NSString *contentString = [contentArray componentsJoinedByString:@" "];
-		
+
 		[attributes setObject:contentString
-					   forKey:(NSString *)kMDItemTextContent];
+					   forKey:(__bridge NSString *)kMDItemTextContent];
 
 		NSString *serviceString = [[[xmlDoc rootElement] attributeForName:@"service"] objectValue];
 		if(serviceString != nil)
 			[attributes setObject:serviceString
 						   forKey:@"com_github_phaedrus1992_adiumY_service"];
-		
+
 		NSArray			*children = [[xmlDoc rootElement] children];
 		NSDate			*startDate = nil, *endDate = nil;
 
 		if ([children count]) {
 			NSString		*dateStr;
-			ISO8601DateFormatter *formatter = [[[ISO8601DateFormatter alloc] init] autorelease];
+			ISO8601DateFormatter *formatter = [[ISO8601DateFormatter alloc] init];
 
 			dateStr = [[(NSXMLElement *)[children objectAtIndex:0] attributeForName:@"time"] objectValue];
 			startDate = (dateStr ? [formatter dateFromString:dateStr] : nil);
 			if (startDate)
-				[(NSMutableDictionary *)attributes setObject:startDate
-													  forKey:(NSString *)kMDItemContentCreationDate];
+				[attributes setObject:startDate
+							   forKey:(__bridge NSString *)kMDItemContentCreationDate];
 
 			dateStr = [[(NSXMLElement *)[children lastObject] attributeForName:@"time"] objectValue];
 			endDate = (dateStr ? [formatter dateFromString:dateStr] : nil);
 			if (endDate)
-				[(NSMutableDictionary *)attributes setObject:[NSNumber numberWithDouble:[endDate timeIntervalSinceDate:startDate]]
-													  forKey:(NSString *)kMDItemDurationSeconds];
+				[attributes setObject:[NSNumber numberWithDouble:[endDate timeIntervalSinceDate:startDate]]
+							   forKey:(__bridge NSString *)kMDItemDurationSeconds];
 		}
 
 		NSString *accountString = [[[xmlDoc rootElement] attributeForName:@"account"] objectValue];
@@ -245,25 +241,19 @@ Boolean GetMetadataForXMLLog(NSMutableDictionary *attributes, NSString *pathToFi
 				NSString *toUID = [otherAuthors objectAtIndex:0];
 				NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
 				dateFormatter.dateFormat = @"yyyy'-'MM'-'dd";
-				
+
 				[attributes setObject:[NSString stringWithFormat:@"%@ on %@",toUID,[dateFormatter stringFromDate:startDate]]
-							   forKey:(NSString *)kMDItemDisplayName];
-				
-				[dateFormatter release];
+							   forKey:(__bridge NSString *)kMDItemDisplayName];
 			}
-			[otherAuthors release];
-			
 		}
 		[attributes setObject:@"Chat log"
-					   forKey:(NSString *)kMDItemKind];
+					   forKey:(__bridge NSString *)kMDItemKind];
 		[attributes setObject:@"Adium"
-					   forKey:(NSString *)kMDItemCreator];
-		
-		[xmlDoc release];
+					   forKey:(__bridge NSString *)kMDItemCreator];
 	}
 	else
 		ret = NO;
-	
+
 	return ret;
 }
 
@@ -273,7 +263,7 @@ NSString *killXMLTags(NSString *inString)
     NSString *tempString = nil;
     NSMutableString *ret = [NSMutableString string];
     NSRange rng;
-    
+
     while(![scan isAtEnd]){
         tempString = nil;
         [scan scanUpToString:@"<" intoString:&tempString];
@@ -309,31 +299,27 @@ NSString *killXMLTags(NSString *inString)
     return ret;
 }
 
-NSString *CopyTextContentForXMLLogData(NSData *data) {
+NS_RETURNS_RETAINED NSString *CopyTextContentForXMLLogData(NSData *data) {
     NSString *contentString = nil;
 	NSError *err;
     NSXMLDocument *xmlDoc = [[NSXMLDocument alloc] initWithData:data options:NSXMLNodePreserveCDATA error:&err];
-	
+
     if (xmlDoc) {
 		NSArray *children = [[xmlDoc rootElement] children];
 		NSMutableArray *messages = [NSMutableArray array];
-		
+
 		for (NSXMLNode *child in children) {
 			if ([child.name isEqualToString:@"message"]) {
 				[messages addObject:child.stringValue];
 			}
 		}
-		
+
 		if (messages.count) contentString = [messages componentsJoinedByString:@" "];
-		
-        [xmlDoc release];
     } else {
 #ifdef AILogWithSignature
 		AILogWithSignature(@"Parsing log failed: %@", err);
 #endif
 	}
-	
-	[contentString retain];
-	
+
     return contentString;
 }

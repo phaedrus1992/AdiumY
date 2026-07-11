@@ -153,11 +153,10 @@
     if (err != noErr)
         return nil;
     
-    NSURL *folderURL = (NSURL *)CFURLCreateFromFSRef(kCFAllocatorSystemDefault, &folderRef);
+    NSURL *folderURL = CFBridgingRelease(CFURLCreateFromFSRef(kCFAllocatorSystemDefault, &folderRef));
     if (! folderURL)
         return nil;
 	
-	[folderURL autorelease];
     
     return [folderURL path];
 }
@@ -184,7 +183,7 @@
 									&targetIsFolder, &wasAliased) == noErr && wasAliased) {
 				CFURLRef resolvedUrl = CFURLCreateFromFSRef(NULL, &fsRef);
 				if (resolvedUrl) {
-					resolvedPath = [(NSString*)CFURLCopyFileSystemPath(resolvedUrl, kCFURLPOSIXPathStyle) autorelease];
+					resolvedPath = CFBridgingRelease(CFURLCopyFileSystemPath(resolvedUrl, kCFURLPOSIXPathStyle));
 					CFRelease(resolvedUrl);
 				}
 			}
@@ -192,7 +191,7 @@
 		CFRelease(url);
 	}
 	
-	return (resolvedPath ? resolvedPath : [[path copy] autorelease]);
+	return (resolvedPath ? resolvedPath : path);
 }
 
 @end

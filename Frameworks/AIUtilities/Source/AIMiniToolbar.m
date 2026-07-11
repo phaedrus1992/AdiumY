@@ -51,7 +51,7 @@
 		itemIdentifierArray = nil;
 		itemArray = nil;
 		itemsRearranging = NO;
-		toolbarBackground = [[NSImage imageNamed:@"toolbar_Background" forClass:[self class]] retain];
+		toolbarBackground = [NSImage imageNamed:@"toolbar_Background" forClass:[self class]];
 
 		//setup the toolbar view
 		[self registerForDraggedTypes:[NSArray arrayWithObject:MINI_TOOLBAR_ITEM_DRAGTYPE]];
@@ -64,13 +64,7 @@
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 
-    [itemIdentifierArray release];
-    [itemArray release];
-    [toolbarBackground release];
-    [identifier release];
-    [representedObjects release];
 
-    [super dealloc];
 }
 
 //Sets the identifier of this toolbar
@@ -82,8 +76,7 @@
         [[NSNotificationCenter defaultCenter] removeObserver:self name:AIMiniToolbar_RefreshItem object:nil];
         
 
-        [identifier release];
-        identifier = [inIdentifier retain];
+        identifier = inIdentifier;
         
         //Since our toolbar type has changed, we have to fetch our new item set and rebuild
         [self rebuildItems];
@@ -112,8 +105,7 @@
     if(inObjects == nil){
         inObjects = representedObjects;
     }else if(representedObjects != inObjects){
-        [representedObjects release];
-        representedObjects = [inObjects retain];
+        representedObjects = inObjects;
     }
 
     //Configure all our items for the objects
@@ -135,7 +127,7 @@
 //Add an item to this toolbar
 - (void)insertItemWithIdentifier:(NSString *)itemIdentifier atIndex:(int)index allowDuplicates:(BOOL)allowDuplicates
 {
-    NSMutableArray 	*newItemArray = [[itemIdentifierArray mutableCopy] autorelease];
+    NSMutableArray 	*newItemArray = [[itemIdentifierArray mutableCopy];
     AIMiniToolbarItem	*existingItem;
     int			existingIndex;
 
@@ -165,7 +157,7 @@
 //Remove an item from this toolbar
 - (void)removeItemAtIndex:(int)index
 {
-    NSMutableArray	*newItemArray = [[itemIdentifierArray mutableCopy] autorelease];
+    NSMutableArray	*newItemArray = [[itemIdentifierArray mutableCopy];
 
     //Remove the item from our list
     [newItemArray removeObjectAtIndex:index];
@@ -184,7 +176,7 @@
 - (NSMenu *)menuForEvent:(NSEvent *)event
 {
     [NSBundle loadNibNamed:MINI_TOOLBAR_MENU_NIB owner:self];
-    return [menu_contextualMenu autorelease];
+    return menu_contextualMenu;
 }
 
 //Notifications ----------------------------------------------------------------------
@@ -282,7 +274,7 @@
     [self removeAllSubviews];				//Flush out existing views
 
     //Get the new list of identifiers
-    [itemIdentifierArray release]; itemIdentifierArray = [[toolbarCenter itemsForToolbar:identifier] retain];
+    itemIdentifierArray = [toolbarCenter itemsForToolbar:identifier];
     if(!itemIdentifierArray) itemIdentifierArray = [[NSArray alloc] init];
 
     //Go through each identifier
@@ -324,7 +316,7 @@
     }
 
     //Save the new array and clean up
-    [itemArray release]; itemArray = [newItemArray retain];
+    itemArray = newItemArray;
     
     return createdItemArray;
 }
@@ -584,13 +576,13 @@
         [pboard setString:identifier forType:MINI_TOOLBAR_SOURCE];
 
         //Create an image of the item
-        image = [[[NSImage alloc] initWithSize:viewFrame.size] autorelease];
+        image = [[NSImage alloc] initWithSize:viewFrame.size];
         imageRect = NSMakeRect(0,0,viewFrame.size.width,viewFrame.size.height);
         [image lockFocus];
             [[draggedItem view] drawRect:imageRect];
         [image unlockFocus];
 
-        opaqueImage = [[[NSImage alloc] initWithSize:viewFrame.size] autorelease];
+        opaqueImage = [[NSImage alloc] initWithSize:viewFrame.size];
         [opaqueImage setBackgroundColor:[NSColor clearColor]];
         [opaqueImage lockFocus];
             [image dissolveToPoint:NSMakePoint(0,0) fraction:0.7];

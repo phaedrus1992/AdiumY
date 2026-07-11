@@ -36,7 +36,7 @@
 - (id)initWithFrame:(NSRect)frame
 {
 	if ((self = [super initWithFrame:frame])) {
-		[self _init];
+		self = [self _init];
 	}
 	return self;
 }

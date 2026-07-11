@@ -90,7 +90,7 @@ static OSStatus AIKeychainCopyPassword(NSString *server, NSString *account, NSSt
 	if (err == noErr && result) {
 		NSData *data = (__bridge NSData *)result;
 		if (outPassword) {
-			*outPassword = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+			*outPassword = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 		}
 		CFRelease(result);
 	} else {
@@ -234,8 +234,7 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName) {
 	if (outError) *outError = nil;
 
 	if (sharedDefaultKeychain != newDefaultKeychain) {
-		[sharedDefaultKeychain release];
-		sharedDefaultKeychain = [newDefaultKeychain retain];
+		sharedDefaultKeychain = newDefaultKeychain;
 	}
 	return YES;
 }
@@ -245,7 +244,7 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName) {
 + (AIKeychain *)keychainWithContentsOfFile:(NSString *)path error:(out NSError **)outError
 {
 	if (outError) *outError = nil;
-	return [[[self alloc] init] autorelease];
+	return [[self alloc] init];
 }
 
 - (id)initWithContentsOfFile:(NSString *)path error:(out NSError **)outError
@@ -262,7 +261,7 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName) {
 + (AIKeychain *)keychainWithPath:(NSString *)path password:(NSString *)password promptUser:(BOOL)prompt initialAccess:(SecAccessRef)initialAccess error:(out NSError **)outError
 {
 	if (outError) *outError = nil;
-	return [[[self alloc] init] autorelease];
+	return [[self alloc] init];
 }
 
 - (id)initWithPath:(NSString *)path password:(NSString *)password promptUser:(BOOL)prompt initialAccess:(SecAccessRef)initialAccess error:(out NSError **)outError
@@ -276,7 +275,7 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName) {
 
 + (AIKeychain *)keychainWithKeychainRef:(SecKeychainRef)newKeychainRef
 {
-	return [[[self alloc] initWithKeychainRef:newKeychainRef] autorelease];
+	return [[self alloc] initWithKeychainRef:newKeychainRef];
 }
 
 - (id)initWithKeychainRef:(SecKeychainRef)newKeychainRef
@@ -359,17 +358,17 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName) {
 			   keychainItem:(out SecKeychainItemRef *)outKeychainItem
 					  error:(out NSError **)outError
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 
 	NSString *protocolStr = AIKeychainProtocolString(protocol);
 	OSStatus err = AIKeychainAddPassword(server, account, protocolStr, path, port, domain, authType, password);
 
-	[pool release];
 
 	if (outError) *outError = AIKeychainErrorFromStatus(err, @"SecItemAdd");
 	if (outKeychainItem) *outKeychainItem = NULL;
 
 	return (err == noErr);
+	}
 }
 
 - (BOOL)addInternetPassword:(NSString *)password forServer:(NSString *)server account:(NSString *)account protocol:(SecProtocolType)protocol error:(out NSError **)outError
@@ -443,7 +442,7 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName) {
 			NSData *passwordData = [item objectForKey:(__bridge id)kSecValueData];
 			NSString *accountStr = [item objectForKey:(__bridge id)kSecAttrAccount];
 			if (accountStr && passwordData) {
-				NSString *password = [[[NSString alloc] initWithData:passwordData encoding:NSUTF8StringEncoding] autorelease];
+				NSString *password = [[NSString alloc] initWithData:passwordData encoding:NSUTF8StringEncoding];
 				result = [NSDictionary dictionaryWithObjectsAndKeys:
 					accountStr, @"Username",
 					password, @"Password",
@@ -479,26 +478,26 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName) {
 
 	if (!password) {
 		/* Remove the password */
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		@autoreleasepool {
 		OSStatus err = AIKeychainDeletePassword(server, account, protocolStr, path, port, domain, authType);
-		[pool release];
 		if (outError) *outError = AIKeychainErrorFromStatus(err, @"SecItemDelete");
 		if (outKeychainItem) *outKeychainItem = NULL;
 		return (err == noErr || err == errSecItemNotFound);
+		}
 	}
 
 	/* Try to add; if duplicate, update instead */
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 	OSStatus err = AIKeychainAddPassword(server, account, protocolStr, path, port, domain, authType, password);
 
 	if (err == errSecDuplicateItem) {
 		err = AIKeychainUpdatePassword(server, account, protocolStr, path, port, domain, authType, password);
 	}
-	[pool release];
 
 	if (outError) *outError = AIKeychainErrorFromStatus(err, @"SecItemAdd/Update");
 	if (outKeychainItem) *outKeychainItem = NULL;
 	return (err == noErr);
+	}
 }
 
 - (BOOL)setInternetPassword:(NSString *)password
@@ -531,16 +530,16 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName) {
 						   keychainItem:(out SecKeychainItemRef *)outKeychainItem
 								  error:(out NSError **)outError
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 
 	NSString *protocolStr = AIKeychainProtocolString(protocol);
 	OSStatus err = AIKeychainDeletePassword(server, account, protocolStr, path, port, domain, authType);
 
-	[pool release];
 
 	if (outError) *outError = AIKeychainErrorFromStatus(err, @"SecItemDelete");
 	if (outKeychainItem) *outKeychainItem = NULL;
 	return (err == noErr || err == errSecItemNotFound);
+	}
 }
 
 - (BOOL)deleteInternetPasswordForServer:(NSString *)server account:(NSString *)account protocol:(SecProtocolType)protocol error:(out NSError **)outError
@@ -564,7 +563,7 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName) {
 			  keychainItem:(out SecKeychainItemRef *)outKeychainItem
 					 error:(out NSError **)outError
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 
 	NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
 		(__bridge id)kSecClassGenericPassword, (__bridge id)kSecClass,
@@ -575,11 +574,11 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName) {
 
 	OSStatus err = SecItemAdd((__bridge CFDictionaryRef)attrs, NULL);
 
-	[pool release];
 
 	if (outError) *outError = AIKeychainErrorFromStatus(err, @"SecItemAdd");
 	if (outKeychainItem) *outKeychainItem = NULL;
 	return (err == noErr);
+	}
 }
 
 - (NSString *)findGenericPasswordForService:(NSString *)service
@@ -599,7 +598,7 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName) {
 
 	NSString *password = nil;
 	if (err == noErr && result) {
-		password = [[[NSString alloc] initWithData:(__bridge NSData *)result encoding:NSUTF8StringEncoding] autorelease];
+		password = [[NSString alloc] initWithData:(__bridge NSData *)result encoding:NSUTF8StringEncoding];
 		CFRelease(result);
 	}
 
@@ -643,7 +642,6 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName) {
 	if (keychainRef) {
 		CFRelease(keychainRef);
 	}
-	[super dealloc];
 }
 
 @end

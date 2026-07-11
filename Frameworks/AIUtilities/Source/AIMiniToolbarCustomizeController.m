@@ -32,7 +32,7 @@
 
 + (AIMiniToolbarCustomizeController *)customizationWindowControllerForToolbar:(AIMiniToolbar *)inToolbar
 {
-	return [[[self alloc] initWithWindowNibName:MINI_TOOLBAR_CUSTOMIZE_NIB forToolbar:inToolbar] autorelease];
+	return [[self alloc] initWithWindowNibName:MINI_TOOLBAR_CUSTOMIZE_NIB forToolbar:inToolbar];
 }
 
 - (id)initWithWindowNibName:(NSString *)windowNibName forToolbar:(AIMiniToolbar *)inToolbar
@@ -40,7 +40,7 @@
 	NSParameterAssert(windowNibName != nil && [windowNibName length] != 0);
 
 	if((self = [super initWithWindowNibName:windowNibName])) {
-		toolbar = [inToolbar retain];
+		toolbar = inToolbar;
 	}
 
 	return self;
@@ -48,9 +48,7 @@
 
 - (void)dealloc
 {
-	[toolbar release];
     
-	[super dealloc];
 }
 
 //Close the window
@@ -70,8 +68,8 @@
     [[self window] setFrameUsingName:TOOLBAR_CONFIG_FRAME];
     
     //Setup the tableview
-    [[tableView_items tableColumnWithIdentifier:@"icon"] setDataCell:[[[NSImageCell alloc] init] autorelease]];
-    [[tableView_items tableColumnWithIdentifier:@"label"] setDataCell:[[[AIVerticallyCenteredTextCell alloc] init] autorelease]];
+    [[tableView_items tableColumnWithIdentifier:@"icon"] setDataCell:[[NSImageCell alloc] init]];
+    [[tableView_items tableColumnWithIdentifier:@"label"] setDataCell:[[AIVerticallyCenteredTextCell alloc] init]];
 
     //Build our array of applicable items    
     itemImageArray = [[NSMutableArray alloc] init];
@@ -89,7 +87,7 @@
             [itemView drawRect:NSMakeRect(0, 0, itemFrame.size.width, itemFrame.size.height)];
             [itemImage unlockFocus];
 
-            [itemImageArray addObject:[itemImage autorelease]];
+            [itemImageArray addObject:itemImage]];
             [itemArray addObject:toolbarItem];
         }
     }
@@ -139,7 +137,7 @@
 
     //Create an image of the item
     imageSize = [image size];
-    opaqueImage = [[[NSImage alloc] initWithSize:imageSize] autorelease];
+    opaqueImage = [[NSImage alloc] initWithSize:imageSize];
     [opaqueImage setBackgroundColor:[NSColor clearColor]];
     [opaqueImage lockFocus];
     [image dissolveToPoint:NSMakePoint(0,0) fraction:0.7];

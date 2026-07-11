@@ -34,12 +34,11 @@ NSComparisonResult bringToFront(id itemA, id itemB, void *target);
     for (loop = 0;loop < [subviews count]; loop++) {
         [[subviews objectAtIndex:loop] removeFromSuperview];
     }
-    [subviews release];
 }
 
 - (void)bringSubviewToFront:(NSView *)subview
 {
-    [self sortSubviewsUsingFunction:bringToFront context:subview];
+    [self sortSubviewsUsingFunction:bringToFront context:(__bridge void *)subview];
 }
 
 NSComparisonResult bringToFront(id itemA, id itemB, void *target)

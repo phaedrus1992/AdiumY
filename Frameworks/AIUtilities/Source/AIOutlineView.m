@@ -287,7 +287,7 @@
 	[accessibilityActionNames addObject:NSAccessibilityPressAction];
 	[accessibilityActionNames addObject:NSAccessibilityShowMenuAction];
 	
-	return [accessibilityActionNames autorelease];
+	return accessibilityActionNames;
 }
 
 @end

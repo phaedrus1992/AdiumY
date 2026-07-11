@@ -84,19 +84,18 @@
 		}
 	}
 
-	if ((proxyDict = (NSDictionary *)SCDynamicStoreCopyProxies(NULL))) {
-		[proxyDict autorelease];
+	if ((proxyDict = CFBridgingRelease(SCDynamicStoreCopyProxies(NULL)))) {
 
 		//Enabled?
-		enable = [[proxyDict objectForKey:(NSString *)enableKey] intValue];
+		enable = [[proxyDict objectForKey:(__bridge NSString *)enableKey] intValue];
 		if (enable) {
 
 			//Host
-			hostString = [proxyDict objectForKey:(NSString *)proxyKey];
+			hostString = [proxyDict objectForKey:(__bridge NSString *)proxyKey];
 			if (hostString) {
 
 				//Port
-				portNum = [proxyDict objectForKey:(NSString *)portKey];
+				portNum = [proxyDict objectForKey:(__bridge NSString *)portKey];
 				if (portNum) {
 					NSDictionary	*authDict;
 
@@ -126,12 +125,12 @@
 
 		} else {
 			//Check for a PAC configuration
-			enable = [[proxyDict objectForKey:(NSString *)kSCPropNetProxiesProxyAutoConfigEnable] boolValue];
+			enable = [[proxyDict objectForKey:(__bridge NSString *)kSCPropNetProxiesProxyAutoConfigEnable] boolValue];
 			if (enable) {
-				NSString *pacFile = [proxyDict objectForKey:(NSString *)kSCPropNetProxiesProxyAutoConfigURLString];
+				NSString *pacFile = [proxyDict objectForKey:(__bridge NSString *)kSCPropNetProxiesProxyAutoConfigURLString];
 				
 				if (pacFile) {
-					CFURLRef url = (CFURLRef)[NSURL URLWithString:[NSString stringWithFormat:@"http://%@", hostName ?: @"google.com"]];
+					CFURLRef url = (__bridge CFURLRef)[NSURL URLWithString:[NSString stringWithFormat:@"http://%@", hostName ?: @"google.com"]];
 					NSString *scriptStr = [NSString stringWithContentsOfURL:[NSURL URLWithString:pacFile] encoding:NSUTF8StringEncoding error:NULL];
 					
 					if (url && scriptStr) {
@@ -140,10 +139,10 @@
 						// Work around <rdar://problem/5530166>.  This dummy call to 
 						// CFNetworkCopyProxiesForURL initialise some state within CFNetwork 
 						// that is required by CFNetworkCopyProxiesForAutoConfigurationScript.
-                        CFRelease(CFNetworkCopyProxiesForURL(url, (CFDictionaryRef)@{}));
+                        CFRelease(CFNetworkCopyProxiesForURL(url, (__bridge CFDictionaryRef)@{}));
 
 						CFErrorRef error = NULL;
-						proxies = [(NSArray *)CFNetworkCopyProxiesForAutoConfigurationScript((CFStringRef)scriptStr, url, &error) autorelease];	
+						proxies = CFBridgingRelease(CFNetworkCopyProxiesForAutoConfigurationScript((__bridge CFStringRef)scriptStr, url, &error));	
 
 						if (error) {
 							CFStringRef description = CFErrorCopyDescription(error);
@@ -159,10 +158,10 @@
 							proxyDict = [proxies objectAtIndex:0];
 							
 							systemProxySettingsDictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-															 [proxyDict objectForKey:(NSString *)kCFProxyHostNameKey], @"Host",
-															 [proxyDict objectForKey:(NSString *)kCFProxyPortNumberKey], @"Port",
-															 [proxyDict objectForKey:(NSString *)kCFProxyUsernameKey], @"Username",
-															 [proxyDict objectForKey:(NSString *)kCFProxyPasswordKey], @"Password",
+															 [proxyDict objectForKey:(__bridge NSString *)kCFProxyHostNameKey], @"Host",
+															 [proxyDict objectForKey:(__bridge NSString *)kCFProxyPortNumberKey], @"Port",
+															 [proxyDict objectForKey:(__bridge NSString *)kCFProxyUsernameKey], @"Username",
+															 [proxyDict objectForKey:(__bridge NSString *)kCFProxyPasswordKey], @"Password",
 															 nil];
 						}
 					}

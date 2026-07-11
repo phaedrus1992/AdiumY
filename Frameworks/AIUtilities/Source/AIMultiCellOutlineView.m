@@ -48,17 +48,12 @@
 
 - (void)dealloc
 {
-	[contentCell release];
-	[groupCell release];
-
-	[super dealloc];
 }
 
 //Cell used for content rows
 - (void)setContentCell:(NSCell *)cell{
 	if (contentCell != cell) {
-		[contentCell release];
-		contentCell = [cell retain];
+		contentCell = cell;
 	}
 	contentRowHeight = [contentCell cellSize].height;
 	[self noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [self numberOfRows])]];
@@ -70,8 +65,7 @@
 //Cell used for group rows
 - (void)setGroupCell:(NSCell *)cell{
 	if (groupCell != cell) {
-		[groupCell release];
-		groupCell = [cell retain];
+		groupCell = cell;
 	}
 	groupRowHeight = [groupCell cellSize].height;
 	

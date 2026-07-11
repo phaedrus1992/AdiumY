@@ -27,14 +27,14 @@
 
 + (id)stringFormatterAllowingCharacters:(NSCharacterSet *)inCharacters length:(NSInteger)inLength caseSensitive:(BOOL)inCaseSensitive errorMessage:(NSString *)inErrorMessage
 {
-    return [[[self alloc] initAllowingCharacters:inCharacters length:inLength caseSensitive:inCaseSensitive errorMessage:inErrorMessage] autorelease];
+    return [[self alloc] initAllowingCharacters:inCharacters length:inLength caseSensitive:inCaseSensitive errorMessage:inErrorMessage];
 }
 
 - (id)initAllowingCharacters:(NSCharacterSet *)inCharacters length:(NSInteger)inLength caseSensitive:(BOOL)inCaseSensitive errorMessage:(NSString *)inErrorMessage
 {
 	if ((self = [super init])) {
-		errorMessage = [inErrorMessage retain];
-		characters = [inCharacters retain];
+		errorMessage = inErrorMessage;
+		characters = inCharacters;
 		length = inLength;
 		caseSensitive = inCaseSensitive;
 		errorCount = 0;
@@ -124,13 +124,7 @@
 	return valid;
 }
 
-- (void)dealloc
-{
-    [errorMessage release];
-    [characters release];
 
-    [super dealloc];
-}
 
 @end
 

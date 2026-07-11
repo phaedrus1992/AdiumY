@@ -69,7 +69,6 @@
 													name:NSViewFrameDidChangeNotification 
 												  object:nil];
 
-    [super dealloc];
 }
 
 //Auto Scrolling ---------------------------------------------------------------

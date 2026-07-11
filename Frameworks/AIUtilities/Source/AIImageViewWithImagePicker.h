@@ -22,11 +22,11 @@
 @class IKPictureTakerRecentPicture; // Private 10.5+ class
 
 @interface AIImageViewWithImagePicker : NSImageView {
-	IBOutlet id		delegate;
+	IBOutlet __weak id		delegate;
 	
 	NSString		*title;
 	id				pictureTaker;
-	id				activeRecentPicture;
+	__weak id				activeRecentPicture;
 
 	BOOL			usePictureTaker;
 	BOOL			presentPictureTakerAsSheet;
@@ -40,10 +40,10 @@
 	NSSize			maxSize;
 }
 
-@property (readwrite, assign, nonatomic) IBOutlet id delegate;
+@property (readwrite, weak, nonatomic) IBOutlet id delegate;
 
-@property (retain) NSString *title;
-@property (assign) id activeRecentPicture;
+@property (strong) NSString *title;
+@property (weak) id activeRecentPicture;
 @property (assign) BOOL usePictureTaker;
 @property (assign) BOOL presentPictureTakerAsSheet;
 @property (assign) BOOL shouldUpdateRecentRepository;

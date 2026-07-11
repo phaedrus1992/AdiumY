@@ -68,7 +68,7 @@ static AIMiniToolbarCenter *defaultCenter = nil;
 //Returns a new instance of the specifed toolbar item
 - (AIMiniToolbarItem *)itemWithIdentifier:(NSString *)inIdentifier
 {
-    return [[[itemDict objectForKey:inIdentifier] copy] autorelease];
+    return [[itemDict objectForKey:inIdentifier] copy];
 }
 
 //Show the customization palette
@@ -78,19 +78,18 @@ static AIMiniToolbarCenter *defaultCenter = nil;
         if(customizeController){
             ///End any existing customization
             [customizeController close];
-            [customizeController release]; customizeController = nil;
+            customizeController = nil;
         }
         
         //Display the customization palette
-        customizeController = [[AIMiniToolbarCustomizeController customizationWindowControllerForToolbar:toolbar] retain];
+        customizeController = [AIMiniToolbarCustomizeController customizationWindowControllerForToolbar:toolbar];
         [customizeController showWindow:nil];
 
         //Add it to our customizing list and notify
         if(customizeIdentifier){
-            [customizeIdentifier release];
         }
 
-        customizeIdentifier = [[toolbar identifier] retain];
+        customizeIdentifier = [toolbar identifier];
         [[NSNotificationCenter defaultCenter] postNotificationName:AIMiniToolbar_RefreshItem object:nil];
     }
 }
@@ -115,10 +114,10 @@ static AIMiniToolbarCenter *defaultCenter = nil;
 - (void)customizationDidEnd:(AIMiniToolbar *)inToolbar
 {
     //Release the customization panel
-    [customizeController autorelease]; customizeController = nil;
+    customizeController = nil;
 
     //Remove it from our list and notify
-    [customizeIdentifier release]; customizeIdentifier = nil;
+    customizeIdentifier = nil;
     [[NSNotificationCenter defaultCenter] postNotificationName:AIMiniToolbar_RefreshItem object:nil];
 }
 
@@ -137,12 +136,7 @@ static AIMiniToolbarCenter *defaultCenter = nil;
 
 - (void)dealloc
 {
-    [toolbarDict release];
-    [itemDict release];
-    [customizeIdentifier release];
-    [customizeController release];
 
-    [super dealloc];
 }
 
 

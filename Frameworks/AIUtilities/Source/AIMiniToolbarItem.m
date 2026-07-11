@@ -27,7 +27,7 @@
 - (id)initWithIdentifier:(NSString *)inIdentifier
 {
 	if((self = [super init])) {
-		identifier = [inIdentifier retain];
+		identifier = inIdentifier;
 		paletteLabel = nil;
 		allowsDuplicatesInToolbar = NO;
 		flexibleWidth = NO;
@@ -37,16 +37,7 @@
 
 - (void)dealloc
 {
-    [identifier release];
-    [paletteLabel release];
-    [toolTip release];
-    [target release];
-    [image release];
-    [view release];
-    [delegate release];
-    [objects release];
 
-    [super dealloc];
 }
 
 //Duplicate this object
@@ -66,7 +57,7 @@
     [newItem setAction:[self action]];
     [newItem setDelegate:[self delegate]];
     //View
-    [newItem setView:[[[self view] copy] autorelease]];
+    [newItem setView:[[self view] copy]];
     if([[newItem view] respondsToSelector:@selector(setToolbarItem:)]){
         [[newItem view] performSelector:@selector(setToolbarItem:) withObject:newItem]; //make sure it's setup to the new toolbar item
     }
@@ -84,8 +75,7 @@
 //Palette Label, displayed by the item on the customization palette
 - (void)setPaletteLabel:(NSString *)inPaletteLabel{
     if(paletteLabel != inPaletteLabel){
-        [paletteLabel release];
-        paletteLabel = [inPaletteLabel retain];
+        paletteLabel = inPaletteLabel;
     }
 }
 - (NSString *)paletteLabel{
@@ -96,8 +86,7 @@
 //Tooltip displayed for the item
 - (void)setToolTip:(NSString *)inToolTip{
     if(toolTip != inToolTip){
-        [toolTip release];
-        toolTip = [inToolTip retain];
+        toolTip = inToolTip;
         
         if(view && [view respondsToSelector:@selector(setToolTip:)]){
             [view setToolTip:toolTip];
@@ -113,7 +102,7 @@
 - (void)setTarget:(id)inTarget
 {
     if(target != inTarget){
-        [target release]; target = [inTarget retain];
+        target = inTarget;
     }
 }
 - (id)target{
@@ -144,8 +133,7 @@
 //Set the item's image
 - (void)setImage:(NSImage *)inImage{
     if(image != inImage){
-        [image release];
-        image = [inImage retain];
+        image = inImage;
 
         if(view && [view respondsToSelector:@selector(setImage:)]){
             [view performSelector:@selector(setImage:) withObject:image];
@@ -169,12 +157,12 @@
 //Access the view for this item
 - (void)setView:(NSView *)inView{
     if(view == nil){
-        view = [inView retain];
+        view = inView;
     }
 }
 - (NSView *)view{
     if(view == nil){ //Basic button
-        view = [[AIMiniToolbarButton miniToolbarButtonWithImage:image] retain];
+        view = [AIMiniToolbarButton miniToolbarButtonWithImage:image];
         [(AIMiniToolbarButton *)view setToolbarItem:self];
         [(AIMiniToolbarButton *)view setToolTip:toolTip];
         [(AIMiniToolbarButton *)view setEnabled:enabled];
@@ -189,8 +177,7 @@
     if(delegate != inDelegate){
         NSParameterAssert([inDelegate conformsToProtocol:@protocol(AIMiniToolbarItemDelegate)]);
 
-        [delegate release];
-        delegate = [inDelegate retain];
+        delegate = inDelegate;
     }
 }
 - (NSObject<AIMiniToolbarItemDelegate> *)delegate{
@@ -202,7 +189,7 @@
 - (BOOL)configureForObjects:(NSDictionary *)inObjects{
     //Retain the configuration objects
     if(objects != inObjects){
-        [objects release]; objects = [inObjects retain];
+        objects = inObjects;
     }
 
     //Inform our delegate so it can configure this item

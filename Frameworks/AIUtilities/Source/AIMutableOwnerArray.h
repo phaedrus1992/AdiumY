@@ -176,6 +176,6 @@
  * to be notified with the \c AIMutableOwnerArray is modified.
  * @param inDelegate The delegate
  */
-@property (readwrite, nonatomic, assign) id delegate;
+@property (readwrite, nonatomic, weak) id delegate;
 
 @end

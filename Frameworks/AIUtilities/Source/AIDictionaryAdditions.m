@@ -109,7 +109,7 @@ return validated;
 		 NSLog(@"%s: Could not serialize. Error: \"%@\".", __PRETTY_FUNCTION__, retainedError);
 		 [self validateAsPropertyList];
 		 
-		 if (retainedError) [retainedError release];
+		 
 		 
 		 return NO;
 	 }
@@ -138,9 +138,9 @@ return validated;
 		[mutable translate:translation add:addition remove:removal];
 
 		result = [[self class] dictionaryWithDictionary:mutable];
-		[mutable release];
+		
 	} else {
-		result = [[self retain] autorelease];
+		result = self;
 	}
 
 	return result;
@@ -207,7 +207,7 @@ return validated;
 	NSMutableDictionary *mutableSelf = [self mutableCopy];
 	[mutableSelf intersectSetOfKeys:keys];
 	NSDictionary *result = [NSDictionary dictionaryWithDictionary:mutableSelf];
-	[mutableSelf release];
+	
 	return result;
 }
 - (NSDictionary *)dictionaryWithDifferenceWithSetOfKeys:(NSSet *)keys
@@ -215,7 +215,7 @@ return validated;
 	NSMutableDictionary *mutableSelf = [self mutableCopy];
 	[mutableSelf minusSetOfKeys:keys];
 	NSDictionary *result = [NSDictionary dictionaryWithDictionary:mutableSelf];
-	[mutableSelf release];
+	
 	return result;
 }
 
@@ -251,7 +251,7 @@ return validated;
 												  mutabilityOption:NSPropertyListMutableContainers
 															format:NULL
 												  errorDescription:&error];
-	[plistData release];
+	
 
 	if (!dictionary && create) dictionary = [NSMutableDictionary dictionary];
 	
@@ -276,7 +276,7 @@ return validated;
 			}
 		}
 
-		[selfCopy release];
+		
 
 		//Add items that aren't in the removal set.
 		for (NSString *key in addition) {

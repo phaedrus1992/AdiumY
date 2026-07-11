@@ -26,7 +26,7 @@ static char *gaim_markup_strip_html(const char *str);
 //Given an Adium log file name, return an NSDate for its creation date
 static NSDate *dateFromHTMLLog(NSString *pathToFile)
 {
-	ISO8601DateFormatter *formatter = [[[ISO8601DateFormatter alloc] init] autorelease];
+	ISO8601DateFormatter *formatter = [[ISO8601DateFormatter alloc] init];
 	formatter.timeSeparator = '.';
 	NSRange openParenRange, closeParenRange;
 	
@@ -101,8 +101,6 @@ Boolean GetMetadataForHTMLLog(NSMutableDictionary *attributes, NSString *pathToF
 		[attributes setObject:textContent
 					   forKey:(NSString *)kMDItemTextContent];
 	}
-    [logData release];
-    [textContent release];
 	
 	[attributes setObject:serviceClass
 				   forKey:@"com_github_phaedrus1992_adiumY_service"];

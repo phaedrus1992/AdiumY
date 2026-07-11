@@ -39,7 +39,7 @@
 
 @property (readwrite, assign) id <AIImageCollectionViewDelegate, NSCollectionViewDelegate> delegate;
 
-@property (assign) IBOutlet NSArrayController *itemsController;
+@property (strong) IBOutlet NSArrayController *itemsController;
 
 @property (assign) NSInteger highlightStyle;
 @property (assign) CGFloat highlightSize;

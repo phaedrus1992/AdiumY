@@ -34,7 +34,7 @@
 //Create a new mini toolbar button
 + (AIMiniToolbarButton *)miniToolbarButtonWithImage:(NSImage *)inImage
 {
-    return [[[self alloc] initWithImage:inImage] autorelease];
+    return [[self alloc] initWithImage:inImage];
 }
 
 //Private --------------------------------------------------------------------------------
@@ -93,7 +93,6 @@
 
 - (void)dealloc
 {
-    [super dealloc];
 }
 
 - (void)setToolbarItem:(AIMiniToolbarItem *)inToolbarItem{
