@@ -1055,6 +1055,7 @@
 		7E824CE306387FAF00813072 /* SHLinkEditorWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E824CD406387FAF00813072 /* SHLinkEditorWindowController.m */; };
 		7E824CEB06387FAF00813072 /* SHLinkManagementPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E824CDC06387FAF00813072 /* SHLinkManagementPlugin.m */; };
 		7EC033B214590E0700CF24FB /* MessageWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7EC033B114590E0700CF24FB /* MessageWindow.xib */; };
+		11EE1B520CDCFAF40097F246 /* carbons.c in Sources */ = {isa = PBXBuildFile; fileRef = 11EE1B510CDCFAF40097F246 /* carbons.c */; };
 		811033510CDE170B00EC6038 /* ssl-cdsa.c in Sources */ = {isa = PBXBuildFile; fileRef = 811033500CDE170B00EC6038 /* ssl-cdsa.c */; };
 		811034050CDE216F00EC6038 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 340C1ABE0BD58FAB00D09235 /* Security.framework */; };
 		811035180CDE783800EC6038 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 811035170CDE783800EC6038 /* SecurityInterface.framework */; };
@@ -3395,6 +3396,7 @@
 		7E824CDB06387FAF00813072 /* SHLinkManagementPlugin.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SHLinkManagementPlugin.h; sourceTree = "<group>"; };
 		7E824CDC06387FAF00813072 /* SHLinkManagementPlugin.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SHLinkManagementPlugin.m; sourceTree = "<group>"; };
 		7EC033B114590E0700CF24FB /* MessageWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MessageWindow.xib; path = "Plugins/Dual Window Interface/MessageWindow.xib"; sourceTree = "<group>"; };
+		11EE1B510CDCFAF40097F246 /* carbons.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "carbons.c"; sourceTree = "<group>"; };
 		811033500CDE170B00EC6038 /* ssl-cdsa.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "ssl-cdsa.c"; sourceTree = "<group>"; };
 		811035170CDE783800EC6038 /* SecurityInterface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityInterface.framework; path = /System/Library/Frameworks/SecurityInterface.framework; sourceTree = "<absolute>"; };
 		811036160CDE8A2500EC6038 /* AIPurpleCertificateViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIPurpleCertificateViewer.h; path = "Plugins/Purple Service/AIPurpleCertificateViewer.h"; sourceTree = "<group>"; };
@@ -3757,6 +3759,7 @@
 		11EE1B480CDCFAF40097F246 /* libpurple_extensions */ = {
 			isa = PBXGroup;
 			children = (
+				11EE1B510CDCFAF40097F246 /* carbons.c */,
 				811033500CDE170B00EC6038 /* ssl-cdsa.c */,
 				11EE1B4B0CDCFAF40097F246 /* ssl-openssl.c */,
 				11EE1B4C0CDCFAF40097F246 /* ssl.c */,
@@ -7743,6 +7746,7 @@
 				11EE1B4D0CDCFAF40097F246 /* (null) in Sources */,
 				11EE1B4F0CDCFAF40097F246 /* ssl-openssl.c in Sources */,
 				11EE1B500CDCFAF40097F246 /* ssl.c in Sources */,
+				11EE1B520CDCFAF40097F246 /* carbons.c in Sources */,
 				811033510CDE170B00EC6038 /* ssl-cdsa.c in Sources */,
 				811036190CDE8A2500EC6038 /* AIPurpleCertificateViewer.m in Sources */,
 				811036260CDE8C2100EC6038 /* adiumPurpleCertificateTrustWarning.m in Sources */,

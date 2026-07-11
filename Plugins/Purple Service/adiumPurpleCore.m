@@ -71,6 +71,7 @@ PurpleDebugUiOps *adium_purple_debug_get_ui_ops(void)
 extern gboolean purple_init_ssl_plugin(void);
 extern gboolean purple_init_ssl_openssl_plugin(void);
 extern gboolean purple_init_ssl_cdsa_plugin(void);
+extern gboolean purple_init_carbons_plugin(void);
 
 static void init_all_plugins()
 {
@@ -78,6 +79,7 @@ static void init_all_plugins()
 
 	// First, initialize our built-in plugins
 	purple_init_ssl_plugin();
+	purple_init_carbons_plugin();
 #ifdef HAVE_CDSA
 	purple_init_ssl_cdsa_plugin();
 #else
