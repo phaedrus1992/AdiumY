@@ -196,6 +196,7 @@ static void AMPurpleJabberHTTPUpload_received_data_cb(PurpleConnection *gc, xmln
 	[_uploadServiceJID release];
 	[_slotQueryID release];
 	[_activeFileTransfer release];
+	[_putHeaders release];
 	[_getURL release];
 	[_putURL release];
 	[_session invalidateAndCancel];
@@ -412,6 +413,25 @@ static void AMPurpleJabberHTTPUpload_received_data_cb(PurpleConnection *gc, xmln
 		return;
 	}
 
+	// Parse whitelisted <header> children from <put> (XEP-0363 §3.2)
+	NSMutableDictionary *headers = [NSMutableDictionary dictionary];
+	for (xmlnode *child = putNode->child; child; child = child->next) {
+		if (child->type != XMLNODE_TYPE_TAG || strcmp(child->name, "header") != 0) {
+			continue;
+		}
+		const char *nameAttr = xmlnode_get_attrib(child, "name");
+		const char *valueAttr = xmlnode_get_attrib(child, "value");
+		if (nameAttr && valueAttr) {
+			NSString *name = @(nameAttr);
+			if ([AllowedSlotHeaders() containsObject:name]) {
+				[headers setObject:@(valueAttr) forKey:name];
+			}
+		}
+	}
+	if ([headers count] > 0) {
+		_putHeaders = [headers copy];
+	}
+
 	// Extract <get url='...'>
 	xmlnode *getNode = xmlnode_get_child(slot, "get");
 	if (!getNode) {
@@ -469,6 +489,11 @@ static void AMPurpleJabberHTTPUpload_received_data_cb(PurpleConnection *gc, xmln
 	// Content-Length is derived from the file
 	unsigned long long fileSize = [_activeFileTransfer size];
 	[request setValue:[NSString stringWithFormat:@"%llu", fileSize] forHTTPHeaderField:@"Content-Length"];
+
+	// Forward whitelisted headers from the slot response (XEP-0363 §3.2)
+	for (NSString *headerName in _putHeaders) {
+		[request setValue:[_putHeaders objectForKey:headerName] forHTTPHeaderField:headerName];
+	}
 
 	NSURL *fileURL = [NSURL fileURLWithPath:localPath];
 
@@ -597,6 +622,7 @@ didCompleteWithError:(nullable NSError *)error
 {
 	[_slotQueryID release]; _slotQueryID = nil;
 	[_activeFileTransfer release]; _activeFileTransfer = nil;
+	[_putHeaders release]; _putHeaders = nil;
 	[_getURL release]; _getURL = nil;
 	[_putURL release]; _putURL = nil;
 	[_session invalidateAndCancel];

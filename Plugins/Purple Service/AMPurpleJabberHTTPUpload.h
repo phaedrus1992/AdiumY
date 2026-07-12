@@ -34,14 +34,42 @@ NS_ASSUME_NONNULL_BEGIN
 
 	// Upload state
 	ESFileTransfer *_activeFileTransfer;
+	NSDictionary *_putHeaders;
 	NSURL *_getURL;
 	NSURL *_putURL;
 	NSURLSession *_session;
 }
 
+/// Initialize with the owning Jabber account.
+///
+/// @param account The ESPurpleJabberAccount that owns this controller
+/// @return An initialized instance
 - (id)initWithAccount:(ESPurpleJabberAccount *)account;
+
+/// Begin service discovery against the server domain.
+///
+/// Sends a disco#items query to the domain, then probes each item for the
+/// urn:xmpp:http:upload:0 feature. Results are stored internally for subsequent
+/// upload requests. Safe to call multiple times — subsequent calls are no-ops
+/// once discovery is in progress or complete.
 - (void)startDiscovery;
+
+/// Check whether an HTTP Upload service has been discovered and can handle the given file size.
+///
+/// @param fileSize The size of the file to upload in bytes
+/// @return YES if an upload service was found and \c fileSize does not exceed the
+///         service's max-file-size limit (or no limit was advertised)
 - (BOOL)isUploadAvailableForFileSize:(unsigned long long)fileSize;
+
+/// Start an HTTP Upload for the given file transfer.
+///
+/// Requests a slot from the upload service, then uploads the file to the returned
+/// PUT URL. On success the GET URL is sent as a chat message to the transfer's
+/// contact. Only one transfer can be active at a time.
+///
+/// @param fileTransfer The file transfer to upload
+/// @return YES if the upload was queued, NO if no service is available or a
+///         transfer is already in progress
 - (BOOL)sendFileTransfer:(ESFileTransfer *)fileTransfer;
 
 @end
