@@ -18,6 +18,7 @@
 #import "AIMessageViewController.h"
 #import "AMPurpleJabberAdHocPing.h"
 #import "AMPurpleJabberAdHocServer.h"
+#import "AMPurpleJabberMAM.h"
 #import "AMPurpleJabberServiceDiscoveryBrowsing.h"
 #import "AMXMLConsoleController.h"
 #import "ESPurpleJabberAccountViewController.h"
@@ -106,6 +107,7 @@
 	[xmlConsoleController close];
 	[xmlConsoleController release];
 	[adhocServer release];
+	[mamController release];
 	[gateways release];
 
 	[super dealloc];
@@ -207,6 +209,9 @@
 
 	if (!adhocServer)
 		adhocServer = [[AMPurpleJabberAdHocServer alloc] initWithAccount:self];
+
+	if (!mamController)
+		mamController = [[AMPurpleJabberMAM alloc] initWithAccount:self];
 }
 
 - (NSString *)serverSuffix
@@ -870,6 +875,7 @@
 	discoveryBrowserController =
 		[[AMPurpleJabberServiceDiscoveryBrowsing alloc] initWithAccount:self
 													   purpleConnection:purple_account_get_connection(account)];
+	[mamController startSync];
 }
 
 - (void)didDisconnect
@@ -880,6 +886,8 @@
 	discoveryBrowserController = nil;
 	[adhocServer release];
 	adhocServer = nil;
+	[mamController release];
+	mamController = nil;
 
 	[super didDisconnect];
 

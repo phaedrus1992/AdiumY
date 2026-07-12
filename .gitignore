@@ -124,6 +124,7 @@ Resources/xh/LC_MESSAGES
 Resources/zh_HK/LC_MESSAGES
 Resources/zh_HK/LC_MESSAGES
 .claude
+.yaks
 Dependencies/.cache/
 Dependencies/build/
 Dependencies/sandbox-*/
