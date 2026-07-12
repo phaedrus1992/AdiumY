@@ -132,6 +132,7 @@ static NSArray *draggedTypes = nil;
 		contentQueue = [[NSMutableArray alloc] init];
 		objectIconPathDict = [[NSMutableDictionary alloc] init];
 		objectsWithUserIconsArray = [[NSMutableArray alloc] init];
+		_pendingDomIdQueues = [[NSMutableDictionary alloc] init];
 		shouldReflectPreferenceChanges = NO;
 		storedContentObjects = nil;
 		/* If we receive content before gaining focus, we'll want to know the first content received is the first to be
