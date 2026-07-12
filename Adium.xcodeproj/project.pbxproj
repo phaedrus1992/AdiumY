@@ -1080,6 +1080,8 @@
 		8184CC350C1E3C3800CB53E7 /* AMPurpleJabberMoodTooltip.h in Headers */ = {isa = PBXBuildFile; fileRef = 8184CC330C1E3C3800CB53E7 /* AMPurpleJabberMoodTooltip.h */; };
 		8184CC360C1E3C3800CB53E7 /* AMPurpleJabberMoodTooltip.m in Sources */ = {isa = PBXBuildFile; fileRef = 8184CC340C1E3C3800CB53E7 /* AMPurpleJabberMoodTooltip.m */; };
 		0490A99C5139B6BF9664563A /* AMPurpleJabberMAM.m in Sources */ = {isa = PBXBuildFile; fileRef = F1B5530EB08B1F4B74452183 /* AMPurpleJabberMAM.m */; };
+		05dc2b9f60f34435ad70ff91 /* AMPurpleJabberHTTPUpload.h in Headers */ = {isa = PBXBuildFile; fileRef = 5ecfd18e85024b968e189e87 /* AMPurpleJabberHTTPUpload.h */; };
+		febd0cc405804537b09755a6 /* AMPurpleJabberHTTPUpload.m in Sources */ = {isa = PBXBuildFile; fileRef = 8b868351786d4c07a36991d4 /* AMPurpleJabberHTTPUpload.m */; };
 		818E96A30C16D443007623BD /* AMXMLConsoleController.h in Headers */ = {isa = PBXBuildFile; fileRef = 818E96A10C16D443007623BD /* AMXMLConsoleController.h */; };
 		818E96A40C16D443007623BD /* AMXMLConsoleController.m in Sources */ = {isa = PBXBuildFile; fileRef = 818E96A20C16D443007623BD /* AMXMLConsoleController.m */; };
 		81DAE8720C261E8A00780E4C /* AMPurpleTuneTooltip.h in Headers */ = {isa = PBXBuildFile; fileRef = 81DAE8700C261E8A00780E4C /* AMPurpleTuneTooltip.h */; };
@@ -3423,6 +3425,8 @@
 		8184CC340C1E3C3800CB53E7 /* AMPurpleJabberMoodTooltip.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AMPurpleJabberMoodTooltip.m; path = "Plugins/Purple Service/AMPurpleJabberMoodTooltip.m"; sourceTree = "<group>"; };
 		C1E3A189B08FBE2D5445089B /* AMPurpleJabberMAM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AMPurpleJabberMAM.h; path = "Plugins/Purple Service/AMPurpleJabberMAM.h"; sourceTree = "<group>"; };
 		F1B5530EB08B1F4B74452183 /* AMPurpleJabberMAM.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AMPurpleJabberMAM.m; path = "Plugins/Purple Service/AMPurpleJabberMAM.m"; sourceTree = "<group>"; };
+		5ecfd18e85024b968e189e87 /* AMPurpleJabberHTTPUpload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AMPurpleJabberHTTPUpload.h; path = "Plugins/Purple Service/AMPurpleJabberHTTPUpload.h"; sourceTree = "<group>"; };
+		8b868351786d4c07a36991d4 /* AMPurpleJabberHTTPUpload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AMPurpleJabberHTTPUpload.m; path = "Plugins/Purple Service/AMPurpleJabberHTTPUpload.m"; sourceTree = "<group>"; };
 		818E96A10C16D443007623BD /* AMXMLConsoleController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AMXMLConsoleController.h; path = "Plugins/Purple Service/AMXMLConsoleController.h"; sourceTree = "<group>"; };
 		818E96A20C16D443007623BD /* AMXMLConsoleController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AMXMLConsoleController.m; path = "Plugins/Purple Service/AMXMLConsoleController.m"; sourceTree = "<group>"; };
 		81DAE8700C261E8A00780E4C /* AMPurpleTuneTooltip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AMPurpleTuneTooltip.h; path = "Plugins/Purple Service/AMPurpleTuneTooltip.h"; sourceTree = "<group>"; };
@@ -4069,6 +4073,8 @@
 				346545B50C8F71180046ED68 /* Ad Hoc Server */,
 					C1E3A189B08FBE2D5445089B /* AMPurpleJabberMAM.h */,
 				F1B5530EB08B1F4B74452183 /* AMPurpleJabberMAM.m */,
+				5ecfd18e85024b968e189e87 /* AMPurpleJabberHTTPUpload.h */,
+				8b868351786d4c07a36991d4 /* AMPurpleJabberHTTPUpload.m */,
 			8173C5750C4C3DB800C9E64E /* downloadprogress.png */,
 			);
 			name = Jabber;
@@ -6838,6 +6844,7 @@
 				8181EEC30C3067B500E802F7 /* AMPurpleSearchResultsController.h in Headers */,
 				8181F7490C32BD2500E802F7 /* AMPurpleJabberFormGenerator.h in Headers */,
 				0AAAA80D2D9C5516C7748732 /* AMPurpleJabberMAM.h in Headers */,
+				05dc2b9f60f34435ad70ff91 /* AMPurpleJabberHTTPUpload.h in Headers */,
 				8181F88E0C35B70F00E802F7 /* AMPurpleJabberAdHocServer.h in Headers */,
 				3465451C0C8F6A670046ED68 /* AMPurpleJabberServiceDiscoveryBrowserController.h in Headers */,
 				346545250C8F6AAD0046ED68 /* AMPurpleJabberNode.h in Headers */,
@@ -7742,6 +7749,7 @@
 				8184C5A60C1B803400CB53E7 /* AMPurpleRequestFieldsController.m in Sources */,
 				8184CC360C1E3C3800CB53E7 /* AMPurpleJabberMoodTooltip.m in Sources */,
 				0490A99C5139B6BF9664563A /* AMPurpleJabberMAM.m in Sources */,
+				febd0cc405804537b09755a6 /* AMPurpleJabberHTTPUpload.m in Sources */,
 				81DAE8730C261E8A00780E4C /* AMPurpleTuneTooltip.m in Sources */,
 				81DAED530C26F4F700780E4C /* AMPurpleJabberServiceDiscoveryBrowsing.m in Sources */,
 				8181EEC40C3067B500E802F7 /* AMPurpleSearchResultsController.m in Sources */,

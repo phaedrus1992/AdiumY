@@ -308,7 +308,16 @@
 			alignChat(true/*nearBottom()*/); //nearBottom buggy with inactive tabs
 		}
 
-		function initStyle() {
+		// XEP-0308 Message Correction: replace existing message in-place
+	function correctMessage(domId, html) {
+		var el = document.getElementById(domId);
+		if (!el) return false;
+		el.innerHTML = html;
+		el.classList.add("corrected");
+		return true;
+	}
+
+	function initStyle() {
 			alignChat(true);
 			if(!coalescedHTML)
 				coalescedHTML = new CoalescedHTML();
@@ -321,6 +330,7 @@
 		.actionMessageBody:after { content:"*"; }
 		* { word-wrap:break-word; text-rendering: optimizelegibility; }
 		img.scaledToFitImage { height: auto; max-width: 100%%; }
+		.corrected::after { content: " (edited)"; font-size: smaller; opacity: 0.7; }
 	</style>
 
 	<!-- This style is shared by all variants. !-->
