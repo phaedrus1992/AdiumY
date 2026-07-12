@@ -41,7 +41,6 @@
 - (void)_sendQueryWithBefore;
 - (void)_handleResult:(xmlnode *)result;
 - (void)_handleFin:(xmlnode *)fin;
-- (void)_handleError;
 - (void)_saveLastArchiveID:(NSString *)archiveID;
 - (NSString *)_loadLastArchiveID;
 - (void)_displayMessage:(NSString *)body from:(NSString *)fromJID date:(NSDate *)date;
@@ -58,6 +57,19 @@ static void AMPurpleJabberMAM_received_data_cb(PurpleConnection *gc, xmlnode **p
 
 		if (!node || !gc || !self) {
 			return;
+		}
+
+		// Handle IQ error responses for MAM queries
+		if (strcmp(node->name, "iq") == 0) {
+			const char *iq_type = xmlnode_get_attrib(node, "type");
+			if (iq_type != NULL && strcmp(iq_type, "error") == 0) {
+				const char *iq_id = xmlnode_get_attrib(node, "id");
+				if (iq_id != NULL && [self->_activeQueryID isEqualToString:@(iq_id)]) {
+					AILog(@"AMPurpleJabberMAM: MAM query %s failed", iq_id);
+					self->_mamQueryInProgress = NO;
+					return;
+				}
+			}
 		}
 
 		// Only process message stanzas
@@ -160,8 +172,13 @@ static void AMPurpleJabberMAM_received_data_cb(PurpleConnection *gc, xmlnode **p
 
 	PurpleAccount *pa = [_account purpleAccount];
 	PurpleConnection *gc = purple_account_get_connection(pa);
+	if (gc == NULL) {
+		AILog(@"AMPurpleJabberMAM: Connection gone, skipping MAM query (after)");
+		_mamQueryInProgress = NO;
+		return;
+	}
 
-	NSString *iq = [NSString stringWithFormat:@"<iq type='set' id='mam-%ld'>"
+	NSString *iq = [NSString stringWithFormat:@"<iq type='set' id='%@'>"
 											   "<query xmlns='%@'>"
 											   "<x xmlns='jabber:x:data' type='submit'>"
 											   "<field var='FORM_TYPE' type='hidden'>"
@@ -174,7 +191,7 @@ static void AMPurpleJabberMAM_received_data_cb(PurpleConnection *gc, xmlnode **p
 											   "</set>"
 											   "</query>"
 											   "</iq>",
-											  (long)_queryCounter, NS_MAM, NS_MAM, NS_RSM, MAM_PAGE_SIZE, after];
+											  self->_activeQueryID, NS_MAM, NS_MAM, NS_RSM, MAM_PAGE_SIZE, after];
 
 	jabber_prpl_send_raw(gc, [iq UTF8String], -1);
 }
@@ -186,8 +203,13 @@ static void AMPurpleJabberMAM_received_data_cb(PurpleConnection *gc, xmlnode **p
 
 	PurpleAccount *pa = [_account purpleAccount];
 	PurpleConnection *gc = purple_account_get_connection(pa);
+	if (gc == NULL) {
+		AILog(@"AMPurpleJabberMAM: Connection gone, skipping MAM query (before)");
+		_mamQueryInProgress = NO;
+		return;
+	}
 
-	NSString *iq = [NSString stringWithFormat:@"<iq type='set' id='mam-%ld'>"
+	NSString *iq = [NSString stringWithFormat:@"<iq type='set' id='%@'>"
 											   "<query xmlns='%@'>"
 											   "<x xmlns='jabber:x:data' type='submit'>"
 											   "<field var='FORM_TYPE' type='hidden'>"
@@ -200,7 +222,7 @@ static void AMPurpleJabberMAM_received_data_cb(PurpleConnection *gc, xmlnode **p
 											   "</set>"
 											   "</query>"
 											   "</iq>",
-											  (long)_queryCounter, NS_MAM, NS_MAM, NS_RSM, MAM_PAGE_SIZE];
+											  self->_activeQueryID, NS_MAM, NS_MAM, NS_RSM, MAM_PAGE_SIZE];
 
 	jabber_prpl_send_raw(gc, [iq UTF8String], -1);
 }
@@ -284,12 +306,6 @@ static void AMPurpleJabberMAM_received_data_cb(PurpleConnection *gc, xmlnode **p
 		AILog(@"AMPurpleJabberMAM: Fetching next page after %@", lastID);
 		[self _sendQueryWithAfter:lastID];
 	}
-}
-
-- (void)_handleError
-{
-	_mamQueryInProgress = NO;
-	AILog(@"AMPurpleJabberMAM: Query failed or timed out");
 }
 
 #pragma mark - Private: Watermark Persistence
