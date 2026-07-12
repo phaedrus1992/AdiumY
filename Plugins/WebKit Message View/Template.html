@@ -313,7 +313,7 @@
 		var el = document.getElementById(domId);
 		if (!el) return false;
 		el.innerHTML = html;
-		el.className += " corrected";
+		el.classList.add("corrected");
 		return true;
 	}
 

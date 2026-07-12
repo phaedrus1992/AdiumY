@@ -444,13 +444,18 @@ static void AMPurpleJabberHTTPUpload_received_data_cb(PurpleConnection *gc, xmln
 		return;
 	}
 
-	_putURL = [[NSURL alloc] initWithString:@(putURLStr)];
-	_getURL = [[NSURL alloc] initWithString:@(getURLStr)];
+	NSURL *putURL = [[NSURL alloc] initWithString:@(putURLStr)];
+	NSURL *getURL = [[NSURL alloc] initWithString:@(getURLStr)];
 
-	if (!_putURL || !_getURL) {
+	if (!putURL || !getURL) {
+		[putURL release];
+		[getURL release];
 		[self _handleUploadFailure:@"Slot response contained invalid URLs"];
 		return;
 	}
+
+	_putURL = putURL;
+	_getURL = getURL;
 
 	AILog(@"AMPurpleJabberHTTPUpload: Got slot: PUT %@ -> GET %@", _putURL, _getURL);
 
@@ -535,14 +540,10 @@ totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 			  task:(NSURLSessionTask *)task
 didCompleteWithError:(nullable NSError *)error
 {
-	// Strong-retain self for the duration of this callback since we dispatch back
-	// to the main thread and need to stay alive
-	AMPurpleJabberHTTPUpload *blockSelf = self;
-
 	if (error) {
 		dispatch_async(dispatch_get_main_queue(), ^{
-			[blockSelf _handleUploadFailure:[NSString stringWithFormat:@"Upload failed: %@",
-											  [error localizedDescription]]];
+			[self _handleUploadFailure:[NSString stringWithFormat:@"Upload failed: %@",
+										[error localizedDescription]]];
 		});
 		return;
 	}
@@ -552,12 +553,12 @@ didCompleteWithError:(nullable NSError *)error
 
 	if (statusCode == 201) {
 		dispatch_async(dispatch_get_main_queue(), ^{
-			[blockSelf _sendShareMessage];
+			[self _sendShareMessage];
 		});
 	} else {
 		NSString *msg = [NSString stringWithFormat:@"Upload returned HTTP %ld", (long)statusCode];
 		dispatch_async(dispatch_get_main_queue(), ^{
-			[blockSelf _handleUploadFailure:msg];
+			[self _handleUploadFailure:msg];
 		});
 	}
 }

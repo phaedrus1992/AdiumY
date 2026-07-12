@@ -657,78 +657,82 @@ static NSArray *draggedTypes = nil;
 
 - (void)stanzaWasTracked:(NSNotification *)notification
 {
-	NSDictionary *userInfo = [notification userInfo];
-	NSString *domId = [userInfo objectForKey:@"AICorrectionDOMId"];
-	NSString *senderJID = [userInfo objectForKey:@"AICorrectionSender"];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		NSDictionary *userInfo = [notification userInfo];
+		NSString *domId = [userInfo objectForKey:@"AICorrectionDOMId"];
+		NSString *senderJID = [userInfo objectForKey:@"AICorrectionSender"];
 
-	if (domId && senderJID) {
-		NSString *chatBareJID = [[[chat listObject] UID] isKindOfClass:[NSString class]] ? [[chat listObject] UID] : nil;
-		if ([senderJID isEqualToString:chatBareJID]) {
-			NSMutableArray *queue = [_pendingDomIdQueues objectForKey:senderJID];
-			if (!queue) {
-				queue = [NSMutableArray array];
-				[_pendingDomIdQueues setObject:queue forKey:senderJID];
+		if (domId && senderJID) {
+			NSString *chatBareJID = [[[chat listObject] UID] isKindOfClass:[NSString class]] ? [[chat listObject] UID] : nil;
+			if ([senderJID isEqualToString:chatBareJID]) {
+				NSMutableArray *queue = [_pendingDomIdQueues objectForKey:senderJID];
+				if (!queue) {
+					queue = [NSMutableArray array];
+					[_pendingDomIdQueues setObject:queue forKey:senderJID];
+				}
+				[queue addObject:domId];
 			}
-			[queue addObject:domId];
 		}
-	}
+	});
 }
 
 - (void)messageWasCorrected:(NSNotification *)notification
 {
-	NSDictionary *userInfo = [notification userInfo];
-	NSString *senderJID = [userInfo objectForKey:@"AICorrectionSender"];
-	NSString *domId = [userInfo objectForKey:@"AICorrectionDOMId"];
-	NSString *html = [userInfo objectForKey:@"AICorrectionHTML"];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		NSDictionary *userInfo = [notification userInfo];
+		NSString *senderJID = [userInfo objectForKey:@"AICorrectionSender"];
+		NSString *domId = [userInfo objectForKey:@"AICorrectionDOMId"];
+		NSString *html = [userInfo objectForKey:@"AICorrectionHTML"];
 
-	if (!senderJID || !domId || !html) {
-		return;
-	}
+		if (!senderJID || !domId || !html) {
+			return;
+		}
 
-	// Verify this correction is for our chat
-	NSString *chatBareJID = [[[chat listObject] UID] isKindOfClass:[NSString class]] ? [[chat listObject] UID] : nil;
-	if (![senderJID isEqualToString:chatBareJID]) {
-		return;
-	}
+		// Verify this correction is for our chat
+		NSString *chatBareJID = [[[chat listObject] UID] isKindOfClass:[NSString class]] ? [[chat listObject] UID] : nil;
+		if (![senderJID isEqualToString:chatBareJID]) {
+			return;
+		}
 
-	// Escape HTML for inclusion in a JavaScript string via innerHTML
-	NSMutableString *escapedHTML = [[html mutableCopy] autorelease];
-	[escapedHTML replaceOccurrencesOfString:@"&" withString:@"&amp;" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
-	[escapedHTML replaceOccurrencesOfString:@"<" withString:@"&lt;" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
-	[escapedHTML replaceOccurrencesOfString:@">" withString:@"&gt;" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
-	[escapedHTML replaceOccurrencesOfString:@"\\" withString:@"\\\\" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
-	[escapedHTML replaceOccurrencesOfString:@"\"" withString:@"\\\"" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
-	[escapedHTML replaceOccurrencesOfString:@"\r\n" withString:@"<br>" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
-	[escapedHTML replaceOccurrencesOfString:@"\n" withString:@"<br>" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
-	[escapedHTML replaceOccurrencesOfString:@"\r" withString:@"" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
+		// Escape HTML for inclusion in a JavaScript string via innerHTML
+		NSMutableString *escapedHTML = [[html mutableCopy] autorelease];
+		[escapedHTML replaceOccurrencesOfString:@"&" withString:@"&amp;" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
+		[escapedHTML replaceOccurrencesOfString:@"<" withString:@"&lt;" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
+		[escapedHTML replaceOccurrencesOfString:@">" withString:@"&gt;" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
+		[escapedHTML replaceOccurrencesOfString:@"\\" withString:@"\\\\" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
+		[escapedHTML replaceOccurrencesOfString:@"\"" withString:@"\\\"" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
+		[escapedHTML replaceOccurrencesOfString:@"\r\n" withString:@"<br>" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
+		[escapedHTML replaceOccurrencesOfString:@"\n" withString:@"<br>" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
+		[escapedHTML replaceOccurrencesOfString:@"\r" withString:@"" options:NSLiteralSearch range:NSMakeRange(0, [escapedHTML length])];
 
-	// Try to correct the message in-place
-	NSString *js = [NSString stringWithFormat:@"correctMessage(\"%@\", \"%@\")", domId, escapedHTML];
-	NSString *result = [webView stringByEvaluatingJavaScriptFromString:js];
+		// Try to correct the message in-place
+		NSString *js = [NSString stringWithFormat:@"correctMessage(\"%@\", \"%@\")", domId, escapedHTML];
+		NSString *result = [webView stringByEvaluatingJavaScriptFromString:js];
 
-	if (result != nil && [result length] > 0 && ![result isEqualToString:@"false"]) {
-		return; // Correction applied successfully
-	}
+		if (result != nil && [result length] > 0 && ![result isEqualToString:@"false"]) {
+			return; // Correction applied successfully
+		}
 
-	// Fallback: message not in loaded view, append as a new message
-	AIListContact *contact = (AIListContact *)[[adium contactController] contactWithService:[[chat account] service]
-																						UID:senderJID
-																					account:[chat account]];
-	if (!contact) {
-		contact = (AIListContact *)[chat listObject];
-	}
+		// Fallback: message not in loaded view, append as a new message
+		AIListContact *contact = (AIListContact *)[[adium contactController] contactWithService:[[chat account] service]
+																							UID:senderJID
+																						account:[chat account]];
+		if (!contact) {
+			contact = (AIListContact *)[chat listObject];
+		}
 
-	NSAttributedString *msgAttr = [[NSAttributedString alloc] initWithString:html];
-	AIContentMessage *content = [[AIContentMessage alloc] initWithChat:chat
-																source:contact
-														   destination:nil
-																  date:[NSDate date]
-															   message:msgAttr];
-	[msgAttr release];
+		NSAttributedString *msgAttr = [[NSAttributedString alloc] initWithString:html];
+		AIContentMessage *content = [[AIContentMessage alloc] initWithChat:chat
+																	source:contact
+															   destination:nil
+																	  date:[NSDate date]
+																   message:msgAttr];
+		[msgAttr release];
 
-	[content setDisplayContentImmediately:YES];
-	[self enqueueContentObject:content];
-	[content release];
+		[content setDisplayContentImmediately:YES];
+		[self enqueueContentObject:content];
+		[content release];
+	});
 }
 
 /*!
