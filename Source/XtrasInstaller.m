@@ -80,7 +80,7 @@
 
 - (void)installXtraAtURL:(NSURL *)url
 {
-	if ([[url host] isEqualToString:@"xtras.adium.im"] || [[url host] isEqualToString:@"www.adiumyextras.com"] ||
+	if ([[url host] isEqualToString:@"adiumyextras.com"] || [[url host] isEqualToString:@"www.adiumyextras.com"] ||
 		ALLOW_UNTRUSTED_XTRAS) {
 		NSURL *urlToDownload;
 

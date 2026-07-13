@@ -171,7 +171,7 @@ static PurplePluginInfo info = {PURPLE_PLUGIN_MAGIC, PURPLE_MAJOR_VERSION, PURPL
 								"Implements XEP-0280 message carbons for "
 								"multi-device message sync",
 								"AdiumY Contributors", /* author */
-								"https://adium.im",    /* homepage */
+								"https://github.com/phaedrus1992/adiumy",    /* homepage */
 								plugin_load,           /* load */
 								plugin_unload,         /* unload */
 								NULL,                  /* destroy */

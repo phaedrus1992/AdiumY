@@ -54,18 +54,18 @@
 #import <Sparkle/Sparkle.h>
 #import <sys/sysctl.h>
 
-#define ADIUM_TRAC_PAGE @"http://trac.adium.im/"
-#define ADIUM_CONTRIBUTE_PAGE @"http://trac.adium.im/wiki/Development"
-#define ADIUM_DONATE_PAGE @"http://adium.im/donate"
-#define ADIUM_REPORT_BUG_PAGE @"http://trac.adium.im/wiki/ReportingBugs"
+#define ADIUM_TRAC_PAGE @"https://github.com/phaedrus1992/adiumy"
+#define ADIUM_CONTRIBUTE_PAGE @"https://github.com/phaedrus1992/adiumy/blob/main/CONTRIBUTING.md"
+#define ADIUM_DONATE_PAGE @"https://github.com/sponsors/phaedrus1992"
+#define ADIUM_REPORT_BUG_PAGE @"https://github.com/phaedrus1992/adiumy/issues/new"
 #define ADIUM_FORUM_PAGE                                                                                               \
-	AILocalizedString(@"http://forum.adium.im/", "Adium forums page. Localized only if a translated version exists.")
-#define ADIUM_FEEDBACK_PAGE @"mailto:feedback@adium.im"
+	@"https://github.com/phaedrus1992/adiumy/discussions"
+#define ADIUM_FEEDBACK_PAGE @"https://github.com/phaedrus1992/adiumy/issues/new"
 
 #if defined(BETA_RELEASE)
-#define ADIUM_VERSION_HISTORY_PAGE @"http://beta.adium.im"
+#define ADIUM_VERSION_HISTORY_PAGE @"https://github.com/phaedrus1992/adiumy/releases"
 #else
-#define ADIUM_VERSION_HISTORY_PAGE @"http://trac.adium.im/wiki/AdiumVersionHistory"
+#define ADIUM_VERSION_HISTORY_PAGE @"https://github.com/phaedrus1992/adiumy/releases"
 #endif
 
 // Portable Adium prefs key
@@ -828,7 +828,7 @@ static NSString *prefsCategory;
 			stringByExpandingTildeInPath] retain];
 		if (!_preferencesFolderPath)
 			_preferencesFolderPath = [[[[NSHomeDirectory() stringByAppendingPathComponent:@"Library"]
-				stringByAppendingPathComponent:@"Application Support"] stringByAppendingPathComponent:@"Adium 2.0"]
+				stringByAppendingPathComponent:@"Application Support"] stringByAppendingPathComponent:@"AdiumY 2.0"]
 				retain];
 	}
 
@@ -916,7 +916,7 @@ static NSString *prefsCategory;
 	NSFileManager *defaultManager = [NSFileManager defaultManager];
 	BOOL isDir;
 
-	NSString *adiumFolderName = [@"Application Support" stringByAppendingPathComponent:@"Adium 2.0"];
+	NSString *adiumFolderName = [@"Application Support" stringByAppendingPathComponent:@"AdiumY 2.0"];
 	if (name)
 		adiumFolderName = [adiumFolderName stringByAppendingPathComponent:name];
 
@@ -1070,17 +1070,17 @@ static NSString *prefsCategory;
 		/* Either Adium has never run before on this machine, or the version which did was < 1.5.4, as that's when we
 		 * started noting the earliest run version
 		 */
-		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"Adium 1.3.3:Reimported Spotlight Logs"]) {
+		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"AdiumY 1.3.3:Reimported Spotlight Logs"]) {
 			/* This is set by the logging plugin in every version of Adium from 1.3.3 through 1.5.3, so if it's already
 			 * set, Adium 1.3.3 through 1.5.3 have launched previously. Assume 1.5.3 since we can't tell the difference.
 			 */
 			[[NSUserDefaults standardUserDefaults] setObject:@"1.5.3" forKey:AIEarliestLaunchedAdiumVersionKey];
 
-		} else if ([[NSUserDefaults standardUserDefaults] boolForKey:@"Adium 1.2.4 deleted blist.xml"]) {
+		} else if ([[NSUserDefaults standardUserDefaults] boolForKey:@"AdiumY 1.2.4 deleted blist.xml"]) {
 			/* similar story, so now we're between 1.2.4 and 1.3.2 */
 			[[NSUserDefaults standardUserDefaults] setObject:@"1.3.2" forKey:AIEarliestLaunchedAdiumVersionKey];
 
-		} else if ([[NSUserDefaults standardUserDefaults] boolForKey:@"Adium 1.0.3 moved to libpurple"]) {
+		} else if ([[NSUserDefaults standardUserDefaults] boolForKey:@"AdiumY 1.0.3 moved to libpurple"]) {
 			/* similar story, so now we're between 1.0.3 and 1.2.3. Really, you're just now upgrading?! */
 			[[NSUserDefaults standardUserDefaults] setObject:@"1.2.3" forKey:AIEarliestLaunchedAdiumVersionKey];
 		} else {
@@ -1119,7 +1119,7 @@ static NSString *prefsCategory;
 // For a release, use the beta appcast if AIAlwaysUpdateToBetas is enabled; otherwise, use the release appcast
 #else
 #define UPDATE_TYPE_DICT                                                                                               \
-	([[NSUserDefaults standardUserDefaults] boolForKey:@"AIAlwaysUpdateToBetas"] ? BETA_UPDATE_DICT                    \
+	([[NSUserDefaults standardUserDefaults] boolForKey:@"AdiumYAlwaysUpdateToBetas"] ? BETA_UPDATE_DICT                    \
 																				 : RELEASE_UPDATE_DICT)
 #endif
 
@@ -1139,10 +1139,10 @@ static NSString *prefsCategory;
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
 	// Sparkle 1.5 has a different defaults key, do a one time migration of the value
-	if ([defaults boolForKey:@"SUIncludeProfile"]) {
+	if ([defaults boolForKey:@"AdiumYIncludeProfile"]) {
 		[defaults setBool:YES forKey:@"SUSendProfileInfo"];
 		sendingProfile = YES;
-		[defaults setBool:NO forKey:@"SUIncludeProfile"]; // make sure this only runs once
+		[defaults setBool:NO forKey:@"AdiumYIncludeProfile"]; // make sure this only runs once
 	}
 
 	// If we're not sending profile information, or if it hasn't been long enough since the last profile submission,
@@ -1163,14 +1163,14 @@ static NSString *prefsCategory;
 #endif
 
 	if (sendingProfile) {
-		NSString *value = ([defaults boolForKey:@"AIHasSentSparkleProfileInfo"]) ? @"no" : @"yes";
+		NSString *value = ([defaults boolForKey:@"AdiumYHasSentSparkleProfileInfo"]) ? @"no" : @"yes";
 
 		NSDictionary *entry =
 			[NSDictionary dictionaryWithObjectsAndKeys:@"FirstSubmission", @"key", value, @"value", nil];
 
 		[profileInfo addObject:entry];
 
-		[defaults setBool:YES forKey:@"AIHasSentSparkleProfileInfo"];
+		[defaults setBool:YES forKey:@"AdiumYHasSentSparkleProfileInfo"];
 
 		/*************** Include info about what IM services are used ************/
 		NSMutableString *accountInfo = [NSMutableString string];

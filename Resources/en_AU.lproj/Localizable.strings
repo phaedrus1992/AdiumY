@@ -2,7 +2,7 @@
 " (Autoreply)" = " (Autoreply)";
 
 /* No comment provided by engineer. */
-" Please restart Adium." = " Please restart Adium.";
+" Please restart AdiumY." = " Please restart AdiumY.";
 
 /* file size measured in kilobytes */
 "%.1f KB" = "%.1f KB";
@@ -421,7 +421,7 @@
 "<HTML>Adium is <i>your</i> instant messaging solution.<br><br>Chat with whomever you want, whenever you want, however you want.  Multiple messaging services or accounts? Just one account? Work? Play? Both? No problem; Adium has you covered.<br><br>Adium is fast, free, and fun, with an interface you'll love to use day in and day out. :)<br><br>This assistant will help you set up your instant messaging accounts and get started chatting.<br><br>Click <b>Continue</b> and the duck will take it from here.</HTML>" = "<HTML>Adium is <i>your</i> instant messaging solution.<br><br>Chat with whomever you want, whenever you want, however you want.  Multiple messaging services or accounts? Just one account? Work? Play? Both? No problem; Adium has you covered.<br><br>Adium is fast, free, and fun, with an interface you'll love to use day in and day out. :)<br><br>This assistant will help you set up your instant messaging accounts and get started chatting.<br><br>Click <b>Continue</b> and the duck will take it from here.</HTML>";
 
 /* No comment provided by engineer. */
-"<HTML>To chat with your friends, family, and coworkers, you must have an instant messaging account on the same service they do. Choose a service, name, and password below; if you don't have an account yet, click <A HREF=\"http://trac.adium.im/wiki/CreatingAnAccount#Sigingupforanaccount\">here</A> for more information.\n\nAdium supports as many accounts as you want to add; you can always add more in the Accounts pane of the Adium Preferences.</HTML>" = "<HTML>To chat with your friends, family, and coworkers, you must have an instant messaging account on the same service they do. Choose a service, name, and password below; if you don't have an account yet, click <A HREF=\"http://trac.adium.im/wiki/CreatingAnAccount#Sigingupforanaccount\">here</A> for more information.\n\nAdium supports as many accounts as you want to add; you can always add more in the Accounts pane of the Adium Preferences.</HTML>";
+"<HTML>To chat with your friends, family, and coworkers, you must have an instant messaging account on the same service they do. Choose a service, name, and password below; if you don't have an account yet, click <A HREF=\"https://github.com/phaedrus1992/adiumy/wiki/CreatingAnAccount#Sigingupforanaccount\">here</A> for more information.\n\nAdium supports as many accounts as you want to add; you can always add more in the Accounts pane of the Adium Preferences.</HTML>" = "<HTML>To chat with your friends, family, and coworkers, you must have an instant messaging account on the same service they do. Choose a service, name, and password below; if you don't have an account yet, click <A HREF=\"https://github.com/phaedrus1992/adiumy/wiki/CreatingAnAccount#Sigingupforanaccount\">here</A> for more information.\n\nAdium supports as many accounts as you want to add; you can always add more in the Accounts pane of the Adium Preferences.</HTML>";
 
 /* Placeholder displayed as the name of a new account */
 "<New Account>" = "<New Account>";
@@ -1777,13 +1777,13 @@
 "hours" = "hours";
 
 /* Adium forums page. Localized only if a translated version exists. */
-"http://forum.adium.im/" = "http://forum.adium.im/";
+"https://github.com/phaedrus1992/adiumy/" = "https://github.com/phaedrus1992/adiumy/";
 
 /* Adium homepage. Only localize if a translated version of the page exists. */
-"http://www.adium.im" = "http://www.adium.im";
+"https://github.com/phaedrus1992/adiumy" = "https://github.com/phaedrus1992/adiumy";
 
 /* Adium xtras page. Localized only if a translated version exists. */
-"http://xtras.adium.im/" = "http://xtras.adium.im/";
+"https://github.com/phaedrus1992/adiumy/" = "https://github.com/phaedrus1992/adiumy/";
 
 /* No comment provided by engineer. */
 "I've allowed Adium access" = "I've allowed Adium access";
@@ -3076,7 +3076,7 @@
 "This will remove the group \"%@\" from the contact lists of your online accounts. The %lu contacts within this group will also be removed.\n\nThis action can not be undone." = "This will remove the group \"%1$@\" from the contact lists of your online accounts. The %2$lu contacts within this group will also be removed.\n\nThis action can not be undone.";
 
 /* No comment provided by engineer. */
-"This Xtra is not hosted by xtras.adium.im. Automatic installation is not allowed." = "This Xtra is not hosted by xtras.adium.im. Automatic installation is not allowed.";
+"This Xtra is not hosted by github.com/phaedrus1992/adiumy. Automatic installation is not allowed." = "This Xtra is not hosted by github.com/phaedrus1992/adiumy. Automatic installation is not allowed.";
 
 /* No comment provided by engineer. */
 "Tile" = "Tile";

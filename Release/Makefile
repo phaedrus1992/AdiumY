@@ -29,7 +29,7 @@ NIGHTLY_BRANCH?=default
 
 ###########
 # To release!
-# Releasing requires cachefly access and adiumx.com access.
+# Releasing requires cachefly access and github.com/phaedrus1992/adiumy access.
 #
 # First upload to cachefly. If you don't have access and need to do a release, get with Evan, Eric, or Zac.
 # Triggering the version checker once the release is up:
@@ -238,9 +238,9 @@ ifeq ($(BETA),TRUE)
 	@echo "	<item>"
 	@echo "	    <title>Adium $(VERSION)</title>"
 	@echo "	    <pubDate>`date +"%a, %d %b %Y %H:%M:%S %z"`</pubDate>"
-	@echo "	    <sparkle:releaseNotesLink>http://beta.adium.im/?notemplate</sparkle:releaseNotesLink>"
+	@echo "	    <sparkle:releaseNotesLink>https://github.com/phaedrus1992/adiumy/?notemplate</sparkle:releaseNotesLink>"
 	@echo "	    <sparkle:minimumSystemVersion>10.6.8</sparkle:minimumSystemVersion>"
-	@echo "	    <enclosure sparkle:dsaSignature=\"$(DSA)\" sparkle:version=\"$(VERSION)\" url=\"http://download.adium.im/Adium_$(VERSION).dmg\" length=\"`stat -f %z $(BUILD_DIR)/$(RELEASE_NAME_ESCAPED).dmg`\" type=\"application/octet-stream\"/>"
+	@echo "	    <enclosure sparkle:dsaSignature=\"$(DSA)\" sparkle:version=\"$(VERSION)\" url=\"https://github.com/phaedrus1992/adiumy/Adium_$(VERSION).dmg\" length=\"`stat -f %z $(BUILD_DIR)/$(RELEASE_NAME_ESCAPED).dmg`\" type=\"application/octet-stream\"/>"
 	@echo "	</item>"
 endif
 endif

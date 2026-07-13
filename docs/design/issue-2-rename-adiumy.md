@@ -27,7 +27,7 @@ These are load-bearing; renaming them breaks user data or working code:
    names** (`Adium.framework` etc.) — internal, invisible to users, and a
    mass-rename would poison every future diff against
    `mark-final-upstream`.
-4. **URLs pointing at adium.im infrastructure** — they name a service, not
+4. **URLs pointing at github.com/phaedrus1992/adiumy infrastructure** — they name a service, not
    this product. Out of scope (mostly dead anyway; other issues handle them).
 5. **Localized `.lproj` translations other than English** — the fork does not
    maintain translations; renaming inside `de.lproj` et al. is churn with no
@@ -126,4 +126,4 @@ kept/changed, why.
 ## 5. Out of scope
 
 - Help book (`AdiumHelp/`), non-English lproj, class/file/framework renames,
-  bundle-id changes, Application Support migration, adium.im URL replacement.
+  bundle-id changes, Application Support migration, github.com/phaedrus1992/adiumy URL replacement.

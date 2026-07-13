@@ -21,9 +21,9 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AITextViewWithPlaceholder.h>
 
-#define CRASH_REPORT_URL @"http://www.visualdistortion.org/crash/post.jsp"
-#define KEY_CRASH_EMAIL_ADDRESS @"AdiumCrashReporterEmailAddress"
-#define KEY_CRASH_AIM_ACCOUNT @"AdiumCrashReporterAIMAccount"
+#define CRASH_REPORT_URL @"https://github.com/phaedrus1992/adiumy/issues/new"
+#define KEY_CRASH_EMAIL_ADDRESS @"AdiumYCrashReporterEmailAddress"
+#define KEY_CRASH_AIM_ACCOUNT @"AdiumYCrashReporterAIMAccount"
 
 #define CRASH_REPORT_SLAY_ATTEMPTS 100
 #define CRASH_REPORT_SLAY_INTERVAL 0.1
@@ -31,8 +31,8 @@
 #define CRASH_LOG_WAIT_ATTEMPTS 100
 #define CRASH_LOG_WAIT_INTERVAL 0.2
 
-#define ADIUM_UPDATE_URL @"http://download.adiumx.com/"
-#define ADIUM_UPDATE_BETA_URL @"http://beta.adiumx.com/"
+#define ADIUM_UPDATE_URL @"https://github.com/phaedrus1992/adiumy/releases"
+#define ADIUM_UPDATE_BETA_URL @"https://github.com/phaedrus1992/adiumy/releases"
 
 #define UNABLE_TO_SEND AILocalizedString(@"Unable to send crash report", nil)
 
@@ -66,7 +66,7 @@
 {
 	[textView_details
 		setPlaceholderString:AILocalizedString(
-								 @"A detailed explanation of what you were doing when Adium crashed (optional)", nil)];
+								 @"A detailed explanation of what you were doing when AdiumY crashed (optional)", nil)];
 
 	[scrollView_details setAlwaysDrawFocusRingIfFocused:YES];
 
@@ -120,9 +120,9 @@
 
 	// Kill the notification app if it's open
 	if (countdown-- == 0 ||
-		[self reportCrashForLogAtPath:[@"~/Library/Logs/CrashReporter/Adium.real.crash.log"
+		[self reportCrashForLogAtPath:[@"~/Library/Logs/CrashReporter/AdiumY.real.crash.log"
 										  stringByExpandingTildeInPath]] ||
-		[self reportCrashForLogAtPath:[@"~/Library/Logs/CrashReporter/Adium.crash.log" stringByExpandingTildeInPath]]) {
+		[self reportCrashForLogAtPath:[@"~/Library/Logs/CrashReporter/AdiumY.crash.log" stringByExpandingTildeInPath]]) {
 		[inTimer invalidate];
 	}
 }
@@ -306,7 +306,7 @@
 		request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:CRASH_REPORT_URL]
 										  cachePolicy:NSURLRequestReloadIgnoringCacheData
 									  timeoutInterval:120];
-		[request addValue:@"Adium 2.0a" forHTTPHeaderField:@"X-Adium-Bug-Report"];
+		[request addValue:@"AdiumY 2.0a" forHTTPHeaderField:@"X-Adium-Bug-Report"];
 		[request setHTTPMethod:@"POST"];
 		[request setHTTPBody:[reportString dataUsingEncoding:NSUTF8StringEncoding]];
 
@@ -430,7 +430,7 @@
 		if (adiumPath) {
 			[[NSWorkspace sharedWorkspace] openFile:adiumPath];
 		} else {
-			[[NSWorkspace sharedWorkspace] launchApplication:@"Adium"];
+			[[NSWorkspace sharedWorkspace] launchApplication:@"AdiumY"];
 		}
 	}
 

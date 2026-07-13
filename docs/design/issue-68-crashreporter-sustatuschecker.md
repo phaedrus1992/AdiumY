@@ -26,7 +26,7 @@ this is dead code that cannot compile if ever re-added.
 exists, then `finishWithAcceptableVersion:` gated crash submission: reports were
 only sent from up-to-date builds. On any failure/timeout it allowed the report
 anyway. Submission itself posts to
-`http://www.visualdistortion.org/crash/post.jsp` (`AICrashReporter.m:25`) — dead
+`https://github.com/phaedrus1992/adiumy/crash/post.jsp` (`AICrashReporter.m:25`) — dead
 third-party infrastructure. The fork has no crash-report endpoint, so the version
 gate protects a submission pipeline that no longer exists.
 

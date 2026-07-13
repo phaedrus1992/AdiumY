@@ -16,7 +16,7 @@
 
 #import "GetMetadataForHTMLLog-Additions.h"
 
-// From LMX. Included under the BSD license. http://trac.adium.im/wiki/LMXParser
+// From LMX. Included under the BSD license. https://github.com/phaedrus1992/adiumy/wiki/LMXParser
 static BOOL getSurrogatesForUnicodeScalarValue(const UTF32Char scalar, unichar *outHigh, unichar *outLow);
 
 /*
