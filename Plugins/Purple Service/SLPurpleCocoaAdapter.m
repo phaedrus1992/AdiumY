@@ -773,9 +773,9 @@ NSString *processPurpleImages(NSString *inString, AIAccount *adiumAccount)
 	NSString *titleString;
 	if (title) {
 		titleString = [NSString
-			stringWithFormat:AILocalizedString(@"Adium Notice: %@", nil), [NSString stringWithUTF8String:title]];
+			stringWithFormat:AILocalizedString(@"AdiumY Notice: %@", nil), [NSString stringWithUTF8String:title]];
 	} else {
-		titleString = AILocalizedString(@"Adium : Notice", nil);
+		titleString = AILocalizedString(@"AdiumY : Notice", nil);
 	}
 
 	NSString *errorMessage = nil;

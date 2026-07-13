@@ -917,7 +917,7 @@ typedef enum {
 	return
 		[NSString stringWithFormat:
 					  AILocalizedStringFromTableInBundle(
-						  @"Adium provides encryption, authentication, deniability, and perfect forward secrecy over "
+						  @"AdiumY provides encryption, authentication, deniability, and perfect forward secrecy over "
 						  @"%@ via Off-the-Record Messaging (OTR). If your contact is not using an OTR-compatible "
 						  @"messaging system, your contact will be sent a link to the OTR web site when you attempt to "
 						  @"connect. For more information on OTR, visit https://otr.cypherpunks.ca/.",

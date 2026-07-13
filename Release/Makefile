@@ -29,7 +29,7 @@ NIGHTLY_BRANCH?=default
 
 ###########
 # To release!
-# Releasing requires cachefly access and adiumx.com access.
+# Releasing requires cachefly access and github.com/phaedrus1992/adiumy access.
 #
 # First upload to cachefly. If you don't have access and need to do a release, get with Evan, Eric, or Zac.
 # Triggering the version checker once the release is up:
@@ -176,16 +176,16 @@ ifeq ($(OFFICIAL_BUILD),TRUE)
 	fi
 	
 	@# One approach would be to sign each framework and other bundle individually....
-	@# codesign --verbose --force --sign $(SIGNING_CERT_NAME) --deep --requirements $(SIGNING_REQUIREMENTS) $(ADIUM_DIR)/Adium.app/Contents/Frameworks/*.framework
-	@# codesign --verbose --force --sign $(SIGNING_CERT_NAME) --requirements $(SIGNING_REQUIREMENTS) $(ADIUM_DIR)/Adium.app/Contents/Library/Spotlight/*.mdimporter
-	@# codesign --verbose --force --sign $(SIGNING_CERT_NAME) --requirements $(SIGNING_REQUIREMENTS) $(ADIUM_DIR)/Adium.app/Contents/Resources/AdiumApplescriptRunner
-	@# codesign --verbose --force --sign $(SIGNING_CERT_NAME) --requirements $(SIGNING_REQUIREMENTS) $(ADIUM_DIR)/Adium.app
+	@# codesign --verbose --force --sign $(SIGNING_CERT_NAME) --deep --requirements $(SIGNING_REQUIREMENTS) $(ADIUM_DIR)/AdiumY.app/Contents/Frameworks/*.framework
+	@# codesign --verbose --force --sign $(SIGNING_CERT_NAME) --requirements $(SIGNING_REQUIREMENTS) $(ADIUM_DIR)/AdiumY.app/Contents/Library/Spotlight/*.mdimporter
+	@# codesign --verbose --force --sign $(SIGNING_CERT_NAME) --requirements $(SIGNING_REQUIREMENTS) $(ADIUM_DIR)/AdiumY.app/Contents/Resources/AdiumApplescriptRunner
+	@# codesign --verbose --force --sign $(SIGNING_CERT_NAME) --requirements $(SIGNING_REQUIREMENTS) $(ADIUM_DIR)/AdiumY.app
 	
 	@# However, it appears fine to use --deep and get it all recursively
-	codesign --verbose --force --deep --sign $(SIGNING_CERT_NAME) --requirements $(SIGNING_REQUIREMENTS) $(ADIUM_DIR)/Adium.app
+	codesign --verbose --force --deep --sign $(SIGNING_CERT_NAME) --requirements $(SIGNING_REQUIREMENTS) $(ADIUM_DIR)/AdiumY.app
 	
 	@# verify successful signing of the full bundle
-	codesign --verbose --verify --deep $(ADIUM_DIR)/Adium.app
+	codesign --verbose --verify --deep $(ADIUM_DIR)/AdiumY.app
 endif
 
 createfolder:
@@ -196,7 +196,7 @@ createfolder:
 	mkdir $(ADIUM_DIR)
 
 	@# copy the app
-	cp -R "$(ADIUM_BUILD_DIR)/Adium.app" $(ADIUM_DIR)
+	cp -R "$(ADIUM_BUILD_DIR)/AdiumY.app" $(ADIUM_DIR)
 
 	@# copy the text files
 	cp $(SRC_DIR)/ChangeLogs/Changes.txt $(ADIUM_DIR)
@@ -238,9 +238,9 @@ ifeq ($(BETA),TRUE)
 	@echo "	<item>"
 	@echo "	    <title>Adium $(VERSION)</title>"
 	@echo "	    <pubDate>`date +"%a, %d %b %Y %H:%M:%S %z"`</pubDate>"
-	@echo "	    <sparkle:releaseNotesLink>http://beta.adium.im/?notemplate</sparkle:releaseNotesLink>"
+	@echo "	    <sparkle:releaseNotesLink>https://github.com/phaedrus1992/adiumy/?notemplate</sparkle:releaseNotesLink>"
 	@echo "	    <sparkle:minimumSystemVersion>10.6.8</sparkle:minimumSystemVersion>"
-	@echo "	    <enclosure sparkle:dsaSignature=\"$(DSA)\" sparkle:version=\"$(VERSION)\" url=\"http://download.adium.im/Adium_$(VERSION).dmg\" length=\"`stat -f %z $(BUILD_DIR)/$(RELEASE_NAME_ESCAPED).dmg`\" type=\"application/octet-stream\"/>"
+	@echo "	    <enclosure sparkle:dsaSignature=\"$(DSA)\" sparkle:version=\"$(VERSION)\" url=\"https://github.com/phaedrus1992/adiumy/Adium_$(VERSION).dmg\" length=\"`stat -f %z $(BUILD_DIR)/$(RELEASE_NAME_ESCAPED).dmg`\" type=\"application/octet-stream\"/>"
 	@echo "	</item>"
 endif
 endif

@@ -123,7 +123,8 @@
 	self.shortcutRecorder.hotKey = hotKey;
 
 	[label_shortcutRecorder
-		setLocalizedString:AILocalizedString(@"When pressed, this key combination will bring Adium to the front", nil)];
+		setLocalizedString:AILocalizedString(@"When pressed, this key combination will bring AdiumY to the front",
+											 nil)];
 
 	[self configureControlDimming];
 }

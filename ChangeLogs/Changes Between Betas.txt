@@ -55,7 +55,7 @@ Adium 1.5rc1
   * Fixed enable/disable "View Chat Transcripts" menu item, in group chats (user list) context menu.
   * Chats can no longer refuse to quit when they're still processing content.
   * Fixed AdiumAppleScriptRunner to enable building on Lion.
-  * Switched some adiumx.com links to adium.im.
+  * Switched some github.com/phaedrus1992/adiumy links to github.com/phaedrus1992/adiumy.
   * Fixed a bunch of non-integer view size values.
 
 

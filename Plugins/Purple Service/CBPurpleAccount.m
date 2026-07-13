@@ -362,9 +362,10 @@ static SLPurpleCocoaAdapter *purpleAdapter = nil;
 		[returnString
 			replaceOccurrencesOfString:
 				@"Purple could not find any information in the user's profile. The user most likely does not exist."
-							withString:AILocalizedString(@"Adium could not find any information in the user's profile. "
-														 @"This may not be a registered name.",
-														 "Message shown when a contact's profile can't be found")
+							withString:AILocalizedString(
+										   @"AdiumY could not find any information in the user's profile. "
+										   @"This may not be a registered name.",
+										   "Message shown when a contact's profile can't be found")
 							   options:NSLiteralSearch
 								 range:NSMakeRange(0, [returnString length])];
 	}

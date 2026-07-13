@@ -456,7 +456,7 @@ static AIContactObserverManager *sharedObserverManager = nil;
 		if (NSIsFreedObject(observer)) {
 			AILogWithSignature(@"%p is a released observer! This is a crash.", observer);
 			NSAssert1(FALSE,
-					  @"%p is a released observer. Please check the Adium Debug Log. If it wasn't logging to file, do "
+					  @"%p is a released observer. Please check the AdiumY Debug Log. If it wasn't logging to file, do "
 					  @"that next time.",
 					  observer);
 		}

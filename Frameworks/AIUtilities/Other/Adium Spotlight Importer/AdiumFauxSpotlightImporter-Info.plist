@@ -124,7 +124,7 @@
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.xmllog</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://www.adiumx.com</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -150,7 +150,7 @@
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.htmllog</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://www.adiumx.com</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>

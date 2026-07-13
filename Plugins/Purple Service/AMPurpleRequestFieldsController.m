@@ -549,10 +549,11 @@
 		NSXMLElement *formnode = [NSXMLNode
 			elementWithName:@"form"
 				   children:nil
-				 attributes:[NSArray arrayWithObjects:[NSXMLNode attributeWithName:@"action"
-																	   stringValue:@"http://www.adium.im/XMPP/form"],
-													  [NSXMLNode attributeWithName:@"method" stringValue:@"POST"],
-													  nil]];
+				 attributes:[NSArray
+								arrayWithObjects:
+									[NSXMLNode attributeWithName:@"action"
+													 stringValue:@"https://github.com/phaedrus1992/adiumy/XMPP/form"],
+									[NSXMLNode attributeWithName:@"method" stringValue:@"POST"], nil]];
 		[body addChild:formnode];
 
 		NSXMLElement *formwrapper = [NSXMLNode elementWithName:@"div"];
@@ -766,7 +767,7 @@
 		[listener use];
 
 	else {
-		if ([[[request URL] absoluteString] isEqualToString:@"http://www.adium.im/XMPP/form"]) {
+		if ([[[request URL] absoluteString] isEqualToString:@"https://github.com/phaedrus1992/adiumy/XMPP/form"]) {
 			NSString *info = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
 			NSArray *formfields = [info componentsSeparatedByString:@"&"];
 			[info release];

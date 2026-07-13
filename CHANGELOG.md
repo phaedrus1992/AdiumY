@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `Utilities/README-appcast.md` documenting the release signing workflow
 
 ### Changed
+- Renamed user-visible product name from "Adium" to "AdiumY" — affects app menu, About box, Dock, Finder, UI strings, README
 - Purple Service now only supports XMPP (Jabber), IRC, and SIMPLE protocols
 - Build system: removed reference to libmeanwhile and json-glib in Xcode project
 - Vendored Sparkle framework updated from 1.17.0 to 2.9.4

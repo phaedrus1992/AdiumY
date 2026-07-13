@@ -25,7 +25,7 @@
 /* 'Get Info' on a button; when pressed, the information for a specified contact will be displayed */
 "Get Info" = "Get Info";
 
-/* Button in the Xtras Manager to go to xtras.adium.im to get more adiumyextras */
+/* Button in the Xtras Manager to go to github.com/phaedrus1992/adiumy to get more adiumyextras */
 "Get More Xtras" = "Get More Xtras";
 
 /* No comment provided by engineer. */

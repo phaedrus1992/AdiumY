@@ -35,7 +35,7 @@
 {
 	NSMenu *menu = [[NSMenu alloc] init];
 
-	[menu addItemWithTitle:AILocalizedString(@"Set to Current Adium Status", nil)
+	[menu addItemWithTitle:AILocalizedString(@"Set to Current AdiumY Status", nil)
 					target:self
 					action:@selector(setToCurrentAdiumStatus:)
 			 keyEquivalent:@""

@@ -22,10 +22,10 @@
         </customObject>
         <menu title="menubartest" systemMenu="main" id="6600" userLabel="MainMenu1">
             <items>
-                <menuItem title="Adium" id="6462">
-                    <menu key="submenu" title="Adium" systemMenu="apple" id="6453">
+                <menuItem title="AdiumY" id="6462">
+                    <menu key="submenu" title="AdiumY" systemMenu="apple" id="6453">
                         <items>
-                            <menuItem title="About Adium" tag="1" id="6474">
+                            <menuItem title="About AdiumY" tag="1" id="6474">
                                 <connections>
                                     <action selector="showAboutBox:" target="4001" id="6964"/>
                                 </connections>
@@ -35,7 +35,7 @@
                                     <action selector="checkForUpdates:" target="7246" id="7247"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Adium Xtras" id="7054">
+                            <menuItem title="AdiumY Xtras" id="7054">
                                 <connections>
                                     <action selector="showXtras:" target="4001" id="7055"/>
                                 </connections>
@@ -56,7 +56,7 @@
                                     <action selector="donate:" target="4001" id="7261"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Contributing to Adium" id="7255">
+                            <menuItem title="Contributing to AdiumY" id="7255">
                                 <connections>
                                     <action selector="contibutingToAdium:" target="4001" id="7260"/>
                                 </connections>
@@ -70,7 +70,7 @@
                             <menuItem isSeparatorItem="YES" id="6565">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Hide Adium" keyEquivalent="h" id="6550">
+                            <menuItem title="Hide AdiumY" keyEquivalent="h" id="6550">
                                 <connections>
                                     <action selector="hide:" target="-2" id="6653"/>
                                 </connections>
@@ -89,7 +89,7 @@
                             <menuItem isSeparatorItem="YES" id="6483">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Quit Adium" keyEquivalent="q" id="6481">
+                            <menuItem title="Quit AdiumY" keyEquivalent="q" id="6481">
                                 <connections>
                                     <action selector="confirmQuit:" target="4001" id="6963"/>
                                 </connections>
@@ -436,7 +436,7 @@
                 <menuItem title="Help" id="6491">
                     <menu key="submenu" title="Help" id="6521">
                         <items>
-                            <menuItem title="Adium Help" keyEquivalent="?" id="6618">
+                            <menuItem title="AdiumY Help" keyEquivalent="?" id="6618">
                                 <connections>
                                     <action selector="showHelp:" target="-1" id="7267"/>
                                 </connections>
@@ -468,7 +468,7 @@
                             <menuItem isSeparatorItem="YES" id="7039">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Adium Forums" id="7032">
+                            <menuItem title="AdiumY Forums" id="7032">
                                 <connections>
                                     <action selector="showForums:" target="4001" id="7042"/>
                                 </connections>

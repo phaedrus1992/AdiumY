@@ -460,7 +460,7 @@
 
 	} else if ([scheme isEqualToString:@"adiumyextra"]) {
 		// Installs an adium extra
-		//  adiumyextra://xtras.adium.im/path/to/xtra.zip
+		//  adiumyextra://github.com/phaedrus1992/adiumy/path/to/xtra.zip
 
 		[[XtrasInstaller installer] installXtraAtURL:url];
 	}

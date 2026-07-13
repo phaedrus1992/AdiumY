@@ -467,7 +467,7 @@
 													@"will receive the message the next time he or she signs on, even "
 													@"if you are no longer online.\n\nSend When Both Online will send "
 													@"the message the next time both you and %@ are known to be online "
-													@"and you are connected using Adium on this computer.",
+													@"and you are connected using AdiumY on this computer.",
 													"Send Later dialogue explanation text for accounts supporting "
 													"offline messaging support."),
 												formattedUID, formattedUID]];

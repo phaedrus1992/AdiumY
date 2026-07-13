@@ -227,8 +227,8 @@
 						 hostname];
 	if ([trustPanel respondsToSelector:@selector(setInformativeText:)]) {
 		[trustPanel setInformativeText:informativeText];
-		title =
-			[NSString stringWithFormat:AILocalizedString(@"Adium can't verify the identity of \"%@\".", nil), hostname];
+		title = [NSString
+			stringWithFormat:AILocalizedString(@"AdiumY can't verify the identity of \"%@\".", nil), hostname];
 	} else {
 		/* We haven't seen a version of SFCertificateTrustPanel which doesn't respond to setInformativeText:, but we're
 		 * using a private call found via class-dump, so have a sane backup strategy in case it changes.

@@ -17,13 +17,13 @@
 #import <Adium/AIPathUtilities.h>
 
 #define CACHES_DIRECTORY @"Caches"
-#define ADIUM_CACHES @"Adium"
+#define ADIUM_CACHES @"AdiumY"
 
 #define BUNDLE_CONTENTS @"Contents"
 #define BUNDLE_RESOURCES @"Resources"
 
 #define APPLICATION_SUPPORT @"Application Support"
-#define ADIUM_APP_SUPPORT @"Adium 2.0"
+#define ADIUM_APP_SUPPORT @"AdiumY 2.0"
 
 #define PLUGINS_DIRECTORY @"PlugIns"
 #define CONTACT_LIST_DIRECTORY @"Contact List"

@@ -264,12 +264,12 @@ static PurpleConversation *fakeConversation(PurpleAccount *account)
 
 - (NSString *)defaultUsername
 {
-	return @"Adium";
+	return @"AdiumY";
 }
 
 - (NSString *)defaultRealname
 {
-	return AILocalizedString(@"Adium User", nil);
+	return AILocalizedString(@"AdiumY User", nil);
 }
 
 - (void)configurePurpleAccount

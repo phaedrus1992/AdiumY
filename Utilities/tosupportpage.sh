@@ -4,7 +4,7 @@
 
 # This very ugly script adds a header and footer to each help page, makes sure
 # the formatting is consistent etc. to incorporate them in the Adium website.
-# Give it a path to /help/ in a checkout of https://hg.adium.im/www/adium.im/.
+# Give it a path to /help/ in a checkout of https://github.com/phaedrus1992/adiumy/.
 
 if [ $# -ne 1 ]
 then
@@ -26,12 +26,12 @@ cat "$file"\
 			<a href="/">Adium</a>\
         </div>\
 		<div id="navcontainer">\
-			<a class="navtab" href="https://adium.im/">Download</a>\
-			<a class="navtab" href="https://adium.im/about">About</a>\
-			<a class="navtab" href="https://adium.im/blog/">Blog</a>\
-			<a class="navtabcurrent" href="https://adium.im/help">Help</a>\
-			<a class="navtab" href="https://trac.adium.im">Development</a>\
-			<a class="navtab" href="https://adium.spreadshirt.com">Merchandise</a>\
+			<a class="navtab" href="https://github.com/phaedrus1992/adiumy/">Download</a>\
+			<a class="navtab" href="https://github.com/phaedrus1992/adiumy/">About</a>\
+			<a class="navtab" href="https://github.com/phaedrus1992/adiumy/">Blog</a>\
+			<a class="navtabcurrent" href="https://github.com/phaedrus1992/adiumy/">Help</a>\
+			<a class="navtab" href="https://github.com/phaedrus1992/adiumy">Development</a>\
+			<a class="navtab" href="https://github.com/phaedrus1992/adiumy">Merchandise</a>\
 			<a class="navtab" href="http://www.adiumyextras.com/">Xtras</a>\
 		</div>|g'\
 		| sed 's|</body>|	<div id="footer">					<div class="donate">\
@@ -46,7 +46,7 @@ cat "$file"\
 								</div>\
 							</div>\
 			</body>|g'\
-			| sed 's|<a class="navleftsty" href="../AdiumHelp.html">Adium Help</a> <a class="navleftsty" href="AdiumDocumentation.html">Adium Documentation</a>|<a class="navleftsty" href="../">Adium Help</a> <a class="navleftsty" href="https://adium.im/screencasts/">Adium Videos</a> <a class="navleftsty active" href="AdiumDocumentation.html">Adium Documentation</a>|g'\
+			| sed 's|<a class="navleftsty" href="../AdiumHelp.html">Adium Help</a> <a class="navleftsty" href="AdiumDocumentation.html">Adium Documentation</a>|<a class="navleftsty" href="../">Adium Help</a> <a class="navleftsty" href="https://github.com/phaedrus1992/adiumy/">Adium Videos</a> <a class="navleftsty active" href="AdiumDocumentation.html">Adium Documentation</a>|g'\
 			| sed 's|</title>| - Adium Documentation</title>|g'\
 			| sed 's|<div id="pagetitle">|<div id="pagetitle"> <h3><span itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><a href="/help" itemprop="url"><img src="../gfx/AdiumIcon.png" alt="Adium Icon" height="32" width="32" border="0" /><span itemprop="title">Adium Help</span></a></span> \&gt; <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><a href="AdiumDocumentation.html" itemprop="url"><span itemprop="title">Adium Documentation</span></a></span> \&gt; </h3>|g'\
 			 > "$1/pgs/$(basename $file)"

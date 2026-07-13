@@ -32,7 +32,7 @@ astest:
 
 install:
 	mkdir -p ~/Applications
-	cp -R build/$(BUILDCONFIGURATION)/Adium.app ~/Applications/
+	cp -R build/$(BUILDCONFIGURATION)/AdiumY.app ~/Applications/
 
 clean:
 	$(XCODEBUILD) -version

@@ -77,8 +77,8 @@
 								   inRange:NSMakeRange(i, stringLength - i)]) {
 			/* If there's no link at this index already, process it via the hyperlinkScanner to see if there should be
 			 * one. We don't process existing links because (a) it would be duplicative effort and (b) we might mess up
-			 * a link which had a linkable item within its text, such as "Check out the new story at adium.im" linked to
-			 * an adium.im page.
+			 * a link which had a linkable item within its text, such as "Check out the new story at
+			 * github.com/phaedrus1992/adiumy" linked to an github.com/phaedrus1992/adiumy page.
 			 */
 			NSAttributedString *replacementPart = [[AHHyperlinkScanner
 				hyperlinkScannerWithAttributedString:[inAttributedString attributedSubstringFromRange:linkRange]]

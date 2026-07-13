@@ -7659,7 +7659,7 @@
 			);
 			name = "Run Generate Buildnum File Script";
 			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/Adium.app/Contents/Resources/buildnum",
+				"$(BUILT_PRODUCTS_DIR)/AdiumY.app/Contents/Resources/buildnum",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -9509,7 +9509,8 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/Dependencies/build/lib",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.phaedrus1992.adiumY.adiumX;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.phaedrus1992.adiumY.Adium;
+				PRODUCT_NAME = AdiumY;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
@@ -9536,7 +9537,8 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/Dependencies/build/lib",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.phaedrus1992.adiumY.adiumX;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.phaedrus1992.adiumY.Adium;
+				PRODUCT_NAME = AdiumY;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
@@ -9566,7 +9568,8 @@
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/Dependencies/build/lib",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.phaedrus1992.adiumY.adiumX;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.phaedrus1992.adiumY.Adium;
+				PRODUCT_NAME = AdiumY;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = "Release-Debug";

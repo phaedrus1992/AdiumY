@@ -23,7 +23,7 @@
 
 #define ABOUT_BOX_NIB @"AboutBox"
 #define ADIUM_SITE_LINK                                                                                                \
-	AILocalizedString(@"http://www.adium.im",                                                                          \
+	AILocalizedString(@"https://github.com/phaedrus1992/adiumy",                                                       \
 					  "Adium homepage. Only localize if a translated version of the page exists.")
 
 @interface LNAboutBoxController ()
@@ -89,7 +89,7 @@ LNAboutBoxController *sharedAboutBoxInstance = nil;
 // Visit the Adium homepage
 - (IBAction)visitHomepage:(id)sender
 {
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://www.adium.im"]];
+	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/phaedrus1992/adiumy"]];
 }
 
 // Receive the flags changed event for starting/stopping the automatic scroll via option

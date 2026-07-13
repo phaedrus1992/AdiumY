@@ -177,14 +177,15 @@ NSString *defaultNameForStatusType(AIStatusType statusType)
 						NSString *errorMessage;
 
 						errorMessage = [NSString
-							stringWithFormat:AILocalizedString(
-												 @"The active status icon pack \"%@\" installed at \"%@\" is invalid.  "
-												 @"It is missing the required status icon \"%@\".  If you received "
-												 @"this pack from xtras.adium.im, please contact its author. Your "
-												 @"status icon setting will be restored to the default.",
-												 nil),
-											 [[statusIconBasePath lastPathComponent] stringByDeletingPathExtension],
-											 statusIconBasePath, defaultStatusName];
+							stringWithFormat:
+								AILocalizedString(
+									@"The active status icon pack \"%@\" installed at \"%@\" is invalid.  "
+									@"It is missing the required status icon \"%@\".  If you received "
+									@"this pack from github.com/phaedrus1992/adiumy, please contact its author. Your "
+									@"status icon setting will be restored to the default.",
+									nil),
+								[[statusIconBasePath lastPathComponent] stringByDeletingPathExtension],
+								statusIconBasePath, defaultStatusName];
 
 						NSRunCriticalAlertPanel(AILocalizedString(@"Invalid status icon pack", nil), @"%@", nil, nil,
 												nil, errorMessage);
