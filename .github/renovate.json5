@@ -48,10 +48,9 @@
       description: "Vendored dependency versions in build-phase scripts",
       managerFilePatterns: [
         "/^Dependencies/build-phases/.+\\.sh$/",
-        "/^Dependencies/get-sparkle\\.sh$/",
       ],
       matchStrings: [
-        "# renovate: datasource=(?<datasource>[a-z-.]+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?( extractVersion=(?<extractVersion>\\S+))?\\n[A-Z_]*VERSION=\"(?<currentValue>[^\"]+)\"",
+        "# renovate: datasource=(?<datasource>[a-z-.]+)( registryUrl=(?<registryUrl>\\S+))? depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?( extractVersion=(?<extractVersion>\\S+))?\\n[A-Z_][A-Z0-9_]*VERSION=\"(?<currentValue>[^\"]+)\"",
       ],
     },
   ],
