@@ -131,3 +131,6 @@ Resources/zh_HK/LC_MESSAGES
 Dependencies/.cache/
 Dependencies/build/
 Dependencies/sandbox-*/
+
+# XEP-0393 test binary
+Tests/MessageStylingTest

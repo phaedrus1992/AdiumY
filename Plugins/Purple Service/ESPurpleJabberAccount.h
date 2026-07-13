@@ -35,6 +35,8 @@
 @class AMXMLConsoleController, AMPurpleJabberServiceDiscoveryBrowsing, AMPurpleJabberAdHocServer, AMPurpleJabberMAM,
 	AMPurpleJabberHTTPUpload, AMPurpleJabberCorrection, AMPurpleJabberCSI, AMPurpleJabberBookmarks,
 	AMPurpleJabberPubsubBookmarks;
+	AMPurpleJabberHTTPUpload, AMPurpleJabberCorrection;
+	AMPurpleJabberHTTPUpload, AMPurpleJabberCorrection, AMPurpleJabberMessageStyling;
 
 @interface ESPurpleJabberAccount : CBPurpleAccount <AIAccount_Files> {
 	AMXMLConsoleController *xmlConsoleController;
@@ -47,6 +49,7 @@
 	AMPurpleJabberCSI *csiController;
 	AMPurpleJabberBookmarks *bookmarksController;
 	AMPurpleJabberPubsubBookmarks *pubsubBookmarksController;
+	AMPurpleJabberMessageStyling *messageStylingController;
 
 	NSMutableArray *gateways;
 }

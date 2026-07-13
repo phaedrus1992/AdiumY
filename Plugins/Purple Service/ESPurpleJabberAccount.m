@@ -24,6 +24,7 @@
 #import "AMPurpleJabberCSI.h"
 #import "AMPurpleJabberHTTPUpload.h"
 #import "AMPurpleJabberMAM.h"
+#import "AMPurpleJabberMessageStyling.h"
 #import "AMPurpleJabberServiceDiscoveryBrowsing.h"
 #import "AMXMLConsoleController.h"
 #import "ESPurpleJabberAccountViewController.h"
@@ -115,6 +116,7 @@
 	[mamController release];
 	[httpUploadController release];
 	[correctionController release];
+	[messageStylingController release];
 	[gateways release];
 
 	[super dealloc];
@@ -235,6 +237,9 @@
 	if (!pubsubBookmarksController)
 		pubsubBookmarksController = [[AMPurpleJabberPubsubBookmarks alloc] initWithAccount:self];
 
+
+	if (!messageStylingController)
+		messageStylingController = [[AMPurpleJabberMessageStyling alloc] initWithAccount:self];
 }
 
 - (NSString *)serverSuffix

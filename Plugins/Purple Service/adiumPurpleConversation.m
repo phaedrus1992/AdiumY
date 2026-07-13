@@ -16,6 +16,8 @@
 
 #import "adiumPurpleConversation.h"
 #import "AINudgeBuzzHandlerPlugin.h"
+#import "AMPurpleJabberMessageStylingParser.h"
+#import "ESPurpleJabberAccount.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIObjectAdditions.h>
 #import <Adium/AIChat.h>
@@ -112,6 +114,70 @@ static void adiumPurpleConvWriteChat(PurpleConversation *conv, const char *who, 
 	[pool drain];
 }
 
+/// Convert an NSAttributedString with XEP-0393 styling attributes to simple HTML.
+///
+/// The styling parser produces font traits (bold, italic, monospace) and strikethrough
+/// attributes. This function converts those to HTML tags that AIHTMLDecoder handles.
+///
+/// @param attrStr The attributed string from the styling parser
+/// @return An HTML string with <b>, <i>, <s>, <font> tags
+static NSString *attributedStringToSimpleHTML(NSAttributedString *attrStr)
+{
+	if ([attrStr length] == 0) return @"";
+
+	NSMutableString *html = [NSMutableString string];
+	NSString *plainText = [attrStr string];
+	NSUInteger length = [plainText length];
+	NSUInteger pos = 0;
+
+	while (pos < length) {
+		NSRange effectiveRange;
+		NSDictionary *attrs = [attrStr attributesAtIndex:pos effectiveRange:&effectiveRange];
+
+		NSUInteger endPos = MIN(NSMaxRange(effectiveRange), length);
+		if (endPos <= pos) break;
+		NSRange range = NSMakeRange(pos, endPos - pos);
+
+		NSString *content = [plainText substringWithRange:range];
+
+		// HTML-escape the text content
+		NSMutableString *escaped = [[content mutableCopy] autorelease];
+		[escaped replaceOccurrencesOfString:@"&" withString:@"&amp;" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+		[escaped replaceOccurrencesOfString:@"<" withString:@"&lt;" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+		[escaped replaceOccurrencesOfString:@">" withString:@"&gt;" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+
+		// Check font traits
+		NSFont *font = [attrs objectForKey:NSFontAttributeName];
+		BOOL isBold = NO, isItalic = NO, isMono = NO;
+		if (font != nil) {
+			NSFontTraitMask traits = [[NSFontManager sharedFontManager] traitsOfFont:font];
+			isBold = (traits & NSBoldFontMask) != 0;
+			isItalic = (traits & NSItalicFontMask) != 0;
+			isMono = (traits & NSFixedPitchFontMask) != 0;
+		}
+
+		BOOL hasStrike = ([attrs objectForKey:NSStrikethroughStyleAttributeName] != nil);
+
+		// Open tags in nesting-safe order
+		if (hasStrike) [html appendString:@"<s>"];
+		if (isMono) [html appendString:@"<font face=\"Monaco\">"];
+		if (isItalic) [html appendString:@"<i>"];
+		if (isBold) [html appendString:@"<b>"];
+
+		[html appendString:escaped];
+
+		// Close tags in reverse order
+		if (isBold) [html appendString:@"</b>"];
+		if (isItalic) [html appendString:@"</i>"];
+		if (isMono) [html appendString:@"</font>"];
+		if (hasStrike) [html appendString:@"</s>"];
+
+		pos = NSMaxRange(range);
+	}
+
+	return html;
+}
+
 static void adiumPurpleConvWriteIm(PurpleConversation *conv, const char *who, const char *message,
 								   PurpleMessageFlags flags, time_t mtime)
 {
@@ -150,6 +216,16 @@ static void adiumPurpleConvWriteIm(PurpleConversation *conv, const char *who, co
 			chat = chatLookupFromConv(conv);
 
 			AILog(@"adiumPurpleConvWriteIm: Received %@ from %@", messageString, chat.listObject.UID);
+
+			// XEP-0393 Message Styling: apply styling to raw body text before image processing
+			if ([adiumAccount isKindOfClass:[ESPurpleJabberAccount class]]) {
+				ESPurpleJabberAccount *jabberAccount = (ESPurpleJabberAccount *)adiumAccount;
+				if (![jabberAccount.messageStylingController lastMessageHadUnstyled]) {
+					NSFont *baseFont = [NSFont systemFontOfSize:12.0];
+					NSAttributedString *styledBody = [AMPurpleJabberMessageStylingParser attributedStringFromStyledBody:messageString font:baseFont];
+					messageString = attributedStringToSimpleHTML(styledBody);
+				}
+			}
 
 			// Process any purple imgstore references into real HTML tags pointing to real images
 			messageString = processPurpleImages(messageString, adiumAccount);
