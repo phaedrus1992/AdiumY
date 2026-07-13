@@ -2,6 +2,7 @@
 # build-glib.sh — Build glib (with gmodule, gobject, gthread, gio) as universal framework
 # Shell function, sourced by build-universal-deps.sh
 
+# renovate: datasource=gitlab-tags registryUrl=https://gitlab.gnome.org depName=GNOME/glib
 BUILD_GLIB_VERSION="2.88.2"
 BUILD_GLIB_FILE="glib-${BUILD_GLIB_VERSION}.tar.xz"
 BUILD_GLIB_SHA256="cf3f215a640c8a4257f14317586b8f1fdd25a10a93cb4bdda147c0f9ad88e74f"

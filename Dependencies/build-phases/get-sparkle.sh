@@ -14,6 +14,7 @@ set -o pipefail
 ROOTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # Dependencies/build-phases
 SRCROOT="$(cd "$ROOTDIR/../.." && pwd)"               # project root (two up from build-phases)
 
+# renovate: datasource=github-releases depName=sparkle-project/Sparkle
 SPARKLE_VERSION="2.9.4"
 FRAMEWORK_DIR="$SRCROOT/Frameworks/Sparkle.framework"
 DOWNLOAD_URL="https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-for-Swift-Package-Manager.zip"

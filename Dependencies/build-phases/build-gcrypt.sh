@@ -2,6 +2,7 @@
 # build-gcrypt.sh — Build libgcrypt as universal framework (libotr dependency)
 # Shell function, sourced by build-universal-deps.sh
 
+# renovate: datasource=github-tags depName=gpg/libgcrypt extractVersion=^libgcrypt-(?<version>.*)$
 BUILD_GCRYPT_VERSION="1.12.2"
 BUILD_GCRYPT_FILE="libgcrypt-${BUILD_GCRYPT_VERSION}.tar.bz2"
 BUILD_GCRYPT_SHA256="7ce33c2492221a0436f96a8500215e9f3e3dcb5fd26a757cd415e7a843babd5e"

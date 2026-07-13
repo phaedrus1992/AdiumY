@@ -2,6 +2,7 @@
 # build-libotr.sh — Build libotr as universal framework (OTR encryption)
 # Shell function, sourced by build-universal-deps.sh
 
+# no renovate: upstream (otr.im) is frozen at 4.1.1
 BUILD_LIBOTR_VERSION="4.1.1"
 BUILD_LIBOTR_FILE="libotr-${BUILD_LIBOTR_VERSION}.tar.gz"
 BUILD_LIBOTR_SHA256="8b3b182424251067a952fb4e6c7b95a21e644fbb27fbd5f8af2b2ed87ca419f5"

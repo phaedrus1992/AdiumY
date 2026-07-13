@@ -2,6 +2,7 @@
 # build-libffi.sh — Build libffi as universal framework (glib dependency)
 # Shell function, sourced by build-universal-deps.sh
 
+# renovate: datasource=github-releases depName=libffi/libffi extractVersion=^v(?<version>.*)$
 BUILD_LIBFFI_VERSION="3.6.0"
 BUILD_LIBFFI_FILE="libffi-${BUILD_LIBFFI_VERSION}.tar.gz"
 BUILD_LIBFFI_SHA256="31ff1fe32deaebfbb388727f32677bb254bf2a41382c51464c0b1837c9ee9828"

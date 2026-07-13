@@ -2,6 +2,7 @@
 # build-lmx.sh — Build LMX as universal framework (reverse XML parser)
 # Shell function, sourced by build-universal-deps.sh
 
+# no renovate: Adium-local fork, version is ours
 BUILD_LMX_VERSION="1.0"
 BUILD_LMX_FILE="LMX-1.0.tbz"
 BUILD_LMX_SHA256="91adf3fa39b89d8716ed73cae51830c67bc98102e148d4b66bab1b62f99e5355"
