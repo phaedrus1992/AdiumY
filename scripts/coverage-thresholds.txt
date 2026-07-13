@@ -1,0 +1,17 @@
+# Per-target coverage thresholds (line coverage percentage)
+#
+# Format: <target-name> <percentage>
+# Targets not listed fall back to COVERAGE_THRESHOLD env var (default 50).
+#
+# Raise a target's threshold to floor(measured) in the same PR that
+# increases its coverage — this is the ratchet: progress is monotonic,
+# never regresses.
+#
+# First-party targets listed below. Forked/vendored targets are excluded
+# in coverage-check.sh (AutoHyperlinks, MMTabBarView) and don't need a line.
+#
+# When new production targets are added, add them here with threshold 0.
+AIUtilities 0
+Adium 0
+AdiumLibpurple 0
+Purple Service 0
