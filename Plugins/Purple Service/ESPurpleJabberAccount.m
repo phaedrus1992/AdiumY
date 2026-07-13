@@ -19,12 +19,12 @@
 #import "AMPurpleJabberAdHocPing.h"
 #import "AMPurpleJabberAdHocServer.h"
 #import "AMPurpleJabberBookmarks.h"
-#import "AMPurpleJabberCorrection.h"
-#import "AMPurpleJabberPubsubBookmarks.h"
 #import "AMPurpleJabberCSI.h"
+#import "AMPurpleJabberCorrection.h"
 #import "AMPurpleJabberHTTPUpload.h"
 #import "AMPurpleJabberMAM.h"
 #import "AMPurpleJabberMessageStyling.h"
+#import "AMPurpleJabberPubsubBookmarks.h"
 #import "AMPurpleJabberServiceDiscoveryBrowsing.h"
 #import "AMXMLConsoleController.h"
 #import "ESPurpleJabberAccountViewController.h"
@@ -239,7 +239,6 @@
 
 	if (!pubsubBookmarksController)
 		pubsubBookmarksController = [[AMPurpleJabberPubsubBookmarks alloc] initWithAccount:self];
-
 
 	if (!messageStylingController)
 		messageStylingController = [[AMPurpleJabberMessageStyling alloc] initWithAccount:self];

@@ -173,7 +173,8 @@ static void AMPurpleJabberPubsubBookmarks_received_xmlnode_cb(PurpleConnection *
 		PurplePlugin *jabber = purple_find_prpl("prpl-jabber");
 		if (jabber) {
 			purple_signal_connect(jabber, "jabber-receiving-xmlnode", self,
-								  PURPLE_CALLBACK(AMPurpleJabberPubsubBookmarks_received_xmlnode_cb), (__bridge void *)self);
+								  PURPLE_CALLBACK(AMPurpleJabberPubsubBookmarks_received_xmlnode_cb),
+								  (__bridge void *)self);
 		}
 
 		AILog(@"AMPurpleJabberPubsubBookmarks: initialized for %@", [account UID]);
@@ -217,26 +218,27 @@ static void AMPurpleJabberPubsubBookmarks_received_xmlnode_cb(PurpleConnection *
 
 - (NSString *)_xmlForRetrieve
 {
-	return [NSString stringWithFormat:
-			@"<iq type='get' id='%@'>"
-			@"<pubsub xmlns='%@'>"
-			@"<items node='%@'/>"
-			@"</pubsub>"
-			@"</iq>", AMPurpleJabberPubsubBookmarksIQRetrieveId, NS_PUBSUB, NS_PUBSUB_BOOKMARKS];
+	return [NSString stringWithFormat:@"<iq type='get' id='%@'>"
+									  @"<pubsub xmlns='%@'>"
+									  @"<items node='%@'/>"
+									  @"</pubsub>"
+									  @"</iq>",
+									  AMPurpleJabberPubsubBookmarksIQRetrieveId, NS_PUBSUB, NS_PUBSUB_BOOKMARKS];
 }
 
 - (NSString *)_xmlForPublishWithBookmarksXML:(NSString *)bookmarksXML
 {
-	return [NSString stringWithFormat:
-			@"<iq type='set' id='%@'>"
-			@"<pubsub xmlns='%@'>"
-			@"<publish node='%@'>"
-			@"<item id='current'>"
-			@"%@"
-			@"</item>"
-			@"</publish>"
-			@"</pubsub>"
-			@"</iq>", AMPurpleJabberPubsubBookmarksIQPublishId, NS_PUBSUB, NS_PUBSUB_BOOKMARKS, bookmarksXML];
+	return [NSString stringWithFormat:@"<iq type='set' id='%@'>"
+									  @"<pubsub xmlns='%@'>"
+									  @"<publish node='%@'>"
+									  @"<item id='current'>"
+									  @"%@"
+									  @"</item>"
+									  @"</publish>"
+									  @"</pubsub>"
+									  @"</iq>",
+									  AMPurpleJabberPubsubBookmarksIQPublishId, NS_PUBSUB, NS_PUBSUB_BOOKMARKS,
+									  bookmarksXML];
 }
 
 @end
