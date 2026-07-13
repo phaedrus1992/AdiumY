@@ -128,6 +128,8 @@ Resources/zh_HK/LC_MESSAGES
 
 .claude
 .yaks
+.superpowers/
+.supervisors/
 Dependencies/.cache/
 Dependencies/build/
 Dependencies/sandbox-*/
