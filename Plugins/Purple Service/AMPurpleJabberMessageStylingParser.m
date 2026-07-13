@@ -135,26 +135,6 @@
 
 	NSAttributedString *result = [self _parseBlocksInBody:body font:baseFont];
 
-	// Detect RTL characters and set writing direction if found
-	NSUInteger bodyLen = [body length];
-	BOOL hasRTL = NO;
-	for (NSUInteger j = 0; j < bodyLen; j++) {
-		unichar ch = [body characterAtIndex:j];
-		if ((ch >= 0x0590 && ch <= 0x08FF) || // Hebrew, Arabic, Syriac, Thaana, NKo, Samaritan, Mandaic
-			(ch >= 0xFB1D && ch <= 0xFDFF) || // Hebrew/Arabic presentation forms A
-			(ch >= 0xFE70 && ch <= 0xFEFF)) { // Arabic presentation forms B
-			hasRTL = YES;
-			break;
-		}
-	}
-	if (hasRTL) {
-		NSMutableAttributedString *mutable = [[result mutableCopy] autorelease];
-		[mutable addAttribute:NSWritingDirectionAttributeName
-						value:@[ @(NSWritingDirectionRightToLeft | NSWritingDirectionEmbedding) ]
-						range:NSMakeRange(0, [mutable length])];
-		return mutable;
-	}
-
 	return result;
 }
 
@@ -641,13 +621,6 @@
 				depth++;
 				continue;
 			}
-		}
-
-		// Track nesting for other delimiter types too (they affect opener validity)
-		if ([self _isSpanDelimiter:c] && c != delim) {
-			// Other delimiters are also valid openers/closers - just skip them
-			// They're handled in _appendFormattedText's recursive calls
-			continue;
 		}
 
 		// Regular character: no action needed, continue scanning
