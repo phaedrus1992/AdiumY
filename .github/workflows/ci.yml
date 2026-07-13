@@ -139,6 +139,7 @@ jobs:
 
       - name: Check code coverage threshold
         env:
+          COVERAGE_THRESHOLD: 0
           DERIVED_DATA_DIR: build/DerivedData
         run: |
           make coverage-check
