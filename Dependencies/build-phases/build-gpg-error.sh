@@ -2,6 +2,7 @@
 # build-gpg-error.sh — Build libgpg-error as universal framework (libgcrypt dependency)
 # Shell function, sourced by build-universal-deps.sh
 
+# renovate: datasource=github-tags depName=gpg/libgpg-error extractVersion=^libgpg-error-(?<version>.*)$
 BUILD_GPGERROR_VERSION="1.61"
 BUILD_GPGERROR_FILE="libgpg-error-${BUILD_GPGERROR_VERSION}.tar.bz2"
 BUILD_GPGERROR_SHA256="7a85413f2bc354f4f8aa832b718af122e48965e9e0eb9012ee659c13c6385c93"

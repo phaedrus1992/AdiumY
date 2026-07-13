@@ -2,6 +2,7 @@
 # build-gettext.sh — Build gettext (libintl only) as universal framework
 # Shell function, sourced by build-universal-deps.sh
 
+# no renovate: GNU ftp has no queryable datasource
 BUILD_GETTEXT_VERSION="1.0"  # gettext-runtime internal version, not upstream gettext
 BUILD_GETTEXT_FILE="gettext-${BUILD_GETTEXT_VERSION}.tar.xz"
 BUILD_GETTEXT_SHA256="71132a3fb71e68245b8f2ac4e9e97137d3e5c02f415636eb508ae607bc01add7"

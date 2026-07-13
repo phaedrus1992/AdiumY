@@ -2,6 +2,7 @@
 # build-libxml2.sh — Build libxml2 as universal framework (libpurple XMPP dependency)
 # Shell function, sourced by build-universal-deps.sh
 
+# renovate: datasource=gitlab-tags registryUrl=https://gitlab.gnome.org depName=GNOME/libxml2
 BUILD_LIBXML2_VERSION="2.15.3"
 BUILD_LIBXML2_FILE="libxml2-${BUILD_LIBXML2_VERSION}.tar.xz"
 BUILD_LIBXML2_SHA256="78262a6e7ac170d6528ebfe2efccdf220191a5af6a6cd61ea4a9a9a5042c7a07"

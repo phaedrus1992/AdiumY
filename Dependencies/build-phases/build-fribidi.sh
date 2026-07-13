@@ -2,6 +2,7 @@
 # build-fribidi.sh — Build GNU FriBidi as universal framework (bidirectional text)
 # Shell function, sourced by build-universal-deps.sh
 
+# renovate: datasource=github-releases depName=fribidi/fribidi extractVersion=^v(?<version>.*)$
 BUILD_FRIBIDI_VERSION="1.0.16"
 BUILD_FRIBIDI_FILE="fribidi-${BUILD_FRIBIDI_VERSION}.tar.xz"
 BUILD_FRIBIDI_SHA256="1b1cde5b235d40479e91be2f0e88a309e3214c8ab470ec8a2744d82a5a9ea05c"

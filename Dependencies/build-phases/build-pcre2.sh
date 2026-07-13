@@ -2,6 +2,7 @@
 # build-pcre2.sh — Build pcre2 (8-bit, unicode) as universal framework (glib dependency)
 # Shell function, sourced by build-universal-deps.sh
 
+# renovate: datasource=github-releases depName=PCRE2Project/pcre2 extractVersion=^pcre2-(?<version>.*)$
 BUILD_PCRE2_VERSION="10.47"
 BUILD_PCRE2_FILE="pcre2-${BUILD_PCRE2_VERSION}.tar.bz2"
 BUILD_PCRE2_SHA256="47fe8c99461250d42f89e6e8fdaeba9da057855d06eb7fc08d9ca03fd08d7bc7"

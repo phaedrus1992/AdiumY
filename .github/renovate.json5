@@ -1,0 +1,57 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "config:recommended",
+    ":configMigration",
+    ":semanticCommits",
+  ],
+  dependencyDashboard: false,
+  assigneesFromCodeOwners: true,
+  baseBranchPatterns: ["main"],
+  branchConcurrentLimit: 5,
+  labels: ["dependencies"],
+  minimumReleaseAge: "7 days",
+  prCreation: "not-pending",
+  prHourlyLimit: 0,
+  rangeStrategy: "bump",
+  rebaseWhen: "behind-base-branch",
+  semanticCommitType: "chore",
+  semanticCommitScope: "deps",
+
+  packageRules: [
+    // merge policy only — grouping owned by rules below
+    { matchUpdateTypes: ["!major"], automerge: true },
+    {
+      groupName: "non-major GitHub Actions",
+      groupSlug: "github-actions-non-major",
+      matchManagers: ["github-actions"],
+      matchUpdateTypes: ["minor", "patch", "pin", "digest"],
+      automerge: false,
+    },
+    // vendored C deps: never automerge — a bump requires a successful
+    // Dependencies/build-universal-deps.sh run and new tarball committed,
+    // which Renovate cannot do. The PR is a notification + version/sha edit.
+    {
+      matchManagers: ["custom.regex"],
+      automerge: false,
+      groupName: null,
+    },
+  ],
+
+  vulnerabilityAlerts: {
+    labels: ["dependencies", "security"],
+  },
+
+  customManagers: [
+    {
+      customType: "regex",
+      description: "Vendored dependency versions in build-phase scripts",
+      managerFilePatterns: [
+        "/^Dependencies/build-phases/.+\\.sh$/",
+      ],
+      matchStrings: [
+        "# renovate: datasource=(?<datasource>[a-z-.]+)( registryUrl=(?<registryUrl>\\S+))? depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?( extractVersion=(?<extractVersion>\\S+))?\\n[A-Z_][A-Z0-9_]*VERSION=\"(?<currentValue>[^\"]+)\"",
+      ],
+    },
+  ],
+}

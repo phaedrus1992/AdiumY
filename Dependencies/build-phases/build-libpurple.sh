@@ -3,6 +3,7 @@
 # framework with static prpls: jabber, irc, simple.
 # Shell function, sourced by build-universal-deps.sh
 
+# no renovate: Pidgin 2.x is near-frozen; sourceforge mirrors have no reliable datasource
 BUILD_LIBPURPLE_VERSION="2.14.14"
 BUILD_LIBPURPLE_FILE="pidgin-${BUILD_LIBPURPLE_VERSION}.tar.bz2"
 BUILD_LIBPURPLE_SHA256="0ffc9994def10260f98a55cd132deefa8dc4a9835451cc0e982747bd458e2356"
