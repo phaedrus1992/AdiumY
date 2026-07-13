@@ -16,6 +16,7 @@
 
 #import "AIWebKitMessageViewPlugin.h"
 #import "AIWebKitMessageViewController.h"
+#import "AIWebKitMessageViewWKController.h"
 #import "AIWebkitMessageViewStyle.h"
 #import "ESWebKitMessageViewPreferences.h"
 #import <AIUtilities/AIBundleAdditions.h>
@@ -99,7 +100,7 @@
 
 - (id<AIMessageDisplayController>)messageDisplayControllerForChat:(AIChat *)inChat
 {
-	return [AIWebKitMessageViewController messageDisplayControllerForChat:inChat withPlugin:self];
+	return [AIWebKitMessageViewWKController messageDisplayControllerForChat:inChat withPlugin:self];
 }
 
 - (void)preferencesChangedForGroup:(NSString *)group
