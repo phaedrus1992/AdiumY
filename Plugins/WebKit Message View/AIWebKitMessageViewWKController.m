@@ -57,6 +57,37 @@
 
 static NSArray *draggedTypes = nil;
 
+#pragma mark - Weak Script Message Handler Proxy
+
+/// Weak proxy that forwards WKScriptMessageHandler messages without retaining the target.
+/// Breaks the retain cycle caused by -[WKUserContentController addScriptMessageHandler:name:].
+/// Uses assign (MRC) — caller must remove the handler before dealloc, same as any delegate pattern.
+@interface _AIWKScriptMessageHandlerWeakProxy : NSObject <WKScriptMessageHandler>
+{
+	id<WKScriptMessageHandler> _target; // assign (MRC idiom for weak)
+}
+- (instancetype)initWithTarget:(id<WKScriptMessageHandler>)target;
+@end
+
+@implementation _AIWKScriptMessageHandlerWeakProxy
+
+- (instancetype)initWithTarget:(id<WKScriptMessageHandler>)target
+{
+	self = [super init];
+	if (self) {
+		_target = target;
+	}
+	return self;
+}
+
+- (void)userContentController:(WKUserContentController *)userContentController
+	  didReceiveScriptMessage:(WKScriptMessage *)message
+{
+	[_target userContentController:userContentController didReceiveScriptMessage:message];
+}
+
+@end
+
 @interface AIWebKitMessageViewWKController ()
 - (void)_initWebView;
 - (void)_markCurrentLocation;
@@ -180,9 +211,11 @@ static NSArray *draggedTypes = nil;
 {
 	WKWebViewConfiguration *config = [[[WKWebViewConfiguration alloc] init] autorelease];
 
-	// User content controller with script message handler
+	// User content controller with script message handler (via weak proxy to avoid retain cycle)
 	WKUserContentController *userContentController = [[[WKUserContentController alloc] init] autorelease];
-	[userContentController addScriptMessageHandler:self name:@"adium"];
+	_AIWKScriptMessageHandlerWeakProxy *proxy = [[_AIWKScriptMessageHandlerWeakProxy alloc] initWithTarget:self];
+	[userContentController addScriptMessageHandler:proxy name:@"adium"];
+	[proxy release];
 	config.userContentController = userContentController;
 
 	// Register adium:// scheme handler (10.13+)
@@ -309,7 +342,7 @@ static NSArray *draggedTypes = nil;
 	[_cachedChatContentSource release];
 	_cachedChatContentSource = [source copy];
 
-	[_webView evaluateJavaScript:js completionHandler:nil];
+	[_webView evaluateJavaScript:js completionHandler:^(id result, NSError *error) { if (error) { AILogWithSignature(@"evaluateJavaScript failed: %@", error); } }];
 }
 
 - (NSString *)chatContentSource
@@ -498,7 +531,6 @@ static NSArray *draggedTypes = nil;
 				   }
 				   if (self->_nextMessageRegainedFocus) {
 					   [self.markedScroller addMarkAt:h withColor:[NSColor greenColor]];
-					   [self.markedScroller addMarkAt:h withColor:[NSColor greenColor]];
 					   self->_nextMessageRegainedFocus = NO;
 				   }
 			   }];
@@ -509,24 +541,18 @@ static NSArray *draggedTypes = nil;
  */
 - (void)_updateWebViewForCurrentPreferences
 {
-	static dispatch_queue_t webViewUpdateQueue = nil;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		webViewUpdateQueue = dispatch_queue_create("im.adium.AIWebKitMessageViewWKController.webViewUpdateQueue", 0);
-	});
+	dispatch_assert(dispatch_get_main_queue());
 
 	_isUpdatingView = YES;
-	dispatch_sync(webViewUpdateQueue, ^{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-		[_messageStyle autorelease];
-		_messageStyle = nil;
-		[_activeStyle release];
-		_activeStyle = nil;
+	[_messageStyle autorelease];
+	_messageStyle = nil;
+	[_activeStyle release];
+	_activeStyle = nil;
 
-		_messageStyle = [[_plugin currentMessageStyleForChat:_chat] retain];
-		_activeStyle = [[[_messageStyle bundle] bundleIdentifier] retain];
-		_preferenceGroup = [[_plugin preferenceGroupForChat:_chat] retain];
+	_messageStyle = [[_plugin currentMessageStyleForChat:_chat] retain];
+	_activeStyle = [[[_messageStyle bundle] bundleIdentifier] retain];
+	_preferenceGroup = [[_plugin preferenceGroupForChat:_chat] retain];
 
 		// Get the preferred variant (or the default if a preferred is not available)
 		NSString *activeVariant;
@@ -615,19 +641,26 @@ static NSArray *draggedTypes = nil;
 
 		// Prime the webview
 		[self _primeWebViewAndReprocessContent:YES];
-		[pool release];
 		_isUpdatingView = NO;
-	});
-}
+	}
+
 
 - (void)_updateVariantWithoutPrimingView
 {
+	static const NSUInteger kMaxRetries = 40;
+	static NSUInteger retryCount = 0;
+
 	if (_webViewIsReady) {
-		[_webView evaluateJavaScript:[_messageStyle scriptForChangingVariant] completionHandler:nil];
-	} else {
+		retryCount = 0;
+		[_webView evaluateJavaScript:[_messageStyle scriptForChangingVariant] completionHandler:^(id result, NSError *error) { if (error) { AILogWithSignature(@"evaluateJavaScript failed: %@", error); } }];
+	} else if (retryCount < kMaxRetries) {
+		retryCount++;
 		[self performSelector:@selector(_updateVariantWithoutPrimingView)
 				   withObject:nil
 				   afterDelay:NEW_CONTENT_RETRY_DELAY];
+	} else {
+		retryCount = 0;
+		AILogWithSignature(@"Gave up waiting for webview to become ready after %lu attempts", (unsigned long)kMaxRetries);
 	}
 }
 
@@ -694,7 +727,7 @@ static NSArray *draggedTypes = nil;
 - (void)chatDidFinishAddingUntrackedContent:(NSNotification *)notification
 {
 	// Tell the CoalescedHTML to output everything
-	[_webView evaluateJavaScript:@"if(coalescedHTML)coalescedHTML.cancel()" completionHandler:nil];
+	[_webView evaluateJavaScript:@"if(coalescedHTML)coalescedHTML.cancel()" completionHandler:^(id result, NSError *error) { if (error) { AILogWithSignature(@"evaluateJavaScript failed: %@", error); } }];
 }
 
 #pragma mark - Notifications
@@ -724,9 +757,11 @@ static NSArray *draggedTypes = nil;
 		if (domID) {
 			NSString *iconPath = [self _pathForUserIconOfContact:[content source]];
 			if (iconPath) {
-				[updateJS appendFormat:@"var e=document.getElementById('%@');"
-									   @" if(e)e.src='%@';",
-									   domID, iconPath];
+				NSString *escapedDomId = [self _jsStringLiteral:domID];
+				NSString *escapedIconPath = [self _jsStringLiteral:iconPath];
+				[updateJS appendFormat:@"var e=document.getElementById(%@);"
+									   @" if(e)e.src=%@;",
+									   escapedDomId, escapedIconPath];
 			}
 		}
 	}
@@ -734,14 +769,14 @@ static NSArray *draggedTypes = nil;
 	[updateJS appendString:@"})()"];
 
 	if (![updateJS isEqualToString:updateJSPrefix]) {
-		[_webView evaluateJavaScript:updateJS completionHandler:nil];
+		[_webView evaluateJavaScript:updateJS completionHandler:^(id result, NSError *error) { if (error) { AILogWithSignature(@"evaluateJavaScript failed: %@", error); } }];
 	}
 }
 
 - (void)customEmoticonUpdated:(NSNotification *)inNotification
 {
 	[_messageStyle flushEmoticonCache];
-	[_webView evaluateJavaScript:@"initStyle()" completionHandler:nil];
+	[_webView evaluateJavaScript:@"initStyle()" completionHandler:^(id result, NSError *error) { if (error) { AILogWithSignature(@"evaluateJavaScript failed: %@", error); } }];
 
 	// Re-process stored content for new emoticon rendering
 	if ([_storedContentObjects count]) {
@@ -770,8 +805,9 @@ static NSArray *draggedTypes = nil;
 
 	NSString *contentHTML = [_messageStyle completedTemplateForContent:content similar:NO];
 	NSString *escaped = [self _jsStringLiteral:contentHTML];
-	NSString *js = [NSString stringWithFormat:@"correctMessage('%@', %@)", domId, escaped];
-	[_webView evaluateJavaScript:js completionHandler:nil];
+	NSString *escapedDomId = [self _jsStringLiteral:domId];
+	NSString *js = [NSString stringWithFormat:@"correctMessage(%@, %@)", escapedDomId, escaped];
+	[_webView evaluateJavaScript:js completionHandler:^(id result, NSError *error) { if (error) { AILogWithSignature(@"evaluateJavaScript failed: %@", error); } }];
 }
 
 - (void)stanzaWasTracked:(NSNotification *)notification
@@ -781,12 +817,13 @@ static NSArray *draggedTypes = nil;
 		return;
 	}
 
+	NSString *escapedDomId = [self _jsStringLiteral:content.displayedDomID];
 	NSString *js = [NSString stringWithFormat:@"(function(){"
-											  @" var e=document.getElementById('%@');"
+											  @" var e=document.getElementById(%@);"
 											  @" if(e&&!e.classList.contains('tracked')){e.classList.add('tracked');}"
 											  @"})()",
-											  content.displayedDomID];
-	[_webView evaluateJavaScript:js completionHandler:nil];
+											  escapedDomId];
+	[_webView evaluateJavaScript:js completionHandler:^(id result, NSError *error) { if (error) { AILogWithSignature(@"evaluateJavaScript failed: %@", error); } }];
 }
 
 - (void)updateTopic
@@ -802,7 +839,7 @@ static NSArray *draggedTypes = nil;
 											  @" if(e){e.innerHTML=%@;}"
 											  @"})()",
 											  escaped];
-	[_webView evaluateJavaScript:js completionHandler:nil];
+	[_webView evaluateJavaScript:js completionHandler:^(id result, NSError *error) { if (error) { AILogWithSignature(@"evaluateJavaScript failed: %@", error); } }];
 }
 
 #pragma mark - Marked Scroller
@@ -956,15 +993,17 @@ static NSArray *draggedTypes = nil;
 		if (domID) {
 			NSString *iconPath = [self _pathForUserIconOfContact:[content source]];
 			if (iconPath) {
-				[js appendFormat:@"var e=document.getElementById('%@');"
-								 @" if(e)e.src='%@';",
-								 domID, iconPath];
+				NSString *escapedDomId = [self _jsStringLiteral:domID];
+				NSString *escapedIconPath = [self _jsStringLiteral:iconPath];
+				[js appendFormat:@"var e=document.getElementById(%@);"
+								 @" if(e)e.src=%@;",
+								 escapedDomId, escapedIconPath];
 			}
 		}
 	}
 
 	[js appendString:@"})()"];
-	[_webView evaluateJavaScript:js completionHandler:nil];
+	[_webView evaluateJavaScript:js completionHandler:^(id result, NSError *error) { if (error) { AILogWithSignature(@"evaluateJavaScript failed: %@", error); } }];
 }
 
 /*!
