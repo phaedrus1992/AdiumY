@@ -734,6 +734,12 @@ NSString *serviceIDForJabberUID(NSString *UID);
 + (CNContact *)personForListObject:(AIListObject *)inObject
 {
 	CNContact *contact = nil;
+
+	if (!contactStore) {
+		AILogWithSignature(@"contactStore not initialized — address book integration not yet available");
+		return nil;
+	}
+
 	NSString *identifier = [inObject preferenceForKey:KEY_AB_UNIQUE_ID group:PREF_GROUP_ADDRESSBOOK];
 	if (!identifier)
 		identifier = [inObject valueForProperty:KEY_AB_UNIQUE_ID];
@@ -885,6 +891,8 @@ NSString *serviceIDForJabberUID(NSString *UID);
 			// Retrieve all appropriate contacts
 			// This will be fb://profile/XXX where XXX is the UID
 			NSString *facebookNumber = (NSString *)[(NSString *)labeledValue.value lastPathComponent];
+			if (![facebookNumber length])
+				continue;
 			NSString *facebookUID = [NSString stringWithFormat:@"-%@@chat.facebook.com", facebookNumber];
 
 			NSSet *contacts = [adium.contactController
@@ -1086,6 +1094,9 @@ NSString *serviceIDForOscarUID(NSString *UID)
 {
 	NSString *serviceID;
 
+	if (![UID length])
+		return @"AIM";
+
 	const char firstCharacter = [UID characterAtIndex:0];
 
 	// Determine service based on UID
@@ -1215,6 +1226,8 @@ NSString *serviceIDForJabberUID(NSString *UID)
 				// Retrieve all appropriate contacts
 				// This will be fb://profile/XXX where XXX is the UID
 				NSString *facebookNumber = (NSString *)[(NSString *)labeledValue.value lastPathComponent];
+				if (![facebookNumber length])
+					continue;
 				NSString *facebookUID = [NSString stringWithFormat:@"-%@@chat.facebook.com", facebookNumber];
 				if (!(dict = [addressBookDict objectForKey:@"Facebook"])) {
 					dict = [[[NSMutableDictionary alloc] init] autorelease];
