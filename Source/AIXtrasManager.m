@@ -27,11 +27,11 @@
 #import <Adium/KNShelfSplitView.h>
 
 #define ADIUM_XTRAS_PAGE                                                                                               \
-	AILocalizedString(@"http://xtras.adium.im/", "Adium xtras page. Localized only if a translated version exists.")
+	AILocalizedString(@"https://github.com/phaedrus1992/adiumy", "Adium xtras page. Localized only if a translated version exists.")
 #define DELETE AILocalizedStringFromTable(@"Delete", @"Buttons", nil)
 #define GET_MORE_XTRAS                                                                                                 \
 	AILocalizedStringFromTable(@"Get More Xtras", @"Buttons",                                                          \
-							   "Button in the Xtras Manager to go to xtras.adium.im to get more adiumyextras")
+							   "Button in the Xtras Manager to go to github.com/phaedrus1992/adiumy to get more adiumyextras")
 
 #define MINIMUM_SOURCE_LIST_WIDTH 40
 

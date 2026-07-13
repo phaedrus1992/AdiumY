@@ -16,8 +16,8 @@ Additional problems with the script, found on inspection:
 
 - It is Python 2 (`file()` builtin at lines 61/90, implicit-bytes handling). It cannot
   run at all under any Python shipped on modern macOS.
-- It hard-codes dead infrastructure: `http://adiumx.cachefly.net/` download URL
-  (line 58) and `http://www.adium.im/changelogs/` release-notes URL (line 12).
+- It hard-codes dead infrastructure: `https://github.com/phaedrus1992/adiumy/` download URL
+  (line 58) and `https://github.com/phaedrus1992/adiumy/changelogs/` release-notes URL (line 12).
 - Nothing else in the tree references it (`rg -l AppcastReplaceItem` finds only the
   script itself). It is standalone release tooling.
 
@@ -70,7 +70,7 @@ more code and more ways to get it wrong. Don't.
    <key>SUPublicEDKey</key>
    <string><!-- base64 output of generate_keys --></string>
    <key>SUFeedURL</key>
-   <string><!-- current appcast URL; the adium.im one in "Info copy.plist" is a
+   <string><!-- current appcast URL; the github.com/phaedrus1992/adiumy one in "Info copy.plist" is a
         placeholder until the fork has its own feed --></string>
    ```
 

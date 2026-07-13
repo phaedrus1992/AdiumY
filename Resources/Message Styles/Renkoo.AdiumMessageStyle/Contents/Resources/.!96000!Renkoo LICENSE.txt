@@ -1,0 +1,6 @@
+The images, css and html is dual licensed under the BSD and AFL license. 
+The source files for the bubbles can be found at http://www.itorrey.com/adiumx/
+
+The fading javascript is not covered in this license. The code is fadomatic and is covered under its own license as set by its author.
+
+BSD LICENSE

@@ -20,7 +20,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>AdiumPlugin.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Plugin</string>
+			<string>AdiumY Plugin</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AdIM</string>
@@ -42,7 +42,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>AdiumPlugin.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Libpurple Plugin</string>
+			<string>AdiumY Libpurple Plugin</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AdIM</string>
@@ -64,7 +64,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>AdiumIcon.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Dock Icon</string>
+			<string>AdiumY Dock Icon</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AIDk</string>
@@ -86,7 +86,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>AdiumSoundset.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Sound Set</string>
+			<string>AdiumY Sound Set</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AISd</string>
@@ -108,7 +108,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>AdiumMenuBarIcons.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Menu Bar Icons</string>
+			<string>AdiumY Menu Bar Icons</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AdMB</string>
@@ -130,7 +130,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>AdiumEmoticonset.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Emoticon Set</string>
+			<string>AdiumY Emoticon Set</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AIEm</string>
@@ -152,7 +152,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>AdiumMessageStyle.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Message Style</string>
+			<string>AdiumY Message Style</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AIWK</string>
@@ -174,7 +174,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>AdiumScripts.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Scripts</string>
+			<string>AdiumY Scripts</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AIAS</string>
@@ -197,7 +197,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>AdiumListLayout.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium List Layout</string>
+			<string>AdiumY List Layout</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AILL</string>
@@ -220,7 +220,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>AdiumListTheme.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium List Theme</string>
+			<string>AdiumY List Theme</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AILT</string>
@@ -242,7 +242,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>AdiumStatusIcons</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Status Icons</string>
+			<string>AdiumY Status Icons</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AISt</string>
@@ -264,7 +264,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>AdiumServiceIcons.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Service Icons</string>
+			<string>AdiumY Service Icons</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AISr</string>
@@ -286,7 +286,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>Adium.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Chat Log</string>
+			<string>AdiumY Chat Log</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AILh</string>
@@ -310,7 +310,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>Adium.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Group Chat Status Icons</string>
+			<string>AdiumY Group Chat Status Icons</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AIGc</string>
@@ -334,7 +334,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>Adium.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Adium Chat Log</string>
+			<string>AdiumY Chat Log</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>AILo</string>
@@ -354,11 +354,11 @@
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleGetInfoString</key>
-	<string>1.5.11b3, Copyright © 2001-2016 The Adium Team</string>
+	<string>1.5.11b3, Copyright © 2001-2016 The AdiumY Team</string>
 	<key>CFBundleHelpBookFolder</key>
-	<string>AdiumHelp</string>
+	<string>AdiumYHelp</string>
 	<key>CFBundleHelpBookName</key>
-	<string>Adium Help</string>
+	<string>AdiumY Help</string>
 	<key>CFBundleIconFile</key>
 	<string>Adium.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -453,7 +453,7 @@
 			<key>CFBundleURLIconFile</key>
 			<string>generic</string>
 			<key>CFBundleURLName</key>
-			<string>Adium Xtra installation URL</string>
+			<string>AdiumY Xtra installation URL</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>adiumyextra</string>
@@ -481,17 +481,17 @@
 	<key>SUCheckAtStartup</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://www.adium.im/sparkle/update.php</string>
+	<string>https://github.com/phaedrus1992/adiumy/sparkle/update.php</string>
 	<key>SUPublicDSAKeyFile</key>
 	<string>dsa_pub.pem</string>
 	<key>SUScheduledCheckInterval</key>
 	<integer>86400</integer>
 	<key>SmartCrashReports_CompanyName</key>
-	<string>Adium</string>
+	<string>AdiumY</string>
 	<key>SmartCrashReports_EmailTicket</key>
 	<string>SCR-2631F8982F</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright The Adium Team, 2005-2008</string>
+	<string>Copyright The AdiumY Team, 2005-2008</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
@@ -501,13 +501,13 @@
 				<string>com.apple.bundle</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium Xtra</string>
+			<string>AdiumY Xtra</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumYExtra.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.xtra</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict/>
 		</dict>
@@ -517,13 +517,13 @@
 				<string>com.github.phaedrus1992.adiumy.xtra</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium plug-in</string>
+			<string>AdiumY plug-in</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumPlugin.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.plugin</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -540,13 +540,13 @@
 				<string>com.github.phaedrus1992.adiumy.xtra</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium Libpurple plug-in</string>
+			<string>AdiumY Libpurple plug-in</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumPlugin.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.libpurpleplugin</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -563,13 +563,13 @@
 				<string>com.github.phaedrus1992.adiumy.xtra</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium WebKit Message View style</string>
+			<string>AdiumY WebKit Message View style</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumMessageStyle.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.messagestyle</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -586,13 +586,13 @@
 				<string>com.github.phaedrus1992.adiumy.xtra</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium Dock icon pack</string>
+			<string>AdiumY Dock icon pack</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumIcon.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.dockicon</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -609,13 +609,13 @@
 				<string>com.github.phaedrus1992.adiumy.xtra</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium sound set</string>
+			<string>AdiumY sound set</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumSoundset.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.soundset</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -632,13 +632,13 @@
 				<string>com.github.phaedrus1992.adiumy.xtra</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium emoticon set</string>
+			<string>AdiumY emoticon set</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumEmoticonset.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.emoticonset</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -655,13 +655,13 @@
 				<string>com.github.phaedrus1992.adiumy.xtra</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium script pack</string>
+			<string>AdiumY script pack</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumScripts.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.script</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -678,13 +678,13 @@
 				<string>com.github.phaedrus1992.adiumy.xtra</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium contact list layout</string>
+			<string>AdiumY contact list layout</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumListLayout.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.contactlistlayout</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -702,13 +702,13 @@
 				<string>com.github.phaedrus1992.adiumy.xtra</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium contact list color theme</string>
+			<string>AdiumY contact list color theme</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumListTheme.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.contactlisttheme</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -726,13 +726,13 @@
 				<string>com.github.phaedrus1992.adiumy.xtra</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium status icon pack</string>
+			<string>AdiumY status icon pack</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumStatusIcons.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.statusicons</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -749,13 +749,13 @@
 				<string>com.github.phaedrus1992.adiumy.xtra</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium service icon pack</string>
+			<string>AdiumY service icon pack</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumServiceIcons.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.serviceicons</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -772,13 +772,13 @@
 				<string>com.github.phaedrus1992.adiumy.xtra</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium menu bar icons pack</string>
+			<string>AdiumY menu bar icons pack</string>
 			<key>UTTypeIconFile</key>
 			<string>AdiumMenuBarIcons.icns</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.menubaricons</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://xtras.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -801,11 +801,11 @@
 				<string>public.xml</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium chat log</string>
+			<string>AdiumY chat log</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.xmllog</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://www.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -827,11 +827,11 @@
 				<string>public.message</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Adium HTML chat log</string>
+			<string>AdiumY HTML chat log</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.github.phaedrus1992.adiumy.htmllog</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://www.adium.im</string>
+			<string>https://github.com/phaedrus1992/adiumy</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>

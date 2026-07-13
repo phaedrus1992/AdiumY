@@ -267,7 +267,7 @@
 		 * editor. Instead, we want to know what application to use for viewing web pages... and then open this file in
 		 * it.
 		 */
-		err = LSGetApplicationForURL((CFURLRef)[NSURL URLWithString:@"http://www.adium.im"], kLSRolesViewer,
+		err = LSGetApplicationForURL((CFURLRef)[NSURL URLWithString:@"https://github.com/phaedrus1992/adiumy"], kLSRolesViewer,
 									 /*outAppRef*/ NULL, &appURL);
 		if (err == noErr) {
 			[[NSWorkspace sharedWorkspace] openFile:[urlString stringByExpandingTildeInPath]

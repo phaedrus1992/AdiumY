@@ -56,7 +56,7 @@ LMX is Peter Hosey's reverse ("last-in-first-out") XML parser,
 - The tarball's `LMXParser.h` is identical to the shipped framework's header
   modulo whitespace — drop-in API compatibility is confirmed.
 - SHA256: `91adf3fa39b89d8716ed73cae51830c67bc98102e148d4b66bab1b62f99e5355`.
-- The upstream Subversion repo (`svn://svn.adiumx.com/liblmx`) is long dead;
+- The upstream Subversion repo (`https://github.com/phaedrus1992/adiumy/liblmx`) is long dead;
   the tarball is the canonical source artifact.
 
 Sole consumer: `Source/DCMessageContextDisplayPlugin.m` (Adium app target),

@@ -82,7 +82,7 @@ Version 1.5.7 (7/2/2013)
    * Retweets (RTs) now properly display the original author.
    * t.co links are now expanded.
    * Fixed parsing to conform to the standard. (#13947)
- * Removed StatusNet support, see http://adium.im/blog/2013/07/adium-1-5-7-released.
+ * Removed StatusNet support, see https://github.com/phaedrus1992/adiumy/blog/2013/07/adium-1-5-7-released.
  * Fixed a crash when redrawing the contact list. (#16119)
  * Fixed a bug that could cause SSL connections to be closed prematurely. (#15405, #15411, #15741, #16356)
  * Fixed the following weaknesses in the SSL code:
@@ -1744,14 +1744,14 @@ Version 1.0 (2/2/2007)
  * Message view windows won't reopen doubly when an incoming message is received at the exact moment of the close attempt (#460)
  * Buddy icons displayed in the message view now update when changed (#3440)
  * "No icon" setting (#483)
- * Emoticon text equivalents are not expanded to emoticon images inside of URLs (e.g. the ":/" in "http://www.adiumx.com/") (#2761, #721, #2634)
+ * Emoticon text equivalents are not expanded to emoticon images inside of URLs (e.g. the ":/" in "https://github.com/phaedrus1992/adiumy/") (#2761, #721, #2634)
  * Now with 200% more cowbell
  * Added client.debugLog() javascript function, logs messages to Console
  * Template.html now uses the HTML4 strict doctype
  * Images are now scaled down in the input area (#611)
  * Dragging & dropping text or a URL onto a buddy in the contact list now sends the text or URL to the buddy (#860)
  * We no longer auto-reply to messages sent while you were offline (#4174)
- * A horizontal ellipsis after a link is now separated from the link (e.g. http://www.adiumx.com...) (#1183)
+ * A horizontal ellipsis after a link is now separated from the link (e.g. https://github.com/phaedrus1992/adiumy...) (#1183)
  * Paste retains bold/italics/underline/font/size etc. but strips colors, alignment, images, etc. (#1740, #2880)
  * Added a new paste item, Paste with Colors and Images, which does a traditional paste with rich text operation (#2880)
  * Language for spelling checker is now remembered for each contact (#2409)
@@ -1922,7 +1922,7 @@ Version 1.0 (2/2/2007)
  * Incoming message colors are properly ignored (#4184)
 
 === Zephyr ===
- * Added configuration notes at http://trac.adiumx.com/wiki/Zephyr (#2079)
+ * Added configuration notes at https://github.com/phaedrus1992/adiumy/wiki/Zephyr (#2079)
 
 == Localization ==
  * Australian English localization added (#2585)
@@ -2257,7 +2257,7 @@ Version 0.80 (02 May 2005)
   * (Sametime) Added support for directory lookup and group conferences
 
  * Many, many other bug and leak fixes, performance enchancements, and improvements.
-   * For a full list of changes, see http://www.adiumx.com/Adium0.80-fullchanges.txt
+   * For a full list of changes, see https://github.com/phaedrus1992/adiumy/Adium0.80-fullchanges.txt
 
 
 Version 0.77 (18 February 2005)

@@ -167,7 +167,7 @@ if [ "$should_update" == "yes" ] ; then
 	if !([ -x $adium_co_dir ]) ; then
 		echo "$adium_co_dir does not exist. Beginning new checkout."
 		echo "Begin SVN Checkout in $adium_co_dir"
-		$svn co svn://svn.adiumx.com/adium/trunk $adium_co_dir
+		$svn co https://github.com/phaedrus1992/adiumy/adium/trunk $adium_co_dir
 	else							# Update from SVN
 		echo "Begin SVN Update in $adium_co_dir"
 

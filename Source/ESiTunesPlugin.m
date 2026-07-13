@@ -574,7 +574,7 @@
 	/* XXX Remove after 10.6: Apparently with iTunes 10.6.3 on Mac OS X 10.6.8, the NSIconRefImageRep
 	 * that is returned by -iconfForFile: for iTunes fails to encode itself for NSCopying. Make a copy
 	 * here via -TIFFRepresentation to avoid this bug.
-	 * rdar://11930126 http://trac.adium.im/ticket/16046
+	 * rdar://11930126 https://github.com/phaedrus1992/adiumy/ticket/16046
 	 */
 	if ([NSApp isOnLionOrNewer]) {
 		[button setImage:[[NSWorkspace sharedWorkspace] iconForFile:iTunesPath]];

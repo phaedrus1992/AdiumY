@@ -248,7 +248,7 @@
 	unsigned long scannedLocation = m_scanLocation;
 	
     // scan upto the next whitespace char so that we don't unnecessarity confuse flex
-    // otherwise we end up validating urls that look like this "http://www.adium.im/ <--cool"
+    // otherwise we end up validating urls that look like this "https://github.com/phaedrus1992/adiumy/ <--cool"
 	[self _scanString:m_scanString charactersFromSet:startSet intoRange:nil fromIndex:&scannedLocation];
 	
 	// main scanning loop
