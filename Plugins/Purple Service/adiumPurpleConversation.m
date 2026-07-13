@@ -153,20 +153,28 @@ static NSString *attributedStringToSimpleHTML(NSAttributedString *attrStr)
 			NSFontTraitMask traits = [[NSFontManager sharedFontManager] traitsOfFont:font];
 			isBold = (traits & NSBoldFontMask) != 0;
 			isItalic = (traits & NSItalicFontMask) != 0;
-			isMono = (traits & NSFixedPitchFontMask) != 0;
+			// Compare against system fixed-pitch font to avoid fragile trait mask check
+			NSFont *fixedFont = [NSFont userFixedPitchFontOfSize:[font pointSize]];
+			isMono = (fixedFont != nil && [font isEqualTo:fixedFont]);
 		}
 
 		BOOL hasStrike = ([attrs objectForKey:NSStrikethroughStyleAttributeName] != nil);
+
+		// Check for blockquote paragraph style (C1: indent from parser)
+		NSParagraphStyle *paraStyle = [attrs objectForKey:NSParagraphStyleAttributeName];
+		BOOL isBlockquote = (paraStyle != nil && [paraStyle headIndent] > 0.0);
 
 		// Open tags in nesting-safe order
 		if (hasStrike) [html appendString:@"<s>"];
 		if (isMono) [html appendString:@"<font face=\"Monaco\">"];
 		if (isItalic) [html appendString:@"<i>"];
 		if (isBold) [html appendString:@"<b>"];
+		if (isBlockquote) [html appendString:@"<blockquote>"];
 
 		[html appendString:escaped];
 
 		// Close tags in reverse order
+		if (isBlockquote) [html appendString:@"</blockquote>"];
 		if (isBold) [html appendString:@"</b>"];
 		if (isItalic) [html appendString:@"</i>"];
 		if (isMono) [html appendString:@"</font>"];

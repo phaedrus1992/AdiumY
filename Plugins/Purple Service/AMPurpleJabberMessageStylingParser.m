@@ -101,6 +101,27 @@
 /// Apply font trait mask changes to the base font, returning a new font.
 + (NSFont *)_fontWithTraits:(NSFontTraitMask)traits fromBaseFont:(NSFont *)baseFont;
 
+/// Flush accumulated plain text buffer to result with current formatting traits.
++ (void)_flushPlainBuffer:(NSMutableString *)buffer
+                 toResult:(NSMutableAttributedString *)result
+                 baseFont:(NSFont *)baseFont
+                boldTrait:(BOOL)boldTrait
+              italicTrait:(BOOL)italicTrait
+             strikethrough:(BOOL)strikethrough
+                monospace:(BOOL)monospace;
+
+/// Handle a backtick code span starting at pos.
+/// Returns the new position for the loop variable after processing.
++ (NSUInteger)_appendBacktickSpanAt:(NSUInteger)pos
+                           inText:(NSString *)text
+                      plainBuffer:(NSMutableString *)plainBuffer
+                         toResult:(NSMutableAttributedString *)result
+                         baseFont:(NSFont *)baseFont
+                        boldTrait:(BOOL)boldTrait
+                      italicTrait:(BOOL)italicTrait
+                     strikethrough:(BOOL)strikethrough
+                           depth:(NSUInteger)depth;
+
 @end
 
 #pragma mark - Implementation
@@ -116,7 +137,29 @@
         return [[[NSAttributedString alloc] init] autorelease];
     }
 
-    return [self _parseBlocksInBody:body font:baseFont];
+    NSAttributedString *result = [self _parseBlocksInBody:body font:baseFont];
+
+    // Detect RTL characters and set writing direction if found
+    NSUInteger bodyLen = [body length];
+    BOOL hasRTL = NO;
+    for (NSUInteger j = 0; j < bodyLen; j++) {
+        unichar ch = [body characterAtIndex:j];
+        if ((ch >= 0x0590 && ch <= 0x08FF) ||   // Hebrew, Arabic, Syriac, Thaana, NKo, Samaritan, Mandaic
+            (ch >= 0xFB1D && ch <= 0xFDFF) ||   // Hebrew/Arabic presentation forms A
+            (ch >= 0xFE70 && ch <= 0xFEFF)) {   // Arabic presentation forms B
+            hasRTL = YES;
+            break;
+        }
+    }
+    if (hasRTL) {
+        NSMutableAttributedString *mutable = [[result mutableCopy] autorelease];
+        [mutable addAttribute:NSWritingDirectionAttributeName
+                        value:@[@(NSWritingDirectionRightToLeft | NSWritingDirectionEmbedding)]
+                        range:NSMakeRange(0, [mutable length])];
+        return mutable;
+    }
+
+    return result;
 }
 
 #pragma mark - Block-level parsing
@@ -189,7 +232,14 @@
             if ([result length] > 0) {
                 [result appendAttributedString:[[[NSAttributedString alloc] initWithString:@"\n"] autorelease]];
             }
+            NSUInteger quoteStart = [result length];
             [result appendAttributedString:quoteAttr];
+            // Apply blockquote indentation per XEP-0393 spec
+            NSRange quoteRange = NSMakeRange(quoteStart, [result length] - quoteStart);
+            NSMutableParagraphStyle *quotePara = [[[NSMutableParagraphStyle alloc] init] autorelease];
+            [quotePara setHeadIndent:20.0];
+            [quotePara setFirstLineHeadIndent:20.0];
+            [result addAttribute:NSParagraphStyleAttributeName value:quotePara range:quoteRange];
             continue;
         }
 
@@ -239,7 +289,6 @@
                          depth:(NSUInteger)depth
 {
     if (depth >= AMPARSE_MAX_DEPTH) {
-        // Safety limit: append literal text and return
         NSMutableAttributedString *plain = [[[NSMutableAttributedString alloc] initWithString:text] autorelease];
         [self _applyFormattingToRange:NSMakeRange(0, [text length])
                              inString:plain
@@ -259,99 +308,49 @@
     while (i < len) {
         unichar c = [text characterAtIndex:i];
 
-        // Backslash escaping: include the next character literally
         if (c == '\\' && i + 1 < len) {
             [plainBuffer appendString:[text substringWithRange:NSMakeRange(i + 1, 1)]];
             i += 2;
             continue;
         }
 
-        // In monospace mode, don't interpret styling delimiters
         if (monospace) {
             [plainBuffer appendString:[NSString stringWithCharacters:&c length:1]];
             i++;
             continue;
         }
 
-        // Check for inline code span (backtick) — has priority over other delimiters
         if (c == '`') {
-            NSUInteger closerPos = [self _findMatchingCloseForDelimiter:'`' inString:text fromPosition:i + 1];
-            if (closerPos != NSNotFound) {
-                // Flush plain buffer
-                if ([plainBuffer length] > 0) {
-                    NSMutableAttributedString *plainPart = [[[NSMutableAttributedString alloc] initWithString:plainBuffer] autorelease];
-                    [self _applyFormattingToRange:NSMakeRange(0, [plainBuffer length])
-                                         inString:plainPart
-                                         baseFont:baseFont
-                                        boldTrait:boldTrait
-                                      italicTrait:italicTrait
-                                     strikethrough:strikethrough
-                                        monospace:NO];
-                    [result appendAttributedString:plainPart];
-                    [plainBuffer setString:@""];
-                }
-
-                NSRange contentRange = NSMakeRange(i + 1, closerPos - i - 1);
-                NSString *codeText = [text substringWithRange:contentRange];
-                NSMutableAttributedString *codeAttr = [[[NSMutableAttributedString alloc] initWithString:codeText] autorelease];
-                [self _applyFormattingToRange:NSMakeRange(0, [codeText length])
-                                     inString:codeAttr
-                                     baseFont:baseFont
-                                    boldTrait:boldTrait
-                                  italicTrait:italicTrait
-                                 strikethrough:strikethrough
-                                    monospace:YES];
-                [result appendAttributedString:codeAttr];
-                i = closerPos + 1;
-                continue;
-            }
-            // No valid closer — treat as literal
-            [plainBuffer appendString:[NSString stringWithCharacters:&c length:1]];
-            i++;
+            i = [self _appendBacktickSpanAt:i inText:text plainBuffer:plainBuffer
+                                 toResult:result baseFont:baseFont boldTrait:boldTrait
+                              italicTrait:italicTrait strikethrough:strikethrough depth:depth];
             continue;
         }
 
-        // Check for other span delimiters (*, _, ~)
         if ([self _isSpanDelimiter:c]) {
             BOOL validOpener = [self _isValidOpenerAt:i inString:text];
             BOOL validCloser = [self _isValidCloserAt:i inString:text];
 
             if (validOpener) {
-                // Check if this also could be a closer (ambiguous). If so, prefer closer (lazy matching).
                 if (validCloser && depth > 0) {
-                    // Both opener and closer — closer wins (lazy)
                     [plainBuffer appendString:[NSString stringWithCharacters:&c length:1]];
                     i++;
                     continue;
                 }
 
-                // Valid opener — try to find closer
                 NSUInteger closerPos = [self _findMatchingCloseForDelimiter:c inString:text fromPosition:i + 1];
                 if (closerPos != NSNotFound) {
-                    // Flush plain buffer
-                    if ([plainBuffer length] > 0) {
-                        NSMutableAttributedString *plainPart = [[[NSMutableAttributedString alloc] initWithString:plainBuffer] autorelease];
-                        [self _applyFormattingToRange:NSMakeRange(0, [plainBuffer length])
-                                             inString:plainPart
-                                             baseFont:baseFont
-                                            boldTrait:boldTrait
-                                          italicTrait:italicTrait
-                                         strikethrough:strikethrough
-                                            monospace:NO];
-                        [result appendAttributedString:plainPart];
-                        [plainBuffer setString:@""];
-                    }
+                    [self _flushPlainBuffer:plainBuffer toResult:result baseFont:baseFont
+                                  boldTrait:boldTrait italicTrait:italicTrait
+                              strikethrough:strikethrough monospace:NO];
 
-                    // Extract content between delimiters
                     NSRange contentRange = NSMakeRange(i + 1, closerPos - i - 1);
                     NSString *innerText = [text substringWithRange:contentRange];
 
-                    // Set new traits for the inner content
                     BOOL newBold = boldTrait || (c == '*');
                     BOOL newItalic = italicTrait || (c == '_');
                     BOOL newStrike = strikethrough || (c == '~');
 
-                    // Recursively parse inner content (supports nesting)
                     [self _appendFormattedText:innerText
                                       toResult:result
                                       baseFont:baseFont
@@ -366,29 +365,80 @@
                 }
             }
 
-            // Not a valid opener or no closer found — treat as literal
             [plainBuffer appendString:[NSString stringWithCharacters:&c length:1]];
             i++;
             continue;
         }
 
-        // Regular character
         [plainBuffer appendString:[NSString stringWithCharacters:&c length:1]];
         i++;
     }
 
-    // Flush remaining plain buffer
-    if ([plainBuffer length] > 0) {
-        NSMutableAttributedString *plainPart = [[[NSMutableAttributedString alloc] initWithString:plainBuffer] autorelease];
-        [self _applyFormattingToRange:NSMakeRange(0, [plainBuffer length])
-                             inString:plainPart
+    [self _flushPlainBuffer:plainBuffer toResult:result baseFont:baseFont
+                  boldTrait:boldTrait italicTrait:italicTrait strikethrough:strikethrough monospace:NO];
+}
+
+#pragma mark - Buffer Flush Helper
+
++ (void)_flushPlainBuffer:(NSMutableString *)buffer
+                 toResult:(NSMutableAttributedString *)result
+                 baseFont:(NSFont *)baseFont
+                boldTrait:(BOOL)boldTrait
+              italicTrait:(BOOL)italicTrait
+             strikethrough:(BOOL)strikethrough
+                monospace:(BOOL)monospace
+{
+    if ([buffer length] == 0) {
+        return;
+    }
+
+    NSMutableAttributedString *plainPart = [[[NSMutableAttributedString alloc] initWithString:buffer] autorelease];
+    [self _applyFormattingToRange:NSMakeRange(0, [buffer length])
+                         inString:plainPart
+                         baseFont:baseFont
+                        boldTrait:boldTrait
+                      italicTrait:italicTrait
+                     strikethrough:strikethrough
+                        monospace:monospace];
+    [result appendAttributedString:plainPart];
+    [buffer setString:@""];
+}
+
+#pragma mark - Backtick Span Helper
+
++ (NSUInteger)_appendBacktickSpanAt:(NSUInteger)pos
+                           inText:(NSString *)text
+                      plainBuffer:(NSMutableString *)plainBuffer
+                         toResult:(NSMutableAttributedString *)result
+                         baseFont:(NSFont *)baseFont
+                        boldTrait:(BOOL)boldTrait
+                      italicTrait:(BOOL)italicTrait
+                     strikethrough:(BOOL)strikethrough
+                           depth:(NSUInteger)depth
+{
+    NSUInteger closerPos = [self _findMatchingCloseForDelimiter:'`' inString:text fromPosition:pos + 1];
+    if (closerPos != NSNotFound) {
+        [self _flushPlainBuffer:plainBuffer toResult:result baseFont:baseFont
+                      boldTrait:boldTrait italicTrait:italicTrait
+                  strikethrough:strikethrough monospace:NO];
+
+        NSRange contentRange = NSMakeRange(pos + 1, closerPos - pos - 1);
+        NSString *codeText = [text substringWithRange:contentRange];
+        NSMutableAttributedString *codeAttr = [[[NSMutableAttributedString alloc] initWithString:codeText] autorelease];
+        [self _applyFormattingToRange:NSMakeRange(0, [codeText length])
+                             inString:codeAttr
                              baseFont:baseFont
                             boldTrait:boldTrait
                           italicTrait:italicTrait
                          strikethrough:strikethrough
-                            monospace:NO];
-        [result appendAttributedString:plainPart];
+                            monospace:YES];
+        [result appendAttributedString:codeAttr];
+        return closerPos + 1;
     }
+
+    // No valid closer — treat as literal backtick
+    [plainBuffer appendString:@"`"];
+    return pos + 1;
 }
 
 #pragma mark - Attribute Application
