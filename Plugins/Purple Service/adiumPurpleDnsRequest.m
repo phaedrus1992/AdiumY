@@ -106,7 +106,7 @@ static NSMutableDictionary *lookupRequestsByQueryData = nil;
  */
 static void host_client_cb(CFHostRef theHost, CFHostInfoType typeInfo, const CFStreamError *streamError, void *info)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		AdiumPurpleDnsRequest *self = (AdiumPurpleDnsRequest *)info;
 		if (streamError && (streamError->error != 0)) {
@@ -126,7 +126,7 @@ static void host_client_cb(CFHostRef theHost, CFHostInfoType typeInfo, const CFS
 			}
 		}
 
-}
+	}
 }
 
 /*!

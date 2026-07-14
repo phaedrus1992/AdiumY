@@ -28,7 +28,7 @@
 
 static void AMPurpleJabberAdHocServer_received_data_cb(PurpleConnection *gc, xmlnode **packet, gpointer this)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		AMPurpleJabberAdHocServer *self = this;
 		PurpleAccount *account = [self.account purpleAccount];
@@ -54,13 +54,13 @@ static void AMPurpleJabberAdHocServer_received_data_cb(PurpleConnection *gc, xml
 			}
 		}
 
-}
+	}
 }
 
 /* we have to catch the reply to a disco#info for http://jabber.org/protocol/commands and insert our nodes */
 static void xmlnode_sent_cb(PurpleConnection *gc, xmlnode **packet, gpointer this)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		xmlnode *xml = *packet;
 		AMPurpleJabberAdHocServer *self = this;
 		PurpleAccount *account = [self.account purpleAccount];
@@ -88,7 +88,7 @@ static void xmlnode_sent_cb(PurpleConnection *gc, xmlnode **packet, gpointer thi
 				}
 			}
 		}
-}
+	}
 }
 
 + (void)initialize

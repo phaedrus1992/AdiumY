@@ -44,11 +44,11 @@
 static void adiumPurpleDebugPrint(PurpleDebugLevel level, const char *category, const char *debug_msg)
 {
 	// Log error
-@autoreleasepool {
+	@autoreleasepool {
 		if (!category)
 			category = "general"; // Category can be nil
 		AILog(@"(Libpurple: %s) %s", category, debug_msg);
-}
+	}
 }
 
 static int adiumPurpleDebugIsEnabled(PurpleDebugLevel level, const char *category)
@@ -93,9 +93,9 @@ static void init_all_plugins()
 	// Load each plugin
 	for (id<AILibpurplePlugin> plugin in [SLPurpleCocoaAdapter libpurplePluginArray]) {
 		if ([plugin respondsToSelector:@selector(installLibpurplePlugin)]) {
-@autoreleasepool {
+	@autoreleasepool {
 				[plugin installLibpurplePlugin];
-}
+	}
 		}
 	}
 #ifdef HAVE_CDSA
@@ -114,9 +114,9 @@ static void load_external_plugins(void)
 	// Load each plugin
 	for (id<AILibpurplePlugin> plugin in [SLPurpleCocoaAdapter libpurplePluginArray]) {
 		if ([plugin respondsToSelector:@selector(loadLibpurplePlugin)]) {
-@autoreleasepool {
+	@autoreleasepool {
 				[plugin loadLibpurplePlugin];
-}
+	}
 		}
 	}
 }
@@ -151,12 +151,12 @@ void configurePurpleDebugLogging()
 
 static void adiumPurpleCoreDebugInit(void)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		AILogWithSignature(@"");
 		configurePurpleDebugLogging();
 
-}
+	}
 }
 
 static void associateLibpurpleAccounts(void)
@@ -177,7 +177,7 @@ static void associateLibpurpleAccounts(void)
 /* The core is ready... finish configuring libpurple and its plugins */
 static void adiumPurpleCoreUiInit(void)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		bindtextdomain("pidgin",
 					   [[[NSBundle bundleWithIdentifier:@"im.pidgin.libpurple"] resourcePath] fileSystemRepresentation]);
@@ -246,7 +246,7 @@ static void adiumPurpleCoreUiInit(void)
 		load_external_plugins();
 
 		[[NSNotificationCenter defaultCenter] postNotificationName:AILibpurpleDidInitialize object:nil];
-}
+	}
 }
 
 static void adiumPurpleCoreQuit(void)
@@ -257,7 +257,7 @@ static void adiumPurpleCoreQuit(void)
 
 static GHashTable *adiumPurpleCoreGetUiInfo(void)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		static GHashTable *ui_info = NULL;
 		if (!ui_info) {
@@ -290,7 +290,7 @@ static GHashTable *adiumPurpleCoreGetUiInfo(void)
 
 
 		return ui_info;
-}
+	}
 }
 
 static PurpleCoreUiOps adiumPurpleCoreOps = {adiumPurplePrefsInit, adiumPurpleCoreDebugInit, adiumPurpleCoreUiInit,

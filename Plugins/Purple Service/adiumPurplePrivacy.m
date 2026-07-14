@@ -19,27 +19,27 @@
 
 static void adiumPurplePermitAdded(PurpleAccount *account, const char *name)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		[accountLookup(account) privacyPermitListAdded:[NSString stringWithUTF8String:purple_normalize(account, name)]];
-}
+	}
 }
 static void adiumPurplePermitRemoved(PurpleAccount *account, const char *name)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		[accountLookup(account) privacyPermitListRemoved:[NSString stringWithUTF8String:purple_normalize(account, name)]];
-}
+	}
 }
 static void adiumPurpleDenyAdded(PurpleAccount *account, const char *name)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		[accountLookup(account) privacyDenyListAdded:[NSString stringWithUTF8String:purple_normalize(account, name)]];
-}
+	}
 }
 static void adiumPurpleDenyRemoved(PurpleAccount *account, const char *name)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		[accountLookup(account) privacyDenyListRemoved:[NSString stringWithUTF8String:purple_normalize(account, name)]];
-}
+	}
 }
 
 static PurplePrivacyUiOps adiumPurplePrivacyOps = {adiumPurplePermitAdded, adiumPurplePermitRemoved,

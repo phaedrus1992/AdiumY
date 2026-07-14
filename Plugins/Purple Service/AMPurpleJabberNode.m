@@ -40,7 +40,7 @@ static CFArrayCallBacks nonretainingArrayCallbacks = {
 
 static void AMPurpleJabberNode_received_data_cb(PurpleConnection *gc, xmlnode **packet, gpointer this)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		AMPurpleJabberNode *self = (AMPurpleJabberNode *)this;
 
@@ -198,7 +198,7 @@ static void AMPurpleJabberNode_received_data_cb(PurpleConnection *gc, xmlnode **
 			}
 		}
 
-}
+	}
 }
 
 - (id)initWithJID:(NSString *)_jid node:(NSString *)_node name:(NSString *)_name connection:(PurpleConnection *)_gc

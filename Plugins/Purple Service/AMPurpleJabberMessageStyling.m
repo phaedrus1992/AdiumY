@@ -35,7 +35,7 @@
 /// @param data The AMPurpleJabberMessageStyling instance (as void*)
 static void AMPurpleJabberMessageStyling_received_xmlnode_cb(PurpleConnection *gc, xmlnode **packet, gpointer data)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		@try {
 			AMPurpleJabberMessageStyling *self = (__bridge AMPurpleJabberMessageStyling *)data;
@@ -61,7 +61,7 @@ static void AMPurpleJabberMessageStyling_received_xmlnode_cb(PurpleConnection *g
 			AILog(@"AMPurpleJabberMessageStyling: exception handling stanza: %@", exception);
 		}
 
-}
+	}
 }
 
 #pragma mark -

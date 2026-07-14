@@ -23,7 +23,7 @@
 static void *adiumPurpleNotifyMessage(PurpleNotifyMsgType type, const char *title, const char *primary,
 									  const char *secondary)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		AILog(@"adiumPurpleNotifyMessage: type: %i\n%s\n%s\n%s ", type, (title ? title : ""), (primary ? primary : ""),
 			  (secondary ? secondary : ""));
@@ -33,7 +33,7 @@ static void *adiumPurpleNotifyMessage(PurpleNotifyMsgType type, const char *titl
 																			  primary:primary
 																			secondary:secondary]);
 		return res;
-}
+	}
 }
 
 static void *adiumPurpleNotifyEmails(PurpleConnection *gc, size_t count, gboolean detailed, const char **subjects,
@@ -42,7 +42,7 @@ static void *adiumPurpleNotifyEmails(PurpleConnection *gc, size_t count, gboolea
 	// Don't notify that 0 emails are present.
 	if (!count)
 		return NULL;
-@autoreleasepool {
+	@autoreleasepool {
 
 		// Values passed can be null
 		AIAccount *account = (PURPLE_CONNECTION_IS_VALID(gc) ? accountLookup(purple_connection_get_account(gc)) : nil);
@@ -55,7 +55,7 @@ static void *adiumPurpleNotifyEmails(PurpleConnection *gc, size_t count, gboolea
 																			tos:tos
 																		   urls:urls];
 		return res;
-}
+	}
 }
 
 static void *adiumPurpleNotifyEmail(PurpleConnection *gc, const char *subject, const char *from, const char *to,
@@ -67,7 +67,7 @@ static void *adiumPurpleNotifyEmail(PurpleConnection *gc, const char *subject, c
 
 static void *adiumPurpleNotifyFormatted(const char *title, const char *primary, const char *secondary, const char *text)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		AILog(@"adiumPurpleNotifyFormatted: %s\n%s\n%s\n%s ", (title ? title : ""), (primary ? primary : ""),
 			  (secondary ? secondary : ""), (text ? text : ""));
@@ -77,14 +77,14 @@ static void *adiumPurpleNotifyFormatted(const char *title, const char *primary, 
 																				 secondary:secondary
 																					  text:text]);
 		return res;
-}
+	}
 }
 
 static void *adiumPurpleNotifySearchResults(PurpleConnection *gc, const char *title, const char *primary,
 											const char *secondary, PurpleNotifySearchResults *results,
 											gpointer user_data)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		AILog(@"**** returning search results");
 		// This will be released in adiumPurpleNotifyClose()
 		void *res = [[AMPurpleSearchResultsController alloc]
@@ -94,21 +94,21 @@ static void *adiumPurpleNotifySearchResults(PurpleConnection *gc, const char *ti
 									:(secondary ? [NSString stringWithUTF8String:secondary] : nil)searchResults:results
 							userData:user_data];
 		return res;
-}
+	}
 }
 
 static void adiumPurpleNotifySearchResultsNewRows(PurpleConnection *gc, PurpleNotifySearchResults *results, void *data)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		if ([(id)data isKindOfClass:[AMPurpleSearchResultsController class]]) {
 			[(AMPurpleSearchResultsController *)data addResults:results];
 		}
-}
+	}
 }
 
 static void *adiumPurpleNotifyUserinfo(PurpleConnection *gc, const char *who, PurpleNotifyUserInfo *user_info)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		if (PURPLE_CONNECTION_IS_VALID(gc)) {
 			PurpleAccount *account = purple_connection_get_account(gc);
@@ -126,14 +126,14 @@ static void *adiumPurpleNotifyUserinfo(PurpleConnection *gc, const char *who, Pu
 			[adiumAccount updateUserInfo:contact withData:user_info];
 		}
 
-}
+	}
 
 	return NULL;
 }
 
 static void *adiumPurpleNotifyUri(const char *uri)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		AILogWithSignature(@"Opening URI %s", uri);
 
@@ -174,14 +174,14 @@ static void *adiumPurpleNotifyUri(const char *uri)
 			}
 		}
 
-}
+	}
 
 	return NULL;
 }
 
 static void adiumPurpleNotifyClose(PurpleNotifyType type, void *uiHandle)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		id ourHandle = uiHandle;
 		AILogWithSignature(@"Closing %p (%i)", ourHandle, type);
@@ -193,7 +193,7 @@ static void adiumPurpleNotifyClose(PurpleNotifyType type, void *uiHandle)
 			[ourHandle performSelector:@selector(closeWindow:) withObject:nil];
 		}
 
-}
+	}
 }
 
 static PurpleNotifyUiOps adiumPurpleNotifyOps = {

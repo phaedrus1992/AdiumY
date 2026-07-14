@@ -164,9 +164,9 @@ static void ZombieKiller_Signal(int i)
 
 void adium_glib_print(const char *string)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		AILog(@"(GLib): %s", string);
-}
+	}
 }
 
 void adium_glib_log(const gchar *log_domain, GLogLevelFlags flags, const gchar *message, gpointer user_data)
@@ -174,7 +174,7 @@ void adium_glib_log(const gchar *log_domain, GLogLevelFlags flags, const gchar *
 	if (!AIDebugLoggingIsEnabled())
 		return;
 
-@autoreleasepool {
+	@autoreleasepool {
 
 		NSString *level;
 
@@ -197,7 +197,7 @@ void adium_glib_log(const gchar *log_domain, GLogLevelFlags flags, const gchar *
 			level = @"UNKNOWN";
 
 		AILog(@"(GLib : %s): %@: %s", log_domain, level, message);
-}
+	}
 }
 
 - (void)initLibPurple

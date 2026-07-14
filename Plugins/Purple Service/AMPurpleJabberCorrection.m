@@ -44,7 +44,7 @@ NSString *const AICorrectionStanzaIDKey = @"AICorrectionStanzaID";
 
 static void AMPurpleJabberCorrection_received_data_cb(PurpleConnection *gc, xmlnode **packet, gpointer data)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		@try {
 			AMPurpleJabberCorrection *self = (__bridge AMPurpleJabberCorrection *)data;
@@ -152,7 +152,7 @@ static void AMPurpleJabberCorrection_received_data_cb(PurpleConnection *gc, xmln
 			AILog(@"AMPurpleJabberCorrection: exception handling stanza: %@", exception);
 		}
 
-}
+	}
 }
 
 #pragma mark -

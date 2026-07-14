@@ -41,7 +41,7 @@ void jabber_set_chat_marker_cb(jabber_chat_marker_cb cb);
 
 static void buddy_event_cb(PurpleBuddy *buddy, PurpleBuddyEvent event)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		if (buddy) {
 			SEL updateSelector = nil;
@@ -134,13 +134,13 @@ static void buddy_event_cb(PurpleBuddy *buddy, PurpleBuddyEvent event)
 			}
 		}
 
-}
+	}
 }
 
 static void buddy_status_changed_cb(PurpleBuddy *buddy, PurpleStatus *oldstatus, PurpleStatus *status,
 									PurpleBuddyEvent event)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		CBPurpleAccount *account = accountLookup(purple_buddy_get_account(buddy));
 		AIListContact *theContact = contactLookupFromBuddy(buddy);
 		NSNumber *statusTypeNumber;
@@ -162,12 +162,12 @@ static void buddy_status_changed_cb(PurpleBuddy *buddy, PurpleStatus *oldstatus,
 							 statusName:statusName
 						  statusMessage:statusMessage
 							   isMobile:isMobile];
-}
+	}
 }
 
 static void buddy_idle_changed_cb(PurpleBuddy *buddy, gboolean old_idle, gboolean idle, PurpleBuddyEvent event)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		CBPurpleAccount *account = accountLookup(purple_buddy_get_account(buddy));
 		AIListContact *theContact = contactLookupFromBuddy(buddy);
 		PurplePresence *presence = purple_buddy_get_presence(buddy);
@@ -180,13 +180,13 @@ static void buddy_idle_changed_cb(PurpleBuddy *buddy, gboolean old_idle, gboolea
 			[account updateIdleReturn:theContact withData:nil];
 		}
 
-}
+	}
 }
 
 // This is called when a buddy is added or changes groups
 static void buddy_added_cb(PurpleBuddy *buddy)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		PurpleAccount *purpleAccount = purple_buddy_get_account(buddy);
 		if (purple_account_is_connected(purpleAccount)) {
 			CBPurpleAccount *account = accountLookup(purpleAccount);
@@ -219,12 +219,12 @@ static void buddy_added_cb(PurpleBuddy *buddy)
 			buddy_status_changed_cb(buddy, NULL, purple_presence_get_active_status(purple_buddy_get_presence(buddy)),
 									PURPLE_BUDDY_NONE);
 		}
-}
+	}
 }
 
 static void buddy_removed_cb(PurpleBuddy *buddy)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		PurpleAccount *purpleAccount = purple_buddy_get_account(buddy);
 		if (purple_account_is_connected(purpleAccount)) {
 			CBPurpleAccount *account = accountLookup(purpleAccount);
@@ -239,12 +239,12 @@ static void buddy_removed_cb(PurpleBuddy *buddy)
 			 */
 			[account removeContact:listContact fromGroupName:groupName];
 		}
-}
+	}
 }
 
 static void connection_signed_on_cb(PurpleConnection *gc)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		GSList *buddies = purple_find_buddies(purple_connection_get_account(gc), /* buddy_name */ NULL);
 		GSList *cur;
 		for (cur = buddies; cur; cur = cur->next) {
@@ -252,12 +252,12 @@ static void connection_signed_on_cb(PurpleConnection *gc)
 		}
 		g_slist_free(buddies);
 
-}
+	}
 }
 
 static void node_aliased_cb(PurpleBlistNode *node, char *old_alias)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		if (PURPLE_BLIST_NODE_IS_BUDDY(node)) {
 			PurpleBuddy *buddy = (PurpleBuddy *)node;
 			CBPurpleAccount *account = accountLookup(purple_buddy_get_account(buddy));
@@ -273,7 +273,7 @@ static void node_aliased_cb(PurpleBlistNode *node, char *old_alias)
 						   toAlias:(alias ? [NSString stringWithUTF8String:alias] : nil)];
 		}
 
-}
+	}
 }
 
 static NSDictionary *dictionaryFromHashTable(GHashTable *data)
@@ -302,7 +302,7 @@ static NSDictionary *dictionaryFromHashTable(GHashTable *data)
 
 static void chat_join_failed_cb(PurpleConnection *gc, GHashTable *components)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		CBPurpleAccount *account = accountLookup(purple_connection_get_account(gc));
 		NSDictionary *componentDict = dictionaryFromHashTable(components);
 
@@ -314,12 +314,12 @@ static void chat_join_failed_cb(PurpleConnection *gc, GHashTable *components)
 			}
 		}
 
-}
+	}
 }
 
 static void typing_changed(PurpleAccount *account, const char *name, AITypingState typingState)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		CBPurpleAccount *cbaccount = accountLookup(account);
 		AIListContact *contact = contactLookupFromBuddy(purple_find_buddy(account, name));
 
@@ -338,12 +338,12 @@ static void typing_changed(PurpleAccount *account, const char *name, AITypingSta
 		if (chat)
 			[cbaccount typingUpdateForIMChat:chat typing:[NSNumber numberWithInteger:typingState]];
 
-}
+	}
 }
 
 static void conversation_created_cb(PurpleConversation *conv, void *data)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_IM) {
 			AIChat *chat = imChatLookupFromConv(conv);
 			// When a conversation is created, we must clear the typing flag, as libpurple won't notify us properly
@@ -351,7 +351,7 @@ static void conversation_created_cb(PurpleConversation *conv, void *data)
 				typingUpdateForIMChat:chat
 							   typing:[NSNumber numberWithInteger:AINotTyping]];
 		}
-}
+	}
 }
 
 /* The buddy-typing, buddy-typed, and buddy-typing-stopped signals will only be sent
@@ -377,7 +377,7 @@ static void buddy_typing_stopped_cb(PurpleAccount *account, const char *name, vo
 
 static void chat_joined_cb(PurpleConversation *conv, void *data)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		// Pass chats along to the account
 		if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_CHAT) {
 
@@ -386,12 +386,12 @@ static void chat_joined_cb(PurpleConversation *conv, void *data)
 			[accountLookup(purple_conversation_get_account(conv)) addChat:chat];
 		}
 
-}
+	}
 }
 
 static void file_recv_request_cb(PurpleXfer *xfer)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		ESFileTransfer *fileTransfer;
 
 		// Purple doesn't return normalized user id, so it should be normalized manually
@@ -418,14 +418,14 @@ static void file_recv_request_cb(PurpleXfer *xfer)
 		// Tell the account that we are ready to request the reception
 		[accountLookup(purple_xfer_get_account(xfer)) requestReceiveOfFileTransfer:fileTransfer];
 
-}
+	}
 }
 
 #pragma mark - XEP-0184 / XEP-0333 bridge callbacks
 
 static void jabber_receipt_received_cb(PurpleConnection *gc, const char *from, const char *message_id)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		PurpleAccount *purpleAccount = purple_connection_get_account(gc);
 		CBPurpleAccount *cbaccount = accountLookup(purpleAccount);
@@ -438,13 +438,13 @@ static void jabber_receipt_received_cb(PurpleConnection *gc, const char *from, c
 			[cbaccount receivedEventForChat:chat message:message date:[NSDate date] flags:@(0)];
 		}
 
-}
+	}
 }
 
 static void jabber_chat_marker_received_cb(PurpleConnection *gc, const char *from, const char *message_id,
 										   const char *marker_type)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		PurpleAccount *purpleAccount = purple_connection_get_account(gc);
 		CBPurpleAccount *cbaccount = accountLookup(purpleAccount);
@@ -457,12 +457,12 @@ static void jabber_chat_marker_received_cb(PurpleConnection *gc, const char *fro
 			[cbaccount receivedEventForChat:chat message:message date:[NSDate date] flags:@(0)];
 		}
 
-}
+	}
 }
 
 void configureAdiumPurpleSignals(void)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		void *blist_handle = purple_blist_get_handle();
 		void *handle = adium_purple_get_handle();
 
@@ -525,5 +525,5 @@ void configureAdiumPurpleSignals(void)
 		jabber_add_feature(NS_RECEIPTS, NULL);
 		jabber_add_feature(NS_CHAT_MARKERS, NULL);
 
-}
+	}
 }

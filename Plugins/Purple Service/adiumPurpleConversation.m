@@ -32,7 +32,7 @@
 #pragma mark Conversations
 static void adiumPurpleConvCreate(PurpleConversation *conv)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		// Pass chats along to the account
 		if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_CHAT) {
@@ -41,12 +41,12 @@ static void adiumPurpleConvCreate(PurpleConversation *conv)
 
 			[accountLookup(purple_conversation_get_account(conv)) addChat:chat];
 		}
-}
+	}
 }
 
 static void adiumPurpleConvDestroy(PurpleConversation *conv)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		/* Purple is telling us a conv was destroyed.  We've probably already cleaned up, but be sure in case purple calls
 		 * this when we don't ask it to (for example if we are summarily kicked from a chat room and purple closes the
@@ -64,13 +64,13 @@ static void adiumPurpleConvDestroy(PurpleConversation *conv)
 			[chat release];
 			conv->ui_data = nil;
 		}
-}
+	}
 }
 
 static void adiumPurpleConvWriteChat(PurpleConversation *conv, const char *who, const char *message,
 									 PurpleMessageFlags flags, time_t mtime)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		NSDictionary *messageDict;
 		NSString *messageString;
@@ -112,7 +112,7 @@ static void adiumPurpleConvWriteChat(PurpleConversation *conv, const char *who, 
 			[accountLookup(purple_conversation_get_account(conv)) receivedMultiChatMessage:messageDict
 																					inChat:groupChatLookupFromConv(conv)];
 		}
-}
+	}
 }
 
 /// Convert an NSAttributedString with XEP-0393 styling attributes to simple HTML.
@@ -211,7 +211,7 @@ static NSString *attributedStringToSimpleHTML(NSAttributedString *attrStr)
 static void adiumPurpleConvWriteIm(PurpleConversation *conv, const char *who, const char *message,
 								   PurpleMessageFlags flags, time_t mtime)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		// We only care about this if it does not have the PURPLE_MESSAGE_SEND flag, which is set if Purple is sending a
 		// sent message back to us
@@ -269,13 +269,13 @@ static void adiumPurpleConvWriteIm(PurpleConversation *conv, const char *who, co
 				[adiumAccount receivedIMChatMessage:messageDict inChat:chat];
 			}
 		}
-}
+	}
 }
 
 static void adiumPurpleConvWriteConv(PurpleConversation *conv, const char *who, const char *alias, const char *message,
 									 PurpleMessageFlags flags, time_t mtime)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		AILog(@"adiumPurpleConvWriteConv: Received %s from %s [%i]", message, who, flags);
 		AIChat *chat = chatLookupFromConv(conv);
@@ -395,7 +395,7 @@ static void adiumPurpleConvWriteConv(PurpleConversation *conv, const char *who, 
 							  afterDelay:0];
 			}
 		}
-}
+	}
 }
 
 NSString *get_real_name_for_account_conv_buddy(PurpleAccount *account, PurpleConversation *conv, char *who)
@@ -431,7 +431,7 @@ NSString *get_real_name_for_account_conv_buddy(PurpleAccount *account, PurpleCon
 
 static void adiumPurpleConvChatAddUsers(PurpleConversation *conv, GList *cbuddies, gboolean new_arrivals)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_CHAT) {
 			PurpleAccount *account = purple_conversation_get_account(conv);
 
@@ -455,13 +455,13 @@ static void adiumPurpleConvChatAddUsers(PurpleConversation *conv, GList *cbuddie
 											   newlyAdded:new_arrivals];
 		} else
 			AILog(@"adiumPurpleConvChatAddUsers: IM");
-}
+	}
 }
 
 static void adiumPurpleConvChatRenameUser(PurpleConversation *conv, const char *oldName, const char *newName,
 										  const char *newAlias)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		AILog(@"adiumPurpleConvChatRenameUser: %s: oldName %s, newName %s, newAlias %s", purple_conversation_get_name(conv),
 			  oldName, newName, newAlias);
 
@@ -480,12 +480,12 @@ static void adiumPurpleConvChatRenameUser(PurpleConversation *conv, const char *
 							flags:cb->flags
 						   inChat:groupChatLookupFromConv(conv)];
 		}
-}
+	}
 }
 
 static void adiumPurpleConvChatRemoveUsers(PurpleConversation *conv, GList *users)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_CHAT) {
 			NSMutableArray *usersArray = [NSMutableArray array];
 			PurpleAccount *account = purple_conversation_get_account(conv);
@@ -501,12 +501,12 @@ static void adiumPurpleConvChatRemoveUsers(PurpleConversation *conv, GList *user
 		} else {
 			AILog(@"adiumPurpleConvChatRemoveUser: IM");
 		}
-}
+	}
 }
 
 static void adiumPurpleConvUpdateUser(PurpleConversation *conv, const char *user)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		PurpleAccount *account = purple_conversation_get_account(conv);
 		CBPurpleAccount *adiumAccount = accountLookup(account);
 
@@ -532,7 +532,7 @@ static void adiumPurpleConvUpdateUser(PurpleConversation *conv, const char *user
 						   flags:cb->flags
 						   alias:name
 					  attributes:attributes];
-}
+	}
 }
 
 static void adiumPurpleConvPresent(PurpleConversation *conv) {}
@@ -545,7 +545,7 @@ static gboolean adiumPurpleConvHasFocus(PurpleConversation *conv)
 
 static void adiumPurpleConvUpdated(PurpleConversation *conv, PurpleConvUpdateType type)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		if (purple_conversation_get_type(conv) == PURPLE_CONV_TYPE_CHAT) {
 			PurpleConvChat *chat = purple_conversation_get_chat_data(conv);
@@ -636,17 +636,17 @@ static void adiumPurpleConvUpdated(PurpleConversation *conv, PurpleConvUpdateTyp
 				break;
 			}
 		}
-}
+	}
 }
 
 #pragma mark Custom smileys
 static gboolean adiumPurpleConvCustomSmileyAdd(PurpleConversation *conv, const char *smile, gboolean remote)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		AILog(@"%s: Added Custom Smiley %s", purple_conversation_get_name(conv), smile);
 		[accountLookup(purple_conversation_get_account(conv)) chat:chatLookupFromConv(conv)
 										 isWaitingOnCustomEmoticon:[NSString stringWithUTF8String:smile]];
-}
+	}
 
 	return TRUE;
 }
@@ -654,44 +654,44 @@ static gboolean adiumPurpleConvCustomSmileyAdd(PurpleConversation *conv, const c
 static void adiumPurpleConvCustomSmileyWrite(PurpleConversation *conv, const char *smile, const guchar *data,
 											 gsize size)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		AILog(@"%s: Write Custom Smiley %s (%p %lu)", purple_conversation_get_name(conv), smile, data, size);
 
 		[accountLookup(purple_conversation_get_account(conv)) chat:chatLookupFromConv(conv)
 												 setCustomEmoticon:[NSString stringWithUTF8String:smile]
 													 withImageData:[NSData dataWithBytes:data length:size]];
-}
+	}
 }
 
 static void adiumPurpleConvCustomSmileyClose(PurpleConversation *conv, const char *smile)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		AILog(@"%s: Close Custom Smiley %s", purple_conversation_get_name(conv), smile);
 
 		[accountLookup(purple_conversation_get_account(conv)) chat:chatLookupFromConv(conv)
 											  closedCustomEmoticon:[NSString stringWithUTF8String:smile]];
-}
+	}
 }
 
 static gboolean adiumPurpleConvJoin(PurpleConversation *conv, const char *name, PurpleConvChatBuddyFlags flags,
 									GHashTable *users)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		AIChat *chat = groupChatLookupFromConv(conv);
 
 		// We return TRUE if we want to hide it.
 		return !chat.showJoinLeave;
-}
+	}
 }
 
 static gboolean adiumPurpleConvLeave(PurpleConversation *conv, const char *name, const char *reason, GHashTable *users)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		AIChat *chat = groupChatLookupFromConv(conv);
 
 		// We return TRUE if we want to hide it.
 		return !chat.showJoinLeave;
-}
+	}
 }
 
 static PurpleConversationUiOps adiumPurpleConversationOps = {

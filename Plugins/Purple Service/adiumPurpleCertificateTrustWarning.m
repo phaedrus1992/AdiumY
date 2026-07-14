@@ -24,7 +24,7 @@
 void adium_query_cert_chain(PurpleSslConnection *gsc, const char *hostname, CFArrayRef certs,
 							void (*query_cert_cb)(gboolean trusted, void *userdata), void *userdata)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		// only the jabber service supports this right now
 		for (ESPurpleJabberAccount *account in [adium.accountController
@@ -45,5 +45,5 @@ void adium_query_cert_chain(PurpleSslConnection *gsc, const char *hostname, CFAr
 		// default fallback
 		query_cert_cb(true, userdata);
 
-}
+	}
 }

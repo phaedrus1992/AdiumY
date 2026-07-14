@@ -38,7 +38,7 @@
 
 static void AMPurpleJabberBookmarks_received_xmlnode_cb(PurpleConnection *gc, xmlnode **packet, gpointer data)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		@try {
 			AMPurpleJabberBookmarks *self = (__bridge AMPurpleJabberBookmarks *)data;
@@ -118,7 +118,7 @@ static void AMPurpleJabberBookmarks_received_xmlnode_cb(PurpleConnection *gc, xm
 			AILog(@"AMPurpleJabberBookmarks: exception handling stanza: %@", exception);
 		}
 
-}
+	}
 }
 
 #pragma mark -

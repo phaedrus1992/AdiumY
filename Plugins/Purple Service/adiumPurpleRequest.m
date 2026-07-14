@@ -86,7 +86,7 @@ static void *adiumPurpleRequestInput(const char *title, const char *primary, con
 									 const char *okText, GCallback okCb, const char *cancelText, GCallback cancelCb,
 									 PurpleAccount *account, const char *who, PurpleConversation *conv, void *userData)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		/*
 		 Multiline should be a paragraph-sized box; otherwise, a single line will suffice.
@@ -146,7 +146,7 @@ static void *adiumPurpleRequestActionWithIcon(const char *title, const char *pri
 											  PurpleConversation *conv, gconstpointer icon_data, gsize icon_size,
 											  void *userData, size_t actionCount, va_list actions)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		NSString *titleString = (title ? [NSString stringWithUTF8String:title] : @"");
 		NSString *primaryString = (primary ? [NSString stringWithUTF8String:primary] : nil);
@@ -269,7 +269,7 @@ static void *adiumPurpleRequestFields(const char *title, const char *primary, co
 									  const char *cancelText, GCallback cancelCb, PurpleAccount *account,
 									  const char *who, PurpleConversation *conv, void *userData)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		id requestController = nil;
 
@@ -322,7 +322,7 @@ static void *adiumPurpleRequestFile(const char *title, const char *filename, gbo
 									GCallback cancel_cb, PurpleAccount *account, const char *who,
 									PurpleConversation *conv, void *user_data)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		if (title) {
 			NSString *titleString = (title ? [NSString stringWithUTF8String:title] : nil);
@@ -375,7 +375,7 @@ static void *adiumPurpleRequestFile(const char *title, const char *filename, gbo
 				}
 			}
 		}
-}
+	}
 
 	return NULL;
 }
@@ -392,7 +392,7 @@ static void *adiumPurpleRequestFile(const char *title, const char *filename, gbo
  */
 static void adiumPurpleRequestClose(PurpleRequestType type, void *uiHandle)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		id ourHandle = (id)uiHandle;
 		AILogWithSignature(@"%@ (%i)", uiHandle, [ourHandle respondsToSelector:@selector(purpleRequestClose)]);
 		if ([ourHandle respondsToSelector:@selector(purpleRequestClose)]) {
@@ -401,7 +401,7 @@ static void adiumPurpleRequestClose(PurpleRequestType type, void *uiHandle)
 		} else if ([ourHandle respondsToSelector:@selector(closeWindow:)]) {
 			[ourHandle closeWindow:nil];
 		}
-}
+	}
 }
 
 static void *adiumPurpleRequestFolder(const char *title, const char *dirname, GCallback ok_cb, GCallback cancel_cb,

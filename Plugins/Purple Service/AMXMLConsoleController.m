@@ -28,7 +28,7 @@
 
 static void xmlnode_received_cb(PurpleConnection *gc, xmlnode **packet, gpointer this)
 {
-@autoreleasepool {
+	@autoreleasepool {
 
 		AMXMLConsoleController *self = (AMXMLConsoleController *)this;
 
@@ -48,12 +48,12 @@ static void xmlnode_received_cb(PurpleConnection *gc, xmlnode **packet, gpointer
 
 		g_free(str);
 
-}
+	}
 }
 
 static void xmlnode_sent_cb(PurpleConnection *gc, char **packet, gpointer this)
 {
-@autoreleasepool {
+	@autoreleasepool {
 		AMXMLConsoleController *self = (AMXMLConsoleController *)this;
 		xmlnode *node;
 
@@ -82,7 +82,7 @@ static void xmlnode_sent_cb(PurpleConnection *gc, char **packet, gpointer this)
 		g_free(str);
 		xmlnode_free(node);
 
-}
+	}
 }
 
 @implementation AMXMLConsoleController
