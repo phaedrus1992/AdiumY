@@ -43,23 +43,34 @@
 - (void)setTarget:(id)inTarget selector:(SEL)inSelector context:(id)inContext
 {
 	if (inTarget != target) {
-		target = inTarget;
+		[target release];
+		target = [inTarget retain];
 	}
 
 	selector = inSelector;
 
 	if (inContext != context) {
-		context = inContext;
+		[context release];
+		context = [inContext retain];
 	}
 }
 
 - (void)setPassword:(NSString *)inPassword
 {
 	if (password != inPassword) {
+		[password release];
 		password = [inPassword copy];
 	}
 }
 
+- (void)dealloc
+{
+	[target release];
+	[context release];
+	[password release];
+
+	[super dealloc];
+}
 
 - (void)windowDidLoad
 {
@@ -131,7 +142,7 @@
 											   object:textField_password];
 
 	[super windowWillClose:sender];
-	
+	[self autorelease];
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)aNotification
