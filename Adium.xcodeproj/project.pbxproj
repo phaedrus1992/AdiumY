@@ -34,7 +34,7 @@
 		111256090F8DA2BF00E76177 /* AWEzvSupportRoutines.m in Sources */ = {isa = PBXBuildFile; fileRef = 4947F5EF0655E90D00B791E5 /* AWEzvSupportRoutines.m */; };
 		1112560A0F8DA2BF00E76177 /* AWEzvContactManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4947F5F30655E90D00B791E5 /* AWEzvContactManager.m */; };
 		1112560B0F8DA2BF00E76177 /* AWEzvContactManagerListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 4947F5F50655E90D00B791E5 /* AWEzvContactManagerListener.m */; };
-		1112560C0F8DA2BF00E76177 /* AWEzvContactManagerRendezvous.m in Sources */ = {isa = PBXBuildFile; fileRef = 4947F5F70655E90D00B791E5 /* AWEzvContactManagerRendezvous.m */; };
+		1112560C0F8DA2BF00E76177 /* AWEzvContactManagerRendezvous.m in Sources */ = {isa = PBXBuildFile; fileRef = 4947F5F70655E90D00B791E5 /* AWEzvContactManagerRendezvous.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		1112560D0F8DA2BF00E76177 /* AWEzvPrivate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4947F5FB0655E90D00B791E5 /* AWEzvPrivate.m */; };
 		1112560E0F8DA2BF00E76177 /* AWEzvRendezvousData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4947F5FD0655E90D00B791E5 /* AWEzvRendezvousData.m */; };
 		1112560F0F8DA2BF00E76177 /* AWEzvStack.m in Sources */ = {isa = PBXBuildFile; fileRef = 4947F5FF0655E90D00B791E5 /* AWEzvStack.m */; };
@@ -45,7 +45,7 @@
 		111256140F8DA2BF00E76177 /* AWBonjourAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 34F46759080F46AB007800AB /* AWBonjourAccount.m */; };
 		111256150F8DA2BF00E76177 /* AWBonjourService.m in Sources */ = {isa = PBXBuildFile; fileRef = 34F4675C080F46AC007800AB /* AWBonjourService.m */; };
 		111256160F8DA2BF00E76177 /* EKEzvFileTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FAFD7B20C4FD00100EDB3B8 /* EKEzvFileTransfer.m */; };
-		111256170F8DA2BF00E76177 /* AsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FB330970C7235AD00B001A8 /* AsyncSocket.m */; };
+		111256170F8DA2BF00E76177 /* AsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FB330970C7235AD00B001A8 /* AsyncSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		111256180F8DA2BF00E76177 /* HTTPAuthenticationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FB330990C7235AD00B001A8 /* HTTPAuthenticationRequest.m */; };
 		111256190F8DA2BF00E76177 /* HTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FB3309B0C7235AD00B001A8 /* HTTPServer.m */; };
 		1112561A0F8DA2BF00E76177 /* EKEzvIncomingFileTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FB330A20C7235BF00B001A8 /* EKEzvIncomingFileTransfer.m */; };
@@ -8250,7 +8250,6 @@
 				34DC8B040A7EEEF7003E1636 /* ESFileWrapperExtension.m in Sources */,
 				34DC8B090A7EEEF7003E1636 /* JVFontPreviewField.m in Sources */,
 				343700A80A9C1E170028604E /* AIAdvancedPreferencePane.m in Sources */,
-				34F312F00ADC476300A4310E /* KNShelfSplitView.m in Sources */,
 				11CA00120C35EC5200A6BB8D /* SS_PrefsController.m in Sources */,
 				34A88E180C7A26E0006EB7D4 /* AIPasswordPromptController.m in Sources */,
 				347933F40C861017007ADCAA /* AIColorStringTransformer.m in Sources */,

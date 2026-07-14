@@ -48,18 +48,7 @@ static ESShowContactInfoPromptController *sharedShowInfoPromptInstance = nil;
  */
 + (id)createSharedInstance
 {
-	sharedShowInfoPromptInstance = [[self alloc] initWithWindowNibName:SHOW_CONTACT_INFO_PROMPT_NIB];
-
-	return sharedShowInfoPromptInstance;
-}
-
-/*!
- * @brief Destroy the shared instance
- */
-+ (void)destroySharedInstance
-{
-	[sharedShowInfoPromptInstance autorelease];
-	sharedShowInfoPromptInstance = nil;
+	sharedShowInfoPromptInstance = sharedShowInfoPromptInstance = nil;
 }
 
 /*!

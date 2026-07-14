@@ -50,7 +50,7 @@
 - (void) sendData:(NSData *)data;
 - (void) sendString:(NSString *)string;
 - (void) endConnection;
-@property (assign, readwrite, nonatomic) id<AWEzvXMLStreamProtocol> delegate;
+@property (weak, readwrite, nonatomic) id<AWEzvXMLStreamProtocol> delegate;
 
 /* Private methods: used by private implementation, do NOT use these methods */
 - (void) xmlStartElement:(const XML_Char *)name attributes:(const XML_Char **)attributes;
@@ -66,5 +66,5 @@
 - (void) XMLConnectionClosed;
 - (void) XMLReceived:(AWEzvXMLNode *)root;
 @property (readonly, copy, nonatomic) NSString *uniqueID;
-@property (readonly, retain, nonatomic) AWEzvContactManager *manager;
+@property (readonly, strong, nonatomic) AWEzvContactManager *manager;
 @end

@@ -67,10 +67,6 @@
 {
 	return [NSImage imageNamed:@"pref-status" forClass:[self class]];
 }
-
-/*!
- * @brief Nib name
- */
 - (NSString *)nibName
 {
 	return @"StatusPreferences";
@@ -110,14 +106,6 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-/*!
- * @brief Deallocate
- */
-- (void)dealloc
-{
-	[super dealloc];
-}
-
 #pragma mark Status state list and controls
 /*!
  * @brief Configure the state list
@@ -142,7 +130,6 @@
 	cell = [[AIVerticallyCenteredTextCell alloc] init];
 	[cell setFont:[NSFont systemFontOfSize:13]];
 	[[outlineView_stateList tableColumnWithIdentifier:@"name"] setDataCell:cell];
-	[cell release];
 }
 
 /*!
@@ -154,7 +141,6 @@
  */
 - (void)updateTableControlAvailability
 {
-	//	NSArray *selectedItems = [outlineView_stateList arrayOfSelectedItems];
 	NSIndexSet *selectedIndexes = [outlineView_stateList selectedRowIndexes];
 	NSInteger count = [selectedIndexes count];
 
@@ -289,7 +275,8 @@
 		// Warn if deleting a group containing status items
 		NSBeginAlertSheet(AILocalizedString(@"Status Deletion Confirmation", nil), AILocalizedString(@"Delete", nil),
 						  AILocalizedString(@"Cancel", nil), nil, [[self view] window], self,
-						  @selector(sheetDidEnd:returnCode:contextInfo:), NULL, [selectedItems retain], @"%@", message);
+						  @selector(sheetDidEnd:returnCode:contextInfo:), NULL, (void *)CFBridgingRetain(selectedItems),
+						  @"%@", message);
 	}
 }
 
@@ -298,7 +285,7 @@
  */
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
-	NSArray *selectedItems = (NSArray *)contextInfo;
+	NSArray *selectedItems = CFBridgingRelease(contextInfo);
 	if (returnCode == NSAlertDefaultReturn) {
 		AIStatusItem *statusItem;
 
@@ -306,8 +293,6 @@
 			[[statusItem containingStatusGroup] removeStatusItem:statusItem];
 		}
 	}
-
-	[selectedItems release];
 }
 
 /*!
@@ -401,19 +386,19 @@
 				icon = [icon imageByScalingToSize:NSMakeSize(13, 13)];
 			}
 
-			cell = [[[NSTextAttachmentCell alloc] init] autorelease];
+			cell = [[NSTextAttachmentCell alloc] init];
 			[cell setImage:icon];
 
-			attachment = [[[NSTextAttachment alloc] init] autorelease];
+			attachment = [[NSTextAttachment alloc] init];
 			[attachment setAttachmentCell:cell];
 
 			name = [[NSAttributedString attributedStringWithAttachment:attachment] mutableCopy];
-			[name appendAttributedString:[[[NSAttributedString alloc]
+			[name appendAttributedString:[[NSAttributedString alloc]
 											 initWithString:[NSString
 																stringWithFormat:@" %@",
 																				 ([item title] ? [item title] : @"")]
-												 attributes:nil] autorelease]];
-			return [name autorelease];
+												 attributes:nil]];
+			return name;
 		} else {
 			return [item title];
 		}
@@ -448,7 +433,7 @@
  */
 - (BOOL)outlineView:(NSOutlineView *)outlineView writeItems:(NSArray *)items toPasteboard:(NSPasteboard *)pboard
 {
-	draggingItems = [items retain];
+	draggingItems = items;
 
 	[pboard declareTypes:[NSArray arrayWithObject:STATE_DRAG_TYPE] owner:self];
 	[pboard setString:@"State" forType:STATE_DRAG_TYPE]; // Arbitrary state
@@ -506,10 +491,8 @@
 			} else {
 				// Don't let an object be moved into itself...
 				if (item != statusItem) {
-					[statusItem retain];
 					[[statusItem containingStatusGroup] removeStatusItem:statusItem];
 					[item addStatusItem:statusItem atIndex:idx];
-					[statusItem release];
 
 					idx++;
 				}
@@ -519,7 +502,6 @@
 		// Notify and reselect outside of the NSOutlineView callback
 		[self performSelector:@selector(reselectDraggedItems:) withObject:draggingItems afterDelay:0];
 
-		[draggingItems release];
 		draggingItems = nil;
 
 		return YES;
@@ -581,11 +563,11 @@
 
 	statusStatesMenu = [AIStatusMenu staticStatusStatesMenuNotifyingTarget:self
 																  selector:@selector(changedFastUserSwitchingStatus:)];
-	[popUp_fastUserSwitchingStatusState setMenu:[[statusStatesMenu copy] autorelease]];
+	[popUp_fastUserSwitchingStatusState setMenu:[statusStatesMenu copy]];
 
 	statusStatesMenu = [AIStatusMenu staticStatusStatesMenuNotifyingTarget:self
 																  selector:@selector(changedScreenSaverStatus:)];
-	[popUp_screenSaverStatusState setMenu:[[statusStatesMenu copy] autorelease]];
+	[popUp_screenSaverStatusState setMenu:[statusStatesMenu copy]];
 
 	// Now select the proper state, or deselect all items if there is no chosen state or the chosen state doesn't exist
 	targetUniqueStatusIDNumber = [adium.preferenceController preferenceForKey:KEY_STATUS_AUTO_AWAY_STATUS_STATE_ID
@@ -733,7 +715,7 @@
 /*!
  * @brief If menuItem is not selectable in popUpButton, add it and select it
  *
- * Menu items located within submenus can't be directly selected. This method will add a spearator item and then the
+ * Menu items located within submenus can't be directly selected. This method will add a separator item and then the
  * item itself to the bottom of popUpButton if needed.  alreadyShowing should be YES if a similarly set separate + item
  * exists; it will be removed first.
  *
@@ -746,7 +728,6 @@
 	BOOL nowShowing = NO;
 	NSMenu *menu = [popUpButton menu];
 
-	[menuItem retain];
 	if (alreadyShowing) {
 		NSInteger count = [menu numberOfItems];
 		[menu removeItemAtIndex:--count];
@@ -760,11 +741,9 @@
 		[menu addItem:imitationMenuItem];
 
 		[popUpButton selectItem:imitationMenuItem];
-		[imitationMenuItem release];
 
 		nowShowing = YES;
 	}
-	[menuItem release];
 
 	return nowShowing;
 }

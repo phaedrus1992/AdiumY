@@ -42,7 +42,7 @@ static NSColor *drawColor = nil;
 		cellFrame.size.width *= percentage;
 
 		if (!drawColor)
-			drawColor = [[[NSColor alternateSelectedControlColor] darkenAndAdjustSaturationBy:0.2f] retain];
+			drawColor = [[NSColor alternateSelectedControlColor] darkenAndAdjustSaturationBy:0.2f];
 
 		[drawColor set];
 		[[NSBezierPath bezierPathWithRect:cellFrame] fill];

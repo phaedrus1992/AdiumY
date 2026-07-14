@@ -40,41 +40,9 @@
  */
 - (id)init
 {
-	if ((self = [super init])) {
-		speechArray = [[NSMutableArray alloc] init];
-		workspaceSessionIsActive = YES;
-		speaking = NO;
-
-		// Observe workspace activity changes so we can mute sounds as necessary
-		NSNotificationCenter *workspaceCenter = [[NSWorkspace sharedWorkspace] notificationCenter];
-
-		[workspaceCenter addObserver:self
-							selector:@selector(workspaceSessionDidBecomeActive:)
-								name:NSWorkspaceSessionDidBecomeActiveNotification
-							  object:nil];
-
-		[workspaceCenter addObserver:self
-							selector:@selector(workspaceSessionDidResignActive:)
-								name:NSWorkspaceSessionDidResignActiveNotification
-							  object:nil];
-	}
-
-	return self;
-}
-
-/*!
- * @brief Close
- */
-- (void)dealloc
-{
-	[[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:self];
-	[adium.preferenceController unregisterPreferenceObserver:self];
-
-	[speechArray release];
+	if ((self = 
 	speechArray = nil;
 	[self _stopSpeaking];
-
-	[super dealloc];
 }
 
 /*!

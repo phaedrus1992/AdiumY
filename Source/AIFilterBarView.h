@@ -21,7 +21,7 @@
 	BOOL drawsBackground;
 }
 
-@property(readwrite, nonatomic, retain) NSColor *backgroundColor;
+@property(readwrite, nonatomic, strong) NSColor *backgroundColor;
 @property(readwrite, nonatomic) BOOL backgroundIsRounded;
 @property(readwrite, nonatomic) BOOL drawsBackground;
 

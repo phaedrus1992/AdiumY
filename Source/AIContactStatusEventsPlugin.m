@@ -42,72 +42,7 @@
 - (void)installPlugin
 {
 	//
-	onlineCache = [[NSMutableDictionary alloc] init];
-	awayCache = [[NSMutableDictionary alloc] init];
-	idleCache = [[NSMutableDictionary alloc] init];
-	statusMessageCache = [[NSMutableDictionary alloc] init];
-	mobileCache = [[NSMutableDictionary alloc] init];
-
-	// Register the events we generate
-	[adium.contactAlertsController registerEventID:CONTACT_STATUS_ONLINE_YES
-									   withHandler:self
-										   inGroup:AIContactsEventHandlerGroup
-										globalOnly:NO];
-	[adium.contactAlertsController registerEventID:CONTACT_STATUS_ONLINE_NO
-									   withHandler:self
-										   inGroup:AIContactsEventHandlerGroup
-										globalOnly:NO];
-	[adium.contactAlertsController registerEventID:CONTACT_STATUS_AWAY_YES
-									   withHandler:self
-										   inGroup:AIContactsEventHandlerGroup
-										globalOnly:NO];
-	[adium.contactAlertsController registerEventID:CONTACT_STATUS_AWAY_NO
-									   withHandler:self
-										   inGroup:AIContactsEventHandlerGroup
-										globalOnly:NO];
-	[adium.contactAlertsController registerEventID:CONTACT_STATUS_IDLE_YES
-									   withHandler:self
-										   inGroup:AIContactsEventHandlerGroup
-										globalOnly:NO];
-	[adium.contactAlertsController registerEventID:CONTACT_STATUS_IDLE_NO
-									   withHandler:self
-										   inGroup:AIContactsEventHandlerGroup
-										globalOnly:NO];
-	[adium.contactAlertsController registerEventID:CONTACT_SEEN_ONLINE_YES
-									   withHandler:self
-										   inGroup:AIContactsEventHandlerGroup
-										globalOnly:NO];
-	[adium.contactAlertsController registerEventID:CONTACT_SEEN_ONLINE_NO
-									   withHandler:self
-										   inGroup:AIContactsEventHandlerGroup
-										globalOnly:NO];
-	[adium.contactAlertsController registerEventID:CONTACT_STATUS_MOBILE_YES
-									   withHandler:self
-										   inGroup:AIContactsEventHandlerGroup
-										globalOnly:NO];
-	[adium.contactAlertsController registerEventID:CONTACT_STATUS_MOBILE_NO
-									   withHandler:self
-										   inGroup:AIContactsEventHandlerGroup
-										globalOnly:NO];
-
-	// Observe status changes
-	[[AIContactObserverManager sharedManager] registerListObjectObserver:self];
-}
-
-- (void)uninstallPlugin
-{
-	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
-}
-
-- (void)dealloc
-{
-	[onlineCache release];
-	[awayCache release];
-	[idleCache release];
-	[statusMessageCache release];
-	[mobileCache release];
-
-	[super dealloc];
+	onlineCache =
 }
 
 /*!
@@ -356,7 +291,7 @@
 {
 	static NSImage *eventImage = nil;
 	if (!eventImage)
-		eventImage = [[NSImage imageNamed:@"events-contact" forClass:[self class]] retain];
+		eventImage = [NSImage imageNamed:@"events-contact" forClass:[self class]];
 	return eventImage;
 }
 

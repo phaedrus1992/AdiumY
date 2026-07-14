@@ -38,38 +38,7 @@
 
 - (void)_initAnimatingListOutlineView
 {
-	allAnimatingItemsDict = [[NSMutableDictionary alloc] init];
-	animationsCount = 0;
-	animations = [[NSMutableSet alloc] init];
-	animationHedgeFactor = NSZeroSize;
-	enableAnimation = YES;
-}
-
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
-	if ((self = [super initWithCoder:aDecoder])) {
-		[self _initAnimatingListOutlineView];
-	}
-
-	return self;
-}
-
-- (id)initWithFrame:(NSRect)frame
-{
-	if ((self = [super initWithFrame:frame])) {
-		[self _initAnimatingListOutlineView];
-	}
-
-	return self;
-}
-
-- (void)dealloc
-{
-	[animations makeObjectsPerformSelector:@selector(stopAnimation)];
-	[animations release];
-
-	[allAnimatingItemsDict release];
-	[super dealloc];
+	allAnimatingItemsDict =
 }
 
 #pragma mark Enabling

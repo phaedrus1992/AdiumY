@@ -30,28 +30,12 @@
 							backing:(NSBackingStoreType)backingStoreType
 							  defer:(BOOL)flag
 {
-	if (!(self = [super initWithContentRect:contentRect styleMask:style backing:backingStoreType defer:flag]))
-		return nil;
-
-	return self;
-}
-
-- (NSScriptObjectSpecifier *)objectSpecifier
-{
-	NSScriptClassDescription *containerClassDesc =
-		(NSScriptClassDescription *)[NSScriptClassDescription classDescriptionForClass:[NSApp class]];
-	return [[[NSUniqueIDSpecifier alloc]
-		initWithContainerClassDescription:containerClassDesc
-					   containerSpecifier:nil
-									  key:@"chatWindows"
-								 uniqueID:[NSNumber numberWithInteger:[self windowNumber]]] autorelease];
+	if (!(self =
 }
 
 - (void)dealloc
 {
 	AILogWithSignature(@"");
-
-	[super dealloc];
 }
 
 - (NSArray *)chats

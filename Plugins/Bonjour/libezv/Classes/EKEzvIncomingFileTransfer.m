@@ -54,9 +54,6 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 - (void)dealloc
 {
-	[currentDownloads release];
-	[encodedDownloads release];
-	[super dealloc];
 }
 - (void)startDownload
 {
@@ -79,9 +76,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		for (download in currentDownloads) {
 			[download cancel];
 		}
-		[currentDownloads release];
 		currentDownloads = nil;
-		[encodedDownloads release];
 		encodedDownloads = nil;
 	}
 }
@@ -91,7 +86,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	NSURL *URL = [NSURL URLWithString:url];
 	NSError *error = nil;
 	NSXMLDocument *documentRoot = [[[NSXMLDocument alloc] initWithContentsOfURL:URL options:0
-																		  error:&error] autorelease];
+																		  error:&error];
 	if (error) {
 		[[[[self manager] client] client] remoteCanceledFileTransfer:self];
 		return;
@@ -159,7 +154,6 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			}
 		}
 
-		[permissionsToApply retain];
 	} else {
 		[[[[self manager] client] client] remoteCanceledFileTransfer:self];
 	}
@@ -273,7 +267,6 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		return YES;
 	}
 	if ([permissionsToApply count] <= 0) {
-		[permissionsToApply release];
 		permissionsToApply = nil;
 		return YES;
 	}
@@ -290,12 +283,10 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 								stringWithFormat:@"Error applying permissions of %@ to file at %@", attributes, path]
 					ofLevel:AWEzvError];
 			[[[manager client] client] remoteCanceledFileTransfer:self];
-			[permissionsToApply release];
 			permissionsToApply = nil;
 			return NO;
 		}
 	}
-	[permissionsToApply release];
 	permissionsToApply = nil;
 	return YES;
 }
@@ -312,7 +303,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 	// create the connection with the request
 	// and start loading the data
-	NSURLDownload *theDownload = [[[NSURLDownload alloc] initWithRequest:theRequest delegate:self] autorelease];
+	NSURLDownload *theDownload = [[NSURLDownload alloc] initWithRequest:theRequest delegate:self];
 	if (theDownload) {
 		[currentDownloads addObject:theDownload];
 		// set the destination file now

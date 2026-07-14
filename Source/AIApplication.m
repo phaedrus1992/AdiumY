@@ -37,45 +37,9 @@
  */
 - (NSImage *)applicationIconImage
 {
-	return [adium.dockController baseApplicationIconImage] ?: [super applicationIconImage];
-}
-
-- (NSArray *)services
-{
-	return adium.accountController.services;
-}
-
-- (NSArray *)orderedWindows
-{
-	// build a list of the windows, in order
-	return [super windows];
-}
-
-- (void)setOrderedWindows:(NSArray *)ow
-{
-	// for some reason, when I call make new window at end, this method is called
-	NSLog(@"setOrderedWindows: %@\n%@", [self orderedWindows], ow);
-	[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
-	[[NSScriptCommand currentCommand] setScriptErrorString:@"Can't create window. At least, not like that."];
-}
-
-- (void)insertInOrderedWindows:(NSWindow *)w
-{
-	[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
-	[[NSScriptCommand currentCommand] setScriptErrorString:@"Can't create window. At least, not like that."];
-}
-- (void)insertObject:(NSWindow *)w inOrderedWindowsAtIndex:(NSUInteger)idx
-{
-	[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
-	[[NSScriptCommand currentCommand] setScriptErrorString:@"Can't create window. At least, not like that."];
-}
-- (NSArray *)chatWindows
-{
-	NSArray *windows = [self orderedWindows];
-	NSMutableArray *chatWindows = [[[NSMutableArray alloc] init] autorelease];
-	for (NSInteger i = 0; i < [windows count]; i++)
-		if ([[windows objectAtIndex:i] isKindOfClass:[AIMessageWindow class]])
-			[chatWindows addObject:[windows objectAtIndex:i]];
+	return for (NSInteger i = 0; i < [windows count];
+				i++) if ([[windows objectAtIndex:i]
+							 isKindOfClass:[AIMessageWindow class]])[chatWindows addObject:[windows objectAtIndex:i]];
 	return chatWindows;
 }
 - (AIMessageWindow *)valueInChatWindowsWithUniqueID:(NSNumber *)uniqueID

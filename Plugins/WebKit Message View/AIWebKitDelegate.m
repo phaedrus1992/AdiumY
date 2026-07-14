@@ -41,11 +41,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
 }
 
 - (void)dealloc
-{
-	[mapping release];
-
-	[super dealloc];
-}
+{}
 
 + (AIWebKitDelegate *)sharedWebKitDelegate
 {
@@ -111,8 +107,8 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
 	NSInteger actionKey = [[actionInformation objectForKey:WebActionNavigationTypeKey] integerValue];
 	if (actionKey == WebNavigationTypeOther) {
 		[listener use];
-	} else if ([[[((NSString *)LSCopyDefaultHandlerForURLScheme((CFStringRef)request.URL.scheme)) autorelease]
-				   lowercaseString] isEqualToString:@"com.github.phaedrus1992.adiumy.adiumx"]) {
+	} else if ([[CFBridgingRelease(LSCopyDefaultHandlerForURLScheme((CFStringRef)request.URL.scheme)) lowercaseString]
+				   isEqualToString:@"com.github.phaedrus1992.adiumy.adiumx"]) {
 		// We're the default for this URL, let's open it ourself.
 		[[NSNotificationCenter defaultCenter] postNotificationName:@"AIURLHandleNotification"
 															object:request.URL.absoluteString];
@@ -253,6 +249,6 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
 {
 	NSMutableURLRequest *newRequest = [request mutableCopy];
 	[newRequest setHTTPShouldHandleCookies:NO];
-	return [newRequest autorelease];
+	return newRequest;
 }
 @end

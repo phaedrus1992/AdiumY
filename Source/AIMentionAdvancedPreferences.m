@@ -41,68 +41,7 @@
 }
 - (NSImage *)image
 {
-	return [NSImage imageNamed:@"pref-mention" forClass:[AIPreferenceWindowController class]];
-}
-
-- (void)saveTerms
-{
-	NSMutableArray *termsCopy = [[mentionTerms mutableCopy] autorelease];
-
-	// Never save a blank term.
-	[termsCopy removeObject:@""];
-
-	[adium.preferenceController setPreference:termsCopy forKey:PREF_KEY_MENTIONS group:PREF_GROUP_GENERAL];
-}
-
-/*!
- * @brief Add a new row, select it for editing
- */
-- (IBAction)add:(id)sender
-{
-	[mentionTerms addObject:@""];
-
-	[tableView reloadData];
-
-	NSInteger idx = mentionTerms.count - 1;
-	[tableView selectRowIndexes:[NSIndexSet indexSetWithIndex:idx] byExtendingSelection:NO];
-	[tableView editColumn:0 row:idx withEvent:nil select:YES];
-}
-
-/*!
- * @brief Remove the selected rows
- */
-- (IBAction)remove:(id)sender
-{
-	NSIndexSet *indexes = [tableView selectedRowIndexes];
-
-	[mentionTerms removeObjectsAtIndexes:indexes];
-	[self saveTerms];
-
-	[tableView reloadData];
-	[tableView deselectAll:nil];
-}
-
-/*!
- * @brief The view loaded
- */
-- (void)viewDidLoad
-{
-	[label_explanation
-		setStringValue:
-			AILocalizedString(
-				@"Messages are highlighted when the following terms are spoken. Your username is always highlighted.",
-				nil)];
-
-	mentionTerms = [[NSMutableArray alloc]
-		initWithArray:[adium.preferenceController preferenceForKey:PREF_KEY_MENTIONS group:PREF_GROUP_GENERAL]];
-
-	[super viewDidLoad];
-}
-
-- (void)viewWillClose
-{
-	[mentionTerms release];
-	mentionTerms = nil;
+	return mentionTerms = nil;
 
 	[super viewWillClose];
 }

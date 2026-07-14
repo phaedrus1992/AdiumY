@@ -62,13 +62,12 @@
 										forGroup:PREF_GROUP_WEBKIT_GROUP_MESSAGE_DISPLAY];
 
 	preferences =
-		[(ESWebKitMessageViewPreferences *)[ESWebKitMessageViewPreferences preferencePaneForPlugin:self] retain];
 
-	// Observe for installation of new styles
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(xtrasChanged:)
-												 name:AIXtrasDidChangeNotification
-											   object:nil];
+		// Observe for installation of new styles
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(xtrasChanged:)
+													 name:AIXtrasDidChangeNotification
+												   object:nil];
 
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY];
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_WEBKIT_GROUP_MESSAGE_DISPLAY];
@@ -85,15 +84,10 @@
 
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
-	[styleDictionary release];
 	styleDictionary = nil;
-	[preferences release];
 	preferences = nil;
-	[currentRegularStyle release];
 	currentRegularStyle = nil;
-	[currentGroupStyle release];
 	currentGroupStyle = nil;
-	[lastStyleLoadDate release];
 	lastStyleLoadDate = nil;
 	[super uninstallPlugin];
 }
@@ -224,7 +218,6 @@
 																				 group:loadFromGroup]]];
 			}
 		}
-		[*thisStyle retain];
 	}
 
 	if (thisStyle) {
@@ -235,10 +228,8 @@
 			[currentGroupStyle reloadStyle];
 			[currentRegularStyle reloadStyle];
 		}
-		[lastStyleLoadDate release];
-		lastStyleLoadDate = [[NSDate date] retain];
+		lastStyleLoadDate = [NSDate date];
 	} else {
-		[lastStyleLoadDate release];
 		lastStyleLoadDate = nil;
 	}
 
@@ -247,12 +238,10 @@
 
 - (void)resetStylesForType:(AIWebkitStyleType)styleType
 {
-	[styleDictionary release];
 	styleDictionary = nil;
 
 	switch (styleType) {
 	case AIWebkitRegularChat: {
-		[currentRegularStyle release];
 		currentRegularStyle = nil;
 
 		[adium.preferenceController setPreference:nil
@@ -261,7 +250,6 @@
 		break;
 	}
 	case AIWebkitGroupChat: {
-		[currentGroupStyle release];
 		currentGroupStyle = nil;
 
 		[adium.preferenceController setPreference:nil
@@ -323,7 +311,7 @@
 	if (![[adium.preferenceController preferenceForKey:@"Adium 1.4:Updated Preferences"
 												 group:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY] boolValue]) {
 		NSDictionary *dict = [adium.preferenceController preferencesForGroup:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY];
-		NSMutableDictionary *newDict = [[dict mutableCopy] autorelease];
+		NSMutableDictionary *newDict = [dict mutableCopy];
 		NSMutableSet *keysToRemove = [NSMutableSet set];
 
 		NSDictionary *conversionDict = [NSDictionary

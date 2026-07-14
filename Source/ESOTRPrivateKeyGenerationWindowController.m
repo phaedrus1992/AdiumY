@@ -28,76 +28,7 @@ static NSMutableDictionary *keyGenerationControllerDict = nil;
 + (void)mainThreadStartedGeneratingForIdentifier:(NSString *)inIdentifier
 {
 	if (!keyGenerationControllerDict)
-		keyGenerationControllerDict = [[NSMutableDictionary alloc] init];
-
-	if (![keyGenerationControllerDict objectForKey:inIdentifier]) {
-		ESOTRPrivateKeyGenerationWindowController *controller;
-
-		if ((controller = [[self alloc] initWithWindowNibName:@"OTRPrivateKeyGenerationWindow"
-												forIdentifier:inIdentifier])) {
-			[controller showWindow:nil];
-			[[controller window] makeKeyAndOrderFront:nil];
-
-			[keyGenerationControllerDict setObject:controller forKey:inIdentifier];
-
-			/* Contrary to most other NSWindowControllers, this doesn't need it to release itself
-			 * in -windowWillClose, as it's in keyGenerationControllerDict.
-			 */
-			[controller autorelease];
-		}
-	}
-}
-
-/*!
- * @brief We started generating a private key.
- *
- * Create a window controller for inIdentifier and tell it to display.
- * Has no effect if a window is already open for inIdentifier.
- */
-+ (void)startedGeneratingForIdentifier:(NSString *)inIdentifier
-{
-	[self performSelectorOnMainThread:@selector(mainThreadStartedGeneratingForIdentifier:)
-						   withObject:inIdentifier
-						waitUntilDone:NO];
-}
-
-/*!
- * @brief Initialize
- */
-- (id)initWithWindowNibName:(NSString *)windowNibName forIdentifier:(NSString *)inIdentifier
-{
-	if ((self = [super initWithWindowNibName:windowNibName])) {
-		identifier = [inIdentifier retain];
-	}
-
-	return self;
-}
-
-/*!
- * @brief Window loaded
- *
- * Start our spinning progress indicator and set up our window
- */
-- (void)windowDidLoad
-{
-	[super windowDidLoad];
-
-	[[self window] setTitle:[AILocalizedString(@"Please wait", nil) stringByAppendingEllipsis]];
-	[[self window] center];
-
-	[progressIndicator startAnimation:nil];
-	[textField_message
-		setStringValue:[NSString stringWithFormat:AILocalizedString(@"Generating private encryption key for %@", nil),
-												  identifier]];
-}
-
-/*!
- * @brief Deallocate
- */
-- (void)dealloc
-{
-	[identifier release];
-	[super dealloc];
+		keyGenerationControllerDict =
 }
 
 + (void)mainThreadFinishedGeneratingForIdentifier:(NSString *)inIdentifier

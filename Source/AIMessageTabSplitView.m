@@ -20,48 +20,19 @@
 
 - (void)dealloc
 {
-	[leftColor release];
-	[rightColor release];
-	[super dealloc];
-}
 
-- (void)setLeftColor:(NSColor *)inLeftColor rightColor:(NSColor *)inRightColor
-{
-	if (leftColor != inLeftColor) {
-		[leftColor release];
-		leftColor = [inLeftColor retain];
+	NSBezierPath *line = nil;
+
+	if (position == AIMessageSplitTabPositionLeft) {
+		line = [NSBezierPath bezierPathWithRect:NSMakeRect(NSMaxX(aRect) - 1, aRect.origin.y, 1, aRect.size.height)];
 	}
-
-	if (rightColor != inRightColor) {
-		[rightColor release];
-		rightColor = [inRightColor retain];
-	}
-
-	[self setNeedsDisplay:YES];
+	[[NSColor windowFrameColor] set];
+	[line fill];
 }
-
-- (void)setTabPosition:(AIMessageSplitTabPosition)inPosition
+else
 {
-	position = inPosition;
+	[super drawDividerInRect:aRect];
 }
-
-- (void)drawDividerInRect:(NSRect)aRect
-{
-	if (rightColor && leftColor) {
-		NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:leftColor endingColor:rightColor];
-		[gradient drawInRect:self.bounds angle:90.0];
-		[gradient release];
-		NSBezierPath *line = nil;
-
-		if (position == AIMessageSplitTabPositionLeft) {
-			line =
-				[NSBezierPath bezierPathWithRect:NSMakeRect(NSMaxX(aRect) - 1, aRect.origin.y, 1, aRect.size.height)];
-		}
-		[[NSColor windowFrameColor] set];
-		[line fill];
-	} else {
-		[super drawDividerInRect:aRect];
-	}
 }
 
 @end

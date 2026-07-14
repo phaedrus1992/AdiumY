@@ -18,14 +18,14 @@
 - (id)initWithCoder:(NSCoder *)decoder
 {
 	if ([decoder allowsKeyedCoding]) {
-		sender = [[decoder decodeObjectForKey:@"Sender"] retain];
-		text = [[decoder decodeObjectForKey:@"MessageText"] retain];
-		date = [[decoder decodeObjectForKey:@"Time"] retain];
+		sender = [decoder decodeObjectForKey:@"Sender"];
+		text = [decoder decodeObjectForKey:@"MessageText"];
+		date = [decoder decodeObjectForKey:@"Time"];
 		flags = [decoder decodeInt32ForKey:@"Flags"];
 	} else {
-		sender = [[decoder decodeObject] retain];
-		date = [[decoder decodeObject] retain];
-		text = [[decoder decodeObject] retain];
+		sender = [decoder decodeObject];
+		date = [decoder decodeObject];
+		text = [decoder decodeObject];
 		[decoder decodeValueOfObjCType:@encode(unsigned) at:&flags];
 	}
 

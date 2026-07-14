@@ -34,65 +34,17 @@
  */
 - (void)installPlugin
 {
-	[adium.contentController registerContentFilter:self ofType:AIFilterMessageDisplay direction:AIFilterOutgoing];
-	[adium.contentController registerContentFilter:self ofType:AIFilterMessageDisplay direction:AIFilterIncoming];
 
-	[adium.contentController registerHTMLContentFilter:self direction:AIFilterOutgoing];
-	[adium.contentController registerHTMLContentFilter:self direction:AIFilterIncoming];
+	NSString *replaceString =
+		[NSString stringWithFormat:@"<span class='actionMessageUserName'>%@</span><span class='actionMessageBody'>",
+								   [[content source] displayName]];
+	[mutableHTML replaceCharactersInRange:[mutableHTML rangeOfString:@"*"] withString:replaceString];
+	[mutableHTML replaceCharactersInRange:[mutableHTML rangeOfString:@"*" options:NSBackwardsSearch]
+							   withString:@"</span>"];
+	return mutableHTML;
 }
-
-- (void)uninstallPlugin
-{
-	[adium.contentController unregisterHTMLContentFilter:self];
-	[adium.contentController unregisterContentFilter:self];
 }
-
-#pragma mark -
-
-- (NSAttributedString *)filterAttributedString:(NSAttributedString *)inAttributedString context:(id)context;
-{
-	if (inAttributedString && [inAttributedString length] &&
-		[[inAttributedString string] rangeOfString:@"/me " options:NSCaseInsensitiveSearch].location == 0) {
-		NSMutableAttributedString *ourAttributedString = [[inAttributedString mutableCopy] autorelease];
-		NSAttributedString *dots = [[[NSAttributedString alloc]
-			initWithString:@"*"
-				attributes:[ourAttributedString attributesAtIndex:[ourAttributedString length] - 1
-												   effectiveRange:NULL]] autorelease];
-		[ourAttributedString replaceCharactersInRange:NSMakeRange(0, 4) withString:@"*"];
-		[ourAttributedString appendAttributedString:dots];
-		[ourAttributedString addAttribute:AIActionMessageAttributeName
-									value:[NSNumber numberWithBool:YES]
-									range:NSMakeRange(0, [ourAttributedString length])];
-
-		if ([context isKindOfClass:[AIContentMessage class]]) {
-			[context addDisplayClass:@"action"];
-		}
-
-		return ourAttributedString;
-	}
-	return inAttributedString;
-}
-
-/*!
- * @brief Transform the HTML from *foo* to the proper span structure
- */
-- (NSString *)filterHTMLString:(NSString *)inHTMLString content:(AIContentObject *)content;
-{
-	if ([content isKindOfClass:[AIContentMessage class]] && content.message.length > 0) {
-		AIContentMessage *message = (AIContentMessage *)content;
-		if ([[[message message] attribute:AIActionMessageAttributeName atIndex:0 effectiveRange:NULL] boolValue]) {
-
-			NSMutableString *mutableHTML = [[inHTMLString mutableCopy] autorelease];
-			NSString *replaceString = [NSString
-				stringWithFormat:@"<span class='actionMessageUserName'>%@</span><span class='actionMessageBody'>",
-								 [[content source] displayName]];
-			[mutableHTML replaceCharactersInRange:[mutableHTML rangeOfString:@"*"] withString:replaceString];
-			[mutableHTML replaceCharactersInRange:[mutableHTML rangeOfString:@"*" options:NSBackwardsSearch]
-									   withString:@"</span>"];
-			return mutableHTML;
-		}
-	}
-	return inHTMLString;
+return inHTMLString;
 }
 
 /*!

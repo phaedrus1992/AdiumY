@@ -32,38 +32,6 @@
 - (void)installPlugin
 {
 	// Install our tooltip entry
-	[adium.interfaceController registerContactListTooltipEntry:self secondaryEntry:YES];
-}
-
-/*!
- * @brief Tooltip label
- *
- * @result A label, or nil if no tooltip entry should be shown
- */
-- (NSString *)labelForObject:(AIListObject *)inObject
-{
-	return AILocalizedString(@"Display Name", nil);
-}
-
-/*!
- * @brief Tooltip entry
- *
- * @result The tooltip entry, or nil if no tooltip should be shown
- */
-- (NSAttributedString *)entryForObject:(AIListObject *)inObject
-{
-	NSString *serverDisplayName;
-	NSAttributedString *entry = nil;
-
-	// Get the server display name
-	serverDisplayName = [inObject valueForProperty:@"serverDisplayName"];
-
-	// Return the correct string
-	if (serverDisplayName && ![serverDisplayName isEqualToString:inObject.displayName]) {
-		entry = [[NSAttributedString alloc] initWithString:serverDisplayName];
-	}
-
-	return [entry autorelease];
 }
 
 - (BOOL)shouldDisplayInContactInspector

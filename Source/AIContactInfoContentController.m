@@ -24,42 +24,8 @@
 
 + (AIContactInfoContentController *)defaultInfoContentController
 {
-	return [[[self alloc] initWithContentPanes:[self defaultPanes]] autorelease];
+	return loadedPanes = newPanes;
 }
-
-- (id)initWithContentPanes:(NSArray *)panes
-{
-	if ((self = [self init])) {
-		[self loadContentPanes:panes];
-	}
-
-	return self;
-}
-
-- (void)dealloc
-{
-	[loadedPanes release];
-
-	[super dealloc];
-}
-
-+ (NSArray *)defaultPanes
-{
-	return [NSArray arrayWithObjects:@"AIInfoInspectorPane", @"AIAddressBookInspectorPane", @"AIEventsInspectorPane",
-									 @"AIAdvancedInspectorPane", nil];
-}
-
-- (NSArray *)loadedPanes
-{
-	return loadedPanes;
-}
-
-- (void)_setLoadedPanes:(NSArray *)newPanes
-{
-	if (loadedPanes != newPanes) {
-		[loadedPanes release];
-		loadedPanes = [newPanes retain];
-	}
 }
 
 - (void)loadContentPanes:(NSArray *)contentPanes
@@ -75,7 +41,7 @@
 			return;
 		}
 
-		[contentArray addObject:[[[paneClass alloc] init] autorelease]];
+		[contentArray addObject:[[paneClass alloc] init]];
 	}
 
 	[self _setLoadedPanes:contentArray];

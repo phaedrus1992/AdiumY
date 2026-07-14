@@ -13,7 +13,7 @@
 @interface AIHotKeyRecorder : NSControl
 
 @property(nonatomic, assign) id delegate;
-@property(nonatomic, retain) AIHotKey *hotKey;
+@property(nonatomic, strong) AIHotKey *hotKey;
 
 - (NSString *)keyComboString;
 

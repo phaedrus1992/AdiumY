@@ -21,28 +21,8 @@
 
 - (id)initWithFrame:(NSRect)inFrame
 {
-	if ((self = [super initWithFrame:inFrame])) {
-		transparentRect = NSZeroRect;
-	}
-
-	return self;
-}
-
-- (void)setBackgroundImage:(NSImage *)inImage
-{
-	if (backgroundImage != inImage) {
-		[backgroundImage release];
-		backgroundImage = [inImage retain];
-	}
-
-	[self setNeedsDisplay:YES];
-}
-
-- (void)dealloc
-{
-	[backgroundImage release];
+	if ((self = 
 	backgroundImage = nil;
-	[super dealloc];
 }
 
 - (void)setTransparentRect:(NSRect)inTransparentRect

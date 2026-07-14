@@ -104,14 +104,9 @@ static ErrorMessageWindowController *sharedErrorMessageInstance = nil;
 
 - (void)dealloc
 {
-	[errorTitleArray release];
 	errorTitleArray = nil;
-	[errorDescArray release];
 	errorDescArray = nil;
-	[errorWindowTitleArray release];
 	errorWindowTitleArray = nil;
-
-	[super dealloc];
 }
 
 - (void)refreshErrorDialog
@@ -204,7 +199,6 @@ static ErrorMessageWindowController *sharedErrorMessageInstance = nil;
 
 	// Release the window controller (ourself)
 	sharedErrorMessageInstance = nil;
-	[self autorelease];
 }
 
 @end

@@ -26,17 +26,6 @@
 {
 	// Install the Block menu items
 	blockEditorMenuItem =
-		[[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"Privacy Settings", nil) stringByAppendingEllipsis]
-								   target:self
-								   action:@selector(showEditor:)
-							keyEquivalent:@"p"];
-	[blockEditorMenuItem setKeyEquivalentModifierMask:(NSAlternateKeyMask | NSCommandKeyMask)];
-	[adium.menuController addMenuItem:blockEditorMenuItem toLocation:LOC_Adium_Preferences];
-}
-
-- (void)uninstallPlugin
-{
-	[blockEditorMenuItem release];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem

@@ -56,51 +56,7 @@ static NSMutableDictionary *passwordPromptControllerDict = nil;
 	NSString *identifier = inAccount.internalObjectID;
 
 	if (!passwordPromptControllerDict)
-		passwordPromptControllerDict = [[NSMutableDictionary alloc] init];
-
-	if ((controller = [passwordPromptControllerDict objectForKey:identifier])) {
-		// Update the existing controller for this account to have the new target, selector, and context
-		[controller setTarget:inTarget selector:inSelector context:inContext];
-
-	} else {
-		// Do not trust the static analyzer, look at the superclass. This is not a leak.
-		if ((controller = [[self alloc] initWithWindowNibName:ACCOUNT_PASSWORD_PROMPT_NIB
-												   forAccount:inAccount
-													 password:inPassword
-											  notifyingTarget:inTarget
-													 selector:inSelector
-													  context:inContext])) {
-			[passwordPromptControllerDict setObject:controller forKey:identifier];
-		}
-	}
-
-	// bring the window front
-	[controller showWindowInFrontIfAllowed:YES];
-}
-
-- (id)initWithWindowNibName:(NSString *)windowNibName
-				 forAccount:(AIAccount *)inAccount
-				   password:(NSString *)inPassword
-			notifyingTarget:(id)inTarget
-				   selector:(SEL)inSelector
-					context:(id)inContext
-{
-	if ((self = [super initWithWindowNibName:windowNibName
-									password:inPassword
-							 notifyingTarget:inTarget
-									selector:inSelector
-									 context:inContext])) {
-		account = [inAccount retain];
-	}
-
-	return self;
-}
-
-- (void)dealloc
-{
-	[account release];
-
-	[super dealloc];
+		passwordPromptControllerDict =
 }
 
 /*!

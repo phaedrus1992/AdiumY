@@ -46,9 +46,9 @@
 	 withInvitationMessage:(NSString *)invitationMessage;
 - (NSArray *)contactsFromNamesSeparatedByCommas:(NSString *)namesSeparatedByCommas onAccount:(AIAccount *)inAccount;
 
-@property(readwrite, nonatomic, assign) id delegate;
+@property(readwrite, nonatomic, weak) id delegate;
 
 // roomlistWindowController delegate
-@property(readwrite, nonatomic, assign) id sharedChatInstance;
+@property(readwrite, nonatomic, weak) id sharedChatInstance;
 
 @end

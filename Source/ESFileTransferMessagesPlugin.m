@@ -39,121 +39,18 @@
 - (void)installPlugin
 {
 	// Install our observers
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(handleFileTransferEvent:)
-												 name:FILE_TRANSFER_CANCELLED
-											   object:nil];
 
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(handleFileTransferEvent:)
-												 name:FILE_TRANSFER_COMPLETE
-											   object:nil];
+	// Create our content object
+	content = [AIContentEvent statusInChat:chat
+								withSource:contact
+							   destination:chat.account
+									  date:[NSDate date]
+								   message:attributedMessage
+								  withType:type];
 
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(handleFileTransferEvent:)
-												 name:FILE_TRANSFER_WAITING_REMOTE
-											   object:nil];
-
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(handleFileTransferEvent:)
-												 name:FILE_TRANSFER_BEGAN
-											   object:nil];
-
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(handleFileTransferEvent:)
-												 name:FILE_TRANSFER_FAILED
-											   object:nil];
+	// Add the object
+	[adium.contentController receiveContentObject:content];
 }
-
-/*!
- * @brief Uninstall
- */
-- (void)uninstallPlugin
-{
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-/*!
- * @brief A file transfer event occurred
- */
-- (void)handleFileTransferEvent:(NSNotification *)notification
-{
-	ESFileTransfer *fileTransfer = (ESFileTransfer *)[notification userInfo];
-
-	if ([fileTransfer.account accountDisplaysFileTransferMessages])
-		return;
-
-	AIListContact *listContact = [notification object];
-	NSString *notificationName = [notification name];
-	NSString *filename;
-
-	if (!(filename = [[fileTransfer localFilename] lastPathComponent])) {
-		filename = [[fileTransfer remoteFilename] lastPathComponent];
-	}
-
-	if (filename) {
-		NSString *message = nil;
-		NSString *type = nil;
-
-		if ([notificationName isEqualToString:FILE_TRANSFER_CANCELLED]) {
-			type = @"fileTransferAborted";
-			message = [NSString stringWithFormat:AILocalizedString(@"%@ cancelled the transfer of %@", nil),
-												 listContact.formattedUID, filename];
-
-		} else if ([notificationName isEqualToString:FILE_TRANSFER_FAILED]) {
-			type = @"fileTransferAborted";
-			message = [NSString stringWithFormat:AILocalizedString(@"The transfer of %@ failed", nil), filename];
-		} else if ([notificationName isEqualToString:FILE_TRANSFER_COMPLETE]) {
-			type = @"fileTransferCompleted";
-			if ([fileTransfer fileTransferType] == Incoming_FileTransfer) {
-				message = [NSString stringWithFormat:AILocalizedString(@"Successfully received %@", nil), filename];
-			} else {
-				message = [NSString stringWithFormat:AILocalizedString(@"Successfully sent %@", nil), filename];
-			}
-		} else if ([notificationName isEqualToString:FILE_TRANSFER_BEGAN]) {
-			type = @"fileTransferStarted";
-			if ([fileTransfer fileTransferType] == Incoming_FileTransfer) {
-				message = [NSString stringWithFormat:AILocalizedString(@"Began receiving %@", nil), filename];
-			} else {
-				message = [NSString stringWithFormat:AILocalizedString(@"Began sending %@", nil), filename];
-			}
-		} else if ([notificationName isEqualToString:FILE_TRANSFER_WAITING_REMOTE]) {
-			type = @"fileTransferWaitingRemote";
-			// We should only receive this notification upon sending a file
-			message = [NSString stringWithFormat:AILocalizedString(@"Offering to send %@ to %@", nil), filename,
-												 listContact.formattedUID];
-		}
-
-		[self statusMessage:message forContact:listContact withType:type];
-	}
-}
-
-/*!
- * @brief Post a status message on all active chats for this object
- */
-- (void)statusMessage:(NSString *)message forContact:(AIListContact *)contact withType:(NSString *)type
-{
-	NSAttributedString *attributedMessage = nil;
-
-	for (AIChat *chat in [adium.chatController allChatsWithContact:contact]) {
-		AIContentEvent *content;
-
-		if (!attributedMessage)
-			attributedMessage = [[[NSAttributedString alloc]
-				initWithString:message
-					attributes:[adium.contentController defaultFormattingAttributes]] autorelease];
-
-		// Create our content object
-		content = [AIContentEvent statusInChat:chat
-									withSource:contact
-								   destination:chat.account
-										  date:[NSDate date]
-									   message:attributedMessage
-									  withType:type];
-
-		// Add the object
-		[adium.contentController receiveContentObject:content];
-	}
 }
 
 @end

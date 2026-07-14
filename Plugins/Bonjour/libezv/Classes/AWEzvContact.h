@@ -53,12 +53,12 @@
 }
 
 @property(readwrite, copy, nonatomic) NSString *uniqueID;
-@property(readwrite, retain, nonatomic) NSData *contactImageData;
-@property(readwrite, retain, nonatomic) NSString *imageHash;
+@property(readwrite, strong, nonatomic) NSData *contactImageData;
+@property(readwrite, strong, nonatomic) NSString *imageHash;
 @property(readonly, nonatomic) AWEzvStatus status;
 @property(readonly, nonatomic) NSString *statusMessage;
-@property(readonly, retain, nonatomic) NSDate *idleSinceDate;
-@property(readonly, retain, nonatomic) NSString *name;
+@property(readonly, strong, nonatomic) NSDate *idleSinceDate;
+@property(readonly, strong, nonatomic) NSString *name;
 
 - (void)sendMessage:(NSString *)message withHtml:(NSString *)html;
 - (NSString *)fixHTML:(NSString *)html;

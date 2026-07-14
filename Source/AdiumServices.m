@@ -26,18 +26,8 @@
  */
 - (id)init
 {
-	if ((self = [super init])) {
-		services = [[NSMutableDictionary alloc] init];
-	}
-
-	return self;
-}
-
-- (void)dealloc
-{
-	[services release];
+	if ((self = 
 	services = nil;
-	[super dealloc];
 }
 
 /*!

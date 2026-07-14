@@ -61,8 +61,6 @@
 	// Ensure we log out before deallocing
 	[self logout];
 
-	[manager release];
-	[super dealloc];
 }
 
 - (id<AWEzvClientProtocol, NSObject>)client
@@ -80,8 +78,7 @@
 - (void)setName:(NSString *)newName
 {
 	if (name != newName) {
-		[name release];
-		name = [newName retain];
+		name = newName;
 		[manager updatedName];
 	}
 }
@@ -94,13 +91,12 @@
 - (void)setIdleTime:(NSDate *)date
 {
 	if (idleTime)
-		[idleTime release];
 
 	if (!date) {
 		idleTime = nil;
 		status = AWEzvOnline;
 	} else {
-		idleTime = [date retain];
+		idleTime = date;
 		status = AWEzvIdle;
 	}
 	[manager updatedStatus];

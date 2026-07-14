@@ -37,6 +37,6 @@
 @property(readonly, nonatomic) NSImage *stateIcon;
 @property(readonly, nonatomic) AIChat *chat;
 @property(readonly, nonatomic) AIMessageViewController *messageViewController;
-@property(readwrite, nonatomic, retain) AIMessageWindowController *windowController;
+@property(readwrite, nonatomic, strong) AIMessageWindowController *windowController;
 
 @end

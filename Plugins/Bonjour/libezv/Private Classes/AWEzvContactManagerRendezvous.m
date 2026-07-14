@@ -214,12 +214,12 @@ void image_register_reply (
 {
 	AILogWithSignature(@"isDisconnecting");
 
-	[fServiceBrowser release]; fServiceBrowser = nil;
+	 fServiceBrowser = nil;
 
 	// Remove Resolvers, this also deallocates the DNSServiceReferences
 	if (fDomainBrowser != nil) {
 		AILogWithSignature(@"Releasing %@",fDomainBrowser);
-		[fDomainBrowser release]; fDomainBrowser = nil;
+		 fDomainBrowser = nil;
 
 		avDNSReference = nil;
 		imageServiceRef = nil;
@@ -382,7 +382,7 @@ void image_register_reply (
 	if (error == kDNSServiceErr_NoError) {
 		// Let's create the hash
 		CC_SHA1([JPEGData bytes], (CC_LONG)[JPEGData length], digest);
-		imagehash = [[NSData dataWithBytes:digest length:20] retain];
+		imagehash = [NSData dataWithBytes:digest length:20];
         AILogWithSignature(@"Will update with hash %@; length is %lu", imagehash, (unsigned long)[JPEGData length]);
 		[self updatePHSH];
 	} else {
@@ -393,7 +393,7 @@ void image_register_reply (
 - (void) updatePHSH
 {
 	if (imagehash != nil) {
-		[userAnnounceData setField:@"phsh" content:[imagehash autorelease]];
+		[userAnnounceData setField:@"phsh" content:imagehash];
 		// Announce to network
 		[self updateAnnounceInfo];
 	} else {
@@ -406,10 +406,9 @@ void image_register_reply (
 // Start browsing the network for new rendezvous clients
 - (void) startBrowsing
 {
-	[fServiceBrowser release]; fServiceBrowser = nil;
+	 fServiceBrowser = nil;
 
 	// Destroy old contact dictionary if one exists
-	[contacts release];
 
 	// Allocate new contact dictionary
 	contacts = [[NSMutableDictionary alloc] init];
@@ -439,7 +438,7 @@ void image_register_reply (
 - (void)stopBrowsing
 {
     AILogWithSignature(@"fServiceBrowser is %@ (retain count %lu)", fServiceBrowser, (unsigned long)[fServiceBrowser retainCount]);
-	[fServiceBrowser release]; fServiceBrowser = nil;
+	 fServiceBrowser = nil;
 }
 
 // Handle a message from our browser
@@ -470,7 +469,6 @@ void image_register_reply (
 		contact.manager = self;
 		// Save contact in dictionary
 		[contacts setObject:contact forKey:replyNameString];
-		[contact autorelease];
 
 		// Resolve contact
 		DNSServiceRef resolveRef;
@@ -491,7 +489,6 @@ void image_register_reply (
 			ServiceController *serviceResolver = [[ServiceController alloc] initWithServiceRef:resolveRef forContactManager:self];
 			[contact setResolveServiceController:serviceResolver];
 			[[contact resolveServiceController] addToCurrentRunLoop];
-			[serviceResolver release];
 
 		} else {
 			[[client client] reportError:@"Could not search for TXT records" ofLevel:AWEzvConnectionError];
@@ -527,7 +524,6 @@ void image_register_reply (
 		ServiceController *temp = [[ServiceController alloc] initWithServiceRef:serviceRef forContactManager:self];
 		[contact setAddressServiceController:temp];
 		[[contact addressServiceController] addToCurrentRunLoop];
-		[temp release];
 	} else {
 		[[client client] reportError:@"Error finding adress for contact" ofLevel:AWEzvError];
 	}
@@ -550,7 +546,6 @@ void image_register_reply (
 			contact.manager = self;
 			// Save contact in dictionary
 			[contacts setObject:contact forKey:contact.uniqueID];
-			[contact autorelease];
 
 		} else {
 			[[client client] reportError:@"Contact to update not in dictionary and has bad identifier" ofLevel:AWEzvError];
@@ -590,7 +585,7 @@ void image_register_reply (
 		[contact setImageServiceController: nil];
 	}
 	
-	AILogWithSignature(@"%@ -> %@ (%i)", [NSData dataWithBytes:data length:dataLen], [[[NSImage alloc] initWithData:[NSData dataWithBytes:data length:dataLen]] autorelease], dataLen);
+	AILogWithSignature(@"%@ -> %@ (%i)", [NSData dataWithBytes:data length:dataLen], [[NSImage alloc] initWithData:[NSData dataWithBytes:data length:dataLen]], dataLen);
 	
 	if (dataLen != 0 ) {
 		// We have an image
@@ -626,7 +621,6 @@ void image_register_reply (
 			contact.manager = self;
 			// Save contact in dictionary
 			[contacts setObject:contact forKey:contact.uniqueID];
-			[contact autorelease];
 		} else {
 			[[client client] reportError:@"Contact to update not in dictionary and has bad identifier" ofLevel:AWEzvError];
 		}
@@ -658,10 +652,10 @@ void image_register_reply (
 		if (nick == nil) {
 			nick = [rendezvousData getField:@"last"];
 		} else {
-			mutableNick = [[nick mutableCopy] autorelease];
+			mutableNick = [nick mutableCopy];
 			[mutableNick appendString:@" "];
 			[mutableNick appendString:[rendezvousData getField:@"last"]];
-			nick = [[mutableNick copy] autorelease];
+			nick = [mutableNick copy];
 		}
 	} else if (nick == nil) {
 	    nick = @"Unnamed contact";
@@ -715,7 +709,6 @@ void image_register_reply (
 				AILogWithSignature(@"requesting image with %@", temp);
 				[contact setImageServiceController:temp];
 				[[contact imageServiceController] addToCurrentRunLoop];
-				[temp release];
 			} else {
 				[contact setImageHash: NULL];
 				[[client client] reportError:@"Error finding image for contact" ofLevel:AWEzvError];
@@ -750,8 +743,7 @@ void image_register_reply (
 - (void)setInstanceName:(NSString *)newName
 {
 	if (avInstanceName != newName) {
-		[avInstanceName release];
-		avInstanceName = [newName retain];
+		avInstanceName = newName;
 	}
 }
 
@@ -808,7 +800,6 @@ void register_reply(DNSServiceRef sdRef, DNSServiceFlags flags, DNSServiceErrorT
 	[self setInstanceName:[NSString stringWithUTF8String:name]];
 	[self regCallBack:errorCode];
 	
-	[pool release];
 }
 
 void image_register_reply( 
@@ -827,7 +818,6 @@ void image_register_reply(
 		[self updatePHSH];
 	}
 	
-	[pool release];
 }
 
 #pragma mark mDNS Browse Callback
@@ -858,7 +848,6 @@ void handle_av_browse_reply(DNSServiceRef sdRef,
 		AWEzvLog(@"Error browsing");
 	}
 	
-	[pool release];
 }
 
 #pragma mark mDNS Resolve Callback
@@ -887,14 +876,13 @@ void resolve_reply( DNSServiceRef sdRef,
 		AWEzvContactManager *self = [contact manager];
 		// AWEzvLog(@"Would update contact");
 		AWEzvRendezvousData *data;
-		data = [[[AWEzvRendezvousData alloc] initWithTXTRecordRef:txtRecord length:txtLen] autorelease];
+		data = [[AWEzvRendezvousData alloc] initWithTXTRecordRef:txtRecord length:txtLen];
 		[self findAddressForContact:contact withHost:[NSString stringWithUTF8String:hosttarget] withInterface:interfaceIndex];
 		[self updateContact:contact withData:data withHost:[NSString stringWithUTF8String:hosttarget] withInterface:interfaceIndex withPort:ntohs(port) av:YES];
 	} else {
 		AWEzvLog(@"Error resolving records");
 	}
 	
-	[pool release];
 }
 
 #pragma mark mDNS Address Callback
@@ -912,7 +900,6 @@ void AddressQueryRecordReply(DNSServiceRef serviceRef, DNSServiceFlags flags, ui
 	[self updateAddressForContact:contact addr:rdata addrLen:rdlen host:fullname interfaceIndex:interfaceIndex
 							 more:((flags & kDNSServiceFlagsMoreComing) != 0)];
 
-	[pool release];
 }
 
 #pragma mark mDNS Image Callback
@@ -932,7 +919,6 @@ void ImageQueryRecordReply(DNSServiceRef serviceRef, DNSServiceFlags flags, uint
 		}
 	}
 	
-	[pool release];
 }
 
 #pragma mark Service Controller
@@ -965,10 +951,8 @@ static void	ProcessSockData( CFSocketRef s, CFSocketCallBackType type, CFDataRef
 				close(childFD);
 			}
 
-			[self retain];
 			[[self contactManager] serviceControllerReceivedFatalError:self];
 			[self breakdownServiceController];
-			[self release];
 
 		} else {
             AILog(@"DNSServiceProcessResult() for socket descriptor %d returned an error! %d with CFSocketCallBackType %lu and data %s\n",
@@ -976,14 +960,13 @@ static void	ProcessSockData( CFSocketRef s, CFSocketCallBackType type, CFDataRef
 		}
 	}
 	
-	[pool release];
 }
 
 - (id) initWithServiceRef:(DNSServiceRef) ref forContactManager:(AWEzvContactManager *)inContactManager
 {
 	if ((self = [super init])) {
 		fServiceRef = ref;
-		contactManager = [inContactManager retain];
+		contactManager = inContactManager;
 	}
 
 	return self;
@@ -1027,7 +1010,6 @@ static void	ProcessSockData( CFSocketRef s, CFSocketCallBackType type, CFDataRef
 
 	[self breakdownServiceController];
 
-	[super dealloc];
 }
 
 - (void)breakdownServiceController
@@ -1054,7 +1036,7 @@ static void	ProcessSockData( CFSocketRef s, CFSocketCallBackType type, CFDataRef
 		fServiceRef = NULL;
 	}
 
-	[contactManager release]; contactManager = nil;
+	 contactManager = nil;
 }
 
 @end // Implementation ServiceController

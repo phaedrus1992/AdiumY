@@ -14,10 +14,10 @@
 		NSString *authInfo = (NSString *)CFHTTPMessageCopyHeaderFieldValue(request, CFSTR("Authorization"));
 		
 		if (authInfo != nil) {
-			username = [[self quotedSubHeaderFieldValue:@"username" fromHeaderFieldValue:authInfo] retain];
-			realm    = [[self quotedSubHeaderFieldValue:@"realm" fromHeaderFieldValue:authInfo] retain];
-			nonce    = [[self quotedSubHeaderFieldValue:@"nonce" fromHeaderFieldValue:authInfo] retain];
-			uri      = [[self quotedSubHeaderFieldValue:@"uri" fromHeaderFieldValue:authInfo] retain];
+			username = [self quotedSubHeaderFieldValue:@"username" fromHeaderFieldValue:authInfo];
+			realm    = [self quotedSubHeaderFieldValue:@"realm" fromHeaderFieldValue:authInfo];
+			nonce    = [self quotedSubHeaderFieldValue:@"nonce" fromHeaderFieldValue:authInfo];
+			uri      = [self quotedSubHeaderFieldValue:@"uri" fromHeaderFieldValue:authInfo];
 			
 			// It appears from RFC 2617 that the qop is to be given unquoted
 			// Tests show that Firefox performs this way, but Safari does not
@@ -26,11 +26,10 @@
 			if (qop && ([qop characterAtIndex:0] == '"')) {
 				qop  = [self quotedSubHeaderFieldValue:@"qop" fromHeaderFieldValue:authInfo];
 			}
-			[qop retain];
 			
-			nc       = [[self nonquotedSubHeaderFieldValue:@"nc" fromHeaderFieldValue:authInfo] retain];
-			cnonce   = [[self quotedSubHeaderFieldValue:@"cnonce" fromHeaderFieldValue:authInfo] retain];
-			response = [[self quotedSubHeaderFieldValue:@"response" fromHeaderFieldValue:authInfo] retain];
+			nc       = [self nonquotedSubHeaderFieldValue:@"nc" fromHeaderFieldValue:authInfo];
+			cnonce   = [self quotedSubHeaderFieldValue:@"cnonce" fromHeaderFieldValue:authInfo];
+			response = [self quotedSubHeaderFieldValue:@"response" fromHeaderFieldValue:authInfo];
 			
 			CFRelease(authInfo);
 		} else {
@@ -43,15 +42,6 @@
 
 - (void)dealloc
 {
-	[username release];
-	[realm release];
-	[nonce release];
-	[uri release];
-	[qop release];
-	[nc release];
-	[cnonce release];
-	[response release];
-	[super dealloc];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

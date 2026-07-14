@@ -72,11 +72,7 @@
 	/* Releasing libezv leads to the libezvContacts set being accessed;
 	 * if it has been released but not set to nil, this results in a crash.
 	 */
-	[libezvContacts release];
 	libezvContacts = nil;
-	[libezv release];
-
-	[super dealloc];
 }
 
 - (BOOL)disconnectOnFastUserSwitch
@@ -179,10 +175,9 @@
 							notify:NotifyLater];
 
 	NSString *contactStatusMessage = contact.statusMessage;
-	[listContact setStatusMessage:(contactStatusMessage
-									   ? [[[NSAttributedString alloc] initWithString:contactStatusMessage] autorelease]
-									   : nil)
-						   notify:NotifyLater];
+	[listContact
+		setStatusMessage:(contactStatusMessage ? [[NSAttributedString alloc] initWithString:contactStatusMessage] : nil)
+				  notify:NotifyLater];
 
 	NSDate *idleSinceDate = [contact idleSinceDate];
 	[listContact setIdle:(idleSinceDate != nil) sinceDate:idleSinceDate notify:NotifyLater];
@@ -242,7 +237,7 @@
 		attributedMessage = [[[NSAttributedString alloc]
 			initWithString:[adium.contentController decryptedIncomingMessage:message
 																 fromContact:listContact
-																   onAccount:self]] autorelease];
+																   onAccount:self]];
 
 	msgObj = [AIContentMessage messageInChat:chat
 								  withSource:listContact
@@ -348,7 +343,6 @@
 	[XHTMLDecoder setGeneratesStrictXHTML:YES];
 	[XHTMLDecoder setClosesFontTags:YES];
 	NSString *encodedMessage = [XHTMLDecoder encodeHTML:inContentMessage.message imagesPath:nil];
-	[XHTMLDecoder release];
 	return encodedMessage;
 }
 
@@ -572,7 +566,6 @@
 
 	[libezv startOutgoingFileTransfer:ezvFileTransfer];
 	[fileTransfer setStatus:Waiting_on_Remote_User_FileTransfer];
-	[ezvFileTransfer release];
 }
 
 #pragma mark Outgoing file transfer status updates

@@ -34,8 +34,8 @@
 - (void)installXtraAtURL:(NSURL *)url __attribute__((ns_consumes_self));
 + (XtrasInstaller *)installer __attribute__((objc_method_family(new)));
 
-@property(retain) NSURLDownload *download;
-@property(retain) NSString *dest;
-@property(retain) NSString *xtraName;
+@property(strong) NSURLDownload *download;
+@property(strong) NSString *dest;
+@property(strong) NSString *xtraName;
 
 @end

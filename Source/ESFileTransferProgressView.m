@@ -21,174 +21,22 @@
 #import <AIUtilities/AIRolloverButton.h>
 #import <AIUtilities/AIStringAdditions.h>
 
-#define NORMAL_TEXT_COLOR [NSColor controlTextColor]
-#define SELECTED_TEXT_COLOR [NSColor whiteColor]
-#define TRANSFER_STATUS_COLOR [NSColor disabledControlTextColor]
-
-@interface ESFileTransferProgressView ()
-- (void)updateButtonReveal;
-- (void)updateButtonStopResume;
-@end
-
-@implementation ESFileTransferProgressView
-
-- (void)awakeFromNib
-{
-	if ([[self superclass] instancesRespondToSelector:@selector(awakeFromNib)]) {
-		[super awakeFromNib];
-	}
-
-	[progressIndicator setUsesThreadedAnimation:YES];
-	[progressIndicator setIndeterminate:YES];
-	progressVisible = YES;
-
-	showingDetails = NO;
-	[view_details retain];
-
-	[button_stopResume setDelegate:self];
-	[button_reveal setDelegate:self];
-
-	buttonStopResumeIsHovered = NO;
-	buttonStopResumeIsResend = NO;
-	buttonRevealIsHovered = NO;
+#define NORMAL_TEXT_COLOR
+if (inTransferBytesStatus && inTransferRemainingStatus) {
+	transferStatus = [NSString stringWithFormat:@"%@ - %@", inTransferBytesStatus, inTransferRemainingStatus];
+} else if (inTransferBytesStatus) {
+	transferStatus = inTransferBytesStatus;
+} else if (inTransferRemainingStatus) {
+	transferStatus = inTransferRemainingStatus;
+} else {
+	transferStatus = @"";
 }
 
-- (void)dealloc
-{
-	[view_details release];
+transferStatus;
 
-	[super dealloc];
-}
-
-#pragma mark Source and destination
-- (void)setSourceName:(NSString *)inSourceName
-{
-	[textField_source setStringValue:(inSourceName ? inSourceName : @"")];
-}
-- (void)setSourceIcon:(NSImage *)inSourceIcon
-{
-	[imageView_source setImage:inSourceIcon];
-}
-- (void)setDestinationName:(NSString *)inDestinationName
-{
-	[textField_destination setStringValue:(inDestinationName ? inDestinationName : @"")];
-}
-- (void)setDestinationIcon:(NSImage *)inDestinationIcon
-{
-	[imageView_destination setImage:inDestinationIcon];
-}
-
-#pragma mark File and its icon
-- (void)setFileName:(NSString *)inFileName
-{
-	[textField_fileName
-		setStringValue:(inFileName ? inFileName
-								   : [AILocalizedString(@"Initializing transfer", nil) stringByAppendingEllipsis])];
-}
-- (void)setIconImage:(NSImage *)inIconImage
-{
-	[button_icon setImage:inIconImage];
-}
-
-#pragma mark Progress
-- (void)setProgressDoubleValue:(double)inPercent
-{
-	[progressIndicator setDoubleValue:inPercent];
-}
-- (void)setProgressIndeterminate:(BOOL)flag
-{
-	[progressIndicator setIndeterminate:flag];
-}
-- (void)setProgressAnimation:(BOOL)flag
-{
-	if (flag) {
-		[progressIndicator startAnimation:self];
-	} else {
-		[progressIndicator stopAnimation:self];
-	}
-}
-- (void)setProgressVisible:(BOOL)flag
-{
-	if (flag != progressVisible) {
-		progressVisible = flag;
-		if (progressVisible) {
-			// Redisplay the progress bar.  We never do this at present, so unimplemented for now.
-		} else {
-			NSRect progressRect = [progressIndicator frame];
-			NSRect frame;
-			CGFloat distanceToMove = progressRect.size.height / 2;
-
-			[progressIndicator setDisplayedWhenStopped:NO];
-			[progressIndicator setIndeterminate:YES];
-			[progressIndicator stopAnimation:self];
-			[progressIndicator setHidden:YES];
-
-			// Top objects moving down
-			{
-				frame = [textField_fileName frame];
-				frame.origin.y -= distanceToMove;
-				// Don't let it be any further right than the progress bar used to be to avoid our buttons
-				frame.size.width = (progressRect.origin.x + progressRect.size.width) - frame.origin.x;
-				[textField_fileName setFrame:frame];
-			}
-
-			// Bottom objects moving up
-			{
-				frame = [twiddle_details frame];
-				frame.origin.y += distanceToMove;
-				[twiddle_details setFrame:frame];
-
-				frame = [textField_detailsLabel frame];
-				frame.origin.y += distanceToMove;
-				[textField_detailsLabel setFrame:frame];
-
-				frame = [box_transferStatusFrame frame];
-				frame.origin.y += distanceToMove;
-				// Don't let it be any further right than the progress bar used to be to avoid our buttons
-				frame.size.width = (progressRect.origin.x + progressRect.size.width) - frame.origin.x;
-				[box_transferStatusFrame setFrame:frame];
-			}
-		}
-	}
-}
-
-- (void)setButtonStopResumeVisible:(BOOL)flag
-{
-	[button_stopResume setHidden:!flag];
-}
-
-- (void)setButtonStopResumeIsResend:(BOOL)flag
-{
-	buttonStopResumeIsResend = flag;
-	[self updateButtonStopResume];
-}
-
-- (BOOL)buttonStopResumeIsResend
-{
-	return buttonStopResumeIsResend;
-}
-
-- (void)setTransferBytesStatus:(NSString *)inTransferBytesStatus
-			   remainingStatus:(NSString *)inTransferRemainingStatus
-				   speedStatus:(NSString *)inTransferSpeedStatus
-{
-	[transferStatus release];
-
-	if (inTransferBytesStatus && inTransferRemainingStatus) {
-		transferStatus = [NSString stringWithFormat:@"%@ - %@", inTransferBytesStatus, inTransferRemainingStatus];
-	} else if (inTransferBytesStatus) {
-		transferStatus = inTransferBytesStatus;
-	} else if (inTransferRemainingStatus) {
-		transferStatus = inTransferRemainingStatus;
-	} else {
-		transferStatus = @"";
-	}
-
-	[transferStatus retain];
-
-	//	[textField_transferStatus setStringValue:transferStatus];
-	[self setNeedsDisplayInRect:[box_transferStatusFrame frame]];
-	[textField_rate setStringValue:(inTransferSpeedStatus ? inTransferSpeedStatus : @"")];
+//	[textField_transferStatus setStringValue:transferStatus];
+[self setNeedsDisplayInRect:[box_transferStatusFrame frame]];
+[textField_rate setStringValue:(inTransferSpeedStatus ? inTransferSpeedStatus : @"")];
 }
 
 #pragma mark Details
@@ -409,10 +257,10 @@ static NSDictionary *transferStatusSelectedAttributes = nil;
 											  lineBreakMode:NSLineBreakByTruncatingTail];
 			[paragraphStyle setMaximumLineHeight:[box_transferStatusFrame frame].size.height];
 
-			transferStatusSelectedAttributes = [[NSDictionary
-				dictionaryWithObjectsAndKeys:paragraphStyle, NSParagraphStyleAttributeName, [NSFont systemFontOfSize:9],
-											 NSFontAttributeName, SELECTED_TEXT_COLOR, NSForegroundColorAttributeName,
-											 nil] retain];
+			transferStatusSelectedAttributes =
+				[NSDictionary dictionaryWithObjectsAndKeys:paragraphStyle, NSParagraphStyleAttributeName,
+														   [NSFont systemFontOfSize:9], NSFontAttributeName,
+														   SELECTED_TEXT_COLOR, NSForegroundColorAttributeName, nil];
 		}
 
 		attributes = transferStatusSelectedAttributes;
@@ -423,10 +271,10 @@ static NSDictionary *transferStatusSelectedAttributes = nil;
 											  lineBreakMode:NSLineBreakByTruncatingTail];
 			[paragraphStyle setMaximumLineHeight:[box_transferStatusFrame frame].size.height];
 
-			transferStatusAttributes = [[NSDictionary
-				dictionaryWithObjectsAndKeys:paragraphStyle, NSParagraphStyleAttributeName, [NSFont systemFontOfSize:9],
-											 NSFontAttributeName, TRANSFER_STATUS_COLOR, NSForegroundColorAttributeName,
-											 nil] retain];
+			transferStatusAttributes =
+				[NSDictionary dictionaryWithObjectsAndKeys:paragraphStyle, NSParagraphStyleAttributeName,
+														   [NSFont systemFontOfSize:9], NSFontAttributeName,
+														   TRANSFER_STATUS_COLOR, NSForegroundColorAttributeName, nil];
 		}
 
 		attributes = transferStatusAttributes;

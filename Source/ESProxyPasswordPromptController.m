@@ -45,56 +45,7 @@ static NSMutableDictionary *proxyPasswordPromptControllerDict = nil;
 								 context:(id)inContext
 {
 	ESProxyPasswordPromptController *controller = nil;
-	NSString *identifier = [NSString stringWithFormat:@"%@.%@.%p", inServer, inUserName, inTarget];
-
-	if (!proxyPasswordPromptControllerDict)
-		proxyPasswordPromptControllerDict = [[NSMutableDictionary alloc] init];
-
-	if ((controller = [proxyPasswordPromptControllerDict objectForKey:identifier])) {
-		// Update the existing controller for this account to have the new target, selector, and context
-		[controller setTarget:inTarget selector:inSelector context:inContext];
-
-	} else {
-		// Do not trust the static analyzer, look at the superclass. This is not a leak.
-		if ((controller = [[self alloc] initWithWindowNibName:PROXY_PASSWORD_PROMPT_NIB
-											   forProxyServer:inServer
-													 userName:inUserName
-											  notifyingTarget:inTarget
-													 selector:inSelector
-													  context:inContext])) {
-			[proxyPasswordPromptControllerDict setObject:controller forKey:identifier];
-		}
-	}
-
-	// bring the window front
-	[controller showWindowInFrontIfAllowed:YES];
-}
-
-- (id)initWithWindowNibName:(NSString *)windowNibName
-			 forProxyServer:(NSString *)inServer
-				   userName:(NSString *)inUserName
-			notifyingTarget:(id)inTarget
-				   selector:(SEL)inSelector
-					context:(id)inContext
-{
-	if ((self = [super initWithWindowNibName:windowNibName
-									password:nil
-							 notifyingTarget:inTarget
-									selector:inSelector
-									 context:inContext])) {
-		server = [inServer retain];
-		userName = [inUserName retain];
-	}
-
-	return self;
-}
-
-- (void)dealloc
-{
-	[server release];
-	[userName release];
-
-	[super dealloc];
+	NSString *identifier =
 }
 
 /*!

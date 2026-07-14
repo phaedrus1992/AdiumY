@@ -20,19 +20,7 @@
 
 - (id)init
 {
-	if ((self = [super init])) {
-		toolbarItems = [[NSMutableDictionary alloc] init];
-	}
-
-	return self;
-}
-
-- (void)controllerDidLoad
-{}
-
-- (void)controllerWillClose
-{
-	[toolbarItems release];
+	if ((self =
 }
 
 - (void)registerToolbarItem:(NSToolbarItem *)item forToolbarType:(NSString *)type

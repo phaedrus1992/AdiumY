@@ -44,25 +44,7 @@
  */
 - (void)installPlugin
 {
-	consolidateMenuItem = [[NSMenuItem alloc] initWithTitle:CONSOLIDATE_CHATS_MENU_TITLE
-													 target:self
-													 action:@selector(consolidateChats:)
-											  keyEquivalent:@"O"];
-	[adium.menuController addMenuItem:consolidateMenuItem toLocation:LOC_Window_Commands];
-
-	newWndowMenuItem = [[NSMenuItem alloc] initWithTitle:NEW_TAB_MENU_TITLE
-												  target:self
-												  action:@selector(moveChatToNewWindow:)
-										   keyEquivalent:@""];
-	[adium.menuController addMenuItem:newWndowMenuItem toLocation:LOC_Window_Commands];
-}
-
-- (void)dealloc
-{
-	[consolidateMenuItem release];
-	[newWndowMenuItem release];
-
-	[super dealloc];
+	consolidateMenuItem =
 }
 
 /*!

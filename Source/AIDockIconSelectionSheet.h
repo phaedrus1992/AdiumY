@@ -39,10 +39,10 @@
 @property(assign) IBOutlet AIImageCollectionView *imageCollectionView;
 @property(assign) IBOutlet NSButton *okButton;
 @property(copy) NSMutableArray *icons;
-@property(retain) NSMutableArray *iconsData;
-@property(retain) AIIconState *animatedIconState;
+@property(strong) NSMutableArray *iconsData;
+@property(strong) AIIconState *animatedIconState;
 @property(assign) NSInteger animatedIndex;
-@property(retain) NSTimer *animationTimer;
+@property(strong) NSTimer *animationTimer;
 @property(assign) NSUInteger previousIndex;
 
 - (void)openOnWindow:(NSWindow *)parentWindow __attribute__((ns_consumes_self));

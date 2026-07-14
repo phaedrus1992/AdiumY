@@ -44,41 +44,8 @@
  */
 - (void)installPlugin
 {
-	addBookmarkToolbarItem = [AIToolbarUtilities
-		toolbarItemWithIdentifier:ADD_BOOKMARKTOOLBAR_ITEM_IDENTIFIER
-							label:ADD_BOOKMARK
-					 paletteLabel:ADD_BOOKMARK
-						  toolTip:AILocalizedString(@"Bookmark the current chat", "tooltip text for Add Bookmark")
-						   target:self
-				  settingSelector:@selector(setImage:)
-					  itemContent:[NSImage imageNamed:@"msg-bookmark-chat" forClass:[self class] loadLazily:YES]
-						   action:@selector(addBookmark:)
-							 menu:nil];
-
-	addBookmarkMenuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:ADD_BOOKMARK
-																			   target:self
-																			   action:@selector(addBookmark:)
-																		keyEquivalent:@""];
-
-	[adium.menuController addMenuItem:addBookmarkMenuItem toLocation:LOC_Contact_Manage];
-
-	addBookmarkContextMenuItem =
-		[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:ADD_BOOKMARK_CONTEXT_MENU
-															 target:self
-															 action:@selector(addBookmarkContext:)
-													  keyEquivalent:@""];
-
-	[adium.menuController addContextualMenuItem:addBookmarkContextMenuItem toLocation:Context_GroupChat_Action];
-
-	[adium.toolbarController registerToolbarItem:addBookmarkToolbarItem forToolbarType:@"MessageWindow"];
-}
-
-- (void)uninstallPlugin
-{
-	[addBookmarkMenuItem release];
-	[addBookmarkContextMenuItem release];
-
-	[adium.toolbarController unregisterToolbarItem:addBookmarkToolbarItem forToolbarType:@"MessageWindow"];
+	addBookmarkToolbarItem = [adium.toolbarController unregisterToolbarItem:addBookmarkToolbarItem
+															 forToolbarType:@"MessageWindow"];
 }
 
 /*!

@@ -63,7 +63,7 @@
 										forGroup:PREF_GROUP_CONFIRMATIONS];
 
 	// Install our preference view
-	preferences = [(ESGeneralPreferences *)[ESGeneralPreferences preferencePaneForPlugin:self] retain];
+	preferences = (ESGeneralPreferences *)[ESGeneralPreferences preferencePaneForPlugin:self];
 
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_GENERAL];
 }
@@ -95,7 +95,6 @@
 		if (globalHotKey) {
 			// Unregister the old global hot key if it exists
 			[[AIHotKeyCenter sharedCenter] unregisterHotKey:globalHotKey];
-			[globalHotKey release];
 			globalHotKey = nil;
 		}
 

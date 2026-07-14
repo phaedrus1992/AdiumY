@@ -59,8 +59,8 @@
 
 {
 	if ((self = [super initWithWindowNibName:LINK_EDITOR_NIB_NAME])) {
-		textView = [inTextView retain];
-		target = [inTarget retain];
+		textView = inTextView;
+		target = inTarget;
 	}
 
 	return self;
@@ -69,9 +69,6 @@
 - (void)dealloc
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
-	[textView release];
-	[target release];
-	[super dealloc];
 }
 
 #pragma mark Window Methods
@@ -147,9 +144,6 @@
 				initialURL = [[NSAttributedString alloc] initWithString:tmpString];
 				[[textView_URL textStorage] setAttributedString:initialURL];
 				[textView_URL setSelectedRange:NSMakeRange(0, [initialURL length])];
-				[initialURL release];
-
-				[tmpString release];
 			}
 
 		} else if ([linkText length]) {
@@ -172,14 +166,12 @@
 - (void)windowWillClose:(id)sender
 {
 	[super windowWillClose:sender];
-	[self autorelease];
 }
 
 // Called as the sheet closes, dismisses the sheet
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 	[sheet orderOut:nil];
-	[self autorelease];
 }
 
 // Cancel
@@ -219,8 +211,6 @@
 		// If the URL is invalid enough that we can't create an NSURL, just beep
 		NSBeep();
 	}
-
-	[urlString release];
 }
 
 - (IBAction)removeURL:(id)sender
@@ -244,8 +234,8 @@
 	// We need to make sure we're getting copies of these, otherwise the fields will change them later, changing the
 	// copy in our dictionary
 	NSDictionary *linkDict =
-		[NSDictionary dictionaryWithObjectsAndKeys:[[[textField_linkText stringValue] copy] autorelease],
-												   KEY_LINK_TITLE, [textView_URL linkURL], KEY_LINK_URL, nil];
+		[NSDictionary dictionaryWithObjectsAndKeys:[[textField_linkText stringValue] copy], KEY_LINK_TITLE,
+												   [textView_URL linkURL], KEY_LINK_URL, nil];
 
 	if ([target respondsToSelector:@selector(linkEditorLinkDidChange:)]) {
 		[target performSelector:@selector(linkEditorLinkDidChange:) withObject:linkDict];
@@ -260,7 +250,7 @@
 	NSMutableAttributedString *linkString;
 
 	// Create the link string
-	linkString = [[[NSMutableAttributedString alloc] initWithString:linkTitle attributes:typingAttributes] autorelease];
+	linkString = [[NSMutableAttributedString alloc] initWithString:linkTitle attributes:typingAttributes];
 	[linkString addAttribute:NSLinkAttributeName value:linkURL range:NSMakeRange(0, [linkString length])];
 
 	// Insert it into the text view, replacing the current selection
@@ -275,11 +265,11 @@
 	// This prevents the link attribute from bleeding into newly entered text
 	if (NSMaxRange([inView selectedRange]) == [textStorage length]) {
 		NSAttributedString *tmpString = [[[NSAttributedString alloc] initWithString:@" "
-																		 attributes:typingAttributes] autorelease];
+																		 attributes:typingAttributes];
 		[[[inView undoManager] prepareWithInvocationTarget:textStorage]
 			replaceCharactersInRange:NSMakeRange(NSMaxRange([inView selectedRange]), 1)
 				withAttributedString:[[[NSAttributedString alloc] initWithString:@""
-																	  attributes:typingAttributes] autorelease]];
+																	  attributes:typingAttributes]]];
 		[textStorage appendAttributedString:tmpString];
 	}
 

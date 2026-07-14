@@ -22,35 +22,7 @@
 
 - (void)_initSourceListBackgroundView
 {
-	background = [[NSImage imageNamed:@"sourceListBackground" forClass:[KNShelfSplitView class]] retain];
-	backgroundSize = [background size];
-
-	[self setNeedsDisplay:YES];
-}
-
-- (id)initWithCoder:(NSCoder *)inCoder
-{
-	if ((self = [super initWithCoder:inCoder])) {
-		[self _initSourceListBackgroundView];
-	}
-
-	return self;
-}
-
-- (id)initWithFrame:(NSRect)frame
-{
-	if ((self = [super initWithFrame:frame])) {
-		[self _initSourceListBackgroundView];
-	}
-
-	return self;
-}
-
-- (void)dealloc
-{
-	[background release];
-
-	[super dealloc];
+	background =
 }
 
 - (void)drawRect:(NSRect)rect

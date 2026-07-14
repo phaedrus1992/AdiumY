@@ -34,8 +34,8 @@
 @property(copy) NSImage *alternateImage;
 
 // These are by retain in case you want to set a delegate for the menu.
-@property(retain) NSMenu *menu;
-@property(retain) NSMenu *alternateMenu;
+@property(strong) NSMenu *menu;
+@property(strong) NSMenu *alternateMenu;
 
 @property(assign) NSStatusItem *statusItem;
 

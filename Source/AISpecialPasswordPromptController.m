@@ -44,73 +44,7 @@ static NSMutableDictionary *passwordPromptControllerDict = nil;
 
 + (NSString *)identifierForType:(AISpecialPasswordType)inType name:(NSString *)inName account:(AIAccount *)inAccount
 {
-	return [NSString stringWithFormat:@"%d.%@.%@", inType, inName, inAccount.internalObjectID];
-}
-
-+ (void)showPasswordPromptForType:(AISpecialPasswordType)inType
-						  account:(AIAccount *)inAccount
-							 name:(NSString *)inName
-						 password:(NSString *)inPassword
-				  notifyingTarget:(id)inTarget
-						 selector:(SEL)inSelector
-						  context:(id)inContext
-{
-	AISpecialPasswordPromptController *controller = nil;
-	NSString *identifier = [AISpecialPasswordPromptController identifierForType:inType name:inName account:inAccount];
-
-	if (!passwordPromptControllerDict)
-		passwordPromptControllerDict = [[NSMutableDictionary alloc] init];
-
-	if ((controller = [passwordPromptControllerDict objectForKey:identifier])) {
-		// Update the existing controller for this account to have the new target, selector, and context
-		[controller setTarget:inTarget selector:inSelector context:inContext];
-
-	} else {
-		// Do not trust the static analyzer, look at the superclass. This is not a leak.
-		if ((controller = [[self alloc] initWithWindowNibName:SPECIAL_ACCOUNT_PASSWORD_PROMPT
-												   forAccount:inAccount
-														 type:inType
-														 name:inName
-													 password:inPassword
-											  notifyingTarget:inTarget
-													 selector:inSelector
-													  context:inContext])) {
-			[passwordPromptControllerDict setObject:controller forKey:identifier];
-		}
-	}
-
-	// bring the window front
-	[controller showWindowInFrontIfAllowed:YES];
-}
-
-- (id)initWithWindowNibName:(NSString *)windowNibName
-				 forAccount:(AIAccount *)inAccount
-					   type:(AISpecialPasswordType)inType
-					   name:(NSString *)inName
-				   password:(NSString *)inPassword
-			notifyingTarget:(id)inTarget
-				   selector:(SEL)inSelector
-					context:(id)inContext
-{
-	if ((self = [super initWithWindowNibName:windowNibName
-									password:inPassword
-							 notifyingTarget:inTarget
-									selector:inSelector
-									 context:inContext])) {
-		account = [inAccount retain];
-		type = inType;
-		name = [inName retain];
-	}
-
-	return self;
-}
-
-- (void)dealloc
-{
-	[account release];
-	[name release];
-
-	[super dealloc];
+	return
 }
 
 /*!

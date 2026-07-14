@@ -31,20 +31,6 @@
 - (void)installPlugin
 {
 	accountListPreferences =
-		[(AIAccountListPreferences *)[AIAccountListPreferences preferencePaneForPlugin:self] retain];
-
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(editAccount:)
-												 name:@"AIEditAccount"
-											   object:nil];
-}
-
-- (void)dealloc
-{
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
-	[accountListPreferences release];
-
-	[super dealloc];
 }
 
 /*!

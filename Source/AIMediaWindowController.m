@@ -26,7 +26,7 @@
 
 + (AIMediaWindowController *)mediaWindowControllerForMedia:(AIMedia *)media
 {
-	return [[[self alloc] initWithMedia:media] autorelease];
+	return
 }
 
 - (id)initWithMedia:(AIMedia *)inMedia

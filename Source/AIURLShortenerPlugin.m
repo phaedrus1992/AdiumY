@@ -41,27 +41,7 @@
 {
 	NSMenuItem *menuItem;
 
-	NSMenu *shortenerSubMenu = [[NSMenu alloc] init];
-	[shortenerSubMenu setDelegate:self];
-
-	// Edit menu
-	menuItem = [[[NSMenuItem alloc] initWithTitle:SHORTEN_LINK_TITLE
-										   target:self
-										   action:@selector(shortenLink)
-									keyEquivalent:@"K"
-										  keyMask:NSCommandKeyMask] autorelease];
-
-	[menuItem setSubmenu:shortenerSubMenu];
-
-	[adium.menuController addMenuItem:menuItem toLocation:LOC_Edit_Links];
-
-	// Context menu
-	menuItem = [[[NSMenuItem alloc] initWithTitle:SHORTEN_LINK_TITLE
-										   target:self
-										   action:@selector(shortenLink)
-									keyEquivalent:@""] autorelease];
-
-	[menuItem setSubmenu:[[shortenerSubMenu copy] autorelease]];
+	NSMenu *shortenerSubMenu = [menuItem setSubmenu:[shortenerSubMenu copy]];
 
 	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_TextView_Edit];
 
@@ -74,9 +54,7 @@
 }
 
 - (void)dealloc
-{
-	[super dealloc];
-}
+{}
 
 #pragma mark Preferences
 - (void)preferencesChangedForGroup:(NSString *)group
@@ -285,8 +263,8 @@
 		[attrs setObject:shortenedURL forKey:NSLinkAttributeName];
 
 		[textView.textStorage replaceCharactersInRange:selectedRange
-								  withAttributedString:[[[NSAttributedString alloc] initWithString:shortenedURL
-																						attributes:attrs] autorelease]];
+								  withAttributedString:[[NSAttributedString alloc] initWithString:shortenedURL
+																					   attributes:attrs]];
 
 		// Select the inserted URL
 		textView.selectedRange = NSMakeRange(selectedRange.location, shortenedURL.length);

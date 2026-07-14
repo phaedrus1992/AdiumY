@@ -106,7 +106,7 @@ static NSArray *draggedTypes = nil;
 + (AIWebKitMessageViewWKController *)messageDisplayControllerForChat:(AIChat *)inChat
 														  withPlugin:(AIWebKitMessageViewPlugin *)inPlugin
 {
-	return [[[self alloc] initForChat:inChat withPlugin:inPlugin] autorelease];
+	return [[self alloc] initForChat:inChat withPlugin:inPlugin];
 }
 
 - (instancetype)initForChat:(AIChat *)inChat withPlugin:(AIWebKitMessageViewPlugin *)inPlugin
@@ -114,8 +114,8 @@ static NSArray *draggedTypes = nil;
 	if ((self = [super init])) {
 		[self _initWebView];
 
-		_chat = [inChat retain];
-		_plugin = [inPlugin retain];
+		_chat = inChat;
+		_plugin = inPlugin;
 		_contentQueue = [[NSMutableArray alloc] init];
 		_storedContentObjects = [[NSMutableArray alloc] init];
 		_objectIconPathDict = [[NSMutableDictionary alloc] init];
@@ -185,43 +185,25 @@ static NSArray *draggedTypes = nil;
 	[_webView setNavigationDelegate:nil];
 	[_webView setUIDelegate:nil];
 	[_webView.configuration.userContentController removeScriptMessageHandlerForName:@"adium"];
-
-	[_webView release];
-	[_markedScroller release];
-	[_chat release];
-	[_plugin release];
-	[_messageStyle release];
-	[_activeStyle release];
-	[_preferenceGroup release];
-	[_contentQueue release];
-	[_storedContentObjects release];
-	[_pendingDomIdQueues release];
-	[_objectIconPathDict release];
-	[_objectsWithUserIconsArray release];
-	[_cachedChatContentSource release];
-	[_previousContent release];
-
-	[super dealloc];
 }
 
 #pragma mark - WebView Creation
 
 - (void)_initWebView
 {
-	WKWebViewConfiguration *config = [[[WKWebViewConfiguration alloc] init] autorelease];
+	WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
 
 	// User content controller with script message handler (via weak proxy to avoid retain cycle)
-	WKUserContentController *userContentController = [[[WKUserContentController alloc] init] autorelease];
+	WKUserContentController *userContentController = [[WKUserContentController alloc] init];
 	_AIWKScriptMessageHandlerWeakProxy *proxy = [[_AIWKScriptMessageHandlerWeakProxy alloc] initWithTarget:self];
 	[userContentController addScriptMessageHandler:proxy name:@"adium"];
-	[proxy release];
 	config.userContentController = userContentController;
 
 	// Register adium:// scheme handler (10.13+)
 	if ([WKWebView handlesURLScheme:@"adium"]) {
 		// WKWebView handles adium:// by default as an unknown scheme — no-op
 	} else if (@available(macOS 10.13, *)) {
-		AIAdiumURLSchemeHandler *schemeHandler = [[[AIAdiumURLSchemeHandler alloc] init] autorelease];
+		AIAdiumURLSchemeHandler *schemeHandler = [[AIAdiumURLSchemeHandler alloc] init];
 		[config setURLSchemeHandler:schemeHandler forURLScheme:@"adium"];
 	}
 
@@ -338,7 +320,6 @@ static NSArray *draggedTypes = nil;
 											  @"})()",
 											  [self _jsStringLiteral:source]];
 
-	[_cachedChatContentSource release];
 	_cachedChatContentSource = [source copy];
 
 	[_webView evaluateJavaScript:js
@@ -372,7 +353,6 @@ static NSArray *draggedTypes = nil;
 {
 	[self _primeWebViewAndReprocessContent:NO];
 	[_markedScroller removeAllMarks];
-	[_previousContent release];
 	_previousContent = nil;
 	_nextMessageFocus = NO;
 	_nextMessageRegainedFocus = NO;
@@ -403,7 +383,6 @@ static NSArray *draggedTypes = nil;
 
 		if (currentContentQueue) {
 			[_contentQueue addObjectsFromArray:currentContentQueue];
-			[currentContentQueue release];
 		}
 	} else {
 		[_contentQueue removeAllObjects];
@@ -454,8 +433,7 @@ static NSArray *draggedTypes = nil;
 				   }];
 
 		// Track content for similarity comparison
-		[_previousContent release];
-		_previousContent = [content retain];
+		_previousContent = content;
 	}
 
 	// Update user icons after content
@@ -477,7 +455,6 @@ static NSArray *draggedTypes = nil;
 				   if (error || ![result isKindOfClass:[NSString class]]) {
 					   return;
 				   }
-				   [self->_cachedChatContentSource release];
 				   self->_cachedChatContentSource = [result copy];
 			   }];
 }
@@ -549,14 +526,12 @@ static NSArray *draggedTypes = nil;
 
 	_isUpdatingView = YES;
 
-	[_messageStyle autorelease];
 	_messageStyle = nil;
-	[_activeStyle release];
 	_activeStyle = nil;
 
-	_messageStyle = [[_plugin currentMessageStyleForChat:_chat] retain];
-	_activeStyle = [[[_messageStyle bundle] bundleIdentifier] retain];
-	_preferenceGroup = [[_plugin preferenceGroupForChat:_chat] retain];
+	_messageStyle = [_plugin currentMessageStyleForChat:_chat];
+	_activeStyle = [[_messageStyle bundle] bundleIdentifier];
+	_preferenceGroup = [_plugin preferenceGroupForChat:_chat];
 
 	// Get the preferred variant (or the default if a preferred is not available)
 	NSString *activeVariant;
@@ -893,14 +868,14 @@ static NSArray *draggedTypes = nil;
 	JVMarkedScroller *scroller = (JVMarkedScroller *)[scrollView verticalScroller];
 	if (scroller && ![scroller isMemberOfClass:[JVMarkedScroller class]]) {
 		NSRect scrollerFrame = [scroller frame];
-		scroller = [[[JVMarkedScroller alloc] initWithFrame:scrollerFrame] autorelease];
+		scroller = [[JVMarkedScroller alloc] initWithFrame:scrollerFrame];
 		[scroller setTarget:self];
 		[scroller setAction:@selector(markedScrollerClicked:)];
 		[scrollView setVerticalScroller:scroller];
 	}
 
 	if (scroller && !_markedScroller) {
-		_markedScroller = [scroller retain];
+		_markedScroller = scroller;
 	}
 }
 
@@ -987,7 +962,7 @@ static NSArray *draggedTypes = nil;
 	if (!jsonData) {
 		return @"''";
 	}
-	return [[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] autorelease];
+	return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
 
 /*!
@@ -1070,7 +1045,6 @@ static NSArray *draggedTypes = nil;
 				[data writeToFile:iconFile atomically:YES];
 				iconPath = iconFile;
 			}
-			[icon release];
 		}
 	}
 	return iconPath;

@@ -112,14 +112,14 @@
 		selectItemWithTag:[[adium.preferenceController preferenceForKey:KEY_TABBAR_POSITION
 																  group:PREF_GROUP_DUAL_WINDOW_INTERFACE] intValue]];
 
-	self.shortcutRecorder = [[[AIHotKeyRecorder alloc] initWithFrame:placeholder_shortcutRecorder.frame] autorelease];
+	self.shortcutRecorder = [[AIHotKeyRecorder alloc] initWithFrame:placeholder_shortcutRecorder.frame];
 	shortcutRecorder.delegate = self;
 	[[placeholder_shortcutRecorder superview] addSubview:shortcutRecorder];
 
 	// Global hotkey
 	AIHotKey *hotKey = [[[AIHotKey alloc]
 		initWithDictionary:[adium.preferenceController preferenceForKey:KEY_GENERAL_HOTKEY
-																  group:PREF_GROUP_GENERAL]] autorelease];
+																  group:PREF_GROUP_GENERAL]];
 	self.shortcutRecorder.hotKey = hotKey;
 
 	[label_shortcutRecorder
@@ -132,8 +132,6 @@
 - (void)dealloc
 {
 	self.shortcutRecorder = nil;
-
-	[super dealloc];
 }
 
 // Called in response to all preference controls, applies new settings
@@ -252,7 +250,7 @@
 			 keyEquivalent:@""
 					   tag:AIBraces];
 
-	return [menu autorelease];
+	return menu;
 }
 
 - (BOOL)hotKeyRecorder:(AIHotKeyRecorder *)aRecorder
@@ -296,7 +294,7 @@
 			 keyEquivalent:@""
 					   tag:AISendOnBoth];
 
-	return [menu autorelease];
+	return menu;
 }
 
 - (IBAction)configureLogCertainAccounts:(id)sender
@@ -314,7 +312,6 @@
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
 	[sheet orderOut:nil];
-	[sheet.windowController release];
 }
 
 - (NSMenu *)tabPositionMenu
@@ -346,7 +343,7 @@
 			 keyEquivalent:@""
 					   tag:AdiumTabPositionRight];
 
-	return [menu autorelease];
+	return menu;
 }
 
 - (BOOL)chatHistoryDisplayActive

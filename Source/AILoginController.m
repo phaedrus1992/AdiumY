@@ -31,139 +31,17 @@
 // Init this controller
 - (id)init
 {
-	if ((self = [super init])) {
-		userDirectory = nil;
-	}
-
-	return self;
-}
-
-- (void)controllerDidLoad
-{}
-
-// Close this controller
-- (void)controllerWillClose
-{}
-
-// Dealloc
-- (void)dealloc
-{
-	[userDirectory release];
-	[currentUser release];
-
-	[super dealloc];
-}
-
-// Prompts for a user, or automatically selects one
-- (void)requestUserNotifyingTarget:(id)inTarget selector:(SEL)inSelector
-{
-	NSMutableDictionary *loginDict;
-	NSArray *arguments;
-	NSUInteger argumentIndex;
-	NSString *userName = nil;
-
-	// Retain the target and selector
-	target = inTarget;
-	selector = inSelector;
-
-	// Open the login preferences
-	loginDict = [NSMutableDictionary dictionaryAtPath:[adium applicationSupportDirectory]
-											 withName:LOGIN_PREFERENCES_FILE_NAME
-											   create:YES];
-
-	// Make sure that atleast 1 login name is available.  If not, create the name 'default'
-	if ([[self userArray] count] == 0) {
-		// Create a 'default' user
-		[self addUser:DEFAULT_USER_NAME];
-
-		// Set 'default' as the login of choice
-		[loginDict setObject:DEFAULT_USER_NAME forKey:LOGIN_LAST_USER];
-		[loginDict asyncWriteToPath:[adium applicationSupportDirectory] withName:LOGIN_PREFERENCES_FILE_NAME];
-	}
-
-	// Retrieve the desired user from the command line if possible
-	arguments = [[NSProcessInfo processInfo] arguments];
-	if (arguments && ([arguments count] > 1)) {
-
-		argumentIndex = [arguments indexOfObject:@"--user"];
-		if ((argumentIndex != NSNotFound) && ([arguments count] > argumentIndex + 1)) {
-			userName = [[[arguments objectAtIndex:argumentIndex + 1] copy] autorelease];
-		}
-	}
-
-	/*
-	 If we don't have a userName yet, show the login select window if:
-		- Option is held down
-		- We should always show it
-			or
-		- LOGIN_LAST_USER does not indicate a valid user
-	 */
-	if (!userName) {
-		BOOL userRequestedShowWindow = NO;
-		BOOL shouldShowWindow;
-
-		shouldShowWindow = [NSEvent optionKey];
-		if (!shouldShowWindow)
-			shouldShowWindow = (userRequestedShowWindow = [[loginDict objectForKey:LOGIN_SHOW_WINDOW] boolValue]);
-		if (!shouldShowWindow) {
-#ifdef DEBUG_BUILD
-#ifndef RELEASE_BUILD
-			/* Support a different default user for 'Debug' builds but not for 'Release-Debug' builds.
-			 * The former are for developers, who may want this behavior.
-			 * The latter are for beta testers, who are more likely to be just confused (as per #14432).
-			 */
-			userName = [loginDict objectForKey:LOGIN_LAST_USER_DEBUG];
-			if (!userName)
-#endif
-#endif
-				shouldShowWindow = ((userName = [loginDict objectForKey:LOGIN_LAST_USER]) == nil);
-		}
-		if (shouldShowWindow) {
-			// Prompt for the user
-			loginWindowController = [[AILoginWindowController loginWindowControllerWithOwner:self] retain];
-			[loginWindowController showWindow:nil];
-
-			// If the user always wants to see the window, disable the login timeout
-			if (userRequestedShowWindow)
-				[loginWindowController disableLoginTimeout];
-		}
-	}
-
-	if (userName) {
-		[self loginAsUser:userName];
-	}
-}
-
-// Returns the current user's Adium home directory
-- (NSString *)userDirectory
-{
-	return userDirectory;
-}
-
-- (NSString *)currentUser
-{
-	return currentUser;
-}
-
-// Sets the correct user directory and sends out a login message
-- (void)loginAsUser:(NSString *)userName
-{
-	NSParameterAssert(userName != nil);
-
-	// Close the login panel
-	if (loginWindowController) {
-		[loginWindowController closeWindow:nil];
-		[loginWindowController release];
+	if ((self = 
 		loginWindowController = nil;
-	}
+}
 
-	// Save the user directory
-	currentUser = [userName retain];
-	userDirectory = [[[[adium applicationSupportDirectory] stringByAppendingPathComponent:PATH_USERS]
-		stringByAppendingPathComponent:userName] retain];
+// Save the user directory
+currentUser = userName;
+userDirectory = [[[adium applicationSupportDirectory] stringByAppendingPathComponent:PATH_USERS]
+	stringByAppendingPathComponent:userName];
 
-	// Tell Adium to complete login
-	[target performSelector:selector];
+// Tell Adium to complete login
+[target performSelector:selector];
 }
 
 // Creates and returns a mutable array of the login users

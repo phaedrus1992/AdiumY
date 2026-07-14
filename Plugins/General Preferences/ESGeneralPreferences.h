@@ -42,6 +42,6 @@
 
 - (IBAction)configureLogCertainAccounts:(id)sender;
 
-@property(nonatomic, retain) AIHotKeyRecorder *shortcutRecorder;
+@property(nonatomic, strong) AIHotKeyRecorder *shortcutRecorder;
 
 @end

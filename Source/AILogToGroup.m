@@ -32,144 +32,14 @@
 				to:(NSString *)inTo
 	  serviceClass:(NSString *)inServiceClass
 {
-	if ((self = [super init])) {
-		NSParameterAssert(inPath != nil);
-		relativePath = [inPath copy];
-		from = [inFrom copy];
-		to = [inTo copy];
-		serviceClass = [handleSpecialCasesForUIDAndServiceClass(to, inServiceClass) retain];
-		logDict = nil;
-		partialLogDict = nil;
-
-		defaultManager = [[NSFileManager defaultManager] retain];
-	}
-
-	return self;
+	if ((self =
 }
 
-// Dealloc
-- (void)dealloc
-{
-	[relativePath release];
-	[to release];
-	[from release];
-	[serviceClass release];
-	[logDict release];
-	[partialLogDict release];
-
-	[defaultManager release];
-
-	[super dealloc];
+if (!theLog)
+	AILog(@"%@ couldn't find %@ in its partialLogDict", self, inPath);
 }
-
-- (NSString *)from
-{
-	return from;
 }
-
-- (NSString *)to
-{
-	return to;
-}
-
-- (NSString *)relativePath
-{
-	return relativePath;
-}
-
-- (NSString *)serviceClass
-{
-	return serviceClass;
-}
-
-// Returns an enumerator for all of our logs
-- (NSEnumerator *)logEnumerator
-{
-	return [[self logDict] objectEnumerator];
-}
-- (NSInteger)logCount
-{
-	return [[self logDict] count];
-}
-
-- (NSDictionary *)logDict
-{
-	@synchronized(self) {
-		if (!logDict) {
-			NSString *logBasePath, *fullPath;
-
-			//
-			logDict = [[NSMutableDictionary alloc] init];
-
-			// Retrieve any logs we've already loaded
-			if (partialLogDict) {
-				[logDict addEntriesFromDictionary:partialLogDict];
-				[partialLogDict release];
-				partialLogDict = nil;
-			}
-
-			logBasePath = [AILoggerPlugin logBasePath];
-			fullPath = [logBasePath stringByAppendingPathComponent:relativePath];
-			for (NSString *fileName in [defaultManager contentsOfDirectoryAtPath:fullPath error:NULL]) {
-				if (![fileName hasPrefix:@"."]) {
-					NSString *relativeLogPath = [relativePath stringByAppendingPathComponent:fileName];
-
-					if (![logDict objectForKey:relativeLogPath]) {
-						AIChatLog *theLog;
-
-						theLog = [[AIChatLog alloc] initWithPath:relativeLogPath
-															from:from
-															  to:to
-													serviceClass:serviceClass];
-						if (theLog) {
-							[logDict setObject:theLog forKey:relativeLogPath];
-						} else {
-							AILog(@"Class %@: Couldn't make for %@ %@ %@ %@", NSStringFromClass([AIChatLog class]),
-								  relativeLogPath, from, to, serviceClass);
-						}
-						[theLog release];
-					}
-				}
-			}
-		}
-	}
-
-	return logDict;
-}
-
-/*!
- * @brief Get an AIChatLog within this AILogToGroup
- *
- * @param inPath A _relative_ path of the form SERVICE.ACCOUNT_NAME/TO_NAME/LogName.Extension
- *
- * @result The AIChatLog, from the cache if possible
- */
-- (AIChatLog *)logAtPath:(NSString *)inPath
-{
-	AIChatLog *theLog;
-
-	@synchronized(self) {
-		if (logDict) {
-			// Use the full dictionary if we have it
-			theLog = [logDict objectForKey:inPath];
-
-		} else {
-			// Otherwise, use the partialLog dictionary, adding to it if necessary
-			if (!partialLogDict)
-				partialLogDict = [[NSMutableDictionary alloc] init];
-
-			if (!(theLog = [partialLogDict objectForKey:inPath])) {
-				theLog = [[AIChatLog alloc] initWithPath:inPath from:from to:to serviceClass:serviceClass];
-
-				[partialLogDict setObject:theLog forKey:inPath];
-				[theLog release];
-			}
-
-			if (!theLog)
-				AILog(@"%@ couldn't find %@ in its partialLogDict", self, inPath);
-		}
-	}
-	return theLog;
+return theLog;
 }
 
 /*!

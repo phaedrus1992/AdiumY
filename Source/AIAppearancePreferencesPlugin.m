@@ -46,7 +46,7 @@
 	[preferenceController registerDefaults:[NSDictionary dictionaryNamed:APPEARANCE_DEFAULT_PREFS forClass:[self class]]
 								  forGroup:PREF_GROUP_APPEARANCE];
 
-	preferences = [(AIAppearancePreferences *)[AIAppearancePreferences preferencePaneForPlugin:self] retain];
+	preferences = (AIAppearancePreferences *)[AIAppearancePreferences preferencePaneForPlugin:self];
 
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(invalidStatusSetActivated:)

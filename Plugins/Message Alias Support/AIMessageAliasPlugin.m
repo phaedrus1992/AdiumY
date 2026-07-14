@@ -67,7 +67,6 @@
 				linkURLString = (NSString *)CFURLCreateStringByReplacingPercentEscapes(
 					kCFAllocatorDefault, (CFStringRef)[(NSURL *)linkURL absoluteString],
 					/* characters to leave escaped */ CFSTR(""));
-				[linkURLString autorelease];
 
 			} else {
 				linkURLString = (NSString *)linkURL;
@@ -84,7 +83,7 @@
 					NSString *charactersToLeaveUnescaped = @"#";
 
 					if (!filteredMessage)
-						filteredMessage = [[inAttributedString mutableCopy] autorelease];
+						filteredMessage = [inAttributedString mutableCopy];
 					escapedLinkURLString = (NSString *)CFURLCreateStringByAddingPercentEscapes(
 						/* allocator */ kCFAllocatorDefault, (CFStringRef)result,
 						(CFStringRef)charactersToLeaveUnescaped,
@@ -94,7 +93,6 @@
 					if (newURL) {
 						[filteredMessage addAttribute:NSLinkAttributeName value:newURL range:scanRange];
 					}
-					[escapedLinkURLString release];
 				}
 			}
 		}
@@ -162,7 +160,7 @@
 
 		if (replacement) {
 			if (!newAttributedString)
-				newAttributedString = [[attributedString mutableCopy] autorelease];
+				newAttributedString = [attributedString mutableCopy];
 
 			[newAttributedString replaceOccurrencesOfString:@"%n"
 												 withString:replacement
@@ -176,12 +174,11 @@
 		NSDate *currentDate = [NSDate date];
 		__block NSString *calendarFormat;
 		[NSDateFormatter withLocalizedShortDateFormatterPerform:^(NSDateFormatter *dateFormatter) {
-			calendarFormat = [[dateFormatter dateFormat] retain];
+			calendarFormat = [dateFormatter dateFormat];
 		}];
-		[calendarFormat autorelease];
 
 		if (!newAttributedString)
-			newAttributedString = [[attributedString mutableCopy] autorelease];
+			newAttributedString = [attributedString mutableCopy];
 
 		[newAttributedString replaceOccurrencesOfString:@"%d"
 											 withString:[currentDate descriptionWithCalendarFormat:calendarFormat
@@ -196,7 +193,7 @@
 		NSDate *currentDate = [NSDate date];
 
 		if (!newAttributedString)
-			newAttributedString = [[attributedString mutableCopy] autorelease];
+			newAttributedString = [attributedString mutableCopy];
 
 		[NSDateFormatter
 			withLocalizedDateFormatterShowingSeconds:YES

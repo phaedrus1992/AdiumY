@@ -25,9 +25,9 @@
 	IBOutlet NSView *incomingVideo;
 }
 
-@property(readwrite, retain, nonatomic) AIMedia *media;
-@property(readwrite, retain, nonatomic) NSView *outgoingVideo;
-@property(readwrite, retain, nonatomic) NSView *incomingVideo;
+@property(readwrite, strong, nonatomic) AIMedia *media;
+@property(readwrite, strong, nonatomic) NSView *outgoingVideo;
+@property(readwrite, strong, nonatomic) NSView *incomingVideo;
 
 + (AIMediaWindowController *)mediaWindowControllerForMedia:(AIMedia *)media;
 

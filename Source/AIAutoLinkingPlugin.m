@@ -30,67 +30,10 @@
  * @brief Install
  */
 - (void)installPlugin
-{
-	[adium.contentController registerContentFilter:self ofType:AIFilterDisplay direction:AIFilterIncoming];
-	[adium.contentController registerContentFilter:self ofType:AIFilterMessageDisplay direction:AIFilterIncoming];
-	[adium.contentController registerContentFilter:self ofType:AIFilterMessageDisplay direction:AIFilterOutgoing];
-}
+{}
 
-- (void)uninstallPlugin
-{
-	[adium.contentController unregisterContentFilter:self];
-}
-
-/*!
- * @brief Filter an attributed string to add links as appropriate
- */
-- (NSAttributedString *)filterAttributedString:(NSAttributedString *)inAttributedString context:(id)context
-{
-	if (!inAttributedString || ![inAttributedString length])
-		return inAttributedString;
-
-	NSMutableAttributedString *replacementMessage = [inAttributedString mutableCopy];
-	NSRange linkRange = NSMakeRange(0, 0);
-	NSUInteger stringLength = [replacementMessage length];
-
-	if ([AHHyperlinkScanner isStringValidURI:[replacementMessage string]
-								 usingStrict:YES
-								   fromIndex:NULL
-								  withStatus:NULL
-								schemeLength:NULL]) {
-		NSString *linkString = (NSString *)CFURLCreateStringByAddingPercentEscapes(
-			kCFAllocatorDefault, (CFStringRef)[replacementMessage string], (CFStringRef) @"#%", NULL,
-			kCFStringEncodingUTF8);
-		NSURL *linkURL = [NSURL URLWithString:linkString];
-		if (nil != linkURL) {
-			[replacementMessage addAttribute:NSLinkAttributeName
-									   value:linkURL
-									   range:NSMakeRange(0, [replacementMessage length])];
-		}
-		[linkString release];
-	}
-
-	for (NSInteger i = 0; i < stringLength; i += linkRange.length) {
-		if (![replacementMessage attribute:NSLinkAttributeName
-								   atIndex:i
-					 longestEffectiveRange:&linkRange
-								   inRange:NSMakeRange(i, stringLength - i)]) {
-			/* If there's no link at this index already, process it via the hyperlinkScanner to see if there should be
-			 * one. We don't process existing links because (a) it would be duplicative effort and (b) we might mess up
-			 * a link which had a linkable item within its text, such as "Check out the new story at
-			 * github.com/phaedrus1992/adiumy" linked to an github.com/phaedrus1992/adiumy page.
-			 */
-			NSAttributedString *replacementPart = [[AHHyperlinkScanner
-				hyperlinkScannerWithAttributedString:[inAttributedString attributedSubstringFromRange:linkRange]]
-				linkifiedString];
-			[replacementMessage replaceCharactersInRange:linkRange withAttributedString:replacementPart];
-			stringLength -= linkRange.length;
-			linkRange.length = [replacementPart length];
-			stringLength += linkRange.length;
-		}
-	}
-
-	return [replacementMessage autorelease];
+for (NSInteger i = 0; i < stringLength; i += linkRange.length) {
+		if (!
 }
 
 /*!

@@ -39,94 +39,15 @@ NSTimeInterval aggregateComponentLoadingTime = 0.0;
  */
 - (id)init
 {
-	if ((self = [super init])) {
-		components = [[NSMutableDictionary alloc] init];
-
-		[self loadComponents];
-	}
-
-	return self;
-}
-
-/*!
- * @brief Deallocate
- */
-- (void)dealloc
-{
-	[components release];
-	[super dealloc];
-}
-
-#pragma mark -
-
-/*!
- * @brief Load integrated components
- */
-- (void)loadComponents
-{
-	// Fetch the list of components to load
-	NSArray *componentClassNames = [NSArray
-		arrayWithObjects:@"AIAccountListPreferencesPlugin", @"AIAccountMenuAccessPlugin", @"AIAliasSupportPlugin",
-						 @"AIAppearancePreferencesPlugin", @"AIAutoLinkingPlugin", @"AIAutoReplyPlugin",
-						 @"AIChatConsolidationPlugin", @"AIChatCyclingPlugin", @"AIContactAwayPlugin",
-						 @"AIContactIdlePlugin", @"AIContactInfoWindowPlugin", @"AIContactListEditorPlugin",
-						 @"AIContactOnlineSincePlugin", @"AIContactSortSelectionPlugin",
-						 @"AIContactStatusColoringPlugin", @"AIDockNameOverlay", @"AIContactStatusEventsPlugin",
-						 @"AIDockAccountStatusPlugin", @"AIDockBehaviorPlugin", @"AIDualWindowInterfacePlugin",
-						 @"AIEventSoundsPlugin", @"AIExtendedStatusPlugin", @"AILoggerPlugin", @"AIMessageAliasPlugin",
-						 @"AINewMessagePanelPlugin", @"AINudgeBuzzHandlerPlugin", @"AIContactVisibilityControlPlugin",
-						 @"AISCLViewPlugin", @"AIStandardToolbarItemsPlugin", @"AIStateMenuPlugin",
-						 @"AIStatusChangedMessagesPlugin", @"AITabStatusIconsPlugin", @"BGContactNotesPlugin",
-						 @"BGEmoticonMenuPlugin", @"CBActionSupportPlugin", @"CBContactCountingDisplayPlugin",
-						 @"CBContactLastSeenPlugin", @"CBStatusMenuItemPlugin", @"DCInviteToChatPlugin",
-						 @"DCJoinChatPanelPlugin", @"DCMessageContextDisplayPlugin", @"AIAddBookmarkPlugin",
-						 @"ESAccountEvents", @"ESAccountNetworkConnectivityPlugin", @"ESAnnouncerPlugin",
-						 @"ESApplescriptContactAlertPlugin", @"ESBlockingPlugin", @"ESContactClientPlugin",
-						 @"ESContactServersideDisplayName", @"ESFileTransferMessagesPlugin",
-						 @"AIListObjectContentsPlugin", @"ESOpenMessageWindowContactAlertPlugin",
-						 @"ESSafariLinkToolbarItemPlugin", @"ESSendMessageContactAlertPlugin",
-						 @"ESUserIconHandlingPlugin", @"ErrorMessageHandlerPlugin", @"GBApplescriptFiltersPlugin",
-						 @"SAContactOnlineForPlugin", @"SHLinkManagementPlugin", @"ESGlobalEventsPreferencesPlugin",
-						 @"ESGeneralPreferencesPlugin", @"NEHUserNotificationPlugin", @"ESSecureMessagingPlugin",
-						 @"ESStatusPreferencesPlugin", @"AIAutomaticStatus", @"ESAwayStatusWindowPlugin",
-						 @"RAFBlockEditorPlugin", @"SMContactListShowBehaviorPlugin", @"ESiTunesPlugin",
-						 @"ESPersonalPreferencesPlugin", @"AIXtrasManager", @"OWSpellingPerContactPlugin",
-						 @"GBQuestionHandlerPlugin", @"AINulRemovalPlugin", @"AIDefaultFontRemovalPlugin",
-						 @"AIAdvancedPreferencesPlugin", @"GBImportPlugin", @"AIMentionEventPlugin",
-						 @"AIURLShortenerPlugin", @"AIGroupChatStatusTooltipPlugin", @"AIRealNameTooltip",
-						 @"AIUserHostTooltip", @"AIUnreadMessagesTooltip", @"AIIRCChannelLinker", @"AIURLHandlerPlugin",
-						 @"AIJumpControlPlugin", @"AIWebKitMessageViewPlugin", @"AWBonjourPlugin",
-						 @"CBPurpleServicePlugin", @"AIDoNothingContactAlertPlugin", nil];
-	// Load each component
-	for (NSString *className in componentClassNames) {
-
-#ifdef COMPONENT_LOAD_TIMING
-		NSDate *start = [NSDate date];
-#endif
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		Class class;
-
-		if (className && (class = NSClassFromString(className))) {
-			id<AIPlugin> object = [[class alloc] init];
-
-			NSAssert1(object, @"Failed to load %@", className);
-
-			[object installPlugin];
-
-			[components setObject:object forKey:className];
-			[object release];
-		} else {
-			NSAssert1(NO, @"Failed to load %@", className);
-		}
-		[pool release];
+	if ((self =
 #ifdef COMPONENT_LOAD_TIMING
 		NSTimeInterval t = -[start timeIntervalSinceNow];
 		aggregateComponentLoadingTime += t;
 		AILog(@"Loaded component: %@ in %f seconds", className, t);
 #endif
-	}
+}
 #ifdef COMPONENT_LOAD_TIMING
-	AILog(@"Total time spent loading components: %f", aggregateComponentLoadingTime);
+AILog(@"Total time spent loading components: %f", aggregateComponentLoadingTime);
 #endif
 }
 

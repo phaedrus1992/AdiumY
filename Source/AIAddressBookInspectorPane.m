@@ -31,54 +31,10 @@
 
 - (id)init
 {
-	if ((self = [super init])) {
-		[NSBundle loadNibNamed:[self nibName] owner:self];
-		[label_notes
-			setLocalizedString:
-				AILocalizedString(
-					@"Notes:", "Label beside the field for contact notes in the Settings tab of the Get Info window")];
-		[button_chooseCard
-			setLocalizedString:[AILocalizedStringFromTable(@"Choose Address Book Card", @"Buttons",
-														   "Button title to choose an Address Book card for a contact")
-								   stringByAppendingEllipsis]];
-
-		[label_abPeoplePickerChooseAnAddressCard setLocalizedString:AILocalizedString(@"Choose an Address Card:", nil)];
-		[button_abPeoplePickerOkay setLocalizedString:AILocalizedStringFromTable(@"Choose Card", @"Buttons", nil)];
-		[button_abPeoplePickerCancel setLocalizedString:AILocalizedStringFromTable(@"Cancel", @"Buttons", nil)];
-	}
-
-	return self;
-}
-
-- (void)dealloc
-{
-	[inspectorContentView release];
-	inspectorContentView = nil;
-	[addressBookPanel release];
-	addressBookPanel = nil;
-
-	[super dealloc];
-}
-
-- (NSString *)nibName
-{
-	return ADDRESS_BOOK_NIB_NAME;
-}
-
-- (NSView *)inspectorContentView
-{
-	return inspectorContentView;
-}
-
-- (void)updateForListObject:(AIListObject *)inObject
-{
-	NSString *currentNotes;
-
-	// Hold onto the object, using the highest-up metacontact if necessary
-	[displayedObject release];
+	if ((self = 
 	displayedObject =
 		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
-	[displayedObject retain];
+	displayedObject;
 
 	// Current note
 	if ((currentNotes = [displayedObject notes])) {

@@ -26,16 +26,7 @@
  */
 - (void)installPlugin
 {
-	[adium.preferenceController registerDefaults:[NSDictionary dictionaryNamed:@"PersonalPreferencesDefaults"
-																	  forClass:[self class]]
-										forGroup:GROUP_ACCOUNT_STATUS];
 
-	preferencePane = [[ESPersonalPreferences preferencePaneForPlugin:self] retain];
-}
-
-- (void)uninstallPlugin
-{
-	[preferencePane release];
 	preferencePane = nil;
 }
 

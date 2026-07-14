@@ -52,91 +52,30 @@
 
 - (id)init
 {
-	self = [super init];
-	if (self != nil) {
-		[NSBundle loadNibNamed:[self nibName] owner:self];
+	self = displayedObject =
+		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
 
-		// Load Encryption menus
-		[popUp_encryption setMenu:[adium.contentController encryptionMenuNotifyingTarget:self withDefault:YES]];
-		[[popUp_encryption menu] setAutoenablesItems:NO];
+	displayedObject;
 
-		// Observe contact list changes
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(reloadPopup)
-													 name:Contact_ListChanged
-												   object:nil];
-		// Observe account changes
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(reloadPopup)
-													 name:Account_ListChanged
-												   object:nil];
-
-		accountMenu = [[AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu
-											   showTitleVerbs:NO] retain];
-	}
-
-	return self;
+	// Rebuild the account and contacts lists
+	[self reloadPopup];
 }
 
-- (void)dealloc
-{
-	[accountMenu release];
-	accountMenu = nil;
-	[contactMenu release];
-	contactMenu = nil;
-	[displayedObject release];
-	displayedObject = nil;
-	[inspectorContentView release];
-	inspectorContentView = nil;
-
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
-	[super dealloc];
+if (![inObject isKindOfClass:[AIListContact class]]) {
+	[popUp_encryption selectItemWithTag:EncryptedChat_Default];
+} else {
+	[popUp_encryption selectItemWithTag:((AIListContact *)inObject).encryptedChatPreferences];
 }
 
-- (NSString *)nibName
-{
-	return ADVANCED_NIB_NAME;
-}
+[checkBox_alwaysShow setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
+[checkBox_alwaysShow setState:inObject.alwaysVisible];
 
-- (NSView *)inspectorContentView
-{
-	return inspectorContentView;
-}
+[checkBox_autoJoin setEnabled:[inObject isKindOfClass:[AIListBookmark class]]];
+[checkBox_autoJoin setState:[[inObject preferenceForKey:KEY_AUTO_JOIN group:GROUP_LIST_BOOKMARK] boolValue]];
 
-- (void)configureControlDimming
-{
-	[button_addOrRemoveGroup setEnabled:[tableView_groups numberOfSelectedRows] forSegment:1];
-}
-
-- (void)updateForListObject:(AIListObject *)inObject
-{
-	if (displayedObject != inObject) {
-		[displayedObject release];
-
-		displayedObject =
-			([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
-
-		[displayedObject retain];
-
-		// Rebuild the account and contacts lists
-		[self reloadPopup];
-	}
-
-	if (![inObject isKindOfClass:[AIListContact class]]) {
-		[popUp_encryption selectItemWithTag:EncryptedChat_Default];
-	} else {
-		[popUp_encryption selectItemWithTag:((AIListContact *)inObject).encryptedChatPreferences];
-	}
-
-	[checkBox_alwaysShow setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
-	[checkBox_alwaysShow setState:inObject.alwaysVisible];
-
-	[checkBox_autoJoin setEnabled:[inObject isKindOfClass:[AIListBookmark class]]];
-	[checkBox_autoJoin setState:[[inObject preferenceForKey:KEY_AUTO_JOIN group:GROUP_LIST_BOOKMARK] boolValue]];
-
-	[popUp_accounts setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
-	[popUp_contact setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
-	[button_addOrRemoveGroup setEnabled:![inObject isKindOfClass:[AIListGroup class]] forSegment:0];
+[popUp_accounts setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
+[popUp_contact setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
+[button_addOrRemoveGroup setEnabled:![inObject isKindOfClass:[AIListGroup class]] forSegment:0];
 }
 
 #pragma mark Preference callbacks
@@ -189,7 +128,7 @@
 
 	if (!contactMenu) {
 		// Instantiate here so we don't end up creating a massive menu for all contacts.
-		contactMenu = [[AIContactMenu contactMenuWithDelegate:self forContactsInObject:displayedObject] retain];
+		contactMenu = [AIContactMenu contactMenuWithDelegate:self forContactsInObject:displayedObject];
 	} else {
 		[contactMenu setContainingObject:displayedObject];
 	}

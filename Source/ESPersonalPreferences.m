@@ -236,7 +236,7 @@
 		imageData = [adium.preferenceController preferenceForKey:KEY_DEFAULT_USER_ICON group:GROUP_ACCOUNT_STATUS];
 	}
 
-	[imageView_userIcon setImage:(imageData ? [[[NSImage alloc] initWithData:imageData] autorelease] : nil)];
+	[imageView_userIcon setImage:(imageData ? [[NSImage alloc] initWithData:imageData] : nil)];
 	[imageView_userIcon setMaxSize:NSMakeSize(128.0f, 128.0f)];
 	[imageView_userIcon setShouldUpdateRecentRepository:YES];
 }

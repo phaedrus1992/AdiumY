@@ -53,7 +53,6 @@
 	top = next;
     }
 	
-	[super dealloc];
 }
 
 - (void) push:(id)value {
@@ -65,7 +64,7 @@
         return;
     }
     
-    newlink->data = [value retain];
+    newlink->data = value;
     newlink->next = top;
     top = newlink;
     size++;
@@ -78,7 +77,7 @@
     if (size != 0) {
         toplink = top;
         top = top->next;
-        value = [toplink->data autorelease];
+        value = toplink->data;
         free(toplink);
         size--;
     } else {

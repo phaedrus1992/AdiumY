@@ -32,40 +32,6 @@
 - (void)installPlugin
 {
 	// Install our tooltip entry
-	[adium.interfaceController registerContactListTooltipEntry:self secondaryEntry:NO];
-}
-
-/*!
- * @brief Tooltip label
- *
- * @result A label, or nil if no tooltip entry should be shown
- */
-- (NSString *)labelForObject:(AIListObject *)inObject
-{
-	return AILocalizedString(@"Online For", "A time interval such as '3 days' will be shown after this identifier");
-}
-
-/*!
- * @brief Tooltip entry
- *
- * @result The tooltip entry, or nil if no tooltip should be shown
- */
-- (NSAttributedString *)entryForObject:(AIListObject *)inObject
-{
-	NSAttributedString *entry = nil;
-
-	if (inObject.online) {
-		NSDate *signonDate;
-
-		if ([inObject isKindOfClass:[AIListContact class]] && (signonDate = [(AIListContact *)inObject signonDate])) {
-			entry =
-				[[NSAttributedString alloc] initWithString:[NSDateFormatter stringForTimeIntervalSinceDate:signonDate
-																							showingSeconds:NO
-																							   abbreviated:NO]];
-		}
-	}
-
-	return [entry autorelease];
 }
 
 - (BOOL)shouldDisplayInContactInspector

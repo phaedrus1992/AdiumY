@@ -27,227 +27,40 @@
  */
 - (id)init
 {
-	if ((self = [super init])) {
-		stringsRequiringPolling = [[NSMutableSet alloc] init];
-		delayedFilteringDict = [[NSMutableDictionary alloc] init];
-	}
-
-	return self;
+	if ((self =
+}
+else
+{
+	performedFilters = [NSMutableArray array];
 }
 
-- (void)dealloc
-{
-	[stringsRequiringPolling release];
-	[delayedFilteringDict release];
-
-	[super dealloc];
-}
-
-// Content Filtering
-// ----------------------------------------------------------------------------------------------------
-#pragma mark Content Filtering
-/*!
- * @brief Register a content filter.
- *
- * If the particular filter wants to apply to multiple types or directions, it should register multiple times.
- */
-- (void)registerContentFilter:(id<AIContentFilter>)inFilter
-					   ofType:(AIFilterType)type
-					direction:(AIFilterDirection)direction
-{
-	NSParameterAssert(type >= 0 && type < FILTER_TYPE_COUNT);
-	NSParameterAssert(direction >= 0 && direction < FILTER_DIRECTION_COUNT);
-
-	if (!contentFilter[type][direction]) {
-		contentFilter[type][direction] = [[NSMutableArray alloc] init];
-	}
-
-	[self _registerContentFilter:inFilter filterArray:contentFilter[type][direction]];
-}
-
-- (void)registerHTMLContentFilter:(id<AIHTMLContentFilter>)inFilter direction:(AIFilterDirection)direction
-{
-	if (!htmlContentFilters[direction]) {
-		htmlContentFilters[direction] = [[NSMutableArray alloc] init];
-	}
-
-	[self _registerContentFilter:inFilter filterArray:htmlContentFilters[direction]];
-}
-
-/*!
- * @brief Register a delayed content filter
- *
- * Delayed content filters return YES or NO from their filter method; YES means they began a filtering process.
- * When finished, the filter is responsible for notifying this class that the attributed string is ready.
- * A unique ID will be passed to identify each string.
- */
-- (void)registerDelayedContentFilter:(id<AIDelayedContentFilter>)inFilter
-							  ofType:(AIFilterType)type
-						   direction:(AIFilterDirection)direction
-{
-	NSParameterAssert(type >= 0 && type < FILTER_TYPE_COUNT);
-	NSParameterAssert(direction >= 0 && direction < FILTER_DIRECTION_COUNT);
-
-	if (!contentFilter[type][direction]) {
-		contentFilter[type][direction] = [[NSMutableArray alloc] init];
-	}
-
-	// Register the filter
-	[self _registerContentFilter:inFilter filterArray:contentFilter[type][direction]];
-
-	// Note that this is a delayed filter
-	if (!delayedContentFilters[type][direction]) {
-		delayedContentFilters[type][direction] = [[NSMutableArray alloc] init];
-	}
-	[delayedContentFilters[type][direction] addObject:inFilter];
-}
-
-/*!
- * @brief Unregister a filter.
- */
-- (void)unregisterContentFilter:(id<AIContentFilter>)inFilter
-{
-	NSParameterAssert(inFilter != nil);
-
-	for (NSUInteger i = 0; i < FILTER_TYPE_COUNT; i++) {
-		for (NSUInteger j = 0; j < FILTER_DIRECTION_COUNT; j++) {
-			[contentFilter[i][j] removeObject:inFilter];
-		}
-	}
-}
-
-/*!
- * @brief Unregister a delayed filter.
- */
-- (void)unregisterDelayedContentFilter:(id<AIDelayedContentFilter>)inFilter
-{
-	NSParameterAssert(inFilter != nil);
-
-	for (NSUInteger i = 0; i < FILTER_TYPE_COUNT; i++) {
-		for (NSUInteger j = 0; j < FILTER_DIRECTION_COUNT; j++) {
-			[delayedContentFilters[i][j] removeObject:inFilter];
-		}
-	}
-}
-
-/*!
- * @brief Unregister an HTML filter.
- */
-- (void)unregisterHTMLContentFilter:(id<AIHTMLContentFilter>)inFilter
-{
-	NSParameterAssert(inFilter != nil);
-
-	for (NSUInteger j = 0; j < FILTER_DIRECTION_COUNT; j++) {
-		[htmlContentFilters[j] removeObject:inFilter];
-	}
-}
-
-/*!
- * @brief Register a string to be filtered which requires polling to be updated
- */
-- (void)registerFilterStringWhichRequiresPolling:(NSString *)inPollString
-{
-	[stringsRequiringPolling addObject:inPollString];
-}
-
-/*!
- * @brief Is polling required to update the passed string?
- */
-- (BOOL)shouldPollToUpdateString:(NSString *)inString
-{
-	NSString *stringRequiringPolling;
-	BOOL shouldPoll = NO;
-
-	for (stringRequiringPolling in stringsRequiringPolling) {
-		if ([inString rangeOfString:stringRequiringPolling].location != NSNotFound) {
-			shouldPoll = YES;
-			break;
-		}
-	}
-
-	return shouldPoll;
-}
-
-/*!
- * @brief Filters an NSString containing HTML.
- *
- * @param htmlString A pointer to the NSString to filter
- * @param direction An AIFilterDirection representing whether the message is incoming or outgoing
- * @param content The AIContentObject that the html was derived from
- *
- * @result the filtered NSString
- */
-- (NSString *)filterHTMLString:(NSString *)htmlString
-					 direction:(AIFilterDirection)direction
-					   content:(AIContentObject *)content
-{
-	NSString *result = htmlString;
-	for (id<AIHTMLContentFilter> filter in htmlContentFilters[direction]) {
-		result = [filter filterHTMLString:result content:content];
-	}
-	return result;
-}
-
-/*!
- * @brief Perform the filtering of an attributedString on the specified content filter.
- *
- * @param attributedString A pointer to the NSAttributedString to filter
- * @param inContentFilterArray Array of filters to use, which must each conform to either AIDelayedContentFilter or
- * AIContentFilter
- * @param filterContext Passed to each filter as context.
- * @param uniqueID A unique ID used by delayed filters
- * @param filtersToSkip An array of filters which should not be performed, such as previously performed or inappropriate
- * filters
- * @param finishedFilters A pointer to an array which will be filled with the filters which were performed, suitable for
- * passing later as performedFilters
- *
- * @result YES if any delayed filtering began; NO if it did not
- */
-- (BOOL)_filterAttributedString:(NSAttributedString **)attributedString
-				  contentFilter:(NSArray *)inContentFilterArray
-				  filterContext:(id)filterContext
-		  uniqueDelayedFilterID:(unsigned long long)uniqueID
-				  filtersToSkip:(NSArray *)filtersToSkip
-				finishedFilters:(NSArray **)finishedFilters
-{
-	BOOL beganDelayedFiltering = NO;
-	NSMutableArray *performedFilters;
-
-	// If we're passed previouslyPerformedFilters, use them as a starting point for performedFilters
-	if (filtersToSkip) {
-		performedFilters = [[filtersToSkip mutableCopy] autorelease];
-	} else {
-		performedFilters = [NSMutableArray array];
-	}
-
-	for (id filter in inContentFilterArray) {
-		// Only run the filter if there were no previously performed filters or this hasn't been previously done
-		if (!filtersToSkip || ![filtersToSkip containsObject:filter]) {
-			if ([filter conformsToProtocol:@protocol(AIDelayedContentFilter)]) {
-				beganDelayedFiltering =
-					[(id<AIDelayedContentFilter>)filter delayedFilterAttributedString:*attributedString
-																			  context:filterContext
-																			 uniqueID:uniqueID];
-			} else {
-				@try {
-					*attributedString = [(id<AIContentFilter>)filter filterAttributedString:*attributedString
-																					context:filterContext];
-				} @catch (NSException *exception) {
-					AILogWithSignature(@"Caught exception in content %@: %@", filter, exception);
-				}
+for (id filter in inContentFilterArray) {
+	// Only run the filter if there were no previously performed filters or this hasn't been previously done
+	if (!filtersToSkip || ![filtersToSkip containsObject:filter]) {
+		if ([filter conformsToProtocol:@protocol(AIDelayedContentFilter)]) {
+			beganDelayedFiltering = [(id<AIDelayedContentFilter>)filter delayedFilterAttributedString:*attributedString
+																							  context:filterContext
+																							 uniqueID:uniqueID];
+		} else {
+			@try {
+				*attributedString = [(id<AIContentFilter>)filter filterAttributedString:*attributedString
+																				context:filterContext];
+			} @catch (NSException *exception) {
+				AILogWithSignature(@"Caught exception in content %@: %@", filter, exception);
 			}
 		}
-
-		// Note that we've now completed this filter
-		[performedFilters addObject:filter];
-		if (beganDelayedFiltering)
-			break;
 	}
 
-	if (finishedFilters)
-		*finishedFilters = performedFilters;
+	// Note that we've now completed this filter
+	[performedFilters addObject:filter];
+	if (beganDelayedFiltering)
+		break;
+}
 
-	return beganDelayedFiltering;
+if (finishedFilters)
+	*finishedFilters = performedFilters;
+
+return beganDelayedFiltering;
 }
 
 /*!

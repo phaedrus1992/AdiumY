@@ -29,47 +29,7 @@ typedef enum { ALERT_TYPE_ERROR, ALERT_TYPE_QUESTION } AlertType;
 
 - (id)init
 {
-	if ((self = [super init]) != nil) {
-		questionQueue = [[NSMutableArray alloc] init];
-		errorQueue = [[NSMutableArray alloc] init];
-	}
-
-	return self;
-}
-
-- (void)dealloc
-{
-	[questionQueue release];
-	[errorQueue release];
-	[currentAlert release];
-	[super dealloc];
-}
-
-- (void)installPlugin
-{
-	// Install our observers
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(handleQuestion:)
-												 name:Interface_ShouldDisplayQuestion
-											   object:nil];
-}
-
-- (void)uninstallPlugin
-{}
-
-- (void)handleType:(AlertType)type userInfo:(NSDictionary *)userInfo
-{
-	NSDictionary *infoCopy = [userInfo copy];
-
-	switch (type) {
-	case ALERT_TYPE_QUESTION:
-		[questionQueue addObject:infoCopy];
-		break;
-	case ALERT_TYPE_ERROR:
-		[errorQueue addObject:infoCopy];
-		break;
-	}
-	[infoCopy release];
+	if ((self = 
 	if (currentAlert == nil)
 		[self displayNextAlert];
 }

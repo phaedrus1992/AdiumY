@@ -45,127 +45,65 @@
 }
 - (NSImage *)image
 {
-	return [NSImage imageNamed:@"lock-locked" forClass:[adium class]];
-}
+	return fingerprintDictArray = [[NSMutableArray alloc] init];
 
-- (void)viewDidLoad
-{
-	viewIsOpen = YES;
+	for (context = otrg_plugin_userstate->context_root; context != NULL; context = context->next) {
 
-	// Account Menu
-	accountMenu = [[AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu
-										   showTitleVerbs:NO] retain];
+		fingerprint = context->fingerprint_root.next;
+		/* If there's no fingerprint, don't add it to the known
+		 * fingerprints list */
+		while (fingerprint) {
+			char hash[45];
+			NSDictionary *fingerprintDict;
+			NSString *UID;
+			NSString *state, *fingerprintString;
 
-	// Fingerprints
-	[tableView_fingerprints setDelegate:self];
-	[tableView_fingerprints setDataSource:self];
-	[tableView_fingerprints setTarget:self];
-	[tableView_fingerprints setDoubleAction:@selector(showFingerprint:)];
-	[self updateFingerprintsList];
+			UID = [NSString stringWithUTF8String:context->username];
 
-	[self updatePrivateKeyList];
+			if (context->msgstate == OTRL_MSGSTATE_ENCRYPTED && context->active_fingerprint != fingerprint) {
+				state = AILocalizedString(
+					@"Unused", "Word to describe an encryption fingerprint which is not currently being used");
+			} else {
+				TrustLevel trustLevel = otrg_plugin_context_to_trust(context);
 
-	[textField_privateKey setSelectable:YES];
-
-	[self tableViewSelectionDidChange:[NSNotification notificationWithName:@"SelectionChanged" object:nil]];
-}
-
-- (void)viewWillClose
-{
-	viewIsOpen = NO;
-	[fingerprintDictArray release];
-	fingerprintDictArray = nil;
-	[accountMenu release];
-	accountMenu = nil;
-
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:Account_ListChanged object:nil];
-}
-
-/*!
- * @brief Deallocate
- */
-- (void)dealloc
-{
-	[fingerprintDictArray release];
-	fingerprintDictArray = nil;
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
-
-	[super dealloc];
-}
-
-/*!
- * @brief Update the fingerprint display
- *
- * Called by the OTR adapter when -otr informs us the fingerprint list changed
- */
-- (void)updateFingerprintsList
-{
-	OtrlUserState otrg_plugin_userstate = otrg_get_userstate();
-
-	if (viewIsOpen && otrg_plugin_userstate) {
-		ConnContext *context;
-		Fingerprint *fingerprint;
-
-		[fingerprintDictArray release];
-		fingerprintDictArray = [[NSMutableArray alloc] init];
-
-		for (context = otrg_plugin_userstate->context_root; context != NULL; context = context->next) {
-
-			fingerprint = context->fingerprint_root.next;
-			/* If there's no fingerprint, don't add it to the known
-			 * fingerprints list */
-			while (fingerprint) {
-				char hash[45];
-				NSDictionary *fingerprintDict;
-				NSString *UID;
-				NSString *state, *fingerprintString;
-
-				UID = [NSString stringWithUTF8String:context->username];
-
-				if (context->msgstate == OTRL_MSGSTATE_ENCRYPTED && context->active_fingerprint != fingerprint) {
-					state = AILocalizedString(
-						@"Unused", "Word to describe an encryption fingerprint which is not currently being used");
-				} else {
-					TrustLevel trustLevel = otrg_plugin_context_to_trust(context);
-
-					switch (trustLevel) {
-					case TRUST_NOT_PRIVATE:
-						state = AILocalizedString(@"Not private", nil);
-						break;
-					case TRUST_UNVERIFIED:
-						state = AILocalizedString(@"Unverified", nil);
-						break;
-					case TRUST_PRIVATE:
-						state = AILocalizedString(@"Private", nil);
-						break;
-					case TRUST_FINISHED:
-						state = AILocalizedString(@"Finished", nil);
-						break;
-					default:
-						state = @"";
-						break;
-					}
+				switch (trustLevel) {
+				case TRUST_NOT_PRIVATE:
+					state = AILocalizedString(@"Not private", nil);
+					break;
+				case TRUST_UNVERIFIED:
+					state = AILocalizedString(@"Unverified", nil);
+					break;
+				case TRUST_PRIVATE:
+					state = AILocalizedString(@"Private", nil);
+					break;
+				case TRUST_FINISHED:
+					state = AILocalizedString(@"Finished", nil);
+					break;
+				default:
+					state = @"";
+					break;
 				}
-
-				otrl_privkey_hash_to_human(hash, fingerprint->fingerprint);
-				fingerprintString = [NSString stringWithUTF8String:hash];
-
-				AIAccount *account = [adium.accountController
-					accountWithInternalObjectID:[NSString stringWithUTF8String:context->accountname]];
-
-				fingerprintDict = [NSDictionary
-					dictionaryWithObjectsAndKeys:UID, @"UID", state, @"Status", fingerprintString, @"FingerprintString",
-												 [NSValue valueWithPointer:fingerprint], @"FingerprintValue", account,
-												 @"AIAccount", nil];
-
-				[fingerprintDictArray addObject:fingerprintDict];
-
-				fingerprint = fingerprint->next;
 			}
-		}
 
-		[tableView_fingerprints reloadData];
+			otrl_privkey_hash_to_human(hash, fingerprint->fingerprint);
+			fingerprintString = [NSString stringWithUTF8String:hash];
+
+			AIAccount *account = [adium.accountController
+				accountWithInternalObjectID:[NSString stringWithUTF8String:context->accountname]];
+
+			fingerprintDict =
+				[NSDictionary dictionaryWithObjectsAndKeys:UID, @"UID", state, @"Status", fingerprintString,
+														   @"FingerprintString", [NSValue valueWithPointer:fingerprint],
+														   @"FingerprintValue", account, @"AIAccount", nil];
+
+			[fingerprintDictArray addObject:fingerprintDict];
+
+			fingerprint = fingerprint->next;
+		}
 	}
+
+	[tableView_fingerprints reloadData];
+}
 }
 
 /*!

@@ -74,7 +74,6 @@
 	self.addressServiceController = nil;
 	self.manager = nil;
 
-	[super dealloc];
 }
 
 #pragma mark Sending Messages
@@ -116,7 +115,6 @@
 										  options:NSLiteralSearch
 											range:NSMakeRange(0, [mutableString length])];
 		messageExtraEscapedString = [mutableString copy];
-		[mutableString release];
 
 		mutableString = [fixedHTML mutableCopy];
 		[mutableString replaceOccurrencesOfString:@"<br>"
@@ -124,7 +122,6 @@
 										  options:NSCaseInsensitiveSearch
 											range:NSMakeRange(0, [mutableString length])];
 		htmlFiltered = [mutableString copy];
-		[mutableString release];
 
 		/* setup XML tree */
 		messageNode = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"message"];
@@ -153,14 +150,6 @@
 		[self.stream sendString:[messageNode xmlString]];
 
 		/* release messages */
-		[htmlMessageNode release];
-		[htmlBodyNode release];
-		[htmlNode release];
-		[textNode release];
-		[bodyNode release];
-		[messageNode release];
-		[messageExtraEscapedString release];
-		[htmlFiltered release];
 
 	} else {
 		[self setStatus:AWEzvUndefined];
@@ -215,7 +204,7 @@
 								 range:NSMakeRange(findRange.location, NSMaxRange(nextSemicolon) - findRange.location)];
 	}
 
-	return [mutableHTML autorelease];
+	return mutableHTML;
 }
 
 #pragma mark Send Typing Notification
@@ -252,12 +241,6 @@
 		[self.stream sendString:[messageNode xmlString]];
 
 		/* release messages */
-		[idNode release];
-		[composingNode release];
-		[xNode release];
-		[htmlNode release];
-		[bodyNode release];
-		[messageNode release];
 	}
 }
 
@@ -322,12 +305,6 @@
 		/*Send the xml*/
 		[self.stream sendString:[messageNode xmlString]];
 
-		[urlValue release];
-		[urlNode release];
-		[xNode release];
-		[htmlNode release];
-		[bodyNode release];
-		[messageNode release];
 	}
 }
 
@@ -382,11 +359,10 @@
 	connection = [[NSFileHandle alloc] initWithFileDescriptor:fd];
 
 	/* now to create stream */
-	self.stream = [[[AWEzvXMLStream alloc] initWithFileHandle:connection initiator:1] autorelease];
+	self.stream = [[AWEzvXMLStream alloc] initWithFileHandle:connection initiator:1];
 	[self.stream setDelegate:self];
 	[self.stream readAndParse];
 
-	[connection release];
 }
 
 #pragma mark XML Handling
@@ -576,7 +552,6 @@
 	NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
 	NSNumber *size = [numberFormatter numberFromString:sizeString];
 	// unsigned long long size = [[numberFormatter numberFromString:sizeString] unsignedLongLongValue];
-	[numberFormatter release];
 
 	/* Set up EKEzvFileTransfer object */
 	EKEzvIncomingFileTransfer *fileTransfer = [[EKEzvIncomingFileTransfer alloc] init];
@@ -593,7 +568,6 @@
 	}
 
 	[self.manager.client.client user:self sentFile:fileTransfer];
-	[fileTransfer release];
 }
 
 @end

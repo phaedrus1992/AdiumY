@@ -36,55 +36,8 @@
 
 - (void)configureTracking
 {
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(frameDidChange:)
-												 name:NSViewFrameDidChangeNotification
-											   object:self];
-	[self setPostsFrameChangedNotifications:YES];
 
-	trackingTag = -1;
-	[self resetCursorRects];
-
-	[self setPresentPictureTakerAsSheet:NO];
-}
-
-- (id)initWithFrame:(NSRect)inFrame
-{
-	if ((self = [super initWithFrame:inFrame])) {
-		[self configureTracking];
-		imageMenu = nil;
-		maxSize = NSMakeSize(256.0f, 256.0f);
-		shouldUpdateRecentRepository = YES;
-	}
-
-	return self;
-}
-
-- (void)awakeFromNib
-{
-	if ([[self superclass] instancesRespondToSelector:@selector(awakeFromNib)]) {
-		[super awakeFromNib];
-	}
-
-	[self configureTracking];
-
-	maxSize = NSMakeSize(256.0f, 256.0f);
-	shouldUpdateRecentRepository = YES;
-}
-
-- (void)dealloc
-{
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
-
-	if (trackingTag != -1) {
-		[self removeTrackingRect:trackingTag];
-		trackingTag = -1;
-	}
-
-	[imageMenu release];
 	imageMenu = nil;
-
-	[super dealloc];
 }
 
 #pragma mark Drawing
@@ -230,7 +183,7 @@
 
 		trackingTag = [self addTrackingRect:trackRect owner:self userData:nil assumeInside:mouseInside];
 		if (mouseInside)
-			[self mouseEntered:[[[NSEvent alloc] init] autorelease]];
+			[self mouseEntered:[[NSEvent alloc] init]];
 	}
 }
 

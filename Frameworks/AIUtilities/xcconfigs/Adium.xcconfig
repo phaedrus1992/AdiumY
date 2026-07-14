@@ -3,6 +3,7 @@ HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "$(SRCROOT)/Frameworks/glib.framework/
 HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_6 = "$(SRCROOT)/Frameworks/libgcrypt.framework/Headers"
 HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_7 = "$(SRCROOT)/Frameworks/libgpg-error.framework/Headers"
 HEADER_SEARCH_PATHS_QUOTED_FOR_TARGET_libgthread = "$(SRCROOT)/Frameworks/libgthread.framework/Headers"
+CLANG_ENABLE_OBJC_ARC = YES
 PRODUCT_NAME = Adium
 FRAMEWORK_SEARCH_PATHS = $(inherited)
 INFOPLIST_OTHER_PREPROCESSOR_FLAGS = -C

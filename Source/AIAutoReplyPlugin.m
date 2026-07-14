@@ -52,130 +52,23 @@
 - (void)installPlugin
 {
 	// Init
-	receivedAutoReply = [[NSMutableSet alloc] init];
-
-	// Add observers
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(didReceiveContent:)
-												 name:CONTENT_MESSAGE_RECEIVED
-											   object:nil];
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(didSendContent:)
-												 name:CONTENT_MESSAGE_SENT
-											   object:nil];
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(didSendContent:)
-												 name:CONTENT_MESSAGE_SENT_GROUP
-											   object:nil];
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(chatWillClose:)
-												 name:Chat_WillClose
-											   object:nil];
-
-	[[AIContactObserverManager sharedManager] registerListObjectObserver:self];
+	receivedAutoReply = receivedAutoReply = [mutableAutoReply
+		replaceCharactersInRange:NSMakeRange(0, 0)
+					  withString:AILocalizedString(@"(Autoreply) ",
+												   "Prefix to place before autoreplies on services which do "
+												   "not natively support them")];
+	autoReply = mutableAutoReply;
 }
 
-/*!
- * Deallocate
- */
-- (void)dealloc
-{
-	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
-	[receivedAutoReply release];
+responseContent = [AIContentMessage messageInChat:chat
+									   withSource:source
+									  destination:destination
+											 date:nil
+										  message:autoReply
+										autoreply:supportsAutoreply];
 
-	[super dealloc];
+[adium.contentController sendContentObject:responseContent];
 }
-
-/*!
- * @brief Account status changed.
- *
- * Update our chat monitoring in response to account status changes.
- *
- * TODO: If there are no accounts with an auto-reply flag set we SHOULD stop monitoring messages for optimal
- * performance.
- */
-- (NSSet *)updateListObject:(AIListObject *)inObject keys:(NSSet *)inModifiedKeys silent:(BOOL)silent
-{
-	if ([inObject isKindOfClass:[AIAccount class]] && [inModifiedKeys containsObject:@"accountStatus"]) {
-
-		// Reset our list of contacts who have already received an auto-reply
-		[receivedAutoReply release];
-		receivedAutoReply = [[NSMutableSet alloc] init];
-
-		// Don't want to remove from the new set any chats which previously closed and are pending removal
-		[NSObject cancelPreviousPerformRequestsWithTarget:self];
-	}
-
-	return nil;
-}
-
-/*!
- * @brief Respond to a received message
- *
- * Respond to a received message by sending out the current auto-reply.  We only send the auto-reply once to each
- * contact, and then their name is added to a list and additional received messages are ignored.
- */
-- (void)didReceiveContent:(NSNotification *)notification
-{
-	AIContentObject *contentObject = [[notification userInfo] objectForKey:@"AIContentObject"];
-	AIChat *chat = contentObject.chat;
-
-	/* We will not respond to the received message if it is an auto-reply, over a chat where we have already responded,
-	 * or over a group chat.
-	 * Additionally, it's not sensible to send autoreplies if the arriving message
-	 * was an offline message we're getting as we connect and it's older than 5 minutes
-	 * (or the person sending it is no longer online) -RAF
-	 * We also give the account a chance to suppress the autoreply
-	 */
-	if ([[contentObject type] isEqualToString:CONTENT_MESSAGE_TYPE] &&
-		![(AIContentMessage *)contentObject isAutoreply] && ![receivedAutoReply containsObject:chat.uniqueChatID] &&
-		!chat.isGroupChat && (fabs([contentObject.date timeIntervalSinceNow]) < 300) &&
-		[chat.account shouldSendAutoreplyToMessage:(AIContentMessage *)contentObject]) {
-		// 300 is 5 minutes in seconds
-
-		[self sendAutoReplyFromAccount:(AIAccount *)contentObject.destination
-							 toContact:contentObject.source
-								onChat:chat];
-
-		[receivedAutoReply addObject:chat.uniqueChatID];
-	}
-}
-
-/*!
- * @brief Send an auto-reply
- *
- * Sends our current auto-reply to the specified contact.
- * @param source Account sending the object
- * @param destination Contact receiving the object
- * @param chat Chat the communication is occuring over
- */
-- (void)sendAutoReplyFromAccount:(AIAccount *)source toContact:(AIListObject *)destination onChat:(AIChat *)chat
-{
-	AIContentMessage *responseContent = nil;
-	NSAttributedString *autoReply = chat.account.statusState.autoReply;
-	BOOL supportsAutoreply = source.supportsAutoReplies;
-
-	if (autoReply) {
-		if (!supportsAutoreply) {
-			// Tthe service isn't natively expecting an autoresponse, so make it a bit clearer what's going on
-			NSMutableAttributedString *mutableAutoReply = [[autoReply mutableCopy] autorelease];
-			[mutableAutoReply
-				replaceCharactersInRange:NSMakeRange(0, 0)
-							  withString:AILocalizedString(@"(Autoreply) ",
-														   "Prefix to place before autoreplies on services which do "
-														   "not natively support them")];
-			autoReply = mutableAutoReply;
-		}
-
-		responseContent = [AIContentMessage messageInChat:chat
-											   withSource:source
-											  destination:destination
-													 date:nil
-												  message:autoReply
-												autoreply:supportsAutoreply];
-
-		[adium.contentController sendContentObject:responseContent];
-	}
 }
 
 /*!

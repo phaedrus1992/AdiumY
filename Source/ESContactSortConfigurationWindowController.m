@@ -32,76 +32,7 @@ static ESContactSortConfigurationWindowController *sharedSortConfigInstance = ni
  */
 + (id)showSortConfigurationWindowForController:(AISortController *)controller
 {
-	if ([controller configureSortWindowTitle]) {
-		if (!sharedSortConfigInstance) {
-			// Load the window controller if necessary. We retain ourselves, closing when our window closes.
-			sharedSortConfigInstance = [[self alloc] initWithWindowNibName:@"SortConfiguration"];
-
-			// Remove those buttons we don't want.  removeFromSuperview will confuse the window, so just make them
-			// invisible.
-			NSButton *standardWindowButton =
-				[[sharedSortConfigInstance window] standardWindowButton:NSWindowMiniaturizeButton];
-			[standardWindowButton setFrame:NSMakeRect(0, 0, 0, 0)];
-			standardWindowButton = [[sharedSortConfigInstance window] standardWindowButton:NSWindowZoomButton];
-			[standardWindowButton setFrame:NSMakeRect(0, 0, 0, 0)];
-		}
-
-		[sharedSortConfigInstance configureForController:controller];
-
-		[sharedSortConfigInstance showWindow:nil];
-
-	} else {
-		// Configuring for a controller which has no configuration view...
-		if (sharedSortConfigInstance) {
-			[sharedSortConfigInstance closeWindow:nil];
-			[sharedSortConfigInstance autorelease];
-			sharedSortConfigInstance = nil;
-		}
-	}
-
-	return sharedSortConfigInstance;
-}
-
-+ (BOOL)sortConfigurationIsOpen
-{
-	return (sharedSortConfigInstance != nil);
-}
-
-/*!
- * @brief Configure our window and view for a passed controller
- */
-- (void)configureForController:(AISortController *)controller
-{
-	// Configure the title
-	[[self window] setTitle:[controller configureSortWindowTitle]];
-
-	// Configure the view
-	NSView *configureView = [controller configureView];
-
-	NSSize newSize = [configureView frame].size;
-
-	// This will resize the view to the current window size...
-	[[self window] setContentView:configureView];
-
-	//...so restore the window to the size this view really wants to be
-	[[self window] setContentSize:newSize];
-}
-
-/*!
- * @brief Window did load
- */
-- (void)windowDidLoad
-{
-	[super windowDidLoad];
-
-	[[self window] setTitle:AILocalizedString(@"Configure Sorting", "Configure Sort window title")];
-}
-
-- (void)windowWillClose:(id)sender
-{
-	[super windowWillClose:sender];
-
-	[sharedSortConfigInstance autorelease];
+	if (
 	sharedSortConfigInstance = nil;
 }
 

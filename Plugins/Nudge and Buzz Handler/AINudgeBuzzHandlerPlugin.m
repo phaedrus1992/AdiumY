@@ -119,8 +119,6 @@
 {
 	// Unregister ourself.
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
-	[notifyMenuItem release];
-	[notifyContextualMenuItem release];
 }
 
 #pragma mark Toolbar Handling
@@ -366,7 +364,7 @@
 	static NSImage *eventImage = nil;
 	// Use the message icon from the main bundle
 	if (!eventImage)
-		eventImage = [[NSImage imageNamed:@"events-message"] retain];
+		eventImage = [NSImage imageNamed:@"events-message"];
 	return eventImage;
 }
 

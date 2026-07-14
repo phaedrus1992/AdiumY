@@ -62,7 +62,7 @@ void xml_char_data	(void *userData,
 - (id) initWithFileHandle:(NSFileHandle *)myConnection initiator:(int)myInitiator 
 {
 	if ((self = [super init])) {
-		connection = [myConnection retain];
+		connection = myConnection;
 		delegate = nil;
 		nodeStack = [[AWEzvStack alloc] init];
 		initiator = myInitiator;
@@ -76,13 +76,10 @@ void xml_char_data	(void *userData,
 {
 	if (connection != nil) {
 		[connection closeFile];
-	    [connection release];
 	}
 	
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
-	[nodeStack release];
 	
-	[super dealloc];
 }
 
 @synthesize fileHandle = connection;
@@ -139,7 +136,6 @@ void xml_char_data	(void *userData,
     
     if ([data length] == 0) {
         if (connection != nil)
-           [[aNotification object] autorelease];
         connection = nil;
         [delegate XMLConnectionClosed];
     }
@@ -161,7 +157,7 @@ void xml_char_data	(void *userData,
     
     NSString *nodeName = [NSString stringWithUTF8String:name];
     
-    AWEzvXMLNode *node = [[[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:nodeName] autorelease];
+    AWEzvXMLNode *node = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:nodeName];
     
     while (*attributes != NULL) {
         NSString *attribute = [NSString stringWithUTF8String:*attributes++];
@@ -227,7 +223,6 @@ void xml_char_data	(void *userData,
 		
 	}
 
-	[connection release];
 	connection = nil;
 	[delegate XMLConnectionClosed];	
 }
@@ -245,7 +240,7 @@ void xml_char_data	(void *userData,
     if ((len == 1) && (*data == '\n'))
         return;
     
-    newData = [[[NSString alloc] initWithData:[NSData dataWithBytes:data length:len] encoding:NSUTF8StringEncoding] autorelease];
+    newData = [[NSString alloc] initWithData:[NSData dataWithBytes:data length:len] encoding:NSUTF8StringEncoding];
     
     if ([nodeStack size] > 0 && [(AWEzvXMLNode *)[nodeStack top] type] == AWEzvXMLText) {
         node = [nodeStack top];
@@ -254,7 +249,7 @@ void xml_char_data	(void *userData,
         else
             [node setName:newData];
     } else {
-        node = [[[AWEzvXMLNode alloc] initWithType:AWEzvXMLText name:newData] autorelease];
+        node = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLText name:newData];
         if ([nodeStack top] != nil)
             [(AWEzvXMLNode *)[nodeStack top] addChild:node];
         [nodeStack push:node];
@@ -282,7 +277,7 @@ void xml_char_data	(void *userData,
 	/* create node and tree, then convert to XML text */
 	CFXMLNodeRef xmlNode = CFXMLNodeCreate(NULL, kCFXMLNodeTypeElement, (CFStringRef)@"stream:stream", &xmlElementInfo, kCFXMLNodeCurrentVersion);
 	CFXMLTreeRef xmlTree = CFXMLTreeCreateWithNode(NULL, xmlNode);
-	NSData *data = [(NSData *)CFXMLTreeCreateXMLData(NULL, xmlTree) autorelease];
+	NSData *data = CFBridgingRelease(CFXMLTreeCreateXMLData(NULL, xmlTree));
 	CFRelease(xmlNode);
 	CFRelease(xmlTree);
 

@@ -39,7 +39,7 @@
 
 @property(assign) IBOutlet NSMenu *menu;
 @property(assign) IBOutlet AIImageCollectionView *imageCollectionView;
-@property(retain) AIContactListImagePicker *imagePicker;
+@property(strong) AIContactListImagePicker *imagePicker;
 @property(copy) NSArray *images;
 
 /*!

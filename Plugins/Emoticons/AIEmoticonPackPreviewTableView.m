@@ -49,7 +49,6 @@
 	rowRect = [self rectOfRow:firstRow];
 	image = [[[NSImage alloc]
 		initWithSize:NSMakeSize(rowRect.size.width, rowRect.size.height * count +
-														[self intercellSpacing].height * (count - 1))] autorelease];
 
 	// Draw
 	[image lockFocus];
@@ -57,7 +56,6 @@
 	yOffset = 0;
 	tableColumn = [[self tableColumns] objectAtIndex:0];
 	for (i = 0; i < count; i++) {
-
 		row = buf[i];
 		id cell = [tableColumn dataCellForRow:row];
 

@@ -51,284 +51,49 @@
 
 - (id)init
 {
-	if ((self = [super init])) {
-		accounts = [[NSMutableArray alloc] init];
-		unloadableAccounts = [[NSMutableArray alloc] init];
-	}
-
-	return self;
+	if ((self =
 }
 
-- (void)dealloc
-{
-	[accounts release];
-	[unloadableAccounts release];
-
-	[super dealloc];
+// Broadcast an account list changed notification
 }
-
-/*!
- * @brief Finish Initing
- *
- * Requires the all AIServices have registered
- */
-- (void)controllerDidLoad
+else if ([serviceID hasSuffix:@"LIBGAIM"])
 {
-	[self _loadAccounts];
+	if ([serviceID isEqualToString:@"AIM-LIBGAIM"]) {
+		NSString *uid = [accountDict objectForKey:ACCOUNT_UID];
+		if (uid && [uid length]) {
+			const char firstCharacter = [uid characterAtIndex:0];
 
-	[self upgradeAccounts];
-}
-
-// Accounts -------------------------------------------------------------------------------------------------------
-#pragma mark Accounts
-/*!
- * @brief Returns an array of all available accounts
- *
- * @return NSArray of AIAccount instances
- */
-- (NSArray *)accounts
-{
-	return accounts;
-}
-
-/*!
- * @brief Returns an array of accounts compatible with a service
- *
- * @param service AIService for compatible accounts
- * @result NSArray of AIAccount instances
- */
-- (NSArray *)accountsCompatibleWithService:(AIService *)service
-{
-	NSMutableArray *matchingAccounts = [NSMutableArray array];
-	AIAccount *account;
-	NSString *serviceClass = [service serviceClass];
-
-	for (account in accounts) {
-		if (account.enabled && [[account.service serviceClass] isEqualToString:serviceClass]) {
-			[matchingAccounts addObject:account];
-		}
-	}
-
-	return matchingAccounts;
-}
-
-- (AIAccount *)accountWithInternalObjectID:(NSString *)objectID
-{
-	AIAccount *account = nil;
-	// Some ancient preferences have NSNumbers instead of NSStrings. Work properly, silently.
-	if ([objectID isKindOfClass:[NSNumber class]])
-		objectID = [(NSNumber *)objectID stringValue];
-
-	for (account in accounts) {
-		if ([objectID isEqualToString:account.internalObjectID])
-			break;
-	}
-
-	return account;
-}
-
-// Editing
-// --------------------------------------------------------------------------------------------------------------
-#pragma mark Editing
-/*!
- * @brief Create an account
- *
- * The account is not added to Adium's list of accounts, this must be done separately with addAccount:
- * @param service AIService for the account
- * @param inUID NSString userID for the account
- * @return AIAccount instance that was created
- */
-- (AIAccount *)createAccountWithService:(AIService *)service UID:(NSString *)inUID
-{
-	return [service accountWithUID:inUID internalObjectID:[self _generateUniqueInternalObjectID]];
-}
-
-/*!
- * @brief Add an account
- *
- * @param inAccount AIAccount to add
- */
-- (void)addAccount:(AIAccount *)inAccount
-{
-	[accounts addObject:inAccount];
-	[self _saveAccounts];
-}
-
-/*!
- * @brief Delete an account
- *
- * @param inAccount AIAccount to delete
- */
-- (void)deleteAccount:(AIAccount *)inAccount
-{
-	// Shut down the account in preparation for release
-	// XXX - Is this sufficient?  Don't some accounts take a while to disconnect and all? -ai
-	[inAccount willBeDeleted];
-	[adium.accountController forgetPasswordForAccount:inAccount];
-
-	// Remove from our array
-	[accounts removeObject:inAccount];
-	[self _saveAccounts];
-}
-
-/*!
- * @brief Move an account
- *
- * @param account AIAccount to move
- * @param destIndex Index to place the account
- * @return new index of the account
- */
-- (NSUInteger)moveAccount:(AIAccount *)account toIndex:(NSUInteger)destIndex
-{
-	[accounts moveObject:account toIndex:destIndex];
-	[self _saveAccounts];
-	return [accounts indexOfObject:account];
-}
-
-/*!
- * @brief An account's UID changed
- *
- * Save our account array, which stores the account's UID permanently
- */
-- (void)accountDidChangeUID:(AIAccount *)account
-{
-	[self _saveAccounts];
-}
-
-- (void)moveAccount:(AIAccount *)account toService:(AIService *)service
-{
-	account.service = service;
-	[self _saveAccounts];
-}
-
-/*!
- * @brief Generate a unique account InternalObjectID
- *
- * @return NSString unique InternalObjectID
- */
-// XXX - This setup leaves the possibility that mangled preferences files would create multiple accounts with the same
-// ID -ai
-- (NSString *)_generateUniqueInternalObjectID
-{
-	NSInteger topAccountID = [[adium.preferenceController preferenceForKey:TOP_ACCOUNT_ID
-																	 group:PREF_GROUP_ACCOUNTS] integerValue];
-	NSString *internalObjectID = [NSString stringWithFormat:@"%ld", topAccountID];
-
-	[adium.preferenceController setPreference:[NSNumber numberWithInteger:topAccountID + 1]
-									   forKey:TOP_ACCOUNT_ID
-										group:PREF_GROUP_ACCOUNTS];
-
-	return internalObjectID;
-}
-
-// Storage
-// --------------------------------------------------------------------------------------------------------------
-#pragma mark Storage
-/*!
- * @brief Load accounts from disk
- */
-- (void)_loadAccounts
-{
-	NSArray *accountList = [adium.preferenceController preferenceForKey:ACCOUNT_LIST group:PREF_GROUP_ACCOUNTS];
-	NSDictionary *accountDict;
-
-	// Create an instance of every saved account
-	for (accountDict in accountList) {
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		NSString *serviceUniqueID = [self _upgradeServiceUniqueID:[accountDict objectForKey:ACCOUNT_TYPE]
-												   forAccountDict:accountDict];
-		AIAccount *newAccount;
-
-		// Fetch the account service, UID, and ID
-		AIService *service = [adium.accountController serviceWithUniqueID:serviceUniqueID];
-		NSString *accountUID = [accountDict objectForKey:ACCOUNT_UID];
-		NSString *internalObjectID = [accountDict objectForKey:ACCOUNT_OBJECT_ID];
-
-		// Create the account and add it to our array
-		if (service && accountUID && [accountUID length]) {
-			if ((newAccount = [service accountWithUID:accountUID internalObjectID:internalObjectID])) {
-				[accounts addObject:newAccount];
+			if ([uid hasSuffix:@"@mac.com"]) {
+				serviceID = @"libpurple-oscar-Mac";
+			} else if (firstCharacter >= '0' && firstCharacter <= '9') {
+				serviceID = @"libpurple-oscar-ICQ";
 			} else {
-				NSLog(@"Could not load account %@", accountDict);
-				[unloadableAccounts addObject:accountDict];
-			}
-		} else {
-			if ([accountUID length]) {
-				AILog(@"Available services are %@: could not load account %@ on service %@ (service %@)",
-					  adium.accountController.services, accountDict, serviceUniqueID, service);
-				[unloadableAccounts addObject:accountDict];
-			} else {
-				AILog(@"Ignored an account with a 0 length accountUID: %@", accountDict);
+				serviceID = @"libpurple-oscar-AIM";
 			}
 		}
-		[pool release];
+	} else if ([serviceID isEqualToString:@"GaduGadu-LIBGAIM"]) {
+		serviceID = @"libpurple-Gadu-Gadu";
+	} else if ([serviceID isEqualToString:@"Jabber-LIBGAIM"]) {
+		serviceID = @"libpurple-Jabber";
+	} else if ([serviceID isEqualToString:@"MSN-LIBGAIM"]) {
+		serviceID = @"libpurple-MSN";
+	} else if ([serviceID isEqualToString:@"Napster-LIBGAIM"]) {
+		serviceID = @"libpurple-Napster";
+	} else if ([serviceID isEqualToString:@"Novell-LIBGAIM"]) {
+		serviceID = @"libpurple-GroupWise";
+	} else if ([serviceID isEqualToString:@"Sametime-LIBGAIM"]) {
+		serviceID = @"libpurple-Sametime";
+	} else if ([serviceID isEqualToString:@"Yahoo-LIBGAIM"]) {
+		serviceID = @"libpurple-Yahoo!";
+	} else if ([serviceID isEqualToString:@"Yahoo-Japan-LIBGAIM"]) {
+		serviceID = @"libpurple-Yahoo!-Japan";
 	}
-
-	// Broadcast an account list changed notification
-	[[NSNotificationCenter defaultCenter] postNotificationName:Account_ListChanged object:nil userInfo:nil];
 }
+else if ([serviceID isEqualToString:@"rvous-libezv"]) serviceID = @"bonjour-libezv";
+else if ([serviceID isEqualToString:@"joscar-OSCAR-AIM"]) serviceID = @"libpurple-oscar-AIM";
+else if ([serviceID isEqualToString:@"joscar-OSCAR-dotMac"]) serviceID = @"libpurple-oscar-Mac";
 
-/*!
- * @brief ServiceID upgrade code (v0.63 -> v0.70 for libpurple, v0.70 -> v0.80 for bonjour, v1.0 -> v1.1 for libpurple)
- *
- * The changed name will only be saved if some other account change, such as adding an account, occurs,
- * so this code should remain indefinitely to provide an upgrade path to people whose service IDs are in an
- * old style.
- *
- * @param serviceID NSString service unique ID (old or new)
- * @param accountDict Dictionary of the saved account
- * @return NSString service ID (new), or nil if unable to upgrade
- */
-- (NSString *)_upgradeServiceUniqueID:(NSString *)serviceID forAccountDict:(NSDictionary *)accountDict
-{
-	// Libgaim
-	if ([serviceID hasPrefix:@"libgaim"]) {
-		NSMutableString *newServiceID = [serviceID mutableCopy];
-		[newServiceID replaceOccurrencesOfString:@"libgaim"
-									  withString:@"libpurple"
-										 options:(NSLiteralSearch | NSAnchoredSearch)
-										   range:NSMakeRange(0, [newServiceID length])];
-		serviceID = [newServiceID autorelease];
-
-	} else if ([serviceID hasSuffix:@"LIBGAIM"]) {
-		if ([serviceID isEqualToString:@"AIM-LIBGAIM"]) {
-			NSString *uid = [accountDict objectForKey:ACCOUNT_UID];
-			if (uid && [uid length]) {
-				const char firstCharacter = [uid characterAtIndex:0];
-
-				if ([uid hasSuffix:@"@mac.com"]) {
-					serviceID = @"libpurple-oscar-Mac";
-				} else if (firstCharacter >= '0' && firstCharacter <= '9') {
-					serviceID = @"libpurple-oscar-ICQ";
-				} else {
-					serviceID = @"libpurple-oscar-AIM";
-				}
-			}
-		} else if ([serviceID isEqualToString:@"GaduGadu-LIBGAIM"]) {
-			serviceID = @"libpurple-Gadu-Gadu";
-		} else if ([serviceID isEqualToString:@"Jabber-LIBGAIM"]) {
-			serviceID = @"libpurple-Jabber";
-		} else if ([serviceID isEqualToString:@"MSN-LIBGAIM"]) {
-			serviceID = @"libpurple-MSN";
-		} else if ([serviceID isEqualToString:@"Napster-LIBGAIM"]) {
-			serviceID = @"libpurple-Napster";
-		} else if ([serviceID isEqualToString:@"Novell-LIBGAIM"]) {
-			serviceID = @"libpurple-GroupWise";
-		} else if ([serviceID isEqualToString:@"Sametime-LIBGAIM"]) {
-			serviceID = @"libpurple-Sametime";
-		} else if ([serviceID isEqualToString:@"Yahoo-LIBGAIM"]) {
-			serviceID = @"libpurple-Yahoo!";
-		} else if ([serviceID isEqualToString:@"Yahoo-Japan-LIBGAIM"]) {
-			serviceID = @"libpurple-Yahoo!-Japan";
-		}
-	} else if ([serviceID isEqualToString:@"rvous-libezv"])
-		serviceID = @"bonjour-libezv";
-	else if ([serviceID isEqualToString:@"joscar-OSCAR-AIM"])
-		serviceID = @"libpurple-oscar-AIM";
-	else if ([serviceID isEqualToString:@"joscar-OSCAR-dotMac"])
-		serviceID = @"libpurple-oscar-Mac";
-
-	return serviceID;
+return serviceID;
 }
 
 /*!
