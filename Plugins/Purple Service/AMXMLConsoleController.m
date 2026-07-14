@@ -28,64 +28,61 @@
 
 static void xmlnode_received_cb(PurpleConnection *gc, xmlnode **packet, gpointer this)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+@autoreleasepool {
 
-	AMXMLConsoleController *self = (AMXMLConsoleController *)this;
+		AMXMLConsoleController *self = (AMXMLConsoleController *)this;
 
-	if (!this || [self gc] != gc) {
-		[pool release];
-		return;
-	}
+		if (!this || [self gc] != gc) {
+			return;
+		}
 
-	char *str = xmlnode_to_formatted_str(*packet, NULL);
-	NSString *sstr = [NSString stringWithUTF8String:str];
+		char *str = xmlnode_to_formatted_str(*packet, NULL);
+		NSString *sstr = [NSString stringWithUTF8String:str];
 
-	if ([sstr hasPrefix:XML_PREFIX])
-		sstr = [sstr substringFromIndex:[XML_PREFIX length]];
+		if ([sstr hasPrefix:XML_PREFIX])
+			sstr = [sstr substringFromIndex:[XML_PREFIX length]];
 
-	NSAttributedString *astr = [[NSAttributedString alloc] initWithString:sstr attributes:nil];
-	[self appendToLog:astr];
-	[astr release];
+		NSAttributedString *astr = [[NSAttributedString alloc] initWithString:sstr attributes:nil];
+		[self appendToLog:astr];
+		[astr release];
 
-	g_free(str);
+		g_free(str);
 
-	[pool release];
+}
 }
 
 static void xmlnode_sent_cb(PurpleConnection *gc, char **packet, gpointer this)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	AMXMLConsoleController *self = (AMXMLConsoleController *)this;
-	xmlnode *node;
+@autoreleasepool {
+		AMXMLConsoleController *self = (AMXMLConsoleController *)this;
+		xmlnode *node;
 
-	if (!this || [self gc] != gc) {
-		[pool release];
-		return;
-	}
+		if (!this || [self gc] != gc) {
+			return;
+		}
 
-	node = ((*packet && strlen(*packet) && ((*packet)[0] == '<')) ? xmlnode_from_str(*packet, -1) : NULL);
+		node = ((*packet && strlen(*packet) && ((*packet)[0] == '<')) ? xmlnode_from_str(*packet, -1) : NULL);
 
-	if (!node) {
-		[pool release];
-		return;
-	}
+		if (!node) {
+			return;
+		}
 
-	char *str = xmlnode_to_formatted_str(node, NULL);
-	NSString *sstr = [NSString stringWithUTF8String:str];
+		char *str = xmlnode_to_formatted_str(node, NULL);
+		NSString *sstr = [NSString stringWithUTF8String:str];
 
-	if ([sstr hasPrefix:XML_PREFIX])
-		sstr = [sstr substringFromIndex:[XML_PREFIX length]];
+		if ([sstr hasPrefix:XML_PREFIX])
+			sstr = [sstr substringFromIndex:[XML_PREFIX length]];
 
-	NSAttributedString *astr = [[NSAttributedString alloc]
-		initWithString:sstr
-			attributes:[NSDictionary dictionaryWithObject:[NSColor blueColor] forKey:NSForegroundColorAttributeName]];
-	[self appendToLog:astr];
-	[astr release];
+		NSAttributedString *astr = [[NSAttributedString alloc]
+			initWithString:sstr
+				attributes:[NSDictionary dictionaryWithObject:[NSColor blueColor] forKey:NSForegroundColorAttributeName]];
+		[self appendToLog:astr];
+		[astr release];
 
-	g_free(str);
-	xmlnode_free(node);
+		g_free(str);
+		xmlnode_free(node);
 
-	[pool release];
+}
 }
 
 @implementation AMXMLConsoleController

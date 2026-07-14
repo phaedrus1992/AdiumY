@@ -35,35 +35,33 @@
 /// @param data The AMPurpleJabberMessageStyling instance (as void*)
 static void AMPurpleJabberMessageStyling_received_xmlnode_cb(PurpleConnection *gc, xmlnode **packet, gpointer data)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+@autoreleasepool {
 
-	@try {
-		AMPurpleJabberMessageStyling *self = (__bridge AMPurpleJabberMessageStyling *)data;
-		xmlnode *node = *packet;
+		@try {
+			AMPurpleJabberMessageStyling *self = (__bridge AMPurpleJabberMessageStyling *)data;
+			xmlnode *node = *packet;
 
-		if (node == NULL || gc == NULL || self == nil) {
-			[pool release];
-			return;
+			if (node == NULL || gc == NULL || self == nil) {
+				return;
+			}
+
+			// Only process message stanzas
+			if (strcmp(node->name, "message") != 0) {
+				return;
+			}
+
+			// Look for <unstyled xmlns="urn:xmpp:styling:0"/> child
+			xmlnode *unstyled = xmlnode_get_child_with_namespace(node, "unstyled", [NS_MESSAGE_STYLING UTF8String]);
+			if (unstyled != NULL) {
+				self->_lastMessageHadUnstyled = YES;
+				AILog(@"AMPurpleJabberMessageStyling: Detected <unstyled/> in message");
+			}
+
+		} @catch (NSException *exception) {
+			AILog(@"AMPurpleJabberMessageStyling: exception handling stanza: %@", exception);
 		}
 
-		// Only process message stanzas
-		if (strcmp(node->name, "message") != 0) {
-			[pool release];
-			return;
-		}
-
-		// Look for <unstyled xmlns="urn:xmpp:styling:0"/> child
-		xmlnode *unstyled = xmlnode_get_child_with_namespace(node, "unstyled", [NS_MESSAGE_STYLING UTF8String]);
-		if (unstyled != NULL) {
-			self->_lastMessageHadUnstyled = YES;
-			AILog(@"AMPurpleJabberMessageStyling: Detected <unstyled/> in message");
-		}
-
-	} @catch (NSException *exception) {
-		AILog(@"AMPurpleJabberMessageStyling: exception handling stanza: %@", exception);
-	}
-
-	[pool release];
+}
 }
 
 #pragma mark -

@@ -40,117 +40,110 @@
 
 static void AMPurpleJabberPubsubBookmarks_received_xmlnode_cb(PurpleConnection *gc, xmlnode **packet, gpointer data)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+@autoreleasepool {
 
-	@try {
-		AMPurpleJabberPubsubBookmarks *self = (__bridge AMPurpleJabberPubsubBookmarks *)data;
-		xmlnode *node = *packet;
+		@try {
+			AMPurpleJabberPubsubBookmarks *self = (__bridge AMPurpleJabberPubsubBookmarks *)data;
+			xmlnode *node = *packet;
 
-		if (!node || !gc || !self) {
-			[pool release];
-			return;
-		}
-
-		xmlnode *itemsNode = NULL;
-
-		// Handle IQ/result with PubSub items (retrieve response)
-		if (strcmp(node->name, "iq") == 0) {
-			const char *iqType = xmlnode_get_attrib(node, "type");
-			if (!iqType || strcmp(iqType, "result") != 0) {
-				[pool release];
+			if (!node || !gc || !self) {
 				return;
 			}
 
-			xmlnode *pubsub = xmlnode_get_child_with_namespace(node, "pubsub", [NS_PUBSUB UTF8String]);
-			if (!pubsub) {
-				[pool release];
+			xmlnode *itemsNode = NULL;
+
+			// Handle IQ/result with PubSub items (retrieve response)
+			if (strcmp(node->name, "iq") == 0) {
+				const char *iqType = xmlnode_get_attrib(node, "type");
+				if (!iqType || strcmp(iqType, "result") != 0) {
+					return;
+				}
+
+				xmlnode *pubsub = xmlnode_get_child_with_namespace(node, "pubsub", [NS_PUBSUB UTF8String]);
+				if (!pubsub) {
+					return;
+				}
+
+				itemsNode = xmlnode_get_child_with_namespace(pubsub, "items", [NS_PUBSUB UTF8String]);
+			}
+			// Handle Message with PubSub event (PEP notification)
+			else if (strcmp(node->name, "message") == 0) {
+				xmlnode *event = xmlnode_get_child_with_namespace(node, "event", [NS_PUBSUB_EVENT UTF8String]);
+				if (!event) {
+					return;
+				}
+
+				itemsNode = xmlnode_get_child_with_namespace(event, "items", [NS_PUBSUB_EVENT UTF8String]);
+			} else {
 				return;
 			}
 
-			itemsNode = xmlnode_get_child_with_namespace(pubsub, "items", [NS_PUBSUB UTF8String]);
-		}
-		// Handle Message with PubSub event (PEP notification)
-		else if (strcmp(node->name, "message") == 0) {
-			xmlnode *event = xmlnode_get_child_with_namespace(node, "event", [NS_PUBSUB_EVENT UTF8String]);
-			if (!event) {
-				[pool release];
+			if (!itemsNode) {
 				return;
 			}
 
-			itemsNode = xmlnode_get_child_with_namespace(event, "items", [NS_PUBSUB_EVENT UTF8String]);
-		} else {
-			[pool release];
-			return;
-		}
-
-		if (!itemsNode) {
-			[pool release];
-			return;
-		}
-
-		// Verify the items node is for our bookmarks namespace
-		const char *itemsNodeAttrib = xmlnode_get_attrib(itemsNode, "node");
-		if (!itemsNodeAttrib || strcmp(itemsNodeAttrib, [NS_PUBSUB_BOOKMARKS UTF8String]) != 0) {
-			[pool release];
-			return;
-		}
-
-		// Parse conference elements from items
-		NSMutableArray *conferences = [NSMutableArray array];
-
-		for (xmlnode *item = itemsNode->child; item; item = item->next) {
-			if (item->type != XMLNODE_TYPE_TAG || strcmp(item->name, "item") != 0) {
-				continue;
+			// Verify the items node is for our bookmarks namespace
+			const char *itemsNodeAttrib = xmlnode_get_attrib(itemsNode, "node");
+			if (!itemsNodeAttrib || strcmp(itemsNodeAttrib, [NS_PUBSUB_BOOKMARKS UTF8String]) != 0) {
+				return;
 			}
 
-			for (xmlnode *child = item->child; child; child = child->next) {
-				if (child->type != XMLNODE_TYPE_TAG || strcmp(child->name, "conference") != 0) {
+			// Parse conference elements from items
+			NSMutableArray *conferences = [NSMutableArray array];
+
+			for (xmlnode *item = itemsNode->child; item; item = item->next) {
+				if (item->type != XMLNODE_TYPE_TAG || strcmp(item->name, "item") != 0) {
 					continue;
 				}
 
-				const char *jid = xmlnode_get_attrib(child, "jid");
-				const char *name = xmlnode_get_attrib(child, "name");
-				const char *autojoin = xmlnode_get_attrib(child, "autojoin");
+				for (xmlnode *child = item->child; child; child = child->next) {
+					if (child->type != XMLNODE_TYPE_TAG || strcmp(child->name, "conference") != 0) {
+						continue;
+					}
 
-				if (!jid || !name) {
-					continue;
-				}
+					const char *jid = xmlnode_get_attrib(child, "jid");
+					const char *name = xmlnode_get_attrib(child, "name");
+					const char *autojoin = xmlnode_get_attrib(child, "autojoin");
 
-				// Extract optional <nick> child
-				NSString *nick = nil;
-				xmlnode *nickNode = xmlnode_get_child(child, "nick");
-				if (nickNode && nickNode->child && nickNode->child->data) {
-					nick = @((const char *)nickNode->child->data);
-				}
+					if (!jid || !name) {
+						continue;
+					}
 
-				NSMutableDictionary *conference = [NSMutableDictionary dictionary];
-				[conference setObject:@(jid) forKey:@"jid"];
-				[conference setObject:@(name) forKey:@"name"];
-				if (autojoin) {
-					[conference setObject:@(autojoin) forKey:@"autojoin"];
-				}
-				if (nick) {
-					[conference setObject:nick forKey:@"nick"];
-				}
+					// Extract optional <nick> child
+					NSString *nick = nil;
+					xmlnode *nickNode = xmlnode_get_child(child, "nick");
+					if (nickNode && nickNode->child && nickNode->child->data) {
+						nick = @((const char *)nickNode->child->data);
+					}
 
-				[conferences addObject:conference];
+					NSMutableDictionary *conference = [NSMutableDictionary dictionary];
+					[conference setObject:@(jid) forKey:@"jid"];
+					[conference setObject:@(name) forKey:@"name"];
+					if (autojoin) {
+						[conference setObject:@(autojoin) forKey:@"autojoin"];
+					}
+					if (nick) {
+						[conference setObject:nick forKey:@"nick"];
+					}
+
+					[conferences addObject:conference];
+				}
 			}
+
+			NSDictionary *userInfo = @{
+				@"bookmarks" : conferences,
+			};
+			[[NSNotificationCenter defaultCenter] postNotificationName:@"AIPubsubBookmarksReceived"
+																object:self
+															  userInfo:userInfo];
+
+			AILog(@"AMPurpleJabberPubsubBookmarks: Received %lu bookmark(s)", (unsigned long)[conferences count]);
+
+		} @catch (NSException *exception) {
+			AILog(@"AMPurpleJabberPubsubBookmarks: exception handling stanza: %@", exception);
 		}
 
-		NSDictionary *userInfo = @{
-			@"bookmarks" : conferences,
-		};
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"AIPubsubBookmarksReceived"
-															object:self
-														  userInfo:userInfo];
-
-		AILog(@"AMPurpleJabberPubsubBookmarks: Received %lu bookmark(s)", (unsigned long)[conferences count]);
-
-	} @catch (NSException *exception) {
-		AILog(@"AMPurpleJabberPubsubBookmarks: exception handling stanza: %@", exception);
-	}
-
-	[pool release];
+}
 }
 
 #pragma mark -

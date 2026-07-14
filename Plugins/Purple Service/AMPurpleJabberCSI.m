@@ -173,26 +173,24 @@
 
 static void AMPurpleJabberCSI_received_xmlnode_cb(PurpleConnection *gc, xmlnode **packet, gpointer data)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	@try {
-		AMPurpleJabberCSI *self = (__bridge AMPurpleJabberCSI *)data;
-		xmlnode *node = *packet;
-		if (!node || !gc || !self) {
-			[pool release];
-			return;
-		}
-		if (strcmp(node->name, "enabled") == 0) {
-			const char *xmlns = xmlnode_get_namespace(node);
-			if (xmlns && strcmp(xmlns, [NS_CSI UTF8String]) == 0) {
-				self->_csiEnabled = YES;
-				AILog(@"AMPurpleJabberCSI: Server enabled CSI");
-				[self _sendState:AMPurpleJabberCSIStateActive];
+	@autoreleasepool {
+		@try {
+			AMPurpleJabberCSI *self = (__bridge AMPurpleJabberCSI *)data;
+			xmlnode *node = *packet;
+			if (!node || !gc || !self) {
+				return;
 			}
+			if (strcmp(node->name, "enabled") == 0) {
+				const char *xmlns = xmlnode_get_namespace(node);
+				if (xmlns && strcmp(xmlns, [NS_CSI UTF8String]) == 0) {
+					self->_csiEnabled = YES;
+					AILog(@"AMPurpleJabberCSI: Server enabled CSI");
+					[self _sendState:AMPurpleJabberCSIStateActive];
+				}
+			}
+		} @catch (NSException *e) {
+			AILog(@"AMPurpleJabberCSI: Exception in received_xmlnode_cb: %@: %@", e.name, e.reason);
 		}
-	} @catch (NSException *e) {
-		AILog(@"AMPurpleJabberCSI: Exception in received_xmlnode_cb: %@: %@", e.name, e.reason);
-	} @finally {
-		[pool release];
 	}
 }
 

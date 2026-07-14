@@ -38,92 +38,87 @@
 
 static void AMPurpleJabberBookmarks_received_xmlnode_cb(PurpleConnection *gc, xmlnode **packet, gpointer data)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+@autoreleasepool {
 
-	@try {
-		AMPurpleJabberBookmarks *self = (__bridge AMPurpleJabberBookmarks *)data;
-		xmlnode *node = *packet;
+		@try {
+			AMPurpleJabberBookmarks *self = (__bridge AMPurpleJabberBookmarks *)data;
+			xmlnode *node = *packet;
 
-		if (!node || !gc || !self) {
-			[pool release];
-			return;
-		}
-
-		// Only process IQ stanzas
-		if (strcmp(node->name, "iq") != 0) {
-			[pool release];
-			return;
-		}
-
-		const char *iqType = xmlnode_get_attrib(node, "type");
-		if (!iqType || strcmp(iqType, "result") != 0) {
-			[pool release];
-			return;
-		}
-
-		// Look for <query xmlns='jabber:iq:private'>
-		xmlnode *query = xmlnode_get_child_with_namespace(node, "query", [NS_PRIVATE_XML UTF8String]);
-		if (!query) {
-			[pool release];
-			return;
-		}
-
-		// Look for <storage xmlns='storage:bookmarks'> within the query
-		xmlnode *storage = xmlnode_get_child_with_namespace(query, "storage", [NS_BOOKMARKS UTF8String]);
-		if (!storage) {
-			[pool release];
-			return;
-		}
-
-		// Successfully received bookmarks storage data
-		// Post a notification so interested parties can process the bookmarks
-		NSMutableArray *conferences = [NSMutableArray array];
-
-		for (xmlnode *child = storage->child; child; child = child->next) {
-			if (child->type == XMLNODE_TYPE_TAG && strcmp(child->name, "conference") == 0) {
-				const char *jid = xmlnode_get_attrib(child, "jid");
-				const char *name = xmlnode_get_attrib(child, "name");
-				const char *autojoin = xmlnode_get_attrib(child, "autojoin");
-
-				if (!jid || !name) {
-					continue;
-				}
-
-				// Extract optional <nick> child
-				NSString *nick = nil;
-				xmlnode *nickNode = xmlnode_get_child(child, "nick");
-				if (nickNode && nickNode->child && nickNode->child->data) {
-					nick = @((const char *)nickNode->child->data);
-				}
-
-				NSMutableDictionary *conference = [NSMutableDictionary dictionary];
-				[conference setObject:@(jid) forKey:@"jid"];
-				[conference setObject:@(name) forKey:@"name"];
-				if (autojoin) {
-					[conference setObject:@(autojoin) forKey:@"autojoin"];
-				}
-				if (nick) {
-					[conference setObject:nick forKey:@"nick"];
-				}
-
-				[conferences addObject:conference];
+			if (!node || !gc || !self) {
+				return;
 			}
+
+			// Only process IQ stanzas
+			if (strcmp(node->name, "iq") != 0) {
+				return;
+			}
+
+			const char *iqType = xmlnode_get_attrib(node, "type");
+			if (!iqType || strcmp(iqType, "result") != 0) {
+				return;
+			}
+
+			// Look for <query xmlns='jabber:iq:private'>
+			xmlnode *query = xmlnode_get_child_with_namespace(node, "query", [NS_PRIVATE_XML UTF8String]);
+			if (!query) {
+				return;
+			}
+
+			// Look for <storage xmlns='storage:bookmarks'> within the query
+			xmlnode *storage = xmlnode_get_child_with_namespace(query, "storage", [NS_BOOKMARKS UTF8String]);
+			if (!storage) {
+				return;
+			}
+
+			// Successfully received bookmarks storage data
+			// Post a notification so interested parties can process the bookmarks
+			NSMutableArray *conferences = [NSMutableArray array];
+
+			for (xmlnode *child = storage->child; child; child = child->next) {
+				if (child->type == XMLNODE_TYPE_TAG && strcmp(child->name, "conference") == 0) {
+					const char *jid = xmlnode_get_attrib(child, "jid");
+					const char *name = xmlnode_get_attrib(child, "name");
+					const char *autojoin = xmlnode_get_attrib(child, "autojoin");
+
+					if (!jid || !name) {
+						continue;
+					}
+
+					// Extract optional <nick> child
+					NSString *nick = nil;
+					xmlnode *nickNode = xmlnode_get_child(child, "nick");
+					if (nickNode && nickNode->child && nickNode->child->data) {
+						nick = @((const char *)nickNode->child->data);
+					}
+
+					NSMutableDictionary *conference = [NSMutableDictionary dictionary];
+					[conference setObject:@(jid) forKey:@"jid"];
+					[conference setObject:@(name) forKey:@"name"];
+					if (autojoin) {
+						[conference setObject:@(autojoin) forKey:@"autojoin"];
+					}
+					if (nick) {
+						[conference setObject:nick forKey:@"nick"];
+					}
+
+					[conferences addObject:conference];
+				}
+			}
+
+			NSDictionary *userInfo = @{
+				@"bookmarks" : conferences,
+			};
+			[[NSNotificationCenter defaultCenter] postNotificationName:@"AIBookmarksReceived"
+																object:self
+															  userInfo:userInfo];
+
+			AILog(@"AMPurpleJabberBookmarks: Received %lu bookmark(s)", (unsigned long)[conferences count]);
+
+		} @catch (NSException *exception) {
+			AILog(@"AMPurpleJabberBookmarks: exception handling stanza: %@", exception);
 		}
 
-		NSDictionary *userInfo = @{
-			@"bookmarks" : conferences,
-		};
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"AIBookmarksReceived"
-															object:self
-														  userInfo:userInfo];
-
-		AILog(@"AMPurpleJabberBookmarks: Received %lu bookmark(s)", (unsigned long)[conferences count]);
-
-	} @catch (NSException *exception) {
-		AILog(@"AMPurpleJabberBookmarks: exception handling stanza: %@", exception);
-	}
-
-	[pool release];
+}
 }
 
 #pragma mark -

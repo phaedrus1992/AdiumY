@@ -49,60 +49,58 @@
 
 static void AMPurpleJabberMAM_received_data_cb(PurpleConnection *gc, xmlnode **packet, gpointer data)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
+		@try {
+			AMPurpleJabberMAM *self = (__bridge AMPurpleJabberMAM *)data;
+			xmlnode *node = *packet;
 
-	@try {
-		AMPurpleJabberMAM *self = (__bridge AMPurpleJabberMAM *)data;
-		xmlnode *node = *packet;
+			if (!node || !gc || !self) {
+				return;
+			}
 
-		if (!node || !gc || !self) {
-			return;
-		}
+			// Handle IQ error responses for MAM queries
+			if (strcmp(node->name, "iq") == 0) {
+				const char *iq_type = xmlnode_get_attrib(node, "type");
+				if (iq_type != NULL && strcmp(iq_type, "error") == 0) {
+					const char *iq_id = xmlnode_get_attrib(node, "id");
+					if (iq_id != NULL && [self->_activeQueryID isEqualToString:@(iq_id)]) {
+						AILog(@"AMPurpleJabberMAM: MAM query %s failed", iq_id);
+						self->_mamQueryInProgress = NO;
+						return;
+					}
+				}
+			}
 
-		// Handle IQ error responses for MAM queries
-		if (strcmp(node->name, "iq") == 0) {
-			const char *iq_type = xmlnode_get_attrib(node, "type");
-			if (iq_type != NULL && strcmp(iq_type, "error") == 0) {
-				const char *iq_id = xmlnode_get_attrib(node, "id");
-				if (iq_id != NULL && [self->_activeQueryID isEqualToString:@(iq_id)]) {
-					AILog(@"AMPurpleJabberMAM: MAM query %s failed", iq_id);
-					self->_mamQueryInProgress = NO;
+			// Only process message stanzas
+			if (strcmp(node->name, "message") != 0) {
+				return;
+			}
+
+			const char *queryID = NULL;
+
+			// Check for MAM result: <message><result xmlns='urn:xmpp:mam:2'>...
+			xmlnode *result = xmlnode_get_child_with_namespace(node, "result", NS_MAM.UTF8String);
+			if (result) {
+				queryID = xmlnode_get_attrib(result, "queryid");
+				if (queryID && [self->_activeQueryID isEqualToString:@(queryID)]) {
+					[self _handleResult:result];
 					return;
 				}
 			}
-		}
 
-		// Only process message stanzas
-		if (strcmp(node->name, "message") != 0) {
-			return;
-		}
-
-		const char *queryID = NULL;
-
-		// Check for MAM result: <message><result xmlns='urn:xmpp:mam:2'>...
-		xmlnode *result = xmlnode_get_child_with_namespace(node, "result", NS_MAM.UTF8String);
-		if (result) {
-			queryID = xmlnode_get_attrib(result, "queryid");
-			if (queryID && [self->_activeQueryID isEqualToString:@(queryID)]) {
-				[self _handleResult:result];
-				return;
+			// Check for MAM fin: <message><fin xmlns='urn:xmpp:mam:2'>...
+			xmlnode *fin = xmlnode_get_child_with_namespace(node, "fin", NS_MAM.UTF8String);
+			if (fin) {
+				queryID = xmlnode_get_attrib(fin, "queryid");
+				if (queryID && [self->_activeQueryID isEqualToString:@(queryID)]) {
+					[self _handleFin:fin];
+					return;
+				}
 			}
-		}
 
-		// Check for MAM fin: <message><fin xmlns='urn:xmpp:mam:2'>...
-		xmlnode *fin = xmlnode_get_child_with_namespace(node, "fin", NS_MAM.UTF8String);
-		if (fin) {
-			queryID = xmlnode_get_attrib(fin, "queryid");
-			if (queryID && [self->_activeQueryID isEqualToString:@(queryID)]) {
-				[self _handleFin:fin];
-				return;
-			}
+		} @catch (NSException *e) {
+			AILog(@"AMPurpleJabberMAM: Exception in received_data_cb: %@", e);
 		}
-
-	} @catch (NSException *e) {
-		AILog(@"AMPurpleJabberMAM: Exception in received_data_cb: %@", e);
-	} @finally {
-		[pool drain];
 	}
 }
 

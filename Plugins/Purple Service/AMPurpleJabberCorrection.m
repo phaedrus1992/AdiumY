@@ -44,122 +44,115 @@ NSString *const AICorrectionStanzaIDKey = @"AICorrectionStanzaID";
 
 static void AMPurpleJabberCorrection_received_data_cb(PurpleConnection *gc, xmlnode **packet, gpointer data)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+@autoreleasepool {
 
-	@try {
-		AMPurpleJabberCorrection *self = (__bridge AMPurpleJabberCorrection *)data;
-		xmlnode *node = *packet;
+		@try {
+			AMPurpleJabberCorrection *self = (__bridge AMPurpleJabberCorrection *)data;
+			xmlnode *node = *packet;
 
-		if (!node || !gc || !self) {
-			[pool release];
-			return;
-		}
-
-		// Only process message stanzas
-		if (strcmp(node->name, "message") != 0) {
-			[pool release];
-			return;
-		}
-
-		// Skip group chat messages (corrections in MUC are out of scope)
-		const char *msgType = xmlnode_get_attrib(node, "type");
-		if (msgType != NULL && strcmp(msgType, "groupchat") == 0) {
-			[pool release];
-			return;
-		}
-
-		// Must have a <body> element to be a displayable message
-		xmlnode *body = xmlnode_get_child(node, "body");
-		if (!body || !body->child || !body->child->data) {
-			[pool release];
-			return;
-		}
-
-		const char *from = xmlnode_get_attrib(node, "from");
-		if (!from) {
-			[pool release];
-			return;
-		}
-
-		NSString *bareJID = [AMPurpleJabberCorrection bareJIDFromString:from];
-
-		// Check for a <replace> element (XEP-0308 correction)
-		xmlnode *replace = xmlnode_get_child_with_namespace(node, "replace", [NS_MESSAGE_CORRECT UTF8String]);
-		if (replace) {
-			const char *replaceID = xmlnode_get_attrib(replace, "id");
-			if (!replaceID) {
-				[pool release];
+			if (!node || !gc || !self) {
 				return;
 			}
 
-			NSString *replaceStanzaID = @(replaceID);
-			NSString *trackedID = [self->_trackedStanzaIDs objectForKey:bareJID];
-
-			// Anti-spoofing: only accept correction if the replaced ID matches our tracked last stanza
-			if (trackedID != nil && [trackedID isEqualToString:replaceStanzaID]) {
-				const char *bodyText = (const char *)body->child->data;
-				NSString *correctedBody = bodyText ? @(bodyText) : @"";
-				NSString *domId = [AMPurpleJabberCorrection domIdForBareJID:bareJID stanzaId:replaceStanzaID];
-
-				// Find the chat for this message
-				PurpleAccount *account = purple_connection_get_account(gc);
-				PurpleConversation *conv =
-					purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, [bareJID UTF8String], account);
-				AIChat *chat = nil;
-				if (conv) {
-					chat = [[[AISharedAdium sharedInstance] chatController] existingChatWithName:bareJID
-																					   onAccount:self->_account];
-				}
-
-				// Update tracked ID to the correction's own stanza ID for chained corrections
-				const char *stanzaID = xmlnode_get_attrib(node, "id");
-				if (stanzaID) {
-					[self->_trackedStanzaIDs setObject:@(stanzaID) forKey:bareJID];
-				}
-
-				NSDictionary *userInfo = @{
-					AICorrectionChatKey : (chat ?: [NSNull null]),
-					AICorrectionSenderKey : bareJID,
-					AICorrectionDOMIdKey : domId,
-					AICorrectionHTMLKey : correctedBody,
-				};
-				[[NSNotificationCenter defaultCenter] postNotificationName:AICorrectionNotificationName
-																	object:chat
-																  userInfo:userInfo];
-
-				// Consume the packet so Purple does not display the original body
-				xmlnode_free(*packet);
-				*packet = NULL;
+			// Only process message stanzas
+			if (strcmp(node->name, "message") != 0) {
+				return;
 			}
-			// If trackedID doesn't match, fall through — deliver as normal message (anti-spoofing)
 
-			[pool release];
-			return;
+			// Skip group chat messages (corrections in MUC are out of scope)
+			const char *msgType = xmlnode_get_attrib(node, "type");
+			if (msgType != NULL && strcmp(msgType, "groupchat") == 0) {
+				return;
+			}
+
+			// Must have a <body> element to be a displayable message
+			xmlnode *body = xmlnode_get_child(node, "body");
+			if (!body || !body->child || !body->child->data) {
+				return;
+			}
+
+			const char *from = xmlnode_get_attrib(node, "from");
+			if (!from) {
+				return;
+			}
+
+			NSString *bareJID = [AMPurpleJabberCorrection bareJIDFromString:from];
+
+			// Check for a <replace> element (XEP-0308 correction)
+			xmlnode *replace = xmlnode_get_child_with_namespace(node, "replace", [NS_MESSAGE_CORRECT UTF8String]);
+			if (replace) {
+				const char *replaceID = xmlnode_get_attrib(replace, "id");
+				if (!replaceID) {
+					return;
+				}
+
+				NSString *replaceStanzaID = @(replaceID);
+				NSString *trackedID = [self->_trackedStanzaIDs objectForKey:bareJID];
+
+				// Anti-spoofing: only accept correction if the replaced ID matches our tracked last stanza
+				if (trackedID != nil && [trackedID isEqualToString:replaceStanzaID]) {
+					const char *bodyText = (const char *)body->child->data;
+					NSString *correctedBody = bodyText ? @(bodyText) : @"";
+					NSString *domId = [AMPurpleJabberCorrection domIdForBareJID:bareJID stanzaId:replaceStanzaID];
+
+					// Find the chat for this message
+					PurpleAccount *account = purple_connection_get_account(gc);
+					PurpleConversation *conv =
+						purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, [bareJID UTF8String], account);
+					AIChat *chat = nil;
+					if (conv) {
+						chat = [[[AISharedAdium sharedInstance] chatController] existingChatWithName:bareJID
+																						   onAccount:self->_account];
+					}
+
+					// Update tracked ID to the correction's own stanza ID for chained corrections
+					const char *stanzaID = xmlnode_get_attrib(node, "id");
+					if (stanzaID) {
+						[self->_trackedStanzaIDs setObject:@(stanzaID) forKey:bareJID];
+					}
+
+					NSDictionary *userInfo = @{
+						AICorrectionChatKey : (chat ?: [NSNull null]),
+						AICorrectionSenderKey : bareJID,
+						AICorrectionDOMIdKey : domId,
+						AICorrectionHTMLKey : correctedBody,
+					};
+					[[NSNotificationCenter defaultCenter] postNotificationName:AICorrectionNotificationName
+																		object:chat
+																	  userInfo:userInfo];
+
+					// Consume the packet so Purple does not display the original body
+					xmlnode_free(*packet);
+					*packet = NULL;
+				}
+				// If trackedID doesn't match, fall through — deliver as normal message (anti-spoofing)
+
+				return;
+			}
+
+			// Normal message with body: track the stanza ID
+			const char *stanzaID = xmlnode_get_attrib(node, "id");
+			if (stanzaID) {
+				NSString *stanzaIDStr = @(stanzaID);
+				[self->_trackedStanzaIDs setObject:stanzaIDStr forKey:bareJID];
+
+				// Post notification so the view controller can set DOM ids on displayed messages
+				NSString *trackedDomId = [AMPurpleJabberCorrection domIdForBareJID:bareJID stanzaId:stanzaIDStr];
+				NSDictionary *trackedInfo = @{
+					AICorrectionSenderKey : bareJID,
+					AICorrectionStanzaIDKey : stanzaIDStr,
+					AICorrectionDOMIdKey : trackedDomId,
+				};
+				[[NSNotificationCenter defaultCenter] postNotificationName:AICorrectionStanzaTrackedNotification
+																	object:nil
+																  userInfo:trackedInfo];
+			}
+
+		} @catch (NSException *exception) {
+			AILog(@"AMPurpleJabberCorrection: exception handling stanza: %@", exception);
 		}
 
-		// Normal message with body: track the stanza ID
-		const char *stanzaID = xmlnode_get_attrib(node, "id");
-		if (stanzaID) {
-			NSString *stanzaIDStr = @(stanzaID);
-			[self->_trackedStanzaIDs setObject:stanzaIDStr forKey:bareJID];
-
-			// Post notification so the view controller can set DOM ids on displayed messages
-			NSString *trackedDomId = [AMPurpleJabberCorrection domIdForBareJID:bareJID stanzaId:stanzaIDStr];
-			NSDictionary *trackedInfo = @{
-				AICorrectionSenderKey : bareJID,
-				AICorrectionStanzaIDKey : stanzaIDStr,
-				AICorrectionDOMIdKey : trackedDomId,
-			};
-			[[NSNotificationCenter defaultCenter] postNotificationName:AICorrectionStanzaTrackedNotification
-																object:nil
-															  userInfo:trackedInfo];
-		}
-
-	} @catch (NSException *exception) {
-		AILog(@"AMPurpleJabberCorrection: exception handling stanza: %@", exception);
-	}
-
-	[pool release];
+}
 }
 
 #pragma mark -

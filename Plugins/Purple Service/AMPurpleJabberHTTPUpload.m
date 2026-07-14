@@ -68,9 +68,8 @@ static NSString *ContentTypeForFile(NSString *path)
 
 static void AMPurpleJabberHTTPUpload_received_data_cb(PurpleConnection *gc, xmlnode **packet, gpointer data)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-	@try {
+	@autoreleasepool {
+		@try {
 		AMPurpleJabberHTTPUpload *self = (__bridge AMPurpleJabberHTTPUpload *)data;
 		xmlnode *node = *packet;
 
@@ -164,8 +163,6 @@ static void AMPurpleJabberHTTPUpload_received_data_cb(PurpleConnection *gc, xmln
 
 	} @catch (NSException *e) {
 		AILog(@"AMPurpleJabberHTTPUpload: Exception in received_data_cb: %@", e);
-	} @finally {
-		[pool drain];
 	}
 }
 
