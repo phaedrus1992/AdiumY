@@ -70,9 +70,9 @@ static BOOL resolveAlphabetically;
 static BOOL resolveAlphabeticallyByLastName;
 
 static NSInteger sortOrder
-	}
+}
 
-	return YES;
+return YES;
 }
 
 #pragma mark Sorting

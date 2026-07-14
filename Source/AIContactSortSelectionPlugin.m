@@ -27,35 +27,35 @@
 #import <Adium/AISortController.h>
 
 #define CONTACT_SORTING_DEFAULT_PREFS @"SortingDefaults"
-#define CONFIGURE_SORT_MENU_TITLE 
-	menuItem_configureSort = nil;
-	
-		[menuItem setRepresentedObject:controller];
+#define CONFIGURE_SORT_MENU_TITLE
+menuItem_configureSort = nil;
 
-		// Add the menu item
-		[adium.menuController addMenuItem:menuItem toLocation:LOC_View_Sorting];
-	}
+[menuItem setRepresentedObject:controller];
 
-	// Add the menu item for configuring the sort
-	menuItem_configureSort = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:CONFIGURE_SORT_MENU_TITLE
-																				  target:self
-																				  action:@selector(configureSort:)
-																		   keyEquivalent:@""];
-	[adium.menuController addMenuItem:menuItem_configureSort toLocation:LOC_View_Sorting];
+// Add the menu item
+[adium.menuController addMenuItem:menuItem toLocation:LOC_View_Sorting];
+}
 
-	AISortController *activeSortController;
-	NSInteger idx;
+// Add the menu item for configuring the sort
+menuItem_configureSort = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:CONFIGURE_SORT_MENU_TITLE
+																			  target:self
+																			  action:@selector(configureSort:)
+																	   keyEquivalent:@""];
+[adium.menuController addMenuItem:menuItem_configureSort toLocation:LOC_View_Sorting];
 
-	// Show a check by the active sort controller's menu item...
-	activeSortController = [AISortController activeSortController];
+AISortController *activeSortController;
+NSInteger idx;
 
-	idx = [[menuItem_configureSort menu] indexOfItemWithRepresentedObject:activeSortController];
-	if (idx != NSNotFound) {
-		[[[menuItem_configureSort menu] itemAtIndex:idx] setState:NSOnState];
-	}
+// Show a check by the active sort controller's menu item...
+activeSortController = [AISortController activeSortController];
 
-	///...and set the Configure Sort menu title appropriately
-	[self _setConfigureSortMenuItemTitleForController:activeSortController];
+idx = [[menuItem_configureSort menu] indexOfItemWithRepresentedObject:activeSortController];
+if (idx != NSNotFound) {
+	[[[menuItem_configureSort menu] itemAtIndex:idx] setState:NSOnState];
+}
+
+///...and set the Configure Sort menu title appropriately
+[self _setConfigureSortMenuItemTitleForController:activeSortController];
 }
 
 /*!

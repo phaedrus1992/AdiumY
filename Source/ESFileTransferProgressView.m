@@ -21,22 +21,22 @@
 #import <AIUtilities/AIRolloverButton.h>
 #import <AIUtilities/AIStringAdditions.h>
 
-#define NORMAL_TEXT_COLOR 
-	if (inTransferBytesStatus && inTransferRemainingStatus) {
-		transferStatus = [NSString stringWithFormat:@"%@ - %@", inTransferBytesStatus, inTransferRemainingStatus];
-	} else if (inTransferBytesStatus) {
-		transferStatus = inTransferBytesStatus;
-	} else if (inTransferRemainingStatus) {
-		transferStatus = inTransferRemainingStatus;
-	} else {
-		transferStatus = @"";
-	}
+#define NORMAL_TEXT_COLOR
+if (inTransferBytesStatus && inTransferRemainingStatus) {
+	transferStatus = [NSString stringWithFormat:@"%@ - %@", inTransferBytesStatus, inTransferRemainingStatus];
+} else if (inTransferBytesStatus) {
+	transferStatus = inTransferBytesStatus;
+} else if (inTransferRemainingStatus) {
+	transferStatus = inTransferRemainingStatus;
+} else {
+	transferStatus = @"";
+}
 
-	transferStatus;
+transferStatus;
 
-	//	[textField_transferStatus setStringValue:transferStatus];
-	[self setNeedsDisplayInRect:[box_transferStatusFrame frame]];
-	[textField_rate setStringValue:(inTransferSpeedStatus ? inTransferSpeedStatus : @"")];
+//	[textField_transferStatus setStringValue:transferStatus];
+[self setNeedsDisplayInRect:[box_transferStatusFrame frame]];
+[textField_rate setStringValue:(inTransferSpeedStatus ? inTransferSpeedStatus : @"")];
 }
 
 #pragma mark Details
@@ -257,10 +257,10 @@ static NSDictionary *transferStatusSelectedAttributes = nil;
 											  lineBreakMode:NSLineBreakByTruncatingTail];
 			[paragraphStyle setMaximumLineHeight:[box_transferStatusFrame frame].size.height];
 
-			transferStatusSelectedAttributes = [NSDictionary
-				dictionaryWithObjectsAndKeys:paragraphStyle, NSParagraphStyleAttributeName, [NSFont systemFontOfSize:9],
-											 NSFontAttributeName, SELECTED_TEXT_COLOR, NSForegroundColorAttributeName,
-											 nil];
+			transferStatusSelectedAttributes =
+				[NSDictionary dictionaryWithObjectsAndKeys:paragraphStyle, NSParagraphStyleAttributeName,
+														   [NSFont systemFontOfSize:9], NSFontAttributeName,
+														   SELECTED_TEXT_COLOR, NSForegroundColorAttributeName, nil];
 		}
 
 		attributes = transferStatusSelectedAttributes;
@@ -271,10 +271,10 @@ static NSDictionary *transferStatusSelectedAttributes = nil;
 											  lineBreakMode:NSLineBreakByTruncatingTail];
 			[paragraphStyle setMaximumLineHeight:[box_transferStatusFrame frame].size.height];
 
-			transferStatusAttributes = [NSDictionary
-				dictionaryWithObjectsAndKeys:paragraphStyle, NSParagraphStyleAttributeName, [NSFont systemFontOfSize:9],
-											 NSFontAttributeName, TRANSFER_STATUS_COLOR, NSForegroundColorAttributeName,
-											 nil];
+			transferStatusAttributes =
+				[NSDictionary dictionaryWithObjectsAndKeys:paragraphStyle, NSParagraphStyleAttributeName,
+														   [NSFont systemFontOfSize:9], NSFontAttributeName,
+														   TRANSFER_STATUS_COLOR, NSForegroundColorAttributeName, nil];
 		}
 
 		attributes = transferStatusAttributes;

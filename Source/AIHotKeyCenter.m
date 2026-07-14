@@ -24,8 +24,7 @@
 	static AIHotKeyCenter *sharedCenter = nil;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
-		sharedCenter = 
-		_globalMonitor = nil;
+		sharedCenter = _globalMonitor = nil;
 	}
 
 	// Only create a monitor if we have registered hotkeys

@@ -55,8 +55,7 @@
 - (void)installPlugin
 {
 	// Register our default preferences
-	
-	
+
 	[menuItem setTag:AINameFormat_ScreenName];
 	[choicesMenu addItem:menuItem];
 

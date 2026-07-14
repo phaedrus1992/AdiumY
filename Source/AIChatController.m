@@ -64,8 +64,8 @@
 {
 	if ((self = 
 			mostRecentChat = chat;
-		}
-	}
+}
+}
 }
 
 #pragma mark Menu Items

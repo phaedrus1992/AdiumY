@@ -45,8 +45,7 @@
 }
 - (NSImage *)paneIcon
 {
-	return 
-	[menuItem setRepresentedObject:userPreferredDownloadFolder];
+	return [menuItem setRepresentedObject:userPreferredDownloadFolder];
 	[menu addItem:menuItem];
 
 	return menu;

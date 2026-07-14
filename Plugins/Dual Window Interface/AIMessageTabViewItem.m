@@ -111,8 +111,6 @@
 
 	tabViewItemImage = nil;
 	messageViewController = nil;
-
-
 }
 
 // Access to our message view controller

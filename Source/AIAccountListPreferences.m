@@ -85,8 +85,7 @@
 }
 - (NSImage *)paneIcon
 {
-	return 
-	requiredHeightDict = [[NSMutableDictionary alloc] init];
+	return requiredHeightDict = [[NSMutableDictionary alloc] init];
 
 	for (accountNumber = 0; accountNumber < [accountArray count]; accountNumber++) {
 		[self calculateHeightForRow:accountNumber];

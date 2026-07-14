@@ -38,12 +38,12 @@
 
 #import <stdlib.h>
 
-#define PRIVKEY_PATH                                                                                                   \
-	
-		[adium.preferenceController setPreference:[NSNumber numberWithBool:YES]
-										   forKey:@"Libgaim_to_Libpurple_Update"
-											group:@"OTR"];
-	}
+#define PRIVKEY_PATH
+
+[adium.preferenceController setPreference:[NSNumber numberWithBool:YES]
+								   forKey:@"Libgaim_to_Libpurple_Update"
+									group:@"OTR"];
+}
 }
 
 @end

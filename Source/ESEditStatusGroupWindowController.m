@@ -31,8 +31,8 @@
 - (void)showOnWindow:(NSWindow *)parentWindow
 {
 	if (parentWindow) {
-		
-	return 
-}
 
-@end
+		return
+	}
+
+	@end

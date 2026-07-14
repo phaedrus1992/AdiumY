@@ -80,8 +80,6 @@ enum segments {
 static AIContactInfoWindowController *sharedContactInfoInstance = nil;
 
 - (IBAction)segmentSelected:(id)sender
-{
-	
-}
+{}
 
 @end

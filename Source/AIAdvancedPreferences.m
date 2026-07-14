@@ -31,62 +31,62 @@
 @implementation AIAdvancedPreferences
 + (AIPreferencePane *)preferencePane
 {
-	
+
 	loadedAdvancedPanes = nil;
 
 	// Load new panes
 	if (preferencePane) {
-		loadedAdvancedPanes = 
-	[cell setFont:[NSFont systemFontOfSize:11]];
-	[cell setLineBreakMode:NSLineBreakByTruncatingTail];
+		loadedAdvancedPanes = [cell setFont:[NSFont systemFontOfSize:11]];
+		[cell setLineBreakMode:NSLineBreakByTruncatingTail];
 
-	[[tableView_categories tableColumnWithIdentifier:@"description"] setDataCell:cell];
+		[[tableView_categories tableColumnWithIdentifier:@"description"] setDataCell:cell];
 
-	// Select the previously selected row
-	NSInteger row = [[adium.preferenceController preferenceForKey:KEY_ADVANCED_PREFERENCE_SELECTED_ROW
-															group:PREF_GROUP_WINDOW_POSITIONS] integerValue];
-	if (row < 0 || row >= [tableView_categories numberOfRows])
-		row = 1;
+		// Select the previously selected row
+		NSInteger row = [[adium.preferenceController preferenceForKey:KEY_ADVANCED_PREFERENCE_SELECTED_ROW
+																group:PREF_GROUP_WINDOW_POSITIONS] integerValue];
+		if (row < 0 || row >= [tableView_categories numberOfRows])
+			row = 1;
 
-	[tableView_categories selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
-	[self tableViewSelectionDidChange:[NSNotification notificationWithName:@"SelectionChanged" object:nil]];
-}
-
-/*!
- * @brief Return the number of accounts
- */
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
-{
-	return [[self advancedCategoryArray] count];
-}
-
-/*!
- * @brief Return the account description or image
- */
-- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
-{
-	NSString *identifier = tableColumn.identifier;
-
-	if ([identifier isEqualToString:@"description"]) {
-		return [[[self advancedCategoryArray] objectAtIndex:row] label];
-	} else if ([identifier isEqualToString:@"image"]) {
-		[[tableColumn dataCell] setImageAlignment:NSImageAlignRight];
-		return [[[self advancedCategoryArray] objectAtIndex:row] image];
+		[tableView_categories selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+		[self tableViewSelectionDidChange:[NSNotification notificationWithName:@"SelectionChanged" object:nil]];
 	}
 
-	return nil;
-}
-
-/*!
- * @brief Update our advanced preferences for the selected pane
- */
-- (void)tableViewSelectionDidChange:(NSNotification *)aNotification
-{
-	NSInteger row = [tableView_categories selectedRow];
-
-	if (row >= 0 && row < [[self advancedCategoryArray] count]) {
-		[self configureAdvancedPreferencesForPane:[[self advancedCategoryArray] objectAtIndex:row]];
+	/*!
+	 * @brief Return the number of accounts
+	 */
+	-(NSInteger)numberOfRowsInTableView : (NSTableView *)tableView
+	{
+		return [[self advancedCategoryArray] count];
 	}
-}
 
-@end
+	/*!
+	 * @brief Return the account description or image
+	 */
+	-(id)tableView : (NSTableView *)tableView objectValueForTableColumn : (NSTableColumn *)tableColumn row
+		: (NSInteger)row
+	{
+		NSString *identifier = tableColumn.identifier;
+
+		if ([identifier isEqualToString:@"description"]) {
+			return [[[self advancedCategoryArray] objectAtIndex:row] label];
+		} else if ([identifier isEqualToString:@"image"]) {
+			[[tableColumn dataCell] setImageAlignment:NSImageAlignRight];
+			return [[[self advancedCategoryArray] objectAtIndex:row] image];
+		}
+
+		return nil;
+	}
+
+	/*!
+	 * @brief Update our advanced preferences for the selected pane
+	 */
+	-(void)tableViewSelectionDidChange : (NSNotification *)aNotification
+	{
+		NSInteger row = [tableView_categories selectedRow];
+
+		if (row >= 0 && row < [[self advancedCategoryArray] count]) {
+			[self configureAdvancedPreferencesForPane:[[self advancedCategoryArray] objectAtIndex:row]];
+		}
+	}
+
+	@end

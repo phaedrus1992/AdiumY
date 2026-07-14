@@ -51,8 +51,7 @@
  */
 - (void)viewDidLoad
 {
-	
-			
+
 	[menuItem setRepresentedObject:[soundPath stringByCollapsingBundlePath]];
 	[menuItem setImage:soundFileIcon];
 	[soundMenu addItem:menuItem];

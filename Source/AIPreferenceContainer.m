@@ -65,9 +65,8 @@ static NSTimer *timer_savingOfAccountCache = nil;
 
 + (AIPreferenceContainer *)preferenceContainerForGroup:(NSString *)inGroup object:(AIListObject *)inObject
 {
-	return 
-		group = inGroup;
-	}
+	return group = inGroup;
+}
 }
 
 #pragma mark Debug

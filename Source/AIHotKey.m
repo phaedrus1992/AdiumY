@@ -27,10 +27,7 @@ static NSString *const kShiftGlyph = @"⇧";
 @synthesize action;
 
 - (void)dealloc
-{
-	
-	
-}
+{}
 
 - (NSString *)keyCodeString
 {

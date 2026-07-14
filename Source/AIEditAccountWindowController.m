@@ -58,27 +58,27 @@
 - (void)showOnWindow:(id)parentWindow
 {
 	if (parentWindow) {
-		
-	userIconData = imageData;
 
-	if (!userIconData) {
-		// If we got a nil user icon, that means the icon was deleted
-		[self deleteInImageViewWithImagePicker:sender];
+		userIconData = imageData;
+
+		if (!userIconData) {
+			// If we got a nil user icon, that means the icon was deleted
+			[self deleteInImageViewWithImagePicker:sender];
+		}
 	}
-}
 
-- (NSString *)fileNameForImageInImagePicker:(AIImageViewWithImagePicker *)picker
-{
-	NSString *fileName = [account.displayName safeFilenameString];
-	if ([fileName hasPrefix:@"."]) {
-		fileName = [fileName substringFromIndex:1];
+	-(NSString *)fileNameForImageInImagePicker : (AIImageViewWithImagePicker *)picker
+	{
+		NSString *fileName = [account.displayName safeFilenameString];
+		if ([fileName hasPrefix:@"."]) {
+			fileName = [fileName substringFromIndex:1];
+		}
+		return fileName;
 	}
-	return fileName;
-}
 
-- (NSImage *)emptyPictureImageForImageViewWithImagePicker:(AIImageViewWithImagePicker *)picker
-{
-	return [AIServiceIcons serviceIconForObject:account type:AIServiceIconLarge direction:AIIconNormal];
-}
+	-(NSImage *)emptyPictureImageForImageViewWithImagePicker : (AIImageViewWithImagePicker *)picker
+	{
+		return [AIServiceIcons serviceIconForObject:account type:AIServiceIconLarge direction:AIIconNormal];
+	}
 
-@end
+	@end

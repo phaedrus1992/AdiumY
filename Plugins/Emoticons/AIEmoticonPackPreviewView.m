@@ -36,9 +36,7 @@ static CGFloat distanceBetweenEmoticons = 0;
 }
 
 - (void)dealloc
-{
-
-}
+{}
 
 - (void)drawRect:(NSRect)rect
 {

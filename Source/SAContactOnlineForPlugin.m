@@ -32,7 +32,6 @@
 - (void)installPlugin
 {
 	// Install our tooltip entry
-	
 }
 
 - (BOOL)shouldDisplayInContactInspector

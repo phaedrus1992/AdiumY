@@ -86,20 +86,23 @@ enum { xmlMarkerLength = 21, failedUtf8BomLength = 6 };
  */
 + (id)documentWithPath:(NSString *)path rootElement:(AIXMLElement *)root
 {
-	return 
+	return
 		// Again, if we've reached the end of the file, we aren't initialized, so return nil
-		if ([block length] == 0) {
-			[handle closeFile];
-			return nil;
-		}
+		if ([block length] == 0)
+	{
+		[handle closeFile];
+		return nil;
+	}
 
-		scanner = [NSScanner scannerWithString:block];
-	} while (!found);
+	scanner = [NSScanner scannerWithString:block];
+}
+while (!found)
+	;
 
-	[handle closeFile];
+[handle closeFile];
 
-	// We've obviously found the root element name, so return a nonmutable copy.
-	return [NSString stringWithString:accumulator];
+// We've obviously found the root element name, so return a nonmutable copy.
+return [NSString stringWithString:accumulator];
 }
 
 @end

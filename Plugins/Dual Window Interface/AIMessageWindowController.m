@@ -150,9 +150,7 @@
 
 	[tabView_tabBar setDelegate:nil];
 
-
 	[adium.preferenceController unregisterPreferenceObserver:self];
-
 }
 
 // Human readable container name

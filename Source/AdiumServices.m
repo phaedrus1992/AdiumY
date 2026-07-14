@@ -28,7 +28,6 @@
 {
 	if ((self = 
 	services = nil;
-	
 }
 
 /*!

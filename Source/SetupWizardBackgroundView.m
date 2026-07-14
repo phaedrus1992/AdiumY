@@ -23,7 +23,6 @@
 {
 	if ((self = 
 	backgroundImage = nil;
-	
 }
 
 - (void)setTransparentRect:(NSRect)inTransparentRect

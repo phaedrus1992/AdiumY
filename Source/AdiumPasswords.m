@@ -52,9 +52,7 @@
  * Requires that all accounts have been loaded
  */
 - (void)controllerDidLoad
-{
-	
-}
+{}
 
 /*!
  * @brief Retrieve the password of an account, prompting the user if necessary

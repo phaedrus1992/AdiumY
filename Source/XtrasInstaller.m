@@ -37,96 +37,101 @@
 // XtrasInstaller does not autorelease because it will release itself when closed
 + (XtrasInstaller *)installer
 {
-	return 
-	} else {
-		decompressionSuccess = NO;
-	}
+	return
+}
+else
+{
+	decompressionSuccess = NO;
+}
 
-	NSFileManager *fileManager = 
-			} else {
-				AILogWithSignature(@"Getting quarantine data failed for %@ (%@)", self, self.dest);
-				[self closeInstaller];
-				return;
+NSFileManager *fileManager =
+}
+else
+{
+	AILogWithSignature(@"Getting quarantine data failed for %@ (%@)", self, self.dest);
+	[self closeInstaller];
+	return;
+}
+
+CFRelease(cfOldQuarantineProperties);
+
+if (!quarantineProperties) {
+	[self closeInstaller];
+	return;
+}
+
+AILogWithSignature(@"Old quarantine data: %@", quarantineProperties);
+}
+else if (err == kLSAttributeNotFoundErr)
+{
+	quarantineProperties = [NSMutableDictionary dictionaryWithCapacity:2];
+}
+
+[quarantineProperties setObject:(NSString *)kLSQuarantineTypeWebDownload forKey:(NSString *)kLSQuarantineTypeKey];
+
+[quarantineProperties setObject:[[self.download request] URL] forKey:(NSString *)kLSQuarantineDataURLKey];
+
+[self setQuarantineProperties:quarantineProperties forDirectory:&fsRef];
+
+AILogWithSignature(@"Quarantined %@ with %@", self.dest, quarantineProperties);
+}
+else
+{
+	AILogWithSignature(@"Danger! Could not find file to quarantine: %@!", self.dest);
+}
+
+// the remaining files in the directory should be the contents of the xtra
+fileEnumerator = [fileManager enumeratorAtPath:self.dest];
+
+if (decompressionSuccess && fileEnumerator) {
+	NSSet *supportedDocumentExtensions = [[NSBundle mainBundle] supportedDocumentExtensions];
+
+	for (NSString *nextFile in fileEnumerator) {
+
+		/* Ignore hidden files and the __MACOSX folder which some compression engines stick into the archive but
+		 * /usr/bin/unzip doesn't handle properly.
+		 */
+		if ((![[nextFile lastPathComponent] hasPrefix:@"."]) &&
+			(![[nextFile pathComponents] containsObject:@"__MACOSX"])) {
+			NSString *fileExtension = [nextFile pathExtension];
+			NSEnumerator *supportedDocumentExtensionsEnumerator;
+			NSString *extension;
+			BOOL isSupported = NO;
+
+			// We want to do a case-insensitive path extension comparison
+			supportedDocumentExtensionsEnumerator = [supportedDocumentExtensions objectEnumerator];
+			while (!isSupported && (extension = [supportedDocumentExtensionsEnumerator nextObject])) {
+				isSupported = ([fileExtension caseInsensitiveCompare:extension] == NSOrderedSame);
 			}
 
-			CFRelease(cfOldQuarantineProperties);
+			if (isSupported) {
+				NSString *xtraPath = [self.dest stringByAppendingPathComponent:nextFile];
 
-			if (!quarantineProperties) {
-				[self closeInstaller];
-				return;
-			}
+				// Open the file directly
+				AILogWithSignature(@"Installing %@", xtraPath);
+				success = [[NSApp delegate] application:NSApp openTempFile:xtraPath];
 
-			AILogWithSignature(@"Old quarantine data: %@", quarantineProperties);
-
-		} else if (err == kLSAttributeNotFoundErr) {
-			quarantineProperties = [NSMutableDictionary dictionaryWithCapacity:2];
-		}
-
-		[quarantineProperties setObject:(NSString *)kLSQuarantineTypeWebDownload
-								 forKey:(NSString *)kLSQuarantineTypeKey];
-
-		[quarantineProperties setObject:[[self.download request] URL] forKey:(NSString *)kLSQuarantineDataURLKey];
-
-		[self setQuarantineProperties:quarantineProperties forDirectory:&fsRef];
-
-		AILogWithSignature(@"Quarantined %@ with %@", self.dest, quarantineProperties);
-
-	} else {
-		AILogWithSignature(@"Danger! Could not find file to quarantine: %@!", self.dest);
-	}
-
-	// the remaining files in the directory should be the contents of the xtra
-	fileEnumerator = [fileManager enumeratorAtPath:self.dest];
-
-	if (decompressionSuccess && fileEnumerator) {
-		NSSet *supportedDocumentExtensions = [[NSBundle mainBundle] supportedDocumentExtensions];
-
-		for (NSString *nextFile in fileEnumerator) {
-
-			/* Ignore hidden files and the __MACOSX folder which some compression engines stick into the archive but
-			 * /usr/bin/unzip doesn't handle properly.
-			 */
-			if ((![[nextFile lastPathComponent] hasPrefix:@"."]) &&
-				(![[nextFile pathComponents] containsObject:@"__MACOSX"])) {
-				NSString *fileExtension = [nextFile pathExtension];
-				NSEnumerator *supportedDocumentExtensionsEnumerator;
-				NSString *extension;
-				BOOL isSupported = NO;
-
-				// We want to do a case-insensitive path extension comparison
-				supportedDocumentExtensionsEnumerator = [supportedDocumentExtensions objectEnumerator];
-				while (!isSupported && (extension = [supportedDocumentExtensionsEnumerator nextObject])) {
-					isSupported = ([fileExtension caseInsensitiveCompare:extension] == NSOrderedSame);
+				if (!success) {
+					NSLog(@"Installation Error: %@", xtraPath);
 				}
-
-				if (isSupported) {
-					NSString *xtraPath = [self.dest stringByAppendingPathComponent:nextFile];
-
-					// Open the file directly
-					AILogWithSignature(@"Installing %@", xtraPath);
-					success = [[NSApp delegate] application:NSApp openTempFile:xtraPath];
-
-					if (!success) {
-						NSLog(@"Installation Error: %@", xtraPath);
-					}
-				}
 			}
 		}
-
-	} else {
-		NSLog(@"Installation Error: %@ (%@)", self.dest,
-			  (decompressionSuccess ? @"Decompressed succesfully" : @"Failed to decompress"));
 	}
 
-	// delete our temporary directory, and any files remaining in it
+} else {
+	NSLog(@"Installation Error: %@ (%@)", self.dest,
+		  (decompressionSuccess ? @"Decompressed succesfully" : @"Failed to decompress"));
+}
+
+// delete our temporary directory, and any files remaining in it
 #ifdef DEBUG_BUILD
-	if (success)
-		[fileManager removeItemAtPath:self.dest error:NULL];
-#else
+if (success)
 	[fileManager removeItemAtPath:self.dest error:NULL];
+#else
+[fileManager removeItemAtPath:self.dest error:NULL];
 #endif
 
-	[self closeInstaller];
+[self closeInstaller];
 }
 
 @end

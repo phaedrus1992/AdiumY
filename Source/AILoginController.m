@@ -33,15 +33,15 @@
 {
 	if ((self = 
 		loginWindowController = nil;
-	}
+}
 
-	// Save the user directory
-	currentUser = userName;
-	userDirectory = [[[adium applicationSupportDirectory] stringByAppendingPathComponent:PATH_USERS]
-		stringByAppendingPathComponent:userName];
+// Save the user directory
+currentUser = userName;
+userDirectory = [[[adium applicationSupportDirectory] stringByAppendingPathComponent:PATH_USERS]
+	stringByAppendingPathComponent:userName];
 
-	// Tell Adium to complete login
-	[target performSelector:selector];
+// Tell Adium to complete login
+[target performSelector:selector];
 }
 
 // Creates and returns a mutable array of the login users

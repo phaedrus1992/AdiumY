@@ -138,120 +138,119 @@ static NSInteger toArraySort(id itemA, id itemB, void *context);
 	static NSOperationQueue *logViewerQueue = nil;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
-		logViewerQueue = 
-	filterDate = nil;
+		logViewerQueue = filterDate = nil;
 
-	switch (dateType) {
-	case AIDateTypeAnyDate:
-		filterDateType = AIDateTypeAnyDate;
-		break;
+		switch (dateType) {
+		case AIDateTypeAnyDate:
+			filterDateType = AIDateTypeAnyDate;
+			break;
 
-	case AIDateTypeToday:
-		filterDateType = AIDateTypeExactly;
-		filterDate = today;
-		break;
+		case AIDateTypeToday:
+			filterDateType = AIDateTypeExactly;
+			filterDate = today;
+			break;
 
-	case AIDateTypeSinceYesterday:
-		filterDateType = AIDateTypeAfter;
-		comps.day--;
-		comps.hour -= comps.hour;
-		comps.minute -= comps.minute;
-		comps.second -= comps.second + 1;
-		filterDate = [calendar dateFromComponents:comps];
-		break;
+		case AIDateTypeSinceYesterday:
+			filterDateType = AIDateTypeAfter;
+			comps.day--;
+			comps.hour -= comps.hour;
+			comps.minute -= comps.minute;
+			comps.second -= comps.second + 1;
+			filterDate = [calendar dateFromComponents:comps];
+			break;
 
-	case AIDateTypeThisWeek:
-		filterDateType = AIDateTypeAfter;
-		comps.day -= [self daysSinceStartOfWeekGivenToday:today];
-		comps.hour -= comps.hour;
-		comps.minute -= comps.minute;
-		comps.second -= comps.second + 1;
-		filterDate = [calendar dateFromComponents:comps];
-		break;
+		case AIDateTypeThisWeek:
+			filterDateType = AIDateTypeAfter;
+			comps.day -= [self daysSinceStartOfWeekGivenToday:today];
+			comps.hour -= comps.hour;
+			comps.minute -= comps.minute;
+			comps.second -= comps.second + 1;
+			filterDate = [calendar dateFromComponents:comps];
+			break;
 
-	case AIDateTypeWithinLastTwoWeeks:
-		filterDateType = AIDateTypeAfter;
-		comps.day -= 14;
-		comps.hour -= comps.hour;
-		comps.minute -= comps.minute;
-		comps.second -= comps.second + 1;
-		filterDate = [calendar dateFromComponents:comps];
-		break;
+		case AIDateTypeWithinLastTwoWeeks:
+			filterDateType = AIDateTypeAfter;
+			comps.day -= 14;
+			comps.hour -= comps.hour;
+			comps.minute -= comps.minute;
+			comps.second -= comps.second + 1;
+			filterDate = [calendar dateFromComponents:comps];
+			break;
 
-	case AIDateTypeThisMonth:
-		filterDateType = AIDateTypeAfter;
-		comps.day -= comps.day;
-		comps.hour -= comps.hour;
-		comps.minute -= comps.minute;
-		comps.second -= comps.second + 1;
-		filterDate = [calendar dateFromComponents:comps];
-		break;
+		case AIDateTypeThisMonth:
+			filterDateType = AIDateTypeAfter;
+			comps.day -= comps.day;
+			comps.hour -= comps.hour;
+			comps.minute -= comps.minute;
+			comps.second -= comps.second + 1;
+			filterDate = [calendar dateFromComponents:comps];
+			break;
 
-	case AIDateTypeWithinLastTwoMonths:
-		filterDateType = AIDateTypeAfter;
-		comps.month--;
-		comps.day -= comps.day;
-		comps.hour = 0;
-		comps.minute = 0;
-		comps.second--;
-		filterDate = [calendar dateFromComponents:comps];
-		break;
+		case AIDateTypeWithinLastTwoMonths:
+			filterDateType = AIDateTypeAfter;
+			comps.month--;
+			comps.day -= comps.day;
+			comps.hour = 0;
+			comps.minute = 0;
+			comps.second--;
+			filterDate = [calendar dateFromComponents:comps];
+			break;
 
-	default:
-		break;
-	}
+		default:
+			break;
+		}
 
-	switch (dateType) {
-	case AIDateTypeExactly:
-		filterDateType = AIDateTypeExactly;
-		filterDate = [[datePicker dateValue] dateWithCalendarFormat:nil timeZone:nil];
-		showDatePicker = YES;
-		break;
+		switch (dateType) {
+		case AIDateTypeExactly:
+			filterDateType = AIDateTypeExactly;
+			filterDate = [[datePicker dateValue] dateWithCalendarFormat:nil timeZone:nil];
+			showDatePicker = YES;
+			break;
 
-	case AIDateTypeBefore:
-		filterDateType = AIDateTypeBefore;
-		filterDate = [[datePicker dateValue] dateWithCalendarFormat:nil timeZone:nil];
-		showDatePicker = YES;
-		break;
+		case AIDateTypeBefore:
+			filterDateType = AIDateTypeBefore;
+			filterDate = [[datePicker dateValue] dateWithCalendarFormat:nil timeZone:nil];
+			showDatePicker = YES;
+			break;
 
-	case AIDateTypeAfter:
-		filterDateType = AIDateTypeAfter;
-		filterDate = [[datePicker dateValue] dateWithCalendarFormat:nil timeZone:nil];
-		showDatePicker = YES;
-		break;
+		case AIDateTypeAfter:
+			filterDateType = AIDateTypeAfter;
+			filterDate = [[datePicker dateValue] dateWithCalendarFormat:nil timeZone:nil];
+			showDatePicker = YES;
+			break;
 
-	default:
-		showDatePicker = NO;
-		break;
-	}
+		default:
+			showDatePicker = NO;
+			break;
+		}
 
-	BOOL updateSize = NO;
-	if (showDatePicker && [datePicker isHidden]) {
-		[datePicker setHidden:NO];
-		updateSize = YES;
+		BOOL updateSize = NO;
+		if (showDatePicker && [datePicker isHidden]) {
+			[datePicker setHidden:NO];
+			updateSize = YES;
 
-	} else if (!showDatePicker && ![datePicker isHidden]) {
-		[datePicker setHidden:YES];
-		updateSize = YES;
-	}
+		} else if (!showDatePicker && ![datePicker isHidden]) {
+			[datePicker setHidden:YES];
+			updateSize = YES;
+		}
 
-	if (updateSize) {
-		NSEnumerator *enumerator = [[[[self window] toolbar] items] objectEnumerator];
-		NSToolbarItem *toolbarItem;
-		while ((toolbarItem = [enumerator nextObject])) {
-			if ([[toolbarItem itemIdentifier] isEqualToString:DATE_ITEM_IDENTIFIER]) {
-				NSSize newSize = NSMakeSize(([datePicker isHidden] ? 180 : 290), NSHeight([view_DatePicker frame]));
-				[toolbarItem setMinSize:newSize];
-				[toolbarItem setMaxSize:newSize];
-				break;
+		if (updateSize) {
+			NSEnumerator *enumerator = [[[[self window] toolbar] items] objectEnumerator];
+			NSToolbarItem *toolbarItem;
+			while ((toolbarItem = [enumerator nextObject])) {
+				if ([[toolbarItem itemIdentifier] isEqualToString:DATE_ITEM_IDENTIFIER]) {
+					NSSize newSize = NSMakeSize(([datePicker isHidden] ? 180 : 290), NSHeight([view_DatePicker frame]));
+					[toolbarItem setMinSize:newSize];
+					[toolbarItem setMaxSize:newSize];
+					break;
+				}
 			}
 		}
-	}
 }
 
 - (NSString *)dateItemNibName
 {
-	return @"LogViewerDateFilter";
+		return @"LogViewerDateFilter";
 }
 
 @end

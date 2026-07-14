@@ -53,7 +53,7 @@ typedef enum {
 - (void)installPlugin
 {
 	// Ensure no idle time is set as we load
-	
+
 	oldStatusID = nil;
 }
 

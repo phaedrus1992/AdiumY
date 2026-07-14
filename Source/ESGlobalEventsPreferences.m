@@ -37,11 +37,10 @@
 #define COPY_IN_PARENTHESIS                                                                                            \
 	AILocalizedString(@"(Copy)", "Copy, in parenthesis, as a noun indicating that the preceding item is a duplicate")
 
-#define VOLUME_SOUND_PATH                                                                                              \
-	
-	}
+#define VOLUME_SOUND_PATH
+}
 
-	return 
+return
 }
 
 #pragma mark Common menu methods

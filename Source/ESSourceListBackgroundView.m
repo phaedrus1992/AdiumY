@@ -22,8 +22,7 @@
 
 - (void)_initSourceListBackgroundView
 {
-	background = 
-	
+	background =
 }
 
 - (void)drawRect:(NSRect)rect

@@ -52,25 +52,23 @@
 - (void)installPlugin
 {
 	// Init
-	receivedAutoReply = 
-		receivedAutoReply = 
-			[mutableAutoReply
-				replaceCharactersInRange:NSMakeRange(0, 0)
-							  withString:AILocalizedString(@"(Autoreply) ",
-														   "Prefix to place before autoreplies on services which do "
-														   "not natively support them")];
-			autoReply = mutableAutoReply;
-		}
+	receivedAutoReply = receivedAutoReply = [mutableAutoReply
+		replaceCharactersInRange:NSMakeRange(0, 0)
+					  withString:AILocalizedString(@"(Autoreply) ",
+												   "Prefix to place before autoreplies on services which do "
+												   "not natively support them")];
+	autoReply = mutableAutoReply;
+}
 
-		responseContent = [AIContentMessage messageInChat:chat
-											   withSource:source
-											  destination:destination
-													 date:nil
-												  message:autoReply
-												autoreply:supportsAutoreply];
+responseContent = [AIContentMessage messageInChat:chat
+									   withSource:source
+									  destination:destination
+											 date:nil
+										  message:autoReply
+										autoreply:supportsAutoreply];
 
-		[adium.contentController sendContentObject:responseContent];
-	}
+[adium.contentController sendContentObject:responseContent];
+}
 }
 
 /*!

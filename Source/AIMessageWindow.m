@@ -30,14 +30,12 @@
 							backing:(NSBackingStoreType)backingStoreType
 							  defer:(BOOL)flag
 {
-	if (!(self = 
+	if (!(self =
 }
 
 - (void)dealloc
 {
 	AILogWithSignature(@"");
-
-	
 }
 
 - (NSArray *)chats

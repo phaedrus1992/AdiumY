@@ -34,17 +34,17 @@
  */
 - (void)installPlugin
 {
-	
-			NSString *replaceString = [NSString
-				stringWithFormat:@"<span class='actionMessageUserName'>%@</span><span class='actionMessageBody'>",
-								 [[content source] displayName]];
-			[mutableHTML replaceCharactersInRange:[mutableHTML rangeOfString:@"*"] withString:replaceString];
-			[mutableHTML replaceCharactersInRange:[mutableHTML rangeOfString:@"*" options:NSBackwardsSearch]
-									   withString:@"</span>"];
-			return mutableHTML;
-		}
-	}
-	return inHTMLString;
+
+	NSString *replaceString =
+		[NSString stringWithFormat:@"<span class='actionMessageUserName'>%@</span><span class='actionMessageBody'>",
+								   [[content source] displayName]];
+	[mutableHTML replaceCharactersInRange:[mutableHTML rangeOfString:@"*"] withString:replaceString];
+	[mutableHTML replaceCharactersInRange:[mutableHTML rangeOfString:@"*" options:NSBackwardsSearch]
+							   withString:@"</span>"];
+	return mutableHTML;
+}
+}
+return inHTMLString;
 }
 
 /*!

@@ -41,49 +41,52 @@ LNAboutBoxController *sharedAboutBoxInstance = nil;
 + (LNAboutBoxController *)aboutBoxController
 {
 	if (!sharedAboutBoxInstance) {
-		sharedAboutBoxInstance = 
-}
+		sharedAboutBoxInstance =
+	}
 
 #pragma mark Software License
 
-// Display the software license sheet
-- (IBAction)showLicense:(id)sender
-{
-	NSURL *licenseURL = [NSURL fileURLWithPath:[[NSBundle bundleForClass:[self class]] pathForResource:@"License"
-																								ofType:@"txt"]];
-	[textView_license setString:[NSString stringWithContentsOfURL:licenseURL encoding:NSUTF8StringEncoding error:NULL]];
+	// Display the software license sheet
+	-(IBAction)showLicense : (id)sender
+	{
+		NSURL *licenseURL = [NSURL fileURLWithPath:[[NSBundle bundleForClass:[self class]] pathForResource:@"License"
+																									ofType:@"txt"]];
+		[textView_license setString:[NSString stringWithContentsOfURL:licenseURL
+															 encoding:NSUTF8StringEncoding
+																error:NULL]];
 
-	[NSApp beginSheet:panel_licenseSheet
-		modalForWindow:[self window]
-		 modalDelegate:nil
-		didEndSelector:nil
-		   contextInfo:nil];
-}
+		[NSApp beginSheet:panel_licenseSheet
+			modalForWindow:[self window]
+			 modalDelegate:nil
+			didEndSelector:nil
+			   contextInfo:nil];
+	}
 
-// Close the software license sheet
-- (IBAction)hideLicense:(id)sender
-{
-	[panel_licenseSheet orderOut:nil];
-	[NSApp endSheet:panel_licenseSheet returnCode:0];
-}
+	// Close the software license sheet
+	-(IBAction)hideLicense : (id)sender
+	{
+		[panel_licenseSheet orderOut:nil];
+		[NSApp endSheet:panel_licenseSheet returnCode:0];
+	}
 
 #pragma mark Sillyness
 
-// Flap the duck when clicked
-- (IBAction)adiumDuckClicked:(id)sender
-{
-	numberOfDuckClicks++;
+	// Flap the duck when clicked
+	-(IBAction)adiumDuckClicked : (id)sender
+	{
+		numberOfDuckClicks++;
 
 #define PATH_TO_SOUNDS                                                                                                 \
 	[NSString pathWithComponents:[NSArray arrayWithObjects:[[NSBundle mainBundle] bundlePath], @"Contents",            \
 														   @"Resources", @"Sounds", @"Adium.AdiumSoundset", nil]]
 
-	if (numberOfDuckClicks == 10) {
-		numberOfDuckClicks = -1;
-		[adium.soundController playSoundAtPath:[PATH_TO_SOUNDS stringByAppendingPathComponent:@"Feather Ruffle.aif"]];
-	} else {
-		[adium.soundController playSoundAtPath:[PATH_TO_SOUNDS stringByAppendingPathComponent:@"Quack.aif"]];
+		if (numberOfDuckClicks == 10) {
+			numberOfDuckClicks = -1;
+			[adium.soundController
+				playSoundAtPath:[PATH_TO_SOUNDS stringByAppendingPathComponent:@"Feather Ruffle.aif"]];
+		} else {
+			[adium.soundController playSoundAtPath:[PATH_TO_SOUNDS stringByAppendingPathComponent:@"Quack.aif"]];
+		}
 	}
-}
 
-@end
+	@end

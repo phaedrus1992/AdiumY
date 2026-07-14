@@ -28,8 +28,7 @@
 #import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 
-#define ICHAT_LOCATION 
-	
+#define ICHAT_LOCATION
 }
 
 @end

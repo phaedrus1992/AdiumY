@@ -23,7 +23,7 @@
 - (void)drawRect:(NSRect)inRect
 {
 	if (!textField_editor) {
-		
+
 		editUserInfo = inUserInfo;
 	}
 }

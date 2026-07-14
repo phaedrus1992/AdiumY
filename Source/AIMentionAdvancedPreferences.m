@@ -41,8 +41,7 @@
 }
 - (NSImage *)image
 {
-	return 
-	mentionTerms = nil;
+	return mentionTerms = nil;
 
 	[super viewWillClose];
 }

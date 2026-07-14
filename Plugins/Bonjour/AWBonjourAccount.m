@@ -73,7 +73,6 @@
 	 * if it has been released but not set to nil, this results in a crash.
 	 */
 	libezvContacts = nil;
-
 }
 
 - (BOOL)disconnectOnFastUserSwitch
@@ -176,10 +175,9 @@
 							notify:NotifyLater];
 
 	NSString *contactStatusMessage = contact.statusMessage;
-	[listContact setStatusMessage:(contactStatusMessage
-									   ? [[NSAttributedString alloc] initWithString:contactStatusMessage]
-									   : nil)
-						   notify:NotifyLater];
+	[listContact
+		setStatusMessage:(contactStatusMessage ? [[NSAttributedString alloc] initWithString:contactStatusMessage] : nil)
+				  notify:NotifyLater];
 
 	NSDate *idleSinceDate = [contact idleSinceDate];
 	[listContact setIdle:(idleSinceDate != nil) sinceDate:idleSinceDate notify:NotifyLater];

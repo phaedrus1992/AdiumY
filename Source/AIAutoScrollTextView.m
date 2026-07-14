@@ -29,7 +29,7 @@
 
 - (void)loadText:(NSAttributedString *)textToLoad
 {
-	
+
 	scrollTimer = nil;
 
 	// Enable scrolling

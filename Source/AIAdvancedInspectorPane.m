@@ -52,31 +52,30 @@
 
 - (id)init
 {
-	self = 
-		displayedObject =
-			([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
+	self = displayedObject =
+		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
 
-		displayedObject;
+	displayedObject;
 
-		// Rebuild the account and contacts lists
-		[self reloadPopup];
-	}
+	// Rebuild the account and contacts lists
+	[self reloadPopup];
+}
 
-	if (![inObject isKindOfClass:[AIListContact class]]) {
-		[popUp_encryption selectItemWithTag:EncryptedChat_Default];
-	} else {
-		[popUp_encryption selectItemWithTag:((AIListContact *)inObject).encryptedChatPreferences];
-	}
+if (![inObject isKindOfClass:[AIListContact class]]) {
+	[popUp_encryption selectItemWithTag:EncryptedChat_Default];
+} else {
+	[popUp_encryption selectItemWithTag:((AIListContact *)inObject).encryptedChatPreferences];
+}
 
-	[checkBox_alwaysShow setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
-	[checkBox_alwaysShow setState:inObject.alwaysVisible];
+[checkBox_alwaysShow setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
+[checkBox_alwaysShow setState:inObject.alwaysVisible];
 
-	[checkBox_autoJoin setEnabled:[inObject isKindOfClass:[AIListBookmark class]]];
-	[checkBox_autoJoin setState:[[inObject preferenceForKey:KEY_AUTO_JOIN group:GROUP_LIST_BOOKMARK] boolValue]];
+[checkBox_autoJoin setEnabled:[inObject isKindOfClass:[AIListBookmark class]]];
+[checkBox_autoJoin setState:[[inObject preferenceForKey:KEY_AUTO_JOIN group:GROUP_LIST_BOOKMARK] boolValue]];
 
-	[popUp_accounts setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
-	[popUp_contact setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
-	[button_addOrRemoveGroup setEnabled:![inObject isKindOfClass:[AIListGroup class]] forSegment:0];
+[popUp_accounts setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
+[popUp_contact setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
+[button_addOrRemoveGroup setEnabled:![inObject isKindOfClass:[AIListGroup class]] forSegment:0];
 }
 
 #pragma mark Preference callbacks

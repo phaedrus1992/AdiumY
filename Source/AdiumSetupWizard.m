@@ -51,7 +51,7 @@ enum { WIZARD_TAB_WELCOME = 0, WIZARD_TAB_ADD_ACCOUNTS = 1, WIZARD_TAB_DONE = 2 
 {
 	AdiumSetupWizard *setupWizardWindowController;
 
-	setupWizardWindowController = 
+	setupWizardWindowController =
 }
 
 /*!

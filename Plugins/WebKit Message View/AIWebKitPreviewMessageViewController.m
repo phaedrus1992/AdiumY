@@ -31,7 +31,6 @@
 - (void)dealloc
 {
 	preferencesChangedDelegate = nil;
-
 }
 
 - (void)setIsGroupChat:(BOOL)groupChat

@@ -26,12 +26,12 @@
 						 fromUID:(NSString *)inFromUID
 					serviceClass:(NSString *)inServiceClass;
 {
-	if ((self = 
-			}
-		}
-	}
+	if ((self =
+}
+}
+}
 
-	return toGroupArray;
+return toGroupArray;
 }
 
 - (void)removeToGroup:(AILogToGroup *)toGroup

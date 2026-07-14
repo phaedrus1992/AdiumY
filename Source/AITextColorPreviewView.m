@@ -29,7 +29,7 @@
 {
 	if ((self = 
 		backColorOverride = inColor;
-	}
+}
 }
 
 @end

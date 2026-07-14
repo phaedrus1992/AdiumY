@@ -79,12 +79,12 @@ static NSMutableDictionary *screenSlideBoundaryRectDictionary = nil;
 {
 	if (
 		windowLastScreen = nil;
-	}
+}
 }
 
 - (void)slideWindowOnScreen
 {
-	
+
 	[filterBarAnimation setDuration:duration];
 	[filterBarAnimation setAnimationBlockingMode:NSAnimationBlocking];
 	[filterBarAnimation setDelegate:self];

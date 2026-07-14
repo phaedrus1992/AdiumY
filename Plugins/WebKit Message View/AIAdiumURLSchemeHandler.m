@@ -36,7 +36,6 @@
 	[urlSchemeTask didReceiveResponse:response];
 	[urlSchemeTask didReceiveData:[NSData data]];
 	[urlSchemeTask didFinish];
-
 }
 
 - (void)webView:(WKWebView *)webView stopURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask

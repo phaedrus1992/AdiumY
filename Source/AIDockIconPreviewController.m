@@ -27,9 +27,7 @@
 }
 
 - (void)setXtra:(AIXtraInfo *)xtraInfo
-{
-	
-}
+{}
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex
 {

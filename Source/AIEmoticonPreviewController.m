@@ -26,9 +26,7 @@
 }
 
 - (void)awakeFromNib
-{
-	
-}
+{}
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex
 {
@@ -37,7 +35,7 @@
 
 - (void)setXtra:(AIXtraInfo *)xtraInfo
 {
-	
+
 	emoticons = [[AIEmoticonPack emoticonPackFromPath:[xtraInfo path]] emoticons];
 	[tableView reloadData];
 	[tableView sizeToFit];

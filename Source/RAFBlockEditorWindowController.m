@@ -44,8 +44,7 @@ static RAFBlockEditorWindowController *sharedInstance = nil;
 + (void)showWindow
 {
 	if (!sharedInstance) {
-		sharedInstance = 
-		dragItems = inArray;
+		sharedInstance = dragItems = inArray;
 	}
 
 	return YES;

@@ -19,9 +19,7 @@
 @implementation AIXtraInfoController
 
 - (void)awakeFromNib
-{
-	
-}
+{}
 
 - (NSView *)previewView
 {

@@ -183,7 +183,6 @@
 	// Release our AIMenuBarIcons bundle
 
 	// Can't release this because it causes a crash on quit. rdar://4139755, rdar://4160625, and #743. --boredzo
-	
 
 	// To the superclass, Robin!
 }
@@ -613,10 +612,10 @@
 		if (flashUnviewed) {
 			currentlyIgnoringUnviewed = NO;
 			unviewedContentFlash = [NSTimer scheduledTimerWithTimeInterval:1.0
-																	 target:self
-																   selector:@selector(updateUnviewedContentFlash:)
-																   userInfo:nil
-																	repeats:YES];
+																	target:self
+																  selector:@selector(updateUnviewedContentFlash:)
+																  userInfo:nil
+																   repeats:YES];
 		}
 
 		// Update unviewed content
@@ -630,7 +629,6 @@
 	}
 
 	mainMenuNeedsUpdate = YES;
-
 }
 
 #pragma mark Menu Delegates/Actions

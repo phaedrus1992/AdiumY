@@ -75,16 +75,15 @@ static NSMutableSet *temporaryStateArray = nil;
 	_flatStatusSet = nil;
 
 	if (!statusMenuRebuildDelays) {
-		
-	if (!lastStatusStates)
-		lastStatusStates = [NSMutableDictionary dictionary];
+		if (!lastStatusStates)
+			lastStatusStates = [NSMutableDictionary dictionary];
 
-	[lastStatusStates setObject:[NSKeyedArchiver archivedDataWithRootObject:statusState]
-						 forKey:[[NSNumber numberWithInteger:statusState.statusType] stringValue]];
+		[lastStatusStates setObject:[NSKeyedArchiver archivedDataWithRootObject:statusState]
+							 forKey:[[NSNumber numberWithInteger:statusState.statusType] stringValue]];
 
-	[adium.preferenceController setPreference:lastStatusStates
-									   forKey:@"LastStatusStates"
-										group:PREF_GROUP_STATUS_PREFERENCES];
+		[adium.preferenceController setPreference:lastStatusStates
+										   forKey:@"LastStatusStates"
+											group:PREF_GROUP_STATUS_PREFERENCES];
 }
 // Status state menu support
 // ---------------------------------------------------------------------------------------------------
@@ -97,37 +96,37 @@ static NSMutableSet *temporaryStateArray = nil;
  */
 - (void)customStatusState:(AIStatus *)originalState changedTo:(AIStatus *)newState forAccount:(AIAccount *)account
 {
-	BOOL shouldRebuild = NO;
+		BOOL shouldRebuild = NO;
 
-	if ([newState mutabilityType] != AITemporaryEditableStatusState) {
-		[adium.statusController addStatusState:newState];
-	}
-
-	if (account) {
-		shouldRebuild = [self removeIfNecessaryTemporaryStatusState:originalState];
-
-		// Now set the newState for the account
-		[account setStatusState:newState];
-
-		// Enable the account if it isn't currently enabled
-		if (!account.enabled) {
-			[account setEnabled:YES];
+		if ([newState mutabilityType] != AITemporaryEditableStatusState) {
+			[adium.statusController addStatusState:newState];
 		}
 
-		// Add to our temporary status array if it's not in our state array
-		if (shouldRebuild || (![[self flatStatusSet] containsObject:newState])) {
-			[temporaryStateArray addObject:newState];
+		if (account) {
+			shouldRebuild = [self removeIfNecessaryTemporaryStatusState:originalState];
 
-			[self notifyOfChangedStatusArray];
+			// Now set the newState for the account
+			[account setStatusState:newState];
+
+			// Enable the account if it isn't currently enabled
+			if (!account.enabled) {
+				[account setEnabled:YES];
+			}
+
+			// Add to our temporary status array if it's not in our state array
+			if (shouldRebuild || (![[self flatStatusSet] containsObject:newState])) {
+				[temporaryStateArray addObject:newState];
+
+				[self notifyOfChangedStatusArray];
+			}
+
+		} else {
+			// Set the state for all accounts.  This will clear out the temporaryStatusArray as necessary and update its
+			// contents.
+			[self setActiveStatusState:newState];
 		}
 
-	} else {
-		// Set the state for all accounts.  This will clear out the temporaryStatusArray as necessary and update its
-		// contents.
-		[self setActiveStatusState:newState];
-	}
-
-	[self saveStatusAsLastUsed:newState];
+		[self saveStatusAsLastUsed:newState];
 }
 
 #pragma mark Upgrade code
@@ -147,64 +146,64 @@ static NSMutableSet *temporaryStateArray = nil;
 #define OLD_STATE_TITLE @"Title"
 - (void)_upgradeSavedAwaysToSavedStates
 {
-	NSArray *savedAways = [adium.preferenceController preferenceForKey:OLD_KEY_SAVED_AWAYS
-																 group:OLD_GROUP_AWAY_MESSAGES];
+		NSArray *savedAways = [adium.preferenceController preferenceForKey:OLD_KEY_SAVED_AWAYS
+																	 group:OLD_GROUP_AWAY_MESSAGES];
 
-	if (savedAways) {
-		NSDictionary *state;
+		if (savedAways) {
+			NSDictionary *state;
 
-		AILog(@"*** Upgrading Adium 0.7x saved aways: %@", savedAways);
+			AILog(@"*** Upgrading Adium 0.7x saved aways: %@", savedAways);
 
-		[self setDelayStatusMenuRebuilding:YES];
+			[self setDelayStatusMenuRebuilding:YES];
 
-		// Update all the away messages to states.
-		for (state in savedAways) {
-			if ([[state objectForKey:@"Type"] isEqualToString:OLD_STATE_SAVED_AWAY]) {
-				AIStatus *statusState;
+			// Update all the away messages to states.
+			for (state in savedAways) {
+				if ([[state objectForKey:@"Type"] isEqualToString:OLD_STATE_SAVED_AWAY]) {
+					AIStatus *statusState;
 
-				// Extract the away message information from this old record
-				NSData *statusMessageData = [state objectForKey:OLD_STATE_AWAY];
-				NSData *autoReplyMessageData = [state objectForKey:OLD_STATE_AUTO_REPLY];
-				NSString *title = [state objectForKey:OLD_STATE_TITLE];
+					// Extract the away message information from this old record
+					NSData *statusMessageData = [state objectForKey:OLD_STATE_AWAY];
+					NSData *autoReplyMessageData = [state objectForKey:OLD_STATE_AUTO_REPLY];
+					NSString *title = [state objectForKey:OLD_STATE_TITLE];
 
-				// Create an AIStatus from this information
-				statusState = [AIStatus status];
+					// Create an AIStatus from this information
+					statusState = [AIStatus status];
 
-				// General category: It's an away type
-				[statusState setStatusType:AIAwayStatusType];
+					// General category: It's an away type
+					[statusState setStatusType:AIAwayStatusType];
 
-				// Specific state: It's the generic away. Funny how that works out.
-				[statusState setStatusName:STATUS_NAME_AWAY];
+					// Specific state: It's the generic away. Funny how that works out.
+					[statusState setStatusName:STATUS_NAME_AWAY];
 
-				// Set the status message (which is just the away message).
-				[statusState setStatusMessage:[NSAttributedString stringWithData:statusMessageData]];
+					// Set the status message (which is just the away message).
+					[statusState setStatusMessage:[NSAttributedString stringWithData:statusMessageData]];
 
-				// It has an auto reply.
-				[statusState setHasAutoReply:YES];
+					// It has an auto reply.
+					[statusState setHasAutoReply:YES];
 
-				if (autoReplyMessageData) {
-					// Use the custom auto reply if it was set.
-					[statusState setAutoReply:[NSAttributedString stringWithData:autoReplyMessageData]];
-				} else {
-					// If no autoReplyMesssage, use the status message.
-					[statusState setAutoReplyIsStatusMessage:YES];
+					if (autoReplyMessageData) {
+						// Use the custom auto reply if it was set.
+						[statusState setAutoReply:[NSAttributedString stringWithData:autoReplyMessageData]];
+					} else {
+						// If no autoReplyMesssage, use the status message.
+						[statusState setAutoReplyIsStatusMessage:YES];
+					}
+
+					if (title)
+						[statusState setTitle:title];
+
+					// Add the updated state to our state array.
+					[self addStatusState:statusState];
 				}
-
-				if (title)
-					[statusState setTitle:title];
-
-				// Add the updated state to our state array.
-				[self addStatusState:statusState];
 			}
+
+			AILog(@"*** Finished upgrading old saved statuses");
+
+			// Save these changes and delete the old aways so we don't need to do this again.
+			[self setDelayStatusMenuRebuilding:NO];
+
+			[adium.preferenceController setPreference:nil forKey:OLD_KEY_SAVED_AWAYS group:OLD_GROUP_AWAY_MESSAGES];
 		}
-
-		AILog(@"*** Finished upgrading old saved statuses");
-
-		// Save these changes and delete the old aways so we don't need to do this again.
-		[self setDelayStatusMenuRebuilding:NO];
-
-		[adium.preferenceController setPreference:nil forKey:OLD_KEY_SAVED_AWAYS group:OLD_GROUP_AWAY_MESSAGES];
-	}
 }
 
 @end

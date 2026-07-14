@@ -38,8 +38,7 @@
 
 - (void)_initAnimatingListOutlineView
 {
-	allAnimatingItemsDict = 
-	
+	allAnimatingItemsDict =
 }
 
 #pragma mark Enabling

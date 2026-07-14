@@ -37,9 +37,7 @@
 }
 
 - (void)dealloc
-{
-
-}
+{}
 
 #pragma mark Display
 

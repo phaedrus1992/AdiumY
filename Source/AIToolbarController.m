@@ -20,7 +20,7 @@
 
 - (id)init
 {
-	if ((self = 
+	if ((self =
 }
 
 - (void)registerToolbarItem:(NSToolbarItem *)item forToolbarType:(NSString *)type

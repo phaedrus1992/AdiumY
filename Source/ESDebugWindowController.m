@@ -30,8 +30,7 @@ static ESDebugWindowController *sharedDebugWindowInstance = nil;
 {
 	// Create the window
 	if (!sharedDebugWindowInstance) {
-		sharedDebugWindowInstance = 
-		filter = [inFilter copy];
+		sharedDebugWindowInstance = filter = [inFilter copy];
 
 		[self performFilter];
 	}

@@ -55,15 +55,15 @@
  */
 - (id)init
 {
-	if ((self = 
-	}
+	if ((self =
+}
 }
 
 /*!
  * @brief Set if preference changed notifications should be delayed
  *
  * Changing large amounts of preferences at once causes a lot of notification overhead. This should be used like
- * 
+ *
 				}
 			}
 		}
@@ -77,19 +77,19 @@
 	/* If we can't write to the specified folder, fall back to the desktop and then to the home directory;
 	 * if neither are writable the user has worse problems then an IM download to worry about.
 	 */
+if (![[NSFileManager defaultManager] isWritableFileAtPath:userPreferredDownloadFolder]) {
+	NSString *originalFolder = userPreferredDownloadFolder;
+
+	userPreferredDownloadFolder = [NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"];
+
 	if (![[NSFileManager defaultManager] isWritableFileAtPath:userPreferredDownloadFolder]) {
-		NSString *originalFolder = userPreferredDownloadFolder;
-
-		userPreferredDownloadFolder = [NSHomeDirectory() stringByAppendingPathComponent:@"Desktop"];
-
-		if (![[NSFileManager defaultManager] isWritableFileAtPath:userPreferredDownloadFolder]) {
-			userPreferredDownloadFolder = NSHomeDirectory();
-		}
-
-		NSLog(@"Could not obtain write access for %@; defaulting to %@", originalFolder, userPreferredDownloadFolder);
+		userPreferredDownloadFolder = NSHomeDirectory();
 	}
 
-	return userPreferredDownloadFolder;
+	NSLog(@"Could not obtain write access for %@; defaulting to %@", originalFolder, userPreferredDownloadFolder);
+}
+
+return userPreferredDownloadFolder;
 }
 
 /*!

@@ -42,7 +42,7 @@
 	accountConnectionStatusGroupingOfflineTimer = nil;
 
 	// Register the events we generate
-	
+
 	accountConnectionStatusGroupingOfflineTimer = nil;
 }
 

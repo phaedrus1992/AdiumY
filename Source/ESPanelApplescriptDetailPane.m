@@ -43,7 +43,7 @@
  */
 - (void)viewDidLoad
 {
-	
+
 	scriptPath = inPath;
 
 	// Update the display for this name

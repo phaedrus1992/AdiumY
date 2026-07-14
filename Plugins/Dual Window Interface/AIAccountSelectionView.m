@@ -95,7 +95,6 @@
 - (void)dealloc
 {
 	[self setChat:nil];
-
 }
 
 - (void)setLeftColor:(NSColor *)inLeftColor rightColor:(NSColor *)inRightColor
@@ -359,8 +358,7 @@
 	if (accountMenu)
 		[accountMenu rebuildMenu];
 	else
-		accountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu
-											   showTitleVerbs:NO];
+		accountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu showTitleVerbs:NO];
 }
 
 /*!
@@ -436,8 +434,7 @@
 	if (contactMenu)
 		[contactMenu rebuildMenu];
 	else
-		contactMenu = [AIContactMenu contactMenuWithDelegate:self
-										  forContactsInObject:chat.listObject.parentContact];
+		contactMenu = [AIContactMenu contactMenuWithDelegate:self forContactsInObject:chat.listObject.parentContact];
 }
 
 /*!

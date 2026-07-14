@@ -52,7 +52,7 @@ static ESFileTransferProgressWindowController *sharedTransferProgressInstance = 
 {
 	// Create the window
 	if (!sharedTransferProgressInstance) {
-		sharedTransferProgressInstance = 
+		sharedTransferProgressInstance =
 	}
 }
 

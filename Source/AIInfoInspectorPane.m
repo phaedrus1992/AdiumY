@@ -54,7 +54,7 @@
 
 - (id)init
 {
-	self = 
+	self =
 }
 
 - (void)addTooltipEntriesToProfileArray:(NSMutableArray *)profileArray forContact:(AIListContact *)inContact

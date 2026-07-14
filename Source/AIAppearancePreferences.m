@@ -75,8 +75,7 @@ typedef enum { AIEmoticonMenuNone = 1, AIEmoticonMenuMultiple } AIEmoticonMenuTa
 }
 - (NSImage *)paneIcon
 {
-	return 
-	NSString *iconPath;
+	return NSString * iconPath;
 	NSString *activePackName = [adium.preferenceController preferenceForKey:KEY_MENU_BAR_ICONS
 																	  group:PREF_GROUP_APPEARANCE];
 	iconPath = [adium pathOfPackWithName:activePackName

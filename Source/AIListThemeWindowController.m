@@ -39,12 +39,11 @@
 - (void)showOnWindow:(id)parentWindow
 {
 	if (parentWindow) {
-		
-	
-	[menuItem setTag:AIFillStretchBackground];
-	[displayImageStyleMenu addItem:menuItem];
 
-	return displayImageStyleMenu;
-}
+		[menuItem setTag:AIFillStretchBackground];
+		[displayImageStyleMenu addItem:menuItem];
 
-@end
+		return displayImageStyleMenu;
+	}
+
+	@end

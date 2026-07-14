@@ -44,8 +44,8 @@
 - (void)installPlugin
 {
 	NSMenuItem *newMessageMenuItem =
-		
-	[adium.menuController addContextualMenuItem:openChatMenuItem toLocation:Context_Contact_Message];
+
+		[adium.menuController addContextualMenuItem:openChatMenuItem toLocation:Context_Contact_Message];
 }
 
 /*!

@@ -35,8 +35,7 @@
 	if (self == 
 		account = inAccount;
 
-		// Enabled & Type
-		
+	// Enabled & Type
 }
 
 @end

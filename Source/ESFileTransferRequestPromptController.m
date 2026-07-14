@@ -39,9 +39,7 @@
 + (void)displayPromptForFileTransfer:(ESFileTransfer *)inFileTransfer
 					 notifyingTarget:(id)inTarget
 							selector:(SEL)inSelector
-{
-	
-	}
+{}
 }
 
 - (ESFileTransfer *)fileTransfer

@@ -52,7 +52,7 @@
 - (void)installPlugin
 {
 	// Wait for Adium to finish launching to handle autoconnecting enabled accounts
-	
+
 	// Watch for future changes to our account list
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(accountListChanged:)

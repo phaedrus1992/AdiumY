@@ -58,16 +58,14 @@ static AIXtrasManager *manager;
 }
 
 - (void)windowDidLoad
-{
-	
-	}
+{}
 
-	return xtras;
+return xtras;
 }
 
 - (void)updateForSelectedCategory
 {
-	
+
 	[toolbar setDelegate:self];
 	[toolbar setDisplayMode:NSToolbarDisplayModeIconAndLabel];
 	[toolbar setSizeMode:NSToolbarSizeModeRegular];

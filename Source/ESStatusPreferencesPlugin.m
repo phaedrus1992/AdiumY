@@ -45,8 +45,7 @@
 	NSMenuItem *menuItem;
 
 	// Install our preference view
-	preferences = 
-	[adium.menuController addMenuItem:menuItem toLocation:LOC_Status_Additions];
+	preferences = [adium.menuController addMenuItem:menuItem toLocation:LOC_Status_Additions];
 
 	// Register defaults
 	[adium.preferenceController registerDefaults:[NSDictionary dictionaryNamed:STATUS_DEFAULT_PREFS

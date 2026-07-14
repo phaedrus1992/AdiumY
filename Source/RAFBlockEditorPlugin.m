@@ -26,7 +26,6 @@
 {
 	// Install the Block menu items
 	blockEditorMenuItem =
-		
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem

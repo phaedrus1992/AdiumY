@@ -44,8 +44,7 @@ static NSMutableDictionary *passwordPromptControllerDict = nil;
 
 + (NSString *)identifierForType:(AISpecialPasswordType)inType name:(NSString *)inName account:(AIAccount *)inAccount
 {
-	return 
-	
+	return
 }
 
 /*!

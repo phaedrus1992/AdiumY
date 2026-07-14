@@ -44,19 +44,19 @@
 
 	if (invalidXMLCharacterSet == nil) {
 		// First, create a character set containing all valid UTF8 characters.
-		NSMutableCharacterSet *xmlCharacterSet = 
-		}
+		NSMutableCharacterSet *xmlCharacterSet =
 	}
+}
 
-	return output;
+return output;
 
-ohno:
-	if (!reentrancyFlag) {
-		NSMutableString *xmlString = [NSMutableString stringWithUTF8String:[xmlData bytes]];
-		[xmlString stripInvalidCharacters];
-		return [self readData:[xmlString dataUsingEncoding:NSUTF8StringEncoding] withOptions:options retrying:YES];
-	}
-	@throw [NSException exceptionWithName:@"Log File Parsing Error" reason:[err description] userInfo:nil];
+ohno : if (!reentrancyFlag)
+{
+	NSMutableString *xmlString = [NSMutableString stringWithUTF8String:[xmlData bytes]];
+	[xmlString stripInvalidCharacters];
+	return [self readData:[xmlString dataUsingEncoding:NSUTF8StringEncoding] withOptions:options retrying:YES];
+}
+@throw [NSException exceptionWithName:@"Log File Parsing Error" reason:[err description] userInfo:nil];
 }
 
 @end

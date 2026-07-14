@@ -37,21 +37,22 @@
 - (void)installPlugin
 {
 	// Install our tooltip entry
-	
-				[mutableStatusMessage replaceOccurrencesOfString:@"\t"
-													  withString:@"    "
-														 options:NSLiteralSearch
-														   range:NSMakeRange(0, [mutableStatusMessage length])];
-				entry = mutableStatusMessage;
-			}
 
-		} else {
-			NSString *awayDescription = [self awayDescriptionForObject:inObject];
-			entry = (awayDescription ? [[NSAttributedString alloc] initWithString:awayDescription] : nil);
-		}
-	}
+	[mutableStatusMessage replaceOccurrencesOfString:@"\t"
+										  withString:@"    "
+											 options:NSLiteralSearch
+											   range:NSMakeRange(0, [mutableStatusMessage length])];
+	entry = mutableStatusMessage;
+}
+}
+else
+{
+	NSString *awayDescription = [self awayDescriptionForObject:inObject];
+	entry = (awayDescription ? [[NSAttributedString alloc] initWithString:awayDescription] : nil);
+}
+}
 
-	return entry;
+return entry;
 }
 
 - (BOOL)shouldDisplayInContactInspector

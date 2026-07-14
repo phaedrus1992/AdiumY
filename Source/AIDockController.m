@@ -61,11 +61,11 @@
 {
 	if ((self = 
 		bounceTimer = nil;
-	}
+}
 
-	// Stop any continuous bouncing
-	if (currentAttentionRequest != -1) {
-		
+// Stop any continuous bouncing
+if (currentAttentionRequest != -1) {
+
 	if (overlay) {
 		[image lockFocus];
 		[overlay drawInRect:[view frame] fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0f];

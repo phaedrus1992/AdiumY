@@ -48,8 +48,6 @@
 
 	/* It seems like we should be releasing previewView here.  Doing so leads to a double release when the view is
 	 * removed its superview, though.. no idea what's going wrong, but it's not a leak... it's just weird. -eds */
-	
-
 }
 
 - (IBAction)togglePack:(id)sender

@@ -39,8 +39,7 @@
 + (AIOutlineViewAnimation *)listObjectAnimationWithDictionary:(NSDictionary *)inDict
 													 delegate:(AIAnimatingListOutlineView *)inOutlineView
 {
-	return 
-	
+	return
 }
 
 /*!

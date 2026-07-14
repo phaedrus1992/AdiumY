@@ -28,7 +28,6 @@
 - (void)installPlugin
 {
 	// Register us as a filter
-	
 }
 
 /*!

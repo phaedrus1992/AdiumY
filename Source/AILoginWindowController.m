@@ -49,9 +49,8 @@
 + (AILoginWindowController *)loginWindowControllerWithOwner:(id)inOwner
 {
 	/* Release self in windowWillClose: */
-	return 
-		loginTimer = nil;
-	}
+	return loginTimer = nil;
+}
 }
 
 @end

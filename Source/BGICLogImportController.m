@@ -30,25 +30,24 @@
 #import "Presentity.h"
 
 // #define LOG_TO_TEST
-#define TEST_LOGGING_LOCATION 
-	
-		[elm addEscapedObject:chatContents];
+#define TEST_LOGGING_LOCATION
 
-		if ([attributeValues count] == 2) {
-			[elm setAttributeNames:attributeKeys values:attributeValues];
-		}
+[elm addEscapedObject:chatContents];
 
-		[appender appendElement:elm];
-	}
+if ([attributeValues count] == 2) {
+	[elm setAttributeNames:attributeKeys values:attributeValues];
+}
 
-	if ([[NSFileManager defaultManager] fileExistsAtPath:documentPath]) {
-		[(AILoggerPlugin *)[[adium componentLoader] pluginWithClassName:@"AILoggerPlugin"]
-			markLogDirtyAtPath:documentPath];
-		return YES;
+[appender appendElement:elm];
+}
 
-	} else {
-		return NO;
-	}
+if ([[NSFileManager defaultManager] fileExistsAtPath:documentPath]) {
+	[(AILoggerPlugin *)[[adium componentLoader] pluginWithClassName:@"AILoggerPlugin"] markLogDirtyAtPath:documentPath];
+	return YES;
+
+} else {
+	return NO;
+}
 }
 
 @end

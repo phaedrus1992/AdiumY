@@ -26,8 +26,7 @@
 
 - (id)init
 {
-	self = 
-	
+	self =
 }
 
 - (NSString *)nibName

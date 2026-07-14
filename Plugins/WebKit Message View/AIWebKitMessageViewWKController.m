@@ -185,8 +185,6 @@ static NSArray *draggedTypes = nil;
 	[_webView setNavigationDelegate:nil];
 	[_webView setUIDelegate:nil];
 	[_webView.configuration.userContentController removeScriptMessageHandlerForName:@"adium"];
-
-
 }
 
 #pragma mark - WebView Creation

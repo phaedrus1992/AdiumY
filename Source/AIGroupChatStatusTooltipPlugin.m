@@ -27,12 +27,9 @@
  */
 @implementation AIGroupChatStatusTooltipPlugin
 - (void)installPlugin
-{
-	
-				
-	}
+{}
 
-	return entry;
+return entry;
 }
 
 - (BOOL)shouldDisplayInContactInspector

@@ -39,13 +39,10 @@
  */
 - (void)installPlugin
 {
-	accountMenu = 
-	installedMenuItems = menuItems;
+	accountMenu = installedMenuItems = menuItems;
 }
 - (void)accountMenu:(AIAccountMenu *)inAccountMenu didSelectAccount:(AIAccount *)inAccount
-{
-	
-}
+{}
 
 /*!
  * @brief Connects all offline, enabled acounts

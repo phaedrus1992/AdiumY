@@ -54,11 +54,12 @@
 - (void)installPlugin
 {
 	// Default preferences
-	
+
 	menuItem_hideAway = nil;
-	
-									   forKey:KEY_HIDE_ACCOUNT_CONTACTS
-										group:PREF_GROUP_CONTACT_LIST_DISPLAY];
+
+forKey:
+	KEY_HIDE_ACCOUNT_CONTACTS
+group:PREF_GROUP_CONTACT_LIST_DISPLAY];
 }
 
 /*!

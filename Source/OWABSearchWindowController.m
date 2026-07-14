@@ -65,8 +65,7 @@
 {
 	OWABSearchWindowController *newABSearchWindow;
 
-	newABSearchWindow = 
-	contactImage = nil;
+	newABSearchWindow = contactImage = nil;
 }
 
 @end

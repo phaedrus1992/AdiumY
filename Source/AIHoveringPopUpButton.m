@@ -90,8 +90,6 @@
 		[self removeTrackingRect:trackingTag];
 		trackingTag = -1;
 	}
-
-	
 }
 
 // Mouse Tracking

@@ -117,8 +117,7 @@
 
 - (id)init
 {
-	if ((self = 
-	
+	if ((self =
 }
 
 - (void)toggleUserlist:(id)sender

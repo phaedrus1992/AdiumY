@@ -45,8 +45,7 @@ static NSMutableDictionary *proxyPasswordPromptControllerDict = nil;
 								 context:(id)inContext
 {
 	ESProxyPasswordPromptController *controller = nil;
-	NSString *identifier = 
-	
+	NSString *identifier =
 }
 
 /*!

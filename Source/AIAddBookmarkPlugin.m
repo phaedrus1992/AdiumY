@@ -44,8 +44,8 @@
  */
 - (void)installPlugin
 {
-	addBookmarkToolbarItem = 
-	[adium.toolbarController unregisterToolbarItem:addBookmarkToolbarItem forToolbarType:@"MessageWindow"];
+	addBookmarkToolbarItem = [adium.toolbarController unregisterToolbarItem:addBookmarkToolbarItem
+															 forToolbarType:@"MessageWindow"];
 }
 
 /*!

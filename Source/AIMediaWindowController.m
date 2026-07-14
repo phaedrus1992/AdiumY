@@ -26,7 +26,7 @@
 
 + (AIMediaWindowController *)mediaWindowControllerForMedia:(AIMedia *)media
 {
-	return 
+	return
 }
 
 - (id)initWithMedia:(AIMedia *)inMedia

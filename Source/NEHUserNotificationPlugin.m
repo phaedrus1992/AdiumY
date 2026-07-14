@@ -54,9 +54,7 @@
  * so all events are registered.
  */
 - (void)installPlugin
-{
-	
-}
+{}
 
 #pragma mark UNUserNotificationCenterDelegate
 

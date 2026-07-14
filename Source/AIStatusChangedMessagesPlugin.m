@@ -51,7 +51,7 @@ static NSDictionary *statusTypeDict = nil;
  */
 - (void)installPlugin
 {
-	statusTypeDict = 
+	statusTypeDict =
 }
 
 /*!
@@ -62,8 +62,8 @@ static NSDictionary *statusTypeDict = nil;
 - (void)contact_statusMessage:(NSNotification *)notification
 {
 	NSSet *allChats;
-	AIListContact *contact = 
-	for (chat in inChats) {
+	AIListContact *contact = for (chat in inChats)
+	{
 		// Don't do anything if the message is the same as the last message displayed for this chat
 		if ([[previousStatusChangedMessages objectForKey:chat.uniqueChatID] isEqualToString:message])
 			continue;

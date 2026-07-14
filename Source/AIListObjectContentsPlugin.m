@@ -56,11 +56,10 @@
 - (void)installPlugin
 {
 	// Install our tooltip entry
-	
-		}
-	}
+}
+}
 
-	return 
+return
 }
 
 - (BOOL)shouldDisplayInContactInspector

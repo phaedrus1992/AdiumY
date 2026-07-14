@@ -51,11 +51,9 @@
 - (void)installPlugin
 {
 	// init the menus and menuItems
-	quickMenuItem = 
-		}
-	}
-
-	
+	quickMenuItem =
+}
+}
 }
 
 // Menu Control

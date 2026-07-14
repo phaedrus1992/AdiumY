@@ -23,31 +23,30 @@
 #import <Adium/AIListObject.h>
 #import <Adium/AIUserIcons.h>
 
-#define BYTES_RECEIVED                                                                                                 \
-	
-		sizeString = 
-	[breaks sortUsingSelector:@selector(compare:)];
+#define BYTES_RECEIVED
 
-	while (i < [breaks count] && secs >= (NSTimeInterval)[[breaks objectAtIndex:i] unsignedIntegerValue])
-		i++;
-	if (i > 0)
-		i--;
-	stop = [[breaks objectAtIndex:i] unsignedIntegerValue];
+sizeString = [breaks sortUsingSelector:@selector(compare:)];
 
-	val = (NSUInteger)(secs / stop);
-	use = (val != 1 ? plural : desc);
-	retval = [NSString stringWithFormat:@"%lu %@", val, [use objectForKey:[NSNumber numberWithUnsignedInteger:stop]]];
-	if (longFormat && i > 0) {
-		NSUInteger rest = (NSUInteger)((NSUInteger)secs % stop);
-		stop = [[breaks objectAtIndex:--i] unsignedIntegerValue];
-		rest = (NSUInteger)(rest / stop);
-		if (rest > 0) {
-			use = (rest > 1 ? plural : desc);
-			retval = [retval stringByAppendingFormat:@" %lu %@", rest, [use objectForKey:[breaks objectAtIndex:i]]];
-		}
+while (i < [breaks count] && secs >= (NSTimeInterval)[[breaks objectAtIndex:i] unsignedIntegerValue])
+	i++;
+if (i > 0)
+	i--;
+stop = [[breaks objectAtIndex:i] unsignedIntegerValue];
+
+val = (NSUInteger)(secs / stop);
+use = (val != 1 ? plural : desc);
+retval = [NSString stringWithFormat:@"%lu %@", val, [use objectForKey:[NSNumber numberWithUnsignedInteger:stop]]];
+if (longFormat && i > 0) {
+	NSUInteger rest = (NSUInteger)((NSUInteger)secs % stop);
+	stop = [[breaks objectAtIndex:--i] unsignedIntegerValue];
+	rest = (NSUInteger)(rest / stop);
+	if (rest > 0) {
+		use = (rest > 1 ? plural : desc);
+		retval = [retval stringByAppendingFormat:@" %lu %@", rest, [use objectForKey:[breaks objectAtIndex:i]]];
 	}
+}
 
-	return retval;
+return retval;
 }
 
 @end

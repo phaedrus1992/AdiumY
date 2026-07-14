@@ -43,12 +43,11 @@
 	idleObjectArray = nil;
 
 	// Install our tooltip entry
-	
-					idleObjectArray = nil;
-				}
 
-				// Set the correct idle value
-				
+	idleObjectArray = nil;
+}
+
+// Set the correct idle value
 }
 
 - (BOOL)shouldDisplayInContactInspector

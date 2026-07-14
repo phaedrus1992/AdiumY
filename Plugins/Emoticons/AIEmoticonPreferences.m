@@ -79,7 +79,6 @@
 
 	[adium.preferenceController unregisterPreferenceObserver:self];
 	[adium.emoticonController flushEmoticonImageCache];
-
 }
 
 // Configure the preference view
@@ -90,8 +89,7 @@
 	[table_emoticonPacks registerForDraggedTypes:[NSArray arrayWithObject:EMOTICON_PACK_DRAG_TYPE]];
 
 	// Configure the outline view
-	[[table_emoticonPacks tableColumnWithIdentifier:@"Emoticons"]
-		setDataCell:[[AIGenericViewCell alloc] init]];
+	[[table_emoticonPacks tableColumnWithIdentifier:@"Emoticons"] setDataCell:[[AIGenericViewCell alloc] init]];
 	[table_emoticonPacks selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
 	[table_emoticonPacks setToolTip:EMOTICON_PACKS_TOOLTIP];
 	[table_emoticonPacks setDelegate:self];
@@ -145,7 +143,6 @@
 
 	[adium.preferenceController unregisterPreferenceObserver:self];
 	[adium.emoticonController flushEmoticonImageCache];
-
 }
 
 - (void)dealloc
@@ -154,7 +151,6 @@
 	selectedEmoticonPack = nil;
 	emoticonPackPreviewControllers = nil;
 	emoticonImageCache = nil;
-
 }
 
 - (void)configurePreviewControllers

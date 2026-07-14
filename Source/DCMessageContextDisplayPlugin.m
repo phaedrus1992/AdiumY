@@ -76,17 +76,16 @@ static DCMessageContextDisplayPlugin *sharedInstance = nil;
 	isObserving = NO;
 
 	// Setup our preferences
-	
-			}
-		}
+}
+}
 
-		[elementStack removeObjectAtIndex:0U];
-		if ([foundMessages count] == *linesLeftToFind) {
-			if ([elementStack count])
-				[elementStack removeAllObjects];
-			[parser abortParsing];
-		}
-	}
+[elementStack removeObjectAtIndex:0U];
+if ([foundMessages count] == *linesLeftToFind) {
+	if ([elementStack count])
+		[elementStack removeAllObjects];
+	[parser abortParsing];
+}
+}
 }
 
 @end

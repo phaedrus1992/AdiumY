@@ -95,16 +95,18 @@ static NSString *prefsCategory;
 {
 	if ((self = 
 			[s setString:character];
-		} else {
-			// Add character to string and continue
-			[s appendString:character];
-		}
-		oldType = newType;
-	}
+}
+else
+{
+	// Add character to string and continue
+	[s appendString:character];
+}
+oldType = newType;
+}
 
-	// Add the last part onto the array
-	[parts addObject:[NSString stringWithString:s]];
-	return parts;
+// Add the last part onto the array
+[parts addObject:[NSString stringWithString:s]];
+return parts;
 }
 
 - (NSComparisonResult)compareVersion:(NSString *)appVersion toVersion:(NSString *)appcastVersion;

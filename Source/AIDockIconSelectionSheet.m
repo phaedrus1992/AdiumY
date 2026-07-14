@@ -43,8 +43,7 @@
 
 - (id)init
 {
-	if (self = 
-		
+	if (self =
 }
 
 // Animate the hovered icon

@@ -29,9 +29,7 @@
 @implementation NSTokenField (NSTokenFieldAdditions)
 - (void)updateDisplay
 {
-	NSRange selectionRange = 
-	if (!representedObject)
-		return nil;
+	NSRange selectionRange = if (!representedObject) return nil;
 
 	NSString *fullName = [self tokenField:tokenField
 		displayStringForRepresentedObject:[representedObject stringByReplacingOccurrencesOfString:@"INITIAL"

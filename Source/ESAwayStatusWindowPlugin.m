@@ -41,8 +41,7 @@
 - (void)installPlugin
 {
 	showStatusWindow = FALSE;
-	awayAccounts = 
-	
+	awayAccounts =
 }
 
 /*!

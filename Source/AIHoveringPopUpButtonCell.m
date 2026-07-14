@@ -38,8 +38,8 @@
 	hovered = NO;
 	hoveredFraction = 0.0f;
 
-	statusParagraphStyle = 
-	}
+	statusParagraphStyle =
+}
 }
 
 - (void)setHovered:(BOOL)inHovered animate:(BOOL)animate

@@ -24,10 +24,12 @@
 #import <Adium/AIToolbarControllerProtocol.h>
 
 #define SAFARI_LINK_IDENTIFER @"SafariLink"
-#define SAFARI_LINK_SCRIPT_PATH 
-	} else {
-		NSBeep();
-	}
+#define SAFARI_LINK_SCRIPT_PATH
+}
+else
+{
+	NSBeep();
+}
 }
 
 @end

@@ -35,22 +35,22 @@
 #import <Adium/AIToolbarControllerProtocol.h>
 
 #define ADD_CONTACT AILocalizedString(@"Add Contact", nil)
-#define ADD_CONTACT_ELLIPSIS 
-	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_Contact_NegativeAction];
+#define ADD_CONTACT_ELLIPSIS
+[adium.menuController addContextualMenuItem:menuItem toLocation:Context_Contact_NegativeAction];
 
-	// Add Contact toolbar item
-	toolbarItem = [AIToolbarUtilities toolbarItemWithIdentifier:ADD_CONTACT_IDENTIFIER
-														  label:ADD_CONTACT
-												   paletteLabel:ADD_CONTACT
-														toolTip:AILocalizedString(@"Add a new contact", nil)
-														 target:self
-												settingSelector:@selector(setImage:)
-													itemContent:[NSImage imageNamed:@"msg-add-contact"
-																		   forClass:[self class]
-																		 loadLazily:YES]
-														 action:@selector(addContact:)
-														   menu:nil];
-	[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"ListObject"];
+// Add Contact toolbar item
+toolbarItem = [AIToolbarUtilities toolbarItemWithIdentifier:ADD_CONTACT_IDENTIFIER
+													  label:ADD_CONTACT
+											   paletteLabel:ADD_CONTACT
+													toolTip:AILocalizedString(@"Add a new contact", nil)
+													 target:self
+											settingSelector:@selector(setImage:)
+												itemContent:[NSImage imageNamed:@"msg-add-contact"
+																	   forClass:[self class]
+																	 loadLazily:YES]
+													 action:@selector(addContact:)
+													   menu:nil];
+[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"ListObject"];
 }
 
 /*!

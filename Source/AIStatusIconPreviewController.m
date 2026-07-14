@@ -25,7 +25,7 @@
 
 - (void)setXtra:(AIXtraInfo *)xtraInfo
 {
-	NSString *resourcePath = 
+	NSString *resourcePath =
 }
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex

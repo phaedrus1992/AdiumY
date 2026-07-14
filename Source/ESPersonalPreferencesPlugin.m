@@ -26,7 +26,7 @@
  */
 - (void)installPlugin
 {
-	
+
 	preferencePane = nil;
 }
 

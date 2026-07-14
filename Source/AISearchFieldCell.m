@@ -21,9 +21,9 @@
 
 - (void)dealloc
 {
-	
-		backgroundColor = inBackgroundColor;
-	}
+
+	backgroundColor = inBackgroundColor;
+}
 }
 
 @end

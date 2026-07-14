@@ -33,7 +33,7 @@
 
 #define BLOCK AILocalizedString(@"Block", "Block Contact menu item")
 #define UNBLOCK AILocalizedString(@"Unblock", "Unblock Contact menu item")
-#define BLOCK_MENUITEM 
+#define BLOCK_MENUITEM
 }
 
 /*!

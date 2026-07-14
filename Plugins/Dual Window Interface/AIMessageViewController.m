@@ -198,7 +198,6 @@
 	// release menuItem
 	view_contents = nil;
 	undoManager = nil;
-
 }
 
 - (void)saveUserListMinimumSize
@@ -1061,9 +1060,8 @@
 		// If we need to add a prefix, insert it into the text, then call [textView complete:] again; return early with
 		// no completions.
 		if (prefix.length > 0) {
-			[textView.textStorage
-				insertAttributedString:[[NSAttributedString alloc] initWithString:prefix]
-							   atIndex:charRange.location];
+			[textView.textStorage insertAttributedString:[[NSAttributedString alloc] initWithString:prefix]
+												 atIndex:charRange.location];
 			[textView complete:nil];
 			return nil;
 		}

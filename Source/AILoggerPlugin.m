@@ -203,7 +203,7 @@ static dispatch_semaphore_t logLoadingPrefetchSemaphore; // limit prefetching lo
 	self.isIndexing = NO;
 	self.indexIsFlushing = NO;
 	logIndex = nil;
-	self.activeAppenders = 
+	self.activeAppenders =
 }
 
 @end

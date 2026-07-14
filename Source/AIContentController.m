@@ -88,10 +88,10 @@
  */
 - (id)init
 {
-	if ((self = 
-	}
+	if ((self =
+}
 
-	return 
+return
 }
 
 @end

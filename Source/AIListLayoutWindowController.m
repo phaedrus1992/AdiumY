@@ -37,9 +37,9 @@
 - (NSMenu *)alignmentMenuWithChoices:(NSInteger
 	
 	[menuItem setTag:IDLE_AND_STATUS];
-	[extendedStatusStyleMenu addItem:menuItem];
+[extendedStatusStyleMenu addItem:menuItem];
 
-	return extendedStatusStyleMenu;
+return extendedStatusStyleMenu;
 }
 
 #pragma mark Displayed Tabs

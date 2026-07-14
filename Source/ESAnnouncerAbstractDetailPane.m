@@ -36,9 +36,7 @@
  * @brief View did load
  */
 - (void)viewDidLoad
-{
-	
-}
+{}
 
 /*!
  * @brief Preference changed

@@ -43,16 +43,16 @@
 {
 	if ((self = 
 		account = inAccount;
-	}
+}
 
-	// Make sure our UID is still accurate
-	if (![inAccount.UID isEqualToString:self.UID]) {
-		[textField_name setStringValue:inAccount.UID];
-	}
+// Make sure our UID is still accurate
+if (![inAccount.UID isEqualToString:self.UID]) {
+	[textField_name setStringValue:inAccount.UID];
+}
 
-	if (![inAccount.host isEqualToString:[self host]]) {
-		[textField_server setStringValue:inAccount.host];
-	}
+if (![inAccount.host isEqualToString:[self host]]) {
+	[textField_server setStringValue:inAccount.host];
+}
 }
 
 - (void)accountConnected:(NSNotification *)not

@@ -28,12 +28,12 @@
 				to:(NSString *)inTo
 	  serviceClass:(NSString *)inServiceClass
 {
-	if ((self = 
-			}
-		}
-	}
+	if ((self =
+}
+}
+}
 
-	return date;
+return date;
 }
 - (void)parser:(NSXMLParser *)parser
 	didStartElement:(NSString *)elementName

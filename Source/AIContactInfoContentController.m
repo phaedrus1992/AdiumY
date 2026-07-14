@@ -24,9 +24,8 @@
 
 + (AIContactInfoContentController *)defaultInfoContentController
 {
-	return 
-		loadedPanes = newPanes;
-	}
+	return loadedPanes = newPanes;
+}
 }
 
 - (void)loadContentPanes:(NSArray *)contentPanes

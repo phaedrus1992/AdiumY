@@ -31,8 +31,6 @@
 - (void)installPlugin
 {
 	accountListPreferences =
-		
-	
 }
 
 /*!

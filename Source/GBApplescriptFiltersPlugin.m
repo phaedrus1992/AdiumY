@@ -77,16 +77,15 @@ NSInteger _scriptKeywordLengthSort(id scriptA, id scriptB, void *context);
 - (void)installPlugin
 {
 	// User scripts
-	
-		toolbarItem = nil;
-	}
 
-	// Register our toolbar item
-	button = 
-		[mItem setSubmenu:menu];
-		[mItem setTitle:[menu title]];
-		[item setMenuFormRepresentation:mItem];
-	}
+	toolbarItem = nil;
+}
+
+// Register our toolbar item
+button = [mItem setSubmenu:menu];
+[mItem setTitle:[menu title]];
+[item setMenuFormRepresentation:mItem];
+}
 }
 
 @end

@@ -41,45 +41,44 @@
  */
 - (void)installPlugin
 {
-	
-			// Incredibly long status messages are slow to size, so we crop them to a reasonable length
-			NSInteger statusMessageLength = [statusMessage length];
-			if (statusMessageLength == 0) {
-				statusMessage = nil;
 
-			} else if (statusMessageLength > STATUS_MAX_LENGTH) {
-				[statusMessage
-					deleteCharactersInRange:NSMakeRange(STATUS_MAX_LENGTH, [statusMessage length] - STATUS_MAX_LENGTH)];
-			}
+	// Incredibly long status messages are slow to size, so we crop them to a reasonable length
+	NSInteger statusMessageLength = [statusMessage length];
+	if (statusMessageLength == 0) {
+		statusMessage = nil;
 
-			/* Linebreaks in the status message cause vertical alignment issues. */
-			[statusMessage convertNewlinesToSlashes];
-		}
-
-		idle = (showIdle ? inObject.idleTime : 0);
-
-		//
-		NSString *idleString = ((idle > 0) ? [self idleStringForMinutes:idle] : nil);
-
-		if (idle > 0 && statusMessage) {
-			finalMessage =
-				(includeIdleInExtendedStatus ? [NSString stringWithFormat:@"(%@) %@", idleString, statusMessage]
-											 : statusMessage);
-			finalIdleReadable = [NSString stringWithFormat:@"(%@)", idleString];
-		} else if (idle > 0) {
-			finalIdleReadable = [NSString stringWithFormat:@"(%@)", idleString];
-			finalMessage = (includeIdleInExtendedStatus ? finalIdleReadable : statusMessage);
-		} else {
-			finalMessage = statusMessage;
-		}
-
-		[inObject setValue:finalIdleReadable forProperty:@"idleReadable" notify:NotifyNever];
-
-		[inObject setValue:finalMessage forProperty:@"extendedStatus" notify:NotifyNever];
-		modifiedAttributes = [NSSet setWithObject:@"extendedStatus"];
+	} else if (statusMessageLength > STATUS_MAX_LENGTH) {
+		[statusMessage
+			deleteCharactersInRange:NSMakeRange(STATUS_MAX_LENGTH, [statusMessage length] - STATUS_MAX_LENGTH)];
 	}
 
-	return modifiedAttributes;
+	/* Linebreaks in the status message cause vertical alignment issues. */
+	[statusMessage convertNewlinesToSlashes];
+}
+
+idle = (showIdle ? inObject.idleTime : 0);
+
+//
+NSString *idleString = ((idle > 0) ? [self idleStringForMinutes:idle] : nil);
+
+if (idle > 0 && statusMessage) {
+	finalMessage = (includeIdleInExtendedStatus ? [NSString stringWithFormat:@"(%@) %@", idleString, statusMessage]
+												: statusMessage);
+	finalIdleReadable = [NSString stringWithFormat:@"(%@)", idleString];
+} else if (idle > 0) {
+	finalIdleReadable = [NSString stringWithFormat:@"(%@)", idleString];
+	finalMessage = (includeIdleInExtendedStatus ? finalIdleReadable : statusMessage);
+} else {
+	finalMessage = statusMessage;
+}
+
+[inObject setValue:finalIdleReadable forProperty:@"idleReadable" notify:NotifyNever];
+
+[inObject setValue:finalMessage forProperty:@"extendedStatus" notify:NotifyNever];
+modifiedAttributes = [NSSet setWithObject:@"extendedStatus"];
+}
+
+return modifiedAttributes;
 }
 
 /*!

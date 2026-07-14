@@ -70,151 +70,160 @@
 - (void)installPlugin
 {
 	preferences =
-		
-					// Should prompt for where to apply the icon?
-					if (imageData && [[NSImage alloc] initWithData:imageData]) {
-						// If we successfully got image data, and that data makes a valid NSImage, set it as our global
-						// buddy icon
-						[adium.preferenceController setPreference:imageData
-														   forKey:KEY_USER_ICON
-															group:GROUP_ACCOUNT_STATUS];
-					}
-				}
-			}
-		} else if ([scheme isEqualToString:@"ymsgr"]) {
-			if ([host caseInsensitiveCompare:@"sendim"] == NSOrderedSame) {
-				// ymsgr://sendim?tekjew
-				NSString *name = [[[url query] stringByDecodingURLEscapes] compactedString];
 
-				if (name) {
-					[self _openChatToContactWithName:name onService:serviceID withMessage:nil];
-				}
+		// Should prompt for where to apply the icon?
+		if (imageData && [[NSImage alloc] initWithData:imageData])
+	{
+		// If we successfully got image data, and that data makes a valid NSImage, set it as our global
+		// buddy icon
+		[adium.preferenceController setPreference:imageData forKey:KEY_USER_ICON group:GROUP_ACCOUNT_STATUS];
+	}
+}
+}
+}
+else if ([scheme isEqualToString:@"ymsgr"])
+{
+	if ([host caseInsensitiveCompare:@"sendim"] == NSOrderedSame) {
+		// ymsgr://sendim?tekjew
+		NSString *name = [[[url query] stringByDecodingURLEscapes] compactedString];
 
-			} else if ([host caseInsensitiveCompare:@"im"] == NSOrderedSame) {
-				// ymsgr://im?to=tekjew
-				NSString *name = [[[url queryArgumentForKey:@"to"] stringByDecodingURLEscapes] compactedString];
-
-				if (name) {
-					[self _openChatToContactWithName:name onService:serviceID withMessage:nil];
-				}
-			}
-		} else if ([scheme isEqualToString:@"gtalk"]) {
-			if ([url queryArgumentForKey:@"openChatToScreenName"]) {
-				// gtalk:chat?jid=foo@gmail.com&from_jid=bar@gmail.com
-				NSString *name = [[[url queryArgumentForKey:@"jid"] stringByDecodingURLEscapes] compactedString];
-
-				if (name) {
-					[self _openChatToContactWithName:name onService:serviceID withMessage:nil];
-				}
-			}
-		} else if ([scheme isEqualToString:@"xmpp"]) {
-			if ([query rangeOfString:@"message"].location == 0) {
-				// xmpp:johndoe@jabber.org?message;subject=Subject;body=Body
-				// xmpp:jabber.org?message;subject=Subject;body=Body
-				NSString *msg = [[url queryArgumentForKey:@"body"] stringByDecodingURLEscapes];
-
-				if ([url user]) {
-					[self _openChatToContactWithName:[NSString stringWithFormat:@"%@@%@", [url user], [url host]]
-										   onService:serviceID
-										 withMessage:msg];
-				} else {
-					[self _openChatToContactWithName:[url host] onService:serviceID withMessage:msg];
-				}
-			} else if ([query rangeOfString:@"roster"].location == 0 ||
-					   [query rangeOfString:@"subscribe"].location == 0) {
-				// xmpp:johndoe@jabber.org?roster;name=John%20Doe;group=Friends
-				// xmpp:johndoe@jabber.org?subscribe
-
-				// Group specification and name specification is currently ignored,
-				// due to limitations in the AINewContactWindowController API.
-
-				AIService *jabberService;
-
-				jabberService = [adium.accountController firstServiceWithServiceID:@"Jabber"];
-
-				AINewContactWindowController *newContactWindowController = [[AINewContactWindowController alloc]
-					initWithContactName:[NSString stringWithFormat:@"%@@%@", [url user], [url host]]
-								service:jabberService
-								account:nil];
-				[newContactWindowController showOnWindow:nil];
-			} else if ([query rangeOfString:@"remove"].location == 0 ||
-					   [query rangeOfString:@"unsubscribe"].location == 0) {
-				// xmpp:johndoe@jabber.org?remove
-				// xmpp:johndoe@jabber.org?unsubscribe
-
-			} else if ([query rangeOfString:@"join"].location == 0) {
-				NSString *password = [[url queryArgumentForKey:@"password"] stringByDecodingURLEscapes];
-
-				[self _openXMPPGroupChat:[url user] onServer:[url host] withPassword:password];
-
-				// TODO:
-			}
-		} else if ([scheme caseInsensitiveCompare:@"irc"] == NSOrderedSame) {
-			// irc://server:port/channel?password
-			NSString *channelName = [url fragment];
-			NSNumber *portNumber = [url port];
-			NSInteger port;
-
-			if (!channelName.length &&
-				(!url.path.lastPathComponent || [url.path.lastPathComponent isEqualToString:@"/"])) {
-				channelName = @"#";
-			} else if (!channelName.length) {
-				channelName = url.path.lastPathComponent;
-			}
-
-			if (![channelName hasPrefix:@"#"] && ![channelName hasPrefix:@"&"]) {
-				channelName = [@"#" stringByAppendingString:channelName];
-			}
-
-			if (portNumber == nil) {
-				port = -1;
-			} else {
-				port = [portNumber integerValue];
-			}
-
-			if (!host) {
-				host = @"";
-			}
-
-			channelName = [channelName stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-
-			[self _openIRCGroupChat:channelName onServer:host withPort:port andPassword:[url query]];
-		} else if ([scheme caseInsensitiveCompare:@"msim"] == NSOrderedSame) {
-			NSString *contactName = [url queryArgumentForKey:@"cID"];
-
-			if (contactName.length) {
-				if ([host isEqualToString:@"addContact"]) {
-					AINewContactWindowController *newContactWindowController = [[AINewContactWindowController alloc]
-						initWithContactName:contactName
-									service:[adium.accountController firstServiceWithServiceID:serviceID]
-									account:nil];
-					[newContactWindowController showOnWindow:nil];
-				} else if ([host isEqualToString:@"sendIM"]) {
-					[self _openChatToContactWithName:contactName onService:serviceID withMessage:nil];
-				}
-			}
-		} else {
-			// Default to opening the host as a name.
-			NSString *user = [url user];
-			NSString *ircHost = [url host];
-			NSString *name;
-			if (user && [user length]) {
-				// jabber://tekjew@jabber.org
-				name = [NSString stringWithFormat:@"%@@%@", [url user], [url host]];
-			} else {
-				// aim://tekjew
-				name = ircHost;
-			}
-
-			[self _openChatToContactWithName:[name compactedString] onService:serviceID withMessage:nil];
+		if (name) {
+			[self _openChatToContactWithName:name onService:serviceID withMessage:nil];
 		}
 
-	} else if ([scheme isEqualToString:@"adiumyextra"]) {
-		// Installs an adium extra
-		//  adiumyextra://github.com/phaedrus1992/adiumy/path/to/xtra.zip
+	} else if ([host caseInsensitiveCompare:@"im"] == NSOrderedSame) {
+		// ymsgr://im?to=tekjew
+		NSString *name = [[[url queryArgumentForKey:@"to"] stringByDecodingURLEscapes] compactedString];
 
-		[[XtrasInstaller installer] installXtraAtURL:url];
+		if (name) {
+			[self _openChatToContactWithName:name onService:serviceID withMessage:nil];
+		}
 	}
+}
+else if ([scheme isEqualToString:@"gtalk"])
+{
+	if ([url queryArgumentForKey:@"openChatToScreenName"]) {
+		// gtalk:chat?jid=foo@gmail.com&from_jid=bar@gmail.com
+		NSString *name = [[[url queryArgumentForKey:@"jid"] stringByDecodingURLEscapes] compactedString];
+
+		if (name) {
+			[self _openChatToContactWithName:name onService:serviceID withMessage:nil];
+		}
+	}
+}
+else if ([scheme isEqualToString:@"xmpp"])
+{
+	if ([query rangeOfString:@"message"].location == 0) {
+		// xmpp:johndoe@jabber.org?message;subject=Subject;body=Body
+		// xmpp:jabber.org?message;subject=Subject;body=Body
+		NSString *msg = [[url queryArgumentForKey:@"body"] stringByDecodingURLEscapes];
+
+		if ([url user]) {
+			[self _openChatToContactWithName:[NSString stringWithFormat:@"%@@%@", [url user], [url host]]
+								   onService:serviceID
+								 withMessage:msg];
+		} else {
+			[self _openChatToContactWithName:[url host] onService:serviceID withMessage:msg];
+		}
+	} else if ([query rangeOfString:@"roster"].location == 0 || [query rangeOfString:@"subscribe"].location == 0) {
+		// xmpp:johndoe@jabber.org?roster;name=John%20Doe;group=Friends
+		// xmpp:johndoe@jabber.org?subscribe
+
+		// Group specification and name specification is currently ignored,
+		// due to limitations in the AINewContactWindowController API.
+
+		AIService *jabberService;
+
+		jabberService = [adium.accountController firstServiceWithServiceID:@"Jabber"];
+
+		AINewContactWindowController *newContactWindowController = [[AINewContactWindowController alloc]
+			initWithContactName:[NSString stringWithFormat:@"%@@%@", [url user], [url host]]
+						service:jabberService
+						account:nil];
+		[newContactWindowController showOnWindow:nil];
+	} else if ([query rangeOfString:@"remove"].location == 0 || [query rangeOfString:@"unsubscribe"].location == 0) {
+		// xmpp:johndoe@jabber.org?remove
+		// xmpp:johndoe@jabber.org?unsubscribe
+
+	} else if ([query rangeOfString:@"join"].location == 0) {
+		NSString *password = [[url queryArgumentForKey:@"password"] stringByDecodingURLEscapes];
+
+		[self _openXMPPGroupChat:[url user] onServer:[url host] withPassword:password];
+
+		// TODO:
+	}
+}
+else if ([scheme caseInsensitiveCompare:@"irc"] == NSOrderedSame)
+{
+	// irc://server:port/channel?password
+	NSString *channelName = [url fragment];
+	NSNumber *portNumber = [url port];
+	NSInteger port;
+
+	if (!channelName.length && (!url.path.lastPathComponent || [url.path.lastPathComponent isEqualToString:@"/"])) {
+		channelName = @"#";
+	} else if (!channelName.length) {
+		channelName = url.path.lastPathComponent;
+	}
+
+	if (![channelName hasPrefix:@"#"] && ![channelName hasPrefix:@"&"]) {
+		channelName = [@"#" stringByAppendingString:channelName];
+	}
+
+	if (portNumber == nil) {
+		port = -1;
+	} else {
+		port = [portNumber integerValue];
+	}
+
+	if (!host) {
+		host = @"";
+	}
+
+	channelName = [channelName stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+
+	[self _openIRCGroupChat:channelName onServer:host withPort:port andPassword:[url query]];
+}
+else if ([scheme caseInsensitiveCompare:@"msim"] == NSOrderedSame)
+{
+	NSString *contactName = [url queryArgumentForKey:@"cID"];
+
+	if (contactName.length) {
+		if ([host isEqualToString:@"addContact"]) {
+			AINewContactWindowController *newContactWindowController = [[AINewContactWindowController alloc]
+				initWithContactName:contactName
+							service:[adium.accountController firstServiceWithServiceID:serviceID]
+							account:nil];
+			[newContactWindowController showOnWindow:nil];
+		} else if ([host isEqualToString:@"sendIM"]) {
+			[self _openChatToContactWithName:contactName onService:serviceID withMessage:nil];
+		}
+	}
+}
+else
+{
+	// Default to opening the host as a name.
+	NSString *user = [url user];
+	NSString *ircHost = [url host];
+	NSString *name;
+	if (user && [user length]) {
+		// jabber://tekjew@jabber.org
+		name = [NSString stringWithFormat:@"%@@%@", [url user], [url host]];
+	} else {
+		// aim://tekjew
+		name = ircHost;
+	}
+
+	[self _openChatToContactWithName:[name compactedString] onService:serviceID withMessage:nil];
+}
+}
+else if ([scheme isEqualToString:@"adiumyextra"])
+{
+	// Installs an adium extra
+	//  adiumyextra://github.com/phaedrus1992/adiumy/path/to/xtra.zip
+
+	[[XtrasInstaller installer] installXtraAtURL:url];
+}
 }
 
 #pragma mark Chat openers

@@ -27,40 +27,40 @@
  */
 - (id)init
 {
-	if ((self = 
-	
-	} else {
-		performedFilters = [NSMutableArray array];
-	}
+	if ((self =
+}
+else
+{
+	performedFilters = [NSMutableArray array];
+}
 
-	for (id filter in inContentFilterArray) {
-		// Only run the filter if there were no previously performed filters or this hasn't been previously done
-		if (!filtersToSkip || ![filtersToSkip containsObject:filter]) {
-			if ([filter conformsToProtocol:@protocol(AIDelayedContentFilter)]) {
-				beganDelayedFiltering =
-					[(id<AIDelayedContentFilter>)filter delayedFilterAttributedString:*attributedString
-																			  context:filterContext
-																			 uniqueID:uniqueID];
-			} else {
-				@try {
-					*attributedString = [(id<AIContentFilter>)filter filterAttributedString:*attributedString
-																					context:filterContext];
-				} @catch (NSException *exception) {
-					AILogWithSignature(@"Caught exception in content %@: %@", filter, exception);
-				}
+for (id filter in inContentFilterArray) {
+	// Only run the filter if there were no previously performed filters or this hasn't been previously done
+	if (!filtersToSkip || ![filtersToSkip containsObject:filter]) {
+		if ([filter conformsToProtocol:@protocol(AIDelayedContentFilter)]) {
+			beganDelayedFiltering = [(id<AIDelayedContentFilter>)filter delayedFilterAttributedString:*attributedString
+																							  context:filterContext
+																							 uniqueID:uniqueID];
+		} else {
+			@try {
+				*attributedString = [(id<AIContentFilter>)filter filterAttributedString:*attributedString
+																				context:filterContext];
+			} @catch (NSException *exception) {
+				AILogWithSignature(@"Caught exception in content %@: %@", filter, exception);
 			}
 		}
-
-		// Note that we've now completed this filter
-		[performedFilters addObject:filter];
-		if (beganDelayedFiltering)
-			break;
 	}
 
-	if (finishedFilters)
-		*finishedFilters = performedFilters;
+	// Note that we've now completed this filter
+	[performedFilters addObject:filter];
+	if (beganDelayedFiltering)
+		break;
+}
 
-	return beganDelayedFiltering;
+if (finishedFilters)
+	*finishedFilters = performedFilters;
+
+return beganDelayedFiltering;
 }
 
 /*!

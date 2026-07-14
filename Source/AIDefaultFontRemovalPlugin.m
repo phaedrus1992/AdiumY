@@ -22,8 +22,6 @@
 - (void)installPlugin
 {
 	// We only monitor outgoing messages.
-	
-	
 }
 
 /*!

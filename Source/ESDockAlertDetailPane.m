@@ -44,7 +44,7 @@
  */
 - (void)viewDidLoad
 {
-	
+
 	[menuItem setRepresentedObject:[NSNumber numberWithInteger:behavior]];
 
 	return menuItem;

@@ -56,8 +56,7 @@ static NSMutableDictionary *passwordPromptControllerDict = nil;
 	NSString *identifier = inAccount.internalObjectID;
 
 	if (!passwordPromptControllerDict)
-		passwordPromptControllerDict = 
-	
+		passwordPromptControllerDict =
 }
 
 /*!

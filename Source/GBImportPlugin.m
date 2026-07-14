@@ -29,7 +29,7 @@
 
 - (void)installPlugin
 {
-	importMenuRoot = 
+	importMenuRoot =
 }
 
 - (void)importIChat:(id)sender

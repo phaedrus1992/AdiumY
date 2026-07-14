@@ -140,16 +140,16 @@
 	}
 
 	toolbarItem = [AIToolbarUtilities toolbarItemWithIdentifier:@"LinkEditor"
-														   label:AILocalizedString(@"Link", nil)
-													paletteLabel:AILocalizedString(@"Insert Link", nil)
-														 toolTip:AILocalizedString(@"Add/Edit Hyperlink", nil)
-														  target:self
-												 settingSelector:@selector(setImage:)
-													 itemContent:[NSImage imageNamed:@"msg-insert-link"
-																			forClass:[self class]
-																		  loadLazily:YES]
-														  action:@selector(editFormattedLink:)
-															menu:nil];
+														  label:AILocalizedString(@"Link", nil)
+												   paletteLabel:AILocalizedString(@"Insert Link", nil)
+														toolTip:AILocalizedString(@"Add/Edit Hyperlink", nil)
+														 target:self
+												settingSelector:@selector(setImage:)
+													itemContent:[NSImage imageNamed:@"msg-insert-link"
+																		   forClass:[self class]
+																		 loadLazily:YES]
+														 action:@selector(editFormattedLink:)
+														   menu:nil];
 
 	[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"TextEntry"];
 }

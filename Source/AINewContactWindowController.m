@@ -64,125 +64,121 @@
 - (void)showOnWindow:(NSWindow *)parentWindow
 {
 	if (parentWindow) {
-		
-	checkedAccounts = [[NSMutableSet alloc] init];
 
-	if (initialAccount && [accounts containsObject:initialAccount]) {
-		// Select accounts by default
-		[checkedAccounts addObject:initialAccount];
+		checkedAccounts = [[NSMutableSet alloc] init];
 
-	} else if ([[accounts valueForKeyPath:@"@sum.online"] integerValue] == 1) {
-		// Only one online account; it should be checked
-		AIAccount *anAccount;
+		if (initialAccount && [accounts containsObject:initialAccount]) {
+			// Select accounts by default
+			[checkedAccounts addObject:initialAccount];
 
-		for (anAccount in accounts) {
-			if (anAccount.online) {
-				[checkedAccounts addObject:anAccount];
-				break;
+		} else if ([[accounts valueForKeyPath:@"@sum.online"] integerValue] == 1) {
+			// Only one online account; it should be checked
+			AIAccount *anAccount;
+
+			for (anAccount in accounts) {
+				if (anAccount.online) {
+					[checkedAccounts addObject:anAccount];
+					break;
+				}
+			}
+
+		} else {
+			// More than one online account; follow our 'add contact to' preferences
+			AIAccount *anAccount;
+
+			for (anAccount in accounts) {
+				if ([[anAccount preferenceForKey:KEY_ADD_CONTACT_TO group:PREF_GROUP_ADD_CONTACT] boolValue])
+					[checkedAccounts addObject:anAccount];
 			}
 		}
 
-	} else {
-		// More than one online account; follow our 'add contact to' preferences
-		AIAccount *anAccount;
+		[tableView_accounts reloadData];
+	}
 
-		for (anAccount in accounts) {
-			if ([[anAccount preferenceForKey:KEY_ADD_CONTACT_TO group:PREF_GROUP_ADD_CONTACT] boolValue])
-				[checkedAccounts addObject:anAccount];
+	-(void)configureControlDimming
+	{
+		BOOL shouldEnable = NO;
+
+		if (([[textField_contactName stringValue] length] > 0)) {
+			NSEnumerator *enumerator = [checkedAccounts objectEnumerator];
+			AIAccount *account;
+			while (!shouldEnable && (account = [enumerator nextObject]))
+				if (account.contactListEditable)
+					shouldEnable = YES;
 		}
+
+		[button_add setEnabled:shouldEnable];
 	}
 
-	[tableView_accounts reloadData];
-}
-
-- (void)configureControlDimming
-{
-	BOOL shouldEnable = NO;
-
-	if (([[textField_contactName stringValue] length] > 0)) {
-		NSEnumerator *enumerator = [checkedAccounts objectEnumerator];
-		AIAccount *account;
-		while (!shouldEnable && (account = [enumerator nextObject]))
-			if (account.contactListEditable)
-				shouldEnable = YES;
+	/*!
+	 * @brief Rows in the accounts table view
+	 */
+	-(NSInteger)numberOfRowsInTableView : (NSTableView *)tableView
+	{
+		return [accounts count];
 	}
 
-	[button_add setEnabled:shouldEnable];
-}
+	/*!
+	 * @brief Object value for columns in the accounts table view
+	 */
+	-(id)tableView : (NSTableView *)tableView objectValueForTableColumn : (NSTableColumn *)tableColumn row
+		: (NSInteger)row
+	{
+		NSString *identifier = [tableColumn identifier];
 
-/*!
- * @brief Rows in the accounts table view
- */
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
-{
-	return [accounts count];
-}
+		if ([identifier isEqualToString:@"check"]) {
+			return ([[accounts objectAtIndex:row] contactListEditable]
+						? [NSNumber numberWithBool:[checkedAccounts containsObject:[accounts objectAtIndex:row]]]
+						: [NSNumber numberWithBool:NO]);
 
-/*!
- * @brief Object value for columns in the accounts table view
- */
-- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
-{
-	NSString *identifier = [tableColumn identifier];
+		} else if ([identifier isEqualToString:@"account"]) {
+			return [[accounts objectAtIndex:row] explicitFormattedUID];
 
-	if ([identifier isEqualToString:@"check"]) {
-		return ([[accounts objectAtIndex:row] contactListEditable]
-					? [NSNumber numberWithBool:[checkedAccounts containsObject:[accounts objectAtIndex:row]]]
-					: [NSNumber numberWithBool:NO]);
-
-	} else if ([identifier isEqualToString:@"account"]) {
-		return [[accounts objectAtIndex:row] explicitFormattedUID];
-
-	} else {
-		return @"";
-	}
-}
-
-/*!
- * @brief Will display cell
- *
- * Enable/disable account checkbox as appropriate
- */
-- (void)tableView:(NSTableView *)tableView
-	willDisplayCell:(id)cell
-	 forTableColumn:(NSTableColumn *)tableColumn
-				row:(NSInteger)row
-{
-	NSString *identifier = [tableColumn identifier];
-
-	if ([identifier isEqualToString:@"check"]) {
-		[cell setEnabled:[[accounts objectAtIndex:row] contactListEditable]];
-	}
-}
-
-/*!
- * @brief Set the enabled/disabled state for an account in the account list
- */
-- (void)tableView:(NSTableView *)tableView
-	setObjectValue:(id)object
-	forTableColumn:(NSTableColumn *)tableColumn
-			   row:(NSInteger)row
-{
-	NSString *identifier = [tableColumn identifier];
-
-	if ([identifier isEqualToString:@"check"]) {
-		[[accounts objectAtIndex:row] setPreference:[NSNumber numberWithBool:[object boolValue]]
-											 forKey:KEY_ADD_CONTACT_TO
-											  group:PREF_GROUP_ADD_CONTACT];
-		if ([object boolValue]) {
-			[checkedAccounts addObject:[accounts objectAtIndex:row]];
 		} else {
-			[checkedAccounts removeObject:[accounts objectAtIndex:row]];
+			return @"";
 		}
-
-		[self configureControlDimming];
 	}
-}
 
-/*!
- * @brief Empty selector called by the group popUp menu
- */
-- (void)selectGroup:(id)sender
-{}
+	/*!
+	 * @brief Will display cell
+	 *
+	 * Enable/disable account checkbox as appropriate
+	 */
+	-(void)tableView : (NSTableView *)tableView willDisplayCell : (id)cell forTableColumn
+		: (NSTableColumn *)tableColumn row : (NSInteger)row
+	{
+		NSString *identifier = [tableColumn identifier];
 
-@end
+		if ([identifier isEqualToString:@"check"]) {
+			[cell setEnabled:[[accounts objectAtIndex:row] contactListEditable]];
+		}
+	}
+
+	/*!
+	 * @brief Set the enabled/disabled state for an account in the account list
+	 */
+	-(void)tableView : (NSTableView *)tableView setObjectValue : (id)object forTableColumn
+		: (NSTableColumn *)tableColumn row : (NSInteger)row
+	{
+		NSString *identifier = [tableColumn identifier];
+
+		if ([identifier isEqualToString:@"check"]) {
+			[[accounts objectAtIndex:row] setPreference:[NSNumber numberWithBool:[object boolValue]]
+												 forKey:KEY_ADD_CONTACT_TO
+												  group:PREF_GROUP_ADD_CONTACT];
+			if ([object boolValue]) {
+				[checkedAccounts addObject:[accounts objectAtIndex:row]];
+			} else {
+				[checkedAccounts removeObject:[accounts objectAtIndex:row]];
+			}
+
+			[self configureControlDimming];
+		}
+	}
+
+	/*!
+	 * @brief Empty selector called by the group popUp menu
+	 */
+	-(void)selectGroup : (id)sender {}
+
+	@end

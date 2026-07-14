@@ -36,10 +36,8 @@
 
 - (void)configureTracking
 {
-	
-	imageMenu = nil;
 
-	
+	imageMenu = nil;
 }
 
 #pragma mark Drawing

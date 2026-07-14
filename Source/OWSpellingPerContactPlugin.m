@@ -39,8 +39,7 @@
  */
 - (void)installPlugin
 {
-	NSNotificationCenter *notificationCenter = 
-	preferredLanguage = nil;
+	NSNotificationCenter *notificationCenter = preferredLanguage = nil;
 
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }

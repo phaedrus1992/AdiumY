@@ -44,8 +44,7 @@
  */
 - (void)installPlugin
 {
-	consolidateMenuItem = 
-	
+	consolidateMenuItem =
 }
 
 /*!

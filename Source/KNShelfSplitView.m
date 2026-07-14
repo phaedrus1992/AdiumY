@@ -64,22 +64,22 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMA
 - (IBAction)toggleShelf:(id)sender
 {
 #pragma unused(sender)
-	
-		if (inString) {
-			NSDictionary *attributes = [NSDictionary
-				dictionaryWithObjectsAndKeys:[NSParagraphStyle styleWithAlignment:NSLeftTextAlignment
-																	lineBreakMode:NSLineBreakByTruncatingTail],
-											 NSParagraphStyleAttributeName,
-											 [NSFont systemFontOfSize:[NSFont smallSystemFontSize]],
-											 NSFontAttributeName, nil];
 
-			stringHeight = [NSAttributedString stringHeightForAttributes:attributes];
-			attributedStringValue = [[NSAttributedString alloc] initWithString:inString attributes:attributes];
-		} else {
-			attributedStringValue = nil;
-		}
-		[self setNeedsDisplay:YES];
+	if (inString) {
+		NSDictionary *attributes = [NSDictionary
+			dictionaryWithObjectsAndKeys:[NSParagraphStyle styleWithAlignment:NSLeftTextAlignment
+																lineBreakMode:NSLineBreakByTruncatingTail],
+										 NSParagraphStyleAttributeName,
+										 [NSFont systemFontOfSize:[NSFont smallSystemFontSize]], NSFontAttributeName,
+										 nil];
+
+		stringHeight = [NSAttributedString stringHeightForAttributes:attributes];
+		attributedStringValue = [[NSAttributedString alloc] initWithString:inString attributes:attributes];
+	} else {
+		attributedStringValue = nil;
 	}
+	[self setNeedsDisplay:YES];
+}
 }
 
 @end

@@ -132,7 +132,6 @@
 - (void)dealloc
 {
 	self.shortcutRecorder = nil;
-
 }
 
 // Called in response to all preference controls, applies new settings

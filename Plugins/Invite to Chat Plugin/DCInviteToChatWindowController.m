@@ -73,7 +73,6 @@ static DCInviteToChatWindowController *sharedInviteToChatInstance = nil;
 	contact = nil;
 	service = nil;
 	chat = nil;
-
 }
 
 // Setup the window before it is displayed

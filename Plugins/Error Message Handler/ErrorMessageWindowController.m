@@ -107,7 +107,6 @@ static ErrorMessageWindowController *sharedErrorMessageInstance = nil;
 	errorTitleArray = nil;
 	errorDescArray = nil;
 	errorWindowTitleArray = nil;
-
 }
 
 - (void)refreshErrorDialog

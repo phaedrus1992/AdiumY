@@ -37,7 +37,7 @@
  */
 - (void)viewDidLoad
 {
-	
+
 	if (textToSpeak) {
 		[actionDetails setObject:textToSpeak forKey:KEY_ANNOUNCER_TEXT_TO_SPEAK];
 	}

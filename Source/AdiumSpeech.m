@@ -43,8 +43,6 @@
 	if ((self = 
 	speechArray = nil;
 	[self _stopSpeaking];
-
-	
 }
 
 /*!

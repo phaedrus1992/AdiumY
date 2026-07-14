@@ -32,14 +32,14 @@
 				to:(NSString *)inTo
 	  serviceClass:(NSString *)inServiceClass
 {
-	if ((self = 
-			}
+	if ((self =
+}
 
-			if (!theLog)
-				AILog(@"%@ couldn't find %@ in its partialLogDict", self, inPath);
-		}
-	}
-	return theLog;
+if (!theLog)
+	AILog(@"%@ couldn't find %@ in its partialLogDict", self, inPath);
+}
+}
+return theLog;
 }
 
 /*!

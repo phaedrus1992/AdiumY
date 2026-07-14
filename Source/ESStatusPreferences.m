@@ -44,8 +44,8 @@
 - (void)changedScreenSaverStatus:(id)sender;
 
 - (BOOL)addItemIfNeeded:(NSMenuItem *)menuItem
-			   toPopUpButton:(NSPopUpButton *)popUpButton
-		alreadyShowingAnItem:(BOOL)alreadyShowing;
+		   toPopUpButton:(NSPopUpButton *)popUpButton
+	alreadyShowingAnItem:(BOOL)alreadyShowing;
 
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 
@@ -77,7 +77,7 @@
  */
 - (void)viewDidLoad
 {
-	//Configure the controls
+	// Configure the controls
 	[self configureStateList];
 
 	[outlineView_stateList setDrawsBackground:NO];
@@ -89,9 +89,9 @@
 	/* Register as an observer of state array changes so we can refresh our list
 	 * in response to changes. */
 	[[NSNotificationCenter defaultCenter] addObserver:self
-										   selector:@selector(stateArrayChanged:)
-											   name:AIStatusStateArrayChangedNotification
-											 object:nil];
+											 selector:@selector(stateArrayChanged:)
+												 name:AIStatusStateArrayChangedNotification
+											   object:nil];
 	[self stateArrayChanged:nil];
 
 	[self configureOtherControls];
@@ -117,16 +117,16 @@
 {
 	AIVerticallyCenteredTextCell *cell;
 
-	//Configure the table view
+	// Configure the table view
 	[outlineView_stateList setTarget:self];
 	[outlineView_stateList setDoubleAction:@selector(editState:)];
-	[outlineView_stateList setIntercellSpacing:NSMakeSize(4,4)];
+	[outlineView_stateList setIntercellSpacing:NSMakeSize(4, 4)];
 	[scrollView_stateList setAutohidesScrollers:YES];
 
-	//Enable dragging of states
+	// Enable dragging of states
 	[outlineView_stateList registerForDraggedTypes:[NSArray arrayWithObject:STATE_DRAG_TYPE]];
 
-	//Custom vertically-centered text cell for status state names
+	// Custom vertically-centered text cell for status state names
 	cell = [[AIVerticallyCenteredTextCell alloc] init];
 	[cell setFont:[NSFont systemFontOfSize:13]];
 	[[outlineView_stateList tableColumnWithIdentifier:@"name"] setDataCell:cell];
@@ -135,17 +135,17 @@
 /*!
  * @brief Update table control availability
  *
- * Updates table control availability based on the current state selection.  If no states are selected this method dims the
- * edit and delete buttons since they require a selection to function.  The edit and delete buttons are also
- * dimmed if the selected state is a built-in state.
+ * Updates table control availability based on the current state selection.  If no states are selected this method dims
+ * the edit and delete buttons since they require a selection to function.  The edit and delete buttons are also dimmed
+ * if the selected state is a built-in state.
  */
 - (void)updateTableControlAvailability
 {
 	NSIndexSet *selectedIndexes = [outlineView_stateList selectedRowIndexes];
 	NSInteger count = [selectedIndexes count];
 
-	[button_editState setEnabled:(count &&
-								  ([[outlineView_stateList itemAtRow:[selectedIndexes firstIndex]] mutabilityType] == AIEditableStatusState))];
+	[button_editState setEnabled:(count && ([[outlineView_stateList itemAtRow:[selectedIndexes firstIndex]]
+												mutabilityType] == AIEditableStatusState))];
 	[button_addOrRemoveState setEnabled:count forSegment:1];
 }
 
@@ -160,11 +160,12 @@
 	[outlineView_stateList reloadData];
 	[self updateTableControlAvailability];
 
-	//Update the auto away status pop up as necessary
+	// Update the auto away status pop up as necessary
 	[self configureAutoAwayStatusStatePopUp];
 }
 
-//State Editing --------------------------------------------------------------------------------------------------------
+// State Editing
+// --------------------------------------------------------------------------------------------------------
 #pragma mark State Editing
 /*!
  * @brief Edit the selected state
@@ -184,11 +185,12 @@
 											  andAccount:nil
 										  withSaveOption:NO
 												onWindow:[[self view] window]
-									 notifyingTarget:self];
+										 notifyingTarget:self];
 
 		} else if ([statusState isKindOfClass:[AIStatusGroup class]]) {
-			ESEditStatusGroupWindowController *editStatusGroupWindowController = [[ESEditStatusGroupWindowController alloc] initWithStatusGroup:(AIStatusGroup *)statusState
-																																	notifyingTarget:self];
+			ESEditStatusGroupWindowController *editStatusGroupWindowController =
+				[[ESEditStatusGroupWindowController alloc] initWithStatusGroup:(AIStatusGroup *)statusState
+															   notifyingTarget:self];
 			[editStatusGroupWindowController showOnWindow:[[self view] window]];
 		}
 	}
@@ -202,9 +204,10 @@
 - (void)customStatusState:(AIStatus *)originalState changedTo:(AIStatus *)newState forAccount:(AIAccount *)account
 {
 	if (originalState) {
-		/* As far the user was concerned, this was an edit.  The unique status ID should remain the same so that anything
-		 * depending upon this status will update to using it.  Furthermore, since this may be a copy of originalState
-		 * rather than the exact same object, we should update all accounts which are using this state to use the new copy
+		/* As far the user was concerned, this was an edit.  The unique status ID should remain the same so that
+		 * anything depending upon this status will update to using it.  Furthermore, since this may be a copy of
+		 * originalState rather than the exact same object, we should update all accounts which are using this state to
+		 * use the new copy
 		 */
 		[newState setUniqueStatusID:[originalState uniqueStatusID]];
 
@@ -231,11 +234,11 @@
 - (void)finishedStatusGroupEdit:(AIStatusGroup *)inStatusGroup
 {
 	if (![inStatusGroup containingStatusGroup]) {
-		//Add it if it's not already in a group
+		// Add it if it's not already in a group
 		[[adium.statusController rootStateGroup] addStatusItem:inStatusGroup atIndex:-1];
 
 	} else {
-		//Otherwise just save
+		// Otherwise just save
 		[adium.statusController savedStatusesChanged];
 	}
 
@@ -253,7 +256,7 @@
 	NSArray *selectedItems = [outlineView_stateList arrayOfSelectedItems];
 
 	if ([selectedItems count]) {
-		//Confirm deletion of a status group with contents
+		// Confirm deletion of a status group with contents
 		NSUInteger numberOfItems = 0;
 
 		for (AIStatusItem *statusItem in selectedItems) {
@@ -265,16 +268,14 @@
 			}
 		}
 
-		NSString *message = [NSString stringWithFormat:AILocalizedString(@"Are you sure you want to delete %lu saved status items?",nil),
+		NSString *message = [NSString
+			stringWithFormat:AILocalizedString(@"Are you sure you want to delete %lu saved status items?", nil),
 							 numberOfItems];
 
-		//Warn if deleting a group containing status items
-		NSBeginAlertSheet(AILocalizedString(@"Status Deletion Confirmation",nil),
-						  AILocalizedString(@"Delete", nil),
-						  AILocalizedString(@"Cancel", nil), nil,
-						  [[self view] window], self,
-						  @selector(sheetDidEnd:returnCode:contextInfo:), NULL,
-						  (void *)CFBridgingRetain(selectedItems),
+		// Warn if deleting a group containing status items
+		NSBeginAlertSheet(AILocalizedString(@"Status Deletion Confirmation", nil), AILocalizedString(@"Delete", nil),
+						  AILocalizedString(@"Cancel", nil), nil, [[self view] window], self,
+						  @selector(sheetDidEnd:returnCode:contextInfo:), NULL, (void *)CFBridgingRetain(selectedItems),
 						  @"%@", message);
 	}
 }
@@ -313,8 +314,8 @@
 
 - (IBAction)addGroup:(id)sender
 {
-	ESEditStatusGroupWindowController *editStatusGroupWindowController = [[ESEditStatusGroupWindowController alloc] initWithStatusGroup:nil
-																															notifyingTarget:self];
+	ESEditStatusGroupWindowController *editStatusGroupWindowController =
+		[[ESEditStatusGroupWindowController alloc] initWithStatusGroup:nil notifyingTarget:self];
 	[editStatusGroupWindowController showOnWindow:[[self view] window]];
 }
 
@@ -323,16 +324,17 @@
 	NSInteger selectedSegment = [sender selectedSegment];
 
 	switch (selectedSegment) {
-		case 0:
-			[self newState];
-			break;
-		case 1:
-			[self deleteState];
-			break;
+	case 0:
+		[self newState];
+		break;
+	case 1:
+		[self deleteState];
+		break;
 	}
 }
 
-//State List OutlinView Delegate --------------------------------------------------------------------------------------------
+// State List OutlinView Delegate
+// --------------------------------------------------------------------------------------------
 #pragma mark State List (OutlineView Delegate)
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)idx ofItem:(id)item
 {
@@ -348,16 +350,19 @@
 	return [[statusGroup containedStatusItems] count];
 }
 
-- (NSString *)outlineView:(NSOutlineView *)outlineView typeSelectStringForTableColumn:(NSTableColumn *)tableColumn item:(id)item
+- (NSString *)outlineView:(NSOutlineView *)outlineView
+	typeSelectStringForTableColumn:(NSTableColumn *)tableColumn
+							  item:(id)item
 {
 	if ([[tableColumn identifier] isEqualToString:@"name"])
 		return [item title] ? [item title] : @"";
 	return @"";
 }
-- (void)outlineView:(NSOutlineView *)outlineView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn item:(id)item
-{
-
-}
+- (void)outlineView:(NSOutlineView *)outlineView
+	willDisplayCell:(id)cell
+	 forTableColumn:(NSTableColumn *)tableColumn
+			   item:(id)item
+{}
 
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {
@@ -388,8 +393,11 @@
 			[attachment setAttachmentCell:cell];
 
 			name = [[NSAttributedString attributedStringWithAttachment:attachment] mutableCopy];
-			[name appendAttributedString:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" %@",([item title] ? [item title] : @"")]
-																		attributes:nil]];
+			[name appendAttributedString:[[NSAttributedString alloc]
+											 initWithString:[NSString
+																stringWithFormat:@" %@",
+																				 ([item title] ? [item title] : @"")]
+												 attributes:nil]];
 			return name;
 		} else {
 			return [item title];
@@ -428,12 +436,15 @@
 	draggingItems = items;
 
 	[pboard declareTypes:[NSArray arrayWithObject:STATE_DRAG_TYPE] owner:self];
-	[pboard setString:@"State" forType:STATE_DRAG_TYPE]; //Arbitrary state
+	[pboard setString:@"State" forType:STATE_DRAG_TYPE]; // Arbitrary state
 
 	return YES;
 }
 
-- (NSDragOperation)outlineView:(NSOutlineView *)outlineView validateDrop:(id <NSDraggingInfo>)info proposedItem:(id)item proposedChildIndex:(NSInteger)idx
+- (NSDragOperation)outlineView:(NSOutlineView *)outlineView
+				  validateDrop:(id<NSDraggingInfo>)info
+				  proposedItem:(id)item
+			proposedChildIndex:(NSInteger)idx
 {
 	if (idx == NSOutlineViewDropOnItemIndex && ![item isKindOfClass:[AIStatusGroup class]]) {
 		AIStatusGroup *dropItem = [item containingStatusGroup];
@@ -450,13 +461,18 @@
 /*!
  * @brief Drag complete
  */
-- (BOOL)outlineView:(NSOutlineView *)outlineView acceptDrop:(id <NSDraggingInfo>)info item:(id)item childIndex:(NSInteger)idx
+- (BOOL)outlineView:(NSOutlineView *)outlineView
+		 acceptDrop:(id<NSDraggingInfo>)info
+			   item:(id)item
+		 childIndex:(NSInteger)idx
 {
-	NSString *avaliableType = [[info draggingPasteboard] availableTypeFromArray:[NSArray arrayWithObject:STATE_DRAG_TYPE]];
+	NSString *avaliableType =
+		[[info draggingPasteboard] availableTypeFromArray:[NSArray arrayWithObject:STATE_DRAG_TYPE]];
 	if ([avaliableType isEqualToString:STATE_DRAG_TYPE]) {
 		[adium.statusController setDelayStatusMenuRebuilding:YES];
 
-		if (!item) item = [adium.statusController rootStateGroup];
+		if (!item)
+			item = [adium.statusController rootStateGroup];
 
 		AIStatusItem *statusItem;
 
@@ -467,12 +483,13 @@
 					shouldIncrement = YES;
 				}
 
-				//Move the state and select it in the new location
+				// Move the state and select it in the new location
 				[item moveStatusItem:statusItem toIndex:idx];
 
-				if (shouldIncrement) idx++;
+				if (shouldIncrement)
+					idx++;
 			} else {
-				//Don't let an object be moved into itself...
+				// Don't let an object be moved into itself...
 				if (item != statusItem) {
 					[[statusItem containingStatusGroup] removeStatusItem:statusItem];
 					[item addStatusItem:statusItem atIndex:idx];
@@ -482,10 +499,8 @@
 			}
 		}
 
-		//Notify and reselect outside of the NSOutlineView callback
-		[self performSelector:@selector(reselectDraggedItems:)
-				   withObject:draggingItems
-				   afterDelay:0];
+		// Notify and reselect outside of the NSOutlineView callback
+		[self performSelector:@selector(reselectDraggedItems:) withObject:draggingItems afterDelay:0];
 
 		draggingItems = nil;
 
@@ -514,12 +529,15 @@
 	NSDictionary *prefDict = [adium.preferenceController preferencesForGroup:PREF_GROUP_STATUS_PREFERENCES];
 
 	[checkBox_idle setState:[[prefDict objectForKey:KEY_STATUS_REPORT_IDLE] boolValue]];
-	[textField_idleMinutes setDoubleValue:([[prefDict objectForKey:KEY_STATUS_REPORT_IDLE_INTERVAL] doubleValue] / 60.0)];
+	[textField_idleMinutes
+		setDoubleValue:([[prefDict objectForKey:KEY_STATUS_REPORT_IDLE_INTERVAL] doubleValue] / 60.0)];
 	[stepper_idleMinutes setDoubleValue:([[prefDict objectForKey:KEY_STATUS_REPORT_IDLE_INTERVAL] doubleValue] / 60.0)];
 
 	[checkBox_autoAway setState:[[prefDict objectForKey:KEY_STATUS_AUTO_AWAY] boolValue]];
-	[textField_autoAwayMinutes setDoubleValue:([[prefDict objectForKey:KEY_STATUS_AUTO_AWAY_INTERVAL] doubleValue] / 60.0)];
-	[stepper_autoAwayMinutes setDoubleValue:([[prefDict objectForKey:KEY_STATUS_AUTO_AWAY_INTERVAL] doubleValue] / 60.0)];
+	[textField_autoAwayMinutes
+		setDoubleValue:([[prefDict objectForKey:KEY_STATUS_AUTO_AWAY_INTERVAL] doubleValue] / 60.0)];
+	[stepper_autoAwayMinutes
+		setDoubleValue:([[prefDict objectForKey:KEY_STATUS_AUTO_AWAY_INTERVAL] doubleValue] / 60.0)];
 
 	[checkBox_fastUserSwitching setState:[[prefDict objectForKey:KEY_STATUS_FUS] boolValue]];
 	[checkBox_screenSaver setState:[[prefDict objectForKey:KEY_STATUS_SS] boolValue]];
@@ -539,26 +557,29 @@
 	NSMenu *statusStatesMenu;
 	NSNumber *targetUniqueStatusIDNumber;
 
-	statusStatesMenu = [AIStatusMenu staticStatusStatesMenuNotifyingTarget:self selector:@selector(changedAutoAwayStatus:)];
+	statusStatesMenu = [AIStatusMenu staticStatusStatesMenuNotifyingTarget:self
+																  selector:@selector(changedAutoAwayStatus:)];
 	[popUp_autoAwayStatusState setMenu:statusStatesMenu];
 
-	statusStatesMenu = [AIStatusMenu staticStatusStatesMenuNotifyingTarget:self selector:@selector(changedFastUserSwitchingStatus:)];
+	statusStatesMenu = [AIStatusMenu staticStatusStatesMenuNotifyingTarget:self
+																  selector:@selector(changedFastUserSwitchingStatus:)];
 	[popUp_fastUserSwitchingStatusState setMenu:[statusStatesMenu copy]];
 
-	statusStatesMenu = [AIStatusMenu staticStatusStatesMenuNotifyingTarget:self selector:@selector(changedScreenSaverStatus:)];
+	statusStatesMenu = [AIStatusMenu staticStatusStatesMenuNotifyingTarget:self
+																  selector:@selector(changedScreenSaverStatus:)];
 	[popUp_screenSaverStatusState setMenu:[statusStatesMenu copy]];
 
-	//Now select the proper state, or deselect all items if there is no chosen state or the chosen state doesn't exist
+	// Now select the proper state, or deselect all items if there is no chosen state or the chosen state doesn't exist
 	targetUniqueStatusIDNumber = [adium.preferenceController preferenceForKey:KEY_STATUS_AUTO_AWAY_STATUS_STATE_ID
-																		  group:PREF_GROUP_STATUS_PREFERENCES];
+																		group:PREF_GROUP_STATUS_PREFERENCES];
 	[self _selectStatusWithUniqueID:targetUniqueStatusIDNumber inPopUpButton:popUp_autoAwayStatusState];
 
 	targetUniqueStatusIDNumber = [adium.preferenceController preferenceForKey:KEY_STATUS_FUS_STATUS_STATE_ID
-																		  group:PREF_GROUP_STATUS_PREFERENCES];
+																		group:PREF_GROUP_STATUS_PREFERENCES];
 	[self _selectStatusWithUniqueID:targetUniqueStatusIDNumber inPopUpButton:popUp_fastUserSwitchingStatusState];
 
 	targetUniqueStatusIDNumber = [adium.preferenceController preferenceForKey:KEY_STATUS_SS_STATUS_STATE_ID
-																		  group:PREF_GROUP_STATUS_PREFERENCES];
+																		group:PREF_GROUP_STATUS_PREFERENCES];
 	[self _selectStatusWithUniqueID:targetUniqueStatusIDNumber inPopUpButton:popUp_screenSaverStatusState];
 }
 
@@ -577,7 +598,8 @@
 	NSArray *itemArray = [inMenu itemArray];
 	NSMenuItem *menuItem;
 
-	if (!recursiveArray) recursiveArray = [NSMutableArray array];
+	if (!recursiveArray)
+		recursiveArray = [NSMutableArray array];
 
 	for (menuItem in itemArray) {
 		[recursiveArray addObject:menuItem];
@@ -605,7 +627,7 @@
 
 			statusState = [[menuItem representedObject] objectForKey:@"AIStatus"];
 
-			//Found the right status by matching its status ID to our preferred one
+			// Found the right status by matching its status ID to our preferred one
 			if ([statusState preexistingUniqueStatusID] == targetUniqueStatusID) {
 				break;
 			}
@@ -615,7 +637,7 @@
 	if (menuItem) {
 		[inPopUpButton selectItem:menuItem];
 
-		//Add it if we weren't able to select it initially
+		// Add it if we weren't able to select it initially
 		if (![inPopUpButton selectedItem]) {
 			[self addItemIfNeeded:menuItem toPopUpButton:inPopUpButton alreadyShowingAnItem:NO];
 
@@ -627,7 +649,6 @@
 
 			} else if (inPopUpButton == popUp_screenSaverStatusState) {
 				showingSubmenuItemInScreenSaver = YES;
-
 			}
 		}
 	}
@@ -662,46 +683,47 @@
 {
 	if (sender == checkBox_idle) {
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:[sender state]]
-											 forKey:KEY_STATUS_REPORT_IDLE
-											  group:PREF_GROUP_STATUS_PREFERENCES];
+										   forKey:KEY_STATUS_REPORT_IDLE
+											group:PREF_GROUP_STATUS_PREFERENCES];
 		[self configureControlDimming];
 
 	} else if (sender == checkBox_autoAway) {
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:[sender state]]
-											 forKey:KEY_STATUS_AUTO_AWAY
-											  group:PREF_GROUP_STATUS_PREFERENCES];
+										   forKey:KEY_STATUS_AUTO_AWAY
+											group:PREF_GROUP_STATUS_PREFERENCES];
 		[self configureControlDimming];
 
 	} else if (sender == checkBox_showStatusWindow) {
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:[sender state]]
-											 forKey:KEY_STATUS_SHOW_STATUS_WINDOW
-											  group:PREF_GROUP_STATUS_PREFERENCES];
+										   forKey:KEY_STATUS_SHOW_STATUS_WINDOW
+											group:PREF_GROUP_STATUS_PREFERENCES];
 
 	} else if (sender == checkBox_fastUserSwitching) {
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:[sender state]]
-											 forKey:KEY_STATUS_FUS
-											  group:PREF_GROUP_STATUS_PREFERENCES];
+										   forKey:KEY_STATUS_FUS
+											group:PREF_GROUP_STATUS_PREFERENCES];
 		[self configureControlDimming];
 
 	} else if (sender == checkBox_screenSaver) {
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:[sender state]]
-											 forKey:KEY_STATUS_SS
-											  group:PREF_GROUP_STATUS_PREFERENCES];
+										   forKey:KEY_STATUS_SS
+											group:PREF_GROUP_STATUS_PREFERENCES];
 		[self configureControlDimming];
-
 	}
 }
 
 /*!
  * @brief If menuItem is not selectable in popUpButton, add it and select it
  *
- * Menu items located within submenus can't be directly selected. This method will add a separator item and then the item itself
- * to the bottom of popUpButton if needed.  alreadyShowing should be YES if a similarly set separate + item exists; it will be removed
- * first.
+ * Menu items located within submenus can't be directly selected. This method will add a separator item and then the
+ * item itself to the bottom of popUpButton if needed.  alreadyShowing should be YES if a similarly set separate + item
+ * exists; it will be removed first.
  *
  * @result YES if the item was added to popUpButton.
  */
-- (BOOL)addItemIfNeeded:(NSMenuItem *)menuItem toPopUpButton:(NSPopUpButton *)popUpButton alreadyShowingAnItem:(BOOL)alreadyShowing
+- (BOOL)addItemIfNeeded:(NSMenuItem *)menuItem
+		   toPopUpButton:(NSPopUpButton *)popUpButton
+	alreadyShowingAnItem:(BOOL)alreadyShowing
 {
 	BOOL nowShowing = NO;
 	NSMenu *menu = [popUpButton menu];

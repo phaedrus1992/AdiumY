@@ -63,11 +63,11 @@
 
 	preferences =
 
-	// Observe for installation of new styles
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(xtrasChanged:)
-												 name:AIXtrasDidChangeNotification
-											   object:nil];
+		// Observe for installation of new styles
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(xtrasChanged:)
+													 name:AIXtrasDidChangeNotification
+												   object:nil];
 
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY];
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_WEBKIT_GROUP_MESSAGE_DISPLAY];

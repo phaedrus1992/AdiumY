@@ -228,8 +228,6 @@
 - (void)releaseResources
 {
 	// Templates
-
-
 }
 
 /*!
@@ -242,9 +240,7 @@
 
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 
-
 	self.activeVariant = nil;
-
 }
 
 @synthesize bundle = styleBundle;
@@ -317,7 +313,6 @@
 	if (!format || [format length] == 0) {
 		format = [NSDateFormatter localizedDateFormatStringShowingSeconds:NO showingAMorPM:NO];
 	}
-
 
 	if ([format rangeOfString:@"%"].location != NSNotFound) {
 		/* Support strftime-style format strings, which old message styles may use */
@@ -427,15 +422,12 @@
 	// Load the style's templates
 	// We can't use NSString's initWithContentsOfFile here.  HTML files are interpreted in the defaultCEncoding
 	//(which varies by system) when read that way.  We want to always interpret the files as UTF8.
-	headerHTML =
-		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Header"
-																						 ofType:@"html"]];
-	footerHTML =
-		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Footer"
-																						 ofType:@"html"]];
-	topicHTML =
-		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Topic"
-																						 ofType:@"html"]];
+	headerHTML = [NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Header"
+																								 ofType:@"html"]];
+	footerHTML = [NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Footer"
+																								 ofType:@"html"]];
+	topicHTML = [NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Topic"
+																								ofType:@"html"]];
 	baseHTML = [NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Template"
 																							   ofType:@"html"]];
 
@@ -527,43 +519,42 @@
 	}
 
 	// Content Templates
-	contentHTML =
-		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Content"
-																						 ofType:@"html"]];
+	contentHTML = [NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Content"
+																								  ofType:@"html"]];
 	contentInHTML =
 		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Content"
-																						 ofType:@"html"
-																					inDirectory:@"Incoming"]];
+																						ofType:@"html"
+																				   inDirectory:@"Incoming"]];
 	nextContentInHTML =
 		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"NextContent"
-																						 ofType:@"html"
-																					inDirectory:@"Incoming"]];
+																						ofType:@"html"
+																				   inDirectory:@"Incoming"]];
 	contentOutHTML =
 		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Content"
-																						 ofType:@"html"
-																					inDirectory:@"Outgoing"]];
+																						ofType:@"html"
+																				   inDirectory:@"Outgoing"]];
 	nextContentOutHTML =
 		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"NextContent"
-																						 ofType:@"html"
-																					inDirectory:@"Outgoing"]];
+																						ofType:@"html"
+																				   inDirectory:@"Outgoing"]];
 
 	// Message history
 	contextInHTML =
 		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Context"
-																						 ofType:@"html"
-																					inDirectory:@"Incoming"]];
+																						ofType:@"html"
+																				   inDirectory:@"Incoming"]];
 	nextContextInHTML =
 		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"NextContext"
-																						 ofType:@"html"
-																					inDirectory:@"Incoming"]];
+																						ofType:@"html"
+																				   inDirectory:@"Incoming"]];
 	contextOutHTML =
 		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Context"
-																						 ofType:@"html"
-																					inDirectory:@"Outgoing"]];
+																						ofType:@"html"
+																				   inDirectory:@"Outgoing"]];
 	nextContextOutHTML =
 		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"NextContext"
-																						 ofType:@"html"
-																					inDirectory:@"Outgoing"]];
+																						ofType:@"html"
+																				   inDirectory:@"Outgoing"]];
 
 	// Fall back to Resources/Content.html if Incoming isn't present
 	if (!contentInHTML)
@@ -598,9 +589,8 @@
 		nextContentOutHTML = nextContentInHTML;
 
 	// Status
-	statusHTML =
-		[NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Status"
-																						 ofType:@"html"]];
+	statusHTML = [NSString stringWithContentsOfUTF8File:[styleBundle semiCaseInsensitivePathForResource:@"Status"
+																								 ofType:@"html"]];
 
 	// Fall back to Resources/Incoming/Content.html if Status isn't present
 	if (!statusHTML)
@@ -816,13 +806,12 @@
 	[inString replaceKeyword:@"%time%" withString:(date ? [timeStampFormatter stringFromDate:date] : @"")];
 
 	__block NSString *shortTimeString;
-	[NSDateFormatter
-		withLocalizedDateFormatterShowingSeconds:NO
-								   showingAMorPM:NO
-										 perform:^(NSDateFormatter *dateFormatter) {
-											 shortTimeString =
-												 (date ? [dateFormatter stringFromDate:date] : @"");
-										 }];
+	[NSDateFormatter withLocalizedDateFormatterShowingSeconds:NO
+												showingAMorPM:NO
+													  perform:^(NSDateFormatter *dateFormatter) {
+														  shortTimeString =
+															  (date ? [dateFormatter stringFromDate:date] : @"");
+													  }];
 
 	[inString replaceKeyword:@"%shortTime%" withString:shortTimeString];
 

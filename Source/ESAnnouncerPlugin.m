@@ -47,31 +47,31 @@
 - (void)installPlugin
 {
 	// Install our contact alerts
-	
-			lastSenderString = nil;
-		}
+
+	lastSenderString = nil;
+}
+}
+
+// Do the speech, with custom voice/pitch/rate as desired
+if (textToSpeak) {
+	NSNumber *pitchNumber = nil, *rateNumber = nil;
+	NSNumber *customPitch, *customRate;
+
+	if ((customPitch = [details objectForKey:KEY_PITCH_CUSTOM]) && ([customPitch boolValue])) {
+		pitchNumber = [details objectForKey:KEY_PITCH];
 	}
 
-	// Do the speech, with custom voice/pitch/rate as desired
-	if (textToSpeak) {
-		NSNumber *pitchNumber = nil, *rateNumber = nil;
-		NSNumber *customPitch, *customRate;
-
-		if ((customPitch = [details objectForKey:KEY_PITCH_CUSTOM]) && ([customPitch boolValue])) {
-			pitchNumber = [details objectForKey:KEY_PITCH];
-		}
-
-		if ((customRate = [details objectForKey:KEY_RATE_CUSTOM]) && ([customRate boolValue])) {
-			rateNumber = [details objectForKey:KEY_RATE];
-		}
-
-		[adium.soundController speakText:textToSpeak
-							   withVoice:[details objectForKey:KEY_VOICE_STRING]
-								   pitch:(pitchNumber ? [pitchNumber floatValue] : 0.0f)rate
-										:(rateNumber ? [rateNumber floatValue] : 0.0f)];
+	if ((customRate = [details objectForKey:KEY_RATE_CUSTOM]) && ([customRate boolValue])) {
+		rateNumber = [details objectForKey:KEY_RATE];
 	}
 
-	return (textToSpeak != nil);
+	[adium.soundController
+		speakText:textToSpeak
+		withVoice:[details objectForKey:KEY_VOICE_STRING]
+			pitch:(pitchNumber ? [pitchNumber floatValue] : 0.0f)rate:(rateNumber ? [rateNumber floatValue] : 0.0f)];
+}
+
+return (textToSpeak != nil);
 }
 
 /*!

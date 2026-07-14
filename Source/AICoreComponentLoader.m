@@ -39,15 +39,15 @@ NSTimeInterval aggregateComponentLoadingTime = 0.0;
  */
 - (id)init
 {
-	if ((self = 
+	if ((self =
 #ifdef COMPONENT_LOAD_TIMING
 		NSTimeInterval t = -[start timeIntervalSinceNow];
 		aggregateComponentLoadingTime += t;
 		AILog(@"Loaded component: %@ in %f seconds", className, t);
 #endif
-	}
+}
 #ifdef COMPONENT_LOAD_TIMING
-	AILog(@"Total time spent loading components: %f", aggregateComponentLoadingTime);
+AILog(@"Total time spent loading components: %f", aggregateComponentLoadingTime);
 #endif
 }
 

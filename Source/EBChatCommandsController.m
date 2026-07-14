@@ -20,9 +20,8 @@
 + (id)init;
 {
 
-	return 
-		delegate = newDelegate;
-	}
+	return delegate = newDelegate;
+}
 }
 
 @end

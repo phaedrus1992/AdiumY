@@ -62,23 +62,23 @@
 - (void)installPlugin
 {
 	// Register our observers
-	
-		[menuFormRepresentation setSubmenu:menu];
-		[menuFormRepresentation setTitle:[item label]];
-		[item setMenuFormRepresentation:menuFormRepresentation];
 
-		// If this is the first item added, start observing for chats becoming visible so we can update the icon
-		if ([toolbarItems count] == 0) {
-			[[NSNotificationCenter defaultCenter] addObserver:self
-													 selector:@selector(chatDidBecomeVisible:)
-														 name:@"AIChatDidBecomeVisible"
-													   object:nil];
-		}
+	[menuFormRepresentation setSubmenu:menu];
+	[menuFormRepresentation setTitle:[item label]];
+	[item setMenuFormRepresentation:menuFormRepresentation];
 
-		[toolbarItems addObject:item];
-
-		[self performSelector:@selector(toolbarDidAddItem:) withObject:item afterDelay:0];
+	// If this is the first item added, start observing for chats becoming visible so we can update the icon
+	if ([toolbarItems count] == 0) {
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(chatDidBecomeVisible:)
+													 name:@"AIChatDidBecomeVisible"
+												   object:nil];
 	}
+
+	[toolbarItems addObject:item];
+
+	[self performSelector:@selector(toolbarDidAddItem:) withObject:item afterDelay:0];
+}
 }
 
 - (void)toolbarDidAddItem:(NSToolbarItem *)item

@@ -107,8 +107,6 @@
 {
 	// Get the info if we don't already have it
 	if (!iTunesCurrentInfo)
-		
-	
 }
 
 @end

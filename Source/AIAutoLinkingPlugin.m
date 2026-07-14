@@ -30,11 +30,9 @@
  * @brief Install
  */
 - (void)installPlugin
-{
-	
-	}
+{}
 
-	for (NSInteger i = 0; i < stringLength; i += linkRange.length) {
+for (NSInteger i = 0; i < stringLength; i += linkRange.length) {
 		if (!
 }
 

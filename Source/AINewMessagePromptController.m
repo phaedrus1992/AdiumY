@@ -43,8 +43,7 @@ static AINewMessagePromptController *sharedNewMessageInstance = nil;
  */
 + (id)createSharedInstance
 {
-	sharedNewMessageInstance = 
-	sharedNewMessageInstance = nil;
+	sharedNewMessageInstance = sharedNewMessageInstance = nil;
 }
 
 /*!

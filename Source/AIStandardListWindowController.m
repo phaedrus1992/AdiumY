@@ -62,30 +62,28 @@
  * @brief Deallocate
  */
 - (void)dealloc
-{
-	
-	}
+{}
 
 	if ((!activeAccount && !
-}
+	}
 
-- (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar
-{
-	return [NSArray arrayWithObject:@"StatusAndIcon"];
-}
+	- (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar
+	{
+		return [NSArray arrayWithObject:@"StatusAndIcon"];
+	}
 
-- (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar
-{
-	return [NSArray arrayWithObject:@"StatusAndIcon"];
-}
+	- (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar
+	{
+		return [NSArray arrayWithObject:@"StatusAndIcon"];
+	}
 
-- (void)windowDidToggleToolbarShown:(NSWindow *)sender
-{
-	[contactListController contactListDesiredSizeChanged];
-}
+	- (void)windowDidToggleToolbarShown:(NSWindow *)sender
+	{
+		[contactListController contactListDesiredSizeChanged];
+	}
 
-- (NSRect)windowWillUseStandardFrame:(NSWindow *)sender defaultFrame:(NSRect)defaultFrame
-{
-	return [contactListController _desiredWindowFrameUsingDesiredWidth:YES desiredHeight:YES];
-}
-@end
+	- (NSRect)windowWillUseStandardFrame:(NSWindow *)sender defaultFrame:(NSRect)defaultFrame
+	{
+		return [contactListController _desiredWindowFrameUsingDesiredWidth:YES desiredHeight:YES];
+	}
+	@end

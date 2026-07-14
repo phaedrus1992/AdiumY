@@ -144,7 +144,6 @@
 				initialURL = [[NSAttributedString alloc] initWithString:tmpString];
 				[[textView_URL textStorage] setAttributedString:initialURL];
 				[textView_URL setSelectedRange:NSMakeRange(0, [initialURL length])];
-
 			}
 
 		} else if ([linkText length]) {
@@ -212,7 +211,6 @@
 		// If the URL is invalid enough that we can't create an NSURL, just beep
 		NSBeep();
 	}
-
 }
 
 - (IBAction)removeURL:(id)sender
@@ -236,8 +234,8 @@
 	// We need to make sure we're getting copies of these, otherwise the fields will change them later, changing the
 	// copy in our dictionary
 	NSDictionary *linkDict =
-		[NSDictionary dictionaryWithObjectsAndKeys:[[textField_linkText stringValue] copy],
-												   KEY_LINK_TITLE, [textView_URL linkURL], KEY_LINK_URL, nil];
+		[NSDictionary dictionaryWithObjectsAndKeys:[[textField_linkText stringValue] copy], KEY_LINK_TITLE,
+												   [textView_URL linkURL], KEY_LINK_URL, nil];
 
 	if ([target respondsToSelector:@selector(linkEditorLinkDidChange:)]) {
 		[target performSelector:@selector(linkEditorLinkDidChange:) withObject:linkDict];

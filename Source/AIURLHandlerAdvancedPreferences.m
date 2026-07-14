@@ -52,7 +52,7 @@
 }
 - (NSImage *)image
 {
-	return 
+	return
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView

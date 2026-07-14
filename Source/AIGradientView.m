@@ -27,10 +27,10 @@
 
 - (id)initWithFrame:(NSRect)frame
 {
-	if ((self = 
-	}
+	if ((self =
+}
 
-	[super drawRect:rect];
+[super drawRect:rect];
 }
 
 @end

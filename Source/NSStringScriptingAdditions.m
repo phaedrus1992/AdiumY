@@ -22,9 +22,7 @@
  */
 - (NSString *)camelCase
 {
-	NSString *titlecaseString = 
-	for (id loopItem in components)
-		[result appendString:loopItem];
+	NSString *titlecaseString = for (id loopItem in components)[result appendString:loopItem];
 	return result;
 }
 @end

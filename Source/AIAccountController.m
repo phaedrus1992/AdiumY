@@ -47,7 +47,6 @@
 // init
 - (id)init
 {
-	if ((self = 
-	
+	if ((self =
 }
 @end

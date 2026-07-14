@@ -53,27 +53,26 @@ static SS_PrefsController *prefsController = nil;
 + (SS_PrefsController *)sharedPrefsController
 {
 	if (!prefsController) {
-		prefsController = 
-	prefsController = nil;
-}
+		prefsController = prefsController = nil;
+	}
 
 // Panes ---------------------------------------------------------------------------------------------------------------
 #pragma mark Panes
-/*!
- * @brief Tabview will select a new pane; should it immediately show the loading indicator?
- *
- * We only immediately show the loading inidicator if the view is empty.
- */
-- (BOOL)immediatelyShowLoadingIndicatorForTabView:(NSTabView *)tabView
-							willSelectTabViewItem:(NSTabViewItem *)tabViewItem
-{
+	/*!
+	 * @brief Tabview will select a new pane; should it immediately show the loading indicator?
+	 *
+	 * We only immediately show the loading inidicator if the view is empty.
+	 */
+	-(BOOL)immediatelyShowLoadingIndicatorForTabView : (NSTabView *)tabView willSelectTabViewItem
+		: (NSTabViewItem *)tabViewItem
+	{
 #if 0
 	if (tabView == tabView_category) {
 		AIModularPaneCategoryView *view = [viewArray objectAtIndex:[tabView indexOfTabViewItem:tabViewItem]];
 		if ([view isEmpty]) return YES;
 	}
 #endif
-	return NO;
-}
+		return NO;
+	}
 
-@end
+	@end

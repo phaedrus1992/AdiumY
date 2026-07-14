@@ -37,21 +37,20 @@ static ESOTRFingerprintDetailsWindowController *sharedController = nil;
 + (void)showDetailsForFingerprintDict:(NSDictionary *)inFingerprintDict
 {
 	if (sharedController) {
-		
+
 		fingerprintDict = inFingerprintDict;
 
-		
-	sharedController = nil;
-}
+		sharedController = nil;
+	}
 
-/*!
- * @brief Auto-saving window frame key
- *
- * This is the string used for saving this window's frame.  It should be unique to this window.
- */
-- (NSString *)adiumFrameAutosaveName
-{
-	return @"OTR Fingerprint Details Window";
-}
+	/*!
+	 * @brief Auto-saving window frame key
+	 *
+	 * This is the string used for saving this window's frame.  It should be unique to this window.
+	 */
+	-(NSString *)adiumFrameAutosaveName
+	{
+		return @"OTR Fingerprint Details Window";
+	}
 
-@end
+	@end

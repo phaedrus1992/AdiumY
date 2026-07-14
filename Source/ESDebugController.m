@@ -43,8 +43,8 @@ void AIExplodeOnEnumerationMutation(id dummy)
 {
 	NSLog(@"Attempted to mutate collection %@ of class %@ while enumerating", dummy, 
 			debugLogFile = nil;
-		}
-	}
+}
+}
 }
 
 - (NSArray *)debugLogArray

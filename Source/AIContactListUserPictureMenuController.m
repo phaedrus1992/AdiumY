@@ -50,9 +50,7 @@
 @synthesize imagePicker, images;
 
 + (void)popUpMenuForImagePicker:(AIContactListImagePicker *)picker
-{
-	
-}
+{}
 
 #pragma mark - AIImageCollectionView delegate
 

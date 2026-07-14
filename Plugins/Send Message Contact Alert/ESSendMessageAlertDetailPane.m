@@ -54,8 +54,7 @@
 
 	[button_useAnotherAccount setLocalizedString:AILocalizedString(@"Use another account if necessary", nil)];
 
-	accountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu
-										   showTitleVerbs:NO];
+	accountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu showTitleVerbs:NO];
 	// Update 'from' menu
 	[popUp_messageFrom setMenu:[accountMenu menu]];
 }

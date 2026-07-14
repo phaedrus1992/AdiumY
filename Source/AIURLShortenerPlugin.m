@@ -41,8 +41,7 @@
 {
 	NSMenuItem *menuItem;
 
-	NSMenu *shortenerSubMenu = 
-	[menuItem setSubmenu:[shortenerSubMenu copy]];
+	NSMenu *shortenerSubMenu = [menuItem setSubmenu:[shortenerSubMenu copy]];
 
 	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_TextView_Edit];
 
@@ -55,9 +54,7 @@
 }
 
 - (void)dealloc
-{
-	
-}
+{}
 
 #pragma mark Preferences
 - (void)preferencesChangedForGroup:(NSString *)group
@@ -267,7 +264,7 @@
 
 		[textView.textStorage replaceCharactersInRange:selectedRange
 								  withAttributedString:[[NSAttributedString alloc] initWithString:shortenedURL
-																						attributes:attrs]];
+																					   attributes:attrs]];
 
 		// Select the inserted URL
 		textView.selectedRange = NSMakeRange(selectedRange.location, shortenedURL.length);

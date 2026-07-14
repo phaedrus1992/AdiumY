@@ -24,14 +24,12 @@
 @implementation AIMediaController
 - (void)controllerDidLoad
 {
-	openMedias = 
-	openMediaControllers = nil;
+	openMedias = openMediaControllers = nil;
 }
 
 - (AIMedia *)mediaWithContact:(AIListContact *)contact onAccount:(AIAccount *)account
 {
-	AIMedia *media = 
-	[openMediaControllers removeObject:mediaWindowController];
+	AIMedia *media = [openMediaControllers removeObject:mediaWindowController];
 }
 
 - (void)media:(AIMedia *)media didSetState:(AIMediaState)state

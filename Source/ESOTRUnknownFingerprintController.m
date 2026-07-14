@@ -40,19 +40,20 @@
 	AIAccount *account = 
 						   target:self
 						 userInfo:nil];
-			[textAndButtonsWindowController showOnWindow:window];
+	[textAndButtonsWindowController showOnWindow:window];
 
-			// Don't close the original window if the help button is pressed
-			shouldCloseWindow = NO;
+	// Don't close the original window if the help button is pressed
+	shouldCloseWindow = NO;
+}
+else
+{
+	fingerprintAccepted = ((returnCode == AITextAndButtonsDefaultReturn) ? YES : NO);
 
-		} else {
-			fingerprintAccepted = ((returnCode == AITextAndButtonsDefaultReturn) ? YES : NO);
+	[self unknownFingerprintResponseInfo:userInfo wasAccepted:fingerprintAccepted];
+}
+}
 
-			[self unknownFingerprintResponseInfo:userInfo wasAccepted:fingerprintAccepted];
-		}
-	}
-
-	return shouldCloseWindow;
+return shouldCloseWindow;
 }
 
 + (void)unknownFingerprintResponseInfo:(NSDictionary *)responseInfo wasAccepted:(BOOL)fingerprintAccepted

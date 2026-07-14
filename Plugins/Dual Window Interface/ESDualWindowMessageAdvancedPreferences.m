@@ -214,18 +214,18 @@
 
 	__block NSString *sampleStampA, *sampleStampB;
 
-	[NSDateFormatter
-		withLocalizedDateFormatterShowingSeconds:NO
-								   showingAMorPM:YES
-										 perform:^(NSDateFormatter *noSecondsAMPM) {
-											 sampleStampA = [noSecondsAMPM stringForObjectValue:[NSDate date]];
-										 }];
+	[NSDateFormatter withLocalizedDateFormatterShowingSeconds:NO
+												showingAMorPM:YES
+													  perform:^(NSDateFormatter *noSecondsAMPM) {
+														  sampleStampA =
+															  [noSecondsAMPM stringForObjectValue:[NSDate date]];
+													  }];
 
 	[NSDateFormatter withLocalizedDateFormatterShowingSeconds:NO
 												showingAMorPM:NO
 													  perform:^(NSDateFormatter *noSecondsNoAMPM) {
-														  sampleStampB = [noSecondsNoAMPM
-															  stringForObjectValue:[NSDate date]];
+														  sampleStampB =
+															  [noSecondsNoAMPM stringForObjectValue:[NSDate date]];
 													  }];
 
 	BOOL noAMPM = [sampleStampA isEqualToString:sampleStampB];

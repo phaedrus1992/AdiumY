@@ -34,8 +34,7 @@ static AIGuestAccountWindowController *sharedGuestAccountWindowController = nil;
 {
 	// Create the window
 	if (!sharedGuestAccountWindowController) {
-		sharedGuestAccountWindowController = 
-		account = inAccount;
+		sharedGuestAccountWindowController = account = inAccount;
 	}
 
 	// Make sure our UID is still accurate

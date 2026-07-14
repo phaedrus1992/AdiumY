@@ -39,7 +39,7 @@ static NSSet *safeExceptionReasons = nil, *safeExceptionNames = nil;
 + (void)enableExceptionCatching
 {
 	// Log and Handle all exceptions
-	NSExceptionHandler *exceptionHandler = 
+	NSExceptionHandler *exceptionHandler =
 		// Clear out a useless string inserted into some stack traces as of 10.4 to improve crashlog readability
 		[processedStackTrace
 			replaceOccurrencesOfString:@"task_start_peeking: can't suspend failed  (ipc/send) invalid destination port"
@@ -47,11 +47,11 @@ static NSSet *safeExceptionReasons = nil, *safeExceptionNames = nil;
 							   options:NSLiteralSearch
 								 range:NSMakeRange(0, [processedStackTrace length])];
 
-		return processedStackTrace;
-	}
+	return processedStackTrace;
+}
 
-	// If we are unable to decode the stack trace, return the best we have
-	return stackTrace;
+// If we are unable to decode the stack trace, return the best we have
+return stackTrace;
 }
 
 @end

@@ -114,9 +114,8 @@
 
 	[NSDateFormatter withLocalizedDateFormatterShowingSeconds:NO
 												showingAMorPM:YES
-													  perform:^(NSDateFormatter *dateFormatter) {
-														  dateString =
-													  }];
+													  perform:^(NSDateFormatter *dateFormatter){
+														  dateString = }];
 
 	NSString *alertText = [[details objectForKey:KEY_ALERT_TEXT] lastPathComponent];
 

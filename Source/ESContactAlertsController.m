@@ -35,8 +35,7 @@
 
 @implementation ESContactAlertsController
 
-static NSMutableDictionary *eventHandlersByGroup
-	[adium.preferenceController delayPreferenceChangedNotifications:NO];
+static NSMutableDictionary *eventHandlersByGroup [adium.preferenceController delayPreferenceChangedNotifications:NO];
 }
 
 /*!

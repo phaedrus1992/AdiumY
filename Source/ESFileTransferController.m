@@ -41,11 +41,11 @@
 #import <Adium/AIWindowController.h>
 
 #define SEND_FILE AILocalizedString(@"Send File", nil)
-#define SEND_FILE_WITH_ELLIPSIS 
-		safeFileExtensions = nil;
-	}
+#define SEND_FILE_WITH_ELLIPSIS
+safeFileExtensions = nil;
+}
 
-	showProgressWindow = [[prefDict objectForKey:KEY_FT_SHOW_PROGRESS_WINDOW] boolValue];
+showProgressWindow = [[prefDict objectForKey:KEY_FT_SHOW_PROGRESS_WINDOW] boolValue];
 }
 
 #pragma mark AIEventHandler

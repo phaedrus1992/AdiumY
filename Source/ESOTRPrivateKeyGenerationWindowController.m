@@ -28,8 +28,7 @@ static NSMutableDictionary *keyGenerationControllerDict = nil;
 + (void)mainThreadStartedGeneratingForIdentifier:(NSString *)inIdentifier
 {
 	if (!keyGenerationControllerDict)
-		keyGenerationControllerDict = 
-	
+		keyGenerationControllerDict =
 }
 
 + (void)mainThreadFinishedGeneratingForIdentifier:(NSString *)inIdentifier

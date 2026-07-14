@@ -51,67 +51,67 @@
 
 #define MENU_BAR_HEIGHT 22
 
-#define KEY_CONTACT_LIST_DOCKED_TO_BOTTOM_OF_SCREEN                                                                    \
-	
-			}
+#define KEY_CONTACT_LIST_DOCKED_TO_BOTTOM_OF_SCREEN
+}
 
+AIChat *chat = [adium.chatController openChatWithContact:(AIListContact *)(item.listObject) onPreferredAccount:YES];
+
+[chat.chatContainer.messageViewController addToTextEntryView:mutableString];
+
+[adium.interfaceController setActiveChat:chat];
+[NSApp activateIgnoringOtherApps:YES];
+[NSApp arrangeInFront:nil];
+}
+else
+{
+	AILogWithSignature(@"No contact available to receive files");
+	NSBeep();
+}
+}
+else if ((availableType = [[info draggingPasteboard]
+			  availableTypeFromArray:[NSArray
+										 arrayWithObjects:NSRTFPboardType, NSURLPboardType, NSStringPboardType, nil]]))
+{
+	// Drag and drop text sending via the contact list.
+	if ([item isKindOfClass:[AIListContact class]]) {
+		/* This will send the message. Alternately, we could just insert it into the text view... */
+		NSAttributedString *messageAttributedString = nil;
+
+		if ([availableType isEqualToString:NSRTFPboardType]) {
+			// for RTF data, we want to preserve the formatting, so use dataForType:
+			messageAttributedString =
+				[NSAttributedString stringWithData:[[info draggingPasteboard] dataForType:NSRTFPboardType]];
+		} else if ([availableType isEqualToString:NSURLPboardType]) {
+			// NSURLPboardType contains an NSURL object
+			messageAttributedString = [NSAttributedString
+				stringWithString:[[NSURL URLFromPasteboard:[info draggingPasteboard]] absoluteString]];
+		} else if ([availableType isEqualToString:NSStringPboardType]) {
+			// this is just plain text, so stringForType: works fine
+			messageAttributedString =
+				[NSAttributedString stringWithString:[[info draggingPasteboard] stringForType:NSStringPboardType]];
+		}
+
+		if (messageAttributedString && [messageAttributedString length] != 0) {
 			AIChat *chat =
 				[adium.chatController openChatWithContact:(AIListContact *)(item.listObject) onPreferredAccount:YES];
 
-			[chat.chatContainer.messageViewController addToTextEntryView:mutableString];
+			[chat.chatContainer.messageViewController addToTextEntryView:messageAttributedString];
 
 			[adium.interfaceController setActiveChat:chat];
 			[NSApp activateIgnoringOtherApps:YES];
 			[NSApp arrangeInFront:nil];
-
-		} else {
-			AILogWithSignature(@"No contact available to receive files");
-			NSBeep();
-		}
-
-	} else if ((availableType = [[info draggingPasteboard]
-					availableTypeFromArray:[NSArray arrayWithObjects:NSRTFPboardType, NSURLPboardType,
-																	 NSStringPboardType, nil]])) {
-		// Drag and drop text sending via the contact list.
-		if ([item isKindOfClass:[AIListContact class]]) {
-			/* This will send the message. Alternately, we could just insert it into the text view... */
-			NSAttributedString *messageAttributedString = nil;
-
-			if ([availableType isEqualToString:NSRTFPboardType]) {
-				// for RTF data, we want to preserve the formatting, so use dataForType:
-				messageAttributedString =
-					[NSAttributedString stringWithData:[[info draggingPasteboard] dataForType:NSRTFPboardType]];
-			} else if ([availableType isEqualToString:NSURLPboardType]) {
-				// NSURLPboardType contains an NSURL object
-				messageAttributedString = [NSAttributedString
-					stringWithString:[[NSURL URLFromPasteboard:[info draggingPasteboard]] absoluteString]];
-			} else if ([availableType isEqualToString:NSStringPboardType]) {
-				// this is just plain text, so stringForType: works fine
-				messageAttributedString =
-					[NSAttributedString stringWithString:[[info draggingPasteboard] stringForType:NSStringPboardType]];
-			}
-
-			if (messageAttributedString && [messageAttributedString length] != 0) {
-				AIChat *chat = [adium.chatController openChatWithContact:(AIListContact *)(item.listObject)
-													  onPreferredAccount:YES];
-
-				[chat.chatContainer.messageViewController addToTextEntryView:messageAttributedString];
-
-				[adium.interfaceController setActiveChat:chat];
-				[NSApp activateIgnoringOtherApps:YES];
-				[NSApp arrangeInFront:nil];
-			} else {
-				success = NO;
-			}
-
 		} else {
 			success = NO;
 		}
+
+	} else {
+		success = NO;
 	}
+}
 
-	[super outlineView:outlineView acceptDrop:info item:item childIndex:idx];
+[super outlineView:outlineView acceptDrop:info item:item childIndex:idx];
 
-	return success;
+return success;
 }
 
 - (void)promptToCombineItems:(NSArray *)items withContact:(AIListContact *)inContact

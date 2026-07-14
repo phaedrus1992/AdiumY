@@ -23,12 +23,13 @@
 - (void)installPlugin
 {
 	// Register us as a filter
-	
-	} else {
-		nulFreeAttributedString = inAttributedString;
-	}
+}
+else
+{
+	nulFreeAttributedString = inAttributedString;
+}
 
-	return nulFreeAttributedString;
+return nulFreeAttributedString;
 }
 
 /*!

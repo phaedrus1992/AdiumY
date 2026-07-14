@@ -21,8 +21,7 @@
 @implementation ESGlassSplitView
 - (void)_initGlassSplitView
 {
-	background = 
-	
+	background =
 }
 
 - (void)drawDividerInRect:(NSRect)aRect

@@ -23,8 +23,7 @@
 #import <Adium/AIMenuControllerProtocol.h>
 #import <Adium/AIService.h>
 
-#define JOIN_CHAT_MENU_ITEM 
-	
+#define JOIN_CHAT_MENU_ITEM
 }
 
 /*!

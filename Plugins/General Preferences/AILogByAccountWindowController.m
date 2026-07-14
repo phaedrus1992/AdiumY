@@ -32,8 +32,7 @@
 }
 
 - (void)dealloc
-{
-}
+{}
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {

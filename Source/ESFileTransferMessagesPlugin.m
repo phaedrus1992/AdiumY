@@ -39,18 +39,18 @@
 - (void)installPlugin
 {
 	// Install our observers
-	
-		// Create our content object
-		content = [AIContentEvent statusInChat:chat
-									withSource:contact
-								   destination:chat.account
-										  date:[NSDate date]
-									   message:attributedMessage
-									  withType:type];
 
-		// Add the object
-		[adium.contentController receiveContentObject:content];
-	}
+	// Create our content object
+	content = [AIContentEvent statusInChat:chat
+								withSource:contact
+							   destination:chat.account
+									  date:[NSDate date]
+								   message:attributedMessage
+								  withType:type];
+
+	// Add the object
+	[adium.contentController receiveContentObject:content];
+}
 }
 
 @end

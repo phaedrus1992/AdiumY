@@ -30,8 +30,7 @@
 
 - (id)initWithURL:(NSURL *)url
 {
-	if ((self = 
-	
+	if ((self =
 }
 
 @end

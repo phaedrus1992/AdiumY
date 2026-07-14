@@ -61,65 +61,62 @@ static BOOL hideInBackground = NO;
 	if (shouldBeVisible) {
 		if (sharedInstance) {
 			// Update the window's configuration
-			
-}
+		}
 
-/*!
- * @brief Perform initial setup for the multistatus table
- */
-- (void)setupMultistatusTable
-{
-	[[tableView_multiStatus tableColumnWithIdentifier:@"status"]
-		setDataCell:[[AIImageTextCell alloc] init]];
-}
+		/*!
+		 * @brief Perform initial setup for the multistatus table
+		 */
+		-(void)setupMultistatusTable
+		{
+			[[tableView_multiStatus tableColumnWithIdentifier:@"status"] setDataCell:[[AIImageTextCell alloc] init]];
+		}
 
 #pragma mark Multiservice table view datasource
-/*!
- * @brief Number of rows in the table
- */
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
-{
-	return [_awayAccounts count];
-}
+		/*!
+		 * @brief Number of rows in the table
+		 */
+		-(NSInteger)numberOfRowsInTableView : (NSTableView *)tableView
+		{
+			return [_awayAccounts count];
+		}
 
-/*!
- * @brief Table values
- *
- * Object value is the account's formatted UID
- */
-- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
-{
-	AIAccount *account = [_awayAccounts objectAtIndex:row];
+		/*!
+		 * @brief Table values
+		 *
+		 * Object value is the account's formatted UID
+		 */
+		-(id)tableView : (NSTableView *)tableView objectValueForTableColumn : (NSTableColumn *)tableColumn row
+			: (NSInteger)row
+		{
+			AIAccount *account = [_awayAccounts objectAtIndex:row];
 
-	return account.formattedUID;
-}
+			return account.formattedUID;
+		}
 
-/*!
- * @brief Will display a cell
- *
- * Set the image (status icon) and substring (status title) before display.  Cell is an AIImageTextCell.
- */
-- (void)tableView:(NSTableView *)tableView
-	willDisplayCell:(id)cell
-	 forTableColumn:(NSTableColumn *)tableColumn
-				row:(NSInteger)row
-{
-	AIAccount *account = [_awayAccounts objectAtIndex:row];
+		/*!
+		 * @brief Will display a cell
+		 *
+		 * Set the image (status icon) and substring (status title) before display.  Cell is an AIImageTextCell.
+		 */
+		-(void)tableView : (NSTableView *)tableView willDisplayCell : (id)cell forTableColumn
+			: (NSTableColumn *)tableColumn row : (NSInteger)row
+		{
+			AIAccount *account = [_awayAccounts objectAtIndex:row];
 
-	[cell setImage:[AIStatusIcons statusIconForListObject:account type:AIStatusIconTab direction:AIIconNormal]];
-	[cell setSubString:[account.statusState title]];
-}
+			[cell setImage:[AIStatusIcons statusIconForListObject:account type:AIStatusIconTab direction:AIIconNormal]];
+			[cell setSubString:[account.statusState title]];
+		}
 
-- (void)localizeButtons
-{
-	[button_return setLocalizedString:AILocalizedStringFromTableInBundle(
-										  @"Return", @"Buttons", [NSBundle bundleForClass:[self class]],
-										  "Button to return from away in the away status window")];
-}
+		-(void)localizeButtons
+		{
+			[button_return setLocalizedString:AILocalizedStringFromTableInBundle(
+												  @"Return", @"Buttons", [NSBundle bundleForClass:[self class]],
+												  "Button to return from away in the away status window")];
+		}
 
-- (void)statusIconSetChanged:(NSNotification *)inNotification
-{
-	[self configureStatusWindow];
-}
+		-(void)statusIconSetChanged : (NSNotification *)inNotification
+		{
+			[self configureStatusWindow];
+		}
 
-@end
+	@end

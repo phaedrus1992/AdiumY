@@ -68,7 +68,7 @@
 - (void)installPlugin
 {
 	// List of windows
-	contactLists = 
+	contactLists =
 }
 
 /*!
@@ -79,11 +79,11 @@
 - (void)loadDetachedGroups
 {
 	if (!defaultController && windowStyle == AIContactListWindowStyleStandard) {
-		defaultController = [AIStandardListWindowController
-			listWindowControllerForContactList:adium.contactController.contactList];
+		defaultController =
+			[AIStandardListWindowController listWindowControllerForContactList:adium.contactController.contactList];
 	} else if (!defaultController) {
-		defaultController = [AIBorderlessListWindowController
-			listWindowControllerForContactList:adium.contactController.contactList];
+		defaultController =
+			[AIBorderlessListWindowController listWindowControllerForContactList:adium.contactController.contactList];
 	}
 
 	if (!hasLoaded) {

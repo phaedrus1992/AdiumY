@@ -45,66 +45,65 @@
 }
 - (NSImage *)image
 {
-	return 
-		fingerprintDictArray = [[NSMutableArray alloc] init];
+	return fingerprintDictArray = [[NSMutableArray alloc] init];
 
-		for (context = otrg_plugin_userstate->context_root; context != NULL; context = context->next) {
+	for (context = otrg_plugin_userstate->context_root; context != NULL; context = context->next) {
 
-			fingerprint = context->fingerprint_root.next;
-			/* If there's no fingerprint, don't add it to the known
-			 * fingerprints list */
-			while (fingerprint) {
-				char hash[45];
-				NSDictionary *fingerprintDict;
-				NSString *UID;
-				NSString *state, *fingerprintString;
+		fingerprint = context->fingerprint_root.next;
+		/* If there's no fingerprint, don't add it to the known
+		 * fingerprints list */
+		while (fingerprint) {
+			char hash[45];
+			NSDictionary *fingerprintDict;
+			NSString *UID;
+			NSString *state, *fingerprintString;
 
-				UID = [NSString stringWithUTF8String:context->username];
+			UID = [NSString stringWithUTF8String:context->username];
 
-				if (context->msgstate == OTRL_MSGSTATE_ENCRYPTED && context->active_fingerprint != fingerprint) {
-					state = AILocalizedString(
-						@"Unused", "Word to describe an encryption fingerprint which is not currently being used");
-				} else {
-					TrustLevel trustLevel = otrg_plugin_context_to_trust(context);
+			if (context->msgstate == OTRL_MSGSTATE_ENCRYPTED && context->active_fingerprint != fingerprint) {
+				state = AILocalizedString(
+					@"Unused", "Word to describe an encryption fingerprint which is not currently being used");
+			} else {
+				TrustLevel trustLevel = otrg_plugin_context_to_trust(context);
 
-					switch (trustLevel) {
-					case TRUST_NOT_PRIVATE:
-						state = AILocalizedString(@"Not private", nil);
-						break;
-					case TRUST_UNVERIFIED:
-						state = AILocalizedString(@"Unverified", nil);
-						break;
-					case TRUST_PRIVATE:
-						state = AILocalizedString(@"Private", nil);
-						break;
-					case TRUST_FINISHED:
-						state = AILocalizedString(@"Finished", nil);
-						break;
-					default:
-						state = @"";
-						break;
-					}
+				switch (trustLevel) {
+				case TRUST_NOT_PRIVATE:
+					state = AILocalizedString(@"Not private", nil);
+					break;
+				case TRUST_UNVERIFIED:
+					state = AILocalizedString(@"Unverified", nil);
+					break;
+				case TRUST_PRIVATE:
+					state = AILocalizedString(@"Private", nil);
+					break;
+				case TRUST_FINISHED:
+					state = AILocalizedString(@"Finished", nil);
+					break;
+				default:
+					state = @"";
+					break;
 				}
-
-				otrl_privkey_hash_to_human(hash, fingerprint->fingerprint);
-				fingerprintString = [NSString stringWithUTF8String:hash];
-
-				AIAccount *account = [adium.accountController
-					accountWithInternalObjectID:[NSString stringWithUTF8String:context->accountname]];
-
-				fingerprintDict = [NSDictionary
-					dictionaryWithObjectsAndKeys:UID, @"UID", state, @"Status", fingerprintString, @"FingerprintString",
-												 [NSValue valueWithPointer:fingerprint], @"FingerprintValue", account,
-												 @"AIAccount", nil];
-
-				[fingerprintDictArray addObject:fingerprintDict];
-
-				fingerprint = fingerprint->next;
 			}
-		}
 
-		[tableView_fingerprints reloadData];
+			otrl_privkey_hash_to_human(hash, fingerprint->fingerprint);
+			fingerprintString = [NSString stringWithUTF8String:hash];
+
+			AIAccount *account = [adium.accountController
+				accountWithInternalObjectID:[NSString stringWithUTF8String:context->accountname]];
+
+			fingerprintDict =
+				[NSDictionary dictionaryWithObjectsAndKeys:UID, @"UID", state, @"Status", fingerprintString,
+														   @"FingerprintString", [NSValue valueWithPointer:fingerprint],
+														   @"FingerprintValue", account, @"AIAccount", nil];
+
+			[fingerprintDictArray addObject:fingerprintDict];
+
+			fingerprint = fingerprint->next;
+		}
 	}
+
+	[tableView_fingerprints reloadData];
+}
 }
 
 /*!

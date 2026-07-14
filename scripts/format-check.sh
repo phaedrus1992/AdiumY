@@ -17,16 +17,6 @@ if ! command -v "$CLANG_FORMAT" &>/dev/null; then
   exit 1
 fi
 
-# --list: print null-terminated source file paths (for piping to xargs -0 clang-format -i)
-if [ "${1:-}" = "--list" ]; then
-  find . \( "${EXCLUDE_PATTERNS[@]}" \) -o \( \
-    -name '*.m' -o -name '*.mm' -o -name '*.h' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' \
-  \) -print0 | sort -z
-  exit 0
-fi
-
-echo "--- Running clang-format dry-run ---"
-
 # Collect source files, excluding vendored/forked/third-party dirs
 EXCLUDE_PATTERNS=(
   '-path' './Dependencies/*' '-prune'
@@ -40,6 +30,16 @@ EXCLUDE_PATTERNS=(
   '-o' '-path' './build/*' '-prune'
   '-o' '-path' './.git/*' '-prune'
 )
+
+# --list: print null-terminated source file paths (for piping to xargs -0 clang-format -i)
+if [ "${1:-}" = "--list" ]; then
+  find . \( "${EXCLUDE_PATTERNS[@]}" \) -o \( \
+    -name '*.m' -o -name '*.mm' -o -name '*.h' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' \
+  \) -print0 | sort -z
+  exit 0
+fi
+
+echo "--- Running clang-format dry-run ---"
 
 FILES=$(find . \( "${EXCLUDE_PATTERNS[@]}" \) -o \( \
   -name '*.m' -o -name '*.mm' -o -name '*.h' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' \

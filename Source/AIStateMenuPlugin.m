@@ -50,9 +50,9 @@
 - (void)installPlugin
 {
 	// Wait for Adium to finish launching before we perform further actions
-	
-		installedMenuItems = menuItems;
-	}
+
+	installedMenuItems = menuItems;
+}
 }
 
 - (void)accountMenu:(AIAccountMenu *)inAccountMenu didSelectAccount:(AIAccount *)inAccount
