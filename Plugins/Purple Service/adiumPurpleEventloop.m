@@ -101,17 +101,16 @@ guint addTimer(uint64_t interval, uint64_t leeway, GSourceFunc function, gpointe
 	setSourceForTag(src, tag);
 
 	dispatch_source_set_event_handler(src, ^{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		@autoreleasepool {
 
-		if (sourceForTag(tag)) {
-			if (!function || !function(data)) {
-				adium_timeout_remove(tag);
+			if (sourceForTag(tag)) {
+				if (!function || !function(data)) {
+					adium_timeout_remove(tag);
+				}
+			} else {
+				AILogWithSignature(@"Timer with tag %i was already canceled!", tag);
 			}
-		} else {
-			AILogWithSignature(@"Timer with tag %i was already canceled!", tag);
 		}
-
-		[pool drain];
 	});
 
 	dispatch_resume(src);
@@ -153,10 +152,10 @@ guint adium_input_add(gint fd, PurpleInputCondition condition, PurpleInputFuncti
 	src = dispatch_source_create(type, fd, 0, dispatch_get_main_queue());
 
 	dispatch_source_set_event_handler(src, ^{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		if (func)
-			func(user_data, fd, condition);
-		[pool drain];
+		@autoreleasepool {
+			if (func)
+				func(user_data, fd, condition);
+		}
 	});
 
 	setSourceForTag(src, tag);

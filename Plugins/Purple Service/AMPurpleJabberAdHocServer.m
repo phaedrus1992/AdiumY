@@ -28,61 +28,60 @@
 
 static void AMPurpleJabberAdHocServer_received_data_cb(PurpleConnection *gc, xmlnode **packet, gpointer this)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 
-	AMPurpleJabberAdHocServer *self = this;
-	PurpleAccount *account = [self.account purpleAccount];
-	if (purple_account_get_connection(account) == gc) {
-		if (strcmp((*packet)->name, "iq")) {
-			[pool release];
-			return;
-		}
-		const char *type = xmlnode_get_attrib(*packet, "type");
-		if (!type || strcmp(type, "set")) {
-			[pool release];
-			return; // doesn't talk to us, probably the user interacting with some other adhoc node
-		}
-		const char *from = xmlnode_get_attrib(*packet, "from");
-		const char *iqid = xmlnode_get_attrib(*packet, "id");
-		xmlnode *command = xmlnode_get_child_with_namespace(*packet, "command", "http://jabber.org/protocol/commands");
-		if (command) {
-			BOOL handled = [self receivedCommand:command
-											from:from ? [NSString stringWithUTF8String:from] : nil
-											iqid:iqid ? [NSString stringWithUTF8String:iqid] : nil];
-			if (handled) {
-				xmlnode_free(*packet);
-				*packet = NULL;
+		AMPurpleJabberAdHocServer *self = this;
+		PurpleAccount *account = [self.account purpleAccount];
+		if (purple_account_get_connection(account) == gc) {
+			if (strcmp((*packet)->name, "iq")) {
+				return;
+			}
+			const char *type = xmlnode_get_attrib(*packet, "type");
+			if (!type || strcmp(type, "set")) {
+				return; // doesn't talk to us, probably the user interacting with some other adhoc node
+			}
+			const char *from = xmlnode_get_attrib(*packet, "from");
+			const char *iqid = xmlnode_get_attrib(*packet, "id");
+			xmlnode *command =
+				xmlnode_get_child_with_namespace(*packet, "command", "http://jabber.org/protocol/commands");
+			if (command) {
+				BOOL handled = [self receivedCommand:command
+												from:from ? [NSString stringWithUTF8String:from] : nil
+												iqid:iqid ? [NSString stringWithUTF8String:iqid] : nil];
+				if (handled) {
+					xmlnode_free(*packet);
+					*packet = NULL;
+				}
 			}
 		}
 	}
-
-	[pool release];
 }
 
 /* we have to catch the reply to a disco#info for http://jabber.org/protocol/commands and insert our nodes */
 static void xmlnode_sent_cb(PurpleConnection *gc, xmlnode **packet, gpointer this)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	xmlnode *xml = *packet;
-	AMPurpleJabberAdHocServer *self = this;
-	PurpleAccount *account = [self.account purpleAccount];
-	if (xml && purple_account_get_connection(account) == gc) {
-		if (!strcmp(xml->name, "iq")) {
-			const char *tostr = xmlnode_get_attrib(xml, "to");
-			if (tostr) {
-				NSString *to = [NSString stringWithUTF8String:tostr];
-				NSRange slash = [to rangeOfString:@"/"];
-				if (slash.location != NSNotFound) {
-					NSString *barejid = [to substringToIndex:slash.location];
-					if ([barejid isEqualToString:self.account.UID]) {
-						const char *type = xmlnode_get_attrib(xml, "type");
-						if (type && !strcmp(type, "result")) {
-							xmlnode *query = xmlnode_get_child_with_namespace(xml, "query",
-																			  "http://jabber.org/protocol/disco#items");
-							if (query) {
-								const char *node = xmlnode_get_attrib(query, "node");
-								if (node && !strcmp(node, "http://jabber.org/protocol/commands"))
-									[self addCommandsToXML:query];
+	@autoreleasepool {
+		xmlnode *xml = *packet;
+		AMPurpleJabberAdHocServer *self = this;
+		PurpleAccount *account = [self.account purpleAccount];
+		if (xml && purple_account_get_connection(account) == gc) {
+			if (!strcmp(xml->name, "iq")) {
+				const char *tostr = xmlnode_get_attrib(xml, "to");
+				if (tostr) {
+					NSString *to = [NSString stringWithUTF8String:tostr];
+					NSRange slash = [to rangeOfString:@"/"];
+					if (slash.location != NSNotFound) {
+						NSString *barejid = [to substringToIndex:slash.location];
+						if ([barejid isEqualToString:self.account.UID]) {
+							const char *type = xmlnode_get_attrib(xml, "type");
+							if (type && !strcmp(type, "result")) {
+								xmlnode *query = xmlnode_get_child_with_namespace(
+									xml, "query", "http://jabber.org/protocol/disco#items");
+								if (query) {
+									const char *node = xmlnode_get_attrib(query, "node");
+									if (node && !strcmp(node, "http://jabber.org/protocol/commands"))
+										[self addCommandsToXML:query];
+								}
 							}
 						}
 					}
@@ -90,7 +89,6 @@ static void xmlnode_sent_cb(PurpleConnection *gc, xmlnode **packet, gpointer thi
 			}
 		}
 	}
-	[pool release];
 }
 
 + (void)initialize

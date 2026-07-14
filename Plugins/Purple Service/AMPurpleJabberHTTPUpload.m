@@ -68,617 +68,615 @@ static NSString *ContentTypeForFile(NSString *path)
 
 static void AMPurpleJabberHTTPUpload_received_data_cb(PurpleConnection *gc, xmlnode **packet, gpointer data)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
+		@try {
+			AMPurpleJabberHTTPUpload *self = (__bridge AMPurpleJabberHTTPUpload *)data;
+			xmlnode *node = *packet;
 
-	@try {
-		AMPurpleJabberHTTPUpload *self = (__bridge AMPurpleJabberHTTPUpload *)data;
-		xmlnode *node = *packet;
-
-		if (!node || !gc || !self) {
-			return;
-		}
-
-		// Only process IQ stanzas
-		if (strcmp(node->name, "iq") != 0) {
-			return;
-		}
-
-		const char *type = xmlnode_get_attrib(node, "type");
-		if (!type) {
-			return;
-		}
-
-		const char *iq_id = xmlnode_get_attrib(node, "id");
-		if (!iq_id) {
-			return;
-		}
-
-		NSString *idStr = @(iq_id);
-
-		// Handle discovery items result
-		if (self->_discoveryItemsID && [self->_discoveryItemsID isEqualToString:idStr]) {
-			if (strcmp(type, "result") == 0) {
-				xmlnode *query = xmlnode_get_child_with_namespace(node, "query", NS_DISCO_ITEMS.UTF8String);
-				if (query) {
-					[self _handleDiscoveryItemsResult:query];
-				}
-			} else if (strcmp(type, "error") == 0) {
-				AILog(@"AMPurpleJabberHTTPUpload: Discovery items query failed for id=%s", iq_id);
-				[self->_discoveryInfoIDs release];
-				self->_discoveryInfoIDs = nil;
+			if (!node || !gc || !self) {
+				return;
 			}
-			[self->_discoveryItemsID release];
-			self->_discoveryItemsID = nil;
-			return;
-		}
 
-		// Handle discovery info results
-		if (self->_discoveryInfoIDs && [self->_discoveryInfoIDs containsObject:idStr]) {
-			if (strcmp(type, "result") == 0) {
-				xmlnode *query = xmlnode_get_child_with_namespace(node, "query", NS_DISCO_INFO.UTF8String);
-				if (query) {
-					const char *from = xmlnode_get_attrib(node, "from");
-					if (from) {
-						[self _handleDiscoveryInfoResult:query from:@(from)];
+			// Only process IQ stanzas
+			if (strcmp(node->name, "iq") != 0) {
+				return;
+			}
+
+			const char *type = xmlnode_get_attrib(node, "type");
+			if (!type) {
+				return;
+			}
+
+			const char *iq_id = xmlnode_get_attrib(node, "id");
+			if (!iq_id) {
+				return;
+			}
+
+			NSString *idStr = @(iq_id);
+
+			// Handle discovery items result
+			if (self->_discoveryItemsID && [self->_discoveryItemsID isEqualToString:idStr]) {
+				if (strcmp(type, "result") == 0) {
+					xmlnode *query = xmlnode_get_child_with_namespace(node, "query", NS_DISCO_ITEMS.UTF8String);
+					if (query) {
+						[self _handleDiscoveryItemsResult:query];
 					}
+				} else if (strcmp(type, "error") == 0) {
+					AILog(@"AMPurpleJabberHTTPUpload: Discovery items query failed for id=%s", iq_id);
+					[self->_discoveryInfoIDs release];
+					self->_discoveryInfoIDs = nil;
 				}
+				[self->_discoveryItemsID release];
+				self->_discoveryItemsID = nil;
+				return;
 			}
-			[self->_discoveryInfoIDs removeObject:idStr];
-			if ([self->_discoveryInfoIDs count] == 0) {
-				AILog(@"AMPurpleJabberHTTPUpload: No HTTP Upload service found after probing all items");
-				[self->_discoveryInfoIDs release];
-				self->_discoveryInfoIDs = nil;
-			}
-			return;
-		}
 
-		// Handle slot request result
-		if (self->_slotQueryID && [self->_slotQueryID isEqualToString:idStr]) {
-			if (strcmp(type, "result") == 0) {
-				xmlnode *slot = xmlnode_get_child_with_namespace(node, "slot", NS_HTTP_UPLOAD.UTF8String);
-				if (slot) {
-					[self _handleSlotResult:slot];
-				} else {
-					AILog(@"AMPurpleJabberHTTPUpload: Slot response missing <slot> element");
-					[self _handleUploadFailure:@"Slot response missing <slot> element"];
-				}
-			} else if (strcmp(type, "error") == 0) {
-				// Try to extract error text for better diagnostics
-				xmlnode *errorNode = xmlnode_get_child(node, "error");
-				const char *errorText = NULL;
-				if (errorNode) {
-					xmlnode *text = xmlnode_get_child_with_namespace(errorNode, "text",
-																	 @"urn:ietf:params:xml:ns:xmpp-stanzas".UTF8String);
-					if (text && text->child && (text->child->type == XMLNODE_TYPE_DATA)) {
-						errorText = text->child->data;
-					}
-				}
-				NSString *reason = errorText ? @(errorText) : @"Slot request rejected by server";
-				AILog(@"AMPurpleJabberHTTPUpload: Slot request failed: %@", reason);
-				[self _handleUploadFailure:reason];
-			}
-			[self->_slotQueryID release];
-			self->_slotQueryID = nil;
-			return;
-		}
-
-	} @catch (NSException *e) {
-		AILog(@"AMPurpleJabberHTTPUpload: Exception in received_data_cb: %@", e);
-	} @finally {
-		[pool drain];
-	}
-}
-
-@interface AMPurpleJabberHTTPUpload () <NSURLSessionTaskDelegate>
-
-- (void)_sendDiscoveryItems;
-- (void)_sendDiscoveryInfoForJID:(NSString *)jid;
-- (void)_handleDiscoveryItemsResult:(xmlnode *)query;
-- (void)_handleDiscoveryInfoResult:(xmlnode *)query from:(NSString *)fromJID;
-- (void)_handleSlotResult:(xmlnode *)slot;
-- (void)_doUpload;
-- (void)_sendShareMessage;
-- (void)_handleUploadFailure:(NSString *)reason;
-- (void)_cleanupUpload;
-
-@end
-
-@implementation AMPurpleJabberHTTPUpload
-
-#pragma mark - Lifecycle
-
-- (id)initWithAccount:(ESPurpleJabberAccount *)account
-{
-	if ((self = [super init])) {
-		_account = account;
-		_maxFileSize = -1; // unknown until discovered
-
-		PurplePlugin *jabber = purple_find_prpl("prpl-jabber");
-		if (jabber) {
-			purple_signal_connect(jabber, "jabber-receiving-xmlnode", self,
-								  PURPLE_CALLBACK(AMPurpleJabberHTTPUpload_received_data_cb), (__bridge void *)self);
-			AILog(@"AMPurpleJabberHTTPUpload: Connected to jabber-receiving-xmlnode signal");
-		}
-	}
-	return self;
-}
-
-- (void)dealloc
-{
-	purple_signals_disconnect_by_handle((__bridge void *)self);
-
-	[_discoveryItemsID release];
-	[_discoveryInfoIDs release];
-	[_uploadServiceJID release];
-	[_slotQueryID release];
-	[_activeFileTransfer release];
-	[_putHeaders release];
-	[_getURL release];
-	[_putURL release];
-	[_session invalidateAndCancel];
-	[_session release];
-
-	[super dealloc];
-}
-
-#pragma mark - Public
-
-- (void)startDiscovery
-{
-	// Already discovered or in progress
-	if (_uploadServiceJID || _discoveryItemsID) {
-		return;
-	}
-
-	_maxFileSize = -1;
-	[self _sendDiscoveryItems];
-}
-
-- (BOOL)isUploadAvailableForFileSize:(unsigned long long)fileSize
-{
-	if (!_uploadServiceJID) {
-		return NO;
-	}
-	if (_maxFileSize > 0 && (long long)fileSize > _maxFileSize) {
-		return NO;
-	}
-	return YES;
-}
-
-- (BOOL)sendFileTransfer:(ESFileTransfer *)fileTransfer
-{
-	if (!_uploadServiceJID) {
-		return NO;
-	}
-
-	// Don't start if we're already handling a transfer
-	if (_activeFileTransfer || _slotQueryID) {
-		return NO;
-	}
-
-	_activeFileTransfer = [fileTransfer retain];
-	[self _requestSlotForTransfer:fileTransfer];
-	return YES;
-}
-
-#pragma mark - Private: Discovery
-
-- (void)_sendDiscoveryItems
-{
-	NSString *domain = [self _serverDomain];
-	if (!domain) {
-		AILog(@"AMPurpleJabberHTTPUpload: No server domain available for discovery");
-		return;
-	}
-
-	NSString *queryID = [NSString stringWithFormat:@"httpupload-disc-items-%x", arc4random()];
-	_discoveryItemsID = [queryID retain];
-
-	// Allocate the set for tracking disco#info queries
-	_discoveryInfoIDs = [[NSMutableSet alloc] init];
-
-	PurpleAccount *pa = [_account purpleAccount];
-	PurpleConnection *gc = purple_account_get_connection(pa);
-	if (!gc) {
-		AILog(@"AMPurpleJabberHTTPUpload: Connection gone, skipping discovery items");
-		[_discoveryItemsID release];
-		_discoveryItemsID = nil;
-		[_discoveryInfoIDs release];
-		_discoveryInfoIDs = nil;
-		return;
-	}
-
-	NSString *iq = [NSString stringWithFormat:@"<iq type='get' id='%@' to='%@'>"
-											  @"<query xmlns='%@'/>"
-											  @"</iq>",
-											  queryID, domain, NS_DISCO_ITEMS];
-
-	jabber_prpl_send_raw(gc, [iq UTF8String], -1);
-	AILog(@"AMPurpleJabberHTTPUpload: Sent discovery items query to %@", domain);
-}
-
-- (void)_sendDiscoveryInfoForJID:(NSString *)jid
-{
-	NSString *queryID = [NSString stringWithFormat:@"httpupload-disc-info-%x", arc4random()];
-	[_discoveryInfoIDs addObject:queryID];
-
-	PurpleAccount *pa = [_account purpleAccount];
-	PurpleConnection *gc = purple_account_get_connection(pa);
-	if (!gc) {
-		[_discoveryInfoIDs removeObject:queryID];
-		if ([_discoveryInfoIDs count] == 0) {
-			[_discoveryInfoIDs release];
-			_discoveryInfoIDs = nil;
-		}
-		return;
-	}
-
-	NSString *iq = [NSString stringWithFormat:@"<iq type='get' id='%@' to='%@'>"
-											  @"<query xmlns='%@'/>"
-											  @"</iq>",
-											  queryID, jid, NS_DISCO_INFO];
-
-	jabber_prpl_send_raw(gc, [iq UTF8String], -1);
-	AILog(@"AMPurpleJabberHTTPUpload: Sent discovery info query to %@", jid);
-}
-
-- (void)_handleDiscoveryItemsResult:(xmlnode *)query
-{
-	// Iterate over <item> children
-	for (xmlnode *item = query->child; item; item = item->next) {
-		if (item->type != XMLNODE_TYPE_TAG || strcmp(item->name, "item") != 0) {
-			continue;
-		}
-		const char *jid = xmlnode_get_attrib(item, "jid");
-		if (jid) {
-			[self _sendDiscoveryInfoForJID:@(jid)];
-		}
-	}
-}
-
-- (void)_handleDiscoveryInfoResult:(xmlnode *)query from:(NSString *)fromJID
-{
-	// Check for the HTTP Upload feature
-	for (xmlnode *child = query->child; child; child = child->next) {
-		if (child->type != XMLNODE_TYPE_TAG || strcmp(child->name, "feature") != 0) {
-			continue;
-		}
-		const char *var = xmlnode_get_attrib(child, "var");
-		if (var && strcmp(var, [NS_HTTP_UPLOAD UTF8String]) == 0) {
-			// Found the upload service
-			_uploadServiceJID = [fromJID retain];
-
-			// Try to extract max-file-size from data form
-			xmlnode *x = xmlnode_get_child_with_namespace(query, "x", "jabber:x:data".UTF8String);
-			if (x) {
-				for (xmlnode *field = x->child; field; field = field->next) {
-					if (field->type != XMLNODE_TYPE_TAG || strcmp(field->name, "field") != 0) {
-						continue;
-					}
-					const char *var = xmlnode_get_attrib(field, "var");
-					if (var && strcmp(var, "max-file-size") == 0) {
-						xmlnode *valueNode = xmlnode_get_child(field, "value");
-						if (valueNode && valueNode->child && (valueNode->child->type == XMLNODE_TYPE_DATA)) {
-							_maxFileSize = atoll((const char *)valueNode->child->data);
+			// Handle discovery info results
+			if (self->_discoveryInfoIDs && [self->_discoveryInfoIDs containsObject:idStr]) {
+				if (strcmp(type, "result") == 0) {
+					xmlnode *query = xmlnode_get_child_with_namespace(node, "query", NS_DISCO_INFO.UTF8String);
+					if (query) {
+						const char *from = xmlnode_get_attrib(node, "from");
+						if (from) {
+							[self _handleDiscoveryInfoResult:query from:@(from)];
 						}
 					}
 				}
+				[self->_discoveryInfoIDs removeObject:idStr];
+				if ([self->_discoveryInfoIDs count] == 0) {
+					AILog(@"AMPurpleJabberHTTPUpload: No HTTP Upload service found after probing all items");
+					[self->_discoveryInfoIDs release];
+					self->_discoveryInfoIDs = nil;
+				}
+				return;
 			}
 
-			AILog(@"AMPurpleJabberHTTPUpload: Found upload service at %@ (max size: %lld)", fromJID, _maxFileSize);
+			// Handle slot request result
+			if (self->_slotQueryID && [self->_slotQueryID isEqualToString:idStr]) {
+				if (strcmp(type, "result") == 0) {
+					xmlnode *slot = xmlnode_get_child_with_namespace(node, "slot", NS_HTTP_UPLOAD.UTF8String);
+					if (slot) {
+						[self _handleSlotResult:slot];
+					} else {
+						AILog(@"AMPurpleJabberHTTPUpload: Slot response missing <slot> element");
+						[self _handleUploadFailure:@"Slot response missing <slot> element"];
+					}
+				} else if (strcmp(type, "error") == 0) {
+					// Try to extract error text for better diagnostics
+					xmlnode *errorNode = xmlnode_get_child(node, "error");
+					const char *errorText = NULL;
+					if (errorNode) {
+						xmlnode *text = xmlnode_get_child_with_namespace(
+							errorNode, "text", @"urn:ietf:params:xml:ns:xmpp-stanzas".UTF8String);
+						if (text && text->child && (text->child->type == XMLNODE_TYPE_DATA)) {
+							errorText = text->child->data;
+						}
+					}
+					NSString *reason = errorText ? @(errorText) : @"Slot request rejected by server";
+					AILog(@"AMPurpleJabberHTTPUpload: Slot request failed: %@", reason);
+					[self _handleUploadFailure:reason];
+				}
+				[self->_slotQueryID release];
+				self->_slotQueryID = nil;
+				return;
+			}
 
-			// Clean up remaining discovery state
+		} @catch (NSException *e) {
+			AILog(@"AMPurpleJabberHTTPUpload: Exception in received_data_cb: %@", e);
+		}
+	}
+
+	@interface AMPurpleJabberHTTPUpload () <NSURLSessionTaskDelegate>
+
+	-(void)_sendDiscoveryItems;
+	-(void)_sendDiscoveryInfoForJID : (NSString *)jid;
+	-(void)_handleDiscoveryItemsResult : (xmlnode *)query;
+	-(void)_handleDiscoveryInfoResult : (xmlnode *)query from : (NSString *)fromJID;
+	-(void)_handleSlotResult : (xmlnode *)slot;
+	-(void)_doUpload;
+	-(void)_sendShareMessage;
+	-(void)_handleUploadFailure : (NSString *)reason;
+	-(void)_cleanupUpload;
+
+	@end
+
+	@implementation AMPurpleJabberHTTPUpload
+
+#pragma mark - Lifecycle
+
+	-(id)initWithAccount : (ESPurpleJabberAccount *)account
+	{
+		if ((self = [super init])) {
+			_account = account;
+			_maxFileSize = -1; // unknown until discovered
+
+			PurplePlugin *jabber = purple_find_prpl("prpl-jabber");
+			if (jabber) {
+				purple_signal_connect(jabber, "jabber-receiving-xmlnode", self,
+									  PURPLE_CALLBACK(AMPurpleJabberHTTPUpload_received_data_cb),
+									  (__bridge void *)self);
+				AILog(@"AMPurpleJabberHTTPUpload: Connected to jabber-receiving-xmlnode signal");
+			}
+		}
+		return self;
+	}
+
+	-(void)dealloc
+	{
+		purple_signals_disconnect_by_handle((__bridge void *)self);
+
+		[_discoveryItemsID release];
+		[_discoveryInfoIDs release];
+		[_uploadServiceJID release];
+		[_slotQueryID release];
+		[_activeFileTransfer release];
+		[_putHeaders release];
+		[_getURL release];
+		[_putURL release];
+		[_session invalidateAndCancel];
+		[_session release];
+
+		[super dealloc];
+	}
+
+#pragma mark - Public
+
+	-(void)startDiscovery
+	{
+		// Already discovered or in progress
+		if (_uploadServiceJID || _discoveryItemsID) {
+			return;
+		}
+
+		_maxFileSize = -1;
+		[self _sendDiscoveryItems];
+	}
+
+	-(BOOL)isUploadAvailableForFileSize : (unsigned long long)fileSize
+	{
+		if (!_uploadServiceJID) {
+			return NO;
+		}
+		if (_maxFileSize > 0 && (long long)fileSize > _maxFileSize) {
+			return NO;
+		}
+		return YES;
+	}
+
+	-(BOOL)sendFileTransfer : (ESFileTransfer *)fileTransfer
+	{
+		if (!_uploadServiceJID) {
+			return NO;
+		}
+
+		// Don't start if we're already handling a transfer
+		if (_activeFileTransfer || _slotQueryID) {
+			return NO;
+		}
+
+		_activeFileTransfer = [fileTransfer retain];
+		[self _requestSlotForTransfer:fileTransfer];
+		return YES;
+	}
+
+#pragma mark - Private: Discovery
+
+	-(void)_sendDiscoveryItems
+	{
+		NSString *domain = [self _serverDomain];
+		if (!domain) {
+			AILog(@"AMPurpleJabberHTTPUpload: No server domain available for discovery");
+			return;
+		}
+
+		NSString *queryID = [NSString stringWithFormat:@"httpupload-disc-items-%x", arc4random()];
+		_discoveryItemsID = [queryID retain];
+
+		// Allocate the set for tracking disco#info queries
+		_discoveryInfoIDs = [[NSMutableSet alloc] init];
+
+		PurpleAccount *pa = [_account purpleAccount];
+		PurpleConnection *gc = purple_account_get_connection(pa);
+		if (!gc) {
+			AILog(@"AMPurpleJabberHTTPUpload: Connection gone, skipping discovery items");
+			[_discoveryItemsID release];
+			_discoveryItemsID = nil;
 			[_discoveryInfoIDs release];
 			_discoveryInfoIDs = nil;
 			return;
 		}
-	}
-}
 
-- (NSString *)_serverDomain
-{
-	NSString *uid = [_account UID];
-	NSRange atRange = [uid rangeOfString:@"@"];
-	if (atRange.location == NSNotFound || atRange.location + 1 >= [uid length]) {
-		return nil;
+		NSString *iq = [NSString stringWithFormat:@"<iq type='get' id='%@' to='%@'>"
+												  @"<query xmlns='%@'/>"
+												  @"</iq>",
+												  queryID, domain, NS_DISCO_ITEMS];
+
+		jabber_prpl_send_raw(gc, [iq UTF8String], -1);
+		AILog(@"AMPurpleJabberHTTPUpload: Sent discovery items query to %@", domain);
 	}
-	return [uid substringFromIndex:atRange.location + 1];
-}
+
+	-(void)_sendDiscoveryInfoForJID : (NSString *)jid
+	{
+		NSString *queryID = [NSString stringWithFormat:@"httpupload-disc-info-%x", arc4random()];
+		[_discoveryInfoIDs addObject:queryID];
+
+		PurpleAccount *pa = [_account purpleAccount];
+		PurpleConnection *gc = purple_account_get_connection(pa);
+		if (!gc) {
+			[_discoveryInfoIDs removeObject:queryID];
+			if ([_discoveryInfoIDs count] == 0) {
+				[_discoveryInfoIDs release];
+				_discoveryInfoIDs = nil;
+			}
+			return;
+		}
+
+		NSString *iq = [NSString stringWithFormat:@"<iq type='get' id='%@' to='%@'>"
+												  @"<query xmlns='%@'/>"
+												  @"</iq>",
+												  queryID, jid, NS_DISCO_INFO];
+
+		jabber_prpl_send_raw(gc, [iq UTF8String], -1);
+		AILog(@"AMPurpleJabberHTTPUpload: Sent discovery info query to %@", jid);
+	}
+
+	-(void)_handleDiscoveryItemsResult : (xmlnode *)query
+	{
+		// Iterate over <item> children
+		for (xmlnode *item = query->child; item; item = item->next) {
+			if (item->type != XMLNODE_TYPE_TAG || strcmp(item->name, "item") != 0) {
+				continue;
+			}
+			const char *jid = xmlnode_get_attrib(item, "jid");
+			if (jid) {
+				[self _sendDiscoveryInfoForJID:@(jid)];
+			}
+		}
+	}
+
+	-(void)_handleDiscoveryInfoResult : (xmlnode *)query from : (NSString *)fromJID
+	{
+		// Check for the HTTP Upload feature
+		for (xmlnode *child = query->child; child; child = child->next) {
+			if (child->type != XMLNODE_TYPE_TAG || strcmp(child->name, "feature") != 0) {
+				continue;
+			}
+			const char *var = xmlnode_get_attrib(child, "var");
+			if (var && strcmp(var, [NS_HTTP_UPLOAD UTF8String]) == 0) {
+				// Found the upload service
+				_uploadServiceJID = [fromJID retain];
+
+				// Try to extract max-file-size from data form
+				xmlnode *x = xmlnode_get_child_with_namespace(query, "x", "jabber:x:data".UTF8String);
+				if (x) {
+					for (xmlnode *field = x->child; field; field = field->next) {
+						if (field->type != XMLNODE_TYPE_TAG || strcmp(field->name, "field") != 0) {
+							continue;
+						}
+						const char *var = xmlnode_get_attrib(field, "var");
+						if (var && strcmp(var, "max-file-size") == 0) {
+							xmlnode *valueNode = xmlnode_get_child(field, "value");
+							if (valueNode && valueNode->child && (valueNode->child->type == XMLNODE_TYPE_DATA)) {
+								_maxFileSize = atoll((const char *)valueNode->child->data);
+							}
+						}
+					}
+				}
+
+				AILog(@"AMPurpleJabberHTTPUpload: Found upload service at %@ (max size: %lld)", fromJID, _maxFileSize);
+
+				// Clean up remaining discovery state
+				[_discoveryInfoIDs release];
+				_discoveryInfoIDs = nil;
+				return;
+			}
+		}
+	}
+
+	-(NSString *)_serverDomain
+	{
+		NSString *uid = [_account UID];
+		NSRange atRange = [uid rangeOfString:@"@"];
+		if (atRange.location == NSNotFound || atRange.location + 1 >= [uid length]) {
+			return nil;
+		}
+		return [uid substringFromIndex:atRange.location + 1];
+	}
 
 #pragma mark - Private: Slot Request
 
-- (void)_requestSlotForTransfer:(ESFileTransfer *)fileTransfer
-{
-	NSString *filename = [[fileTransfer localFilename] lastPathComponent];
-	unsigned long long fileSize = [fileTransfer size];
-	NSString *contentType = ContentTypeForFile([fileTransfer localFilename]);
+	-(void)_requestSlotForTransfer : (ESFileTransfer *)fileTransfer
+	{
+		NSString *filename = [[fileTransfer localFilename] lastPathComponent];
+		unsigned long long fileSize = [fileTransfer size];
+		NSString *contentType = ContentTypeForFile([fileTransfer localFilename]);
 
-	NSString *queryID = [NSString stringWithFormat:@"httpupload-slot-%x", arc4random()];
-	_slotQueryID = [queryID retain];
+		NSString *queryID = [NSString stringWithFormat:@"httpupload-slot-%x", arc4random()];
+		_slotQueryID = [queryID retain];
 
-	PurpleAccount *pa = [_account purpleAccount];
-	PurpleConnection *gc = purple_account_get_connection(pa);
-	if (!gc) {
-		[self _handleUploadFailure:@"Connection lost during slot request"];
-		return;
-	}
-
-	// XML-escape the filename to prevent injection
-	NSString *escapedFilename = [self _xmlEscape:filename];
-
-	NSString *iq =
-		[NSString stringWithFormat:@"<iq type='get' id='%@' to='%@'>"
-								   @"<request xmlns='%@' filename='%@' size='%llu' content-type='%@'/>"
-								   @"</iq>",
-								   queryID, _uploadServiceJID, NS_HTTP_UPLOAD, escapedFilename, fileSize, contentType];
-
-	jabber_prpl_send_raw(gc, [iq UTF8String], -1);
-	AILog(@"AMPurpleJabberHTTPUpload: Requested slot for %@ (%llu bytes) from %@", filename, fileSize,
-		  _uploadServiceJID);
-}
-
-- (void)_handleSlotResult:(xmlnode *)slot
-{
-	// Extract <put url='...'>
-	xmlnode *putNode = xmlnode_get_child(slot, "put");
-	if (!putNode) {
-		[self _handleUploadFailure:@"Slot response missing <put> element"];
-		return;
-	}
-	const char *putURLStr = xmlnode_get_attrib(putNode, "url");
-	if (!putURLStr) {
-		[self _handleUploadFailure:@"Slot response <put> missing url attribute"];
-		return;
-	}
-
-	// Parse whitelisted <header> children from <put> (XEP-0363 §3.2)
-	NSMutableDictionary *headers = [NSMutableDictionary dictionary];
-	for (xmlnode *child = putNode->child; child; child = child->next) {
-		if (child->type != XMLNODE_TYPE_TAG || strcmp(child->name, "header") != 0) {
-			continue;
+		PurpleAccount *pa = [_account purpleAccount];
+		PurpleConnection *gc = purple_account_get_connection(pa);
+		if (!gc) {
+			[self _handleUploadFailure:@"Connection lost during slot request"];
+			return;
 		}
-		const char *nameAttr = xmlnode_get_attrib(child, "name");
-		const char *valueAttr = xmlnode_get_attrib(child, "value");
-		if (nameAttr && valueAttr) {
-			NSString *name = @(nameAttr);
-			if ([AllowedSlotHeaders() containsObject:name]) {
-				[headers setObject:@(valueAttr) forKey:name];
+
+		// XML-escape the filename to prevent injection
+		NSString *escapedFilename = [self _xmlEscape:filename];
+
+		NSString *iq = [NSString stringWithFormat:@"<iq type='get' id='%@' to='%@'>"
+												  @"<request xmlns='%@' filename='%@' size='%llu' content-type='%@'/>"
+												  @"</iq>",
+												  queryID, _uploadServiceJID, NS_HTTP_UPLOAD, escapedFilename, fileSize,
+												  contentType];
+
+		jabber_prpl_send_raw(gc, [iq UTF8String], -1);
+		AILog(@"AMPurpleJabberHTTPUpload: Requested slot for %@ (%llu bytes) from %@", filename, fileSize,
+			  _uploadServiceJID);
+	}
+
+	-(void)_handleSlotResult : (xmlnode *)slot
+	{
+		// Extract <put url='...'>
+		xmlnode *putNode = xmlnode_get_child(slot, "put");
+		if (!putNode) {
+			[self _handleUploadFailure:@"Slot response missing <put> element"];
+			return;
+		}
+		const char *putURLStr = xmlnode_get_attrib(putNode, "url");
+		if (!putURLStr) {
+			[self _handleUploadFailure:@"Slot response <put> missing url attribute"];
+			return;
+		}
+
+		// Parse whitelisted <header> children from <put> (XEP-0363 §3.2)
+		NSMutableDictionary *headers = [NSMutableDictionary dictionary];
+		for (xmlnode *child = putNode->child; child; child = child->next) {
+			if (child->type != XMLNODE_TYPE_TAG || strcmp(child->name, "header") != 0) {
+				continue;
+			}
+			const char *nameAttr = xmlnode_get_attrib(child, "name");
+			const char *valueAttr = xmlnode_get_attrib(child, "value");
+			if (nameAttr && valueAttr) {
+				NSString *name = @(nameAttr);
+				if ([AllowedSlotHeaders() containsObject:name]) {
+					[headers setObject:@(valueAttr) forKey:name];
+				}
 			}
 		}
+		if ([headers count] > 0) {
+			_putHeaders = [headers copy];
+		}
+
+		// Extract <get url='...'>
+		xmlnode *getNode = xmlnode_get_child(slot, "get");
+		if (!getNode) {
+			[self _handleUploadFailure:@"Slot response missing <get> element"];
+			return;
+		}
+		const char *getURLStr = xmlnode_get_attrib(getNode, "url");
+		if (!getURLStr) {
+			[self _handleUploadFailure:@"Slot response <get> missing url attribute"];
+			return;
+		}
+
+		NSURL *putURL = [[NSURL alloc] initWithString:@(putURLStr)];
+		NSURL *getURL = [[NSURL alloc] initWithString:@(getURLStr)];
+
+		if (!putURL || !getURL) {
+			[putURL release];
+			[getURL release];
+			[self _handleUploadFailure:@"Slot response contained invalid URLs"];
+			return;
+		}
+
+		_putURL = putURL;
+		_getURL = getURL;
+
+		AILog(@"AMPurpleJabberHTTPUpload: Got slot: PUT %@ -> GET %@", _putURL, _getURL);
+
+		// Clean up slot query state before upload
+		[_slotQueryID release];
+		_slotQueryID = nil;
+
+		[self _doUpload];
 	}
-	if ([headers count] > 0) {
-		_putHeaders = [headers copy];
-	}
-
-	// Extract <get url='...'>
-	xmlnode *getNode = xmlnode_get_child(slot, "get");
-	if (!getNode) {
-		[self _handleUploadFailure:@"Slot response missing <get> element"];
-		return;
-	}
-	const char *getURLStr = xmlnode_get_attrib(getNode, "url");
-	if (!getURLStr) {
-		[self _handleUploadFailure:@"Slot response <get> missing url attribute"];
-		return;
-	}
-
-	NSURL *putURL = [[NSURL alloc] initWithString:@(putURLStr)];
-	NSURL *getURL = [[NSURL alloc] initWithString:@(getURLStr)];
-
-	if (!putURL || !getURL) {
-		[putURL release];
-		[getURL release];
-		[self _handleUploadFailure:@"Slot response contained invalid URLs"];
-		return;
-	}
-
-	_putURL = putURL;
-	_getURL = getURL;
-
-	AILog(@"AMPurpleJabberHTTPUpload: Got slot: PUT %@ -> GET %@", _putURL, _getURL);
-
-	// Clean up slot query state before upload
-	[_slotQueryID release];
-	_slotQueryID = nil;
-
-	[self _doUpload];
-}
 
 #pragma mark - Private: HTTP Upload
 
-- (void)_doUpload
-{
-	if (!_putURL || !_activeFileTransfer) {
-		[self _handleUploadFailure:@"Missing upload parameters"];
-		return;
+	-(void)_doUpload
+	{
+		if (!_putURL || !_activeFileTransfer) {
+			[self _handleUploadFailure:@"Missing upload parameters"];
+			return;
+		}
+
+		NSString *localPath = [_activeFileTransfer localFilename];
+		if (!localPath) {
+			[self _handleUploadFailure:@"File transfer has no local filename"];
+			return;
+		}
+
+		// Build the PUT request with slot headers
+		NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:_putURL];
+		[request setHTTPMethod:@"PUT"];
+
+		// Don't allow ATS exceptions per design decision
+		// ATS will block http:// URLs as required
+
+		// Set Content-Type from the transfer's content type (we already sent it in the slot request)
+		NSString *contentType = ContentTypeForFile(localPath);
+		[request setValue:contentType forHTTPHeaderField:@"Content-Type"];
+
+		// Content-Length is derived from the file
+		unsigned long long fileSize = [_activeFileTransfer size];
+		[request setValue:[NSString stringWithFormat:@"%llu", fileSize] forHTTPHeaderField:@"Content-Length"];
+
+		// Forward whitelisted headers from the slot response (XEP-0363 §3.2)
+		for (NSString *headerName in _putHeaders) {
+			[request setValue:[_putHeaders objectForKey:headerName] forHTTPHeaderField:headerName];
+		}
+
+		NSURL *fileURL = [NSURL fileURLWithPath:localPath];
+
+		// Create the session for this upload
+		NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+		_session = [[NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:nil] retain];
+
+		NSURLSessionUploadTask *task = [_session uploadTaskWithRequest:request fromFile:fileURL];
+		[task resume];
+
+		AILog(@"AMPurpleJabberHTTPUpload: Uploading %@ to %@", localPath, _putURL);
 	}
-
-	NSString *localPath = [_activeFileTransfer localFilename];
-	if (!localPath) {
-		[self _handleUploadFailure:@"File transfer has no local filename"];
-		return;
-	}
-
-	// Build the PUT request with slot headers
-	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:_putURL];
-	[request setHTTPMethod:@"PUT"];
-
-	// Don't allow ATS exceptions per design decision
-	// ATS will block http:// URLs as required
-
-	// Set Content-Type from the transfer's content type (we already sent it in the slot request)
-	NSString *contentType = ContentTypeForFile(localPath);
-	[request setValue:contentType forHTTPHeaderField:@"Content-Type"];
-
-	// Content-Length is derived from the file
-	unsigned long long fileSize = [_activeFileTransfer size];
-	[request setValue:[NSString stringWithFormat:@"%llu", fileSize] forHTTPHeaderField:@"Content-Length"];
-
-	// Forward whitelisted headers from the slot response (XEP-0363 §3.2)
-	for (NSString *headerName in _putHeaders) {
-		[request setValue:[_putHeaders objectForKey:headerName] forHTTPHeaderField:headerName];
-	}
-
-	NSURL *fileURL = [NSURL fileURLWithPath:localPath];
-
-	// Create the session for this upload
-	NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-	_session = [[NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:nil] retain];
-
-	NSURLSessionUploadTask *task = [_session uploadTaskWithRequest:request fromFile:fileURL];
-	[task resume];
-
-	AILog(@"AMPurpleJabberHTTPUpload: Uploading %@ to %@", localPath, _putURL);
-}
 
 #pragma mark - NSURLSessionTaskDelegate
 
-- (void)URLSession:(NSURLSession *)session
-						task:(NSURLSessionTask *)task
-			 didSendBodyData:(int64_t)bytesSent
-			  totalBytesSent:(int64_t)totalBytesSent
-	totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
-{
-	if (!_activeFileTransfer) {
-		return;
+	-(void)URLSession : (NSURLSession *)session task : (NSURLSessionTask *)task didSendBodyData
+		: (int64_t)bytesSent totalBytesSent : (int64_t)totalBytesSent totalBytesExpectedToSend
+		: (int64_t)totalBytesExpectedToSend
+	{
+		if (!_activeFileTransfer) {
+			return;
+		}
+
+		// Update progress on the main thread
+		ESFileTransfer *ft = _activeFileTransfer;
+		if (totalBytesExpectedToSend > 0) {
+			CGFloat percent = (CGFloat)totalBytesSent / (CGFloat)totalBytesExpectedToSend;
+			dispatch_async(dispatch_get_main_queue(), ^{
+				if (![ft isStopped]) {
+					[ft setPercentDone:percent bytesSent:(unsigned long long)totalBytesSent];
+				}
+			});
+		}
 	}
 
-	// Update progress on the main thread
-	ESFileTransfer *ft = _activeFileTransfer;
-	if (totalBytesExpectedToSend > 0) {
-		CGFloat percent = (CGFloat)totalBytesSent / (CGFloat)totalBytesExpectedToSend;
-		dispatch_async(dispatch_get_main_queue(), ^{
-			if (![ft isStopped]) {
-				[ft setPercentDone:percent bytesSent:(unsigned long long)totalBytesSent];
-			}
-		});
-	}
-}
+	-(void)URLSession : (NSURLSession *)session task : (NSURLSessionTask *)task didCompleteWithError
+		: (nullable NSError *)error
+	{
+		if (error) {
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[self _handleUploadFailure:[NSString
+											   stringWithFormat:@"Upload failed: %@", [error localizedDescription]]];
+			});
+			return;
+		}
 
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error
-{
-	if (error) {
-		dispatch_async(dispatch_get_main_queue(), ^{
-			[self _handleUploadFailure:[NSString stringWithFormat:@"Upload failed: %@", [error localizedDescription]]];
-		});
-		return;
-	}
+		NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
+		NSInteger statusCode = [httpResponse statusCode];
 
-	NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)task.response;
-	NSInteger statusCode = [httpResponse statusCode];
-
-	if (statusCode == 201) {
-		dispatch_async(dispatch_get_main_queue(), ^{
-			[self _sendShareMessage];
-		});
-	} else {
-		NSString *msg = [NSString stringWithFormat:@"Upload returned HTTP %ld", (long)statusCode];
-		dispatch_async(dispatch_get_main_queue(), ^{
-			[self _handleUploadFailure:msg];
-		});
+		if (statusCode == 201) {
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[self _sendShareMessage];
+			});
+		} else {
+			NSString *msg = [NSString stringWithFormat:@"Upload returned HTTP %ld", (long)statusCode];
+			dispatch_async(dispatch_get_main_queue(), ^{
+				[self _handleUploadFailure:msg];
+			});
+		}
 	}
-}
 
 #pragma mark - Private: Success / Failure
 
-- (void)_sendShareMessage
-{
-	if (!_activeFileTransfer) {
+	-(void)_sendShareMessage
+	{
+		if (!_activeFileTransfer) {
+			[self _cleanupUpload];
+			return;
+		}
+
+		AIListContact *contact = [_activeFileTransfer contact];
+		NSString *bareJID = [contact UID];
+		if (!bareJID) {
+			[self _handleUploadFailure:@"File transfer has no contact"];
+			return;
+		}
+
+		PurpleAccount *pa = [_account purpleAccount];
+		PurpleConnection *gc = purple_account_get_connection(pa);
+		if (!gc) {
+			[self _handleUploadFailure:@"Connection lost after upload"];
+			return;
+		}
+
+		NSString *body = [_getURL absoluteString];
+
+		NSString *message =
+			[NSString stringWithFormat:@"<message to='%@' type='chat'>"
+									   @"<body>%@</body>"
+									   @"<x xmlns='jabber:x:oob'><url>%@</url></x>"
+									   @"</message>",
+									   [self _xmlEscape:bareJID], [self _xmlEscape:body], [self _xmlEscape:body]];
+
+		jabber_prpl_send_raw(gc, [message UTF8String], -1);
+		AILog(@"AMPurpleJabberHTTPUpload: Sent share message for %@", body);
+
+		[_activeFileTransfer setRemoteFilename:body];
+		[_activeFileTransfer setStatus:Complete_FileTransfer];
+
 		[self _cleanupUpload];
-		return;
 	}
 
-	AIListContact *contact = [_activeFileTransfer contact];
-	NSString *bareJID = [contact UID];
-	if (!bareJID) {
-		[self _handleUploadFailure:@"File transfer has no contact"];
-		return;
+	-(void)_handleUploadFailure : (NSString *)reason
+	{
+		AILog(@"AMPurpleJabberHTTPUpload: Failure: %@", reason);
+
+		if (_activeFileTransfer && ![_activeFileTransfer isStopped]) {
+			[_activeFileTransfer setStatus:Failed_FileTransfer];
+			// Set remote filename to the error for diagnostic visibility
+			[_activeFileTransfer setRemoteFilename:reason];
+		}
+
+		[self _cleanupUpload];
 	}
 
-	PurpleAccount *pa = [_account purpleAccount];
-	PurpleConnection *gc = purple_account_get_connection(pa);
-	if (!gc) {
-		[self _handleUploadFailure:@"Connection lost after upload"];
-		return;
+	-(void)_cleanupUpload
+	{
+		[_slotQueryID release];
+		_slotQueryID = nil;
+		[_activeFileTransfer release];
+		_activeFileTransfer = nil;
+		[_putHeaders release];
+		_putHeaders = nil;
+		[_getURL release];
+		_getURL = nil;
+		[_putURL release];
+		_putURL = nil;
+		[_session invalidateAndCancel];
+		[_session release];
+		_session = nil;
 	}
-
-	NSString *body = [_getURL absoluteString];
-
-	NSString *message =
-		[NSString stringWithFormat:@"<message to='%@' type='chat'>"
-								   @"<body>%@</body>"
-								   @"<x xmlns='jabber:x:oob'><url>%@</url></x>"
-								   @"</message>",
-								   [self _xmlEscape:bareJID], [self _xmlEscape:body], [self _xmlEscape:body]];
-
-	jabber_prpl_send_raw(gc, [message UTF8String], -1);
-	AILog(@"AMPurpleJabberHTTPUpload: Sent share message for %@", body);
-
-	[_activeFileTransfer setRemoteFilename:body];
-	[_activeFileTransfer setStatus:Complete_FileTransfer];
-
-	[self _cleanupUpload];
-}
-
-- (void)_handleUploadFailure:(NSString *)reason
-{
-	AILog(@"AMPurpleJabberHTTPUpload: Failure: %@", reason);
-
-	if (_activeFileTransfer && ![_activeFileTransfer isStopped]) {
-		[_activeFileTransfer setStatus:Failed_FileTransfer];
-		// Set remote filename to the error for diagnostic visibility
-		[_activeFileTransfer setRemoteFilename:reason];
-	}
-
-	[self _cleanupUpload];
-}
-
-- (void)_cleanupUpload
-{
-	[_slotQueryID release];
-	_slotQueryID = nil;
-	[_activeFileTransfer release];
-	_activeFileTransfer = nil;
-	[_putHeaders release];
-	_putHeaders = nil;
-	[_getURL release];
-	_getURL = nil;
-	[_putURL release];
-	_putURL = nil;
-	[_session invalidateAndCancel];
-	[_session release];
-	_session = nil;
-}
 
 #pragma mark - Private: Helpers
 
-- (NSString *)_xmlEscape:(NSString *)str
-{
-	if (!str) {
-		return @"";
+	-(NSString *)_xmlEscape : (NSString *)str
+	{
+		if (!str) {
+			return @"";
+		}
+		NSMutableString *result = [[str mutableCopy] autorelease];
+		[result replaceOccurrencesOfString:@"&"
+								withString:@"&amp;"
+								   options:NSLiteralSearch
+									 range:NSMakeRange(0, [result length])];
+		[result replaceOccurrencesOfString:@"<"
+								withString:@"&lt;"
+								   options:NSLiteralSearch
+									 range:NSMakeRange(0, [result length])];
+		[result replaceOccurrencesOfString:@">"
+								withString:@"&gt;"
+								   options:NSLiteralSearch
+									 range:NSMakeRange(0, [result length])];
+		[result replaceOccurrencesOfString:@"'"
+								withString:@"&apos;"
+								   options:NSLiteralSearch
+									 range:NSMakeRange(0, [result length])];
+		[result replaceOccurrencesOfString:@"\""
+								withString:@"&quot;"
+								   options:NSLiteralSearch
+									 range:NSMakeRange(0, [result length])];
+		return result;
 	}
-	NSMutableString *result = [[str mutableCopy] autorelease];
-	[result replaceOccurrencesOfString:@"&"
-							withString:@"&amp;"
-							   options:NSLiteralSearch
-								 range:NSMakeRange(0, [result length])];
-	[result replaceOccurrencesOfString:@"<"
-							withString:@"&lt;"
-							   options:NSLiteralSearch
-								 range:NSMakeRange(0, [result length])];
-	[result replaceOccurrencesOfString:@">"
-							withString:@"&gt;"
-							   options:NSLiteralSearch
-								 range:NSMakeRange(0, [result length])];
-	[result replaceOccurrencesOfString:@"'"
-							withString:@"&apos;"
-							   options:NSLiteralSearch
-								 range:NSMakeRange(0, [result length])];
-	[result replaceOccurrencesOfString:@"\""
-							withString:@"&quot;"
-							   options:NSLiteralSearch
-								 range:NSMakeRange(0, [result length])];
-	return result;
-}
 
-@end
+	@end

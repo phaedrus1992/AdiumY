@@ -106,27 +106,26 @@ static NSMutableDictionary *lookupRequestsByQueryData = nil;
  */
 static void host_client_cb(CFHostRef theHost, CFHostInfoType typeInfo, const CFStreamError *streamError, void *info)
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	@autoreleasepool {
 
-	AdiumPurpleDnsRequest *self = (AdiumPurpleDnsRequest *)info;
-	if (streamError && (streamError->error != 0)) {
-		[self lookupFailedWithError:streamError];
-
-	} else {
-		Boolean hasBeenResolved;
-
-		/* CFHostGetAddressing retrieves the known addresses from the given host. Returns a
-		 CFArrayRef of addresses.  Each address is a CFDataRef wrapping a struct sockaddr. */
-		CFArrayRef addresses = CFHostGetAddressing(theHost, &hasBeenResolved);
-		if (hasBeenResolved) {
-			[self lookupSucceededWithAddresses:(NSArray *)addresses];
+		AdiumPurpleDnsRequest *self = (AdiumPurpleDnsRequest *)info;
+		if (streamError && (streamError->error != 0)) {
+			[self lookupFailedWithError:streamError];
 
 		} else {
-			[self lookupFailedWithError:NULL];
+			Boolean hasBeenResolved;
+
+			/* CFHostGetAddressing retrieves the known addresses from the given host. Returns a
+			 CFArrayRef of addresses.  Each address is a CFDataRef wrapping a struct sockaddr. */
+			CFArrayRef addresses = CFHostGetAddressing(theHost, &hasBeenResolved);
+			if (hasBeenResolved) {
+				[self lookupSucceededWithAddresses:(NSArray *)addresses];
+
+			} else {
+				[self lookupFailedWithError:NULL];
+			}
 		}
 	}
-
-	[pool release];
 }
 
 /*!
