@@ -110,7 +110,7 @@ typedef enum {
 	NSMutableDictionary *participatingContactsAliases;
 	NSMutableArray *participatingContacts;
 
-	AIListContact *preferredContact;
+	__weak AIListContact *preferredContact;
 	NSString *name;
 	NSString *uniqueChatID;
 	id identifier;
@@ -181,7 +181,7 @@ typedef enum {
 
 //
 @property(readwrite, nonatomic, retain) AIListContact *listObject;
-@property(readwrite, nonatomic, assign) AIListContact *preferredListObject;
+@property(readwrite, nonatomic, weak) AIListContact *preferredListObject;
 - (BOOL)inviteListContact:(AIListContact *)inObject withMessage:(NSString *)inviteMessage;
 
 - (BOOL)shouldBeginSendingContentObject:(AIContentObject *)inObject;

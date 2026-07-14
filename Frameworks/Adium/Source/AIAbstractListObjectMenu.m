@@ -54,7 +54,7 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:AIServiceIconSetDidChangeNotification object:nil];
 	[self _destroyMenuItems];
 
-	[super dealloc];
+
 }
 
 /*!
@@ -63,7 +63,7 @@
 - (NSArray *)menuItems
 {
 	if (!menuItems) {
-		menuItems = [[self buildMenuItems] retain];
+		menuItems = [self buildMenuItems];
 	}
 
 	return menuItems;
@@ -78,7 +78,7 @@
 - (NSMenu *)menu
 {
 	if (!menu) {
-		menu = [[NSMenu allocWithZone:[NSMenu zone]] init];
+		menu = [[NSMenu alloc] init];
 
 		[menu setMenuChangedMessagesEnabled:NO];
 		for (NSMenuItem *menuItem in self.menuItems)
@@ -99,11 +99,11 @@
 {
 	for (NSMenuItem *menuItem in self.menuItems) {
 		if ([menuItem representedObject] == object) {
-			return [[menuItem retain] autorelease];
+			return menuItem;
 		} else if ([menuItem submenu]) {
 			for (NSMenuItem *submenuItem in menuItem.submenu.itemArray) {
 				if ([submenuItem representedObject] == object)
-					return [[submenuItem retain] autorelease];
+					return submenuItem;
 			}
 		}
 	}
@@ -124,9 +124,9 @@
  */
 - (void)_destroyMenuItems
 {
-	[menu release];
+
 	menu = nil;
-	[menuItems release];
+
 	menuItems = nil;
 }
 
@@ -179,7 +179,7 @@
 	[secondaryIcon drawInRect:compositeRect atSize:[secondaryIcon size] position:IMAGE_POSITION_RIGHT fraction:1.0f];
 	[composite unlockFocus];
 
-	return [composite autorelease];
+	return composite;
 }
 
 @end

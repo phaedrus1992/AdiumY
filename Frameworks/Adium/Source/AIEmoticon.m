@@ -43,7 +43,7 @@
 					  name:(NSString *)inName
 					  pack:(AIEmoticonPack *)inPack
 {
-	return [[[self alloc] initWithIconPath:inPath equivalents:inTextEquivalents name:inName pack:inPack] autorelease];
+	return [[self alloc] initWithIconPath:inPath equivalents:inTextEquivalents name:inName pack:inPack];
 }
 
 // Init
@@ -53,10 +53,10 @@
 							pack:(AIEmoticonPack *)inPack
 {
 	if ((self = [super init])) {
-		path = [inPath retain];
-		name = [inName retain];
-		textEquivalents = [inTextEquivalents retain];
-		pack = [inPack retain];
+		 path = inPath;
+		 name = inName;
+		 textEquivalents = inTextEquivalents;
+		 pack = inPack;
 		imageLoaded = NO;
 		_cachedAttributedString = nil;
 	}
@@ -67,13 +67,13 @@
 // Dealloc
 - (void)dealloc
 {
-	[path release];
-	[name release];
-	[textEquivalents release];
-	[pack release];
-	[_cachedAttributedString release];
 
-	[super dealloc];
+
+
+
+
+
+
 }
 
 /*!
@@ -96,7 +96,7 @@
 - (void)flushEmoticonImageCache
 {
 	imageLoaded = NO;
-	[_cachedAttributedString release];
+
 	_cachedAttributedString = nil;
 }
 
@@ -139,7 +139,7 @@
  */
 - (NSImage *)image
 {
-	return [[[NSImage alloc] initWithContentsOfFile:path] autorelease];
+	return [[NSImage alloc] initWithContentsOfFile:path];
 }
 
 /*!
@@ -148,10 +148,10 @@
 - (void)setPath:(NSString *)inPath
 {
 	if (path != inPath) {
-		[path release];
-		path = [inPath retain];
 
-		[_cachedAttributedString release];
+		 path = inPath;
+
+
 		_cachedAttributedString = nil;
 	}
 }
@@ -182,19 +182,19 @@
 	});
 	__block NSMutableAttributedString *attributedString;
 	dispatch_sync(cacheQueue, ^{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		@autoreleasepool {
 		AITextAttachmentExtension *attachment;
 
 		// Cache this attachment for ourself if we don't already have a cache, or if our cache needs to have an image
 		// attached
 
 		if (!_cachedAttributedString || (!imageLoaded && attach)) {
-			[_cachedAttributedString release]; // for the second half of the conditional
-			AITextAttachmentExtension *emoticonAttachment = [[[AITextAttachmentExtension alloc] init] autorelease];
+			// for the second half of the conditional
+			AITextAttachmentExtension *emoticonAttachment = [[AITextAttachmentExtension alloc] init];
 			if (!path || attach) {
 				NSTextAttachmentCell *cell = [[NSTextAttachmentCell alloc] initImageCell:[self image]];
 				[emoticonAttachment setAttachmentCell:cell];
-				[cell release];
+
 				imageLoaded = YES;
 			}
 
@@ -205,7 +205,7 @@
 			// Emoticons should not ever be sent out as images
 			[emoticonAttachment setShouldAlwaysSendAsText:YES];
 
-			_cachedAttributedString = [[NSAttributedString attributedStringWithAttachment:emoticonAttachment] retain];
+			_cachedAttributedString = [NSAttributedString attributedStringWithAttachment:emoticonAttachment];
 		}
 
 		// Create a copy of our cached string, and update it for the new text equivalent
@@ -215,10 +215,11 @@
 								 value:attachment
 								 range:NSMakeRange(0, [attributedString length])];
 		[attachment setString:textEquivalent];
-		[attachment release];
-		[pool release];
-	});
-	return [attributedString autorelease];
+
+
+			}
+			});
+	return attributedString;
 }
 
 /*!

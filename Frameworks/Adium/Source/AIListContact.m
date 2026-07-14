@@ -56,7 +56,7 @@
 - (id)initWithUID:(NSString *)inUID account:(AIAccount *)inAccount service:(AIService *)inService
 {
 	if ((self = [self initWithUID:inUID service:inService])) {
-		account = [inAccount retain];
+		 account = inAccount;
 	}
 
 	return self;
@@ -76,35 +76,35 @@
 
 - (void)dealloc
 {
-	[account release];
+
 	account = nil;
-	[m_remoteGroupNames release];
+
 	m_remoteGroupNames = nil;
-	[internalUniqueObjectID release];
+
 	internalUniqueObjectID = nil;
 
-	[textColor release];
+
 	textColor = nil;
-	[invertedTextColor release];
+
 	invertedTextColor = nil;
-	[labelColor release];
+
 	labelColor = nil;
-	[imageOpacity release];
+
 	imageOpacity = nil;
-	[ABUniqueID release];
+
 	ABUniqueID = nil;
-	[textProfile release];
+
 	textProfile = nil;
-	[idleSince release];
+
 	idleSince = nil;
-	[idleReadable release];
+
 	idleReadable = nil;
-	[serverDisplayName release];
+
 	serverDisplayName = nil;
-	[formattedUID release];
+
 	formattedUID = nil;
 
-	[super dealloc];
+
 }
 
 // The account that owns this contact
@@ -119,11 +119,11 @@
 - (void)setUID:(NSString *)inUID
 {
 	if (UID != inUID) {
-		[UID release];
-		UID = [inUID retain];
-		[internalObjectID release];
+
+		 UID = inUID;
+
 		internalObjectID = nil;
-		[internalUniqueObjectID release];
+
 		internalUniqueObjectID = nil;
 	}
 }
@@ -133,9 +133,9 @@
 - (NSString *)internalUniqueObjectID
 {
 	if (!internalUniqueObjectID) {
-		internalUniqueObjectID = [[AIListContact internalUniqueObjectIDForService:self.service
+		internalUniqueObjectID = [AIListContact internalUniqueObjectIDForService:self.service
 																		  account:self.account
-																			  UID:self.UID] retain];
+																			  UID:self.UID];
 	}
 	return internalUniqueObjectID;
 }
@@ -154,7 +154,7 @@
 
 - (NSSet *)remoteGroupNames
 {
-	return [[m_remoteGroupNames copy] autorelease];
+	return [m_remoteGroupNames copy];
 }
 
 - (void)setRemoteGroupNames:(NSSet *)inGroupNames
@@ -323,7 +323,7 @@
 						userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:@"Notify"]];
 	}
 
-	[cleanedAlias release];
+
 }
 
 /*!
@@ -651,7 +651,7 @@
 
 			if (descriptionOfStatus)
 				contactListStatusMessage =
-					[[[NSAttributedString alloc] initWithString:descriptionOfStatus] autorelease];
+					[[NSAttributedString alloc] initWithString:descriptionOfStatus];
 		}
 	}
 
@@ -867,11 +867,11 @@
 - (NSScriptObjectSpecifier *)objectSpecifier
 {
 	NSScriptObjectSpecifier *containerRef = self.account.objectSpecifier;
-	return [[[NSNameSpecifier allocWithZone:[self zone]]
+	return [[NSNameSpecifier alloc]
 		initWithContainerClassDescription:[containerRef keyClassDescription]
 					   containerSpecifier:containerRef
 									  key:@"contacts"
-									 name:self.UID] autorelease];
+									 name:self.UID];
 }
 
 - (BOOL)scriptingBlocked

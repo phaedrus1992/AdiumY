@@ -22,7 +22,7 @@
 #define DROP_HIGHLIGHT_HEIGHT_MARGIN 1.0f
 
 @interface AIListCell : NSCell {
-	AIListOutlineView *outlineControlView;
+	__unsafe_unretained AIListOutlineView *outlineControlView;
 	AIProxyListObject *proxyObject;
 	BOOL isGroup;
 
@@ -52,7 +52,7 @@
 
 - (void)setProxyListObject:(AIProxyListObject *)inObject;
 @property(readonly, nonatomic) BOOL isGroup;
-@property(readwrite, assign, nonatomic) AIListOutlineView *outlineControlView;
+@property(readwrite, assign, nonatomic) __unsafe_unretained AIListOutlineView *outlineControlView;
 
 // Display options
 @property(readwrite, nonatomic) NSTextAlignment textAlignment;

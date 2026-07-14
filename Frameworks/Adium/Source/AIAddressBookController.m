@@ -129,7 +129,7 @@ NSString *serviceIDForJabberUID(NSString *UID);
 								});
 							}
 						}];
-		[store release];
+
 	} else if (status == CNAuthorizationStatusAuthorized) {
 		addressBookController = [[self alloc] init];
 	}
@@ -156,8 +156,8 @@ NSString *serviceIDForJabberUID(NSString *UID);
 
 		// If Contacts integration is enabled, we need those preferences to determine contact's names
 		if (enableImport) {
-			displayFormat = [[adium.preferenceController preferenceForKey:KEY_AB_DISPLAYFORMAT
-																	group:PREF_GROUP_ADDRESSBOOK] retain];
+			displayFormat = [adium.preferenceController preferenceForKey:KEY_AB_DISPLAYFORMAT
+																	group:PREF_GROUP_ADDRESSBOOK];
 			useFirstName = [[adium.preferenceController preferenceForKey:KEY_AB_USE_FIRSTNAME
 																   group:PREF_GROUP_ADDRESSBOOK] boolValue];
 			useNickNameOnly = [[adium.preferenceController preferenceForKey:KEY_AB_USE_NICKNAME
@@ -167,7 +167,7 @@ NSString *serviceIDForJabberUID(NSString *UID);
 		// If old format-menu preference is set, perform migration
 		if ([adium.preferenceController preferenceForKey:@"AB Display Format" group:PREF_GROUP_ADDRESSBOOK]) {
 
-			[displayFormat release];
+
 
 			NSInteger oldPreference =
 				[[adium.preferenceController preferenceForKey:@"AB Display Format"
@@ -178,7 +178,7 @@ NSString *serviceIDForJabberUID(NSString *UID);
 				displayFormat = [[NSString alloc] initWithFormat:@"%@ %@", FORMAT_FIRST_FULL, FORMAT_LAST_FULL];
 				break;
 			case 1: // first
-				displayFormat = [FORMAT_FIRST_FULL retain];
+				 displayFormat = FORMAT_FIRST_FULL;
 				break;
 			case 2: // lastfirst
 				displayFormat = [[NSString alloc] initWithFormat:@"%@, %@", FORMAT_LAST_FULL, FORMAT_FIRST_FULL];
@@ -280,28 +280,28 @@ NSString *serviceIDForJabberUID(NSString *UID);
 	[adium.preferenceController unregisterPreferenceObserver:addressBookController];
 	[[NSNotificationCenter defaultCenter] removeObserver:addressBookController];
 
-	[addressBookController release];
+
 	addressBookController = nil;
 }
 
 - (void)dealloc
 {
-	[serviceDict release];
+
 	serviceDict = nil;
 
-	[contactStore release];
+
 	contactStore = nil;
-	[personUniqueIdToMetaContactDict release];
+
 	personUniqueIdToMetaContactDict = nil;
 
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
-	[displayFormat release];
+
 	displayFormat = nil;
 
-	[super dealloc];
+
 }
 
 /*!
@@ -314,25 +314,25 @@ NSString *serviceIDForJabberUID(NSString *UID);
 {
 	// Create our contextual menus
 	showInABContextualMenuItem =
-		[[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:SHOW_IN_AB_CONTEXTUAL_MENU_TITLE
+		[[NSMenuItem alloc] initWithTitle:SHOW_IN_AB_CONTEXTUAL_MENU_TITLE
 															  action:@selector(showInAddressBook)
-													   keyEquivalent:@""] autorelease];
+													   keyEquivalent:@""];
 	[showInABContextualMenuItem setTarget:self];
 	[showInABContextualMenuItem setTag:AIRequiresAddressBookEntry];
 
 	editInABContextualMenuItem =
-		[[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:EDIT_IN_AB_CONTEXTUAL_MENU_TITLE
+		[[NSMenuItem alloc] initWithTitle:EDIT_IN_AB_CONTEXTUAL_MENU_TITLE
 															  action:@selector(editInAddressBook)
-													   keyEquivalent:@""] autorelease];
+													   keyEquivalent:@""];
 	[editInABContextualMenuItem setTarget:self];
 	[editInABContextualMenuItem setKeyEquivalentModifierMask:NSAlternateKeyMask];
 	[editInABContextualMenuItem setAlternate:YES];
 	[editInABContextualMenuItem setTag:AIRequiresAddressBookEntry];
 
 	addToABContexualMenuItem =
-		[[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:ADD_TO_AB_CONTEXTUAL_MENU_TITLE
+		[[NSMenuItem alloc] initWithTitle:ADD_TO_AB_CONTEXTUAL_MENU_TITLE
 															  action:@selector(addToAddressBook)
-													   keyEquivalent:@""] autorelease];
+													   keyEquivalent:@""];
 	[addToABContexualMenuItem setTarget:self];
 	[addToABContexualMenuItem setTag:AIRequiresNoAddressBookEntry];
 
@@ -482,7 +482,7 @@ NSString *serviceIDForJabberUID(NSString *UID);
 		if (person && ![[self meContactIdentifier] isEqualToString:person.identifier]) {
 			NSData *existingImageData = person.imageData;
 			NSImage *existingImage =
-				(existingImageData ? [[[NSImage alloc] initWithData:existingImageData] autorelease] : nil);
+				(existingImageData ? [[NSImage alloc] initWithData:existingImageData] : nil);
 			NSImage *objectUserIcon = [listContact userIcon];
 
 			if (!existingImage || objectUserIcon) {
@@ -500,8 +500,8 @@ NSString *serviceIDForJabberUID(NSString *UID);
 						AILogWithSignature(@"Error saving image to contact %@: %@", person.identifier, error);
 					}
 
-					[mutablePerson release];
-					[saveRequest release];
+
+
 				}
 			}
 		}
@@ -633,7 +633,7 @@ NSString *serviceIDForJabberUID(NSString *UID);
 	automaticUserIconSync = [[prefDict objectForKey:KEY_AB_IMAGE_SYNC] boolValue];
 	useFirstName = [[prefDict objectForKey:KEY_AB_USE_FIRSTNAME] boolValue];
 	useNickNameOnly = [[prefDict objectForKey:KEY_AB_USE_NICKNAME] boolValue];
-	displayFormat = [[prefDict objectForKey:KEY_AB_DISPLAYFORMAT] retain];
+	displayFormat = [prefDict objectForKey:KEY_AB_DISPLAYFORMAT];
 
 	createMetaContacts = [[prefDict objectForKey:KEY_AB_CREATE_METACONTACTS] boolValue];
 
@@ -1063,7 +1063,7 @@ NSString *serviceIDForJabberUID(NSString *UID);
 	// Delay listObjectNotifications to speed up metaContact creation
 	[[AIContactObserverManager sharedManager] delayListObjectNotifications];
 
-	[addressBookDict release];
+
 	addressBookDict = [[NSMutableDictionary alloc] init];
 
 	// Fetch all contacts and populate the cache
@@ -1074,7 +1074,7 @@ NSString *serviceIDForJabberUID(NSString *UID);
 										 usingBlock:^(CNContact *contact, BOOL *stop) {
 											 [self addToAddressBookDict:[NSArray arrayWithObject:contact]];
 										 }];
-	[fetchRequest release];
+
 
 	if (error) {
 		AILogWithSignature(@"Error enumerating contacts: %@", error);
@@ -1167,7 +1167,7 @@ NSString *serviceIDForJabberUID(NSString *UID)
 			if ([email hasSuffix:@"@mac.com"]) {
 				//@mac.com UIDs go into the AIM dictionary
 				if (!(dict = [addressBookDict objectForKey:@"AIM"])) {
-					dict = [[[NSMutableDictionary alloc] init] autorelease];
+					dict = [[NSMutableDictionary alloc] init];
 					[addressBookDict setObject:dict forKey:@"AIM"];
 				}
 
@@ -1180,7 +1180,7 @@ NSString *serviceIDForJabberUID(NSString *UID)
 			} else if ([email hasSuffix:@"me.com"]) {
 				//@me.com UIDs go into the AIM dictionary
 				if (!(dict = [addressBookDict objectForKey:@"AIM"])) {
-					dict = [[[NSMutableDictionary alloc] init] autorelease];
+					dict = [[NSMutableDictionary alloc] init];
 					[addressBookDict setObject:dict forKey:@"AIM"];
 				}
 
@@ -1193,7 +1193,7 @@ NSString *serviceIDForJabberUID(NSString *UID)
 			} else if ([email hasSuffix:@"gmail.com"] || [email hasSuffix:@"googlemail.com"]) {
 				// GTalk UIDs go into the Jabber dictionary
 				if (!(dict = [addressBookDict objectForKey:@"Jabber"])) {
-					dict = [[[NSMutableDictionary alloc] init] autorelease];
+					dict = [[NSMutableDictionary alloc] init];
 					[addressBookDict setObject:dict forKey:@"Jabber"];
 				}
 
@@ -1206,7 +1206,7 @@ NSString *serviceIDForJabberUID(NSString *UID)
 			} else if ([email hasSuffix:@"hotmail.com"]) {
 				// Hotmail UIDs go into the MSN dictionary
 				if (!(dict = [addressBookDict objectForKey:@"MSN"])) {
-					dict = [[[NSMutableDictionary alloc] init] autorelease];
+					dict = [[NSMutableDictionary alloc] init];
 					[addressBookDict setObject:dict forKey:@"MSN"];
 				}
 
@@ -1230,7 +1230,7 @@ NSString *serviceIDForJabberUID(NSString *UID)
 					continue;
 				NSString *facebookUID = [NSString stringWithFormat:@"-%@@chat.facebook.com", facebookNumber];
 				if (!(dict = [addressBookDict objectForKey:@"Facebook"])) {
-					dict = [[[NSMutableDictionary alloc] init] autorelease];
+					dict = [[NSMutableDictionary alloc] init];
 					[addressBookDict setObject:dict forKey:@"Facebook"];
 				}
 
@@ -1275,7 +1275,7 @@ NSString *serviceIDForJabberUID(NSString *UID)
 			if (!(dict = [addressBookDict objectForKey:serviceID])) {
 				dict = [[NSMutableDictionary alloc] init];
 				[addressBookDict setObject:dict forKey:serviceID];
-				[dict release];
+
 			}
 
 			[dict setObject:personID forKey:[UID compactedString]];
@@ -1323,9 +1323,9 @@ NSString *serviceIDForJabberUID(NSString *UID)
 				[personUniqueIdToMetaContactDict setObject:metaContact forKey:uniqueId];
 				if (metaContact != metaContactHint) {
 					// Keep track of the use of this metacontact for this address book card
-					NSMutableDictionary *prefsDict = [[[adium.preferenceController
+					NSMutableDictionary *prefsDict = [[adium.preferenceController
 						preferenceForKey:KEY_AB_TO_METACONTACT_DICT
-								   group:PREF_GROUP_ADDRESSBOOK] mutableCopy] autorelease];
+								   group:PREF_GROUP_ADDRESSBOOK] mutableCopy];
 					if (!prefsDict)
 						prefsDict = [NSMutableDictionary dictionary];
 					[prefsDict setObject:[metaContact objectID] forKey:uniqueId];
@@ -1456,15 +1456,15 @@ NSString *serviceIDForJabberUID(NSString *UID)
 			continue;
 
 		/* Gather existing instant message addresses or create a new array */
-		NSMutableArray *imAddresses = [[newContact.instantMessageAddresses mutableCopy] autorelease];
+		NSMutableArray *imAddresses = [newContact.instantMessageAddresses mutableCopy];
 		if (!imAddresses)
 			imAddresses = [NSMutableArray array];
 
 		CNInstantMessageAddress *imAddress = [[CNInstantMessageAddress alloc] initWithUsername:UID
 																					   service:serviceProperty];
-		[imAddresses addObject:[CNLabeledValue labeledValueWithLabel:CNLabelInstantMessage value:imAddress]];
+		[imAddresses addObject:[CNLabeledValue labeledValueWithLabel:nil value:imAddress]];
 		newContact.instantMessageAddresses = imAddresses;
-		[imAddress release];
+
 
 		validForAddition = YES;
 	}
@@ -1490,7 +1490,7 @@ NSString *serviceIDForJabberUID(NSString *UID)
 			if (alertResult == NSOKButton) {
 				NSString *url = [[NSString alloc] initWithFormat:@"addressbook://%@?edit", newContact.identifier];
 				[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:url]];
-				[url release];
+
 			}
 
 			success = YES;
@@ -1498,14 +1498,14 @@ NSString *serviceIDForJabberUID(NSString *UID)
 			AILogWithSignature(@"Error adding contact: %@", error);
 		}
 
-		[saveRequest release];
+
 	}
 
 	if (!success)
 		NSRunAlertPanel(CONTACT_ADDED_ERROR_TITLE, CONTACT_ADDED_ERROR_Message, nil, nil, nil, contact.displayName);
 
 	// Clean up
-	[newContact release];
+
 }
 
 @end

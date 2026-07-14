@@ -336,8 +336,8 @@ static NSString *horizontalRule = nil;
 						[string appendString:[NSString stringWithFormat:@" FACE=\"%@\"", familyName]];
 					}
 				}
-				[currentFamily release];
-				currentFamily = [familyName retain];
+
+				 currentFamily = familyName;
 			}
 
 			// Size
@@ -433,7 +433,7 @@ static NSString *horizontalRule = nil;
 				 */
 				if (thingsToInclude.allowAIMsubprofileLinks &&
 					([linkString rangeOfString:@"%25n"].location != NSNotFound)) {
-					NSMutableString *fixedLinkString = [[linkString mutableCopy] autorelease];
+					NSMutableString *fixedLinkString = [linkString mutableCopy];
 					[fixedLinkString replaceOccurrencesOfString:@"%25n"
 													 withString:@"%n"
 														options:NSLiteralSearch
@@ -531,7 +531,7 @@ static NSString *horizontalRule = nil;
 												 :shouldSaveImage];
 
 							// We were succesful appending the image tag, so release this chunk
-							[chunk release];
+
 							chunk = nil;
 						}
 					}
@@ -543,7 +543,7 @@ static NSString *horizontalRule = nil;
 							[string appendString:attachmentString];
 						}
 
-						[chunk release];
+
 						chunk = nil;
 					}
 				}
@@ -668,13 +668,13 @@ static NSString *horizontalRule = nil;
 			}
 
 			// Release the chunk
-			[chunk release];
+
 		}
 
 		searchRange.location += searchRange.length;
 	}
 
-	[currentFamily release];
+
 
 	// Finish off the HTML
 	if (thingsToInclude.styleTags) {
@@ -830,9 +830,9 @@ static NSString *horizontalRule = nil;
 }
 - (NSDictionary *)attributesByReplacingNSFontAttributeNameWithAIFontAttributeNames:(NSDictionary *)attributes
 {
-	NSFont *font = [[attributes objectForKey:NSFontAttributeName] retain];
+	NSFont *font = [attributes objectForKey:NSFontAttributeName];
 	if (!font) {
-		return [[attributes retain] autorelease];
+		return attributes;
 	} else {
 		NSMutableDictionary *mutableAttributes = [attributes mutableCopy];
 
@@ -851,10 +851,10 @@ static NSString *horizontalRule = nil;
 			[mutableAttributes setObject:@"italic" forKey:AIFontStyleAttributeName];
 		}
 
-		[font release];
+
 
 		NSDictionary *result = [NSDictionary dictionaryWithDictionary:mutableAttributes];
-		[mutableAttributes release];
+
 		return result;
 	}
 }
@@ -904,7 +904,7 @@ static NSString *horizontalRule = nil;
 	[elementStack addObject:divElement];
 	[attributeNamesStack addObject:emptySet];
 
-	NSMutableSet *CSSCapableAttributes = [[[NSAttributedString CSSCapableAttributesSet] mutableCopy] autorelease];
+	NSMutableSet *CSSCapableAttributes = [[NSAttributedString CSSCapableAttributesSet] mutableCopy];
 	[CSSCapableAttributes addObject:NSLinkAttributeName];
 	NSSet *CSSCapableAttributesWithNoAttachment = [NSSet setWithSet:CSSCapableAttributes];
 	[CSSCapableAttributes addObject:NSAttachmentAttributeName];
@@ -941,7 +941,7 @@ static NSString *horizontalRule = nil;
 					++popRange.length;
 
 					NSMutableSet *attributeNames = [attributeNamesStack objectAtIndex:popRange.location];
-					NSMutableSet *intersection = [[attributeNames mutableCopy] autorelease];
+					NSMutableSet *intersection = [attributeNames mutableCopy];
 					[intersection intersectSet:mutableEndedKeys];
 
 					[attributeNames minusSet:intersection];
@@ -974,11 +974,11 @@ static NSString *horizontalRule = nil;
 				}
 			}
 
-			[mutableEndedKeys release];
+
 		}
 
 		// Now handle attributes that have started or changed.
-		NSMutableString *elementContent = [[[inMessageString substringWithRange:runRange] mutableCopy] autorelease];
+		NSMutableString *elementContent = [[inMessageString substringWithRange:runRange] mutableCopy];
 
 		BOOL addElementContentToTopElement;
 		if ([startedKeys count]) {
@@ -997,7 +997,7 @@ static NSString *horizontalRule = nil;
 				[item addObject:[NSNumber numberWithUnsignedInteger:attributeRange.length]];
 				[item addObject:attributeName];
 				[startedKeysArray replaceObjectAtIndex:i withObject:item];
-				[item release];
+
 			}
 			// Sort. Items will be sorted first by length, then by attribute name.
 			[startedKeysArray sortUsingSelector:@selector(compare:)];
@@ -1040,7 +1040,7 @@ static NSString *horizontalRule = nil;
 					[[elementStack lastObject] addObject:elementContent];
 				}
 			}
-			[startedKeysArray release];
+
 
 		} else {
 			addElementContentToTopElement = YES;
@@ -1089,7 +1089,7 @@ static NSString *horizontalRule = nil;
 - (NSAttributedString *)decodeHTML:(NSString *)inMessage withDefaultAttributes:(NSDictionary *)inDefaultAttributes
 {
 	if (!inMessage)
-		return [[[NSAttributedString alloc] init] autorelease];
+		return [[NSAttributedString alloc] init];
 
 	NSScanner *scanner;
 	static NSCharacterSet *tagCharStart = nil, *tagEnd = nil, *charEnd = nil, *absoluteTagEnd = nil;
@@ -1109,19 +1109,19 @@ static NSString *horizontalRule = nil;
 	if (inDefaultAttributes) {
 		textAttributes = [AITextAttributes textAttributesWithDictionary:inDefaultAttributes];
 	} else {
-		textAttributes = [[[AITextAttributes alloc] init] autorelease];
+		textAttributes = [[AITextAttributes alloc] init];
 	}
 
 	attrString = [[NSMutableAttributedString alloc] init];
 
 	if (!tagCharStart)
-		tagCharStart = [[NSCharacterSet characterSetWithCharactersInString:@"<&"] retain];
+				tagCharStart = [NSCharacterSet characterSetWithCharactersInString:@"<&"];
 	if (!tagEnd)
-		tagEnd = [[NSCharacterSet characterSetWithCharactersInString:@" >"] retain];
+		tagEnd = [NSCharacterSet characterSetWithCharactersInString:@" >"];
 	if (!charEnd)
-		charEnd = [[NSCharacterSet characterSetWithCharactersInString:@";"] retain];
+		charEnd = [NSCharacterSet characterSetWithCharactersInString:@";"];
 	if (!absoluteTagEnd)
-		absoluteTagEnd = [[NSCharacterSet characterSetWithCharactersInString:@">"] retain];
+		absoluteTagEnd = [NSCharacterSet characterSetWithCharactersInString:@">"];
 
 	scanner = [NSScanner scannerWithString:inMessage];
 	[scanner setCharactersToBeSkipped:[NSCharacterSet characterSetWithCharactersInString:@""]];
@@ -1134,7 +1134,7 @@ static NSString *horizontalRule = nil;
 		 * All characters before the next HTML entity are textual characters in the current textAttributes. We append
 		 * those characters to our final attributed string with the desired attributes before continuing.
 		 */
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		@autoreleasepool {
 		if ([scanner scanUpToCharactersFromSet:tagCharStart intoString:&chunkString]) {
 			id languageValue = [textAttributes languageValue];
 
@@ -1197,8 +1197,7 @@ static NSString *horizontalRule = nil;
 
 					} else if ([chunkString caseInsensitiveCompare:@"/HTML"] == NSOrderedSame) {
 						// We are done
-						[pool release];
-						pool = nil;
+
 						break;
 
 						// PRE -- ignore attributes for logViewer
@@ -1376,8 +1375,8 @@ static NSString *horizontalRule = nil;
 						// Base URL tag
 					} else if ([chunkString caseInsensitiveCompare:@"BASE"] == NSOrderedSame) {
 						if ([scanner scanUpToCharactersFromSet:absoluteTagEnd intoString:&chunkString]) {
-							[myBaseURL release];
-							myBaseURL = [[[self parseArguments:chunkString] objectForKey:@"href"] retain];
+
+							myBaseURL = [[self parseArguments:chunkString] objectForKey:@"href"];
 						}
 						// Ignore <meta> tags
 					} else if ([chunkString caseInsensitiveCompare:@"META"] == NSOrderedSame ||
@@ -1489,7 +1488,8 @@ static NSString *horizontalRule = nil;
 				}
 			}
 		}
-		[pool release];
+
+		}
 	}
 
 	/* If the string has a constant NSBackgroundColorAttributeName attribute and no AIBodyColorAttributeName,
@@ -1507,9 +1507,9 @@ static NSString *horizontalRule = nil;
 		}
 	}
 
-	[myBaseURL release];
 
-	return [attrString autorelease];
+
+	return attrString;
 }
 
 #pragma mark Tag-parsing
@@ -1784,7 +1784,7 @@ static NSString *horizontalRule = nil;
 
 					// Take out the background-color attribute, so that the following search for color: does not match
 					// it.
-					NSMutableString *mStyle = [[style mutableCopy] autorelease];
+					NSMutableString *mStyle = [style mutableCopy];
 					[mStyle replaceCharactersInRange:attributeRange
 										  withString:@"onpxtebhaq-pbybe:"]; // ROT13('background-color: ')
 					style = mStyle;
@@ -1860,7 +1860,7 @@ static NSString *horizontalRule = nil;
 			 * decidedly invalid.
 			 */
 			if ([linkString rangeOfString:@"%n"].location != NSNotFound) {
-				NSMutableString *newLinkString = [[linkString mutableCopy] autorelease];
+				NSMutableString *newLinkString = [linkString mutableCopy];
 				[newLinkString replaceOccurrencesOfString:@"%n"
 											   withString:@"%25n"
 												  options:NSLiteralSearch
@@ -1914,7 +1914,7 @@ static NSString *horizontalRule = nil;
 								  baseURL:(NSString *)inBaseURL
 {
 	NSAttributedString *attachString;
-	AITextAttachmentExtension *attachment = [[[AITextAttachmentExtension alloc] init] autorelease];
+	AITextAttachmentExtension *attachment = [[AITextAttachmentExtension alloc] init];
 
 	for (NSString *arg in inArgs) {
 		if ([arg caseInsensitiveCompare:@"src"] == NSOrderedSame) {
@@ -1960,7 +1960,7 @@ static NSString *horizontalRule = nil;
 	if (image) {
 		NSTextAttachmentCell *cell = [[NSTextAttachmentCell alloc] initImageCell:image];
 		[attachment setAttachmentCell:cell];
-		[cell release];
+
 
 		attachString = [NSAttributedString attributedStringWithAttachment:attachment];
 	} else {

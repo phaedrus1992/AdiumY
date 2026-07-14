@@ -19,7 +19,7 @@
  */
 + (id)descriptorWithAEDescNoCopy:(const AEDesc *)aDesc
 {
-	return [[[self alloc] initWithAEDescNoCopy:aDesc] autorelease];
+	return [[self alloc] initWithAEDescNoCopy:aDesc];
 }
 
 /*
@@ -27,7 +27,7 @@
  */
 + (id)descriptorWithAEDesc:(const AEDesc *)anAEDesc
 {
-	return [[[self alloc] initWithAEDesc:anAEDesc] autorelease];
+	return [[self alloc] initWithAEDesc:anAEDesc];
 }
 
 /*
@@ -965,7 +965,7 @@
 	va_start(theArgList, aFirstArg);
 	theListDescriptor = [NSAppleEventDescriptor listDescriptorWithObjects:aFirstArg arguments:theArgList];
 	va_end(theArgList);
-	return [[[self alloc] initWithSubroutineName:aRoutineName argumentsListDescriptor:theListDescriptor] autorelease];
+	return [[self alloc] initWithSubroutineName:aRoutineName argumentsListDescriptor:theListDescriptor];
 }
 
 /*

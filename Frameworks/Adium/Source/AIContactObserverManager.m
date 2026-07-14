@@ -73,13 +73,13 @@ static AIContactObserverManager *sharedObserverManager = nil;
 }
 - (void)dealloc
 {
-	[contactObservers release];
+
 	contactObservers = nil;
-	[delayedModifiedStatusKeys release];
-	[delayedModifiedAttributeKeys release];
+
+
 	self.delayedUpdateTimer = nil;
 
-	[super dealloc];
+
 }
 
 // Status and Display updates
@@ -329,7 +329,7 @@ static AIContactObserverManager *sharedObserverManager = nil;
 		}
 	}
 
-	[changedObjects autorelease];
+
 	changedObjects = nil;
 }
 
@@ -379,7 +379,7 @@ static AIContactObserverManager *sharedObserverManager = nil;
 	id<NSFastEnumeration> en = contacts ?: (id)[(AIContactController *)adium.contactController contactEnumerator];
 
 	for (AIListObject *listObject in en) {
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		@autoreleasepool {
 		NSSet *attributes = [inObserver updateListObject:listObject keys:nil silent:YES];
 		if (attributes)
 			[self listObjectAttributesChanged:listObject modifiedKeys:attributes];
@@ -395,7 +395,8 @@ static AIContactObserverManager *sharedObserverManager = nil;
 			}
 		}
 
-		[pool release];
+
+		}
 	}
 
 	[self endListObjectNotificationsDelay];
@@ -440,7 +441,7 @@ static AIContactObserverManager *sharedObserverManager = nil;
 {
 	NSMutableSet *attrChange = nil;
 
-	for (NSValue *observerValue in [[contactObservers copy] autorelease]) {
+	for (NSValue *observerValue in [contactObservers copy]) {
 
 		/* Skip any observer which has been removed while we were iterating over observers,
 		 * as we don't retain observers and therefore risk messaging a released object.
@@ -479,17 +480,17 @@ static AIContactObserverManager *sharedObserverManager = nil;
 
 	// If we removed any observers while informing them, we don't need that information any more
 	if (removedContactObservers) {
-		[removedContactObservers release];
+
 		removedContactObservers = nil;
 	}
 
-	return [attrChange autorelease];
+	return attrChange;
 }
 
 // Command all observers to apply their attributes to an object
 - (void)_updateAllAttributesOfObject:(AIListObject *)inObject
 {
-	for (NSValue *observerValue in [[contactObservers copy] autorelease]) {
+	for (NSValue *observerValue in [contactObservers copy]) {
 		/* Skip any observer which has been removed while we were iterating over observers,
 		 * as we don't retain observers and therefore risk messaging a released object.
 		 */
@@ -503,7 +504,7 @@ static AIContactObserverManager *sharedObserverManager = nil;
 
 	// If we removed any observers while informing them, we don't need that information any more
 	if (removedContactObservers) {
-		[removedContactObservers release];
+
 		removedContactObservers = nil;
 	}
 

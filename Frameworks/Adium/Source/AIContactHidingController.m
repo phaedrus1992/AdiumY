@@ -52,27 +52,26 @@ static AIContactHidingController *sharedControllerInstance = nil;
 		matchedContacts = [[NSMutableDictionary alloc] init];
 
 		// contains[cd] - c = case insensitive, d = diacritic insensitive
-		filterPredicateTemplate = [[NSPredicate
+		filterPredicateTemplate = [NSPredicate
 			predicateWithFormat:
-				@"displayName contains[cd] $KEYWORD OR formattedUID contains[cd] $KEYWORD OR uid contains[cd] $KEYWORD"]
-			retain];
+				@"displayName contains[cd] $KEYWORD OR formattedUID contains[cd] $KEYWORD OR uid contains[cd] $KEYWORD"];
 	}
 	return self;
 }
 
 - (void)dealloc
 {
-	[matchedContacts release];
+
 	matchedContacts = nil;
-	[searchString release];
+
 	searchString = nil;
-	[filterPredicate release];
+
 	filterPredicate = nil;
-	[filterPredicateTemplate release];
+
 	filterPredicateTemplate = nil;
-	[hideAccounts release];
+
 	hideAccounts = nil;
-	[super dealloc];
+
 }
 
 - (void)preferencesChangedForGroup:(NSString *)group
@@ -92,8 +91,8 @@ static AIContactHidingController *sharedControllerInstance = nil;
 	showBlockedContacts = [[prefDict objectForKey:KEY_SHOW_BLOCKED_CONTACTS] boolValue];
 	showAwayContacts = [[prefDict objectForKey:KEY_SHOW_AWAY_CONTACTS] boolValue];
 
-	[hideAccounts release];
-	hideAccounts = [[prefDict objectForKey:KEY_HIDE_ACCOUNT_CONTACTS] retain];
+
+	hideAccounts = [prefDict objectForKey:KEY_HIDE_ACCOUNT_CONTACTS];
 
 	useContactListGroups = ![[prefDict objectForKey:KEY_HIDE_CONTACT_LIST_GROUPS] boolValue];
 	useOfflineGroup = (useContactListGroups && [[prefDict objectForKey:KEY_USE_OFFLINE_GROUP] boolValue]);
@@ -114,9 +113,9 @@ static AIContactHidingController *sharedControllerInstance = nil;
  */
 - (BOOL)filterContacts:(NSString *)inSearchString
 {
-	[searchString release];
-	searchString = [inSearchString retain];
-	[filterPredicate release];
+
+	 searchString = inSearchString;
+
 	filterPredicate = nil;
 	[matchedContacts removeAllObjects];
 
@@ -213,7 +212,7 @@ static AIContactHidingController *sharedControllerInstance = nil;
 		return YES;
 
 	if (!filterPredicate)
-		filterPredicate = [[self createPredicateWithSearchString:inSearchString] retain];
+		filterPredicate = [self createPredicateWithSearchString:inSearchString];
 
 	// If the given contact is a meta contact, check all of its contained objects.
 	if ([listObject conformsToProtocol:@protocol(AIContainingObject)]) {
@@ -261,7 +260,7 @@ static AIContactHidingController *sharedControllerInstance = nil;
 	NSPredicate *retval = [NSCompoundPredicate andPredicateWithSubpredicates:subpredicates];
 
 	CFRelease(tokenizer);
-	[subpredicates release];
+
 
 	return retval;
 }

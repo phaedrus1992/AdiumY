@@ -54,7 +54,7 @@
  */
 + (id)accountViewController
 {
-	return [[[self alloc] init] autorelease];
+	return [[self alloc] init];
 }
 
 /*!
@@ -95,15 +95,15 @@
  */
 - (void)dealloc
 {
-	[view_setup release];
-	[view_profile release];
+
+
 	if (view_setup != view_options)
-		[view_options release];
-	[changedPrefDict release];
+
+
 
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
-	[super dealloc];
+
 }
 
 /*!

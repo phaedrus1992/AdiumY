@@ -50,12 +50,12 @@
 		postProcessContent = YES;
 
 		// Store source, dest, chat, ...
-		source = [inSource retain];
-		destination = [inDest retain];
-		message = [inMessage retain];
-		date = [(inDate ? inDate : [NSDate date]) retain];
+		 source = inSource;
+		 destination = inDest;
+		 message = inMessage;
+		date = (inDate ? inDate : [NSDate date]);
 
-		chat = [inChat retain];
+		 chat = inChat;
 		outgoing = ([source isKindOfClass:[AIAccount class]]);
 		userInfo = nil;
 	}
@@ -65,23 +65,23 @@
 
 - (void)dealloc
 {
-	[source release];
+
 	source = nil;
-	[destination release];
+
 	destination = nil;
-	[date release];
+
 	date = nil;
-	[message release];
+
 	message = nil;
-	[chat release];
+
 	chat = nil;
-	[userInfo release];
+
 	userInfo = nil;
 	if (customDisplayClasses)
-		[customDisplayClasses release];
+
 	customDisplayClasses = nil;
 
-	[super dealloc];
+
 }
 
 // Content Identifier
@@ -143,8 +143,8 @@
 // HTML string message
 - (void)setMessageHTML:(NSString *)inMessageString
 {
-	[message release];
-	message = [[AIHTMLDecoder decodeHTML:inMessageString] retain];
+
+	message = [AIHTMLDecoder decodeHTML:inMessageString];
 }
 - (NSString *)messageHTML
 {
@@ -156,7 +156,7 @@
  */
 - (void)setMessageString:(NSString *)inMessageString
 {
-	[message release];
+
 	message = [[NSAttributedString alloc] initWithString:inMessageString
 											  attributes:[adium.contentController defaultFormattingAttributes]];
 }

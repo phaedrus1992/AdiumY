@@ -39,7 +39,7 @@
 
 - (void)dealloc
 {
-	[super dealloc];
+
 }
 
 /*!
@@ -123,7 +123,7 @@
 - (BOOL)updateFromLocalImageForPerson:(CNContact *)person object:(AIListObject *)inObject
 {
 	NSData *imageData = person.imageData;
-	NSImage *image = (imageData ? [[[NSImage alloc] initWithData:imageData] autorelease] : nil);
+	NSImage *image = (imageData ? [[NSImage alloc] initWithData:imageData] : nil);
 
 	// Address book can feed us giant images, which we really don't want to keep around
 	if (image) {

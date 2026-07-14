@@ -522,7 +522,7 @@
 			handledPaste = YES;
 		} else if ([type isEqualToString:NSHTMLPboardType]) {
 			NSData *htmlData = [generalPasteboard dataForType:NSHTMLPboardType];
-			[self insertText:[[[NSAttributedString alloc]
+			[self insertText:[[NSAttributedString alloc]
 									   initWithData:htmlData
 											options:@{
 												NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
@@ -1568,8 +1568,8 @@
 		if (data) {
 			data = [data subdataWithRange:NSMakeRange(260, [data length] - 260)];
 
-			NSAttributedString *clipping = [[[NSAttributedString alloc] initWithRTF:data
-																 documentAttributes:nil]];
+			NSAttributedString *clipping = [[NSAttributedString alloc] initWithRTF:data
+																 documentAttributes:nil];
 			if (clipping) {
 				NSDictionary *attributes = [[self typingAttributes] copy];
 
@@ -1627,8 +1627,8 @@
  */
 - (NSAttributedString *)attributedStringWithAITextAttachmentExtensionsFromRTFDData:(NSData *)data
 {
-	NSMutableAttributedString *attributedString = [[[NSMutableAttributedString alloc] initWithRTFD:data
-																				documentAttributes:NULL]];
+	NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithRTFD:data
+																				documentAttributes:NULL];
 	if ([attributedString length] && [attributedString containsAttachments]) {
 		NSUInteger currentLocation = 0;
 		NSRange attachmentRange;

@@ -30,9 +30,9 @@
 	AIListObject *listObject = [proxyObject listObject];
 
 	if ([listObject boolValueForProperty:@"showCount"] && (countText = [listObject valueForProperty:@"countText"])) {
-		return [[[NSAttributedString alloc]
+		return [[NSAttributedString alloc]
 			initWithString:[NSString stringWithFormat:@"%@ (%@)", [self labelString], countText]
-				attributes:[self labelAttributes]] autorelease];
+				attributes:[self labelAttributes]];
 
 	} else {
 		return super.displayName;
@@ -54,7 +54,7 @@
 		NSAttributedString *countText = [[NSAttributedString alloc] initWithString:@" ()"
 																		attributes:[self labelAttributes]];
 		width += AIceil([countText size].width);
-		[countText release];
+
 	}
 
 	return width;

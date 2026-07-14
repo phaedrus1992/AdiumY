@@ -108,7 +108,7 @@ static NSMutableArray *deferredPluginPaths = nil;
 	for (NSString *path in deferredPluginPaths) {
 		[[self class] loadPluginAtPath:path confirmLoading:YES pluginArray:pluginArray];
 	}
-	[deferredPluginPaths release];
+
 	deferredPluginPaths = nil;
 
 #ifdef PLUGIN_LOAD_TIMING
@@ -131,10 +131,10 @@ static NSMutableArray *deferredPluginPaths = nil;
 
 - (void)dealloc
 {
-	[pluginArray release];
+
 	pluginArray = nil;
 
-	[super dealloc];
+
 }
 
 + (BOOL)pluginIsBlacklisted:(NSBundle *)plugin
@@ -224,7 +224,7 @@ static NSMutableArray *deferredPluginPaths = nil;
 				[pluginDict setObject:plugin forKey:NSStringFromClass(principalClass)];
 				[pluginBundleIdentifiers addObject:[pluginBundle bundleIdentifier]];
 
-				[plugin release];
+
 			} else {
 				NSLog(@"Failed to initialize Plugin \"%@\" (\"%@\")!", [pluginPath lastPathComponent], pluginPath);
 			}
