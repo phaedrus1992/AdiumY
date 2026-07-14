@@ -44,6 +44,7 @@ void PBTLogSeed(int64_t seed);
 		BOOL _pbtFailed = NO; \
 		for (uint32_t _pbtIter = 0; _pbtIter < (uint32_t)(count); _pbtIter++) { \
 			PBTCurrentSeed = _pbtBaseSeed + _pbtIter; \
+			srandom((unsigned int)(PBTCurrentSeed ^ (PBTCurrentSeed >> 32))); \
 			@try { block; } \
 			@catch (NSException *_pbtE) { \
 				PBTLogSeed(PBTCurrentSeed); \

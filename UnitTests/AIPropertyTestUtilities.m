@@ -45,7 +45,6 @@ static BOOL _pbt_bool(void) {
 // MARK: - String generators
 
 NSString *PBTRandomASCIIString(uint32_t maxLen) {
-	_pbt_seed(PBTCurrentSeed);
 	uint32_t len = _pbt_range(maxLen + 1);
 	if (len == 0) return @"";
 	unichar *buf = calloc(len, sizeof(unichar));
@@ -59,7 +58,6 @@ NSString *PBTRandomASCIIString(uint32_t maxLen) {
 }
 
 NSString *PBTRandomUnicodeString(uint32_t maxLen) {
-	_pbt_seed(PBTCurrentSeed);
 	uint32_t len = _pbt_range(maxLen + 1);
 	if (len == 0) return @"";
 	unichar *buf = calloc(len, sizeof(unichar));
@@ -83,7 +81,6 @@ NSString *PBTRandomUnicodeString(uint32_t maxLen) {
 }
 
 NSString *PBTRandomWhitespaceString(uint32_t maxLen) {
-	_pbt_seed(PBTCurrentSeed);
 	uint32_t len = _pbt_range(maxLen + 1);
 	if (len == 0) return @"";
 	unichar chars[] = {' ', '\t', '\n', '\r', 0x00A0};
@@ -98,7 +95,6 @@ NSString *PBTRandomWhitespaceString(uint32_t maxLen) {
 }
 
 NSString *PBTRandomHTMLFragment(uint32_t maxLen) {
-	_pbt_seed(PBTCurrentSeed);
 	NSArray *tags = @[@"b", @"i", @"u", @"span", @"font", @"br", @"a"];
 	uint32_t len = _pbt_range(maxLen + 1);
 	if (len == 0) return @"";
@@ -125,7 +121,6 @@ NSString *PBTRandomHTMLFragment(uint32_t maxLen) {
 // MARK: - Attributed string generators
 
 NSAttributedString *PBTRandomAttributedString(uint32_t maxLen) {
-	_pbt_seed(PBTCurrentSeed);
 	NSString *text = PBTRandomASCIIString(maxLen);
 	if ([text length] == 0) {
 		return [[NSAttributedString alloc] init];
@@ -164,7 +159,6 @@ NSAttributedString *PBTRandomAttributedString(uint32_t maxLen) {
 }
 
 NSAttributedString *PBTRandomPlainAttributedString(uint32_t maxLen) {
-	_pbt_seed(PBTCurrentSeed);
 	NSString *text = PBTRandomASCIIString(maxLen);
 	return [[NSAttributedString alloc] initWithString:text];
 }
@@ -172,19 +166,16 @@ NSAttributedString *PBTRandomPlainAttributedString(uint32_t maxLen) {
 // MARK: - Number generators
 
 NSUInteger PBTUniform(uint32_t max) {
-	_pbt_seed(PBTCurrentSeed);
 	return _pbt_range(max);
 }
 
 BOOL PBTRandomBool(void) {
-	_pbt_seed(PBTCurrentSeed);
 	return _pbt_bool();
 }
 
 // MARK: - Dictionary generators
 
 NSDictionary *PBTRandomStringDictionary(uint32_t maxPairs) {
-	_pbt_seed(PBTCurrentSeed);
 	uint32_t count = _pbt_range(maxPairs + 1);
 	if (count == 0) return @{};
 	NSMutableDictionary *dict = [NSMutableDictionary dictionary];
@@ -199,7 +190,6 @@ NSDictionary *PBTRandomStringDictionary(uint32_t maxPairs) {
 }
 
 NSDictionary *PBTRandomStatusDictionary(void) {
-	_pbt_seed(PBTCurrentSeed);
 	NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 	NSArray *knownKeys = @[
 		@"Status Message NSAttributedString",
