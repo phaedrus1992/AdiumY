@@ -41,52 +41,140 @@ LNAboutBoxController *sharedAboutBoxInstance = nil;
 + (LNAboutBoxController *)aboutBoxController
 {
 	if (!sharedAboutBoxInstance) {
-		sharedAboutBoxInstance =
+		sharedAboutBoxInstance = [[self alloc] initWithWindowNibName:ABOUT_BOX_NIB];
 	}
+	return sharedAboutBoxInstance;
+}
+
+// Init
+- (id)initWithWindowNibName:(NSString *)windowNibName
+{
+	if ((self = [super initWithWindowNibName:windowNibName])) {
+		numberOfDuckClicks = -1;
+	}
+
+	return self;
+}
+
+// Prepare the about box window
+- (void)windowDidLoad
+{
+	NSAttributedString *creditsString;
+
+	// Credits
+	creditsString = [[NSAttributedString alloc] initWithPath:[[NSBundle mainBundle] pathForResource:@"Credits"
+																							  ofType:@"rtf"]
+										   documentAttributes:nil];
+	[textView_credits loadText:creditsString];
+
+	// Setup the build date / version
+	[textField_version setStringValue:[self AI_applicationVersion:NO]];
+
+	// Set the localized values
+	[button_homepage setLocalizedString:AILocalizedString(@"Adium Homepage", nil)];
+	[button_license setLocalizedString:AILocalizedString(@"License", nil)];
+
+	[[self window] betterCenter];
+}
+
+// Cleanup as the window is closing
+- (void)windowWillClose:(id)sender
+{
+	[super windowWillClose:sender];
+
+	sharedAboutBoxInstance = nil;
+}
+
+// Visit the Adium homepage
+- (IBAction)visitHomepage:(id)sender
+{
+	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://github.com/phaedrus1992/adiumy"]];
+}
+
+// Receive the flags changed event for starting/stopping the automatic scroll via option
+- (void)flagsChanged:(NSEvent *)theEvent
+{
+	if ([theEvent optionKey]) {
+		[textView_credits toggleScrolling];
+	}
+}
+
+#pragma mark Build Information
+
+// Toggle build date/number display
+- (IBAction)buildFieldClicked:(id)sender
+{
+	if ((++numberOfBuildFieldClicks) % 2 == 0) {
+		[textField_version setStringValue:[self AI_applicationVersion:NO]];
+	} else {
+		[textField_version setStringValue:[self AI_applicationVersion:YES]];
+	}
+}
+
+// Returns the current version of Adium
+- (NSString *)AI_applicationVersion:(BOOL)withBuild
+{
+	NSString *version = [NSApp applicationVersion];
+
+	return
+		[NSString stringWithFormat:@"%@%@ (%@)", @"Version ", (version ? version : @"X"),
+								   (withBuild ? [[NSBundle mainBundle] objectForInfoDictionaryKey:@"AIBuildIdentifier"]
+											  : [self AI_applicationDate])];
+}
+
+// Returns the formatted build date of Adium
+- (NSString *)AI_applicationDate
+{
+	NSTimeInterval date = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"AIBuildDate"] doubleValue];
+	__block NSString *ret;
+
+	[NSDateFormatter withLocalizedShortDateFormatterPerform:^(NSDateFormatter *shortDateFormatter) {
+		ret = [shortDateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:date]];
+	}];
+
+	return ret;
+}
 
 #pragma mark Software License
 
-	// Display the software license sheet
-	-(IBAction)showLicense : (id)sender
-	{
-		NSURL *licenseURL = [NSURL fileURLWithPath:[[NSBundle bundleForClass:[self class]] pathForResource:@"License"
-																									ofType:@"txt"]];
-		[textView_license setString:[NSString stringWithContentsOfURL:licenseURL
-															 encoding:NSUTF8StringEncoding
-																error:NULL]];
+// Display the software license sheet
+- (IBAction)showLicense:(id)sender
+{
+	NSURL *licenseURL = [NSURL fileURLWithPath:[[NSBundle bundleForClass:[self class]] pathForResource:@"License"
+																								ofType:@"txt"]];
+	[textView_license setString:[NSString stringWithContentsOfURL:licenseURL encoding:NSUTF8StringEncoding error:NULL]];
 
-		[NSApp beginSheet:panel_licenseSheet
-			modalForWindow:[self window]
-			 modalDelegate:nil
-			didEndSelector:nil
-			   contextInfo:nil];
-	}
+	[NSApp beginSheet:panel_licenseSheet
+		modalForWindow:[self window]
+		 modalDelegate:nil
+		didEndSelector:nil
+		   contextInfo:nil];
+}
 
-	// Close the software license sheet
-	-(IBAction)hideLicense : (id)sender
-	{
-		[panel_licenseSheet orderOut:nil];
-		[NSApp endSheet:panel_licenseSheet returnCode:0];
-	}
+// Close the software license sheet
+- (IBAction)hideLicense:(id)sender
+{
+	[panel_licenseSheet orderOut:nil];
+	[NSApp endSheet:panel_licenseSheet returnCode:0];
+}
 
 #pragma mark Sillyness
 
-	// Flap the duck when clicked
-	-(IBAction)adiumDuckClicked : (id)sender
-	{
-		numberOfDuckClicks++;
+// Flap the duck when clicked
+- (IBAction)adiumDuckClicked:(id)sender
+{
+	numberOfDuckClicks++;
 
 #define PATH_TO_SOUNDS                                                                                                 \
 	[NSString pathWithComponents:[NSArray arrayWithObjects:[[NSBundle mainBundle] bundlePath], @"Contents",            \
 														   @"Resources", @"Sounds", @"Adium.AdiumSoundset", nil]]
 
-		if (numberOfDuckClicks == 10) {
-			numberOfDuckClicks = -1;
-			[adium.soundController
-				playSoundAtPath:[PATH_TO_SOUNDS stringByAppendingPathComponent:@"Feather Ruffle.aif"]];
-		} else {
-			[adium.soundController playSoundAtPath:[PATH_TO_SOUNDS stringByAppendingPathComponent:@"Quack.aif"]];
-		}
+	if (numberOfDuckClicks == 10) {
+		numberOfDuckClicks = -1;
+		[adium.soundController playSoundAtPath:[PATH_TO_SOUNDS stringByAppendingPathComponent:@"Feather Ruffle.aif"]];
+	} else {
+		[adium.soundController playSoundAtPath:[PATH_TO_SOUNDS stringByAppendingPathComponent:@"Quack.aif"]];
 	}
+}
 
-	@end
+@end

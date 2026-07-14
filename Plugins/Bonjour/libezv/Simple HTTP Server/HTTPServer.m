@@ -323,7 +323,7 @@
 		//NSLog(@"HTTP Server: Error 505 - Version Not Supported");
 		
 		// Status Code 505 - Version Not Supported
-        CFHTTPMessageRef response = CFHTTPMessageCreateResponse(kCFAllocatorDefault, 505, NULL, (CFStringRef)version);
+        CFHTTPMessageRef response = CFHTTPMessageCreateResponse(kCFAllocatorDefault, 505, NULL, (__bridge CFStringRef)version);
 		CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Content-Length"), CFSTR("0"));
         NSData *responseData = CFBridgingRelease(CFHTTPMessageCopySerializedMessage(response));
 		[asyncSocket writeData:responseData withTimeout:WRITE_ERROR_TIMEOUT tag:HTTP_RESPONSE];
@@ -367,7 +367,7 @@
         CFHTTPMessageRef response = CFHTTPMessageCreateResponse(kCFAllocatorDefault, 200, NULL, kCFHTTPVersion1_1);
 		[self setHeaderFields:response forURI:[uri relativeString] appleSingle: isAppleSingle keepAlive:isKeepAlive];
         NSString *contentLength = [NSString stringWithFormat:@"%lu", (unsigned long)[data length]];
-        CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Content-Length"), (CFStringRef)contentLength);
+        CFHTTPMessageSetHeaderFieldValue(response, CFSTR("Content-Length"), (__bridge CFStringRef)contentLength);
 
 		//NSDictionary *responseHeaders = [(NSDictionary *)CFHTTPMessageCopyAllHeaderFields(response);
 		// NSLog(@"Sending Headers - %@", responseHeaders);

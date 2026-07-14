@@ -125,7 +125,7 @@
 		escapedURLString = nil;
 	}
 
-	return (escapedURLString ? (NSString *)escapedURLString : linkURL);
+	return (escapedURLString ? CFBridgingRelease(escapedURLString) : linkURL);
 }
 
 @end
