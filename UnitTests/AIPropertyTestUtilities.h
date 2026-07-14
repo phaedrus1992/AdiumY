@@ -38,22 +38,25 @@ void PBTLogSeed(int64_t seed);
 /// Run `block` for `count` iterations. Each iteration gets a unique seed derived from
 /// the base seed + iteration index. If any iteration fails (STFail/STAssert failure),
 /// the seed is logged and remaining iterations are skipped.
-#define PBTCheck(block, count) \
-	do { \
-		int64_t _pbtBaseSeed = (PBTFixedSeed != 0) ? PBTFixedSeed : (int64_t)[[NSDate date] timeIntervalSinceReferenceDate]; \
-		BOOL _pbtFailed = NO; \
-		for (uint32_t _pbtIter = 0; _pbtIter < (uint32_t)(count); _pbtIter++) { \
-			PBTCurrentSeed = _pbtBaseSeed + _pbtIter; \
-			srandom((unsigned int)(PBTCurrentSeed ^ (PBTCurrentSeed >> 32))); \
-			@try { block; } \
-			@catch (NSException *_pbtE) { \
-				PBTLogSeed(PBTCurrentSeed); \
-				STFail(@"Property failed at iteration %u: %@", _pbtIter, [_pbtE reason]); \
-				_pbtFailed = YES; \
-				break; \
-			} \
-			if (_pbtFailed) break; \
-		} \
+#define PBTCheck(block, count)                                                                                         \
+	do {                                                                                                               \
+		int64_t _pbtBaseSeed =                                                                                         \
+			(PBTFixedSeed != 0) ? PBTFixedSeed : (int64_t)[[NSDate date] timeIntervalSinceReferenceDate];              \
+		BOOL _pbtFailed = NO;                                                                                          \
+		for (uint32_t _pbtIter = 0; _pbtIter < (uint32_t)(count); _pbtIter++) {                                        \
+			PBTCurrentSeed = _pbtBaseSeed + _pbtIter;                                                                  \
+			srandom((unsigned int)(PBTCurrentSeed ^ (PBTCurrentSeed >> 32)));                                          \
+			@try {                                                                                                     \
+				block;                                                                                                 \
+			} @catch (NSException * _pbtE) {                                                                           \
+				PBTLogSeed(PBTCurrentSeed);                                                                            \
+				STFail(@"Property failed at iteration %u: %@", _pbtIter, [_pbtE reason]);                              \
+				_pbtFailed = YES;                                                                                      \
+				break;                                                                                                 \
+			}                                                                                                          \
+			if (_pbtFailed)                                                                                            \
+				break;                                                                                                 \
+		}                                                                                                              \
 	} while (0)
 
 /// Convenience: run `block` with 100 iterations.

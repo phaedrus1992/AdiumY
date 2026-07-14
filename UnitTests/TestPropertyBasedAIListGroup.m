@@ -21,88 +21,86 @@
 @implementation TestPropertyBasedAIListGroup
 
 /// Property: AIListGroup initWithUID: returns non-nil and stores UID.
-- (void)testInitWithUID {
+- (void)testInitWithUID
+{
 	PBTCheckDefault({
 		NSString *uid = PBTRandomASCIIString(16);
 		AIListGroup *group = [[AIListGroup alloc] initWithUID:uid];
 		STAssertNotNil(group, @"initWithUID: should return non-nil");
-		STAssertEqualObjects([group UID], uid,
-							 @"Group UID should match input");
+		STAssertEqualObjects([group UID], uid, @"Group UID should match input");
 	});
 }
 
 /// Property: visibleCount returns 0 for a freshly-created group.
-- (void)testVisibleCountInitial {
+- (void)testVisibleCountInitial
+{
 	PBTCheckDefault({
 		AIListGroup *group = [[AIListGroup alloc] initWithUID:PBTRandomASCIIString(12)];
 		STAssertNotNil(group, @"Group creation failed");
-		STAssertEquals([group visibleCount], (NSUInteger)0,
-					   @"Initial visibleCount should be 0");
+		STAssertEquals([group visibleCount], (NSUInteger)0, @"Initial visibleCount should be 0");
 	});
 }
 
 /// Property: isExpanded is NO initially (groups start collapsed by default).
-- (void)testExpandedInitial {
+- (void)testExpandedInitial
+{
 	PBTCheckDefault({
 		AIListGroup *group = [[AIListGroup alloc] initWithUID:PBTRandomASCIIString(12)];
-		STAssertFalse([group isExpanded],
-					  @"Group should not be expanded initially");
+		STAssertFalse([group isExpanded], @"Group should not be expanded initially");
 	});
 }
 
 /// Property: isExpandable returns BOOL without crashing.
-- (void)testIsExpandable {
+- (void)testIsExpandable
+{
 	PBTCheckDefault({
 		AIListGroup *group = [[AIListGroup alloc] initWithUID:PBTRandomASCIIString(12)];
 		// Just ensure no crash and returns BOOL
 		BOOL expandable = [group isExpandable];
-		STAssertTrue(expandable == YES || expandable == NO,
-					 @"isExpandable must return BOOL");
+		STAssertTrue(expandable == YES || expandable == NO, @"isExpandable must return BOOL");
 	});
 }
 
 /// Property: displayName defaults to UID for a freshly-created group.
-- (void)testDisplayNameDefault {
+- (void)testDisplayNameDefault
+{
 	PBTCheckDefault({
 		NSString *uid = PBTRandomASCIIString(16);
 		AIListGroup *group = [[AIListGroup alloc] initWithUID:uid];
-		STAssertNotNil([group displayName],
-					   @"displayName should be non-nil");
+		STAssertNotNil([group displayName], @"displayName should be non-nil");
 	});
 }
 
 /// Property: displayName set/get roundtrip.
-- (void)testDisplayNameRoundtrip {
+- (void)testDisplayNameRoundtrip
+{
 	PBTCheckDefault({
 		AIListGroup *group = [[AIListGroup alloc] initWithUID:PBTRandomASCIIString(12)];
 		NSString *name = PBTRandomASCIIString(20);
 		[group setDisplayName:name];
-		STAssertEqualObjects([group displayName], name,
-							 @"displayName set/get mismatch");
+		STAssertEqualObjects([group displayName], name, @"displayName set/get mismatch");
 	});
 }
 
 /// Property: containedObjects returns empty array for freshly-created group.
-- (void)testContainedObjectsInitial {
+- (void)testContainedObjectsInitial
+{
 	PBTCheckDefault({
 		AIListGroup *group = [[AIListGroup alloc] initWithUID:PBTRandomASCIIString(12)];
 		NSArray *contained = [group containedObjects];
-		STAssertNotNil(contained,
-					   @"containedObjects should be non-nil");
-		STAssertEquals([contained count], (NSUInteger)0,
-					   @"Initial containedObjects should be empty");
+		STAssertNotNil(contained, @"containedObjects should be non-nil");
+		STAssertEquals([contained count], (NSUInteger)0, @"Initial containedObjects should be empty");
 	});
 }
 
 /// Property: visibleContainedObjects returns empty array for freshly-created group.
-- (void)testVisibleContainedObjectsInitial {
+- (void)testVisibleContainedObjectsInitial
+{
 	PBTCheckDefault({
 		AIListGroup *group = [[AIListGroup alloc] initWithUID:PBTRandomASCIIString(12)];
 		NSArray *visible = [group visibleContainedObjects];
-		STAssertNotNil(visible,
-					   @"visibleContainedObjects should be non-nil");
-		STAssertEquals([visible count], (NSUInteger)0,
-					   @"Initial visibleContainedObjects should be empty");
+		STAssertNotNil(visible, @"visibleContainedObjects should be non-nil");
+		STAssertEquals([visible count], (NSUInteger)0, @"Initial visibleContainedObjects should be empty");
 	});
 }
 

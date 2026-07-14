@@ -21,29 +21,29 @@
 @implementation TestPropertyBasedAIMetaContact
 
 /// Property: AIMetaContact initWithObjectID: returns non-nil and stores objectID.
-- (void)testInitWithObjectID {
+- (void)testInitWithObjectID
+{
 	PBTCheckDefault({
 		NSNumber *objID = @((int64_t)PBTUniform(999999));
 		AIMetaContact *meta = [[AIMetaContact alloc] initWithObjectID:objID];
-		STAssertNotNil(meta,
-					   @"initWithObjectID: should return non-nil");
-		STAssertEqualObjects([meta objectID], objID,
-							 @"objectID should match input");
+		STAssertNotNil(meta, @"initWithObjectID: should return non-nil");
+		STAssertEqualObjects([meta objectID], objID, @"objectID should match input");
 	});
 }
 
 /// Property: objectID is non-nil after initWithObjectID.
-- (void)testObjectIDNonNil {
+- (void)testObjectIDNonNil
+{
 	PBTCheckDefault({
 		NSNumber *objID = @((uint32_t)PBTUniform(999999));
 		AIMetaContact *meta = [[AIMetaContact alloc] initWithObjectID:objID];
-		STAssertNotNil([meta objectID],
-					   @"objectID should be non-nil");
+		STAssertNotNil([meta objectID], @"objectID should be non-nil");
 	});
 }
 
 /// Property: preferredContact returns nil for empty meta contact (no contacts yet).
-- (void)testPreferredContactInitial {
+- (void)testPreferredContactInitial
+{
 	PBTCheckDefault({
 		AIMetaContact *meta = [[AIMetaContact alloc] initWithObjectID:@(PBTUniform(99999))];
 		AIListContact *pref = [meta preferredContact];
@@ -54,17 +54,18 @@
 }
 
 /// Property: containsOnlyOneService returns BOOL without crashing.
-- (void)testContainsOnlyOneService {
+- (void)testContainsOnlyOneService
+{
 	PBTCheckDefault({
 		AIMetaContact *meta = [[AIMetaContact alloc] initWithObjectID:@(PBTUniform(99999))];
 		BOOL result = [meta containsOnlyOneService];
-		STAssertTrue(result == YES || result == NO,
-					 @"containsOnlyOneService must return BOOL");
+		STAssertTrue(result == YES || result == NO, @"containsOnlyOneService must return BOOL");
 	});
 }
 
 /// Property: uniqueContainedObjectsCount returns 0 for empty meta contact.
-- (void)testUniqueContainedObjectsCountInitial {
+- (void)testUniqueContainedObjectsCountInitial
+{
 	PBTCheckDefault({
 		AIMetaContact *meta = [[AIMetaContact alloc] initWithObjectID:@(PBTUniform(99999))];
 		STAssertEquals([meta uniqueContainedObjectsCount], (NSUInteger)0,
@@ -73,23 +74,23 @@
 }
 
 /// Property: displayName set/get roundtrip for random strings.
-- (void)testDisplayNameRoundtrip {
+- (void)testDisplayNameRoundtrip
+{
 	PBTCheckDefault({
 		AIMetaContact *meta = [[AIMetaContact alloc] initWithObjectID:@(PBTUniform(99999))];
 		NSString *name = PBTRandomASCIIString(20);
 		[meta setDisplayName:name];
-		STAssertEqualObjects([meta displayName], name,
-							 @"displayName set/get mismatch");
+		STAssertEqualObjects([meta displayName], name, @"displayName set/get mismatch");
 	});
 }
 
 /// Property: isExpandable returns BOOL without crashing.
-- (void)testIsExpandable {
+- (void)testIsExpandable
+{
 	PBTCheckDefault({
 		AIMetaContact *meta = [[AIMetaContact alloc] initWithObjectID:@(PBTUniform(99999))];
 		BOOL result = [meta isExpandable];
-		STAssertTrue(result == YES || result == NO,
-					 @"isExpandable must return BOOL");
+		STAssertTrue(result == YES || result == NO, @"isExpandable must return BOOL");
 	});
 }
 

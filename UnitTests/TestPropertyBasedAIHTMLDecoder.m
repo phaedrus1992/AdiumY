@@ -22,7 +22,8 @@
 
 /// Property: For any NSAttributedString, decoding the HTML produced by encodeHTML:
 /// must not crash and must return a non-nil result.
-- (void)testEncodeDecodeDoesNotCrash {
+- (void)testEncodeDecodeDoesNotCrash
+{
 	PBTCheckDefault({
 		NSAttributedString *original = PBTRandomPlainAttributedString(128);
 		AIHTMLDecoder *decoder = [[AIHTMLDecoder alloc] init];
@@ -35,7 +36,8 @@
 
 /// Property: For any NSAttributedString with attributes, encode → decode must not crash
 /// and must return a non-nil result.
-- (void)testEncodeDecodeWithAttributesDoesNotCrash {
+- (void)testEncodeDecodeWithAttributesDoesNotCrash
+{
 	PBTCheckDefault({
 		NSAttributedString *original = PBTRandomAttributedString(64);
 		AIHTMLDecoder *decoder = [[AIHTMLDecoder alloc] init];
@@ -50,7 +52,8 @@
 }
 
 /// Property: encodeHTML: returns a non-nil result even for empty and whitespace input.
-- (void)testEncodeEmptyAndWhitespace {
+- (void)testEncodeEmptyAndWhitespace
+{
 	PBTCheckDefault({
 		NSString *text = PBTRandomWhitespaceString(32);
 		NSAttributedString *as = [[NSAttributedString alloc] initWithString:text];
@@ -61,7 +64,8 @@
 }
 
 /// Property: Empty attributed string encodes to empty string and decodes back to empty.
-- (void)testEncodeDecodeEmptyString {
+- (void)testEncodeDecodeEmptyString
+{
 	NSAttributedString *empty = [[NSAttributedString alloc] init];
 	AIHTMLDecoder *decoder = [[AIHTMLDecoder alloc] init];
 	NSString *html = [decoder encodeHTML:empty imagesPath:nil];
@@ -72,7 +76,8 @@
 
 /// Property: Simple text survive encode → decode roundtrip with text content preserved.
 /// The decoded string must contain the same characters as the original.
-- (void)testEncodeDecodePreservesTextContent {
+- (void)testEncodeDecodePreservesTextContent
+{
 	PBTCheckDefault({
 		NSAttributedString *original = PBTRandomPlainAttributedString(64);
 		NSString *originalText = [original string];
@@ -84,16 +89,18 @@
 		BOOL contains = [decodedText rangeOfString:originalText].location != NSNotFound;
 		if (!contains && [originalText length] > 0) {
 			// Try trimming whitespace
-			NSString *trimmedOriginal = [originalText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			NSString *trimmedDecoded = [decodedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-			STAssertEqualObjects(trimmedOriginal, trimmedDecoded,
-								 @"Text content lost in encode/decode roundtrip");
+			NSString *trimmedOriginal =
+				[originalText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			NSString *trimmedDecoded =
+				[decodedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+			STAssertEqualObjects(trimmedOriginal, trimmedDecoded, @"Text content lost in encode/decode roundtrip");
 		}
 	});
 }
 
 /// Property: decodeHTML: must not crash on arbitrary (potentially malformed) HTML strings.
-- (void)testDecodeArbitraryHTMLDoesNotCrash {
+- (void)testDecodeArbitraryHTMLDoesNotCrash
+{
 	PBTCheckDefault({
 		NSString *html = PBTRandomHTMLFragment(128);
 		AIHTMLDecoder *decoder = [[AIHTMLDecoder alloc] init];
@@ -104,7 +111,8 @@
 }
 
 /// Property: Class convenience methods produce the same results as instance methods.
-- (void)testClassVsInstanceDecodeConsistency {
+- (void)testClassVsInstanceDecodeConsistency
+{
 	PBTCheckDefault({
 		NSString *html = PBTRandomHTMLFragment(64);
 		AIHTMLDecoder *decoder = [[AIHTMLDecoder alloc] init];
@@ -118,7 +126,8 @@
 }
 
 /// Property: parseArguments: must not crash on random attribute strings.
-- (void)testParseArgumentsDoesNotCrash {
+- (void)testParseArgumentsDoesNotCrash
+{
 	PBTCheckDefault({
 		NSString *args = PBTRandomASCIIString(64);
 		AIHTMLDecoder *decoder = [[AIHTMLDecoder alloc] init];

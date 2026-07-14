@@ -21,7 +21,8 @@
 @implementation TestPropertyBasedAIStatus
 
 /// Property: AIStatus created with +status returns non-nil and has default state.
-- (void)testStatusCreation {
+- (void)testStatusCreation
+{
 	PBTCheckDefault({
 		AIStatus *status = [AIStatus status];
 		STAssertNotNil(status, @"+status should return non-nil");
@@ -29,7 +30,8 @@
 }
 
 /// Property: AIStatus created with +statusWithDictionary: must not crash for random dictionaries.
-- (void)testStatusWithRandomDictionary {
+- (void)testStatusWithRandomDictionary
+{
 	PBTCheckDefault({
 		NSDictionary *randomDict = PBTRandomStringDictionary(8);
 		AIStatus *status = [AIStatus statusWithDictionary:randomDict];
@@ -38,7 +40,8 @@
 }
 
 /// Property: statusWithDictionary: must not crash for status-like dictionaries with random values.
-- (void)testStatusWithStatusDictionary {
+- (void)testStatusWithStatusDictionary
+{
 	PBTCheckDefault({
 		NSDictionary *statusDict = PBTRandomStatusDictionary();
 		AIStatus *status = [AIStatus statusWithDictionary:statusDict];
@@ -48,7 +51,8 @@
 
 /// Property: AIStatus NSCoding save/load roundtrip preserves basic properties.
 /// Archive a status, unarchive it, verify the status type matches.
-- (void)testNSCodingRoundtrip {
+- (void)testNSCodingRoundtrip
+{
 	PBTCheckDefault({
 		AIStatus *original = [AIStatus status];
 		STAssertNotNil(original, @"Original status should be non-nil");
@@ -83,7 +87,8 @@
 }
 
 /// Property: AIStatus of various types can be created and used without crashing.
-- (void)testStatusOfVariousTypes {
+- (void)testStatusOfVariousTypes
+{
 	PBTCheckDefault({
 		AIStatusType types[] = {AIOnlineStatus, AIAwayStatus, AIInvisibleStatus, AIOfflineStatus};
 		AIStatusType type = types[PBTUniform(4)];
@@ -93,7 +98,8 @@
 }
 
 /// Property: Setting and reading back status properties is consistent for random values.
-- (void)testStatusPropertyConsistency {
+- (void)testStatusPropertyConsistency
+{
 	PBTCheckDefault({
 		AIStatus *status = [AIStatus status];
 		STAssertNotNil(status, @"Status creation failed");

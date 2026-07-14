@@ -21,7 +21,7 @@
 /// Helper: minimal NSObject subclass for testing AIListContact-init methods that ask for AIService.
 /// AIService is an abstract class with a handful of required overrides.
 @interface _PBTTestService : NSObject
-@property (nonatomic, copy) NSString *serviceID;
+@property(nonatomic, copy) NSString *serviceID;
 @end
 
 @implementation _PBTTestService
@@ -29,7 +29,7 @@
 
 /// Helper: minimal NSObject subclass for testing contact containment.
 @interface _PBTTestAccount : NSObject
-@property (nonatomic, copy) NSString *internalObjectID;
+@property(nonatomic, copy) NSString *internalObjectID;
 @end
 
 @implementation _PBTTestAccount
@@ -38,7 +38,8 @@
 @implementation TestPropertyBasedAIListContact
 
 /// Property: AIListContact initWithUID:service: returns non-nil and stores UID.
-- (void)testInitWithUIDService {
+- (void)testInitWithUIDService
+{
 	PBTCheckDefault({
 		NSString *uid = PBTRandomASCIIString(16);
 		_PBTTestService *service = [[_PBTTestService alloc] init];
@@ -52,19 +53,20 @@
 }
 
 /// Property: internalUniqueObjectID returns a non-nil string.
-- (void)testInternalUniqueObjectID {
+- (void)testInternalUniqueObjectID
+{
 	PBTCheckDefault({
 		NSString *uid = PBTRandomASCIIString(12);
 		_PBTTestService *service = [[_PBTTestService alloc] init];
 		[service setServiceID:PBTRandomASCIIString(8)];
 		AIListContact *contact = [[AIListContact alloc] initWithUID:uid service:(AIService *)service];
-		STAssertNotNil([contact internalUniqueObjectID],
-					   @"internalUniqueObjectID should be non-nil");
+		STAssertNotNil([contact internalUniqueObjectID], @"internalUniqueObjectID should be non-nil");
 	});
 }
 
 /// Property: remoteGroupNames set/get roundtrip works for random string sets.
-- (void)testRemoteGroupNamesRoundtrip {
+- (void)testRemoteGroupNamesRoundtrip
+{
 	PBTCheckDefault({
 		NSString *uid = PBTRandomASCIIString(12);
 		_PBTTestService *service = [[_PBTTestService alloc] init];
@@ -84,7 +86,8 @@
 }
 
 /// Property: formattedUID set/get roundtrip for random strings.
-- (void)testFormattedUIDRoundtrip {
+- (void)testFormattedUIDRoundtrip
+{
 	PBTCheckDefault({
 		NSString *uid = PBTRandomASCIIString(12);
 		_PBTTestService *service = [[_PBTTestService alloc] init];
@@ -95,26 +98,26 @@
 		NSString *formatted = PBTRandomASCIIString(20);
 		[contact setFormattedUID:formatted notify:NotifyNow];
 		// Just check no crash and non-nil
-		STAssertNotNil([contact formattedUID],
-					   @"formattedUID should be non-nil after set");
+		STAssertNotNil([contact formattedUID], @"formattedUID should be non-nil after set");
 	});
 }
 
 /// Property: isIntentionallyNotAStranger returns BOOL without crashing.
-- (void)testIsIntentionallyNotAStranger {
+- (void)testIsIntentionallyNotAStranger
+{
 	PBTCheckDefault({
 		NSString *uid = PBTRandomASCIIString(12);
 		_PBTTestService *service = [[_PBTTestService alloc] init];
 		[service setServiceID:PBTRandomASCIIString(8)];
 		AIListContact *contact = [[AIListContact alloc] initWithUID:uid service:(AIService *)service];
-		STAssertTrue([contact isIntentionallyNotAStranger] == YES ||
-					 [contact isIntentionallyNotAStranger] == NO,
+		STAssertTrue([contact isIntentionallyNotAStranger] == YES || [contact isIntentionallyNotAStranger] == NO,
 					 @"isIntentionallyNotAStranger must return BOOL");
 	});
 }
 
 /// Property: displayName set/get roundtrip for random strings.
-- (void)testDisplayNameRoundtrip {
+- (void)testDisplayNameRoundtrip
+{
 	PBTCheckDefault({
 		NSString *uid = PBTRandomASCIIString(12);
 		_PBTTestService *service = [[_PBTTestService alloc] init];
@@ -124,8 +127,7 @@
 
 		NSString *name = PBTRandomASCIIString(20);
 		[contact setDisplayName:name];
-		STAssertEqualObjects([contact displayName], name,
-							 @"displayName set/get mismatch");
+		STAssertEqualObjects([contact displayName], name, @"displayName set/get mismatch");
 	});
 }
 

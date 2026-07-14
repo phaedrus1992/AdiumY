@@ -21,7 +21,8 @@
 @implementation TestPropertyBasedAISortController
 
 /// Property: activeSortController returns nil or a valid AISortController without crashing.
-- (void)testActiveSortController {
+- (void)testActiveSortController
+{
 	PBTCheckDefault({
 		AISortController *active = [AISortController activeSortController];
 		// nil is valid when no controller is active; just ensure no crash
@@ -33,7 +34,8 @@
 }
 
 /// Property: availableSortControllers returns an array without crashing.
-- (void)testAvailableSortControllers {
+- (void)testAvailableSortControllers
+{
 	PBTCheckDefault({
 		NSArray *controllers = [AISortController availableSortControllers];
 		STAssertNotNil(controllers, @"availableSortControllers should return non-nil array");
@@ -41,7 +43,8 @@
 }
 
 /// Property: registerSortController accepts and makes a controller available.
-- (void)testRegisterSortControllerRoundtrip {
+- (void)testRegisterSortControllerRoundtrip
+{
 	PBTCheckDefault({
 		AISortController *controller = [[AISortController alloc] init];
 		STAssertNotNil(controller, @"AISortController alloc/init should succeed");
@@ -53,17 +56,17 @@
 }
 
 /// Property: setActiveSortController accepts nil (clears active) without crashing.
-- (void)testSetActiveSortControllerNil {
+- (void)testSetActiveSortControllerNil
+{
 	PBTCheckDefault({
-		STAssertNoThrowSpecific(
-			[AISortController setActiveSortController:nil],
-			NSException,
-			@"setActiveSortController:nil should not throw");
+		STAssertNoThrowSpecific([AISortController setActiveSortController:nil], NSException,
+								@"setActiveSortController:nil should not throw");
 	});
 }
 
 /// Property: shouldSortForModifiedStatusKeys returns BOOL without crashing for random key sets.
-- (void)testShouldSortForModifiedStatusKeys {
+- (void)testShouldSortForModifiedStatusKeys
+{
 	PBTCheckDefault({
 		AISortController *controller = [[AISortController alloc] init];
 		STAssertNotNil(controller, @"Controller creation failed");
@@ -74,13 +77,13 @@
 		}
 		BOOL result = [controller shouldSortForModifiedStatusKeys:keys];
 		// Any BOOL is valid; just check no crash
-		STAssertTrue(result == YES || result == NO,
-					 @"shouldSortForModifiedStatusKeys: must return BOOL");
+		STAssertTrue(result == YES || result == NO, @"shouldSortForModifiedStatusKeys: must return BOOL");
 	});
 }
 
 /// Property: shouldSortForModifiedAttributeKeys returns BOOL without crashing for random key sets.
-- (void)testShouldSortForModifiedAttributeKeys {
+- (void)testShouldSortForModifiedAttributeKeys
+{
 	PBTCheckDefault({
 		AISortController *controller = [[AISortController alloc] init];
 		STAssertNotNil(controller, @"Controller creation failed");
@@ -90,19 +93,18 @@
 			[keys addObject:PBTRandomASCIIString(12)];
 		}
 		BOOL result = [controller shouldSortForModifiedAttributeKeys:keys];
-		STAssertTrue(result == YES || result == NO,
-					 @"shouldSortForModifiedAttributeKeys: must return BOOL");
+		STAssertTrue(result == YES || result == NO, @"shouldSortForModifiedAttributeKeys: must return BOOL");
 	});
 }
 
 /// Property: alwaysSortGroupsToTopByDefault returns BOOL without crashing.
-- (void)testAlwaysSortGroupsToTopByDefault {
+- (void)testAlwaysSortGroupsToTopByDefault
+{
 	PBTCheckDefault({
 		AISortController *controller = [[AISortController alloc] init];
 		STAssertNotNil(controller, @"Controller creation failed");
 		BOOL result = [controller alwaysSortGroupsToTopByDefault];
-		STAssertTrue(result == YES || result == NO,
-					 @"alwaysSortGroupsToTopByDefault must return BOOL");
+		STAssertTrue(result == YES || result == NO, @"alwaysSortGroupsToTopByDefault must return BOOL");
 	});
 }
 

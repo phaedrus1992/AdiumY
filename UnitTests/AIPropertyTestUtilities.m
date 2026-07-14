@@ -20,33 +20,40 @@
 int64_t PBTFixedSeed = 0;
 int64_t PBTCurrentSeed = 0;
 
-void PBTLogSeed(int64_t seed) {
+void PBTLogSeed(int64_t seed)
+{
 	fprintf(stderr, "\nPBT FAILURE — reproduce with: PBTFixedSeed = %lld;\n", seed);
 }
 
 // MARK: - Prng helpers (deterministic, seeded by PBTCurrentSeed)
 
-static double _pbt_drand(void) {
+static double _pbt_drand(void)
+{
 	return ((double)(((uint64_t)random() & 0x7fffffff))) / 2147483648.0;
 }
 
-static void _pbt_seed(int64_t seed) {
+static void _pbt_seed(int64_t seed)
+{
 	srandom((unsigned int)(seed ^ (seed >> 32)));
 }
 
-static uint32_t _pbt_range(uint32_t max) {
+static uint32_t _pbt_range(uint32_t max)
+{
 	return max > 0 ? (uint32_t)(_pbt_drand() * max) : 0;
 }
 
-static BOOL _pbt_bool(void) {
+static BOOL _pbt_bool(void)
+{
 	return _pbt_drand() < 0.5;
 }
 
 // MARK: - String generators
 
-NSString *PBTRandomASCIIString(uint32_t maxLen) {
+NSString *PBTRandomASCIIString(uint32_t maxLen)
+{
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0) return @"";
+	if (len == 0)
+		return @"";
 	unichar *buf = calloc(len, sizeof(unichar));
 	for (uint32_t i = 0; i < len; i++) {
 		// Printable ASCII range 32..126
@@ -57,19 +64,19 @@ NSString *PBTRandomASCIIString(uint32_t maxLen) {
 	return s;
 }
 
-NSString *PBTRandomUnicodeString(uint32_t maxLen) {
+NSString *PBTRandomUnicodeString(uint32_t maxLen)
+{
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0) return @"";
+	if (len == 0)
+		return @"";
 	unichar *buf = calloc(len, sizeof(unichar));
 	for (uint32_t i = 0; i < len; i++) {
 		uint32_t r = _pbt_range(0x110000);
 		if (r < 0x80) {
 			buf[i] = (unichar)r;
 		} else if (r < 0x10000) {
-			unichar candidates[] = {
-				0x00A9, 0x00AE, 0x2026, 0x2603, 0x2764, 0x1F600, 0x00E9,
-				0x00F1, 0x4E2D, 0x0416, 0x03B1, 0x0300, 0x0301, 0x0302
-			};
+			unichar candidates[] = {0x00A9, 0x00AE, 0x2026, 0x2603, 0x2764, 0x1F600, 0x00E9,
+									0x00F1, 0x4E2D, 0x0416, 0x03B1, 0x0300, 0x0301,  0x0302};
 			buf[i] = candidates[_pbt_range(sizeof(candidates) / sizeof(candidates[0]))];
 		} else {
 			buf[i] = 0x2603;
@@ -80,9 +87,11 @@ NSString *PBTRandomUnicodeString(uint32_t maxLen) {
 	return s;
 }
 
-NSString *PBTRandomWhitespaceString(uint32_t maxLen) {
+NSString *PBTRandomWhitespaceString(uint32_t maxLen)
+{
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0) return @"";
+	if (len == 0)
+		return @"";
 	unichar chars[] = {' ', '\t', '\n', '\r', 0x00A0};
 	unichar *buf = calloc(len, sizeof(unichar));
 	NSUInteger nChars = sizeof(chars) / sizeof(chars[0]);
@@ -94,10 +103,12 @@ NSString *PBTRandomWhitespaceString(uint32_t maxLen) {
 	return s;
 }
 
-NSString *PBTRandomHTMLFragment(uint32_t maxLen) {
-	NSArray *tags = @[@"b", @"i", @"u", @"span", @"font", @"br", @"a"];
+NSString *PBTRandomHTMLFragment(uint32_t maxLen)
+{
+	NSArray *tags = @[ @"b", @"i", @"u", @"span", @"font", @"br", @"a" ];
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0) return @"";
+	if (len == 0)
+		return @"";
 	NSMutableString *html = [NSMutableString string];
 	for (uint32_t i = 0; i < len; i++) {
 		uint32_t choice = _pbt_range(5);
@@ -120,18 +131,19 @@ NSString *PBTRandomHTMLFragment(uint32_t maxLen) {
 
 // MARK: - Attributed string generators
 
-NSAttributedString *PBTRandomAttributedString(uint32_t maxLen) {
+NSAttributedString *PBTRandomAttributedString(uint32_t maxLen)
+{
 	NSString *text = PBTRandomASCIIString(maxLen);
 	if ([text length] == 0) {
 		return [[NSAttributedString alloc] init];
 	}
 	NSMutableAttributedString *mas = [[NSMutableAttributedString alloc] initWithString:text];
-	NSArray *colors = @[[NSColor blackColor], [NSColor redColor],
-						[NSColor blueColor], [NSColor greenColor],
-						[NSColor whiteColor], [NSColor yellowColor]];
-	NSArray *fonts = @[[NSFont systemFontOfSize:12.0],
-					   [NSFont boldSystemFontOfSize:14.0],
-					   [NSFont systemFontOfSize:10.0]];
+	NSArray *colors = @[
+		[NSColor blackColor], [NSColor redColor], [NSColor blueColor], [NSColor greenColor], [NSColor whiteColor],
+		[NSColor yellowColor]
+	];
+	NSArray *fonts =
+		@[ [NSFont systemFontOfSize:12.0], [NSFont boldSystemFontOfSize:14.0], [NSFont systemFontOfSize:10.0] ];
 
 	NSUInteger len = [text length];
 	NSUInteger pos = 0;
@@ -144,40 +156,41 @@ NSAttributedString *PBTRandomAttributedString(uint32_t maxLen) {
 						range:range];
 		}
 		if (_pbt_bool()) {
-			[mas addAttribute:NSFontAttributeName
-						value:fonts[_pbt_range((uint32_t)[fonts count])]
-						range:range];
+			[mas addAttribute:NSFontAttributeName value:fonts[_pbt_range((uint32_t)[fonts count])] range:range];
 		}
 		if (_pbt_bool()) {
-			[mas addAttribute:NSUnderlineStyleAttributeName
-						value:@(_pbt_range(3))
-						range:range];
+			[mas addAttribute:NSUnderlineStyleAttributeName value:@(_pbt_range(3)) range:range];
 		}
 		pos += runLen;
 	}
 	return mas;
 }
 
-NSAttributedString *PBTRandomPlainAttributedString(uint32_t maxLen) {
+NSAttributedString *PBTRandomPlainAttributedString(uint32_t maxLen)
+{
 	NSString *text = PBTRandomASCIIString(maxLen);
 	return [[NSAttributedString alloc] initWithString:text];
 }
 
 // MARK: - Number generators
 
-NSUInteger PBTUniform(uint32_t max) {
+NSUInteger PBTUniform(uint32_t max)
+{
 	return _pbt_range(max);
 }
 
-BOOL PBTRandomBool(void) {
+BOOL PBTRandomBool(void)
+{
 	return _pbt_bool();
 }
 
 // MARK: - Dictionary generators
 
-NSDictionary *PBTRandomStringDictionary(uint32_t maxPairs) {
+NSDictionary *PBTRandomStringDictionary(uint32_t maxPairs)
+{
 	uint32_t count = _pbt_range(maxPairs + 1);
-	if (count == 0) return @{};
+	if (count == 0)
+		return @{};
 	NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 	for (uint32_t i = 0; i < count; i++) {
 		NSString *key = PBTRandomASCIIString(16);
@@ -189,19 +202,13 @@ NSDictionary *PBTRandomStringDictionary(uint32_t maxPairs) {
 	return dict;
 }
 
-NSDictionary *PBTRandomStatusDictionary(void) {
+NSDictionary *PBTRandomStatusDictionary(void)
+{
 	NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 	NSArray *knownKeys = @[
-		@"Status Message NSAttributedString",
-		@"Has AutoReply",
-		@"AutoReply is Status Message",
-		@"AutoReply Message NSAttributedString",
-		@"Status Name",
-		@"Invisible",
-		@"Mutability Type",
-		@"Mute Sounds",
-		@"Silence Growl",
-		@"Special Type"
+		@"Status Message NSAttributedString", @"Has AutoReply", @"AutoReply is Status Message",
+		@"AutoReply Message NSAttributedString", @"Status Name", @"Invisible", @"Mutability Type", @"Mute Sounds",
+		@"Silence Growl", @"Special Type"
 	];
 	for (NSString *key in knownKeys) {
 		if (_pbt_bool()) {
@@ -209,9 +216,8 @@ NSDictionary *PBTRandomStatusDictionary(void) {
 				dict[key] = PBTRandomAttributedString(64);
 			} else if ([key hasSuffix:@"Type"] || [key hasPrefix:@"Mutability"]) {
 				dict[key] = @(_pbt_range(4));
-			} else if ([key hasPrefix:@"Has "] || [key hasPrefix:@"AutoReply is "] ||
-					   [key hasPrefix:@"Invisible"] || [key hasPrefix:@"Mute "] ||
-					   [key hasPrefix:@"Silence "]) {
+			} else if ([key hasPrefix:@"Has "] || [key hasPrefix:@"AutoReply is "] || [key hasPrefix:@"Invisible"] ||
+					   [key hasPrefix:@"Mute "] || [key hasPrefix:@"Silence "]) {
 				dict[key] = @(_pbt_bool());
 			} else {
 				dict[key] = PBTRandomASCIIString(32);
@@ -223,7 +229,8 @@ NSDictionary *PBTRandomStatusDictionary(void) {
 
 // MARK: - Shrinking
 
-int64_t PBTShrinkSeed(int64_t failingSeed, BOOL (^testBlock)(int64_t seed)) {
+int64_t PBTShrinkSeed(int64_t failingSeed, BOOL (^testBlock)(int64_t seed))
+{
 	// Try dividing the seed delta by 2, 4, 8... to find a simpler repro
 	for (int64_t step = 2; step < 256; step *= 2) {
 		int64_t candidate = failingSeed - (failingSeed % step);

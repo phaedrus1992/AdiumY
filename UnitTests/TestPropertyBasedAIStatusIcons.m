@@ -20,9 +20,9 @@
 
 /// Helper: minimal AIListObject-like class for icon lookup testing.
 @interface _PBTTestListObject : NSObject
-@property (nonatomic, copy) NSString *UID;
-@property (nonatomic, copy) NSString *statusName;
-@property (nonatomic, assign) AIStatusType statusType;
+@property(nonatomic, copy) NSString *UID;
+@property(nonatomic, copy) NSString *statusName;
+@property(nonatomic, assign) AIStatusType statusType;
 @end
 
 @implementation _PBTTestListObject
@@ -31,42 +31,41 @@
 @implementation TestPropertyBasedAIStatusIcons
 
 /// Property: statusIconForUnknownStatusWithIconType:direction: returns NSImage for all icon types.
-- (void)testUnknownStatusIconForAllTypes {
+- (void)testUnknownStatusIconForAllTypes
+{
 	PBTCheckDefault({
 		AIStatusIconType types[NUMBER_OF_STATUS_ICON_TYPES] = {AIStatusIconTab, AIStatusIconList, AIStatusIconMenu};
 		AIStatusIconType type = types[PBTUniform(NUMBER_OF_STATUS_ICON_TYPES)];
 		AIIconDirection dir = PBTRandomBool() ? AIIconNormal : AIIconFlipped;
 		NSImage *icon = [AIStatusIcons statusIconForUnknownStatusWithIconType:type direction:dir];
-		STAssertNotNil(icon,
-					   @"statusIconForUnknownStatusWithIconType: should return non-nil");
+		STAssertNotNil(icon, @"statusIconForUnknownStatusWithIconType: should return non-nil");
 	});
 }
 
 /// Property: statusIconForUnknownStatus returns non-nil for both directions.
-- (void)testUnknownStatusIconForBothDirections {
+- (void)testUnknownStatusIconForBothDirections
+{
 	PBTCheckDefault({
 		AIIconDirection dir = PBTRandomBool() ? AIIconNormal : AIIconFlipped;
-		NSImage *icon = [AIStatusIcons statusIconForUnknownStatusWithIconType:AIStatusIconList
-																	direction:dir];
-		STAssertNotNil(icon,
-					   @"statusIconForUnknownStatus should work for both directions");
+		NSImage *icon = [AIStatusIcons statusIconForUnknownStatusWithIconType:AIStatusIconList direction:dir];
+		STAssertNotNil(icon, @"statusIconForUnknownStatus should work for both directions");
 	});
 }
 
 /// Property: statusIconForListObject:type:direction: does not crash with nil object.
-- (void)testIconForNilListObject {
+- (void)testIconForNilListObject
+{
 	PBTCheckDefault({
 		AIStatusIconType type = AIStatusIconList;
 		AIIconDirection dir = PBTRandomBool() ? AIIconNormal : AIIconFlipped;
-		STAssertNoThrowSpecific(
-			[AIStatusIcons statusIconForListObject:nil type:type direction:dir],
-			NSException,
-			@"statusIconForListObject:nil should not throw");
+		STAssertNoThrowSpecific([AIStatusIcons statusIconForListObject:nil type:type direction:dir], NSException,
+								@"statusIconForListObject:nil should not throw");
 	});
 }
 
 /// Property: statusIconForStatusName:statusType:iconType:direction: returns non-nil for known types.
-- (void)testIconForKnownTypes {
+- (void)testIconForKnownTypes
+{
 	PBTCheckDefault({
 		AIStatusType statusTypes[] = {AIOnlineStatus, AIAwayStatus, AIInvisibleStatus, AIOfflineStatus};
 		AIStatusType st = statusTypes[PBTUniform(4)];
@@ -74,10 +73,7 @@
 		AIStatusIconType it = iconTypes[PBTUniform(NUMBER_OF_STATUS_ICON_TYPES)];
 		NSString *name = PBTRandomASCIIString(10);
 		AIIconDirection dir = PBTRandomBool() ? AIIconNormal : AIIconFlipped;
-		NSImage *icon = [AIStatusIcons statusIconForStatusName:name
-													statusType:st
-													  iconType:it
-													 direction:dir];
+		NSImage *icon = [AIStatusIcons statusIconForStatusName:name statusType:st iconType:it direction:dir];
 		// May return nil for unknown status names; just ensure no crash
 		STAssertTrue(icon == nil || [icon isKindOfClass:[NSImage class]],
 					 @"statusIconForStatusName: should return nil or NSImage");
@@ -85,24 +81,21 @@
 }
 
 /// Property: statusNameForListObject: returns nil without crashing for nil/null object.
-- (void)testStatusNameForNilObject {
+- (void)testStatusNameForNilObject
+{
 	PBTCheckDefault({
-		STAssertNoThrowSpecific(
-			[AIStatusIcons statusNameForListObject:nil],
-			NSException,
-			@"statusNameForListObject:nil should not throw");
+		STAssertNoThrowSpecific([AIStatusIcons statusNameForListObject:nil], NSException,
+								@"statusNameForListObject:nil should not throw");
 	});
 }
 
 /// Property: setActiveStatusIconsFromPath: returns BOOL without crashing for random paths.
-- (void)testSetActiveStatusIconsFromRandomPath {
+- (void)testSetActiveStatusIconsFromRandomPath
+{
 	PBTCheckDefault({
-		NSString *path = [NSString stringWithFormat:@"/tmp/statusicons_%u",
-						  (unsigned)PBTUniform(99999)];
-		STAssertNoThrowSpecific(
-			[AIStatusIcons setActiveStatusIconsFromPath:path],
-			NSException,
-			@"setActiveStatusIconsFromPath: should not throw for random path");
+		NSString *path = [NSString stringWithFormat:@"/tmp/statusicons_%u", (unsigned)PBTUniform(99999)];
+		STAssertNoThrowSpecific([AIStatusIcons setActiveStatusIconsFromPath:path], NSException,
+								@"setActiveStatusIconsFromPath: should not throw for random path");
 	});
 }
 

@@ -21,71 +21,84 @@
 @implementation TestPropertyBasedAIContactHidingController
 
 /// Property: sharedController returns non-nil without crashing.
-- (void)testSharedController {
+- (void)testSharedController
+{
 	PBTCheckDefault({
 		AIContactHidingController *controller = [AIContactHidingController sharedController];
-		STAssertNotNil(controller,
-					   @"sharedController should return non-nil");
+		STAssertNotNil(controller, @"sharedController should return non-nil");
 	});
 }
 
 /// Property: createPredicateWithSearchString: returns a non-nil NSPredicate for random strings.
-- (void)testCreatePredicateWithRandomSearchStrings {
+- (void)testCreatePredicateWithRandomSearchStrings
+{
 	PBTCheckDefault({
 		AIContactHidingController *controller = [AIContactHidingController sharedController];
 		STAssertNotNil(controller, @"sharedController failed");
 
 		NSString *searchString = nil;
 		switch (PBTUniform(3)) {
-			case 0: searchString = PBTRandomASCIIString(20); break;
-			case 1: searchString = @""; break;
-			case 2: searchString = PBTRandomUnicodeString(20); break;
+		case 0:
+			searchString = PBTRandomASCIIString(20);
+			break;
+		case 1:
+			searchString = @"";
+			break;
+		case 2:
+			searchString = PBTRandomUnicodeString(20);
+			break;
 		}
 		NSPredicate *predicate = [controller createPredicateWithSearchString:searchString];
-		STAssertNotNil(predicate,
-					   @"createPredicateWithSearchString: should return non-nil");
+		STAssertNotNil(predicate, @"createPredicateWithSearchString: should return non-nil");
 		// A predicate must evaluate without crashing for trivial objects
-		STAssertNoThrowSpecific(
-			[predicate evaluateWithObject:@{@"key": @"value"}],
-			NSException,
-			@"Predicate evaluation should not throw");
+		STAssertNoThrowSpecific([predicate evaluateWithObject:@{@"key" : @"value"}], NSException,
+								@"Predicate evaluation should not throw");
 	});
 }
 
 /// Property: createPredicateWithSearchString: with whitespace-only strings returns a valid predicate.
-- (void)testCreatePredicateWithWhitespaceString {
+- (void)testCreatePredicateWithWhitespaceString
+{
 	PBTCheckDefault({
 		AIContactHidingController *controller = [AIContactHidingController sharedController];
 		STAssertNotNil(controller, @"sharedController failed");
 
 		NSString *whitespace = PBTRandomWhitespaceString(10);
 		NSPredicate *predicate = [controller createPredicateWithSearchString:whitespace];
-		STAssertNotNil(predicate,
-					   @"Predicate for whitespace string should be non-nil");
+		STAssertNotNil(predicate, @"Predicate for whitespace string should be non-nil");
 	});
 }
 
 /// Property: filterContacts: returns BOOL without crashing for random search strings.
-- (void)testFilterContactsWithRandomStrings {
+- (void)testFilterContactsWithRandomStrings
+{
 	PBTCheckDefault({
 		AIContactHidingController *controller = [AIContactHidingController sharedController];
 		STAssertNotNil(controller, @"sharedController failed");
 
 		NSString *searchString = nil;
 		switch (PBTUniform(4)) {
-			case 0: searchString = PBTRandomASCIIString(20); break;
-			case 1: searchString = @""; break;
-			case 2: searchString = nil; break;
-			case 3: searchString = PBTRandomUnicodeString(20); break;
+		case 0:
+			searchString = PBTRandomASCIIString(20);
+			break;
+		case 1:
+			searchString = @"";
+			break;
+		case 2:
+			searchString = nil;
+			break;
+		case 3:
+			searchString = PBTRandomUnicodeString(20);
+			break;
 		}
 		BOOL result = [controller filterContacts:searchString];
-		STAssertTrue(result == YES || result == NO,
-					 @"filterContacts: must return BOOL");
+		STAssertTrue(result == YES || result == NO, @"filterContacts: must return BOOL");
 	});
 }
 
 /// Property: contactFilteringSearchString is consistent after filterContacts:.
-- (void)testContactFilteringSearchStringConsistency {
+- (void)testContactFilteringSearchStringConsistency
+{
 	PBTCheckDefault({
 		AIContactHidingController *controller = [AIContactHidingController sharedController];
 
@@ -93,8 +106,7 @@
 		[controller filterContacts:searchString];
 		NSString *readback = [controller contactFilteringSearchString];
 		// The string might be stored as-is or normalized; just confirm non-nil
-		STAssertNotNil(readback,
-					   @"contactFilteringSearchString should be non-nil after filterContacts:");
+		STAssertNotNil(readback, @"contactFilteringSearchString should be non-nil after filterContacts:");
 	});
 }
 
