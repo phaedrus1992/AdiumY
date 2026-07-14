@@ -216,11 +216,11 @@ int globalAlertAlphabeticalSort(id objectA, id objectB, void *context);
 	}
 
 	editingPanel = [CSNewContactAlertWindowController editAlert:nil
-												   forListObject:listObject
-														onWindow:[view window]
-												 notifyingTarget:self
-											  configureForGlobal:configureForGlobal
-												  defaultEventID:defaultEventID];
+												  forListObject:listObject
+													   onWindow:[view window]
+												notifyingTarget:self
+											 configureForGlobal:configureForGlobal
+												 defaultEventID:defaultEventID];
 }
 
 // Edit existing alert
@@ -231,11 +231,11 @@ int globalAlertAlphabeticalSort(id objectA, id objectB, void *context);
 		NSDictionary *alert = [outlineView_summary itemAtRow:selectedRow];
 
 		editingPanel = [CSNewContactAlertWindowController editAlert:alert
-													   forListObject:listObject
-															onWindow:[view window]
-													 notifyingTarget:self
-												  configureForGlobal:configureForGlobal
-													  defaultEventID:nil];
+													  forListObject:listObject
+														   onWindow:[view window]
+													notifyingTarget:self
+												 configureForGlobal:configureForGlobal
+													 defaultEventID:nil];
 	}
 }
 
@@ -246,7 +246,6 @@ int globalAlertAlphabeticalSort(id objectA, id objectB, void *context);
 	if (selectedRow != -1) {
 		id item = [outlineView_summary itemAtRow:selectedRow];
 
-
 		if ([contactAlertsActions containsObjectIdenticalTo:item]) {
 			/* Deleting an entire event */
 
@@ -255,12 +254,13 @@ int globalAlertAlphabeticalSort(id objectA, id objectB, void *context);
 
 			if (contactEventsCount > 1) {
 				// Warn before deleting more than one event simultaneously
-				NSBeginAlertSheet(
-					AILocalizedString(@"Delete Event?", nil), AILocalizedString(@"OK", nil),
-					AILocalizedString(@"Cancel", nil), nil,                                    /*otherButton*/
-					[view window], self, @selector(sheetDidEnd:returnCode:contextInfo:), NULL, /* didDismissSelector */
-					(__bridge_retained void *)contactEvents, AILocalizedString(@"Remove the %lu actions associated with this event?", nil),
-					(unsigned long)contactEventsCount);
+				NSBeginAlertSheet(AILocalizedString(@"Delete Event?", nil), AILocalizedString(@"OK", nil),
+								  AILocalizedString(@"Cancel", nil), nil, /*otherButton*/
+								  [view window], self, @selector(sheetDidEnd:returnCode:contextInfo:),
+								  NULL, /* didDismissSelector */
+								  (__bridge_retained void *)contactEvents,
+								  AILocalizedString(@"Remove the %lu actions associated with this event?", nil),
+								  (unsigned long)contactEventsCount);
 			} else {
 				// Delete a single event immediately
 				[self deleteContactActionsInArray:contactEvents];
@@ -462,8 +462,7 @@ NSComparisonResult actionSort(id objectA, id objectB, void *context)
 		id item = [outlineView_summary itemAtRow:row];
 
 		if ([contactAlertsActions containsObjectIdenticalTo:item]) {
-			selectedEventID =
-				[contactAlertsEvents objectAtIndex:[contactAlertsActions indexOfObjectIdenticalTo:item]];
+			selectedEventID = [contactAlertsEvents objectAtIndex:[contactAlertsActions indexOfObjectIdenticalTo:item]];
 
 		} else {
 			selectedEventID = [item objectForKey:KEY_EVENT_ID];
@@ -514,7 +513,6 @@ NSComparisonResult actionSort(id objectA, id objectB, void *context)
 
 			[outlineView_summary selectRowIndexes:[NSIndexSet indexSetWithIndex:rowToSelect] byExtendingSelection:NO];
 		}
-
 	}
 }
 
@@ -748,7 +746,8 @@ NSComparisonResult actionSort(id objectA, id objectB, void *context)
 	CGFloat necessaryHeight;
 
 	if ([contactAlertsActions containsObjectIdenticalTo:item]) {
-		NSNumber *cachedHeight = [requiredHeightDict objectForKey:[NSValue valueWithPointer:(__bridge const void *)item]];
+		NSNumber *cachedHeight =
+			[requiredHeightDict objectForKey:[NSValue valueWithPointer:(__bridge const void *)item]];
 		necessaryHeight = (cachedHeight ? [cachedHeight floatValue] : MINIMUM_ROW_HEIGHT);
 
 	} else {

@@ -75,10 +75,10 @@
 	if ([self cellIsSelected]) {
 		NSColor *highlightColor = [self.outlineControlView highlightColor];
 		NSGradient *gradient =
-			(highlightColor ? [[NSGradient alloc]
-								  initWithStartingColor:highlightColor
-											endingColor:[highlightColor darkenAndAdjustSaturationBy:0.4f]]
-							: [NSGradient selectedControlGradient]);
+			(highlightColor
+				 ? [[NSGradient alloc] initWithStartingColor:highlightColor
+												 endingColor:[highlightColor darkenAndAdjustSaturationBy:0.4f]]
+				 : [NSGradient selectedControlGradient]);
 
 		if ([self.outlineControlView isItemExpanded:proxyObject]) {
 			[gradient drawInBezierPath:[NSBezierPath bezierPathWithRoundedTopCorners:cellFrame radius:MOCKIE_RADIUS]

@@ -133,8 +133,6 @@ static NSMutableArray *deferredPluginPaths = nil;
 {
 
 	pluginArray = nil;
-
-
 }
 
 + (BOOL)pluginIsBlacklisted:(NSBundle *)plugin
@@ -223,7 +221,6 @@ static NSMutableArray *deferredPluginPaths = nil;
 				[inPluginArray addObject:plugin];
 				[pluginDict setObject:plugin forKey:NSStringFromClass(principalClass)];
 				[pluginBundleIdentifiers addObject:[pluginBundle bundleIdentifier]];
-
 
 			} else {
 				NSLog(@"Failed to initialize Plugin \"%@\" (\"%@\")!", [pluginPath lastPathComponent], pluginPath);

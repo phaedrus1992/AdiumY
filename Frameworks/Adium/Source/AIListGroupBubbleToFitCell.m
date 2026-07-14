@@ -54,7 +54,6 @@
 		NSAttributedString *countText = [[NSAttributedString alloc] initWithString:@" ()"
 																		attributes:[self labelAttributes]];
 		width += AIceil([countText size].width);
-
 	}
 
 	return width;

@@ -179,8 +179,7 @@
 									  @"internalObjectID before it was loaded.");
 
 		// We're not like any other bookmarks by the same name.
-		internalObjectID =
-			[NSString stringWithFormat:@"%@.%@.%@", self.service.serviceID, self.UID, self.account.UID];
+		internalObjectID = [NSString stringWithFormat:@"%@.%@.%@", self.service.serviceID, self.UID, self.account.UID];
 	}
 
 	return internalObjectID;

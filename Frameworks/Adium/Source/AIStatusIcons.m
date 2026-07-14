@@ -136,7 +136,6 @@ NSString *defaultNameForStatusType(AIStatusType statusType)
 				if (statusIcon) {
 					[statusIcons[iconType][iconDirection] setObject:statusIcon forKey:statusName];
 				}
-
 			}
 		} else {
 			if ([statusName isEqualToString:@"Blocked"]) {

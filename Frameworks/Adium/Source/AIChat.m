@@ -63,7 +63,7 @@ static int nextChatNumber = 0;
 {
 	if ((self = [super init])) {
 		name = nil;
-		 account = inAccount;
+		account = inAccount;
 		participatingContacts = [[NSMutableArray alloc] init];
 		participatingContactsFlags = [[NSMutableDictionary alloc] init];
 		participatingContactsAliases = [[NSMutableDictionary alloc] init];
@@ -103,21 +103,11 @@ static int nextChatNumber = 0;
 {
 	AILog(@"[%@ dealloc]", self);
 
-
 	[self removeAllParticipatingContactsSilently];
-
-
-
-
-
-
 
 	uniqueChatID = nil;
 
 	customEmoticons = nil;
-
-
-
 
 	tabStateIcon = nil;
 
@@ -128,8 +118,6 @@ static int nextChatNumber = 0;
 	securityDetails = nil;
 
 	lastMessageDate = nil;
-
-
 }
 
 // Big image
@@ -188,7 +176,7 @@ static int nextChatNumber = 0;
 {
 	if (inAccount != account) {
 
-		 account = inAccount;
+		account = inAccount;
 
 		// The uniqueChatID may depend upon the account, so clear it
 		[self clearUniqueChatID];
@@ -451,7 +439,6 @@ NSComparisonResult userListSort(id objectA, id objectB, void *context)
 
 	[participatingContacts addObjectsFromArray:contacts];
 	[adium.chatController chat:self addedListContacts:contacts notify:notify];
-
 }
 
 - (BOOL)addObject:(AIListObject *)inObject
@@ -503,7 +490,7 @@ NSComparisonResult userListSort(id objectA, id objectB, void *context)
 		if (self.isGroupChat) {
 			uniqueChatID = [[NSString alloc] initWithFormat:@"%@.%i", self.name, nextChatNumber++];
 		} else {
-			 uniqueChatID = self.listObject.internalObjectID;
+			uniqueChatID = self.listObject.internalObjectID;
 		}
 
 		if (!uniqueChatID) {
@@ -712,7 +699,6 @@ NSComparisonResult userListSort(id objectA, id objectB, void *context)
 		// make sure removing it from the array doesn't deallocate it immediately, since we need it for
 		// -chat:removedListContact:
 
-
 		[participatingContacts removeObject:inObject];
 
 		[self removeSavedValuesForContactUID:inObject.UID];
@@ -726,8 +712,6 @@ NSComparisonResult userListSort(id objectA, id objectB, void *context)
 			[adium.contactController accountDidStopTrackingContact:contact];
 			[[AIContactObserverManager sharedManager] endListObjectNotificationsDelaysImmediately];
 		}
-
-
 	}
 }
 
@@ -949,9 +933,9 @@ NSComparisonResult userListSort(id objectA, id objectB, void *context)
 	}
 
 	return [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:containerClassDesc
-																			containerSpecifier:containerRef
-																						   key:@"chats"
-																					  uniqueID:[self uniqueChatID]];
+													   containerSpecifier:containerRef
+																	  key:@"chats"
+																 uniqueID:[self uniqueChatID]];
 }
 
 - (unsigned int)index
@@ -1082,7 +1066,9 @@ NSComparisonResult userListSort(id objectA, id objectB, void *context)
 	return nil;
 }
 
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id *)stackbuf count:(NSUInteger)len
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state
+								  objects:(__unsafe_unretained id *)stackbuf
+									count:(NSUInteger)len
 {
 	return [self.containedObjects countByEnumeratingWithState:state objects:stackbuf count:len];
 }

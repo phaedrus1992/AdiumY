@@ -74,12 +74,7 @@
  * @brief Deallocate
  */
 - (void)dealloc
-{
-	
-	
-
-	
-}
+{}
 
 /*!
  * @brief Window did load
@@ -128,7 +123,6 @@
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
 	[sheet orderOut:nil];
-
 }
 
 /*!
@@ -139,7 +133,6 @@
 - (void)windowWillClose:(id)sender
 {
 	[super windowWillClose:sender];
-
 }
 
 /*!
@@ -163,7 +156,6 @@
 		NSArray *newPresets;
 		newPresets = [delegate duplicatePreset:selectedPreset inPresets:presets createdDuplicate:&duplicatePreset];
 
-		
 		presets = newPresets;
 
 		// The delegate returned a potentially changed presets array; reload table data
@@ -198,7 +190,7 @@
 		// Inform the delegate of the deletion
 		NSArray *newPresets;
 		newPresets = [delegate deletePreset:selectedPreset inPresets:presets];
-		
+
 		presets = newPresets;
 
 		// The delegate returned a potentially changed presets array; reload table data
@@ -302,7 +294,7 @@
 										 toName:(NSString *)anObject
 									  inPresets:presets
 								  renamedPreset:&renamedPreset];
-			
+
 			presets = newPresets;
 
 			// The delegate returned a potentially changed presets array; reload table data
@@ -386,7 +378,7 @@
 								  toIndex:row
 								inPresets:presets
 						  presetAfterMove:&presetAfterMove];
-		
+
 		presets = newPresets;
 
 		// Reload with the new data

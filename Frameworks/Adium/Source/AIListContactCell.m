@@ -38,10 +38,10 @@
 {
 	AIListContactCell *newCell = [super copyWithZone:zone];
 
-	newCell-> statusFont = statusFont;
-	newCell-> statusColor = statusColor;
-	newCell-> _statusAttributes = _statusAttributes;
-	newCell-> _statusAttributesInverted = _statusAttributesInverted;
+	newCell->statusFont = statusFont;
+	newCell->statusColor = statusColor;
+	newCell->_statusAttributes = _statusAttributes;
+	newCell->_statusAttributesInverted = _statusAttributesInverted;
 
 	return newCell;
 }
@@ -64,15 +64,7 @@
 
 // Dealloc
 - (void)dealloc
-{
-
-
-
-
-
-
-
-}
+{}
 
 // Cell sizing and padding
 // ----------------------------------------------------------------------------------------------
@@ -127,7 +119,6 @@
 																			attributes:self.statusAttributes];
 		width += AIceil([idleAttString size].width);
 		width += NAME_STATUS_PAD;
-
 	}
 
 	// User icon
@@ -179,7 +170,7 @@
 {
 	if (statusFont != inFont) {
 
-		 statusFont = inFont;
+		statusFont = inFont;
 
 		// Calculate and cache the height of this font
 		statusFontHeight = [[[NSLayoutManager alloc] init] defaultLineHeightForFont:[self statusFont]];
@@ -199,7 +190,7 @@
 {
 	if (statusColor != inColor) {
 
-		 statusColor = inColor;
+		statusColor = inColor;
 
 		// Flush the status attributes cache
 
@@ -222,10 +213,9 @@
 			[NSMutableParagraphStyle styleWithAlignment:NSLeftTextAlignment lineBreakMode:NSLineBreakByTruncatingTail];
 		[paragraphStyle setMaximumLineHeight:(float)labelFontHeight];
 
-		_statusAttributes =
-			[NSDictionary dictionaryWithObjectsAndKeys:paragraphStyle, NSParagraphStyleAttributeName,
-														[self statusColor], NSForegroundColorAttributeName,
-														[self statusFont], NSFontAttributeName, nil];
+		_statusAttributes = [NSDictionary
+			dictionaryWithObjectsAndKeys:paragraphStyle, NSParagraphStyleAttributeName, [self statusColor],
+										 NSForegroundColorAttributeName, [self statusFont], NSFontAttributeName, nil];
 	}
 
 	if (backgroundColorIsEvents && [listObject boolValueForProperty:@"isEvent"]) {
@@ -657,8 +647,6 @@
 
 			[extStatus drawInRect:NSMakeRect(drawRect.origin.x, drawRect.origin.y + half + offset, drawRect.size.width,
 											 drawRect.size.height - (half + offset))];
-
-
 
 			if (drawUnder) {
 				rect.origin.y -= halfHeight;

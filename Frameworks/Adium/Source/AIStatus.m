@@ -75,8 +75,7 @@
 }
 
 - (void)dealloc
-{
-}
+{}
 
 /*!
  * @brief Returns an appropriate icon for this state

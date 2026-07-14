@@ -84,8 +84,8 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 					 delegate:(id<AIListControllerDelegate>)inDelegate
 {
 	if ((self = [super init])) {
-		 contactListView = inContactListView;
-		 scrollView_contactList = inScrollView_contactList;
+		contactListView = inContactListView;
+		scrollView_contactList = inScrollView_contactList;
 		delegate = inDelegate;
 
 		hideRoot = YES;
@@ -145,7 +145,6 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 	[contactListView setDelegate:nil];
 	[contactListView setDataSource:nil];
 
-
 	contactListView = nil;
 
 	scrollView_contactList = nil;
@@ -156,12 +155,7 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 		tooltipTracker = nil;
 	}
 
-
-
-
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
-
-
 }
 
 /*!
@@ -211,8 +205,7 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 - (void)configureViewsAndTooltips
 {
 	// Configure the contact list view
-	tooltipTracker = [AISmoothTooltipTracker smoothTooltipTrackerForView:scrollView_contactList
-															 withDelegate:self];
+	tooltipTracker = [AISmoothTooltipTracker smoothTooltipTrackerForView:scrollView_contactList withDelegate:self];
 
 	/* The table column will want to interact with a cell. We use an AIMultiCellOutlineView subclass, though,
 	 * so the contentCell and groupCell set in updateLayoutFromPrefDict:andThemeFromPrefDict: will actually be
@@ -250,7 +243,7 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 {
 	if (contactList != newContactListRoot) {
 
-		 contactList = newContactListRoot;
+		contactList = newContactListRoot;
 	}
 
 	[contactListView reloadData];
@@ -336,8 +329,6 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 	BOOL pillowsOrPillowsFittedWindowStyle;
 
 	// Cells
-
-
 
 	contentCellAlignment = [[prefDict objectForKey:KEY_LIST_LAYOUT_ALIGNMENT] intValue];
 	groupCellAlignment = [[prefDict objectForKey:KEY_LIST_LAYOUT_GROUP_ALIGNMENT] intValue];
@@ -612,8 +603,7 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 	 * For example, when a contact changes, redraw the metacontact which represents it if appropriate.
 	 */
 	if (object && [object isKindOfClass:[AIListContact class]] && ([(AIListContact *)object parentContact] != object)) {
-		for (AIProxyListObject *proxyObject in
-			 [[(AIListContact *)object parentContact].proxyObjects copy]) {
+		for (AIProxyListObject *proxyObject in [[(AIListContact *)object parentContact].proxyObjects copy]) {
 			[contactListView redisplayItem:proxyObject];
 		}
 	}
@@ -801,7 +791,7 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 	NSArray *items = [notification object];
 	if (dragItems != items) {
 
-		 dragItems = items;
+		dragItems = items;
 	}
 
 	// Remove this contact list if from drag & drop operation took the last group away

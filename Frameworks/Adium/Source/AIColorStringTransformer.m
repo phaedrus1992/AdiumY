@@ -23,10 +23,8 @@
 {
 	if (self == [AIColorStringTransformer class]) {
 		@autoreleasepool {
-		[self setValueTransformer:[[AIColorStringTransformer alloc] init]
-						  forName:@"AIColorStringTransformer"];
-			}
-
+			[self setValueTransformer:[[AIColorStringTransformer alloc] init] forName:@"AIColorStringTransformer"];
+		}
 	}
 }
 

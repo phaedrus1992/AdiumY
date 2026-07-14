@@ -119,8 +119,6 @@
 																		NSForegroundColorAttributeName, // the blue
 																		nil]];                          // the myth
 			[self setTypingAttributes:textAttribs];
-
-
 		}
 	}
 }
@@ -135,8 +133,6 @@
 	if (attributes) {
 		[self setTypingAttributes:attributes];
 	}
-
-
 }
 
 - (void)deleteBackward:(id)sender
@@ -153,8 +149,6 @@
 
 			[newTypingAttributes removeObjectForKey:NSLinkAttributeName];
 			[self setTypingAttributes:newTypingAttributes];
-
-
 		}
 	}
 }

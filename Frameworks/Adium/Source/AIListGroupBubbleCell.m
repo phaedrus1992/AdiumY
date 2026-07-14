@@ -76,10 +76,10 @@
 	if ([self cellIsSelected]) {
 		NSColor *highlightColor = [self.outlineControlView highlightColor];
 		NSGradient *gradient =
-			(highlightColor ? [[NSGradient alloc]
-								  initWithStartingColor:highlightColor
-											endingColor:[highlightColor darkenAndAdjustSaturationBy:0.4f]]
-							: [NSGradient selectedControlGradient]);
+			(highlightColor
+				 ? [[NSGradient alloc] initWithStartingColor:highlightColor
+												 endingColor:[highlightColor darkenAndAdjustSaturationBy:0.4f]]
+				 : [NSGradient selectedControlGradient]);
 		[gradient drawInBezierPath:[NSBezierPath bezierPathWithRoundedRect:[self bubbleRectForFrame:cellFrame]]
 							 angle:270.0f];
 	}

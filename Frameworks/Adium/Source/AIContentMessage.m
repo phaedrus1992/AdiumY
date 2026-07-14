@@ -31,11 +31,11 @@
 		  autoreply:(BOOL)inAutoReply
 {
 	return [[self alloc] initWithChat:inChat
-								source:inSource
-						   destination:inDest
-								  date:inDate
-							   message:inMessage
-							 autoreply:inAutoReply];
+							   source:inSource
+						  destination:inDest
+								 date:inDate
+							  message:inMessage
+							autoreply:inAutoReply];
 }
 
 // Content Identifier
@@ -62,8 +62,7 @@
 }
 
 - (void)dealloc
-{
-}
+{}
 
 - (NSMutableArray *)displayClasses
 {

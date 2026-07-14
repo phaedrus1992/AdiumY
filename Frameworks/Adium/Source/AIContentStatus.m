@@ -28,11 +28,11 @@
 		  withType:(NSString *)inStatus
 {
 	return [[self alloc] initWithChat:inChat
-								source:inSource
-						   destination:inDest
-								  date:inDate
-							   message:inMessage
-							  withType:inStatus];
+							   source:inSource
+						  destination:inDest
+								 date:inDate
+							  message:inMessage
+							 withType:inStatus];
 }
 
 // init
@@ -49,7 +49,7 @@
 		trackContent = NO;
 
 		// Store source and dest
-		 statusType = inStatus;
+		statusType = inStatus;
 	}
 
 	return self;
@@ -64,8 +64,6 @@
 	loggedMessage = nil;
 
 	coalescingKey = nil;
-
-
 }
 
 - (NSMutableArray *)displayClasses

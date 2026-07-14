@@ -129,11 +129,7 @@ static AIAuthorizationRequestsWindowController *sharedController = nil;
 }
 
 - (void)dealloc
-{
-
-
-
-}
+{}
 
 #pragma mark Toolbar
 
@@ -186,7 +182,7 @@ static AIAuthorizationRequestsWindowController *sharedController = nil;
 							target:self
 				   settingSelector:@selector(setImage:)
 					   itemContent:[[NSImage alloc] initByReferencingFile:[[NSBundle mainBundle]
-																			   pathForImageResource:@"get-info.tiff"]]
+																			  pathForImageResource:@"get-info.tiff"]]
 							action:@selector(getInfo:)
 							  menu:nil];
 
@@ -253,7 +249,6 @@ static AIAuthorizationRequestsWindowController *sharedController = nil;
 		[menu addItemWithTitle:IGNORE_BLOCK target:self action:@selector(ignoreBlock:) keyEquivalent:@""];
 
 		[[item view] setMenu:menu];
-
 	}
 }
 
@@ -468,8 +463,6 @@ static AIAuthorizationRequestsWindowController *sharedController = nil;
 
 		CGFloat combinedHeight = [mainTitle heightWithWidth:[tableColumn width]];
 
-
-
 		// Substring (the status message)
 		NSString *reason = [[requests objectAtIndex:row] objectForKey:@"Reason"];
 
@@ -481,8 +474,6 @@ static AIAuthorizationRequestsWindowController *sharedController = nil;
 												attributes:subStringAttributes];
 
 			combinedHeight += [subStringTitle heightWithWidth:[tableColumn width]] + MINIMUM_CELL_SPACING;
-
-
 		}
 
 		[tableView setNeedsDisplayInRect:[tableView rectOfRow:row]];

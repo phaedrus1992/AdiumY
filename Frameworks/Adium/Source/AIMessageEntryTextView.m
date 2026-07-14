@@ -80,8 +80,7 @@
 @synthesize string;
 
 - (void)dealloc
-{
-}
+{}
 
 - (void)drawRect:(NSRect)rect
 {
@@ -202,7 +201,6 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
-
 }
 
 - (void)keyDown:(NSEvent *)inEvent
@@ -344,7 +342,6 @@
 
 		[newTypingAttributes removeObjectForKey:NSLinkAttributeName];
 		[self setTypingAttributes:newTypingAttributes];
-
 	}
 }
 
@@ -554,7 +551,6 @@
 		[self setTypingAttributes:attributes];
 	}
 
-
 	[self scrollRangeToVisible:[self selectedRange]];
 }
 
@@ -670,7 +666,6 @@
 	if (attributes) {
 		[self setTypingAttributes:attributes];
 	}
-
 
 	[self scrollRangeToVisible:[self selectedRange]];
 }
@@ -1568,8 +1563,7 @@
 		if (data) {
 			data = [data subdataWithRange:NSMakeRange(260, [data length] - 260)];
 
-			NSAttributedString *clipping = [[NSAttributedString alloc] initWithRTF:data
-																 documentAttributes:nil];
+			NSAttributedString *clipping = [[NSAttributedString alloc] initWithRTF:data documentAttributes:nil];
 			if (clipping) {
 				NSDictionary *attributes = [[self typingAttributes] copy];
 
@@ -1578,7 +1572,6 @@
 				if (attributes) {
 					[self setTypingAttributes:attributes];
 				}
-
 			}
 		}
 
@@ -1590,7 +1583,6 @@
 
 		// Insert an attributed string into the text at the current insertion point
 		[self insertText:[self attributedStringWithTextAttachmentExtension:attachment]];
-
 	}
 }
 
@@ -1606,7 +1598,6 @@
 
 	// Insert an attributed string into the text at the current insertion point
 	[self insertText:[self attributedStringWithTextAttachmentExtension:attachment]];
-
 }
 
 /*!
@@ -1628,7 +1619,7 @@
 - (NSAttributedString *)attributedStringWithAITextAttachmentExtensionsFromRTFDData:(NSData *)data
 {
 	NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithRTFD:data
-																				documentAttributes:NULL];
+																			   documentAttributes:NULL];
 	if ([attributedString length] && [attributedString containsAttachments]) {
 		NSUInteger currentLocation = 0;
 		NSRange attachmentRange;

@@ -152,9 +152,8 @@ static NSMutableDictionary *controllerDict = nil;
 {
 	if (originalStatusState != inStatusState) {
 
-		 originalStatusState = inStatusState;
+		originalStatusState = inStatusState;
 	}
-
 
 	workingStatusState =
 		(originalStatusState ? [originalStatusState mutableCopy] : [AIStatus statusOfType:inStatusType]);
@@ -176,7 +175,7 @@ static NSMutableDictionary *controllerDict = nil;
 {
 	if (inAccount != account) {
 
-		 account = inAccount;
+		account = inAccount;
 	}
 }
 
@@ -184,13 +183,7 @@ static NSMutableDictionary *controllerDict = nil;
  * Deallocate
  */
 - (void)dealloc
-{
-
-
-
-
-
-}
+{}
 
 /*!
  * @brief Configure the window after it loads
@@ -250,7 +243,6 @@ static NSMutableDictionary *controllerDict = nil;
 																		 caseSensitive:NO
 																		  errorMessage:nil]];
 
-
 	if (!showSaveCheckbox) {
 		[checkBox_save setHidden:YES];
 	}
@@ -297,8 +289,6 @@ static NSMutableDictionary *controllerDict = nil;
 	// Stop tracking with the controllerDict
 	NSNumber *targetHash = [NSNumber numberWithUnsignedInteger:[target hash]];
 	[controllerDict removeObjectForKey:targetHash];
-
-
 }
 
 /*!

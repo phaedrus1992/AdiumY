@@ -130,8 +130,7 @@ static DCJoinChatWindowController *sharedJoinChatInstance = nil;
 	[button_cancel setLocalizedString:AILocalizedString(@"Cancel", nil)];
 
 	// Account menu
-	accountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu
-										   showTitleVerbs:NO];
+	accountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu showTitleVerbs:NO];
 
 	[self configureForAccount:[[popUp_service selectedItem] representedObject]];
 

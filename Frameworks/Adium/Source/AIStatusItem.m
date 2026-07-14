@@ -103,8 +103,7 @@
  * @brief Deallocate
  */
 - (void)dealloc
-{
-}
+{}
 
 - (NSString *)title
 {
@@ -199,8 +198,7 @@
 {
 	NSNumber *nextUniqueStatusID;
 
-	nextUniqueStatusID = [adium.preferenceController preferenceForKey:@"TopStatusID"
-																  group:PREF_GROUP_SAVED_STATUS];
+	nextUniqueStatusID = [adium.preferenceController preferenceForKey:@"TopStatusID" group:PREF_GROUP_SAVED_STATUS];
 	if (!nextUniqueStatusID)
 		nextUniqueStatusID = [NSNumber numberWithInt:1];
 
@@ -282,9 +280,9 @@
 	NSScriptClassDescription *containerClassDesc =
 		(NSScriptClassDescription *)[NSScriptClassDescription classDescriptionForClass:[NSApp class]];
 	return [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:containerClassDesc
-														containerSpecifier:nil
-																	   key:@"statuses"
-																  uniqueID:[self uniqueStatusID]];
+													   containerSpecifier:nil
+																	  key:@"statuses"
+																 uniqueID:[self uniqueStatusID]];
 }
 
 - (AIStatusTypeApplescript)statusTypeApplescript

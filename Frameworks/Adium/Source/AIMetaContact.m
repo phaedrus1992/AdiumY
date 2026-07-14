@@ -511,7 +511,7 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 {
 	if (!_listContactsIncludingOfflineAccounts) {
 		_listContactsIncludingOfflineAccounts = [self uniqueContainedListContactsIncludingOfflineAccounts:YES
-																							 visibleOnly:NO];
+																							  visibleOnly:NO];
 	}
 
 	return _listContactsIncludingOfflineAccounts;
@@ -751,10 +751,10 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 }
 
 - (void)listObject:(AIListObject *)listObject
-		mutableOwnerArray:(AIMutableOwnerArray *)inArray
-			 didSetObject:(id)anObject
-				withOwner:(AIListObject *)inOwner
-			priorityLevel:(float)priority
+	mutableOwnerArray:(AIMutableOwnerArray *)inArray
+		 didSetObject:(id)anObject
+			withOwner:(AIListObject *)inOwner
+		priorityLevel:(float)priority
 {
 	if ((listObject != self) && (inArray == [listObject displayArrayForKey:@"Display Name" create:NO]) &&
 		(!anObject || ([anObject isEqualToString:[inArray objectValue]]))) {
@@ -1031,9 +1031,13 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 	[self containedObjectsOrOrderDidChange];
 }
 
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(__unsafe_unretained id *)stackbuf count:(NSUInteger)len
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state
+								  objects:(__unsafe_unretained id *)stackbuf
+									count:(NSUInteger)len
 {
-	return [self.containedObjects countByEnumeratingWithState:state objects:(__unsafe_unretained id * _Nonnull)stackbuf count:len];
+	return [self.containedObjects countByEnumeratingWithState:state
+													  objects:(__unsafe_unretained id *_Nonnull)stackbuf
+														count:len];
 }
 
 #pragma mark Contained Contact sorting

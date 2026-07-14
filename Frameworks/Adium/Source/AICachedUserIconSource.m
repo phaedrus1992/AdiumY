@@ -77,7 +77,7 @@ static AICachedUserIconSource *sharedCachedUserIconSourceInstance = nil;
 		return sharedCachedUserIconSourceInstance;
 	} else {
 		if ((self = [super init])) {
-			 sharedCachedUserIconSourceInstance = self;
+			sharedCachedUserIconSourceInstance = self;
 		}
 	}
 

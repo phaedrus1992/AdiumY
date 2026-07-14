@@ -38,9 +38,7 @@
 }
 
 - (void)dealloc
-{
-
-}
+{}
 
 /*!
  * @brief AIUserIcons wants this source to update its user icon for an object

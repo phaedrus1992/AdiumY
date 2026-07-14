@@ -129,7 +129,6 @@
 {
 	[prefsWindow close];
 	prefsWindow = nil;
-
 }
 
 // ************************************************
@@ -246,7 +245,6 @@
 
 	[prefsWindow close];
 	prefsWindow = nil;
-
 }
 
 - (void)windowWillClose:(NSNotification *)aNotification
@@ -352,7 +350,7 @@
 
 		NSView *tempView = [[NSView alloc] initWithFrame:[[prefsWindow contentView] frame]];
 		[prefsWindow setContentView:tempView];
-		}
+	}
 
 	// Preserve upper left point of window during resize.
 	NSRect newFrame = [prefsWindow frame];

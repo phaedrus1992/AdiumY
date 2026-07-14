@@ -56,7 +56,7 @@
 - (id)initWithUID:(NSString *)inUID account:(AIAccount *)inAccount service:(AIService *)inService
 {
 	if ((self = [self initWithUID:inUID service:inService])) {
-		 account = inAccount;
+		account = inAccount;
 	}
 
 	return self;
@@ -83,7 +83,6 @@
 
 	internalUniqueObjectID = nil;
 
-
 	textColor = nil;
 
 	invertedTextColor = nil;
@@ -103,8 +102,6 @@
 	serverDisplayName = nil;
 
 	formattedUID = nil;
-
-
 }
 
 // The account that owns this contact
@@ -120,7 +117,7 @@
 {
 	if (UID != inUID) {
 
-		 UID = inUID;
+		UID = inUID;
 
 		internalObjectID = nil;
 
@@ -134,8 +131,8 @@
 {
 	if (!internalUniqueObjectID) {
 		internalUniqueObjectID = [AIListContact internalUniqueObjectIDForService:self.service
-																		  account:self.account
-																			  UID:self.UID];
+																		 account:self.account
+																			 UID:self.UID];
 	}
 	return internalUniqueObjectID;
 }
@@ -322,8 +319,6 @@
 						  object:self
 						userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:@"Notify"]];
 	}
-
-
 }
 
 /*!
@@ -650,8 +645,7 @@
 																						   statusType:self.statusType];
 
 			if (descriptionOfStatus)
-				contactListStatusMessage =
-					[[NSAttributedString alloc] initWithString:descriptionOfStatus];
+				contactListStatusMessage = [[NSAttributedString alloc] initWithString:descriptionOfStatus];
 		}
 	}
 
@@ -867,11 +861,10 @@
 - (NSScriptObjectSpecifier *)objectSpecifier
 {
 	NSScriptObjectSpecifier *containerRef = self.account.objectSpecifier;
-	return [[NSNameSpecifier alloc]
-		initWithContainerClassDescription:[containerRef keyClassDescription]
-					   containerSpecifier:containerRef
-									  key:@"contacts"
-									 name:self.UID];
+	return [[NSNameSpecifier alloc] initWithContainerClassDescription:[containerRef keyClassDescription]
+												   containerSpecifier:containerRef
+																  key:@"contacts"
+																 name:self.UID];
 }
 
 - (BOOL)scriptingBlocked

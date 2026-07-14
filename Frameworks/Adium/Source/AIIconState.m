@@ -96,9 +96,9 @@
 			delay = 0;
 			animated = NO;
 			image = [self _compositeStates:inIconStates
-							  withBaseState:baseIconState
-							 animatingState:animatingState
-								   forFrame:0];
+							 withBaseState:baseIconState
+							animatingState:animatingState
+								  forFrame:0];
 
 		} else { // Animating icon
 			// init
@@ -114,9 +114,9 @@
 
 			// Render the first image
 			image = [self _compositeStates:inIconStates
-							  withBaseState:baseIconState
-							 animatingState:animatingState
-								   forFrame:0];
+							 withBaseState:baseIconState
+							animatingState:animatingState
+								  forFrame:0];
 			[imageArray addObject:image];
 		}
 	}
@@ -143,8 +143,7 @@
 }
 
 - (void)dealloc
-{
-}
+{}
 
 - (NSInteger)currentFrame
 {

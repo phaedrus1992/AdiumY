@@ -52,9 +52,9 @@ static AIContactHidingController *sharedControllerInstance = nil;
 		matchedContacts = [[NSMutableDictionary alloc] init];
 
 		// contains[cd] - c = case insensitive, d = diacritic insensitive
-		filterPredicateTemplate = [NSPredicate
-			predicateWithFormat:
-				@"displayName contains[cd] $KEYWORD OR formattedUID contains[cd] $KEYWORD OR uid contains[cd] $KEYWORD"];
+		filterPredicateTemplate =
+			[NSPredicate predicateWithFormat:@"displayName contains[cd] $KEYWORD OR formattedUID contains[cd] $KEYWORD "
+											 @"OR uid contains[cd] $KEYWORD"];
 	}
 	return self;
 }
@@ -71,7 +71,6 @@ static AIContactHidingController *sharedControllerInstance = nil;
 	filterPredicateTemplate = nil;
 
 	hideAccounts = nil;
-
 }
 
 - (void)preferencesChangedForGroup:(NSString *)group
@@ -90,7 +89,6 @@ static AIContactHidingController *sharedControllerInstance = nil;
 	showMobileContacts = [[prefDict objectForKey:KEY_SHOW_MOBILE_CONTACTS] boolValue];
 	showBlockedContacts = [[prefDict objectForKey:KEY_SHOW_BLOCKED_CONTACTS] boolValue];
 	showAwayContacts = [[prefDict objectForKey:KEY_SHOW_AWAY_CONTACTS] boolValue];
-
 
 	hideAccounts = [prefDict objectForKey:KEY_HIDE_ACCOUNT_CONTACTS];
 
@@ -114,7 +112,7 @@ static AIContactHidingController *sharedControllerInstance = nil;
 - (BOOL)filterContacts:(NSString *)inSearchString
 {
 
-	 searchString = inSearchString;
+	searchString = inSearchString;
 
 	filterPredicate = nil;
 	[matchedContacts removeAllObjects];
@@ -260,7 +258,6 @@ static AIContactHidingController *sharedControllerInstance = nil;
 	NSPredicate *retval = [NSCompoundPredicate andPredicateWithSubpredicates:subpredicates];
 
 	CFRelease(tokenizer);
-
 
 	return retval;
 }

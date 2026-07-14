@@ -48,8 +48,6 @@
 
 	self.account = nil;
 	self.listContact = nil;
-
-
 }
 
 - (void)setMediaState:(AIMediaState)inMediaState

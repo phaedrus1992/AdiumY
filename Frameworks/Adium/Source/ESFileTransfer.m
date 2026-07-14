@@ -273,8 +273,7 @@ static NSMutableDictionary *fileTransferDict = nil;
 					if (err == noErr) {
 
 						if (CFGetTypeID(cfOldQuarantineProperties) == CFDictionaryGetTypeID()) {
-							quarantineProperties =
-								[(__bridge NSDictionary *)cfOldQuarantineProperties mutableCopy];
+							quarantineProperties = [(__bridge NSDictionary *)cfOldQuarantineProperties mutableCopy];
 						} else {
 							AILogWithSignature(@"Getting quarantine data failed for %@ (%@)", self, localFilename);
 							return;
@@ -296,8 +295,8 @@ static NSMutableDictionary *fileTransferDict = nil;
 					//					[quarantineProperties setObject:[NSURL URLWithString:@"file:///dev/null"]
 					//											 forKey:(NSString *)kLSQuarantineOriginURLKey];
 
-					if (LSSetItemAttribute(&fsRef, kLSRolesAll, kLSItemQuarantineProperties, (__bridge CFTypeRef)quarantineProperties) !=
-						noErr) {
+					if (LSSetItemAttribute(&fsRef, kLSRolesAll, kLSItemQuarantineProperties,
+										   (__bridge CFTypeRef)quarantineProperties) != noErr) {
 						AILogWithSignature(@"Danger! Quarantining file %@ failed!", localFilename);
 					}
 

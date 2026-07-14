@@ -164,7 +164,6 @@
 		[self didModifyProperties:keys silent:silent];
 
 		[self didNotifyOfChangedPropertiesSilently:silent];
-
 	}
 }
 

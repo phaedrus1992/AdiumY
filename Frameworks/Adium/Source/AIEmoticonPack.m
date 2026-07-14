@@ -69,7 +69,7 @@
 - (AIEmoticonPack *)initFromPath:(NSString *)inPath
 {
 	if ((self = [super init])) {
-		 path = inPath;
+		path = inPath;
 
 		bundle = [NSBundle bundleWithPath:path];
 
@@ -87,7 +87,6 @@
 			name = localizedName;
 		}
 
-
 		emoticonArray = nil;
 		enabledEmoticonArray = nil;
 
@@ -99,16 +98,7 @@
 
 // Dealloc
 - (void)dealloc
-{
-
-
-
-
-
-
-
-
-}
+{}
 
 /*!
  * @brief Name, for display to the user
@@ -239,10 +229,10 @@
 	AIEmoticonPack *newPack = [[AIEmoticonPack alloc] initFromPath:path];
 
 	newPack->emoticonArray = [emoticonArray mutableCopy];
-	newPack-> serviceClass = serviceClass;
-	newPack-> path = path;
-	newPack-> bundle = bundle;
-	newPack-> name = name;
+	newPack->serviceClass = serviceClass;
+	newPack->path = path;
+	newPack->bundle = bundle;
+	newPack->name = name;
 
 	return newPack;
 }

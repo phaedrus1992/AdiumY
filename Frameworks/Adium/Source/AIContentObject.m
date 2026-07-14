@@ -50,12 +50,12 @@
 		postProcessContent = YES;
 
 		// Store source, dest, chat, ...
-		 source = inSource;
-		 destination = inDest;
-		 message = inMessage;
+		source = inSource;
+		destination = inDest;
+		message = inMessage;
 		date = (inDate ? inDate : [NSDate date]);
 
-		 chat = inChat;
+		chat = inChat;
 		outgoing = ([source isKindOfClass:[AIAccount class]]);
 		userInfo = nil;
 	}
@@ -79,9 +79,7 @@
 	userInfo = nil;
 	if (customDisplayClasses)
 
-	customDisplayClasses = nil;
-
-
+		customDisplayClasses = nil;
 }
 
 // Content Identifier

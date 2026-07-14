@@ -49,18 +49,13 @@ static AICustomSocialNetworkingStatusWindowController *sharedController = nil;
 	[super windowDidLoad];
 }
 - (void)dealloc
-{
-
-
-
-
-}
+{}
 
 - (void)setAccount:(AIAccount *)inAccount
 {
 	if (inAccount != account) {
 
-		 account = inAccount;
+		account = inAccount;
 	}
 }
 
@@ -68,7 +63,7 @@ static AICustomSocialNetworkingStatusWindowController *sharedController = nil;
 {
 	if (inTarget != target) {
 
-		 target = inTarget;
+		target = inTarget;
 	}
 }
 
@@ -133,7 +128,6 @@ static AICustomSocialNetworkingStatusWindowController *sharedController = nil;
 - (void)windowWillClose:(id)sender
 {
 	[super windowWillClose:sender];
-
 
 	sharedController = nil;
 }

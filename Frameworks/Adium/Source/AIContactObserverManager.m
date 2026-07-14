@@ -76,10 +76,7 @@ static AIContactObserverManager *sharedObserverManager = nil;
 
 	contactObservers = nil;
 
-
 	self.delayedUpdateTimer = nil;
-
-
 }
 
 // Status and Display updates
@@ -329,7 +326,6 @@ static AIContactObserverManager *sharedObserverManager = nil;
 		}
 	}
 
-
 	changedObjects = nil;
 }
 
@@ -380,22 +376,20 @@ static AIContactObserverManager *sharedObserverManager = nil;
 
 	for (AIListObject *listObject in en) {
 		@autoreleasepool {
-		NSSet *attributes = [inObserver updateListObject:listObject keys:nil silent:YES];
-		if (attributes)
-			[self listObjectAttributesChanged:listObject modifiedKeys:attributes];
+			NSSet *attributes = [inObserver updateListObject:listObject keys:nil silent:YES];
+			if (attributes)
+				[self listObjectAttributesChanged:listObject modifiedKeys:attributes];
 
-		if ([listObject isKindOfClass:[AIListContact class]]) {
-			AIListContact *contact = (AIListContact *)listObject;
+			if ([listObject isKindOfClass:[AIListContact class]]) {
+				AIListContact *contact = (AIListContact *)listObject;
 
-			// If this contact is within a meta contact, update the meta contact too
-			if (contact.metaContact) {
-				attributes = [inObserver updateListObject:contact.metaContact keys:nil silent:YES];
-				if (attributes)
-					[self listObjectAttributesChanged:contact.metaContact modifiedKeys:attributes];
+				// If this contact is within a meta contact, update the meta contact too
+				if (contact.metaContact) {
+					attributes = [inObserver updateListObject:contact.metaContact keys:nil silent:YES];
+					if (attributes)
+						[self listObjectAttributesChanged:contact.metaContact modifiedKeys:attributes];
+				}
 			}
-		}
-
-
 		}
 	}
 

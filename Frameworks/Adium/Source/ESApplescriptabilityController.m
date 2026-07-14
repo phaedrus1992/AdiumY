@@ -107,8 +107,6 @@
 
 	[newStatus setStatusTypeApplescript:newStatusType];
 	[self setMyStatus:newStatus];
-
-
 }
 
 - (NSString *)myStatusMessageString
@@ -122,8 +120,6 @@
 
 	[newStatus setStatusMessageString:inString];
 	[self setMyStatus:newStatus];
-
-
 }
 
 #pragma mark Controller convenience

@@ -173,7 +173,6 @@ static NSComparisonResult compareSources(id<AIUserIconSource> sourceA, id<AIUser
 		[iconCache setObject:inUserIcon forKey:internalObjectID];
 		[iconCacheOwners setObject:inSource forKey:internalObjectID];
 
-
 	} else {
 		id<AIUserIconSource> source = [self userIconSourceForObject:inObject];
 		if (!wasAsynchronous || (source == inSource)) {
@@ -383,7 +382,6 @@ static NSComparisonResult compareSources(id<AIUserIconSource> sourceA, id<AIUser
 	if (userIcon && inSource) {
 		NSString *internalObjectID = inObject.internalObjectID;
 
-
 		[self flushCacheForObjectOnly:inObject];
 
 #ifdef AIUSERICON_DEBUG
@@ -392,7 +390,6 @@ static NSComparisonResult compareSources(id<AIUserIconSource> sourceA, id<AIUser
 
 		[iconCache setObject:userIcon forKey:internalObjectID];
 		[iconCacheOwners setObject:inSource forKey:internalObjectID];
-
 	}
 }
 

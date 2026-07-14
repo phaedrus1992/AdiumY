@@ -52,8 +52,7 @@ NSComparisonResult statusArraySort(id objectA, id objectB, void *context);
 }
 
 - (void)dealloc
-{
-}
+{}
 
 /*!
  * @brief Encode with Coder
@@ -141,8 +140,9 @@ NSComparisonResult statusArraySort(id objectA, id objectB, void *context);
 - (NSArray *)sortedContainedStatusItems
 {
 	if (!_sortedContainedStatusItems) {
-		_sortedContainedStatusItems = [containedStatusItems sortedArrayUsingFunction:statusArraySort
-																			  context:(__bridge void *)containedStatusItems];
+		_sortedContainedStatusItems =
+			[containedStatusItems sortedArrayUsingFunction:statusArraySort
+												   context:(__bridge void *)containedStatusItems];
 	}
 
 	return _sortedContainedStatusItems;

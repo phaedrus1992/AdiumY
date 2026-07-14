@@ -46,8 +46,7 @@
 
 - (NSString *)description
 {
-	return [NSString
-		stringWithFormat:@"%@, %@, %@", [self name], [self path], [self type]];
+	return [NSString stringWithFormat:@"%@, %@, %@", [self name], [self path], [self type]];
 }
 
 + (AIXtraInfo *)infoWithURL:(NSURL *)url
@@ -104,17 +103,7 @@
 }
 
 - (void)dealloc
-{
-	
-	
-	
-	
-	
-	
-	
-	
-	
-}
+{}
 
 - (NSString *)resourcePath
 {

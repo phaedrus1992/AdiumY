@@ -62,17 +62,13 @@
 {
 	if ((self = [super init])) {
 		account = ac;
-		 alert = al;
+		alert = al;
 	}
 	return self;
 }
 
 - (void)dealloc
-{
-
-
-
-}
+{}
 
 @synthesize userData;
 
@@ -141,10 +137,7 @@ typedef enum {
 
 	currentDisplayName = nil;
 
-
-
 	[delayedUpdateStatusTimer invalidate];
-
 
 	/* Our superclass releases internalObjectID in its dealloc, so we should set it to nil when do.
 	 * We could just depend upon its implementation, but this is more robust.
@@ -158,8 +151,6 @@ typedef enum {
 
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
-
-
 }
 
 /*!
@@ -1066,11 +1057,10 @@ typedef enum {
 	AIService *theService = self.service;
 	NSScriptObjectSpecifier *containerRef = [theService objectSpecifier];
 
-	return
-		[[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:[containerRef keyClassDescription]
-													 containerSpecifier:containerRef
-																	key:@"accounts"
-															   uniqueID:[self scriptingInternalObjectID]];
+	return [[NSUniqueIDSpecifier alloc] initWithContainerClassDescription:[containerRef keyClassDescription]
+													   containerSpecifier:containerRef
+																	  key:@"accounts"
+																 uniqueID:[self scriptingInternalObjectID]];
 }
 
 /**

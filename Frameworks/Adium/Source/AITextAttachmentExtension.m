@@ -77,8 +77,7 @@
  * @brief Deallocate
  */
 - (void)dealloc
-{
-}
+{}
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
@@ -235,7 +234,7 @@
 - (void)setString:(NSString *)inString
 {
 	if (stringRepresentation != inString) {
-		
+
 		stringRepresentation = [inString copy];
 	}
 }
@@ -254,8 +253,7 @@
 			myFilewrapper = [[NSFileWrapper alloc] initWithPath:[self path]];
 
 		} else if ([self image]) {
-			myFilewrapper =
-				[[NSFileWrapper alloc] initWithSerializedRepresentation:[[self image] PNGRepresentation]];
+			myFilewrapper = [[NSFileWrapper alloc] initWithSerializedRepresentation:[[self image] PNGRepresentation]];
 			[myFilewrapper setPreferredFilename:[[[NSProcessInfo processInfo] globallyUniqueString]
 													stringByAppendingPathExtension:@"png"]];
 		}

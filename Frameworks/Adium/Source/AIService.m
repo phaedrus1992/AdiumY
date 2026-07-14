@@ -63,8 +63,8 @@
 - (id)accountWithUID:(NSString *)inUID internalObjectID:(NSString *)inInternalObjectID
 {
 	return [[[self accountClass] alloc] initWithUID:[self normalizeUID:inUID removeIgnoredCharacters:YES]
-									internalObjectID:inInternalObjectID
-											 service:self];
+								   internalObjectID:inInternalObjectID
+											service:self];
 }
 
 /*!
@@ -563,9 +563,9 @@
 	NSScriptClassDescription *containerClassDesc =
 		(NSScriptClassDescription *)[NSScriptClassDescription classDescriptionForClass:[NSApp class]];
 	return [[NSNameSpecifier alloc] initWithContainerClassDescription:containerClassDesc
-													containerSpecifier:nil
-																   key:@"services"
-																  name:self.serviceID];
+												   containerSpecifier:nil
+																  key:@"services"
+																 name:self.serviceID];
 }
 
 - (NSData *)image

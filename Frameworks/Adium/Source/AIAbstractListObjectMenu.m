@@ -53,8 +53,6 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:AIStatusIconSetDidChangeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:AIServiceIconSetDidChangeNotification object:nil];
 	[self _destroyMenuItems];
-
-
 }
 
 /*!

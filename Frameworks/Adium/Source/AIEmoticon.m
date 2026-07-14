@@ -53,10 +53,10 @@
 							pack:(AIEmoticonPack *)inPack
 {
 	if ((self = [super init])) {
-		 path = inPath;
-		 name = inName;
-		 textEquivalents = inTextEquivalents;
-		 pack = inPack;
+		path = inPath;
+		name = inName;
+		textEquivalents = inTextEquivalents;
+		pack = inPack;
 		imageLoaded = NO;
 		_cachedAttributedString = nil;
 	}
@@ -66,15 +66,7 @@
 
 // Dealloc
 - (void)dealloc
-{
-
-
-
-
-
-
-
-}
+{}
 
 /*!
  * @brief Returns an array of the text equivalents for this emoticon
@@ -149,8 +141,7 @@
 {
 	if (path != inPath) {
 
-		 path = inPath;
-
+		path = inPath;
 
 		_cachedAttributedString = nil;
 	}
@@ -183,42 +174,40 @@
 	__block NSMutableAttributedString *attributedString;
 	dispatch_sync(cacheQueue, ^{
 		@autoreleasepool {
-		AITextAttachmentExtension *attachment;
+			AITextAttachmentExtension *attachment;
 
-		// Cache this attachment for ourself if we don't already have a cache, or if our cache needs to have an image
-		// attached
+			// Cache this attachment for ourself if we don't already have a cache, or if our cache needs to have an
+			// image attached
 
-		if (!_cachedAttributedString || (!imageLoaded && attach)) {
-			// for the second half of the conditional
-			AITextAttachmentExtension *emoticonAttachment = [[AITextAttachmentExtension alloc] init];
-			if (!path || attach) {
-				NSTextAttachmentCell *cell = [[NSTextAttachmentCell alloc] initImageCell:[self image]];
-				[emoticonAttachment setAttachmentCell:cell];
+			if (!_cachedAttributedString || (!imageLoaded && attach)) {
+				// for the second half of the conditional
+				AITextAttachmentExtension *emoticonAttachment = [[AITextAttachmentExtension alloc] init];
+				if (!path || attach) {
+					NSTextAttachmentCell *cell = [[NSTextAttachmentCell alloc] initImageCell:[self image]];
+					[emoticonAttachment setAttachmentCell:cell];
 
-				imageLoaded = YES;
+					imageLoaded = YES;
+				}
+
+				[emoticonAttachment setPath:path];
+				[emoticonAttachment setHasAlternate:YES];
+				[emoticonAttachment setImageClass:@"emoticon"];
+
+				// Emoticons should not ever be sent out as images
+				[emoticonAttachment setShouldAlwaysSendAsText:YES];
+
+				_cachedAttributedString = [NSAttributedString attributedStringWithAttachment:emoticonAttachment];
 			}
 
-			[emoticonAttachment setPath:path];
-			[emoticonAttachment setHasAlternate:YES];
-			[emoticonAttachment setImageClass:@"emoticon"];
-
-			// Emoticons should not ever be sent out as images
-			[emoticonAttachment setShouldAlwaysSendAsText:YES];
-
-			_cachedAttributedString = [NSAttributedString attributedStringWithAttachment:emoticonAttachment];
+			// Create a copy of our cached string, and update it for the new text equivalent
+			attributedString = [_cachedAttributedString mutableCopy];
+			attachment = [[attributedString attribute:NSAttachmentAttributeName atIndex:0 effectiveRange:NULL] copy];
+			[attributedString addAttribute:NSAttachmentAttributeName
+									 value:attachment
+									 range:NSMakeRange(0, [attributedString length])];
+			[attachment setString:textEquivalent];
 		}
-
-		// Create a copy of our cached string, and update it for the new text equivalent
-		attributedString = [_cachedAttributedString mutableCopy];
-		attachment = [[attributedString attribute:NSAttachmentAttributeName atIndex:0 effectiveRange:NULL] copy];
-		[attributedString addAttribute:NSAttachmentAttributeName
-								 value:attachment
-								 range:NSMakeRange(0, [attributedString length])];
-		[attachment setString:textEquivalent];
-
-
-			}
-			});
+	});
 	return attributedString;
 }
 

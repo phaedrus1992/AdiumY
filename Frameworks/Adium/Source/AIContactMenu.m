@@ -57,7 +57,7 @@
 {
 	if ((self = [super init])) {
 		[self setDelegate:inDelegate];
-		 containingObject = inContainingObject;
+		containingObject = inContainingObject;
 
 		// Register as a list observer
 		[[AIContactObserverManager sharedManager] registerListObjectObserver:self];
@@ -79,11 +79,8 @@
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
-
 	containingObject = nil;
 	delegate = nil;
-
-
 }
 
 /*!
@@ -94,8 +91,7 @@
 - (void)setContainingObject:(AIListObject *)inContainingObject
 {
 
-
-	 containingObject = inContainingObject;
+	containingObject = inContainingObject;
 
 	[self rebuildMenu];
 }
@@ -238,8 +234,8 @@
 
 		NSMenuItem *aMenuItem =
 			[[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"Contact List", nil) stringByAppendingEllipsis]
-										action:@selector(toggleContactList:)
-								 keyEquivalent:@""];
+									   action:@selector(toggleContactList:)
+								keyEquivalent:@""];
 		[aMenuItem setTarget:adium.interfaceController];
 		[contactMenus insertObject:aMenuItem atIndex:0];
 
@@ -258,7 +254,7 @@
 {
 	NSMutableArray *listObjectArray = [NSMutableArray array];
 
-	for (AIListObject * __strong listObject in [listObjects copy]) {
+	for (AIListObject *__strong listObject in [listObjects copy]) {
 		if ([listObject isKindOfClass:[AIListContact class]]) {
 			/* Include if the delegate doesn't specify, or if the delegate approves the contact.
 			 * Note that this includes a metacontact itself, not its contained objects.
@@ -316,8 +312,6 @@
 				// Add the group and contained objects to the array.
 				[menuItemArray addObject:menuItem];
 				[menuItemArray addObjectsFromArray:[self contactMenusForListObjects:containedListObjects]];
-
-
 			}
 		} else {
 			// Just add the menu item.
@@ -328,7 +322,6 @@
 															  keyEquivalent:@""
 														  representedObject:listObject];
 			[menuItemArray addObject:menuItem];
-
 
 			if (populateMenuLazily) {
 				/* Note that we'll call _updateMenuItem before the item is actually displayed, to set

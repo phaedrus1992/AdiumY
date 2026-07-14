@@ -88,8 +88,7 @@ static NSMutableArray *sortControllers = nil;
  * @brief Deallocate
  */
 - (void)dealloc
-{
-}
+{}
 
 /*!
  * @brief Configure our customization view

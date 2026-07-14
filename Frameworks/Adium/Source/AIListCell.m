@@ -13,12 +13,12 @@
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#import <Adium/AIListCell.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIBezierPathAdditions.h>
 #import <AIUtilities/AIMutableOwnerArray.h>
 #import <AIUtilities/AIParagraphStyleAdditions.h>
 #import <Adium/AIListBookmark.h>
+#import <Adium/AIListCell.h>
 #import <Adium/AIListGroup.h>
 #import <Adium/AIListObject.h>
 #import <Adium/AIListOutlineView.h>
@@ -40,7 +40,7 @@ static NSMutableParagraphStyle *leftParagraphStyleWithTruncatingTail = nil;
 		if (!leftParagraphStyleWithTruncatingTail) {
 			leftParagraphStyleWithTruncatingTail =
 				[NSMutableParagraphStyle styleWithAlignment:NSLeftTextAlignment
-											   lineBreakMode:NSLineBreakByTruncatingTail];
+											  lineBreakMode:NSLineBreakByTruncatingTail];
 		}
 	}
 	return self;
@@ -51,28 +51,17 @@ static NSMutableParagraphStyle *leftParagraphStyleWithTruncatingTail = nil;
 	AIListCell *newCell = [super copyWithZone:zone];
 	newCell->proxyObject = nil;
 	[newCell setProxyListObject:proxyObject];
-	
-	
 
 	return newCell;
 }
 // Dealloc
 - (void)dealloc
-{
-
-
-
-
-
-
-
-
-}
+{}
 // Set the list object being drawn
 - (void)setProxyListObject:(AIProxyListObject *)inProxyObject
 {
 	if (proxyObject != inProxyObject) {
-		 proxyObject = inProxyObject;
+		proxyObject = inProxyObject;
 	}
 	isGroup = [[proxyObject listObject] isKindOfClass:[AIListGroup class]];
 }
@@ -89,7 +78,7 @@ static NSMutableParagraphStyle *leftParagraphStyleWithTruncatingTail = nil;
 - (void)setFont:(NSFont *)inFont
 {
 	if (inFont != font) {
-		 font = inFont;
+		font = inFont;
 	}
 	// Calculate and cache the height of this font
 	labelFontHeight = [[[NSLayoutManager alloc] init] defaultLineHeightForFont:[self font]];
@@ -213,8 +202,7 @@ static NSMutableParagraphStyle *leftParagraphStyleWithTruncatingTail = nil;
 	NSString *labelString = self.labelString;
 	if (![labelAttributes isEqualToDictionary:proxyObject.cachedLabelAttributes] ||
 		![labelString isEqualToString:proxyObject.cachedDisplayNameString]) {
-		proxyObject.cachedDisplayName = [[NSAttributedString alloc] initWithString:labelString
-																		 attributes:attributes];
+		proxyObject.cachedDisplayName = [[NSAttributedString alloc] initWithString:labelString attributes:attributes];
 		proxyObject.cachedDisplayNameString = labelString;
 		proxyObject.cachedLabelAttributes = attributes;
 		proxyObject.cachedDisplayNameSize = NSZeroSize;
@@ -288,8 +276,8 @@ static NSMutableParagraphStyle *leftParagraphStyleWithTruncatingTail = nil;
 {
 	if (!labelAttributes) {
 		labelAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:leftParagraphStyleWithTruncatingTail,
-																			 NSParagraphStyleAttributeName, [self font],
-																			 NSFontAttributeName, nil];
+																			NSParagraphStyleAttributeName, [self font],
+																			NSFontAttributeName, nil];
 	}
 	[leftParagraphStyleWithTruncatingTail setMaximumLineHeight:(float)labelFontHeight];
 	NSColor *currentTextColor = ([self cellIsSelected] ? [self invertedTextColor] : [self textColor]);

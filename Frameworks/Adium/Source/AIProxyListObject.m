@@ -106,7 +106,6 @@ static inline NSMutableDictionary *_getProxyDict()
 	self.key = nil;
 
 	[self flushCache];
-
 }
 
 /* Pretend to be our listObject. I suspect being an NSProxy subclass could do this more cleanly, but my initial attempt

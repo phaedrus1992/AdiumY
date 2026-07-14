@@ -44,7 +44,7 @@
 - (AIListContactBubbleCell *)copyWithZone:(NSZone *)zone
 {
 	AIListContactBubbleCell *newCell = [super copyWithZone:zone];
-	newCell-> lastBackgroundBezierPath = lastBackgroundBezierPath;
+	newCell->lastBackgroundBezierPath = lastBackgroundBezierPath;
 
 	return newCell;
 }
@@ -53,8 +53,6 @@
 {
 
 	lastBackgroundBezierPath = nil;
-
-
 }
 
 // Give ourselves extra padding to compensate for the rounded bubble
@@ -95,7 +93,7 @@
 
 			NSGradient *gradient =
 				[[NSGradient alloc] initWithStartingColor:labelColor
-											   endingColor:[labelColor darkenAndAdjustSaturationBy:0.4f]];
+											  endingColor:[labelColor darkenAndAdjustSaturationBy:0.4f]];
 			[gradient drawInBezierPath:lastBackgroundBezierPath angle:90.0f];
 
 		} else {
@@ -118,14 +116,12 @@
 	if ([self cellIsSelected]) {
 		NSColor *highlightColor = [self.outlineControlView highlightColor];
 		NSGradient *gradient =
-			highlightColor ? [[NSGradient alloc]
-								 initWithStartingColor:highlightColor
-										   endingColor:[highlightColor darkenAndAdjustSaturationBy:0.4f]]
-						   : [NSGradient selectedControlGradient];
+			highlightColor
+				? [[NSGradient alloc] initWithStartingColor:highlightColor
+												endingColor:[highlightColor darkenAndAdjustSaturationBy:0.4f]]
+				: [NSGradient selectedControlGradient];
 
-
-		lastBackgroundBezierPath =
-			[NSBezierPath bezierPathWithRoundedRect:[self bubbleRectForFrame:cellFrame]];
+		lastBackgroundBezierPath = [NSBezierPath bezierPathWithRoundedRect:[self bubbleRectForFrame:cellFrame]];
 
 		// Draw our bubble with the selected control gradient
 		[gradient drawInBezierPath:lastBackgroundBezierPath angle:90.0f];

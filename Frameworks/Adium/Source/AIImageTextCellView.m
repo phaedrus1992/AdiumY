@@ -51,7 +51,6 @@
 {
 
 	cell = nil;
-
 }
 
 // NSCell expects to draw into a flipped view

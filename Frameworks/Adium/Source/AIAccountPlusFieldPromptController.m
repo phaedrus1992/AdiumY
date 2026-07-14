@@ -169,9 +169,7 @@
 }
 
 - (void)dealloc
-{
-
-}
+{}
 
 // Setup the window before it is displayed
 - (void)windowDidLoad
@@ -183,8 +181,7 @@
 	[textField_handle setMinStringLength:2];
 
 	// Account menu
-	accountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu
-										   showTitleVerbs:NO];
+	accountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu showTitleVerbs:NO];
 	[self _restoreLastAccountIfPossible];
 	[self AI_configureTextFieldForAccount:[[popUp_service selectedItem] representedObject]];
 	[self controlTextDidChange:[NSNotification notificationWithName:@"TextChanged" object:nil]];
@@ -196,8 +193,6 @@
 - (void)windowWillClose:(id)sender
 {
 	[super windowWillClose:sender];
-
-
 
 	[[self class] destroySharedInstance];
 }

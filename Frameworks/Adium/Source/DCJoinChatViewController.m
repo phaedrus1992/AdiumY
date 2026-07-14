@@ -120,8 +120,8 @@
 		NSMutableDictionary *inviteUsersDict;
 		NSString *initialInvitationMessage = [chat valueForProperty:@"InitialInivitationMessage"];
 
-		inviteUsersDict = [NSMutableDictionary
-			dictionaryWithObjectsAndKeys:[contacts mutableCopy], @"ContactsToInvite", nil];
+		inviteUsersDict =
+			[NSMutableDictionary dictionaryWithObjectsAndKeys:[contacts mutableCopy], @"ContactsToInvite", nil];
 		if (initialInvitationMessage) {
 			[inviteUsersDict setObject:initialInvitationMessage forKey:@"InitialInivitationMessage"];
 		}
@@ -160,7 +160,7 @@
 		AILog(@"Inviting %@ to %@", listContact, chat);
 
 		[chat inviteListContact:listContact withMessage:[userInfo objectForKey:@"InitialInivitationMessage"]];
-		
+
 	} else {
 		[inTimer invalidate];
 	}

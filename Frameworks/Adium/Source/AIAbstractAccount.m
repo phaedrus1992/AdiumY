@@ -74,7 +74,7 @@
  */
 - (id)initWithUID:(NSString *)inUID internalObjectID:(NSString *)inInternalObjectID service:(AIService *)inService
 {
-	 internalObjectID = inInternalObjectID;
+	internalObjectID = inInternalObjectID;
 
 	if ((self = [super initWithUID:inUID service:inService])) {
 		isTemporary = NO;
@@ -282,7 +282,7 @@
 	// Set our UID first (since self.formattedUID uses the UID as necessary)
 	if (![newProposedUID isEqualToString:self.UID]) {
 
-		 UID = newProposedUID;
+		UID = newProposedUID;
 
 		// Inform the account controller of the changed UID
 		[adium.accountController accountDidChangeUID:self];
@@ -354,10 +354,10 @@
 		silenceAllContactUpdatesTimer = nil;
 	}
 	silenceAllContactUpdatesTimer = [NSTimer scheduledTimerWithTimeInterval:interval
-																	  target:self
-																	selector:@selector(_endSilenceAllUpdates)
-																	userInfo:nil
-																	 repeats:NO];
+																	 target:self
+																   selector:@selector(_endSilenceAllUpdates)
+																   userInfo:nil
+																	repeats:NO];
 }
 - (void)_endSilenceAllUpdates
 {
@@ -382,10 +382,10 @@
 
 		// Guard against subsequent updates
 		delayedUpdateStatusTimer = [NSTimer scheduledTimerWithTimeInterval:[self delayedUpdateStatusInterval]
-																	 target:self
-																   selector:@selector(_delayedUpdateStatusTimer:)
-																   userInfo:nil
-																	repeats:YES];
+																	target:self
+																  selector:@selector(_delayedUpdateStatusTimer:)
+																  userInfo:nil
+																   repeats:YES];
 	} else {
 		// If there is an outstanding delay, set this contact as the target
 		if (!delayedUpdateStatusTargets)
@@ -730,7 +730,7 @@
 {
 	if (password != inPassword) {
 
-		 password = inPassword;
+		password = inPassword;
 	}
 }
 
@@ -986,10 +986,10 @@
 {
 	if (!attributedRefreshTimer) {
 		attributedRefreshTimer = [NSTimer scheduledTimerWithTimeInterval:FILTERED_STRING_REFRESH
-																   target:self
-																 selector:@selector(_refreshAttributedStrings:)
-																 userInfo:nil
-																  repeats:YES];
+																  target:self
+																selector:@selector(_refreshAttributedStrings:)
+																userInfo:nil
+																 repeats:YES];
 	}
 }
 
@@ -1394,8 +1394,7 @@
 
 	} else if ([self shouldBeOnline] && lastDisconnectionError) {
 		NSString *__autoreleasing error = lastDisconnectionError;
-		AIReconnectDelayType shouldReconnect =
-			[self shouldAttemptReconnectAfterDisconnectionError:&error];
+		AIReconnectDelayType shouldReconnect = [self shouldAttemptReconnectAfterDisconnectionError:&error];
 		lastDisconnectionError = error;
 		if (shouldReconnect == AIReconnectNormally) {
 			// Set our retry time to RECONNECT_BASE_TIME^reconnectAttemptsPerformed
@@ -1476,7 +1475,7 @@
 
 	if (lastDisconnectionError != inError) {
 
-		 lastDisconnectionError = inError;
+		lastDisconnectionError = inError;
 	}
 }
 

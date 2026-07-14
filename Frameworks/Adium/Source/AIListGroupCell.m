@@ -280,7 +280,7 @@
 	if (!leftParagraphStyleWithTruncatingMiddle) {
 		leftParagraphStyleWithTruncatingMiddle =
 			[NSMutableParagraphStyle styleWithAlignment:NSLeftTextAlignment
-										   lineBreakMode:NSLineBreakByTruncatingMiddle];
+										  lineBreakMode:NSLineBreakByTruncatingMiddle];
 	}
 
 	[leftParagraphStyleWithTruncatingMiddle setMaximumLineHeight:(float)labelFontHeight];

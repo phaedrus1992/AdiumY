@@ -36,7 +36,7 @@
 - (id)copyWithZone:(NSZone *)zone
 {
 	AIListContactMockieCell *newCell = [super copyWithZone:zone];
-	newCell-> lastBackgroundBezierPath = lastBackgroundBezierPath;
+	newCell->lastBackgroundBezierPath = lastBackgroundBezierPath;
 
 	return newCell;
 }
@@ -45,8 +45,6 @@
 {
 
 	lastBackgroundBezierPath = nil;
-
-
 }
 
 // Draw the background of our cell
@@ -93,7 +91,6 @@
 		labelColor = [self labelColor];
 		[(labelColor ? labelColor : [self backgroundColor]) set];
 
-
 		lastBackgroundBezierPath = [self bezierPathForDrawingInRect:rect];
 
 		if (lastBackgroundBezierPath)
@@ -109,11 +106,10 @@
 	if ([self cellIsSelected]) {
 		NSColor *highlightColor = [self.outlineControlView highlightColor];
 		NSGradient *gradient =
-			(highlightColor ? [[NSGradient alloc]
-								  initWithStartingColor:highlightColor
-											endingColor:[highlightColor darkenAndAdjustSaturationBy:0.4f]]
-							: [NSGradient selectedControlGradient]);
-
+			(highlightColor
+				 ? [[NSGradient alloc] initWithStartingColor:highlightColor
+												 endingColor:[highlightColor darkenAndAdjustSaturationBy:0.4f]]
+				 : [NSGradient selectedControlGradient]);
 
 		lastBackgroundBezierPath = [self bezierPathForDrawingInRect:cellFrame];
 

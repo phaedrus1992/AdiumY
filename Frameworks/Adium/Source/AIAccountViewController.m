@@ -96,14 +96,9 @@
 - (void)dealloc
 {
 
-
 	if (view_setup != view_options)
 
-
-
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
-
-
+		[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 /*!
