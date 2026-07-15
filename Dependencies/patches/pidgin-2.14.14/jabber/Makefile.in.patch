@@ -48,3 +48,23 @@
  	useravatar.h usermood.c usermood.h usernick.c usernick.h \
  	usertune.c usertune.h xdata.c xdata.h $(am__append_1)
  AM_CFLAGS = $(st)
+@@ -869,2 +869,9 @@
+ 
++libjabber_la-chatmarker.lo: chatmarker.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libjabber_la_CFLAGS) $(CFLAGS) -MT libjabber_la-chatmarker.lo -MD -MP -MF $(DEPDIR)/libjabber_la-chatmarker.Tpo -c -o libjabber_la-chatmarker.lo `test -f 'chatmarker.c' || echo '$(srcdir)/'`chatmarker.c
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libjabber_la-chatmarker.Tpo $(DEPDIR)/libjabber_la-chatmarker.Plo
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='chatmarker.c' object='libjabber_la-chatmarker.lo' libtool=yes @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libjabber_la_CFLAGS) $(CFLAGS) -c -o libjabber_la-chatmarker.lo `test -f 'chatmarker.c' || echo '$(srcdir)/'`chatmarker.c
++
+ libjabber_la-gmail.lo: google/gmail.c
+@@ -1051,2 +1058,9 @@
+ 
++libjabber_la-receipt.lo: receipt.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libjabber_la_CFLAGS) $(CFLAGS) -MT libjabber_la-receipt.lo -MD -MP -MF $(DEPDIR)/libjabber_la-receipt.Tpo -c -o libjabber_la-receipt.lo `test -f 'receipt.c' || echo '$(srcdir)/'`receipt.c
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libjabber_la-receipt.Tpo $(DEPDIR)/libjabber_la-receipt.Plo
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='receipt.c' object='libjabber_la-receipt.lo' libtool=yes @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libjabber_la_CFLAGS) $(CFLAGS) -c -o libjabber_la-receipt.lo `test -f 'receipt.c' || echo '$(srcdir)/'`receipt.c
++
+ libjabber_la-stream_management.lo: stream_management.c

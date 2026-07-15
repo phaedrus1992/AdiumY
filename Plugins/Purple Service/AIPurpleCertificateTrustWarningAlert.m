@@ -174,10 +174,10 @@
 			// Show on an independent window.
 #define TRUST_PANEL_WIDTH 535
 			NSWindow *fakeWindow =
-				[[[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, TRUST_PANEL_WIDTH, 1)
-											 styleMask:(NSTitledWindowMask | NSMiniaturizableWindowMask)
-											   backing:NSBackingStoreBuffered
-												 defer:NO]];
+				[[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, TRUST_PANEL_WIDTH, 1)
+											styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable)
+											  backing:NSBackingStoreBuffered
+												defer:NO];
 			[fakeWindow center];
 			[fakeWindow setTitle:AILocalizedString(@"Verify Certificate", nil)];
 
@@ -239,14 +239,14 @@
 
 	SecPolicyRef sslPolicy = SecPolicyCreateSSL(TRUE, (CFStringRef)hostname);
 	if (sslPolicy) {
-		[trustPanel setPolicies:(id)sslPolicy];
+		[trustPanel setPolicies:(__bridge id)sslPolicy];
 		CFRelease(sslPolicy);
 	}
 
 	[trustPanel beginSheetForWindow:window
 					  modalDelegate:self
 					 didEndSelector:@selector(certificateTrustSheetDidEnd:returnCode:contextInfo:)
-						contextInfo:window
+						contextInfo:(__bridge void *)window
 							  trust:trustRef
 							message:title];
 }
@@ -260,8 +260,8 @@
 						 returnCode:(NSInteger)returnCode
 						contextInfo:(void *)contextInfo
 {
-	BOOL didTrustCerficate = (returnCode == NSOKButton);
-	NSWindow *parentWindow = (NSWindow *)contextInfo;
+	BOOL didTrustCerficate = (returnCode == NSModalResponseOK);
+	NSWindow *parentWindow = (__bridge NSWindow *)contextInfo;
 
 	query_cert_cb(didTrustCerficate, userdata);
 

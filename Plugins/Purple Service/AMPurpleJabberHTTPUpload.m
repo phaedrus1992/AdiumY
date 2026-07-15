@@ -17,6 +17,7 @@
 #import "AMPurpleJabberHTTPUpload.h"
 #import "ESPurpleJabberAccount.h"
 #import <Adium/AIAccount.h>
+#import <Adium/AIListContact.h>
 #import <Adium/ESFileTransfer.h>
 #import <libpurple/jabber.h>
 
@@ -330,7 +331,7 @@ static void AMPurpleJabberHTTPUpload_received_data_cb(PurpleConnection *gc, xmln
 			_uploadServiceJID = fromJID;
 
 			// Try to extract max-file-size from data form
-			xmlnode *x = xmlnode_get_child_with_namespace(query, "x", "jabber:x:data".UTF8String);
+			xmlnode *x = xmlnode_get_child_with_namespace(query, "x", [@"jabber:x:data" UTF8String]);
 			if (x) {
 				for (xmlnode *field = x->child; field; field = field->next) {
 					if (field->type != XMLNODE_TYPE_TAG || strcmp(field->name, "field") != 0) {

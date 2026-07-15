@@ -139,7 +139,7 @@ static void AMPurpleJabberBookmarks_received_xmlnode_cb(PurpleConnection *gc, xm
 		// Connect to jabber-receiving-xmlnode to intercept IQ results for bookmarks
 		PurplePlugin *jabber = purple_find_prpl("prpl-jabber");
 		if (jabber) {
-			purple_signal_connect(jabber, "jabber-receiving-xmlnode", self,
+			purple_signal_connect(jabber, "jabber-receiving-xmlnode", (__bridge void *)self,
 								  PURPLE_CALLBACK(AMPurpleJabberBookmarks_received_xmlnode_cb), (__bridge void *)self);
 		}
 

@@ -135,8 +135,8 @@
 			NSString *tmpString =
 				([linkURL isKindOfClass:[NSString class]] ? (NSString *)linkURL : [(NSURL *)linkURL absoluteString]);
 
-			tmpString = (NSString *)CFURLCreateStringByReplacingPercentEscapes(kCFAllocatorDefault,
-																			   (CFStringRef)tmpString, CFSTR(""));
+			tmpString = CFBridgingRelease(
+				CFURLCreateStringByReplacingPercentEscapes(kCFAllocatorDefault, (CFStringRef)tmpString, CFSTR("")));
 
 			if (tmpString) {
 				NSAttributedString *initialURL;
@@ -264,12 +264,10 @@
 	// If this link was inserted at the end of our text view, add a space and set the formatting back to normal
 	// This prevents the link attribute from bleeding into newly entered text
 	if (NSMaxRange([inView selectedRange]) == [textStorage length]) {
-		NSAttributedString *tmpString = [[[NSAttributedString alloc] initWithString:@" "
-																		 attributes:typingAttributes];
+		NSAttributedString *tmpString = [[NSAttributedString alloc] initWithString:@" " attributes:typingAttributes];
 		[[[inView undoManager] prepareWithInvocationTarget:textStorage]
 			replaceCharactersInRange:NSMakeRange(NSMaxRange([inView selectedRange]), 1)
-				withAttributedString:[[[NSAttributedString alloc] initWithString:@""
-																	  attributes:typingAttributes]]];
+				withAttributedString:[[NSAttributedString alloc] initWithString:@"" attributes:typingAttributes]];
 		[textStorage appendAttributedString:tmpString];
 	}
 

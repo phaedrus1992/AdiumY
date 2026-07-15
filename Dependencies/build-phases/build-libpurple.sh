@@ -55,7 +55,7 @@ build_libpurple_phase() {
     LIBPURPLE_SRC="$src_dir"
 
     # Apply AdiumY patches (XEP-0184 receipts, XEP-0333 chat markers)
-    local patches_dir="$ROOTDIR/Dependencies/patches/pidgin-2.14.14/jabber"
+    local patches_dir="$ROOTDIR/patches/pidgin-2.14.14/jabber"
     cp "$patches_dir/receipt.h" "$patches_dir/receipt.c" \
        "$patches_dir/chatmarker.h" "$patches_dir/chatmarker.c" \
        "$LIBPURPLE_SRC/libpurple/protocols/jabber/"
@@ -90,5 +90,10 @@ build_libpurple_phase() {
        "$src/protocols/jabber/iq.h" "$src/protocols/jabber/namespaces.h" \
        "$hdr/"
     cp "$src/protocols/irc/irc.h" "$hdr/"
+
+    # PurpleCommon.h imports <libpurple/libpurple.h>; the upstream file is
+    # named "purple.h", so alias it so the quoted path resolves.
+    cp "$hdr/purple.h" "$hdr/libpurple.h"
+
     write_cache "libpurple" "$BUILD_LIBPURPLE_SHA256"
 }

@@ -101,8 +101,7 @@ static void AMPurpleJabberCorrection_received_data_cb(PurpleConnection *gc, xmln
 						purple_find_conversation_with_account(PURPLE_CONV_TYPE_IM, [bareJID UTF8String], account);
 					AIChat *chat = nil;
 					if (conv) {
-						chat = [[[AISharedAdium sharedInstance] chatController] existingChatWithName:bareJID
-																						   onAccount:self->_account];
+						chat = [adium.chatController existingChatWithName:bareJID onAccount:self->_account];
 					}
 
 					// Update tracked ID to the correction's own stanza ID for chained corrections
@@ -174,7 +173,7 @@ static void AMPurpleJabberCorrection_received_data_cb(PurpleConnection *gc, xmln
 		// Connect to jabber-receiving-xmlnode to intercept message stanzas
 		PurplePlugin *jabber = purple_find_prpl("prpl-jabber");
 		if (jabber) {
-			purple_signal_connect(jabber, "jabber-receiving-xmlnode", self,
+			purple_signal_connect(jabber, "jabber-receiving-xmlnode", (__bridge void *)self,
 								  PURPLE_CALLBACK(AMPurpleJabberCorrection_received_data_cb), (__bridge void *)self);
 		}
 

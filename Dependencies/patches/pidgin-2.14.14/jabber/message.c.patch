@@ -43,7 +43,7 @@
 
  	jabber_send(jm->js, message);
 
-@@ -1206,6 +1228,12 @@
+@@ -1206,6 +1228,9 @@
  	}
 
  	g_free(xhtml);

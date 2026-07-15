@@ -11,7 +11,7 @@
 - (id)initWithRequest:(CFHTTPMessageRef)request
 {
 	if ((self = [super init])) {
-		NSString *authInfo = (NSString *)CFHTTPMessageCopyHeaderFieldValue(request, CFSTR("Authorization"));
+		NSString *authInfo = CFBridgingRelease(CFHTTPMessageCopyHeaderFieldValue(request, CFSTR("Authorization")));
 		
 		if (authInfo != nil) {
 			username = [self quotedSubHeaderFieldValue:@"username" fromHeaderFieldValue:authInfo];
@@ -31,17 +31,12 @@
 			cnonce   = [self quotedSubHeaderFieldValue:@"cnonce" fromHeaderFieldValue:authInfo];
 			response = [self quotedSubHeaderFieldValue:@"response" fromHeaderFieldValue:authInfo];
 			
-			CFRelease(authInfo);
 		} else {
 			// Setup a default value for any non-pointer types
 			nc = 0;
 		}
 	}
 	return self;
-}
-
-- (void)dealloc
-{
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -377,7 +377,7 @@ static void AMPurpleJabberMAM_received_data_cb(PurpleConnection *gc, xmlnode **p
 	}
 
 	// Create attributed string
-	NSAttributedString *attributedBody = [NSAttributedString attributedStringWithString:body];
+	NSAttributedString *attributedBody = [[NSAttributedString alloc] initWithString:body];
 
 	AIContentMessage *content = [AIContentContext messageInChat:chat
 													 withSource:source
