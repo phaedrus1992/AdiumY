@@ -6,6 +6,7 @@ syntax: glob
 *.perspectivev3
 *.xcworkspace
 *.xcuserdatad
+*.bak
 build
 Icon*
 Dependencies/build
