@@ -932,12 +932,12 @@
 	// Copy the original image into the new bitmap, rescaling it to fit.
 	//    [newImage lockFocus];
 	[newImage lockFocusOnRepresentation:newBitmapImageRep];
-	//    [image compositeToPoint:NSZeroPoint operation:NSCompositeSourceOver];
+	//    [image compositeToPoint:NSZeroPoint operation:NSCompositingOperationSourceOver];
 	//    iconRect.origin.x = iconRect.origin.y = 0;
 	//    iconRect.size.width = iconRect.size.height = iconWidth;
 	//    [[NSColor clearColor] set];
 	//    NSRectFill( iconRect );
-	[workingImage compositeToPoint:NSZeroPoint operation:NSCompositeSourceOver];
+	[workingImage compositeToPoint:NSZeroPoint operation:NSCompositingOperationSourceOver];
 	[newImage unlockFocus];
 
 	[workingImage release];
