@@ -30,7 +30,7 @@
 	NSDictionary *scriptSuite = nil;
 
 	NSFileManager *mgr = [NSFileManager defaultManager];
-#warning 64BIT: Check formatting arguments
+// WARNING: 64BIT: Check formatting arguments
 	NSString *scriptSuitesFolder = [NSTemporaryDirectory()
 		stringByAppendingPathComponent:[NSString stringWithFormat:@"AdiumTest-%u-ScriptSuites", getpid()]];
 	NSLog(@"scriptSuitesFolder: %@", scriptSuitesFolder);
@@ -67,7 +67,7 @@
 	NSDictionary *scriptTerminology = nil;
 
 	NSFileManager *mgr = [NSFileManager defaultManager];
-#warning 64BIT: Check formatting arguments
+// WARNING: 64BIT: Check formatting arguments
 	NSString *scriptTerminologiesFolder = [NSTemporaryDirectory()
 		stringByAppendingPathComponent:[NSString stringWithFormat:@"AdiumTest-%u-ScriptTerminologies", getpid()]];
 	NSLog(@"scriptTerminologiesFolder: %@", scriptTerminologiesFolder);
@@ -289,7 +289,7 @@ resulted in an %@", [output class]); STAssertEqualObjects(output, str, @"Coercio
 {
 	NSString *source = @"set x to (\"So you don't have to IM like it's 1999.\" as rich text)\n"
 					   @"x as text";
-#warning Implement me
+// WARNING: Implement me
 }
 - (void)testPlainTextToRichTextInAppleScript
 {
