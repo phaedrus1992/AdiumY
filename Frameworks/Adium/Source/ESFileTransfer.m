@@ -260,52 +260,36 @@ static NSMutableDictionary *fileTransferDict = nil;
 				[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"com.apple.DownloadFileFinished"
 																			   object:localFilename];
 
-				FSRef fsRef;
-				OSErr err;
+				NSURL *fileURL = [NSURL fileURLWithPath:localFilename];
 
-				if (FSPathMakeRef((const UInt8 *)[localFilename fileSystemRepresentation], &fsRef, NULL) == noErr) {
+				NSMutableDictionary *quarantineProperties = nil;
+				NSDictionary *oldQuarantineProperties = nil;
 
-					NSMutableDictionary *quarantineProperties = nil;
-					CFTypeRef cfOldQuarantineProperties = NULL;
-
-					err = LSCopyItemAttribute(&fsRef, kLSRolesAll, kLSItemQuarantineProperties,
-											  &cfOldQuarantineProperties);
-
-					if (err == noErr) {
-
-						if (CFGetTypeID(cfOldQuarantineProperties) == CFDictionaryGetTypeID()) {
-							quarantineProperties = [(__bridge NSDictionary *)cfOldQuarantineProperties mutableCopy];
-						} else {
-							AILogWithSignature(@"Getting quarantine data failed for %@ (%@)", self, localFilename);
-							return;
-						}
-
-						CFRelease(cfOldQuarantineProperties);
-
-						if (!quarantineProperties) {
-							return;
-						}
-
-					} else if (err == kLSAttributeNotFoundErr) {
+				if ([fileURL getResourceValue:&oldQuarantineProperties forKey:NSURLQuarantinePropertiesKey error:nil]) {
+					if (oldQuarantineProperties) {
+						quarantineProperties = [oldQuarantineProperties mutableCopy];
+					} else {
 						quarantineProperties = [NSMutableDictionary dictionaryWithCapacity:2];
 					}
-
-					[quarantineProperties setObject:(NSString *)kLSQuarantineTypeInstantMessageAttachment
-											 forKey:(NSString *)kLSQuarantineTypeKey];
-					// TODO Figure out the file URL to the transcript
-					//					[quarantineProperties setObject:[NSURL URLWithString:@"file:///dev/null"]
-					//											 forKey:(NSString *)kLSQuarantineOriginURLKey];
-
-					if (LSSetItemAttribute(&fsRef, kLSRolesAll, kLSItemQuarantineProperties,
-										   (__bridge CFTypeRef)quarantineProperties) != noErr) {
-						AILogWithSignature(@"Danger! Quarantining file %@ failed!", localFilename);
+					if (!quarantineProperties) {
+						return;
 					}
-
-					AILogWithSignature(@"Quarantined %@ with %@", localFilename, quarantineProperties);
-
 				} else {
-					AILogWithSignature(@"Danger! Could not find file to quarantine: %@!", localFilename);
+					AILogWithSignature(@"Getting quarantine data failed for %@ (%@)", self, localFilename);
+					return;
 				}
+
+				[quarantineProperties setObject:(NSString *)kLSQuarantineTypeInstantMessageAttachment
+										 forKey:(NSString *)kLSQuarantineTypeKey];
+				// TODO Figure out the file URL to the transcript
+				//					[quarantineProperties setObject:[NSURL URLWithString:@"file:///dev/null"]
+				//										 forKey:(NSString *)kLSQuarantineOriginURLKey];
+
+				if (![fileURL setResourceValue:quarantineProperties forKey:NSURLQuarantinePropertiesKey error:nil]) {
+					AILogWithSignature(@"Danger! Quarantining file %@ failed!", localFilename);
+				}
+
+				AILogWithSignature(@"Quarantined %@ with %@", localFilename, quarantineProperties);
 			}
 
 		} else if ((percentDone != 0) && (status != In_Progress_FileTransfer)) {
