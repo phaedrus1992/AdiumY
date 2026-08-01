@@ -22,6 +22,10 @@
 	<string></string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright The Adium Team, 2005-2008</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>AIApplication</string>
 	<key>SUFeedURL</key>
 	<string></string>
 	<key>SUPublicEDKey</key>
