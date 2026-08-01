@@ -16,7 +16,6 @@
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_2
 	NSToolbarSizeMode toolbarSizeMode;
 #endif
-	BOOL usesTexturedWindow;
 	BOOL alwaysShowsToolbar;
 	BOOL alwaysOpensCentered;
 
@@ -63,8 +62,6 @@ CGFloat ToolbarHeightForWindow(NSWindow *window);
 - (void)setPanesOrder:(NSArray *)newPanesOrder;
 - (BOOL)debug;
 - (void)setDebug:(BOOL)newDebug;
-- (BOOL)usesTexturedWindow;
-- (void)setUsesTexturedWindow:(BOOL)newUsesTexturedWindow;
 - (BOOL)alwaysShowsToolbar;
 - (void)setAlwaysShowsToolbar:(BOOL)newAlwaysShowsToolbar;
 - (BOOL)alwaysOpensCentered;

@@ -63,7 +63,7 @@ static AIXtrasManager *manager;
 
 	[self installToolbar];
 
-	[tableView_categories setSelectionHighlightStyle:NSTableViewSelectionHighlightStyleSourceList];
+	[tableView_categories setStyle:NSTableViewStyleSourceList];
 
 	AIImageTextCell			*cell;
 	//Configure our tableViews

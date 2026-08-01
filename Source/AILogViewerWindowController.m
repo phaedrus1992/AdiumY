@@ -410,7 +410,7 @@ static AILogViewerWindowController *__sharedLogViewer = nil;
 	// Setting this autosave in the nib doesn't work properly
 	[self.splitView_contacts setAutosaveName:@"LogViewer:Contacts"];
 
-	[outlineView_contacts setSelectionHighlightStyle:NSTableViewSelectionHighlightStyleSourceList];
+	[outlineView_contacts setStyle:NSTableViewStyleSourceList];
 
 	AIImageTextCell *dataCell = [[AIImageTextCell alloc] init];
 	NSTableColumn *tableColumn = [[outlineView_contacts tableColumns] objectAtIndex:0];

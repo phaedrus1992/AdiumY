@@ -71,7 +71,6 @@
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_2
 		[self setToolbarSizeMode:NSToolbarSizeModeDefault];
 #endif
-		[self setUsesTexturedWindow:NO];
 		[self setAlwaysShowsToolbar:NO];
 		[self setAlwaysOpensCentered:YES];
 	}
@@ -175,9 +174,6 @@
 	// Create prefs window
 	unsigned int styleMask =
 		(NSWindowStyleMaskClosable | NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskTitled);
-	if (usesTexturedWindow) {
-		styleMask = (styleMask | NSWindowStyleMaskTexturedBackground);
-	}
 	prefsWindow = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 350, 200)
 											  styleMask:styleMask
 												backing:NSBackingStoreBuffered
@@ -600,16 +596,6 @@ CGFloat ToolbarHeightForWindow(NSWindow *window)
 - (void)setDebug:(BOOL)newDebug
 {
 	debug = newDebug;
-}
-
-- (BOOL)usesTexturedWindow
-{
-	return usesTexturedWindow;
-}
-
-- (void)setUsesTexturedWindow:(BOOL)newUsesTexturedWindow
-{
-	usesTexturedWindow = newUsesTexturedWindow;
 }
 
 - (BOOL)alwaysShowsToolbar
