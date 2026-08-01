@@ -1963,7 +1963,7 @@ NSArray *pathComponentsForDocument(SKDocumentRef inDocument)
 			 */
 			selectedLogs = [tableView_results selectedItemsFromArray:currentSearchResults];
 		} @catch (NSException *e) {
-
+			AILogWithSignature(@"Exception while re-selecting search results: %@", e);
 		} @finally {
 		}
 		[resultsLock unlock];
