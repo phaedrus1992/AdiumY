@@ -56,11 +56,10 @@
 - (void)openOnWindow:(NSWindow *)parentWindow
 {
 	if (parentWindow) {
-		[NSApp beginSheet:self.window
-			modalForWindow:parentWindow
-			 modalDelegate:self
-			didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			   contextInfo:nil];
+		[parentWindow beginSheet:self.window
+			   completionHandler:^(NSModalResponse returnCode) {
+				   [self sheetDidEnd:self.window returnCode:returnCode contextInfo:nil];
+			   }];
 	} else {
 		[self showWindow:nil];
 		[self.window makeKeyAndOrderFront:nil];
@@ -99,8 +98,8 @@
 	// Emoticons table
 	selectedEmoticonPack = nil;
 	checkCell = [[NSButtonCell alloc] init];
-	[checkCell setButtonType:NSSwitchButton];
-	[checkCell setControlSize:NSSmallControlSize];
+	[checkCell setButtonType:NSButtonTypeSwitch];
+	[checkCell setControlSize:NSControlSizeSmall];
 	[checkCell setTitle:@""];
 	[checkCell setRefusesFirstResponder:YES];
 	[[table_emoticons tableColumnWithIdentifier:@"Enabled"] setDataCell:checkCell];
@@ -252,7 +251,7 @@
 																		 forKey:NSForegroundColorAttributeName];
 
 	if (center) {
-		[attributes setObject:[NSParagraphStyle styleWithAlignment:NSCenterTextAlignment]
+		[attributes setObject:[NSParagraphStyle styleWithAlignment:NSTextAlignmentCenter]
 					   forKey:NSParagraphStyleAttributeName];
 	}
 
@@ -336,16 +335,27 @@
 
 #pragma mark Drag and Drop
 
-- (BOOL)tableView:(NSTableView *)tableView writeRows:(NSArray *)rows toPasteboard:(NSPasteboard *)pboard
+- (id<NSPasteboardWriting>)tableView:(NSTableView *)tableView pasteboardWriterForRow:(NSInteger)row
 {
-	if (tableView != table_emoticonPacks)
-		return NO;
+	if (tableView != table_emoticonPacks) {
+		return nil;
+	}
 
+	// AppKit calls this once per dragged row. Snapshot the full dragged set from the table selection so
+	// acceptDrop: can move exactly the packs that were dragged.
+	NSIndexSet *selection = [tableView selectedRowIndexes];
+	NSMutableArray *rows = [NSMutableArray array];
+	[selection enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+		[rows addObject:[NSNumber numberWithUnsignedInteger:idx]];
+	}];
+	if (![selection containsIndex:(NSUInteger)row]) {
+		[rows addObject:[NSNumber numberWithInteger:row]];
+	}
 	dragRows = rows;
-	[pboard declareTypes:[NSArray arrayWithObject:EMOTICON_PACK_DRAG_TYPE] owner:self];
-	[pboard setString:@"dragPack" forType:EMOTICON_PACK_DRAG_TYPE];
 
-	return YES;
+	NSPasteboardItem *item = [[NSPasteboardItem alloc] init];
+	[item setString:@"dragPack" forType:EMOTICON_PACK_DRAG_TYPE];
+	return item;
 }
 
 - (NSDragOperation)tableView:(NSTableView *)tableView
@@ -428,17 +438,26 @@
 - (void)moveSelectedPacksToTrash
 {
 	NSString *name = [selectedEmoticonPack.name copy];
-	NSBeginAlertSheet(
-		AILocalizedString(@"Delete Emoticon Pack", nil), AILocalizedString(@"Delete", nil),
-		AILocalizedString(@"Cancel", nil), @"", [self window], self,
-		@selector(trashConfirmSheetDidEnd:returnCode:contextInfo:), nil, nil,
-		AILocalizedString(@"Are you sure you want to delete the %@ Emoticon Pack? It will be moved to the Trash.", nil),
-		name);
+	NSAlert *deletePackAlert = [[NSAlert alloc] init];
+	deletePackAlert.messageText = AILocalizedString(@"Delete Emoticon Pack", nil);
+	deletePackAlert.informativeText = [NSString
+		stringWithFormat:AILocalizedString(
+							 @"Are you sure you want to delete the %@ Emoticon Pack? It will be moved to the Trash.",
+							 nil),
+						 name];
+	[deletePackAlert addButtonWithTitle:AILocalizedString(@"Delete", nil)];
+	[deletePackAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+	[deletePackAlert beginSheetModalForWindow:[self window]
+							completionHandler:^(NSModalResponse returnCode) {
+								[self trashConfirmSheetDidEnd:deletePackAlert.window
+												   returnCode:returnCode
+												  contextInfo:nil];
+							}];
 }
 
 - (void)trashConfirmSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
-	if (returnCode != NSOKButton)
+	if (returnCode != NSAlertFirstButtonReturn)
 		return;
 
 	for (AIEmoticonPackPreviewController *previewController in

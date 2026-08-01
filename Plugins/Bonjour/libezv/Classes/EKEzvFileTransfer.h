@@ -69,6 +69,5 @@ typedef enum {
 
 - (void)begin;
 - (void)cancel;
-- (NSString *)mimeType;
 - (NSNumber *)sizeNumber;
 @end

@@ -594,10 +594,11 @@ PurpleConversation *convLookupFromChat(AIChat *chat, id adiumAccount)
 
 					if (chat.lastMessageDate) {
 						NSTimeInterval lastMessageInterval = [chat.lastMessageDate timeIntervalSince1970];
-						NSString *historySince = [[NSDate dateWithTimeIntervalSince1970:lastMessageInterval + 1]
-							descriptionWithCalendarFormat:@"%Y-%m-%dT%H:%M:%SZ"
-												 timeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]
-												   locale:nil];
+						NSDateFormatter *utcFormatter = [[NSDateFormatter alloc] init];
+						[utcFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'Z'"];
+						[utcFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+						NSString *historySince = [utcFormatter
+							stringFromDate:[NSDate dateWithTimeIntervalSince1970:lastMessageInterval + 1]];
 
 						g_hash_table_replace(components, g_strdup("history_since"),
 											 g_strdup([historySince UTF8String]));
@@ -730,7 +731,7 @@ NSString *processPurpleImages(NSString *inString, AIAccount *adiumAccount)
 					NSBitmapImageRep *bitmapRep = [NSBitmapImageRep imageRepWithData:imageTIFFData];
 
 					data =
-						[bitmapRep representationUsingType:NSPNGFileType
+						[bitmapRep representationUsingType:NSBitmapImageFileTypePNG
 												properties:[NSDictionary dictionaryWithValuesForKeys:[NSArray array]]];
 					extension = @"png";
 				}
@@ -1473,7 +1474,7 @@ GList *createListFromDictionary(NSDictionary *arguments)
 		/* purple_buddy_icons_set_account_icon() takes responsibility for the buddy icon memory */
 		NSAssert(UINT_MAX >= [buddyImageData length],
 				 @"Attempting to send more data than libPurple can handle.  Abort.");
-		purple_buddy_icons_set_account_icon(account, g_memdup([buddyImageData bytes], (unsigned int)len), len);
+		purple_buddy_icons_set_account_icon(account, g_memdup2([buddyImageData bytes], (unsigned int)len), len);
 	}
 }
 

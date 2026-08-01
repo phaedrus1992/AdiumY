@@ -32,14 +32,128 @@
 				to:(NSString *)inTo
 	  serviceClass:(NSString *)inServiceClass
 {
-	if ((self =
+	if ((self = [super init])) {
+		NSParameterAssert(inPath != nil);
+		relativePath = [inPath copy];
+		from = [inFrom copy];
+		to = [inTo copy];
+		serviceClass = handleSpecialCasesForUIDAndServiceClass(to, inServiceClass);
+		logDict = nil;
+		partialLogDict = nil;
+
+		defaultManager = [NSFileManager defaultManager];
+	}
+
+	return self;
 }
 
-if (!theLog)
-	AILog(@"%@ couldn't find %@ in its partialLogDict", self, inPath);
+// Dealloc
+
+- (NSString *)from
+{
+	return from;
 }
+
+- (NSString *)to
+{
+	return to;
 }
-return theLog;
+
+- (NSString *)relativePath
+{
+	return relativePath;
+}
+
+- (NSString *)serviceClass
+{
+	return serviceClass;
+}
+
+// Returns an enumerator for all of our logs
+- (NSEnumerator *)logEnumerator
+{
+	return [[self logDict] objectEnumerator];
+}
+- (NSInteger)logCount
+{
+	return [[self logDict] count];
+}
+
+- (NSDictionary *)logDict
+{
+	@synchronized(self) {
+		if (!logDict) {
+			NSString *logBasePath, *fullPath;
+
+			//
+			logDict = [[NSMutableDictionary alloc] init];
+
+			// Retrieve any logs we've already loaded
+			if (partialLogDict) {
+				[logDict addEntriesFromDictionary:partialLogDict];
+				partialLogDict = nil;
+			}
+
+			logBasePath = [AILoggerPlugin logBasePath];
+			fullPath = [logBasePath stringByAppendingPathComponent:relativePath];
+			for (NSString *fileName in [defaultManager contentsOfDirectoryAtPath:fullPath error:NULL]) {
+				if (![fileName hasPrefix:@"."]) {
+					NSString *relativeLogPath = [relativePath stringByAppendingPathComponent:fileName];
+
+					if (![logDict objectForKey:relativeLogPath]) {
+						AIChatLog *theLog;
+
+						theLog = [[AIChatLog alloc] initWithPath:relativeLogPath
+															from:from
+															  to:to
+													serviceClass:serviceClass];
+						if (theLog) {
+							[logDict setObject:theLog forKey:relativeLogPath];
+						} else {
+							AILog(@"Class %@: Couldn't make for %@ %@ %@ %@", NSStringFromClass([AIChatLog class]),
+								  relativeLogPath, from, to, serviceClass);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return logDict;
+}
+
+/*!
+ * @brief Get an AIChatLog within this AILogToGroup
+ *
+ * @param inPath A _relative_ path of the form SERVICE.ACCOUNT_NAME/TO_NAME/LogName.Extension
+ *
+ * @result The AIChatLog, from the cache if possible
+ */
+- (AIChatLog *)logAtPath:(NSString *)inPath
+{
+	AIChatLog *theLog;
+
+	@synchronized(self) {
+		if (logDict) {
+			// Use the full dictionary if we have it
+			theLog = [logDict objectForKey:inPath];
+
+		} else {
+			// Otherwise, use the partialLog dictionary, adding to it if necessary
+			if (!partialLogDict)
+				partialLogDict = [[NSMutableDictionary alloc] init];
+
+			if (!(theLog = [partialLogDict objectForKey:inPath])) {
+				theLog = [[AIChatLog alloc] initWithPath:inPath from:from to:to serviceClass:serviceClass];
+
+				[partialLogDict setObject:theLog forKey:inPath];
+			}
+
+			if (!theLog)
+				AILog(@"%@ couldn't find %@ in its partialLogDict", self, inPath);
+		}
+	}
+	return theLog;
 }
 
 /*!

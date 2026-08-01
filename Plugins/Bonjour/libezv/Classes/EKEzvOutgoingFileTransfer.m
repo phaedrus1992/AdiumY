@@ -8,7 +8,10 @@
 
 #import "EKEzvOutgoingFileTransfer.h"
 #import "AWEzv.h"
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import "AWEzvContactManager.h"
+#import <errno.h>
+#import <sys/xattr.h>
 
 #define APPLE_SINGLE_HEADER_LENGTH 26
 #define APPLE_SINGLE_MAGIC_NUMBER 0x00051600
@@ -234,7 +237,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	}
 
 	/*Add the name */
-	NSXMLElement *name = [[[NSXMLElement alloc] initWithName:@"name"
+	NSXMLElement *name = [[NSXMLElement alloc] initWithName:@"name"
 												 stringValue:[newPath lastPathComponent]];
 	[root addChild:name];
 	NSArray *children = [self generateXMLFromDirectory:newPath];
@@ -330,7 +333,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	randomString = [URI stringByAppendingString:@"/"];
 
 	URI = [URI stringByAppendingPathComponent:[[[self localFilename] lastPathComponent]
-												  stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+												  stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
 	if (isDirectory)
 		URI = [URI stringByAppendingString:@"/"];
 
@@ -389,36 +392,16 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 	unsigned long long offset = APPLE_SINGLE_HEADER_LENGTH + sizeof(finderInfoEntry) * 3;
 	/*Finder info */
-	/*Get the info from the finder */
-	FSRef ref;
-	FSCatalogInfo catalogInfo;
-	OSStatus err;
-	Boolean itemIsDirectory = NO;
-	err = FSPathMakeRef((const UInt8 *)[filePath fileSystemRepresentation], &ref, &itemIsDirectory);
-	if (err != noErr) {
-		[[[[self manager] client] client] reportError:@"AppleSingle: Error creating FSRef" ofLevel:AWEzvError];
-		return nil;
-	}
-	err = FSGetCatalogInfo(/*const FSRef * ref*/ &ref,
-						   /*FSCatalogInfoBitmap whichInfo*/ (kFSCatInfoFinderInfo | kFSCatInfoFinderXInfo),
-						   /*FSCatalogInfo * catalogInfo*/ &catalogInfo,
-						   /*HFSUniStr255 * outName*/ NULL,
-						   /*FSSpec * fsSpec*/ NULL,
-						   /*FSRef * parentRef*/ NULL);
-	if (err != noErr) {
-		[[[[self manager] client] client] reportError:@"AppleSingle: Error creating FSRef" ofLevel:AWEzvError];
-		return nil;
-	}
-
-	/*Use the info from finder to create the AppleSingleFinderInfo struct */
+	/*Read the Finder info from the com.apple.FinderInfo extended attribute
+	 * (replaces the deprecated FSRef/FSCatalogInfo API, which also never copied the data).
+	 */
 	struct AppleSingleFinderInfo fileInfo;
 	memset(&fileInfo, 0, sizeof(fileInfo));
-	Size byteCount = sizeof(fileInfo.finderInfo);
-	if (byteCount > 0)
-		memmove(&(catalogInfo.finderInfo), &(fileInfo.finderInfo), byteCount);
-	byteCount = sizeof(fileInfo.extendedFinderInfo);
-	if (byteCount > 0)
-		memmove(&(catalogInfo.extFinderInfo), &(fileInfo.extendedFinderInfo), byteCount);
+	if (getxattr([filePath fileSystemRepresentation], "com.apple.FinderInfo", &fileInfo, sizeof(fileInfo), 0, 0) < 0 &&
+		errno != ENOATTR) {
+		[[[[self manager] client] client] reportError:@"AppleSingle: Error reading finder info" ofLevel:AWEzvError];
+		return nil;
+	}
 
 	/*Now switch from host to network byte order */
 	fileInfo.finderInfo.finderFlags = htons(fileInfo.finderInfo.finderFlags);
@@ -491,9 +474,8 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 - (NSString *)mimeTypeForPath:(NSString *)filePath
 {
 	NSString *mime = nil;
-	NSString *UTI = CFBridgingRelease(UTTypeCreatePreferredIdentifierForTag(
-		kUTTagClassFilenameExtension, (CFStringRef)[filePath pathExtension], NULL));
-	mime = CFBridgingRelease(UTTypeCopyPreferredTagWithClass((CFStringRef)UTI, kUTTagClassMIMEType));
+	UTType *type = [UTType typeWithFilenameExtension:[filePath pathExtension]];
+	mime = [type preferredMIMEType];
 	if (!mime || [mime length] == 0) {
 		mime = @"application/octet-stream";
 	}

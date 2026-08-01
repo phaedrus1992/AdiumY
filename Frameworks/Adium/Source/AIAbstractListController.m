@@ -231,8 +231,8 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 	// Dragging
 	[contactListView
 		registerForDraggedTypes:[NSArray arrayWithObjects:@"AIListObject", @"AIListObjectUniqueIDs",
-														  NSFilenamesPboardType, NSURLPboardType,
-														  AIiTunesTrackPboardType, NSStringPboardType, nil]];
+														  AINSPasteboardTypeFilenames, NSPasteboardTypeURL,
+														  AIiTunesTrackPboardType, NSPasteboardTypeString, nil]];
 
 	[contactListView reloadData];
 
@@ -349,7 +349,7 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 		break;
 	case AIContactListWindowStyleContactBubbles_Fitted:
 		// Right-aligned groups need to be full-width, not fitted
-		if (groupCellAlignment == NSLeftTextAlignment)
+		if (groupCellAlignment == NSTextAlignmentLeft)
 			groupCell = [[AIListGroupBubbleToFitCell alloc] init];
 		else
 			groupCell = [[AIListGroupBubbleCell alloc] init];
@@ -407,7 +407,7 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 		}
 	} else {
 		// Fitted pillows + centered text = no icons
-		BOOL allowIcons = (contentCellAlignment != NSCenterTextAlignment);
+		BOOL allowIcons = (contentCellAlignment != NSTextAlignmentCenter);
 
 		[contentCell
 			setUserIconVisible:(allowIcons ? [[prefDict objectForKey:KEY_LIST_LAYOUT_SHOW_ICON] boolValue] : NO)];
@@ -551,11 +551,11 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 - (LIST_POSITION)pillowsFittedIconPositionForIconPosition:(LIST_POSITION)iconPosition
 									 contentCellAlignment:(NSTextAlignment)contentCellAlignment
 {
-	if ((contentCellAlignment == NSLeftTextAlignment) &&
+	if ((contentCellAlignment == NSTextAlignmentLeft) &&
 		((iconPosition == LIST_POSITION_RIGHT) || (iconPosition == LIST_POSITION_FAR_RIGHT))) {
 		iconPosition = LIST_POSITION_LEFT;
 
-	} else if ((contentCellAlignment == NSRightTextAlignment) &&
+	} else if ((contentCellAlignment == NSTextAlignmentRight) &&
 			   ((iconPosition == LIST_POSITION_LEFT) || (iconPosition == LIST_POSITION_FAR_LEFT))) {
 		iconPosition = LIST_POSITION_RIGHT;
 	}
@@ -802,87 +802,116 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 }
 
 /*!
- * @brief Initiate drag and drop by writing items to the pasteboard
+ * @brief Build the URL strings and link titles for a set of dragged contacts
  *
- * We provide @"Private" for AIListObject, indicating we are using the private dragItems instance variable.
- * We promise @"AIListObjectUniqueIDs" which will be generated as needed as an array of uniqueObjectIDs corresponding to
- * the drag items array.
+ * Returns nil when none of the dragged contacts has a URL scheme we can use.
  */
-- (BOOL)outlineView:(NSOutlineView *)outlineView writeItems:(NSArray *)items toPasteboard:(NSPasteboard *)pboard
+- (NSArray *)URLStringsAndLinkTitlesForItems:(NSArray *)items
 {
-	if (pboard == [NSPasteboard pasteboardWithName:NSDragPboard]) {
-		// Begin the drag
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"AIListControllerDraggedItems" object:items];
-	}
+	NSMutableArray *URLStrings = [NSMutableArray arrayWithCapacity:[items count]];
+	NSMutableArray *linkTitles = [NSMutableArray arrayWithCapacity:[items count]];
 
-	[pboard declareTypes:[NSArray arrayWithObjects:@"AIListObject", @"AIListObjectUniqueIDs", nil] owner:self];
+	// XXX This should be read in from a plist file at some point.
+	NSDictionary *URLFormats = [NSDictionary
+		dictionaryWithObjectsAndKeys:@"aim://goim?screenname=%@", @"AIM", @"aim://goim?screenname=%@",
+									 @"Mac", //.Mac
+									 @"aim://goim?screenname=%@", @"MobileMe", @"xmpp:%@?message", @"Jabber",
+									 @"xmpp:%@?message", @"GTalk", @"xmpp:%@?message", @"LiveJournal",
+									 @"xmpp:%@?message", @"Gizmo", @"msn://%@", @"MSN", @"ymsgr://im?to=%@", @"Yahoo!",
+									 @"ymsgr://im?to=%@", @"Yahoo! Japan", nil];
 
-	[pboard setString:@"Private" forType:@"AIListObject"];
+	for (AIProxyListObject *proxyListObject in items) {
+		AIListObject *listObject = proxyListObject.listObject;
+		NSString *format;
 
-	// Copy URLs for all the selected contacts that we can make URLs for.
-	{
-		NSMutableArray *URLStrings = [NSMutableArray arrayWithCapacity:[items count]];
-		NSMutableArray *linkTitles = [NSMutableArray arrayWithCapacity:[items count]];
-
-		// XXX This should be read in from a plist file at some point.
-		NSDictionary *URLFormats = [NSDictionary
-			dictionaryWithObjectsAndKeys:@"aim://goim?screenname=%@", @"AIM", @"aim://goim?screenname=%@",
-										 @"Mac", //.Mac
-										 @"aim://goim?screenname=%@", @"MobileMe", @"xmpp:%@?message", @"Jabber",
-										 @"xmpp:%@?message", @"GTalk", @"xmpp:%@?message", @"LiveJournal",
-										 @"xmpp:%@?message", @"Gizmo", @"msn://%@", @"MSN", @"ymsgr://im?to=%@",
-										 @"Yahoo!", @"ymsgr://im?to=%@", @"Yahoo! Japan", nil];
-
-		NSEnumerator *itemsEnum = [items objectEnumerator];
-		for (AIProxyListObject *proxyListObject = [itemsEnum nextObject]; proxyListObject;
-			 proxyListObject = [itemsEnum nextObject]) {
-			AIListObject *listObject = proxyListObject.listObject;
-			NSString *format;
-
-			// Check AIMetaContact first, because it is a kind of AIListContact. The else, thus, serves to implicitly
-			// say “is a list contact +and is not a metacontact+”.
-			if ([listObject isKindOfClass:[AIMetaContact class]]) {
-				// Process each contact in the metacontact.
-				for (AIListContact *subcontact in (AIMetaContact *)listObject) {
-					format = [URLFormats objectForKey:subcontact.service.serviceID];
-					if (format) {
-						[URLStrings
-							addObject:[NSString stringWithFormat:format, [subcontact.UID stringByEncodingURLEscapes]]];
-						[linkTitles addObject:[NSString stringWithFormat:LINK_TITLE_FORMAT, subcontact.UID,
-																		 [subcontact.service longDescription]]];
-					}
-				}
-			} else if ([listObject isKindOfClass:[AIListContact class]]) {
-				format = [URLFormats objectForKey:listObject.service.serviceID];
-				if (!format) {
-					AILogWithSignature(@"Can't copy contact %@ of service %@ because there's no URL scheme associated "
-									   @"with that service - skipping",
-									   listObject, listObject.service.serviceID);
-
-				} else {
+		// Check AIMetaContact first, because it is a kind of AIListContact. The else, thus, serves to implicitly
+		// say “is a list contact +and is not a metacontact+”.
+		if ([listObject isKindOfClass:[AIMetaContact class]]) {
+			// Process each contact in the metacontact.
+			for (AIListContact *subcontact in (AIMetaContact *)listObject) {
+				format = [URLFormats objectForKey:subcontact.service.serviceID];
+				if (format) {
 					[URLStrings
-						addObject:[NSString stringWithFormat:format, [listObject.UID stringByEncodingURLEscapes]]];
-					[linkTitles addObject:[NSString stringWithFormat:LINK_TITLE_FORMAT, listObject.UID,
-																	 listObject.service.longDescription]];
+						addObject:[NSString stringWithFormat:format, [subcontact.UID stringByEncodingURLEscapes]]];
+					[linkTitles addObject:[NSString stringWithFormat:LINK_TITLE_FORMAT, subcontact.UID,
+																	 [subcontact.service longDescription]]];
 				}
 			}
-			// We ignore groups.
-		}
+		} else if ([listObject isKindOfClass:[AIListContact class]]) {
+			format = [URLFormats objectForKey:listObject.service.serviceID];
+			if (!format) {
+				AILogWithSignature(@"Can't copy contact %@ of service %@ because there's no URL scheme associated "
+								   @"with that service - skipping",
+								   listObject, listObject.service.serviceID);
 
-		if ([URLStrings count]) {
-			[pboard setPropertyList:URLStrings forType:NSURLPboardType];
-			[pboard setPropertyList:[NSArray arrayWithObjects:URLStrings, linkTitles, nil]
-							forType:AIWebURLsWithTitlesPboardType];
-			[pboard setString:[URLStrings componentsJoinedByString:@"\n"] forType:NSStringPboardType];
-
-			[pboard addTypes:[NSArray arrayWithObjects:NSURLPboardType, NSStringPboardType,
-													   AIWebURLsWithTitlesPboardType, nil]
-					   owner:self];
+			} else {
+				[URLStrings addObject:[NSString stringWithFormat:format, [listObject.UID stringByEncodingURLEscapes]]];
+				[linkTitles addObject:[NSString stringWithFormat:LINK_TITLE_FORMAT, listObject.UID,
+																 listObject.service.longDescription]];
+			}
 		}
+		// We ignore groups.
 	}
 
+	if ([URLStrings count] > 0) {
+		return [NSArray arrayWithObjects:URLStrings, linkTitles, nil];
+	}
+	return nil;
+}
+
+/*!
+ * @brief Initiate drag and drop by writing items to the pasteboard
+ *
+ * We provide @"Private" for AIListObject and an eager array of AIListObjectUniqueIDs covering the whole
+ * dragged set, so drop targets can reference the dragged contacts without a lazy pasteboard provider.
+ */
+- (id<NSPasteboardWriting>)outlineView:(NSOutlineView *)outlineView pasteboardWriterForItem:(id)item
+{
+	// AppKit calls this once per dragged item; the dragged set is the outline view's selection.
+	NSMutableArray *draggedItems = [NSMutableArray array];
+	NSIndexSet *selectedRowIndexes = [outlineView selectedRowIndexes];
+	[selectedRowIndexes enumerateIndexesUsingBlock:^(NSUInteger row, BOOL *stop) {
+		id rowItem = [outlineView itemAtRow:(NSInteger)row];
+		if (rowItem != nil) {
+			[draggedItems addObject:rowItem];
+		}
+	}];
+	if (![draggedItems containsObject:item]) {
+		[draggedItems addObject:item];
+	}
+
+	NSPasteboardItem *pasteboardItem = [[NSPasteboardItem alloc] init];
+	[pasteboardItem setString:@"Private" forType:@"AIListObject"];
+
+	// Copy URLs for all the dragged contacts that we can make URLs for.
+	NSArray *URLStringsAndLinkTitles = [self URLStringsAndLinkTitlesForItems:draggedItems];
+	if (URLStringsAndLinkTitles != nil) {
+		NSArray *URLStrings = [URLStringsAndLinkTitles objectAtIndex:0];
+		NSArray *linkTitles = [URLStringsAndLinkTitles objectAtIndex:1];
+		[pasteboardItem setPropertyList:URLStrings forType:NSPasteboardTypeURL];
+		[pasteboardItem setPropertyList:[NSArray arrayWithObjects:URLStrings, linkTitles, nil]
+								forType:AIWebURLsWithTitlesPboardType];
+		[pasteboardItem setString:[URLStrings componentsJoinedByString:@"\n"] forType:NSPasteboardTypeString];
+	}
+
+	// Provide an array of internalObjectIDs which can be used to reference all the dragged contacts.
+	NSMutableArray *uniqueIDs = [NSMutableArray arrayWithCapacity:[draggedItems count]];
+	for (AIListObject *listObject in draggedItems) {
+		[uniqueIDs addObject:listObject.internalObjectID];
+	}
+	[pasteboardItem setPropertyList:uniqueIDs forType:@"AIListObjectUniqueIDs"];
+
+	return pasteboardItem;
+}
+
+- (void)outlineView:(NSOutlineView *)outlineView
+	 draggingSession:(NSDraggingSession *)session
+	willBeginAtPoint:(NSPoint)screenPoint
+			forItems:(NSArray *)draggedItems
+{
+	// Begin the drag
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"AIListControllerDraggedItems" object:draggedItems];
 	[self setShowTooltips:NO];
-	return YES;
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView
@@ -932,21 +961,6 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 																  group:PREF_GROUP_CONTACT_LIST] boolValue]];
 
 	[self setDragItems:nil];
-}
-
-- (void)pasteboard:(NSPasteboard *)sender provideDataForType:(NSString *)type
-{
-	// Provide an array of internalObjectIDs which can be used to reference all the dragged contacts
-	if ([type isEqualToString:@"AIListObjectUniqueIDs"]) {
-		if (dragItems) {
-			NSMutableArray *array = [NSMutableArray array];
-			for (AIListObject *listObject in dragItems) {
-				[array addObject:listObject.internalObjectID];
-			}
-
-			[sender setPropertyList:array forType:@"AIListObjectUniqueIDs"];
-		}
-	}
 }
 
 // Tooltip

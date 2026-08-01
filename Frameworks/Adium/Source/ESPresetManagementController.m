@@ -21,7 +21,7 @@
 @interface ESPresetManagementController ()
 - (void)configureControlDimming;
 - (void)tableViewSelectionDidChange:(NSNotification *)notification;
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSModalResponse)returnCode contextInfo:(void *)contextInfo;
 @end
 
 /*!
@@ -33,11 +33,10 @@
 - (void)showOnWindow:(NSWindow *)parentWindow
 {
 	if (parentWindow) {
-		[NSApp beginSheet:self.window
-			modalForWindow:parentWindow
-			 modalDelegate:self
-			didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			   contextInfo:nil];
+		[parentWindow beginSheet:self.window
+			   completionHandler:^(NSModalResponse returnCode) {
+				   [self sheetDidEnd:self.window returnCode:returnCode contextInfo:nil];
+			   }];
 
 	} else {
 		[self showWindow:nil];
@@ -86,22 +85,22 @@
 
 	[label_editPresets setLocalizedString:AILocalizedString(@"Edit presets:", nil)];
 
-	[button_duplicate setAlignment:NSLeftTextAlignment];
+	[button_duplicate setAlignment:NSTextAlignmentLeft];
 	[button_duplicate setLocalizedString:AILocalizedString(@"Duplicate", "Button which duplicates the selection")];
-	[button_duplicate setAlignment:NSCenterTextAlignment];
+	[button_duplicate setAlignment:NSTextAlignmentCenter];
 
-	[button_delete setAlignment:NSLeftTextAlignment];
+	[button_delete setAlignment:NSTextAlignmentLeft];
 	[button_delete setLocalizedString:AILocalizedString(@"Delete", "Button which deletes the selection")];
-	[button_delete setAlignment:NSCenterTextAlignment];
+	[button_delete setAlignment:NSTextAlignmentCenter];
 
-	[button_rename setAlignment:NSLeftTextAlignment];
+	[button_rename setAlignment:NSTextAlignmentLeft];
 	[button_rename setLocalizedString:AILocalizedString(@"Rename", "Button which renames the selection")];
-	[button_rename setAlignment:NSCenterTextAlignment];
+	[button_rename setAlignment:NSTextAlignmentCenter];
 
-	[button_done setAlignment:NSLeftTextAlignment];
+	[button_done setAlignment:NSTextAlignmentLeft];
 	[button_done
 		setLocalizedString:AILocalizedString(@"Done", "Button which indicates that the editing sheet is done")];
-	[button_done setAlignment:NSCenterTextAlignment];
+	[button_done setAlignment:NSTextAlignmentCenter];
 
 	[self configureControlDimming];
 }
@@ -120,7 +119,7 @@
 /*!
  * Invoked as the sheet closes, dismiss the sheet
  */
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSModalResponse)returnCode contextInfo:(void *)contextInfo
 {
 	[sheet orderOut:nil];
 }
@@ -329,18 +328,17 @@
  *
  * Only allow the drag to start if the delegate responds to @selector(movePreset:toIndex:inPresets:)
  */
-- (BOOL)tableView:(NSTableView *)tv writeRows:(NSArray *)rows toPasteboard:(NSPasteboard *)pboard
+- (id<NSPasteboardWriting>)tableView:(NSTableView *)tv pasteboardWriterForRow:(NSInteger)row
 {
-	if ([delegate respondsToSelector:@selector(movePreset:toIndex:inPresets:presetAfterMove:)]) {
-		tempDragPreset = [presets objectAtIndex:[[rows objectAtIndex:0] integerValue]];
-
-		[pboard declareTypes:[NSArray arrayWithObject:PRESET_DRAG_TYPE] owner:self];
-		[pboard setString:@"Preset" forType:PRESET_DRAG_TYPE]; // Arbitrary state
-
-		return YES;
-	} else {
-		return NO;
+	if (![delegate respondsToSelector:@selector(movePreset:toIndex:inPresets:presetAfterMove:)]) {
+		return nil;
 	}
+
+	tempDragPreset = [presets objectAtIndex:row];
+
+	NSPasteboardItem *item = [[NSPasteboardItem alloc] init];
+	[item setString:@"Preset" forType:PRESET_DRAG_TYPE]; // Arbitrary state
+	return item;
 }
 
 /*!

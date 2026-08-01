@@ -19,6 +19,8 @@
 #import "AIDateAdditions.h"
 #import "AIStringUtilities.h"
 
+static const void *kLocalizedFormatterQueueSpecificKey = &kLocalizedFormatterQueueSpecificKey;
+
 #define ONE_WEEK                                                                                                       \
 	AILocalizedStringFromTableInBundle(@"1 week", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil)
 #define MULTIPLE_WEEKS                                                                                                 \
@@ -91,7 +93,7 @@ static AIDateFormatterCache *sharedFormatterCache = nil;
 
 + (AIDateFormatterCache *)sharedInstance
 {
-	NSAssert(dispatch_get_current_queue() == [NSDateFormatter localizedFormatterQueue], @"Wrong queue");
+	NSAssert(dispatch_get_specific(kLocalizedFormatterQueueSpecificKey) != NULL, @"Wrong queue");
 
 	if (!sharedFormatterCache)
 		sharedFormatterCache = [[AIDateFormatterCache alloc] init];
@@ -134,6 +136,7 @@ static AIDateFormatterCache *sharedFormatterCache = nil;
 	static dispatch_queue_t localizedFormatterQueue;
 	dispatch_once(&onceToken, ^{
 		localizedFormatterQueue = dispatch_queue_create("im.adium.LocalizedDateFormatterQueue", NULL);
+		dispatch_queue_set_specific(localizedFormatterQueue, kLocalizedFormatterQueueSpecificKey, (void *)1, NULL);
 	});
 
 	return localizedFormatterQueue;
@@ -170,7 +173,7 @@ static AIDateFormatterCache *sharedFormatterCache = nil;
 
 + (NSDateFormatter *)localizedDateFormatter
 {
-	NSAssert(dispatch_get_current_queue() == [self localizedFormatterQueue], @"Wrong queue");
+	NSAssert(dispatch_get_specific(kLocalizedFormatterQueueSpecificKey) != NULL, @"Wrong queue");
 
 	// Thursday, July 31, 2008
 	NSDateFormatter *__strong *cachePointer = [[AIDateFormatterCache sharedInstance] formatter];
@@ -186,7 +189,7 @@ static AIDateFormatterCache *sharedFormatterCache = nil;
 
 + (NSDateFormatter *)localizedShortDateFormatter
 {
-	NSAssert(dispatch_get_current_queue() == [self localizedFormatterQueue], @"Wrong queue");
+	NSAssert(dispatch_get_specific(kLocalizedFormatterQueueSpecificKey) != NULL, @"Wrong queue");
 
 	// 7/31/08
 	NSDateFormatter *__strong *cachePointer = [[AIDateFormatterCache sharedInstance] shortFormatter];
@@ -202,7 +205,7 @@ static AIDateFormatterCache *sharedFormatterCache = nil;
 
 + (NSDateFormatter *)localizedDateFormatterShowingSeconds:(BOOL)seconds showingAMorPM:(BOOL)showAmPm
 {
-	NSAssert(dispatch_get_current_queue() == [self localizedFormatterQueue], @"Wrong queue");
+	NSAssert(dispatch_get_specific(kLocalizedFormatterQueueSpecificKey) != NULL, @"Wrong queue");
 
 	NSDateFormatter *__strong *cachePointer = [[AIDateFormatterCache sharedInstance] formatterShowingSeconds:seconds
 																							   showingAMorPM:showAmPm];
@@ -219,7 +222,7 @@ static AIDateFormatterCache *sharedFormatterCache = nil;
 	dispatch_queue_t localizedFormatterQueue = [self localizedFormatterQueue];
 	__block NSString *formatString;
 
-	if (dispatch_get_current_queue() != localizedFormatterQueue) {
+	if (dispatch_get_specific(kLocalizedFormatterQueueSpecificKey) == NULL) {
 		dispatch_sync(localizedFormatterQueue, ^{
 			formatString = [self localizedDateFormatStringShowingSeconds:seconds showingAMorPM:showAmPm];
 		});

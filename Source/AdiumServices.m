@@ -26,8 +26,11 @@
  */
 - (id)init
 {
-	if ((self = 
-	services = nil;
+	if ((self = [super init])) {
+		services = [[NSMutableDictionary alloc] init];
+	}
+
+	return self;
 }
 
 /*!

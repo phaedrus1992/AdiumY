@@ -28,6 +28,7 @@
 #import "AHHyperlinkScanner.h"
 #import "AHLinkLexer.h"
 #import "AHMarkedHyperlink.h"
+#import <AppKit/AppKit.h>
 #import <libkern/OSAtomic.h>
 
 #define DEFAULT_URL_SCHEME @"http://"
@@ -314,11 +315,10 @@
 				case AH_URL_TENTATIVE:
 				{
 					NSString *scheme = [_scanString substringToIndex:schemeLength];
-					NSArray *apps = (NSArray *)LSCopyAllHandlersForURLScheme((CFStringRef)scheme);
+					NSArray *apps = [[NSWorkspace sharedWorkspace] URLsForApplicationsToOpenURL:[NSURL URLWithString:[scheme stringByAppendingString:@":"]]];
 
 					if(!apps.count)
 						makeLink = FALSE;
-					[apps release];
 					break;
 				}
                 default:
@@ -434,7 +434,11 @@
 		NSAttributedString *newLinkifiedString = [self _createLinkifiedString];
 		// compare the old object to nil, and swap in the new value if they match.
 		// if the old object (m_linkifiedString) already has a value, release the duplicated new object
-		if(OSAtomicCompareAndSwapPtrBarrier(nil, newLinkifiedString, (void *)&m_linkifiedString))
+		// clang rejects __atomic_* on Objective-C object pointer types, so perform the
+		// compare-and-swap through void * and treat the values as opaque.
+		void *expected = NULL;
+		if (__atomic_compare_exchange_n((void **)&m_linkifiedString, &expected, (void *)newLinkifiedString, false,
+										__ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE))
 			[m_linkifiedString retain];
 	}
 	return m_linkifiedString;

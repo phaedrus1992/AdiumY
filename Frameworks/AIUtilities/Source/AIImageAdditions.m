@@ -140,7 +140,7 @@
 	NSRectFill(NSMakeRect(0, 0, size.width, size.height));
 
 	// Draw the image
-	[self drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+	[self drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositingOperationSourceOver fraction:1.0];
 
 	// We're done drawing
 	[tempImage unlockFocus];
@@ -204,7 +204,7 @@
 	 * before creating our representation or transparent parts will become black. White is preferable.
 	 */
 	return ([[self opaqueBitmapImageRep]
-		representationUsingType:NSJPEGFileType
+		representationUsingType:NSBitmapImageFileTypeJPEG
 					 properties:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:(float)compressionFactor]
 															forKey:NSImageCompressionFactor]]);
 }
@@ -218,7 +218,7 @@
 
 	for (float compressionFactor = 0.99f; compressionFactor > 0.4f; compressionFactor -= 0.01f) {
 		data = [opaqueBitmapImageRep
-			representationUsingType:NSJPEGFileType
+			representationUsingType:NSBitmapImageFileTypeJPEG
 						 properties:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:compressionFactor]
 																forKey:NSImageCompressionFactor]];
 		if (data && ([data length] <= maxByteSize)) {
@@ -236,7 +236,7 @@
 	/* PNG is easy; it supports everything TIFF does, and NSImage's PNG support is great. */
 	NSBitmapImageRep *bitmapRep = [self largestBitmapImageRep];
 
-	return ([bitmapRep representationUsingType:NSPNGFileType properties:[NSDictionary dictionary]]);
+	return ([bitmapRep representationUsingType:NSBitmapImageFileTypePNG properties:[NSDictionary dictionary]]);
 }
 
 - (NSData *)GIFRepresentation
@@ -265,14 +265,14 @@
 				[bitmap setProperty:NSImageCurrentFrame withValue:[NSNumber numberWithUnsignedInt:i]];
 				// Add frame representation
 				[images addObject:[NSBitmapImageRep
-									  imageRepWithData:[bitmap representationUsingType:NSGIFFileType
+									  imageRepWithData:[bitmap representationUsingType:NSBitmapImageFileTypeGIF
 																			properties:[NSDictionary dictionary]]]];
 			}
 
 			GIFRepresentation = [NSMutableData
 				dataWithData:[NSBitmapImageRep
 								 representationOfImageRepsInArray:images
-														usingType:NSGIFFileType
+														usingType:NSBitmapImageFileTypeGIF
 													   properties:[self GIFPropertiesForRepresentation:bitmap]]];
 
 			// Write GIF Extension Blocks
@@ -289,7 +289,7 @@
 	 * before creating our representation or transparent parts will become black. White is preferable.
 	 */
 
-	return ([[self opaqueBitmapImageRep] representationUsingType:NSBMPFileType properties:@{}]);
+	return ([[self opaqueBitmapImageRep] representationUsingType:NSBitmapImageFileTypeBMP properties:@{}]);
 }
 
 /*!
@@ -312,13 +312,25 @@
 
 - (NSBitmapImageRep *)getBitmap
 {
-	[self lockFocus];
-
 	NSSize size = [self size];
 	NSRect rect = NSMakeRect(0.0f, 0.0f, size.width, size.height);
-	NSBitmapImageRep *bm = [[NSBitmapImageRep alloc] initWithFocusedViewRect:rect];
 
-	[self unlockFocus];
+	NSBitmapImageRep *bm = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:nil
+																   pixelsWide:MAX(1, (NSInteger)lround(size.width))
+																   pixelsHigh:MAX(1, (NSInteger)lround(size.height))
+																bitsPerSample:8
+															  samplesPerPixel:4
+																	 hasAlpha:YES
+																	 isPlanar:NO
+															   colorSpaceName:NSCalibratedRGBColorSpace
+																  bytesPerRow:0
+																 bitsPerPixel:0];
+	[bm setSize:size];
+
+	[NSGraphicsContext saveGraphicsState];
+	[NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:bm]];
+	[self drawInRect:rect fromRect:NSZeroRect operation:NSCompositingOperationCopy fraction:1.0];
+	[NSGraphicsContext restoreGraphicsState];
 
 	return bm;
 }

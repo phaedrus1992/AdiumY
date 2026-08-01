@@ -92,12 +92,12 @@
 		[subImage unlockFocus];
 
 		// Draw that image in the proper place
-		[subImage drawInRect:subFrame fromRect:subUsableFrame operation:NSCompositeSourceOver fraction:1.0f];
+		[subImage drawInRect:subFrame fromRect:subUsableFrame operation:NSCompositingOperationSourceOver fraction:1.0f];
 	}
 	[image unlockFocus];
 
 	// Draw the composited image in our current context
-	[image drawInRect:cellFrame fromRect:usableFrame operation:NSCompositeSourceOver fraction:1.0f];
+	[image drawInRect:cellFrame fromRect:usableFrame operation:NSCompositingOperationSourceOver fraction:1.0f];
 }
 
 - (NSCellHitResult)hitTestForEvent:(NSEvent *)event inRect:(NSRect)cellFrame ofView:(NSView *)controlView
@@ -108,14 +108,6 @@
 - (BOOL)drawGridBehindCell
 {
 	return YES;
-}
-
-- (id)accessibilityAttributeValue:(NSString *)attribute
-{
-	if (embeddedView)
-		return [embeddedView accessibilityAttributeValue:attribute];
-	else
-		return [super accessibilityAttributeValue:attribute];
 }
 
 @end

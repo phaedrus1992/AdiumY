@@ -50,12 +50,12 @@
 
 	NSBezierPath *clipPath = [NSBezierPath bezierPathWithRoundedRect:inRect radius:3];
 
-	[[NSColor windowFrameColor] set];
+	[[NSColor separatorColor] set];
 	[clipPath setLineWidth:1];
 	[clipPath stroke];
 
 	// Ensure we have an even/odd winding rule in effect
-	[clipPath setWindingRule:NSEvenOddWindingRule];
+	[clipPath setWindingRule:NSWindingRuleEvenOdd];
 	[clipPath addClip];
 
 	[super drawRect:inRect];
@@ -173,7 +173,7 @@
 			trackRect.size.width = myFrame.size.width;
 		}
 
-		NSPoint localPoint = [self convertPoint:[[self window] convertScreenToBase:[NSEvent mouseLocation]]
+		NSPoint localPoint = [self convertPoint:[[self window] convertPointFromScreen:[NSEvent mouseLocation]]
 									   fromView:nil];
 		// FIX - replacement for deprecation; reverted for 10.11 fix.
 		//		NSPoint	localPoint = [self convertPoint:[[self window] convertPointFromScreen:[NSEvent mouseLocation]]

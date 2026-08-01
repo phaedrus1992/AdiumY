@@ -29,7 +29,7 @@
 #define EDIT_LINK_TITLE [AILocalizedString(@"Edit Link", nil) stringByAppendingEllipsis]
 #define RM_LINK_TITLE AILocalizedString(@"Remove Link", nil)
 
-@interface SHLinkManagementPlugin ()
+@interface SHLinkManagementPlugin () <NSMenuItemValidation>
 - (BOOL)textViewSelectionIsLink:(NSTextView *)textView;
 - (void)registerToolbarItem;
 - (IBAction)editFormattedLink:(id)sender;
@@ -43,17 +43,17 @@
 	NSMenuItem *menuItem;
 
 	// Add/Edit Link... menu item (edit menu)
-	menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:EDIT_LINK_TITLE
-																	target:self
-																	action:@selector(editFormattedLink:)
-															 keyEquivalent:@"k"];
+	menuItem = [[NSMenuItem alloc] initWithTitle:EDIT_LINK_TITLE
+										  target:self
+										  action:@selector(editFormattedLink:)
+								   keyEquivalent:@"k"];
 	[adium.menuController addMenuItem:menuItem toLocation:LOC_Edit_Links];
 
 	// Context menu
-	menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:EDIT_LINK_TITLE
-																	target:self
-																	action:@selector(editFormattedLink:)
-															 keyEquivalent:@""];
+	menuItem = [[NSMenuItem alloc] initWithTitle:EDIT_LINK_TITLE
+										  target:self
+										  action:@selector(editFormattedLink:)
+								   keyEquivalent:@""];
 	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_TextView_LinkEditing];
 	[self registerToolbarItem];
 }

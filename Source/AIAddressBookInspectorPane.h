@@ -16,6 +16,8 @@
 
 #import "AIContactInfoContentController.h"
 
+@class ABPeoplePickerView;
+
 @class AIDelayedTextField;
 
 @interface AIAddressBookInspectorPane : NSObject <AIContentInspectorPane> {

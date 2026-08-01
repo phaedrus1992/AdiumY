@@ -52,7 +52,168 @@
 }
 - (NSImage *)image
 {
-	return
+	return [NSImage imageNamed:@"pref-defaultclient" forClass:[AIPreferenceWindowController class]];
+}
+
+- (void)viewDidLoad
+{
+
+	servicesList = ((AIURLHandlerPlugin *)plugin).uniqueSchemes;
+
+	[self configureTableView];
+	[self initializeServiceInformationForSchemes:servicesList];
+
+	[button_setDefault setLocalizedString:AILocalizedString(@"Set Default for All", nil)];
+	[checkBox_enforceDefault setLocalizedString:AILocalizedString(@"Always set Adium as the default", nil)];
+
+	[checkBox_enforceDefault setState:[[adium.preferenceController preferenceForKey:PREF_KEY_ENFORCE_DEFAULT
+																			  group:GROUP_URL_HANDLING] boolValue]];
+
+	[tableView setEnabled:![[adium.preferenceController preferenceForKey:PREF_KEY_ENFORCE_DEFAULT
+																   group:GROUP_URL_HANDLING] boolValue]];
+
+	[super viewDidLoad];
+}
+
+#pragma mark Actions
+- (IBAction)setDefault:(id)sender
+{
+	[plugin setAdiumAsDefault];
+	[tableView reloadData];
+}
+
+- (IBAction)enforceDefault:(id)sender
+{
+	[adium.preferenceController setPreference:[NSNumber numberWithBool:[sender state]]
+									   forKey:PREF_KEY_ENFORCE_DEFAULT
+										group:GROUP_URL_HANDLING];
+
+	[tableView setEnabled:![sender state]];
+
+	if ([sender state]) {
+		[plugin setAdiumAsDefault];
+	}
+}
+
+#pragma mark Scheme information
+- (void)initializeServiceInformationForSchemes:(NSArray *)schemes
+{
+	services = [[NSMutableDictionary alloc] init];
+
+	for (NSString *scheme in schemes) {
+		[services setObject:[NSMutableDictionary dictionary] forKey:scheme];
+	}
+}
+
+- (NSMenu *)applicationMenuForScheme:(NSString *)scheme
+{
+	NSMutableDictionary *servicesInformation = [services objectForKey:scheme];
+	NSMenu *menu = [servicesInformation objectForKey:@"applicationsMenu"];
+
+	if (!menu) {
+		menu = [[NSMenu alloc] init];
+
+		for (NSDictionary *application in [self applicationDictionaryArrayForScheme:scheme]) {
+			NSMenuItem *menuItem = [menu addItemWithTitle:[application objectForKey:@"ApplicationName"]
+												   target:nil
+												   action:nil
+											keyEquivalent:@""];
+
+			[menuItem setImage:[[application objectForKey:@"ApplicationImage"] imageByScalingForMenuItem]];
+			[menuItem setRepresentedObject:[application objectForKey:@"BundleID"]];
+		}
+
+		[servicesInformation setObject:menu forKey:@"applicationsMenu"];
+	}
+
+	return menu;
+}
+
+- (NSArray *)applicationDictionaryArrayForScheme:(NSString *)scheme
+{
+	NSMutableDictionary *servicesInformation = [services objectForKey:scheme];
+	NSArray *applications = [servicesInformation objectForKey:@"applications"];
+
+	if (!applications) {
+		NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
+		NSURL *schemeURL = [NSURL URLWithString:[scheme stringByAppendingString:@":"]];
+		NSArray *applicationURLs = [workspace URLsForApplicationsToOpenURL:schemeURL];
+		NSMutableArray *mutableApplications = [NSMutableArray array];
+
+		for (NSURL *applicationURL in applicationURLs) {
+			NSBundle *applicationBundle = [NSBundle bundleWithURL:applicationURL];
+			NSString *bundleID = [applicationBundle bundleIdentifier];
+
+			if (bundleID == nil) {
+				continue;
+			}
+
+			NSString *applicationName = [applicationBundle objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+			if (applicationName == nil) {
+				applicationName = [applicationBundle objectForInfoDictionaryKey:@"CFBundleName"];
+			}
+
+			NSImage *image = [workspace iconForFile:[applicationURL path]];
+
+			[mutableApplications
+				addObject:[NSDictionary dictionaryWithObjectsAndKeys:bundleID.lowercaseString, @"BundleID",
+																	 applicationName, @"ApplicationName", image,
+																	 @"ApplicationImage", nil]];
+		}
+
+		if (servicesInformation == nil) {
+			servicesInformation = [NSMutableDictionary dictionary];
+			[services setObject:servicesInformation forKey:scheme];
+		}
+		[servicesInformation setObject:mutableApplications forKey:@"applications"];
+
+		applications = mutableApplications;
+	}
+
+	return applications;
+}
+
+- (NSImage *)serviceImageForScheme:(NSString *)scheme
+{
+	NSMutableDictionary *servicesInformation = [services objectForKey:scheme];
+	NSImage *image = [servicesInformation objectForKey:@"image"];
+
+	if (!image) {
+		AIService *service = [adium.accountController firstServiceWithServiceID:[plugin serviceIDForScheme:scheme]];
+		image = [AIServiceIcons serviceIconForService:service type:AIServiceIconLarge direction:AIIconNormal];
+		if (image)
+			[servicesInformation setObject:image forKey:@"image"];
+	}
+
+	return image;
+}
+
+- (NSString *)serviceNameForScheme:(NSString *)scheme
+{
+	NSMutableDictionary *servicesInformation = [services objectForKey:scheme];
+	NSString *longServiceName = [servicesInformation objectForKey:@"name"];
+
+	if (!longServiceName) {
+		AIService *service = [adium.accountController firstServiceWithServiceID:[plugin serviceIDForScheme:scheme]];
+		longServiceName = [service longDescription];
+		[servicesInformation setObject:(longServiceName ?: @"(unknown)") forKey:@"name"];
+	}
+
+	return longServiceName;
+}
+
+#pragma mark Table view Delegate
+
+- (void)refreshTable
+{
+	[tableView reloadData];
+}
+
+- (void)configureTableView
+{
+	AIImageTextCell *imageTextCell = [[AIImageTextCell alloc] init];
+	[imageTextCell setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize]]];
+	[[tableView tableColumnWithIdentifier:@"service"] setDataCell:imageTextCell];
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView

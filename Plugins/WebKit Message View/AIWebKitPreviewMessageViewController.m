@@ -16,27 +16,14 @@
 
 #import "AIWebKitPreviewMessageViewController.h"
 #import "AIWebKitMessageViewPlugin.h"
-#import "ESWebView.h"
 #import <Adium/AIChat.h>
 
 @implementation AIWebKitPreviewMessageViewController
 
-- (NSArray *)webView:(WebView *)sender
-	contextMenuItemsForElement:(NSDictionary *)element
-			  defaultMenuItems:(NSArray *)defaultMenuItems
-{
-	return [NSArray array];
-}
-
-- (void)dealloc
-{
-	preferencesChangedDelegate = nil;
-}
-
 - (void)setIsGroupChat:(BOOL)groupChat
 {
-	chat.isGroupChat = groupChat;
-	preferenceGroup = [plugin preferenceGroupForChat:chat];
+	_chat.isGroupChat = groupChat;
+	_preferenceGroup = [_plugin preferenceGroupForChat:_chat];
 }
 
 - (void)setPreferencesChangedDelegate:(id)inDelegate

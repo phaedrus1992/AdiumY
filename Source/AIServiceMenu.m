@@ -63,7 +63,7 @@ NSInteger titleSort(NSMenuItem *itemA, NSMenuItem *itemB, void *context)
 	BOOL targetRespondsToShouldIncludeService = [target respondsToSelector:@selector(serviceMenuShouldIncludeService:)];
 
 	// Prepare our menu
-	NSMenu *menu = [[NSMenu allocWithZone:[NSMenu menuZone]] init];
+	NSMenu *menu = [[NSMenu alloc] init];
 
 	serviceArray = (activeServicesOnly ? (id)[accountController activeServicesIncludingCompatibleServices:YES]
 									   : (id)[accountController services]);
@@ -92,7 +92,7 @@ NSInteger titleSort(NSMenuItem *itemA, NSMenuItem *itemB, void *context)
 				(!targetRespondsToShouldIncludeService || [target serviceMenuShouldIncludeService:service])) {
 				NSString *description = (longDescription ? [service longDescription] : [service shortDescription]);
 
-				menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
+				menuItem = [[NSMenuItem alloc]
 					initWithTitle:(format ? [NSString stringWithFormat:format, description] : description)
 						   target:target
 						   action:@selector(selectServiceType:)

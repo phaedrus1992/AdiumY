@@ -38,8 +38,106 @@
 	hovered = NO;
 	hoveredFraction = 0.0f;
 
-	statusParagraphStyle =
+	statusParagraphStyle = [NSMutableParagraphStyle styleWithAlignment:NSTextAlignmentLeft
+														 lineBreakMode:NSLineBreakByTruncatingTail];
+
+	statusAttributes =
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:statusParagraphStyle, NSParagraphStyleAttributeName,
+														  [NSFont systemFontOfSize:10], NSFontAttributeName, nil];
 }
+
+- (id)initTextCell:(NSString *)str
+{
+	if ((self = [super initTextCell:str])) {
+		[self commonInit];
+	}
+
+	return self;
+}
+- (id)initImageCell:(NSImage *)image
+{
+	if ((self = [super initImageCell:image])) {
+		[self commonInit];
+	}
+
+	return self;
+}
+
+- (id)copyWithZone:(NSZone *)zone
+{
+	AIHoveringPopUpButtonCell *newCell = [[self class] allocWithZone:zone];
+
+	switch ([self type]) {
+	case NSImageCellType:
+		newCell = [newCell initImageCell:[self image]];
+		break;
+	case NSTextCellType:
+		newCell = [newCell initTextCell:[self stringValue]];
+		break;
+	default:
+		newCell = [newCell init]; // and hope for the best
+		break;
+	}
+
+	[newCell setMenu:[[self menu] copy]];
+
+	return newCell;
+}
+
+- (void)setTitle:(NSString *)inTitleString
+{
+
+	// Strip out all newlines
+	inTitleString =
+		[inTitleString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\n\r"]];
+
+	if (inTitleString && [inTitleString length]) {
+		title = [[NSMutableAttributedString alloc] initWithString:inTitleString attributes:statusAttributes];
+		textSize = [title size];
+	} else {
+		title = nil;
+		textSize = NSZeroSize;
+	}
+}
+
+- (void)setFont:(NSFont *)inFont
+{
+	NSString *oldTitleString = [[title string] copy];
+
+	[statusAttributes setObject:inFont forKey:NSFontAttributeName];
+	[self setTitle:oldTitleString];
+
+	[super setFont:inFont];
+}
+
+- (void)setImage:(NSImage *)inImage
+{
+	if (inImage != currentImage) {
+		currentImage = inImage;
+
+		imageSize = [currentImage size];
+	}
+}
+
+- (void)fadeHovered:(NSControl *)currentControlView
+{
+	if (hovered) {
+		if (hoveredFraction < 1.0)
+			hoveredFraction += 0.05f;
+	} else {
+		if (hoveredFraction > 0.0)
+			hoveredFraction -= 0.05f;
+	}
+
+	[currentControlView setNeedsDisplay:YES];
+
+	if ((hoveredFraction > 0.0) && (hoveredFraction < 1.0)) {
+		[NSObject cancelPreviousPerformRequestsWithTarget:self
+												 selector:@selector(fadeHovered:)
+												   object:currentControlView];
+
+		[self performSelector:@selector(fadeHovered:) withObject:currentControlView afterDelay:0];
+	}
 }
 
 - (void)setHovered:(BOOL)inHovered animate:(BOOL)animate

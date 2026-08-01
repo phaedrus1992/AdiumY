@@ -31,7 +31,7 @@
 
 @interface AIContactListUserPictureMenuController ()
 
-- (id)initWithNibName:(NSString *)nibName imagePicker:(AIContactListImagePicker *)picker;
+- (instancetype)initWithNibName:(NSString *)nibName imagePicker:(AIContactListImagePicker *)picker;
 
 // IKRecentPicture related
 - (NSArray *)recentPictures;
@@ -50,7 +50,186 @@
 @synthesize imagePicker, images;
 
 + (void)popUpMenuForImagePicker:(AIContactListImagePicker *)picker
-{}
+{
+	(void)[[self alloc] initWithNibName:@"ContactListChangeUserPictureMenu" imagePicker:picker];
+}
+
+/*!
+ * @brief Set-up and open the menu
+ */
+- (instancetype)initWithNibName:(NSString *)nibName imagePicker:(AIContactListImagePicker *)picker
+{
+	if ((self = [super init])) {
+		NSNib *nib = [[NSNib alloc] initWithNibNamed:nibName bundle:nil];
+		NSArray *nibTopLevelObjects = nil;
+
+		if ([nib instantiateWithOwner:self topLevelObjects:&nibTopLevelObjects]) {
+			// Hold a strong reference to the top level objects (the menu and its items) so they outlive this controller
+			AI_topLevelObjects = [nibTopLevelObjects mutableCopy];
+
+			[self setImagePicker:picker];
+			[imagePicker setMaxSize:NSMakeSize(128.0f, 128.0f)];
+
+			// Set-up collection view
+			if ([[imageCollectionView collectionViewLayout] isKindOfClass:[NSCollectionViewGridLayout class]]) {
+				NSCollectionViewGridLayout *gridLayout =
+					(NSCollectionViewGridLayout *)[imageCollectionView collectionViewLayout];
+
+				[gridLayout setMaximumNumberOfColumns:5];
+				[gridLayout setMaximumNumberOfRows:2];
+				[gridLayout setMaximumItemSize:NSMakeSize(36.0f, 36.0f)];
+			}
+
+			// Disable elastic scroll
+			[[imageCollectionView enclosingScrollView] setVerticalScrollElasticity:NSScrollElasticityNone];
+
+			NSMutableArray *pictures = [self recentSmallPictures];
+			NSSize pictureSize = NSMakeSize(32.0f, 32.0f);
+
+			// Resize pictures
+			for (NSImage *picture in pictures) {
+				[picture setSize:pictureSize];
+			}
+
+			if ([pictures count] < 10) {
+				// Create an "empty" image, placeholder icon
+				NSImage *emptyPicture = [[NSImage alloc] initWithSize:pictureSize];
+
+				[emptyPicture lockFocus];
+				[[NSColor unemphasizedSelectedContentBackgroundColor] set];
+				NSRectFill(NSMakeRect(0.0f, 0.0f, 32.0f, 32.0f));
+				[emptyPicture unlockFocus];
+
+				// Add placeholders to images
+				for (NSUInteger i = [pictures count]; i < 10; ++i) {
+					[pictures addObject:emptyPicture];
+				}
+			}
+
+			[self setImages:pictures];
+
+			[menu popUpMenuPositioningItem:[menu itemAtIndex:0] atLocation:NSMakePoint(2.0f, -4.0f) inView:imagePicker];
+		}
+	}
+
+	return self;
+}
+
+#pragma mark -
+
+- (NSArray *)recentPictures
+{
+	NSArray *recentPictures =
+		[(IKPictureTakerRecentPictureRepository *)[IKPictureTakerRecentPictureRepository recentRepository]
+			recentPictures];
+
+	if ([recentPictures count] > 10) {
+		return [recentPictures subarrayWithRange:NSMakeRange(0, 10)];
+	} else {
+		return recentPictures;
+	}
+}
+
+/*!
+ * @brief Small icons for recent pictures
+ */
+- (NSMutableArray *)recentSmallPictures
+{
+	NSArray *recentPictures = [self recentPictures];
+
+	NSMutableArray *array = [[recentPictures valueForKey:@"smallIcon"] mutableCopy];
+	for (NSInteger i = ((NSInteger)[array count] - 1); i >= 0; i--) {
+		id imageOrNull = [array objectAtIndex:i];
+
+		/* Not all icons have a small icon */
+		if (imageOrNull == [NSNull null]) {
+			IKPictureTakerRecentPicture *picture = [recentPictures objectAtIndex:i];
+
+			[array replaceObjectAtIndex:i withObject:[picture editedImage]];
+		}
+	}
+
+	return array;
+}
+
+#pragma mark - NSMenu delegate
+
+- (void)menuNeedsUpdate:(NSMenu *)aMenu
+{
+	NSMenuItem *menuItem;
+
+	menuItem = [aMenu itemAtIndex:0];
+	[menuItem setTitle:AILocalizedString(@"Recent Icons:",
+										 "Label at the top of the recent icons picker shown in the contact list")];
+
+	// Add menu items for accounts
+	NSMutableSet *onlineAccounts = [NSMutableSet set];
+	NSMutableSet *ownIconAccounts = [NSMutableSet set];
+
+	AIAccount *activeAccount =
+		[AIStandardListWindowController activeAccountForIconsGettingOnlineAccounts:onlineAccounts
+																   ownIconAccounts:ownIconAccounts];
+
+	NSUInteger ownIconAccountsCount = [ownIconAccounts count];
+	NSUInteger onlineAccountsCount = [onlineAccounts count];
+
+	if (ownIconAccountsCount > 1) {
+		menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Change Icon For:", nil)
+											  target:nil
+											  action:nil
+									   keyEquivalent:@""];
+
+		[menuItem setEnabled:NO];
+		[aMenu addItem:menuItem];
+
+		for (AIAccount *account in ownIconAccounts) {
+			menuItem = [[NSMenuItem alloc] initWithTitle:account.formattedUID
+												  target:self
+												  action:@selector(selectedAccount:)
+										   keyEquivalent:@""];
+
+			[menuItem setRepresentedObject:account];
+
+			// Put a checkmark if it is the active account
+			if (activeAccount == account) {
+				[menuItem setState:NSControlStateValueOn];
+			}
+
+			[menuItem setIndentationLevel:1];
+			[aMenu addItem:menuItem];
+		}
+
+		// There are at least some accounts using the global preference if the counts differ
+		if (onlineAccountsCount != ownIconAccountsCount) {
+			menuItem = [[NSMenuItem alloc] initWithTitle:ALL_OTHER_ACCOUNTS
+												  target:self
+												  action:@selector(selectedAccount:)
+										   keyEquivalent:@""];
+			if (activeAccount == nil) {
+				[menuItem setState:NSControlStateValueOn];
+			}
+
+			[menuItem setIndentationLevel:1];
+			[aMenu addItem:menuItem];
+		}
+
+		[aMenu addItem:[NSMenuItem separatorItem]];
+	}
+
+	menuItem = [[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"Choose Icon", nil) stringByAppendingEllipsis]
+										  target:self
+										  action:@selector(choosePicture:)
+								   keyEquivalent:@""];
+
+	[aMenu addItem:menuItem];
+
+	menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Clear Recent Pictures", nil)
+										  target:self
+										  action:@selector(clearRecentPictures:)
+								   keyEquivalent:@""];
+
+	[aMenu addItem:menuItem];
+}
 
 #pragma mark - AIImageCollectionView delegate
 

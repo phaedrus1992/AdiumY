@@ -414,7 +414,7 @@
 - (NSData *)dataForURI:(NSString *)path appleSingle:(BOOL)isAppleSingle
 {
 	// AWEzvLog(@"%s",  __PRETTY_FUNCTION__);
-	path = [path stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	path = [path stringByRemovingPercentEncoding];
 
 	NSMutableData *data = [NSMutableData data];
 
@@ -454,7 +454,7 @@
 	CFHTTPMessageSetHeaderFieldValue(response,CFSTR("Connection"),CFSTR("close"));
 	if (isAppleSingle)
 		CFHTTPMessageSetHeaderFieldValue(response,CFSTR("Content-Encoding"),CFSTR("AppleSingle"));
-	CFHTTPMessageSetHeaderFieldValue(response,CFSTR("Date"),(CFStringRef)[[NSDate date] description]);
+	CFHTTPMessageSetHeaderFieldValue(response,CFSTR("Date"),(__bridge CFStringRef)[[NSDate date] description]);
 	CFHTTPMessageSetHeaderFieldValue(response,CFSTR("Server"),CFSTR("Fez (Mac OS X)"));
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

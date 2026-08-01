@@ -39,7 +39,7 @@ static NSMutableParagraphStyle *leftParagraphStyleWithTruncatingTail = nil;
 		useAliasesAsRequested = YES;
 		if (!leftParagraphStyleWithTruncatingTail) {
 			leftParagraphStyleWithTruncatingTail =
-				[NSMutableParagraphStyle styleWithAlignment:NSLeftTextAlignment
+				[NSMutableParagraphStyle styleWithAlignment:NSTextAlignmentLeft
 											  lineBreakMode:NSLineBreakByTruncatingTail];
 		}
 	}
@@ -139,7 +139,7 @@ static NSMutableParagraphStyle *leftParagraphStyleWithTruncatingTail = nil;
 		cellFrame.origin.x += [self leftPadding];
 		cellFrame.size.width -= [self rightPadding] + [self leftPadding];
 		switch ([self textAlignment]) {
-		case NSRightTextAlignment:
+		case NSTextAlignmentRight:
 			// Right alignment indents on the right
 			cellFrame.size.width -= [self indentation];
 			break;
@@ -230,10 +230,10 @@ static NSMutableParagraphStyle *leftParagraphStyleWithTruncatingTail = nil;
 		nameSize.height = rect.size.height;
 	// Alignment
 	switch ([self textAlignment]) {
-	case NSCenterTextAlignment:
+	case NSTextAlignmentCenter:
 		rect.origin.x += (rect.size.width - nameSize.width) / 2.0f;
 		break;
-	case NSRightTextAlignment:
+	case NSTextAlignmentRight:
 		rect.origin.x += (rect.size.width - nameSize.width);
 		break;
 	default:
@@ -244,10 +244,10 @@ static NSMutableParagraphStyle *leftParagraphStyleWithTruncatingTail = nil;
 	[displayName drawInRect:NSMakeRect(rect.origin.x, rect.origin.y + half, rect.size.width, nameSize.height)];
 	// Adjust the drawing rect
 	switch ([self textAlignment]) {
-	case NSRightTextAlignment:
+	case NSTextAlignmentRight:
 		inRect.size.width -= nameSize.width;
 		break;
-	case NSLeftTextAlignment:
+	case NSTextAlignmentLeft:
 		inRect.origin.x += nameSize.width;
 		inRect.size.width -= nameSize.width;
 		break;
@@ -310,57 +310,5 @@ static NSMutableParagraphStyle *leftParagraphStyleWithTruncatingTail = nil;
 	} else {
 		return [self.outlineControlView backgroundColor];
 	}
-}
-#pragma mark Accessibility
-- (NSArray *)accessibilityAttributeNames
-{
-	NSMutableArray *attributeNames = [[super accessibilityAttributeNames] mutableCopy];
-	[attributeNames addObject:NSAccessibilityValueAttribute];
-	return attributeNames;
-}
-- (id)accessibilityAttributeValue:(NSString *)attribute
-{
-	id value;
-	if ([attribute isEqualToString:NSAccessibilityRoleAttribute]) {
-		value = NSAccessibilityStaticTextRole;
-	} else if ([attribute isEqualToString:NSAccessibilityValueAttribute]) {
-		if ([[proxyObject listObject] isKindOfClass:[AIListGroup class]]) {
-			value = [NSString stringWithFormat:AILocalizedString(@"contact group %@",
-																 "%@ will be the name of a group in the contact list"),
-											   [[proxyObject listObject] longDisplayName]];
-		} else if ([[proxyObject listObject] isKindOfClass:[AIListBookmark class]]) {
-			value = [NSString
-				stringWithFormat:AILocalizedString(@"group chat bookmark %@", "%@ will be the name of a bookmark"),
-								 [[proxyObject listObject] longDisplayName]];
-		} else {
-			NSString *name, *statusDescription, *statusMessage;
-			name = [[proxyObject listObject] longDisplayName];
-			statusDescription = [adium.statusController
-				localizedDescriptionForStatusName:([proxyObject listObject].statusName
-													   ? [proxyObject listObject].statusName
-													   : [adium.statusController
-															 defaultStatusNameForType:[proxyObject listObject]
-																						  .statusType])
-									   statusType:[proxyObject listObject].statusType];
-			statusMessage = [[proxyObject listObject] statusMessageString];
-			value = [name mutableCopy];
-			if (statusDescription)
-				[value appendFormat:@"; %@", statusDescription];
-			if (statusMessage)
-				[value appendFormat:AILocalizedString(
-										@"; status message %@",
-										"please keep the semicolon at the start of the line. %@ will be replaced by a "
-										"status message. This is used when reading an entry in the contact list aloud, "
-										"such as 'Evan Schoenberg; status message I am bouncing up and down'"),
-									statusMessage];
-		}
-	} else if ([attribute isEqualToString:NSAccessibilityTitleAttribute]) {
-		value = [self labelString];
-	} else if ([attribute isEqualToString:NSAccessibilityWindowAttribute]) {
-		value = [self.outlineControlView window];
-	} else {
-		value = [super accessibilityAttributeValue:attribute];
-	}
-	return value;
 }
 @end

@@ -38,7 +38,6 @@
 #import "AILoggerPlugin.h"
 #import "AIMessageWindow.h"
 #import "AIMessageWindowController.h"
-#import "AIWebKitMessageViewController.h"
 
 @interface AIChat ()
 - (id)initForAccount:(AIAccount *)inAccount;

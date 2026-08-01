@@ -36,7 +36,10 @@ typedef void (*jabber_chat_marker_cb)(PurpleConnection *gc, const char *from, co
 void jabber_set_chat_marker_cb(jabber_chat_marker_cb cb);
 
 // XMPP namespace constants for XEP-0184 and XEP-0333
+// NS_RECEIPTS and NS_CHAT_MARKERS are already defined in libpurple/namespaces.h
+#undef NS_RECEIPTS
 #define NS_RECEIPTS @"urn:xmpp:receipts"
+#undef NS_CHAT_MARKERS
 #define NS_CHAT_MARKERS @"urn:xmpp:chat-markers"
 
 static void buddy_event_cb(PurpleBuddy *buddy, PurpleBuddyEvent event)
@@ -111,7 +114,10 @@ static void buddy_event_cb(PurpleBuddy *buddy, PurpleBuddyEvent event)
 
 			if (letAccountHandleUpdate) {
 				if (updateSelector) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 					[account performSelector:updateSelector withObject:theContact withObject:data];
+#pragma clang diagnostic pop
 				} else {
 					[account updateContact:theContact forEvent:data];
 				}
@@ -515,7 +521,7 @@ void configureAdiumPurpleSignals(void)
 		jabber_set_chat_marker_cb(jabber_chat_marker_received_cb);
 
 		// Advertise XEP-0184 and XEP-0333 support in disco#info capabilities
-		jabber_add_feature(NS_RECEIPTS, NULL);
-		jabber_add_feature(NS_CHAT_MARKERS, NULL);
+		jabber_add_feature([NS_RECEIPTS UTF8String], NULL);
+		jabber_add_feature([NS_CHAT_MARKERS UTF8String], NULL);
 	}
 }

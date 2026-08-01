@@ -110,7 +110,7 @@
 		NSRect imageDestRect = {{cellFrame.origin.x + gutter + visualSeparation, cellFrame.origin.y + gutter},
 								imageSize};
 
-		[icon drawInRect:imageDestRect fromRect:imageSrcRect operation:NSCompositeSourceOver fraction:1.0];
+		[icon drawInRect:imageDestRect fromRect:imageSrcRect operation:NSCompositingOperationSourceOver fraction:1.0];
 	}
 
 	/*draw the filename*/ {

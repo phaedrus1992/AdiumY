@@ -162,10 +162,9 @@ const char endn[] = { '\x00', '\x00', '\x00', '\x00'};
 -(AWEzvRendezvousData *) initWithPlist:(NSString *)plist {
     id		extracted;	/* extracted data from plist */
     NSData	*xmlData;	/* XML data in NSData form */
-    NSString	*error;		/* error from conversion of plist */
+    NSError *error = nil;	/* error from conversion of plist */
     NSPropertyListFormat format;/* something we can point at for the format pointer */
     
-    error = [NSString string];
     
     /* create XML data */
     xmlData = [NSData dataWithBytes:[plist UTF8String] length:[plist length]];
@@ -173,10 +172,7 @@ const char endn[] = { '\x00', '\x00', '\x00', '\x00'};
     /* extract plist from XML data */
     format = NSPropertyListXMLFormat_v1_0;
     extracted = [NSPropertyListSerialization
-		    propertyListFromData:xmlData
-		    mutabilityOption:NSPropertyListImmutable
-		    format:&format
-		    errorDescription:&error];
+		    propertyListWithData:xmlData options:NSPropertyListImmutable format:&format error:&error];
 
     /* check if there was an error in extraction */
     if (extracted == nil) {
@@ -341,7 +337,7 @@ const char endn[] = { '\x00', '\x00', '\x00', '\x00'};
     NSMutableString *infoData;		/* XML plist as a string */
     NSString *key;			/* strings used when manipulating data */
     id value;				/* value for data field */
-    NSString	    *error;		/* error from creation of plist */
+    NSError *error = nil;	/* error from creation of plist */
     UInt32	    keycount;		/* a 32-bit integer, count of keys in data */
     UInt16	    fieldlen;		/* a 16-bit integer, length of field being added to data */
     UInt16	    fieldlenBE;		/* fieldlen as converted to network byte order */
@@ -399,9 +395,7 @@ const char endn[] = { '\x00', '\x00', '\x00', '\x00'};
     [data appendBytes:[value UTF8String] length:[(NSData *)value length]];
     
     /* create XML plist of data and convert to string */
-    xmlData = [NSPropertyListSerialization dataFromPropertyList:data
-    				    format:NSPropertyListXMLFormat_v1_0
-    				    errorDescription:&error];
+    xmlData = [NSPropertyListSerialization dataWithPropertyList:data format:NSPropertyListXMLFormat_v1_0 options:0 error:&error];
     infoData = [[NSMutableString alloc] initWithData:xmlData encoding:NSUTF8StringEncoding];
 	
     /* and now we have the rendezvous data to return to the caller, the copy

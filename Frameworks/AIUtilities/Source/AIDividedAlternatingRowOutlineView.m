@@ -53,7 +53,11 @@
 	NSRect rowRect = [self rectOfRow:rowIndex];
 
 	// This could be done better. Ask the dataSource for color and width!
-	[[NSColor headerColor] set];
+	if (@available(macOS 10.14, *)) {
+		[[NSColor separatorColor] set];
+	} else {
+		[[NSColor controlColor] set];
+	}
 	[NSBezierPath setDefaultLineWidth:1.5f];
 
 	// Drawing the divider

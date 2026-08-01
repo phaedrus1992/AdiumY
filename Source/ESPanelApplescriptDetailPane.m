@@ -19,6 +19,7 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <Adium/AILocalizationButton.h>
 #import <Adium/AILocalizationTextField.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 @interface ESPanelApplescriptDetailPane ()
 - (void)setScriptPath:(NSString *)inPath;
@@ -43,6 +44,73 @@
  */
 - (void)viewDidLoad
 {
+	[super viewDidLoad];
+
+	scriptPath = nil;
+
+	[label_applescript setLocalizedString:AILocalizedString(@"AppleScript:", nil)];
+	[button_browse setLocalizedString:[AILocalizedString(@"Browse", nil) stringByAppendingEllipsis]];
+}
+
+/*!
+ * @brief View will close
+ */
+- (void)viewWillClose
+{
+	scriptPath = nil;
+}
+
+/*!
+ * @brief Called only when the pane is displayed a result of its action being selected
+ *
+ * @param inDetails A previously created details dicionary, or nil if none exists
+ * @param inObject The object for which to configure
+ */
+- (void)configureForActionDetails:(NSDictionary *)inDetails listObject:(AIListObject *)inObject
+{
+	[self setScriptPath:[inDetails objectForKey:KEY_APPLESCRIPT_TO_RUN]];
+}
+
+/*!
+ * @brief Return our current configuration
+ */
+- (NSDictionary *)actionDetails
+{
+	return (scriptPath ? [NSDictionary dictionaryWithObject:scriptPath forKey:KEY_APPLESCRIPT_TO_RUN] : nil);
+}
+
+/*!
+ * @brief Choose the applescript to run
+ */
+- (IBAction)chooseFile:(id)sender
+{
+	NSOpenPanel *openPanel = [NSOpenPanel openPanel];
+	[openPanel setTitle:AILocalizedString(@"Select an AppleScript", nil)];
+	NSArray<NSString *> *scriptExtensions = @[ @"applescript", @"scptd", @"scpt" ];
+	NSMutableArray<UTType *> *contentTypes = [NSMutableArray arrayWithCapacity:[scriptExtensions count]];
+	for (NSString *extension in scriptExtensions) {
+		UTType *type = [UTType typeWithFilenameExtension:extension];
+		if (type != nil) {
+			[contentTypes addObject:type];
+		}
+	}
+	[openPanel setAllowedContentTypes:contentTypes];
+
+	if ([openPanel runModal] == NSModalResponseOK) {
+		[self setScriptPath:[[openPanel URL] path]];
+	}
+}
+
+/*!
+ * @brief Set the path to the applescript
+ *
+ * This also updates our display
+ *
+ * @param inPath A full path to an applescript
+ */
+- (void)setScriptPath:(NSString *)inPath
+{
+	NSString *scriptName;
 
 	scriptPath = inPath;
 

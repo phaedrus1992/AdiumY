@@ -33,6 +33,7 @@ typedef enum { TRUST_NOT_PRIVATE, TRUST_UNVERIFIED, TRUST_PRIVATE, TRUST_FINISHE
 
 - (void)requestSecureOTRMessaging:(BOOL)inSecureMessaging inChat:(AIChat *)inChat;
 - (void)promptToVerifyEncryptionIdentityInChat:(AIChat *)inChat;
+- (void)respondSMPForContact:(AIListContact *)contact;
 
 - (void)prefsShouldUpdatePrivateKeyList;
 - (void)prefsShouldUpdateFingerprintsList;

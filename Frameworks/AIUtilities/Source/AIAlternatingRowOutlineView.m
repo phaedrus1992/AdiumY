@@ -141,7 +141,7 @@
 
 	if (rectNumber > 0) {
 		[[self alternatingRowColor] set];
-		NSRectFillListUsingOperation(gridRects, rectNumber, NSCompositeSourceOver);
+		NSRectFillListUsingOperation(gridRects, rectNumber, NSCompositingOperationSourceOver);
 	}
 }
 
@@ -202,8 +202,12 @@
 			i++;
 		}
 
-		[[NSColor alternateSelectedControlColor] set];
-		NSRectFillListUsingOperation(selectionLineRects, j, NSCompositeSourceOver);
+		if (@available(macOS 10.14, *)) {
+			[[NSColor selectedContentBackgroundColor] set];
+		} else {
+			[[NSColor selectedControlColor] set];
+		}
+		NSRectFillListUsingOperation(selectionLineRects, j, NSCompositingOperationSourceOver);
 
 		free(buf);
 		free(selectionLineRects);

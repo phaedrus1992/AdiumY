@@ -71,7 +71,6 @@
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_2
 		[self setToolbarSizeMode:NSToolbarSizeModeDefault];
 #endif
-		[self setUsesTexturedWindow:NO];
 		[self setAlwaysShowsToolbar:NO];
 		[self setAlwaysOpensCentered:YES];
 	}
@@ -84,7 +83,7 @@
 {
 	if ((self = [self init])) {
 		if (!ext || [ext isEqualToString:@""]) {
-			bundleExtension = [[NSString alloc] initWithString:@"preferencePane"];
+			bundleExtension = @"preferencePane";
 		} else {
 			bundleExtension = ext;
 		}
@@ -173,11 +172,8 @@
 	}
 
 	// Create prefs window
-	unsigned int styleMask =
-		(NSClosableWindowMask | NSResizableWindowMask | NSMiniaturizableWindowMask | NSTitledWindowMask);
-	if (usesTexturedWindow) {
-		styleMask = (styleMask | NSTexturedBackgroundWindowMask);
-	}
+	unsigned int styleMask = (NSWindowStyleMaskClosable | NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable |
+							  NSWindowStyleMaskTitled);
 	prefsWindow = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 350, 200)
 											  styleMask:styleMask
 												backing:NSBackingStoreBuffered
@@ -234,7 +230,11 @@
 
 	// Show alert dialog.
 	NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-	NSRunAlertPanel(@"Preferences", @"Preferences are not available for %@.", @"OK", nil, nil, appName);
+	NSAlert *alert = [[NSAlert alloc] init];
+	alert.messageText = @"Preferences";
+	alert.informativeText = [NSString stringWithFormat:@"Preferences are not available for %@.", appName];
+	[alert addButtonWithTitle:@"OK"];
+	[alert runModal];
 	[prefsWindow close];
 	prefsWindow = nil;
 }
@@ -456,7 +456,7 @@ CGFloat ToolbarHeightForWindow(NSWindow *window)
 			[item setTarget:self];
 			[item setAction:@selector(prefsToolbarItemClicked:)]; // action called when item is clicked
 			[prefsToolbarItems setObject:item forKey:identifier]; // add to items
-		} else if ([identifier isEqual:NSToolbarSeparatorItemIdentifier]) {
+		} else if ([identifier isEqual:NSToolbarFlexibleSpaceItemIdentifier]) {
 			// Don't have to do anything
 		} else {
 			[self debugLog:[NSString stringWithFormat:@"Could not create toolbar item for preference pane \"%@\", "
@@ -578,7 +578,7 @@ CGFloat ToolbarHeightForWindow(NSWindow *window)
 	NSString *name;
 
 	for (name in newPanesOrder) {
-		if (([preferencePanes objectForKey:name] != nil) || ([name isEqual:NSToolbarSeparatorItemIdentifier])) {
+		if (([preferencePanes objectForKey:name] != nil) || ([name isEqual:NSToolbarFlexibleSpaceItemIdentifier])) {
 			[panesOrder addObject:name];
 		} else {
 			[self debugLog:[NSString stringWithFormat:@"Did not add preference pane \"%@\" to the toolbar ordering "
@@ -596,16 +596,6 @@ CGFloat ToolbarHeightForWindow(NSWindow *window)
 - (void)setDebug:(BOOL)newDebug
 {
 	debug = newDebug;
-}
-
-- (BOOL)usesTexturedWindow
-{
-	return usesTexturedWindow;
-}
-
-- (void)setUsesTexturedWindow:(BOOL)newUsesTexturedWindow
-{
-	usesTexturedWindow = newUsesTexturedWindow;
 }
 
 - (BOOL)alwaysShowsToolbar

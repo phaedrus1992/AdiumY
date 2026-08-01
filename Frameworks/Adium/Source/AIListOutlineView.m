@@ -269,15 +269,15 @@
 	}
 
 	// Wait for the next event
-	NSEvent *nextEvent =
-		[[self window] nextEventMatchingMask:(NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSPeriodicMask)
-								   untilDate:[NSDate distantFuture]
-									  inMode:NSEventTrackingRunLoopMode
-									 dequeue:NO];
+	NSEvent *nextEvent = [[self window]
+		nextEventMatchingMask:(NSEventMaskLeftMouseUp | NSEventMaskLeftMouseDragged | NSEventMaskPeriodic)
+					untilDate:[NSDate distantFuture]
+					   inMode:NSEventTrackingRunLoopMode
+					  dequeue:NO];
 
 	// Only expand/contract if they release the mouse. Otherwise pass on the goods.
 	switch ([nextEvent type]) {
-	case NSLeftMouseUp:
+	case NSEventTypeLeftMouseUp:
 		if ([self isItemExpanded:item]) {
 			[self collapseItem:item];
 		} else {
@@ -292,7 +292,7 @@
 		if (viewPoint.x >= NSHeight([self frameOfCellAtColumn:0 row:row]))
 			[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
 		break;
-	case NSLeftMouseDragged:
+	case NSEventTypeLeftMouseDragged:
 		[super mouseDown:theEvent];
 		[super mouseDragged:nextEvent];
 		break;
@@ -312,7 +312,8 @@
 	return [super draggingEntered:sender];
 }
 
-- (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)isLocal
+- (NSDragOperation)draggingSession:(NSDraggingSession *)session
+	sourceOperationMaskForDraggingContext:(NSDraggingContext)context
 {
 	return (NSDragOperationCopy | NSDragOperationMove | NSDragOperationPrivate);
 }
@@ -328,7 +329,7 @@
 {
 	id dataSource = [self dataSource];
 
-	if (dataSource) {
+	if (dataSource && [dataSource respondsToSelector:@selector(outlineView:pasteboardWriterForItem:)]) {
 		NSIndexSet *selection = [self selectedRowIndexes];
 
 		NSMutableArray *items = [NSMutableArray arrayWithCapacity:[selection count]];
@@ -337,7 +338,18 @@
 			[items addObject:[self itemAtRow:idx]];
 		}
 
-		[dataSource outlineView:self writeItems:items toPasteboard:[NSPasteboard generalPasteboard]];
+		// Ask the data source for a pasteboard writer per item so copy: exposes the same data as drag.
+		NSMutableArray *writableItems = [NSMutableArray arrayWithCapacity:[items count]];
+		for (id item in items) {
+			id<NSPasteboardWriting> writer = [dataSource outlineView:self pasteboardWriterForItem:item];
+			if (writer != nil) {
+				[writableItems addObject:writer];
+			}
+		}
+
+		NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+		[pasteboard clearContents];
+		[pasteboard writeObjects:writableItems];
 	}
 }
 

@@ -39,7 +39,34 @@
  */
 - (void)installPlugin
 {
-	NSNotificationCenter *notificationCenter = preferredLanguage = nil;
+	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+
+	[notificationCenter addObserver:self selector:@selector(chatBecameActive:) name:Chat_BecameActive object:nil];
+
+	[notificationCenter addObserver:self selector:@selector(chatWillClose:) name:Chat_WillClose object:nil];
+
+	languageDict = [[NSMutableDictionary alloc] init];
+
+	// Find the first language the user prefers which the spellchecker knows about, then keep it around for future
+	// reference
+	NSArray *preferredLanguages = nil;
+	preferredLanguages = [[NSSpellChecker sharedSpellChecker] userPreferredLanguages];
+
+	for (NSString *language in preferredLanguages) {
+		if ([[NSSpellChecker sharedSpellChecker] setLanguage:language]) {
+			preferredLanguage = language;
+			break;
+		}
+	}
+}
+
+/*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	languageDict = nil;
+	preferredLanguage = nil;
 
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }

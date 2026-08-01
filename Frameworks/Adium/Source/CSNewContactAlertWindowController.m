@@ -39,7 +39,7 @@
 
 - (void)updateHeaderView;
 
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSModalResponse)returnCode contextInfo:(void *)contextInfo;
 - (void)alertDetailsForHeaderChanged:(NSNotification *)aNotification;
 
 @end
@@ -64,11 +64,10 @@
 																			defaultEventID:inDefaultEventID];
 
 	if (parentWindow) {
-		[NSApp beginSheet:[newController window]
-			modalForWindow:parentWindow
-			 modalDelegate:newController
-			didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			   contextInfo:nil];
+		[parentWindow beginSheet:[newController window]
+			   completionHandler:^(NSModalResponse returnCode) {
+				   [newController sheetDidEnd:[newController window] returnCode:returnCode contextInfo:nil];
+			   }];
 	} else {
 		[newController showWindow:nil];
 	}
@@ -166,7 +165,7 @@
 }
 
 // Called as the user list edit sheet closes, dismisses the sheet
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSModalResponse)returnCode contextInfo:(void *)contextInfo
 {
 	[sheet orderOut:nil];
 	[self cleanUpDetailsPane];
@@ -241,13 +240,15 @@
 	}
 
 	// Save our single-fire option
-	[alert setObject:[NSNumber numberWithBool:([checkbox_oneTime state] == NSOnState)] forKey:KEY_ONE_TIME_ALERT];
+	[alert setObject:[NSNumber numberWithBool:([checkbox_oneTime state] == NSControlStateValueOn)]
+			  forKey:KEY_ONE_TIME_ALERT];
 }
 
 // Remove details view/pane
 - (void)cleanUpDetailsPane
 {
-	[detailsView removeFromSuperview], detailsView = nil;
+	[detailsView removeFromSuperview];
+	detailsView = nil;
 
 	[detailsPane closeView];
 	detailsPane = nil;

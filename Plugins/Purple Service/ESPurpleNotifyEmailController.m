@@ -52,7 +52,7 @@
 	NSMutableAttributedString *message;
 
 	centeredParagraphStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
-	[centeredParagraphStyle setAlignment:NSCenterTextAlignment];
+	[centeredParagraphStyle setAlignment:NSTextAlignmentCenter];
 	message = [[NSMutableAttributedString alloc] init];
 
 	// Title
@@ -237,7 +237,17 @@
  */
 + (void)startMailApplication
 {
-	if ([[NSWorkspace sharedWorkspace] launchApplication:[self mailApplicationName]] == NO) {
+	NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:[NSURL URLWithString:@"mailto:"]];
+	if (appURL) {
+		[[NSWorkspace sharedWorkspace]
+			openApplicationAtURL:appURL
+				   configuration:[NSWorkspaceOpenConfiguration configuration]
+			   completionHandler:^(NSRunningApplication *app, NSError *error) {
+				   if (!app) {
+					   NSLog(@"Could not launch mail application '%@' (%@)", [self mailApplicationName], error);
+				   }
+			   }];
+	} else {
 		NSLog(@"Could not launch mail application '%@'", [self mailApplicationName]);
 	}
 }
@@ -253,31 +263,24 @@
 {
 	if ([urlString rangeOfString:[NSString stringWithUTF8String:g_get_tmp_dir()]].location != NSNotFound) {
 		// Local HTML file
-		CFURLRef appURL = NULL;
-		OSStatus err;
-
 		/* Obtain the default http:// handler. We don't care what would handle _this file_ (its extension doesn't
 		 * matter) nor what normally happens when the user opens a .html file since that is, on many systems, an HTML
 		 * editor. Instead, we want to know what application to use for viewing web pages... and then open this file in
 		 * it.
 		 */
-		err = LSGetApplicationForURL((__bridge CFURLRef)[NSURL URLWithString:@"https://github.com/phaedrus1992/adiumy"],
-									 kLSRolesViewer,
-									 /*outAppRef*/ NULL, &appURL);
-		if (err == noErr) {
-			[[NSWorkspace sharedWorkspace] openFile:[urlString stringByExpandingTildeInPath]
-									withApplication:[(__bridge NSURL *)appURL path]];
+		NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:[NSURL URLWithString:@"http://"]];
+		if (appURL) {
+			[[NSWorkspace sharedWorkspace]
+							openURLs:@[ [NSURL fileURLWithPath:[urlString stringByExpandingTildeInPath]] ]
+				withApplicationAtURL:appURL
+					   configuration:[NSWorkspaceOpenConfiguration configuration]
+				   completionHandler:nil];
 		} else {
 			NSURL *url;
 
 			// Web address
 			url = [NSURL URLWithString:urlString];
 			[[NSWorkspace sharedWorkspace] openURL:url];
-		}
-
-		if (appURL) {
-			// LSGetApplicationForURL() requires us to release the appURL when we are done with it
-			CFRelease(appURL);
 		}
 
 	} else {
@@ -297,12 +300,15 @@
  */
 + (NSString *)mailApplicationName
 {
-	FSRef myAppRef;
+	NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:[NSURL URLWithString:@"mailto:"]];
+	NSString *appName = nil;
 
-	LSGetApplicationForURL((__bridge CFURLRef)[NSURL URLWithString:@"mailto://"], kLSRolesAll, &myAppRef, NULL);
-	CFStringRef appNameCF = NULL;
-	LSCopyDisplayNameForRef(&myAppRef, &appNameCF);
-	NSString *appName = CFBridgingRelease(appNameCF);
+	if (appURL) {
+		appName = [[NSBundle bundleWithURL:appURL] objectForInfoDictionaryKey:@"CFBundleName"];
+		if (!appName) {
+			appName = [[appURL path] lastPathComponent];
+		}
+	}
 
 	NSRange appRange;
 	if ((appRange = [appName rangeOfString:@".app"

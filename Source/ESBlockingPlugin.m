@@ -33,7 +33,105 @@
 
 #define BLOCK AILocalizedString(@"Block", "Block Contact menu item")
 #define UNBLOCK AILocalizedString(@"Unblock", "Unblock Contact menu item")
-#define BLOCK_MENUITEM
+#define BLOCK_MENUITEM [BLOCK stringByAppendingEllipsis]
+#define UNBLOCK_MENUITEM [UNBLOCK stringByAppendingEllipsis]
+#define BLOCK_GROUP AILocalizedString(@"Block Group", "Block Group menu item")
+#define UNBLOCK_GROUP AILocalizedString(@"Unblock Group", "Unblock Group menu item")
+#define BLOCK_GROUP_MENUITEM [BLOCK_GROUP stringByAppendingEllipsis]
+#define UNBLOCK_GROUP_MENUITEM [UNBLOCK_GROUP stringByAppendingEllipsis]
+#define TOOLBAR_ITEM_IDENTIFIER @"BlockParticipants"
+#define TOOLBAR_BLOCK_ICON_KEY @"msg-block-contact"
+#define TOOLBAR_UNBLOCK_ICON_KEY @"msg-unblock-contact"
+
+@interface ESBlockingPlugin () <NSMenuItemValidation, NSToolbarItemValidation>
+- (void)_setContact:(AIListContact *)contact isBlocked:(BOOL)isBlocked;
+- (void)accountConnected:(NSNotification *)notification;
+- (BOOL)areAllGivenContactsBlocked:(NSArray *)contacts;
+- (void)setPrivacy:(BOOL)block forContacts:(NSArray *)contacts;
+- (IBAction)blockOrUnblockParticipants:(NSToolbarItem *)senderItem;
+- (BOOL)blockContactInGroup:(AIListContact *)contact withBlock:(BOOL)isBlock;
+- (BOOL)contactIsBlocked:(AIListContact *)chkContact;
+
+// protocols
+- (NSSet *)updateListObject:(AIListObject *)inObject keys:(NSSet *)inModifiedKeys silent:(BOOL)silent;
+
+// notifications
+- (void)chatDidBecomeVisible:(NSNotification *)notification;
+- (void)toolbarWillAddItem:(NSNotification *)notification;
+- (void)toolbarDidRemoveItem:(NSNotification *)notification;
+
+// toolbar item methods
+- (void)updateToolbarIconOfChat:(AIChat *)inChat inWindow:(NSWindow *)window;
+- (void)updateToolbarItem:(NSToolbarItem *)item forChat:(AIChat *)chat;
+- (void)updateToolbarItemForObject:(AIListObject *)inObject;
+@end
+
+#pragma mark -
+@implementation ESBlockingPlugin
+
+- (void)installPlugin
+{
+	// Install the Block menu items
+	blockContactMenuItem = [[NSMenuItem alloc] initWithTitle:BLOCK_MENUITEM
+													  target:self
+													  action:@selector(blockContact:)
+											   keyEquivalent:@"b"];
+
+	[blockContactMenuItem setKeyEquivalentModifierMask:(NSEventModifierFlagCommand | NSEventModifierFlagOption)];
+
+	[adium.menuController addMenuItem:blockContactMenuItem toLocation:LOC_Contact_NegativeAction];
+
+	// Add our get info contextual menu items
+	blockContactContextualMenuItem = [[NSMenuItem alloc] initWithTitle:BLOCK_MENUITEM
+																target:self
+																action:@selector(blockContact:)
+														 keyEquivalent:@""];
+	[adium.menuController addContextualMenuItem:blockContactContextualMenuItem
+									 toLocation:Context_Contact_NegativeAction];
+
+	// we want to know when an account connects
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(accountConnected:)
+												 name:ACCOUNT_CONNECTED
+											   object:nil];
+
+	// create the block toolbar item
+	chatToolbarItems = [[NSMutableSet alloc] init];
+	// cache toolbar icons
+	blockedToolbarIcons = [[NSDictionary alloc]
+		initWithObjectsAndKeys:[NSImage imageNamed:@"msg-block-contact" forClass:[self class]], TOOLBAR_BLOCK_ICON_KEY,
+							   [NSImage imageNamed:@"msg-unblock-contact" forClass:[self class]],
+							   TOOLBAR_UNBLOCK_ICON_KEY, nil];
+	NSToolbarItem *chatItem = [AIToolbarUtilities
+		toolbarItemWithIdentifier:TOOLBAR_ITEM_IDENTIFIER
+							label:BLOCK
+					 paletteLabel:BLOCK
+						  toolTip:AILocalizedString(
+									  @"Blocking prevents a contact from contacting you or seeing your online status.",
+									  nil)
+						   target:self
+				  settingSelector:@selector(setImage:)
+					  itemContent:[blockedToolbarIcons valueForKey:TOOLBAR_BLOCK_ICON_KEY]
+						   action:@selector(blockOrUnblockParticipants:)
+							 menu:nil];
+
+	[adium.toolbarController registerToolbarItem:chatItem forToolbarType:@"MessageWindow"];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(toolbarWillAddItem:)
+												 name:NSToolbarWillAddItemNotification
+											   object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(toolbarDidRemoveItem:)
+												 name:NSToolbarDidRemoveItemNotification
+											   object:nil];
+	[[AIContactObserverManager sharedManager] registerListObjectObserver:self];
+}
+
+- (void)uninstallPlugin
+{
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 }
 
 /*!
@@ -70,9 +168,12 @@
 			(shouldBlock ? AILocalizedString(@"Are you sure you want to block all contacts in the group %@?", nil)
 						 : AILocalizedString(@"Are you sure you want to unblock all contacts in the group %@?", nil));
 
-		if (NSRunAlertPanel([NSString stringWithFormat:format, [group displayName]], @"",
-							(shouldBlock ? BLOCK_GROUP : UNBLOCK_GROUP), AILocalizedString(@"Cancel", nil),
-							nil) == NSAlertDefaultReturn) {
+		NSAlert *blockGroupAlert = [[NSAlert alloc] init];
+		blockGroupAlert.messageText = [NSString stringWithFormat:format, [group displayName]];
+		blockGroupAlert.informativeText = @"";
+		[blockGroupAlert addButtonWithTitle:(shouldBlock ? BLOCK_GROUP : UNBLOCK_GROUP)];
+		[blockGroupAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+		if ([blockGroupAlert runModal] == NSAlertFirstButtonReturn) {
 
 			// iterate over all contacts in the group
 			AIListContact *curContact = nil;
@@ -92,9 +193,12 @@
 		format = (shouldBlock ? AILocalizedString(@"Are you sure you want to block %@?", nil)
 							  : AILocalizedString(@"Are you sure you want to unblock %@?", nil));
 
-		if (NSRunAlertPanel([NSString stringWithFormat:format, contact.displayName], @"",
-							(shouldBlock ? BLOCK : UNBLOCK), AILocalizedString(@"Cancel", nil),
-							nil) == NSAlertDefaultReturn) {
+		NSAlert *blockContactAlert = [[NSAlert alloc] init];
+		blockContactAlert.messageText = [NSString stringWithFormat:format, contact.displayName];
+		blockContactAlert.informativeText = @"";
+		[blockContactAlert addButtonWithTitle:(shouldBlock ? BLOCK : UNBLOCK)];
+		[blockContactAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+		if ([blockContactAlert runModal] == NSAlertFirstButtonReturn) {
 
 			// Handle metas
 			if ([object isKindOfClass:[AIMetaContact class]]) {
@@ -330,7 +434,7 @@
 /*!
  * @brief Inform AIListContact instances of the user's intended privacy towards the people they represent
  */
-#warning Something similar needs to happen to update when an account privacyOptions change
+// WARNING: Something similar needs to happen to update when an account privacyOptions change
 - (void)accountConnected:(NSNotification *)notification
 {
 	AIAccount *account = [notification object];
@@ -546,9 +650,12 @@
 					questionQualifier = [[activeChatInWindow.containedObjects objectAtIndex:0] displayName];
 				}
 
-				if (NSRunAlertPanel([NSString stringWithFormat:format, questionQualifier], @"",
-									(shouldBlock ? BLOCK : UNBLOCK), AILocalizedString(@"Cancel", nil),
-									nil) == NSAlertDefaultReturn) {
+				NSAlert *blockChatAlert = [[NSAlert alloc] init];
+				blockChatAlert.messageText = [NSString stringWithFormat:format, questionQualifier];
+				blockChatAlert.informativeText = @"";
+				[blockChatAlert addButtonWithTitle:(shouldBlock ? BLOCK : UNBLOCK)];
+				[blockChatAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+				if ([blockChatAlert runModal] == NSAlertFirstButtonReturn) {
 
 					[self setPrivacy:shouldBlock forContacts:participants];
 					[self updateToolbarItem:senderItem forChat:activeChatInWindow];

@@ -20,10 +20,27 @@
 @implementation AISearchFieldCell
 
 - (void)dealloc
-{
+{}
 
-	backgroundColor = inBackgroundColor;
+- (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
+{
+	if (backgroundColor) {
+		[backgroundColor setFill];
+		[[NSBezierPath bezierPathWithRoundedRect:cellFrame] fill];
+	}
+
+	[super drawInteriorWithFrame:cellFrame inView:controlView];
 }
+
+- (void)setTextColor:(NSColor *)inTextColor backgroundColor:(NSColor *)inBackgroundColor
+{
+	NSSearchField *searchField = (NSSearchField *)[self controlView];
+
+	[searchField setTextColor:(inTextColor ? inTextColor : [NSColor blackColor])];
+
+	if (backgroundColor != inBackgroundColor) {
+		backgroundColor = inBackgroundColor;
+	}
 }
 
 @end

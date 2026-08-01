@@ -26,8 +26,56 @@ static NSString *const kShiftGlyph = @"⇧";
 @synthesize target;
 @synthesize action;
 
-- (void)dealloc
-{}
+- (id)initWithIdentifier:(NSString *)theIdentifier
+				 keyCode:(unsigned short)theKeyCode
+		   modifierFlags:(NSUInteger)theModifierFlags
+				  target:(id)theTarget
+				  action:(SEL)theAction
+{
+	if ((self = [super init])) {
+		identifier = [theIdentifier copy];
+		keyCode = theKeyCode;
+		modifierFlags = theModifierFlags;
+		target = theTarget;
+		action = theAction;
+	}
+	return self;
+}
+
+- (id)initWithIdentifier:(NSString *)theIdentifier
+				 keyCode:(unsigned short)theKeyCode
+		   modifierFlags:(NSUInteger)theModifierFlags
+{
+	return [self initWithIdentifier:theIdentifier
+							keyCode:theKeyCode
+					  modifierFlags:theModifierFlags
+							 target:nil
+							 action:NULL];
+}
+
+- (BOOL)isClearCombo
+{
+	return (self.keyCode == 0 && self.modifierFlags == 0);
+}
+
+- (BOOL)isValidCombo
+{
+	return (self.keyCode != 0 || self.modifierFlags != 0);
+}
+
+- (NSString *)modifierFlagsString
+{
+	NSMutableString *modifierString = [NSMutableString string];
+	if (self.modifierFlags & NSEventModifierFlagControl)
+		[modifierString appendString:kControlGlyph];
+	if (self.modifierFlags & NSEventModifierFlagOption)
+		[modifierString appendString:kOptionGlyph];
+	if (self.modifierFlags & NSEventModifierFlagShift)
+		[modifierString appendString:kShiftGlyph];
+	if (self.modifierFlags & NSEventModifierFlagCommand)
+		[modifierString appendString:kCommandGlyph];
+	return modifierString;
+}
 
 - (NSString *)keyCodeString
 {
@@ -159,30 +207,48 @@ static NSString *const kShiftGlyph = @"⇧";
 
 #pragma mark - Modifier flag conversion (SGKeyCombo plist backward compat)
 
+- (id)initWithDictionary:(NSDictionary *)dict
+{
+	id keyCodeValue = [dict objectForKey:AIHotKeyKeyCodeKey];
+	id modifiersValue = [dict objectForKey:AIHotKeyModifiersKey];
+	unsigned short theKeyCode = (keyCodeValue ? [keyCodeValue unsignedShortValue] : 0);
+	NSUInteger carbonModifiers = (modifiersValue ? [modifiersValue unsignedIntegerValue] : 0);
+
+	return [self initWithIdentifier:nil keyCode:theKeyCode modifierFlags:[self _carbonToCocoaFlags:carbonModifiers]];
+}
+
+- (NSDictionary *)dictionaryRepresentation
+{
+	return [NSDictionary
+		dictionaryWithObjectsAndKeys:[NSNumber numberWithUnsignedShort:self.keyCode], AIHotKeyKeyCodeKey,
+									 [NSNumber numberWithUnsignedInteger:[self _cocoaToCarbonFlags:self.modifierFlags]],
+									 AIHotKeyModifiersKey, nil];
+}
+
 - (NSUInteger)_carbonToCocoaFlags:(NSUInteger)carbonFlags
 {
 	NSUInteger cocoaFlags = 0;
 	if (carbonFlags & cmdKey)
-		cocoaFlags |= NSCommandKeyMask;
+		cocoaFlags |= NSEventModifierFlagCommand;
 	if (carbonFlags & optionKey)
-		cocoaFlags |= NSAlternateKeyMask;
+		cocoaFlags |= NSEventModifierFlagOption;
 	if (carbonFlags & controlKey)
-		cocoaFlags |= NSControlKeyMask;
+		cocoaFlags |= NSEventModifierFlagControl;
 	if (carbonFlags & shiftKey)
-		cocoaFlags |= NSShiftKeyMask;
+		cocoaFlags |= NSEventModifierFlagShift;
 	return cocoaFlags;
 }
 
 - (NSUInteger)_cocoaToCarbonFlags:(NSUInteger)cocoaFlags
 {
 	NSUInteger carbonFlags = 0;
-	if (cocoaFlags & NSCommandKeyMask)
+	if (cocoaFlags & NSEventModifierFlagCommand)
 		carbonFlags |= cmdKey;
-	if (cocoaFlags & NSAlternateKeyMask)
+	if (cocoaFlags & NSEventModifierFlagOption)
 		carbonFlags |= optionKey;
-	if (cocoaFlags & NSControlKeyMask)
+	if (cocoaFlags & NSEventModifierFlagControl)
 		carbonFlags |= controlKey;
-	if (cocoaFlags & NSShiftKeyMask)
+	if (cocoaFlags & NSEventModifierFlagShift)
 		carbonFlags |= shiftKey;
 	return carbonFlags;
 }

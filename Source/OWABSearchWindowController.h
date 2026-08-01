@@ -15,10 +15,10 @@
  */
 
 #import <Adium/AIWindowController.h>
+#import <ContactsUI/ContactsUI.h>
 
 @class AILocalizationButton, AIService, CNContact, AIImageViewWithImagePicker;
 @class CNContactPicker;
-@protocol CNContactPickerDelegate;
 
 @interface OWABSearchWindowController : AIWindowController <NSWindowDelegate, CNContactPickerDelegate> {
 	// Search View

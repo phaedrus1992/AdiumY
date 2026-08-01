@@ -129,7 +129,7 @@
 #endif
 
 #ifdef JK_ENABLE_CF_TRANSFER_OWNERSHIP_CALLBACKS
-#warning As of JSONKit v1.4, JK_ENABLE_CF_TRANSFER_OWNERSHIP_CALLBACKS is no longer required.  It is no longer a valid option.
+// WARNING: As of JSONKit v1.4, JK_ENABLE_CF_TRANSFER_OWNERSHIP_CALLBACKS is no longer required.  It is no longer a valid option.
 #endif
 
 #ifdef __OBJC_GC__
@@ -1033,7 +1033,7 @@ static JKHashTableEntry *_JKDictionaryHashTableEntryForKey(JKDictionary *diction
   return((entryForKey != NULL) ? entryForKey->object : NULL);
 }
 
-- (void)getObjects:(id *)objects andKeys:(id *)keys
+- (void)getObjects:(id *)objects andKeys:(id *)keys count:(NSUInteger)aCount
 {
   NSParameterAssert((entry != NULL) && (count <= capacity));
   NSUInteger atEntry = 0UL; NSUInteger arrayIdx = 0UL;
@@ -1043,6 +1043,7 @@ static JKHashTableEntry *_JKDictionaryHashTableEntryForKey(JKDictionary *diction
       if(JK_EXPECT_T(keys    != NULL)) { keys[arrayIdx]    = entry[atEntry].key;    }
       if(JK_EXPECT_T(objects != NULL)) { objects[arrayIdx] = entry[atEntry].object; }
       arrayIdx++;
+      if(JK_EXPECT_T(arrayIdx >= aCount)) { break; }
     }
   }
 }

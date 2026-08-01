@@ -98,7 +98,7 @@
 
 - (IBAction)togglePasswordSaved:(id)sender
 {
-	if ([sender state] == NSOffState) {
+	if ([sender state] == NSControlStateValueOff) {
 		// Forget any saved passwords
 		[self savePassword:nil];
 	}

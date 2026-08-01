@@ -25,7 +25,38 @@
 
 - (void)setXtra:(AIXtraInfo *)xtraInfo
 {
-	NSString *resourcePath =
+	NSString *resourcePath = [xtraInfo resourcePath];
+	NSDictionary *iconDict =
+		[[NSDictionary dictionaryWithContentsOfFile:[resourcePath stringByAppendingPathComponent:@"Icons.plist"]]
+			objectForKey:@"List"];
+
+	statusNames = [iconDict allKeys];
+
+	images = [[NSMutableArray alloc] init];
+
+	for (NSString *imageName in [iconDict objectEnumerator]) {
+		NSString *imagePath = [resourcePath stringByAppendingPathComponent:imageName];
+		NSImage *image = [[NSImage alloc] initWithContentsOfFile:imagePath];
+		if (image)
+			[images addObject:image];
+	}
+	[tableView reloadData];
+	[tableView sizeToFit];
+}
+
+- (void)awakeFromNib
+{
+	[tableView setIntercellSpacing:NSMakeSize(1.0f, 3.0f)];
+	[tableView setHeaderView:nil];
+
+	NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@"Status Icon"];
+	[column setMaxWidth:32.0f];
+	[column setMinWidth:32.0f];
+	[column setDataCell:[[NSImageCell alloc] init]];
+	[tableView addTableColumn:column];
+
+	column = [[NSTableColumn alloc] initWithIdentifier:@"Status Name"];
+	[tableView addTableColumn:column];
 }
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex

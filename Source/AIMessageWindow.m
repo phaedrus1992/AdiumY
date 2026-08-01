@@ -30,7 +30,10 @@
 							backing:(NSBackingStoreType)backingStoreType
 							  defer:(BOOL)flag
 {
-	if (!(self =
+	if (!(self = [super initWithContentRect:contentRect styleMask:style backing:backingStoreType defer:flag]))
+		return nil;
+
+	return self;
 }
 
 - (void)dealloc

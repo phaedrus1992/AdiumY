@@ -155,7 +155,7 @@
  */
 - (CGFloat)flippyIndent
 {
-	//	if ([self textAlignment] != NSCenterTextAlignment) {
+	//	if ([self textAlignment] != NSTextAlignmentCenter) {
 	NSSize size = [self cellSize];
 	return size.height * 0.4f + size.height * 0.2f + FLIPPY_TEXT_PADDING;
 	/*	} else {
@@ -191,7 +191,7 @@
 	[arrowPath closePath];
 	[arrowPath fill];
 
-	//	if ([self textAlignment] != NSCenterTextAlignment) {
+	//	if ([self textAlignment] != NSTextAlignmentCenter) {
 	rect.origin.x += rect.size.height * 0.4f + rect.size.height * 0.2f + FLIPPY_TEXT_PADDING;
 	rect.size.width -= rect.size.height * 0.4f + rect.size.height * 0.2f + FLIPPY_TEXT_PADDING;
 	//	}
@@ -220,7 +220,7 @@
 		if (countSize.height > rect.size.height)
 			countSize.height = rect.size.height;
 
-		if ([self textAlignment] == NSRightTextAlignment) {
+		if ([self textAlignment] == NSTextAlignmentRight) {
 			// If the alignment is on the left, we need to move the original rect's x origin to the right.
 			inRect.origin.x += countSize.width + GROUP_COUNT_PADDING;
 		} else {
@@ -243,7 +243,7 @@
 	if (![self cellIsSelected] && drawsBackground) {
 		[[self cachedGradient:rect.size] drawInRect:rect
 										   fromRect:NSMakeRect(0, 0, rect.size.width, rect.size.height)
-										  operation:NSCompositeCopy
+										  operation:NSCompositingOperationCopy
 										   fraction:1.0f];
 	}
 }
@@ -279,7 +279,7 @@
 	static NSMutableParagraphStyle *leftParagraphStyleWithTruncatingMiddle = nil;
 	if (!leftParagraphStyleWithTruncatingMiddle) {
 		leftParagraphStyleWithTruncatingMiddle =
-			[NSMutableParagraphStyle styleWithAlignment:NSLeftTextAlignment
+			[NSMutableParagraphStyle styleWithAlignment:NSTextAlignmentLeft
 										  lineBreakMode:NSLineBreakByTruncatingMiddle];
 	}
 

@@ -21,22 +21,161 @@
 #import <AIUtilities/AIRolloverButton.h>
 #import <AIUtilities/AIStringAdditions.h>
 
-#define NORMAL_TEXT_COLOR
-if (inTransferBytesStatus && inTransferRemainingStatus) {
-	transferStatus = [NSString stringWithFormat:@"%@ - %@", inTransferBytesStatus, inTransferRemainingStatus];
-} else if (inTransferBytesStatus) {
-	transferStatus = inTransferBytesStatus;
-} else if (inTransferRemainingStatus) {
-	transferStatus = inTransferRemainingStatus;
-} else {
-	transferStatus = @"";
+#define NORMAL_TEXT_COLOR [NSColor controlTextColor]
+#define SELECTED_TEXT_COLOR [NSColor whiteColor]
+#define TRANSFER_STATUS_COLOR [NSColor disabledControlTextColor]
+
+@interface ESFileTransferProgressView ()
+- (void)updateButtonReveal;
+- (void)updateButtonStopResume;
+@end
+
+@implementation ESFileTransferProgressView
+
+- (void)awakeFromNib
+{
+	if ([[self superclass] instancesRespondToSelector:@selector(awakeFromNib)]) {
+		[super awakeFromNib];
+	}
+
+	[progressIndicator setUsesThreadedAnimation:YES];
+	[progressIndicator setIndeterminate:YES];
+	progressVisible = YES;
+
+	showingDetails = NO;
+
+	[button_stopResume setDelegate:self];
+	[button_reveal setDelegate:self];
+
+	buttonStopResumeIsHovered = NO;
+	buttonStopResumeIsResend = NO;
+	buttonRevealIsHovered = NO;
+}
+#pragma mark Source and destination
+- (void)setSourceName:(NSString *)inSourceName
+{
+	[textField_source setStringValue:(inSourceName ? inSourceName : @"")];
+}
+- (void)setSourceIcon:(NSImage *)inSourceIcon
+{
+	[imageView_source setImage:inSourceIcon];
+}
+- (void)setDestinationName:(NSString *)inDestinationName
+{
+	[textField_destination setStringValue:(inDestinationName ? inDestinationName : @"")];
+}
+- (void)setDestinationIcon:(NSImage *)inDestinationIcon
+{
+	[imageView_destination setImage:inDestinationIcon];
 }
 
-transferStatus;
+#pragma mark File and its icon
+- (void)setFileName:(NSString *)inFileName
+{
+	[textField_fileName
+		setStringValue:(inFileName ? inFileName
+								   : [AILocalizedString(@"Initializing transfer", nil) stringByAppendingEllipsis])];
+}
+- (void)setIconImage:(NSImage *)inIconImage
+{
+	[button_icon setImage:inIconImage];
+}
 
-//	[textField_transferStatus setStringValue:transferStatus];
-[self setNeedsDisplayInRect:[box_transferStatusFrame frame]];
-[textField_rate setStringValue:(inTransferSpeedStatus ? inTransferSpeedStatus : @"")];
+#pragma mark Progress
+- (void)setProgressDoubleValue:(double)inPercent
+{
+	[progressIndicator setDoubleValue:inPercent];
+}
+- (void)setProgressIndeterminate:(BOOL)flag
+{
+	[progressIndicator setIndeterminate:flag];
+}
+- (void)setProgressAnimation:(BOOL)flag
+{
+	if (flag) {
+		[progressIndicator startAnimation:self];
+	} else {
+		[progressIndicator stopAnimation:self];
+	}
+}
+- (void)setProgressVisible:(BOOL)flag
+{
+	if (flag != progressVisible) {
+		progressVisible = flag;
+		if (progressVisible) {
+			// Redisplay the progress bar.  We never do this at present, so unimplemented for now.
+		} else {
+			NSRect progressRect = [progressIndicator frame];
+			NSRect frame;
+			CGFloat distanceToMove = progressRect.size.height / 2;
+
+			[progressIndicator setDisplayedWhenStopped:NO];
+			[progressIndicator setIndeterminate:YES];
+			[progressIndicator stopAnimation:self];
+			[progressIndicator setHidden:YES];
+
+			// Top objects moving down
+			{
+				frame = [textField_fileName frame];
+				frame.origin.y -= distanceToMove;
+				// Don't let it be any further right than the progress bar used to be to avoid our buttons
+				frame.size.width = (progressRect.origin.x + progressRect.size.width) - frame.origin.x;
+				[textField_fileName setFrame:frame];
+			}
+
+			// Bottom objects moving up
+			{
+				frame = [twiddle_details frame];
+				frame.origin.y += distanceToMove;
+				[twiddle_details setFrame:frame];
+
+				frame = [textField_detailsLabel frame];
+				frame.origin.y += distanceToMove;
+				[textField_detailsLabel setFrame:frame];
+
+				frame = [box_transferStatusFrame frame];
+				frame.origin.y += distanceToMove;
+				// Don't let it be any further right than the progress bar used to be to avoid our buttons
+				frame.size.width = (progressRect.origin.x + progressRect.size.width) - frame.origin.x;
+				[box_transferStatusFrame setFrame:frame];
+			}
+		}
+	}
+}
+
+- (void)setButtonStopResumeVisible:(BOOL)flag
+{
+	[button_stopResume setHidden:!flag];
+}
+
+- (void)setButtonStopResumeIsResend:(BOOL)flag
+{
+	buttonStopResumeIsResend = flag;
+	[self updateButtonStopResume];
+}
+
+- (BOOL)buttonStopResumeIsResend
+{
+	return buttonStopResumeIsResend;
+}
+
+- (void)setTransferBytesStatus:(NSString *)inTransferBytesStatus
+			   remainingStatus:(NSString *)inTransferRemainingStatus
+				   speedStatus:(NSString *)inTransferSpeedStatus
+{
+	if (inTransferBytesStatus && inTransferRemainingStatus) {
+		transferStatus = [NSString stringWithFormat:@"%@ - %@", inTransferBytesStatus, inTransferRemainingStatus];
+	} else if (inTransferBytesStatus) {
+		transferStatus = inTransferBytesStatus;
+	} else if (inTransferRemainingStatus) {
+		transferStatus = inTransferRemainingStatus;
+	} else {
+		transferStatus = @"";
+	}
+
+	//	[textField_transferStatus setStringValue:transferStatus];
+	[self setNeedsDisplayInRect:[box_transferStatusFrame frame]];
+	[textField_rate setStringValue:(inTransferSpeedStatus ? inTransferSpeedStatus : @"")];
 }
 
 #pragma mark Details
@@ -70,7 +209,7 @@ transferStatus;
 		[view_details setFrame:detailsFrame];
 
 		// Update the twiddle
-		[twiddle_details setState:NSOnState];
+		[twiddle_details setState:NSControlStateValueOn];
 	} else {
 		newFrame.size.height -= detailsFrame.size.height;
 		newFrame.origin.y += detailsFrame.size.height;
@@ -84,7 +223,7 @@ transferStatus;
 		[view_details removeFromSuperview];
 
 		// Update the twiddle
-		[twiddle_details setState:NSOffState];
+		[twiddle_details setState:NSControlStateValueOff];
 	}
 
 	// Let the owner know our height changed so other rows can be adjusted accordingly
@@ -181,7 +320,7 @@ transferStatus;
 	} else {
 		if (isSelected) {
 			[button_stopResume setKeyEquivalent:@"."];
-			[button_stopResume setKeyEquivalentModifierMask:NSCommandKeyMask];
+			[button_stopResume setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
 
 			[button_stopResume
 				setImage:[NSImage imageNamed:(buttonStopResumeIsHovered ? @"FTProgressStopRollover_Selected"
@@ -253,7 +392,7 @@ static NSDictionary *transferStatusSelectedAttributes = nil;
 	if (isSelected && [[self window] isKeyWindow]) {
 		if (!transferStatusSelectedAttributes) {
 			NSMutableParagraphStyle *paragraphStyle =
-				[NSMutableParagraphStyle styleWithAlignment:NSLeftTextAlignment
+				[NSMutableParagraphStyle styleWithAlignment:NSTextAlignmentLeft
 											  lineBreakMode:NSLineBreakByTruncatingTail];
 			[paragraphStyle setMaximumLineHeight:[box_transferStatusFrame frame].size.height];
 
@@ -267,7 +406,7 @@ static NSDictionary *transferStatusSelectedAttributes = nil;
 	} else {
 		if (!transferStatusAttributes) {
 			NSMutableParagraphStyle *paragraphStyle =
-				[NSMutableParagraphStyle styleWithAlignment:NSLeftTextAlignment
+				[NSMutableParagraphStyle styleWithAlignment:NSTextAlignmentLeft
 											  lineBreakMode:NSLineBreakByTruncatingTail];
 			[paragraphStyle setMaximumLineHeight:[box_transferStatusFrame frame].size.height];
 
@@ -287,49 +426,6 @@ static NSDictionary *transferStatusSelectedAttributes = nil;
 - (NSMenu *)menuForEvent:(NSEvent *)inEvent
 {
 	return [owner menuForEvent:inEvent];
-}
-
-#pragma mark Accessibility
-
-- (id)accessibilityAttributeValue:(NSString *)attribute
-{
-	id value;
-
-	if ([attribute isEqualToString:NSAccessibilityRoleAttribute]) {
-		value = NSAccessibilityRowRole;
-
-	} else if ([attribute isEqualToString:NSAccessibilityRoleDescriptionAttribute]) {
-		if (![progressIndicator isIndeterminate]) {
-			// We are in the concrete phase of an active transfer
-			value = [NSString
-				stringWithFormat:AILocalizedString(@"Transferring %@ from %@ to %@ at %@ : %@",
-												   "e.g: Transferring file.zip from Evan to Joel at 45 kb/sec : 5 "
-												   "minutes remaining. Keep the spaces around the colon."),
-								 [textField_fileName stringValue], [textField_source stringValue],
-								 [textField_destination stringValue], [textField_rate stringValue],
-								 (transferStatus ? transferStatus : @"")];
-
-		} else {
-			value = [NSString stringWithFormat:AILocalizedString(@"Transfer of %@ from %@ to %@ : %@",
-																 "e.g: Transfer of file.zip from Evan to Joel : Upload "
-																 "complete. Keep the spaces around the colon"),
-											   [textField_fileName stringValue], [textField_source stringValue],
-											   [textField_destination stringValue],
-											   (transferStatus ? transferStatus : @"")];
-		}
-
-	} else if ([attribute isEqualToString:NSAccessibilityTitleAttribute]) {
-		value = AILocalizedString(@"File transfer", nil);
-
-	} else if ([attribute isEqualToString:NSAccessibilityEnabledAttribute]) {
-		// Never report as disabled, so we don't say 'dimmed' all the time
-		value = [NSNumber numberWithBool:YES];
-
-	} else {
-		value = [super accessibilityAttributeValue:attribute];
-	}
-
-	return value;
 }
 
 @end

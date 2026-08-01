@@ -22,6 +22,7 @@
 
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIBezierPathAdditions.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 #define MAGIC_ARROW_SCALE 0.85f
 #define MAGIC_ARROW_TRANSLATE_X 2.85f
@@ -259,52 +260,36 @@ static NSMutableDictionary *fileTransferDict = nil;
 				[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"com.apple.DownloadFileFinished"
 																			   object:localFilename];
 
-				FSRef fsRef;
-				OSErr err;
+				NSURL *fileURL = [NSURL fileURLWithPath:localFilename];
 
-				if (FSPathMakeRef((const UInt8 *)[localFilename fileSystemRepresentation], &fsRef, NULL) == noErr) {
+				NSMutableDictionary *quarantineProperties = nil;
+				NSDictionary *oldQuarantineProperties = nil;
 
-					NSMutableDictionary *quarantineProperties = nil;
-					CFTypeRef cfOldQuarantineProperties = NULL;
-
-					err = LSCopyItemAttribute(&fsRef, kLSRolesAll, kLSItemQuarantineProperties,
-											  &cfOldQuarantineProperties);
-
-					if (err == noErr) {
-
-						if (CFGetTypeID(cfOldQuarantineProperties) == CFDictionaryGetTypeID()) {
-							quarantineProperties = [(__bridge NSDictionary *)cfOldQuarantineProperties mutableCopy];
-						} else {
-							AILogWithSignature(@"Getting quarantine data failed for %@ (%@)", self, localFilename);
-							return;
-						}
-
-						CFRelease(cfOldQuarantineProperties);
-
-						if (!quarantineProperties) {
-							return;
-						}
-
-					} else if (err == kLSAttributeNotFoundErr) {
+				if ([fileURL getResourceValue:&oldQuarantineProperties forKey:NSURLQuarantinePropertiesKey error:nil]) {
+					if (oldQuarantineProperties) {
+						quarantineProperties = [oldQuarantineProperties mutableCopy];
+					} else {
 						quarantineProperties = [NSMutableDictionary dictionaryWithCapacity:2];
 					}
-
-					[quarantineProperties setObject:(NSString *)kLSQuarantineTypeInstantMessageAttachment
-											 forKey:(NSString *)kLSQuarantineTypeKey];
-					// TODO Figure out the file URL to the transcript
-					//					[quarantineProperties setObject:[NSURL URLWithString:@"file:///dev/null"]
-					//											 forKey:(NSString *)kLSQuarantineOriginURLKey];
-
-					if (LSSetItemAttribute(&fsRef, kLSRolesAll, kLSItemQuarantineProperties,
-										   (__bridge CFTypeRef)quarantineProperties) != noErr) {
-						AILogWithSignature(@"Danger! Quarantining file %@ failed!", localFilename);
+					if (!quarantineProperties) {
+						return;
 					}
-
-					AILogWithSignature(@"Quarantined %@ with %@", localFilename, quarantineProperties);
-
 				} else {
-					AILogWithSignature(@"Danger! Could not find file to quarantine: %@!", localFilename);
+					AILogWithSignature(@"Getting quarantine data failed for %@ (%@)", self, localFilename);
+					return;
 				}
+
+				[quarantineProperties setObject:(NSString *)kLSQuarantineTypeInstantMessageAttachment
+										 forKey:(NSString *)kLSQuarantineTypeKey];
+				// TODO Figure out the file URL to the transcript
+				//					[quarantineProperties setObject:[NSURL URLWithString:@"file:///dev/null"]
+				//										 forKey:(NSString *)kLSQuarantineOriginURLKey];
+
+				if (![fileURL setResourceValue:quarantineProperties forKey:NSURLQuarantinePropertiesKey error:nil]) {
+					AILogWithSignature(@"Danger! Quarantining file %@ failed!", localFilename);
+				}
+
+				AILogWithSignature(@"Quarantined %@ with %@", localFilename, quarantineProperties);
 			}
 
 		} else if ((percentDone != 0) && (status != In_Progress_FileTransfer)) {
@@ -336,7 +321,7 @@ static NSMutableDictionary *fileTransferDict = nil;
 
 - (void)openFile
 {
-	[[NSWorkspace sharedWorkspace] openFile:localFilename];
+	[[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:localFilename]];
 }
 
 - (NSImage *)iconImage
@@ -352,11 +337,12 @@ static NSMutableDictionary *fileTransferDict = nil;
 		extension = self.remoteFilename.pathExtension;
 
 	if (extension && [extension length]) {
-		systemIcon = [[NSWorkspace sharedWorkspace] iconForFileType:extension];
+		UTType *contentType = [UTType typeWithFilenameExtension:extension];
+		systemIcon = [[NSWorkspace sharedWorkspace] iconForContentType:(contentType != nil ? contentType : UTTypeData)];
 
 	} else {
 		if ([self.account canSendFolders] && [self isDirectory]) {
-			systemIcon = [[NSWorkspace sharedWorkspace] iconForFileType:NSFileTypeForHFSTypeCode(kGenericFolderIcon)];
+			systemIcon = [[NSWorkspace sharedWorkspace] iconForContentType:UTTypeFolder];
 		} else {
 			systemIcon = [[NSWorkspace sharedWorkspace] iconForFile:self.localFilename];
 		}
@@ -369,12 +355,14 @@ static NSMutableDictionary *fileTransferDict = nil;
 	iconImage = [[NSImage alloc] initWithSize:[systemIcon size]];
 
 	NSRect rect = {NSZeroPoint, [iconImage size]};
-	NSRect bottomRight = NSMakeRect(NSMidX(rect), ([iconImage isFlipped] ? NSMidY(rect) : NSMinY(rect)),
-									(NSWidth(rect) / 2.0f), (NSHeight(rect) / 2.0f));
 
 	[iconImage lockFocus];
 
-	[systemIcon drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+	[systemIcon drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositingOperationSourceOver fraction:1.0];
+
+	BOOL isFlipped = [[NSGraphicsContext currentContext] isFlipped];
+	NSRect bottomRight = NSMakeRect(NSMidX(rect), (isFlipped ? NSMidY(rect) : NSMinY(rect)), (NSWidth(rect) / 2.0f),
+									(NSHeight(rect) / 2.0f));
 
 	CGFloat line = ((NSWidth(bottomRight) / 15) + ((NSHeight(bottomRight) / 15) / 2));
 	NSRect circleRect = NSMakeRect(NSMinX(bottomRight), NSMinY(bottomRight) + (line), NSWidth(bottomRight) - (line),
@@ -383,7 +371,7 @@ static NSMutableDictionary *fileTransferDict = nil;
 	// draw our circle background...
 	NSBezierPath *circle = [NSBezierPath bezierPathWithOvalInRect:circleRect];
 	[circle setLineWidth:line];
-	[[[NSColor alternateSelectedControlColor] colorWithAlphaComponent:0.75f] setStroke];
+	[[[NSColor selectedContentBackgroundColor] colorWithAlphaComponent:0.75f] setStroke];
 	[[[NSColor alternateSelectedControlTextColor] colorWithAlphaComponent:0.75f] setFill];
 	[circle fill];
 	[circle stroke];
@@ -411,7 +399,7 @@ static NSMutableDictionary *fileTransferDict = nil;
 		[arrow transformUsingAffineTransform:transform];
 
 		[circle addClip];
-		[[NSColor alternateSelectedControlColor] setFill];
+		[[NSColor selectedContentBackgroundColor] setFill];
 		[arrow fill];
 	}
 

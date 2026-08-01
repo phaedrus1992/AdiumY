@@ -127,7 +127,7 @@
 	image = [itemImageArray objectAtIndex:dragRow];
 
 	// Put information on the pasteboard
-	pboard = [NSPasteboard pasteboardWithName:NSDragPboard];
+	pboard = [NSPasteboard pasteboardWithName:NSPasteboardNameDrag];
 	[pboard declareTypes:[NSArray arrayWithObjects:MINI_TOOLBAR_ITEM_DRAGTYPE, MINI_TOOLBAR_TYPE, nil] owner:self];
 	[pboard setString:[dragItem identifier] forType:MINI_TOOLBAR_ITEM_DRAGTYPE];
 	[pboard setString:[toolbar identifier] forType:MINI_TOOLBAR_TYPE];

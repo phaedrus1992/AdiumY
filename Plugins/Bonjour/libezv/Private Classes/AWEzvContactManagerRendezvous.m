@@ -752,7 +752,7 @@ void image_register_reply (
 	// Recover if there was an error
     if (errorCode != kDNSServiceErr_NoError) {
 		switch (errorCode) {
-#warning Localize and report through the connection error system
+// WARNING: Localize and report through the connection error system
 			case kDNSServiceErr_Unknown:
 				[[[self client] client] reportError:@"Unknown error in Bonjour Registration"
 						        ofLevel:AWEzvConnectionError];
@@ -955,7 +955,7 @@ static void	ProcessSockData( CFSocketRef s, CFSocketCallBackType type, CFDataRef
 			[self breakdownServiceController];
 
 		} else {
-            AILog(@"DNSServiceProcessResult() for socket descriptor %d returned an error! %d with CFSocketCallBackType %lu and data %s\n",
+            AILog(@"DNSServiceProcessResult() for socket descriptor %d returned an error! %d with CFSocketCallBackType %lu and data %p\n",
 			DNSServiceRefSockFD(info), err, type, data);
 		}
 	}
@@ -1010,6 +1010,7 @@ static void	ProcessSockData( CFSocketRef s, CFSocketCallBackType type, CFDataRef
 
 	[self breakdownServiceController];
 
+	[super dealloc];
 }
 
 - (void)breakdownServiceController

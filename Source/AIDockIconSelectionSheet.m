@@ -43,7 +43,175 @@
 
 - (id)init
 {
-	if (self =
+	if (self = [super initWithWindowNibName:@"DockIconSelectionSheet"]) {
+	}
+
+	return self;
+}
+
+- (void)openOnWindow:(NSWindow *)parentWindow
+{
+	if (parentWindow) {
+		[parentWindow beginSheet:self.window
+			   completionHandler:^(NSModalResponse returnCode) {
+				   [self sheetDidEnd:self.window returnCode:returnCode contextInfo:nil];
+			   }];
+	} else {
+		[self showWindow:nil];
+		[self.window makeKeyAndOrderFront:nil];
+		[NSApp activateIgnoringOtherApps:YES];
+	}
+}
+
+// Setup our preference view
+- (void)windowDidLoad
+{
+	// Init
+	[self setIcons:nil];
+	[self setIconsData:nil];
+	[self setAnimatedIndex:NSNotFound];
+	[self setPreviousIndex:NSNotFound];
+
+	// Set-up collection view
+	NSCollectionViewLayout *collectionViewLayout = [[self imageCollectionView] collectionViewLayout];
+
+	if ([collectionViewLayout isKindOfClass:[NSCollectionViewGridLayout class]]) {
+		NSCollectionViewGridLayout *gridLayout = (NSCollectionViewGridLayout *)collectionViewLayout;
+
+		[gridLayout setMaximumNumberOfColumns:7];
+		[gridLayout setMaximumItemSize:NSMakeSize(64.0f, 64.0f)];
+		[gridLayout setMinimumItemSize:NSMakeSize(64.0f, 64.0f)];
+	}
+	[[self imageCollectionView] setHighlightStyle:AIImageCollectionViewHighlightBackgroundStyle];
+	[[self imageCollectionView] setHighlightCornerRadius:4.0f];
+
+	// Observe xtras changes
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(xtrasChanged:)
+												 name:AIXtrasDidChangeNotification
+											   object:nil];
+
+	[self xtrasChanged:nil];
+	[[self okButton] setLocalizedString:AILocalizedStringFromTable(@"Close", @"Buttons", nil)];
+
+	[super windowDidLoad];
+}
+
+// Preference view is closing
+- (void)windowWillClose:(id)sender
+{
+	[super windowWillClose:sender];
+
+	[self setAnimatedDockIconAtIndex:NSNotFound];
+}
+
+#pragma mark -
+
+// Invoked as the sheet closes, dismiss the sheet
+- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
+	[sheet orderOut:nil];
+
+	[self setAnimatedDockIconAtIndex:NSNotFound];
+}
+
+// When the xtras are changed, update our icons
+- (void)xtrasChanged:(NSNotification *)notification
+{
+	if (!notification || [[notification object] caseInsensitiveCompare:@"AdiumIcon"] == NSOrderedSame) {
+		[self setIconsData:[NSMutableArray array]];
+		NSMutableArray *dockIcons = [[NSMutableArray alloc] init];
+
+		// Fetch the pack previews
+		for (NSString *path in [adium.dockController availableDockIconPacks]) {
+			AIIconState *previewState = [adium.dockController previewStateForIconPackAtPath:path];
+			[[self iconsData] addObject:[NSMutableDictionary
+											dictionaryWithObjectsAndKeys:path, @"Path", previewState, @"State", nil]];
+			[dockIcons addObject:[previewState image]];
+		}
+
+		[self setIcons:dockIcons];
+
+		[self selectIconWithName:[adium.preferenceController preferenceForKey:KEY_ACTIVE_DOCK_ICON
+																		group:PREF_GROUP_APPEARANCE]];
+	}
+}
+
+// Set the selected icon by name
+- (void)selectIconWithName:(NSString *)selectName
+{
+	NSDictionary *iconDictionary;
+	NSInteger anIndex = 0;
+
+	// Set previous index
+	if (![[[self imageCollectionView] selectionIndexes] isEqualToIndexSet:[NSIndexSet indexSet]]) {
+		[self setPreviousIndex:[[[self imageCollectionView] selectionIndexes] firstIndex]];
+	}
+
+	for (iconDictionary in [self iconsData]) {
+		NSString *iconName = [[[iconDictionary objectForKey:@"Path"] lastPathComponent] stringByDeletingPathExtension];
+
+		if ([iconName isEqualToString:selectName]) {
+			[[self imageCollectionView] setSelectionIndexes:[NSIndexSet indexSetWithIndex:anIndex]];
+			break; // we can exit early
+		}
+
+		anIndex++;
+	}
+
+	// Set previous index - in case it wasn't set first time
+	if ([self previousIndex] == NSNotFound &&
+		![[[self imageCollectionView] selectionIndexes] isEqualToIndexSet:[NSIndexSet indexSet]]) {
+		[self setPreviousIndex:[[[self imageCollectionView] selectionIndexes] firstIndex]];
+	}
+}
+
+#pragma mark - Animation
+
+// Start animating an icon in our collection by index (pass NSNotFound to stop animation)
+- (void)setAnimatedDockIconAtIndex:(NSInteger)anIndex
+{
+	// Stop the current animation
+	if ([self animationTimer]) {
+		[[self animationTimer] invalidate];
+		[self setAnimationTimer:nil];
+	}
+
+	//
+	if ([self animatedIndex] != NSNotFound) {
+		[[self imageCollectionView]
+				  setImage:[[[[self iconsData] objectAtIndex:[self animatedIndex]] objectForKey:@"State"] image]
+			forItemAtIndex:[self animatedIndex]];
+	}
+
+	[self setAnimatedIconState:nil];
+	[self setAnimatedIndex:NSNotFound];
+
+	// Start the new animation
+	if (anIndex != NSNotFound) {
+		NSString *path = [[[self iconsData] objectAtIndex:anIndex] objectForKey:@"Path"];
+
+		[self setAnimatedIconState:[self animatedStateForDockIconAtPath:path]];
+		[self setAnimatedIndex:anIndex];
+
+		[self setAnimationTimer:[NSTimer scheduledTimerWithTimeInterval:[[self animatedIconState] animationDelay]
+																 target:self
+															   selector:@selector(animate:)
+															   userInfo:nil
+																repeats:YES]];
+	}
+}
+
+// Returns an animated AIIconState for the dock icon pack at the specified path
+- (AIIconState *)animatedStateForDockIconAtPath:(NSString *)path
+{
+	NSDictionary *iconPackDict = [adium.dockController iconPackAtPath:path];
+	NSDictionary *stateDict = [iconPackDict objectForKey:@"State"];
+
+	return
+		[[AIIconState alloc] initByCompositingStates:[NSArray arrayWithObjects:[stateDict objectForKey:@"Base"],
+																			   [stateDict objectForKey:@"Online"],
+																			   [stateDict objectForKey:@"Alert"], nil]];
 }
 
 // Animate the hovered icon
@@ -117,12 +285,21 @@
 
 	// We need at least one icon installed, so prevent the user from deleting the default icon
 	if (![name isEqualToString:DEFAULT_DOCK_ICON_NAME]) {
-		NSBeginAlertSheet(
-			AILocalizedString(@"Delete Dock Icon", nil), AILocalizedString(@"Delete", nil),
-			AILocalizedString(@"Cancel", nil), @"", [self window], self,
-			@selector(trashConfirmSheetDidEnd:returnCode:contextInfo:), nil, selectedIconPath,
-			AILocalizedString(@"Are you sure you want to delete the %@ Dock Icon? It will be moved to the Trash.", nil),
-			name);
+		NSAlert *deleteDockIconAlert = [[NSAlert alloc] init];
+		deleteDockIconAlert.messageText = AILocalizedString(@"Delete Dock Icon", nil);
+		deleteDockIconAlert.informativeText = [NSString
+			stringWithFormat:AILocalizedString(
+								 @"Are you sure you want to delete the %@ Dock Icon? It will be moved to the Trash.",
+								 nil),
+							 name];
+		[deleteDockIconAlert addButtonWithTitle:AILocalizedString(@"Delete", nil)];
+		[deleteDockIconAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+		[deleteDockIconAlert beginSheetModalForWindow:[self window]
+									completionHandler:^(NSModalResponse returnCode) {
+										[self trashConfirmSheetDidEnd:deleteDockIconAlert.window
+														   returnCode:returnCode
+														  contextInfo:selectedIconPath];
+									}];
 	}
 }
 
@@ -130,7 +307,7 @@
 					 returnCode:(NSInteger)returnCode
 					contextInfo:(NSString *)selectedIconPath
 {
-	if (returnCode == NSOKButton) {
+	if (returnCode == NSAlertFirstButtonReturn) {
 		NSInteger deletedIndex = [[[self imageCollectionView] selectionIndexes] firstIndex];
 
 		// Deselect and stop animating

@@ -133,7 +133,7 @@ static void AMPurpleJabberMAM_received_data_cb(PurpleConnection *gc, xmlnode **p
 {
 	// Check if MAM is enabled in account prefs
 	PurpleAccount *pa = [_account purpleAccount];
-	const char *enabled = purple_account_get_string(pa, KEY_MAM_ENABLED, "yes");
+	const char *enabled = purple_account_get_string(pa, [KEY_MAM_ENABLED UTF8String], "yes");
 	_mamEnabled = (strcmp(enabled, "yes") == 0);
 
 	if (!_mamEnabled) {
@@ -314,13 +314,13 @@ static void AMPurpleJabberMAM_received_data_cb(PurpleConnection *gc, xmlnode **p
 	_lastArchiveID = [archiveID copy];
 
 	PurpleAccount *pa = [_account purpleAccount];
-	purple_account_set_string(pa, KEY_LAST_ARCHIVE_ID, [archiveID UTF8String]);
+	purple_account_set_string(pa, [KEY_LAST_ARCHIVE_ID UTF8String], [archiveID UTF8String]);
 }
 
 - (NSString *)_loadLastArchiveID
 {
 	PurpleAccount *pa = [_account purpleAccount];
-	const char *lastID = purple_account_get_string(pa, KEY_LAST_ARCHIVE_ID, NULL);
+	const char *lastID = purple_account_get_string(pa, [KEY_LAST_ARCHIVE_ID UTF8String], NULL);
 	if (lastID && strlen(lastID) > 0) {
 		return @(lastID);
 	}

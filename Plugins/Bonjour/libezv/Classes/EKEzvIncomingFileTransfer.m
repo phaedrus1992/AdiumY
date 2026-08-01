@@ -8,6 +8,8 @@
 #import "EKEzvIncomingFileTransfer.h"
 #import "AWEzv.h"
 #import "AWEzvContactManager.h"
+#import <errno.h>
+#import <sys/xattr.h>
 
 #define APPLE_SINGLE_HEADER_LENGTH 26
 #define APPLE_SINGLE_MAGIC_NUMBER 0x00051600
@@ -54,11 +56,14 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 - (void)dealloc
 {
+	[downloadSession invalidateAndCancel];
 }
 - (void)startDownload
 {
 	currentDownloads = [[NSMutableArray alloc] initWithCapacity:10];
 	encodedDownloads = [[NSMutableArray alloc] initWithCapacity:10];
+	downloadPaths = [[NSMutableDictionary alloc] initWithCapacity:10];
+	downloadFileHandles = [[NSMutableDictionary alloc] initWithCapacity:10];
 	if (type == EKEzvFile_Transfer) {
 		[self downloadFile];
 	} else if (type == EKEzvDirectory_Transfer) {
@@ -72,20 +77,22 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 - (void)cancelDownload
 {
 	if ([currentDownloads count] > 0) {
-		NSURLDownload *download;
+		NSURLSessionDataTask *download;
 		for (download in currentDownloads) {
 			[download cancel];
 		}
 		currentDownloads = nil;
 		encodedDownloads = nil;
 	}
+	[downloadSession invalidateAndCancel];
+	downloadSession = nil;
 }
 - (void)downloadFolder
 {
 	/*We need to first get the xml for the layout */
 	NSURL *URL = [NSURL URLWithString:url];
 	NSError *error = nil;
-	NSXMLDocument *documentRoot = [[[NSXMLDocument alloc] initWithContentsOfURL:URL options:0
+	NSXMLDocument *documentRoot = [[NSXMLDocument alloc] initWithContentsOfURL:URL options:0
 																		  error:&error];
 	if (error) {
 		[[[[self manager] client] client] remoteCanceledFileTransfer:self];
@@ -179,7 +186,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		NSString *name = [[nameChildren objectAtIndex:0] stringValue];
 		NSString *newPath = [rootPath stringByAppendingPathComponent:name];
 		NSString *newURL = [rootURL
-			stringByAppendingPathComponent:[name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+			stringByAppendingPathComponent:[name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
 
 		/*Download file to newPath from newURL*/
 		[itemsToDownload setValue:[NSURL URLWithString:newURL] forKey:newPath];
@@ -218,7 +225,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		bool fileSuccess = YES;
 		/* Now call downloadFolder for dir and file children */
 		NSString *newURL = [rootURL
-			stringByAppendingPathComponent:[name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+			stringByAppendingPathComponent:[name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
 
 		for (NSXMLElement *nextElement in [root elementsForName:@"dir"]) {
 			folderSuccess = [self downloadFolder:nextElement path:newPath url:newURL];
@@ -301,13 +308,20 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	[theRequest addValue:value forHTTPHeaderField:@"Accept-Encoding"];
 	[theRequest setHTTPShouldHandleCookies:NO];
 
-	// create the connection with the request
-	// and start loading the data
-	NSURLDownload *theDownload = [[NSURLDownload alloc] initWithRequest:theRequest delegate:self];
+	/* Create the session lazily, and start the download. The destination file is created in
+	 * URLSession:dataTask:didReceiveResponse:completionHandler:, replacing NSURLDownload's
+	 * setDestination:allowOverwrite:.
+	 */
+	if (downloadSession == nil) {
+		NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+		downloadSession = [NSURLSession sessionWithConfiguration:configuration delegate:self
+												  delegateQueue:[NSOperationQueue mainQueue]];
+	}
+	NSURLSessionDataTask *theDownload = [downloadSession dataTaskWithRequest:theRequest];
 	if (theDownload) {
 		[currentDownloads addObject:theDownload];
-		// set the destination file now
-		[theDownload setDestination:path allowOverwrite:YES];
+		[downloadPaths setObject:path forKey:theDownload];
+		[theDownload resume];
 	} else {
 		// inform the user that the download could not be made
 		[[[manager client] client] reportError:@"Error starting download of file transfer." ofLevel:AWEzvError];
@@ -315,23 +329,71 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	}
 }
 
-#pragma mark NSURLDownload Delegate Methods
-- (void)download:(NSURLDownload *)download didFailWithError:(NSError *)error
+#pragma mark NSURLSession Delegate Methods
+- (void)URLSession:(NSURLSession *)session
+			  dataTask:(NSURLSessionDataTask *)dataTask
+	didReceiveResponse:(NSURLResponse *)response
+	 completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler
 {
-	[[[manager client] client] remoteCanceledFileTransfer:self];
-	// inform the user
-	[[[manager client] client]
-		reportError:[NSString stringWithFormat:@"Download failed! Error - %@ %@", [error localizedDescription],
-											   [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]]
-			ofLevel:AWEzvError];
-	[currentDownloads removeObject:download];
+	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
+	if ([(NSString *)[headers objectForKey:@"Content-Encoding"] isEqualToString:@"AppleSingle"]) {
+		[encodedDownloads addObject:[[dataTask originalRequest] URL]];
+	}
+
+	/* Create the destination file now, replacing NSURLDownload's setDestination:allowOverwrite:. */
+	NSString *path = [downloadPaths objectForKey:dataTask];
+	[[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
+	NSFileHandle *downloadFileHandle = [NSFileHandle fileHandleForWritingAtPath:path];
+	[downloadFileHandle seekToEndOfFile];
+	[downloadFileHandles setObject:downloadFileHandle forKey:dataTask];
+
+	completionHandler(NSURLSessionResponseAllow);
 }
-- (void)downloadDidFinish:(NSURLDownload *)download
+
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
-	/*This will get called even when not all of the file has been downloaded so need to check bytes received */
+	NSFileHandle *downloadFileHandle = [downloadFileHandles objectForKey:dataTask];
+	[downloadFileHandle writeData:data];
+	bytesReceived = bytesReceived + [data length];
+	percentComplete = ((float)bytesReceived / (float)size);
+	if (percentComplete >= 1.0) {
+		/*This will prevent Adium from believing that the download is complete before possible decoding */
+		return;
+	}
+	[[[manager client] client] updateProgressForFileTransfer:self
+													 percent:[NSNumber numberWithFloat:percentComplete]
+												   bytesSent:[NSNumber numberWithLongLong:bytesReceived]];
+}
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
+{
+	NSURLSessionDataTask *dataTask = (NSURLSessionDataTask *)task;
+	NSFileHandle *downloadFileHandle = [downloadFileHandles objectForKey:dataTask];
+	[downloadFileHandle closeFile];
+	[downloadFileHandles removeObjectForKey:dataTask];
+	[downloadPaths removeObjectForKey:dataTask];
+	[currentDownloads removeObject:dataTask];
+	if ([currentDownloads count] == 0) {
+		[downloadSession invalidateAndCancel];
+		downloadSession = nil;
+	}
+
+	if (error != nil) {
+		if ([error code] == NSURLErrorCancelled) {
+			/* A cancelled download is intentional; nothing to report. */
+			return;
+		}
+		[[[manager client] client] remoteCanceledFileTransfer:self];
+		// inform the user
+		[[[manager client] client]
+			reportError:[NSString stringWithFormat:@"Download failed! Error - %@ %@", [error localizedDescription],
+												   [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]]
+				ofLevel:AWEzvError];
+		return;
+	}
 
 	/*Let's look up the local file and then decode *if* it is an AppleSingle file*/
-	NSURL *itemURL = [[download request] URL];
+	NSURL *itemURL = [[dataTask originalRequest] URL];
 	if ([encodedDownloads containsObject:itemURL]) {
 		NSString *itemPath = [self urlToPath:itemURL];
 		BOOL decoded = [self decodeAppleSingleAtPath:itemPath];
@@ -348,27 +410,6 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		[[[manager client] client] updateProgressForFileTransfer:self
 														 percent:[NSNumber numberWithFloat:percentComplete]
 													   bytesSent:[NSNumber numberWithLongLong:bytesReceived]];
-
-	[currentDownloads removeObject:download];
-}
-- (void)download:(NSURLDownload *)download didReceiveResponse:(NSURLResponse *)response
-{
-	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
-	if ([(NSString *)[headers objectForKey:@"Content-Encoding"] isEqualToString:@"AppleSingle"]) {
-		[encodedDownloads addObject:[[download request] URL]];
-	}
-}
-- (void)download:(NSURLDownload *)download didReceiveDataOfLength:(NSUInteger)length
-{
-	bytesReceived = bytesReceived + length;
-	percentComplete = ((float)bytesReceived / (float)size);
-	if (percentComplete >= 1.0) {
-		/*This will prevent Adium from believing that the download is complete before possible decoding */
-		return;
-	}
-	[[[manager client] client] updateProgressForFileTransfer:self
-													 percent:[NSNumber numberWithFloat:percentComplete]
-												   bytesSent:[NSNumber numberWithLongLong:bytesReceived]];
 }
 
 #pragma mark Encoding Helper Methods
@@ -380,7 +421,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		/*Remove the base url from the string*/
 		NSRange range = [urlString rangeOfString:url];
 		NSString *path = [urlString substringFromIndex:(range.location + range.length)];
-		path = [path stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+		path = [path stringByRemovingPercentEncoding];
 		if (localFilename) {
 			path = [localFilename stringByAppendingPathComponent:path];
 			return path;
@@ -406,6 +447,8 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	unsigned long length = [data length];
 	size_t offset;
 	struct AppleSingleFinderInfo info;
+	memset(&info, 0, sizeof(info));
+	BOOL hasFinderInfo = NO;
 	struct AppleSingleHeader header;
 	struct AppleSingleEntry entry;
 	NSRange resourceRange = NSMakeRange(0, 0);
@@ -476,6 +519,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			// NSLog(@"AS_ENTRY_FINDER_INFO");
 			[data getBytes:&info range:NSMakeRange(entry.offset, entry.length)];
 			info.finderInfo.finderFlags = ntohs(info.finderInfo.finderFlags);
+			hasFinderInfo = YES;
 			break;
 		case AS_ENTRY_REAL_NAME:
 			// NSLog(@"AS_ENTRY_REAL_NAME");
@@ -522,28 +566,15 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		if (![decodedData writeToFile:path atomically:YES]) {
 			[[[manager client] client] reportError:@"AppleSingle: Could not write decoded data." ofLevel:AWEzvError];
 		}
-		/*Now apply attributes */
-		FSRef ref;
-		OSStatus err;
-		Boolean isDirectory = NO;
-		err = FSPathMakeRef((const UInt8 *)[path fileSystemRepresentation], &ref, &isDirectory);
-		if (err != noErr) {
-			[[[manager client] client] reportError:@"AppleSingle: Error creating FSRef" ofLevel:AWEzvError];
+		/*Now apply attributes — store the Finder info in the com.apple.FinderInfo extended attribute
+		 * (replaces the deprecated FSRef/FSSetCatalogInfo API, which also zeroed the data it copied).
+		 */
+		if (hasFinderInfo) {
+			if (setxattr([path fileSystemRepresentation], "com.apple.FinderInfo", &info, sizeof(info), 0, 0) != 0) {
+				[[[manager client] client] reportError:@"AppleSingle: Error setting finder info." ofLevel:AWEzvError];
 
-			return NO;
-		}
-		struct FSCatalogInfo catalogInfo;
-		memset(&catalogInfo, 0, sizeof(catalogInfo));
-		Size byteCount = sizeof(info.finderInfo);
-		if (byteCount > 0)
-			memmove(&(info.finderInfo), &(catalogInfo.finderInfo), byteCount);
-		OSErr error = FSSetCatalogInfo(/*(const FSRef *)*/ &ref,
-									   /*(FSCatalogInfoBitmap)*/ (kFSCatInfoFinderInfo),
-									   /*(const FSCatalogInfo *)*/ &catalogInfo);
-		if (error != noErr) {
-			[[[manager client] client] reportError:@"AppleSingle: Error setting catalog info." ofLevel:AWEzvError];
-
-			return NO;
+				return NO;
+			}
 		}
 	}
 	return YES;

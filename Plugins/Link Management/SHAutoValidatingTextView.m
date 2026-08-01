@@ -100,8 +100,6 @@
 - (NSString *)linkURL
 {
 	NSString *linkURL = [[self textStorage] string];
-	CFStringRef preprocessedString, escapedURLString;
-	CFStringRef charactersToLeaveUnescaped = CFSTR("#");
 
 	if ([linkURL rangeOfString:@"%n"].location != NSNotFound) {
 		NSMutableString *newLinkURL = [linkURL mutableCopy];
@@ -113,19 +111,15 @@
 	}
 
 	// Replace all existing percent escapes (in case the user actually escaped the URL properly or it was copy/pasted)
-	preprocessedString = CFURLCreateStringByReplacingPercentEscapesUsingEncoding(
-		kCFAllocatorDefault, (CFStringRef)linkURL, CFSTR(""), kCFStringEncodingUTF8);
-	// Now escape it the way NSURL demands
+	NSString *preprocessedString = [linkURL stringByRemovingPercentEncoding];
 	if (preprocessedString) {
-		escapedURLString =
-			CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, preprocessedString, charactersToLeaveUnescaped,
-													/* legalURLCharactersToBeEscaped */ NULL, kCFStringEncodingUTF8);
-		CFRelease(preprocessedString);
-	} else {
-		escapedURLString = nil;
+		// Now escape it the way NSURL demands
+		NSMutableCharacterSet *allowedSet = [NSMutableCharacterSet alphanumericCharacterSet];
+		[allowedSet addCharactersInString:@"-._~!*'(),;/?:@&=+$#"];
+		return [preprocessedString stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
 	}
 
-	return (escapedURLString ? CFBridgingRelease(escapedURLString) : linkURL);
+	return linkURL;
 }
 
 @end

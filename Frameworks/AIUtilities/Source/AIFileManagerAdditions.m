@@ -33,18 +33,11 @@
 {
 	NSParameterAssert(sourcePath != nil && [sourcePath length] != 0);
 
-	BOOL status = NO;
-
 	if ([self fileExistsAtPath:sourcePath]) {
-		status =
-			[[NSWorkspace sharedWorkspace] performFileOperation:NSWorkspaceRecycleOperation
-														 source:[sourcePath stringByDeletingLastPathComponent]
-													destination:@""
-														  files:[NSArray arrayWithObject:[sourcePath lastPathComponent]]
-															tag:NULL];
+		return [self trashItemAtURL:[NSURL fileURLWithPath:sourcePath] resultingItemURL:NULL error:NULL];
 	}
 
-	return status;
+	return NO;
 }
 
 - (void)removeFilesInDirectory:(NSString *)dirPath withPrefix:(NSString *)prefix movingToTrash:(BOOL)moveToTrash
@@ -150,24 +143,15 @@
 	return uniquePath;
 }
 
-- (NSString *)findFolderOfType:(OSType)type inDomain:(short)domain createFolder:(BOOL)createFolder
-{
-	FSRef folderRef;
-
-	OSErr err = FSFindFolder(domain, type, createFolder, &folderRef);
-	if (err != noErr)
-		return nil;
-
-	NSURL *folderURL = CFBridgingRelease(CFURLCreateFromFSRef(kCFAllocatorSystemDefault, &folderRef));
-	if (!folderURL)
-		return nil;
-
-	return [folderURL path];
-}
-
 - (NSString *)userApplicationSupportFolder
 {
-	return [self findFolderOfType:kApplicationSupportFolderType inDomain:kUserDomain createFolder:YES];
+	NSURL *folderURL = [[NSFileManager defaultManager] URLForDirectory:NSApplicationSupportDirectory
+															  inDomain:NSUserDomainMask
+													 appropriateForURL:nil
+																create:YES
+																 error:nil];
+
+	return (folderURL ? [folderURL path] : nil);
 }
 
 - (NSString *)pathByResolvingAlias:(NSString *)path
@@ -176,24 +160,14 @@
 		return nil;
 
 	NSString *resolvedPath = nil;
-	CFURLRef url;
 
-	url =
-		CFURLCreateWithFileSystemPath(/* allocator */ NULL, (CFStringRef)path, kCFURLPOSIXPathStyle, /* isDir */ false);
-	if (url) {
-		FSRef fsRef;
-		if (CFURLGetFSRef(url, &fsRef)) {
-			Boolean targetIsFolder, wasAliased;
-			if (FSResolveAliasFile(&fsRef, true /*resolveAliasChains*/, &targetIsFolder, &wasAliased) == noErr &&
-				wasAliased) {
-				CFURLRef resolvedUrl = CFURLCreateFromFSRef(NULL, &fsRef);
-				if (resolvedUrl) {
-					resolvedPath = CFBridgingRelease(CFURLCopyFileSystemPath(resolvedUrl, kCFURLPOSIXPathStyle));
-					CFRelease(resolvedUrl);
-				}
-			}
+	NSURL *url = [NSURL fileURLWithPath:path];
+	NSNumber *isAlias;
+	if ([url getResourceValue:&isAlias forKey:NSURLIsAliasFileKey error:nil] && [isAlias boolValue]) {
+		NSURL *resolvedURL = [NSURL URLByResolvingAliasFileAtURL:url options:0 error:nil];
+		if (resolvedURL) {
+			resolvedPath = [resolvedURL path];
 		}
-		CFRelease(url);
 	}
 
 	return (resolvedPath ? resolvedPath : path);

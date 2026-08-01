@@ -110,8 +110,12 @@ static NSDictionary *serviceIconNames[NUMBER_OF_SERVICE_ICON_TYPES];
 		}
 
 		if (serviceIcon) {
-			if (iconDirection == AIIconFlipped)
+			if (iconDirection == AIIconFlipped) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 				[serviceIcon setFlipped:YES];
+#pragma clang diagnostic pop
+			}
 			[serviceIcons[iconType][iconDirection] setObject:serviceIcon forKey:serviceID];
 		} else {
 			// Attempt to load the default service icon
@@ -203,7 +207,7 @@ static NSDictionary *serviceIconNames[NUMBER_OF_SERVICE_ICON_TYPES];
 
 				[anIcon drawInRect:targetRect
 						  fromRect:NSMakeRect(0, 0, anIconSize.width, anIconSize.height)
-						 operation:NSCompositeCopy
+						 operation:NSCompositingOperationCopy
 						  fraction:1.0f];
 
 				// Shift right in preparation for next image

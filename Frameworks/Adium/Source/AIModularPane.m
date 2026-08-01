@@ -58,7 +58,7 @@
 {
 	if (!view) {
 		// Load and configure our view
-		[NSBundle loadNibNamed:[self nibName] owner:self];
+		[[NSBundle bundleForClass:[self class]] loadNibNamed:[self nibName] owner:self topLevelObjects:nil];
 		[self viewDidLoad];
 		[self localizePane];
 		if (![self resizable])

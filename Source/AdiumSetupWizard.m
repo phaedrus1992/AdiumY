@@ -33,7 +33,7 @@
 
 enum { WIZARD_TAB_WELCOME = 0, WIZARD_TAB_ADD_ACCOUNTS = 1, WIZARD_TAB_DONE = 2 };
 
-@interface AdiumSetupWizard ()
+@interface AdiumSetupWizard () <NSControlTextEditingDelegate>
 - (void)multipleImportAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 - (void)show __attribute__((ns_consumes_self));
 @end
@@ -51,7 +51,103 @@ enum { WIZARD_TAB_WELCOME = 0, WIZARD_TAB_ADD_ACCOUNTS = 1, WIZARD_TAB_DONE = 2 
 {
 	AdiumSetupWizard *setupWizardWindowController;
 
-	setupWizardWindowController =
+	setupWizardWindowController = [[self alloc] initWithWindowNibName:@"SetupWizard"];
+
+	[setupWizardWindowController show];
+}
+
+- (void)show
+{
+	// Configure and show window
+	[self showWindow:nil];
+	[[self window] orderFront:nil];
+}
+
+/*!
+ * @brief Localized some common items' titles
+ */
+- (void)localizeItems
+{
+	[button_goBack setLocalizedString:AILocalizedString(@"Go Back", "'go back' button title")];
+	[textField_passwordLabel
+		setLocalizedString:AILocalizedString(@"Password:", "Label for the password field in the account preferences")];
+	[textField_serviceLabel setLocalizedString:AILocalizedString(@"Service:", nil)];
+
+	[button_informationAboutImporting
+		setLocalizedString:AILocalizedString(
+							   @"Information About Importing",
+							   "button title for more information about importing information in the setup wizard")];
+	[button_alternate
+		setLocalizedString:AILocalizedString(
+							   @"Skip Import",
+							   "button title for skipping the import of another client in the setup wizard")];
+}
+
+/*!
+ * @brief The window loaded
+ */
+- (void)windowDidLoad
+{
+	[[self window] setTitle:AILocalizedString(@"Adium Setup Assistant", nil)];
+
+	// Ensure the first tab view item is selected
+	[tabView selectTabViewItemAtIndex:WIZARD_TAB_WELCOME];
+	[self tabView:tabView willSelectTabViewItem:[tabView selectedTabViewItem]];
+
+	// Configure our background view; it should display the image transparently where our tabView overlaps it
+	[backgroundView setBackgroundImage:[NSImage imageNamed:@"AdiumyButler" forClass:[self class]]];
+	NSRect tabViewFrame = [tabView frame];
+	NSRect backgroundViewFrame = [backgroundView frame];
+	tabViewFrame.origin.x -= backgroundViewFrame.origin.x;
+	tabViewFrame.origin.y -= backgroundViewFrame.origin.y;
+	[backgroundView setTransparentRect:tabViewFrame];
+
+	[self localizeItems];
+
+	[[self window] center];
+
+	[super windowDidLoad];
+}
+
+- (IBAction)promptForMultiples:(id)sender
+{
+	// Since we have multiple dedicated importers in 1.1+ it's better to direct the user as needed
+
+	NSAlert *multipleImportPrompt = [[NSAlert alloc] init];
+	multipleImportPrompt.messageText = AILocalizedString(@"Have you used other chat clients?",
+														 "Title which introduces import assistants during setup");
+	multipleImportPrompt.informativeText =
+		AILocalizedString(@"Adium includes assistants to import your accounts, settings, and transcripts from other "
+						  @"clients. Choose a client below to open its assistant, or press Continue to skip importing.",
+						  nil);
+	[multipleImportPrompt addButtonWithTitle:AILocalizedStringFromTable(@"Continue", @"Buttons", nil)];
+	[multipleImportPrompt addButtonWithTitle:AILocalizedString(@"Import from iChat",
+															   "iChat is the OS X instant messaging client which ships "
+															   "with OS X; the name probably should not be localized")];
+	[multipleImportPrompt beginSheetModalForWindow:[self window]
+								 completionHandler:^(NSModalResponse returnCode) {
+									 [self multipleImportAlertDidEnd:multipleImportPrompt
+														  returnCode:returnCode
+														 contextInfo:nil];
+								 }];
+}
+
+- (void)multipleImportAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
+	if (returnCode == NSAlertSecondButtonReturn) {
+		[BGICImportController performSelector:@selector(importIChatConfiguration) withObject:nil afterDelay:0.5];
+		[[self window] close];
+	}
+}
+
+/*!
+ * @brief Perform behaviors before the window closes
+ *
+ * As our window is closing, we auto-release this window controller instance.
+ */
+- (void)windowWillClose:(id)sender
+{
+	[super windowWillClose:sender];
 }
 
 /*!
@@ -257,10 +353,10 @@ enum { WIZARD_TAB_WELCOME = 0, WIZARD_TAB_ADD_ACCOUNTS = 1, WIZARD_TAB_DONE = 2 
 					@"Contact List to begin a conversation.  You can add contacts to your Contact List via the Contact "
 					@"menu.\n\nWant to customize your Adium experience? Check out the Adium Preferences and Xtras "
 					@"Manager via the Adium menu.\n\nEnjoy! Click Done to begin using Adium.",
-					nil)],
+					nil)];
 
-			[textField_done setStringValue:AILocalizedString(@"Congratulations!",
-															 "Header line in the last pane of the Adium setup wizard")];
+		[textField_done setStringValue:AILocalizedString(@"Congratulations!",
+														 "Header line in the last pane of the Adium setup wizard")];
 	}
 
 	// Hide go back on the first tab

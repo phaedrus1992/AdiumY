@@ -45,9 +45,9 @@
 {
 	[item setTitle:[[self startupActions] objectAtIndex:index]];
 	if ([[item title] isEqualToString:[[NSUserDefaults standardUserDefaults] stringForKey:STARTUP_ACTION_KEY]])
-		[item setState:NSOnState];
+		[item setState:NSControlStateValueOn];
 	else
-		[item setState:NSOffState];
+		[item setState:NSControlStateValueOff];
 	return YES;
 }
 

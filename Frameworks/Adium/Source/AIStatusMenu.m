@@ -15,6 +15,7 @@
  */
 
 #import <AIUtilities/AIArrayAdditions.h>
+#import <AIUtilities/AIDataAdditions.h>
 #import <AIUtilities/AIEventAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
@@ -32,7 +33,7 @@
 #define STATUS_TITLE_CUSTOM [AILocalizedString(@"Custom", nil) stringByAppendingEllipsis]
 #define STATE_TITLE_MENU_LENGTH 30
 
-@interface AIStatusMenu ()
+@interface AIStatusMenu () <NSMenuItemValidation>
 - (id)initWithDelegate:(id<AIStatusMenuDelegate>)inDelegate;
 - (void)stateArrayChanged:(NSNotification *)notification;
 - (void)activeStatusStateChanged:(NSNotification *)notification;
@@ -266,40 +267,40 @@
 			/* Our "Custom..." menu choice has a nil represented object.  If the appropriate active search state is
 			 * in our array of states from which we made menu items, we'll be searching to match it.  If it isn't,
 			 * we have a custom state and will be searching for the custom item of the right type, switching all other
-			 * menu items to NSOffState.
+			 * menu items to NSControlStateValueOff.
 			 */
 			if ([adium.statusController.flatStatusSet containsObject:appropriateActiveStatusState]) {
 				// If the search state is in the array so is a saved state, search for the match
 				if ((menuItemStatusState == appropriateActiveStatusState) ||
 					([menuItemStatusState isKindOfClass:[AIStatusGroup class]] &&
 					 [(AIStatusGroup *)menuItemStatusState enclosesStatusState:appropriateActiveStatusState])) {
-					if ([menuItem state] != NSOnState)
-						[menuItem setState:NSOnState];
+					if ([menuItem state] != NSControlStateValueOn)
+						[menuItem setState:NSControlStateValueOn];
 				} else {
-					if ([menuItem state] != NSOffState)
-						[menuItem setState:NSOffState];
+					if ([menuItem state] != NSControlStateValueOff)
+						[menuItem setState:NSControlStateValueOff];
 				}
 			} else {
 				// If there is not a status state, we are in a Custom state. Search for the correct Custom item.
 				if (menuItemStatusState) {
 					// If the menu item has an associated state, it's always off.
-					if ([menuItem state] != NSOffState)
-						[menuItem setState:NSOffState];
+					if ([menuItem state] != NSControlStateValueOff)
+						[menuItem setState:NSControlStateValueOff];
 				} else {
 					// If it doesn't, check the tag to see if it should be on or off.
 					if ([menuItem tag] == appropriateActiveStatusState.statusType) {
-						if ([menuItem state] != NSOnState)
-							[menuItem setState:NSOnState];
+						if ([menuItem state] != NSControlStateValueOn)
+							[menuItem setState:NSControlStateValueOn];
 					} else {
-						if ([menuItem state] != NSOffState)
-							[menuItem setState:NSOffState];
+						if ([menuItem state] != NSControlStateValueOff)
+							[menuItem setState:NSControlStateValueOff];
 					}
 				}
 			}
 		} else {
 			/* General menu items */
 			NSSet *allActiveStatusStates = [adium.statusController allActiveStatusStates];
-			int onState = (([allActiveStatusStates count] == 1) ? NSOnState : NSMixedState);
+			int onState = (([allActiveStatusStates count] == 1) ? NSControlStateValueOn : NSControlStateValueMixed);
 
 			if (menuItemStatusState) {
 				// If this menu item has a status state, set it to the right on state if that state is active
@@ -309,8 +310,8 @@
 					if ([menuItem state] != onState)
 						[menuItem setState:onState];
 				} else {
-					if ([menuItem state] != NSOffState)
-						[menuItem setState:NSOffState];
+					if ([menuItem state] != NSControlStateValueOff)
+						[menuItem setState:NSControlStateValueOff];
 				}
 			} else {
 				// If it doesn't, check the tag to see if it should be on or off by looking for a matching custom state
@@ -328,11 +329,11 @@
 				}
 
 				if (foundCorrectStatusState) {
-					if ([menuItem state] != NSOnState)
+					if ([menuItem state] != NSControlStateValueOn)
 						[menuItem setState:onState];
 				} else {
-					if ([menuItem state] != NSOffState)
-						[menuItem setState:NSOffState];
+					if ([menuItem state] != NSControlStateValueOff)
+						[menuItem setState:NSControlStateValueOff];
 				}
 			}
 		}
@@ -366,9 +367,10 @@
 	 * Selecting a mixed state item should still select it to switch to full-on (all accounts).
 	 */
 	NSEventType eventType = [[NSApp currentEvent] type];
-	BOOL keyEvent = (eventType == NSKeyDown || eventType == NSKeyUp);
+	BOOL keyEvent = (eventType == NSEventTypeKeyDown || eventType == NSEventTypeKeyUp);
 	BOOL isOptionClick = [NSEvent optionKey] && !keyEvent;
-	if (isOptionClick || (([sender state] == NSOnState) && (statusItem.statusType != AIOfflineStatusType))) {
+	if (isOptionClick ||
+		(([sender state] == NSControlStateValueOn) && (statusItem.statusType != AIOfflineStatusType))) {
 		[AIEditStateWindowController editCustomState:(AIStatus *)statusItem
 											 forType:statusItem.statusType
 										  andAccount:account
@@ -428,7 +430,7 @@
 																				group:PREF_GROUP_STATUS_PREFERENCES];
 		NSData *lastStatusStateData = [lastStatusStates objectForKey:[[NSNumber numberWithInt:statusType] stringValue]];
 		AIStatus *lastStatusStateOfThisType =
-			(lastStatusStateData ? [NSKeyedUnarchiver unarchiveObjectWithData:lastStatusStateData] : nil);
+			(lastStatusStateData ? [NSKeyedUnarchiver objectWithArchivedData:lastStatusStateData] : nil);
 		if (lastStatusStateOfThisType) {
 			// Restore the current status message into this last-saved variety, since users tend want to keep them.
 			// If it doesn't exist, use the last-saved status message.
@@ -452,13 +454,12 @@
 #pragma mark Class methods
 + (NSMenu *)staticStatusStatesMenuNotifyingTarget:(id)target selector:(SEL)selector
 {
-	NSMenu *statusStatesMenu = [[NSMenu allocWithZone:[NSMenu menuZone]] init];
+	NSMenu *statusStatesMenu = [[NSMenu alloc] init];
 	NSEnumerator *enumerator;
 	AIStatus *statusState;
 	AIStatusType currentStatusType = AIAvailableStatusType;
 	NSMenuItem *menuItem;
 
-	[statusStatesMenu setMenuChangedMessagesEnabled:NO];
 	[statusStatesMenu setAutoenablesItems:NO];
 
 	if (!target && !selector) {
@@ -503,8 +504,6 @@
 
 		[statusStatesMenu addItem:menuItem];
 	}
-
-	[statusStatesMenu setMenuChangedMessagesEnabled:YES];
 
 	return statusStatesMenu;
 }

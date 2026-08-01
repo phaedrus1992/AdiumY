@@ -48,14 +48,6 @@
 
 	return self;
 }
-- (id)initWithCoder:(NSCoder *)aDecoder
-{
-	if ((self = [super initWithCoder:aDecoder])) {
-		[self _initDockingWindow];
-	}
-
-	return self;
-}
 - (id)init
 {
 	if ((self = [super init])) {

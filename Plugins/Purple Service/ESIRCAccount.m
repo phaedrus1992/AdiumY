@@ -33,7 +33,7 @@
 							   inChat:(AIChat *)chat;
 @end
 
-@interface ESIRCAccount ()
+@interface ESIRCAccount () <NSMenuItemValidation>
 - (void)sendRawCommand:(NSString *)command;
 - (void)apply:(BOOL)apply operation:(NSString *)operation flag:(NSString *)flag;
 

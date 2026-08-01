@@ -21,7 +21,28 @@
 @implementation ESGlassSplitView
 - (void)_initGlassSplitView
 {
-	background =
+	background = [NSImage imageNamed:@"sourceListBackground" forClass:[KNShelfSplitView class]];
+	backgroundSize = [background size];
+
+	[self setNeedsDisplay:YES];
+}
+
+- (id)initWithCoder:(NSCoder *)inCoder
+{
+	if ((self = [super initWithCoder:inCoder])) {
+		[self _initGlassSplitView];
+	}
+
+	return self;
+}
+
+- (id)initWithFrame:(NSRect)frame
+{
+	if ((self = [super initWithFrame:frame])) {
+		[self _initGlassSplitView];
+	}
+
+	return self;
 }
 
 - (void)drawDividerInRect:(NSRect)aRect
@@ -36,12 +57,12 @@
 			sourceRect.size.width = NSWidth(destRect);
 		}
 
-		[background drawInRect:destRect fromRect:sourceRect operation:NSCompositeSourceOver fraction:1.0f];
+		[background drawInRect:destRect fromRect:sourceRect operation:NSCompositingOperationSourceOver fraction:1.0f];
 		destRect.origin.x += NSWidth(destRect);
 	}
 
 	// Draw the borders
-	[[NSColor windowFrameColor] set];
+	[[NSColor separatorColor] set];
 	NSRectFill(NSMakeRect(aRect.origin.x, aRect.origin.y, aRect.size.width, 1.0f));
 	NSRectFill(NSMakeRect(aRect.origin.x, aRect.origin.y + aRect.size.height - 1, aRect.size.width, 1.0f));
 
@@ -54,7 +75,7 @@
 	[ovalPath fill];
 
 	[ovalPath setLineWidth:0];
-	[[NSColor windowFrameColor] set];
+	[[NSColor separatorColor] set];
 	[ovalPath stroke];
 }
 

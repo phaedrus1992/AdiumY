@@ -84,7 +84,7 @@
 		[self setImage:inImage];
 		[self setAlternateTitle:@""];
 		[self setImagePosition:NSImageOnly];
-		[self setButtonType:NSMomentaryChangeButton];
+		[self setButtonType:NSButtonTypeMomentaryChange];
 		[self setBordered:NO];
 	}
 

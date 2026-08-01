@@ -89,6 +89,9 @@ Boolean GetMetadataForHTMLLog(NSMutableDictionary *attributes, NSString *pathToF
 	}
 
 	NSDate *date;
+	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
+	dateFormatter.dateFormat = @"yy-MM-dd";
 
 	if ((date = dateFromHTMLLog(pathToFile))) {
 		[attributes setObject:date forKey:(NSString *)kMDItemContentCreationDate];
@@ -110,10 +113,7 @@ Boolean GetMetadataForHTMLLog(NSMutableDictionary *attributes, NSString *pathToF
 
 	if (toUID) {
 		[attributes setObject:toUID forKey:@"com_github_phaedrus1992_adiumY_chatDestination"];
-		[attributes setObject:[NSString stringWithFormat:@"%@ on %@", toUID,
-														 [date descriptionWithCalendarFormat:@"%y-%m-%d"
-																					timeZone:nil
-																					  locale:nil]]
+		[attributes setObject:[NSString stringWithFormat:@"%@ on %@", toUID, [dateFormatter stringFromDate:date]]
 					   forKey:(NSString *)kMDItemDisplayName];
 	}
 

@@ -102,7 +102,7 @@
 		suppressSendLaterPrompt = NO;
 
 		// Load the view containing our controls
-		[NSBundle loadNibNamed:MESSAGE_VIEW_NIB owner:self];
+		[[NSBundle mainBundle] loadNibNamed:MESSAGE_VIEW_NIB owner:self topLevelObjects:NULL];
 
 		// Register for the various notification we need
 		[[NSNotificationCenter defaultCenter] addObserver:self
@@ -328,8 +328,6 @@
 	[scrollView_messages setDocumentView:[messageDisplayController messageView]];
 	[[scrollView_messages documentView] setFrame:[scrollView_messages visibleRect]];
 
-	[scrollView_messages setAccessibilityChild:[scrollView_messages documentView]];
-
 	[textView_outgoing setNextResponder:view_contents];
 	[[scrollView_messages documentView] setNextResponder:textView_outgoing];
 }
@@ -439,7 +437,7 @@
 																				direction:AIIconNormal]);
 			icon = [icon copy];
 			[alert setIcon:icon];
-			[alert setAlertStyle:NSInformationalAlertStyle];
+			[alert setAlertStyle:NSAlertStyleInformational];
 
 			[alert setMessageText:[NSString
 									  stringWithFormat:
@@ -511,11 +509,14 @@
 			[dontSendButton setKeyEquivalent:@"\E"];
 			[dontSendButton setKeyEquivalentModifierMask:0];
 
+			NSNumber *messageSendingAbilityNumber = [NSNumber numberWithInteger:messageSendingAbility];
+
 			[alert beginSheetModalForWindow:[view_contents window]
-							  modalDelegate:self /* Will release after the sheet ends */
-							 didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
-								contextInfo:[[NSNumber numberWithInteger:messageSendingAbility]
-												retain] /* Will release after the sheet ends */];
+						  completionHandler:^(NSModalResponse returnCode) {
+							  [self alertDidEnd:alert
+									 returnCode:returnCode
+									contextInfo:(__bridge void *)messageSendingAbilityNumber];
+						  }];
 		}
 	}
 }
@@ -525,7 +526,7 @@
  */
 - (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
-	AIChatSendingAbilityType messageSendingAbility = [(NSNumber *)contextInfo intValue];
+	AIChatSendingAbilityType messageSendingAbility = [(__bridge NSNumber *)contextInfo intValue];
 
 	switch (returnCode) {
 	case NSAlertFirstButtonReturn:
@@ -883,7 +884,7 @@
  */
 - (void)addToTextEntryView:(NSAttributedString *)inString
 {
-	[textView_outgoing insertText:inString];
+	[textView_outgoing insertText:inString replacementRange:NSMakeRange(NSNotFound, 0)];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSTextDidChangeNotification object:textView_outgoing];
 }
 

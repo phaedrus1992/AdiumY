@@ -22,6 +22,50 @@
 - (void)installPlugin
 {
 	// We only monitor outgoing messages.
+	[adium.contentController registerContentFilter:self ofType:AIFilterContent direction:AIFilterOutgoing];
+}
+
+- (void)uninstallPlugin
+{
+	[adium.contentController unregisterContentFilter:self];
+}
+
+- (NSAttributedString *)filterAttributedString:(NSAttributedString *)inAttributedString context:(id)context
+{
+	if (!inAttributedString || ![inAttributedString length])
+		return inAttributedString;
+
+	NSMutableAttributedString *mutableString = [inAttributedString mutableCopy];
+
+	if (!defaultRemovedAttributes) {
+		NSFont *defaultFont = [[adium.preferenceController defaultPreferenceForKey:KEY_FORMATTING_FONT
+																			 group:PREF_GROUP_FORMATTING
+																			object:nil] representedFont];
+
+		defaultRemovedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:defaultFont, NSFontAttributeName,
+																			  [NSColor colorWithCalibratedRed:1.0f
+																										green:1.0f
+																										 blue:1.0f
+																										alpha:1.0f],
+																			  NSBackgroundColorAttributeName, nil];
+	}
+
+	for (NSString *attributeName in defaultRemovedAttributes.allKeys) {
+		NSUInteger position = 0;
+
+		while (position < mutableString.length) {
+			NSRange attributeRange;
+			id attributeValue = [mutableString attribute:attributeName atIndex:position effectiveRange:&attributeRange];
+
+			if (attributeValue && [attributeValue isEqualTo:[defaultRemovedAttributes objectForKey:attributeName]]) {
+				[mutableString removeAttribute:attributeName range:attributeRange];
+			}
+
+			position += attributeRange.length;
+		}
+	}
+
+	return mutableString;
 }
 
 /*!

@@ -49,12 +49,13 @@
 										forGroup:PREF_GROUP_DUAL_WINDOW_INTERFACE];
 
 	preferenceMessageAdvController =
+		(ESDualWindowMessageAdvancedPreferences *)[ESDualWindowMessageAdvancedPreferences preferencePane];
 
-		// Watch Adium hide and unhide (Used for better window opening behavior)
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(applicationDidHide:)
-													 name:NSApplicationDidHideNotification
-												   object:NSApp];
+	// Watch Adium hide and unhide (Used for better window opening behavior)
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(applicationDidHide:)
+												 name:NSApplicationDidHideNotification
+											   object:NSApp];
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(applicationDidUnhide:)
 												 name:NSApplicationDidUnhideNotification

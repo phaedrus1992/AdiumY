@@ -2807,10 +2807,10 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host)
 
 	// If titleForContactMenuLabel:forContact: returns nil, we don't add the menuItem
 	if (act && act->label && (title = [self titleForContactMenuLabel:act->label forContact:inContact])) {
-		menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:title
-																		target:self
-																		action:@selector(performContactMenuAction:)
-																 keyEquivalent:@""];
+		menuItem = [[NSMenuItem alloc] initWithTitle:title
+											  target:self
+											  action:@selector(performContactMenuAction:)
+									   keyEquivalent:@""];
 		[menuItem setImage:serviceIcon];
 
 		if (act->data) {
@@ -2948,11 +2948,10 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host)
 						action->plugin = plugin;
 						action->context = purple_account_get_connection(account);
 
-						menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
-							initWithTitle:title
-								   target:self
-								   action:@selector(performAccountMenuAction:)
-							keyEquivalent:@""];
+						menuItem = [[NSMenuItem alloc] initWithTitle:title
+															  target:self
+															  action:@selector(performAccountMenuAction:)
+													   keyEquivalent:@""];
 						dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSValue valueWithPointer:action->callback],
 																		  @"PurplePluginActionCallback",
 																		  [NSValue valueWithPointer:action->user_data],
@@ -3083,16 +3082,18 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host)
 	prpl_info = self.protocolInfo;
 
 	if (prpl_info && prpl_info->unregister_user && [self allowAccountUnregistrationIfSupportedByLibpurple]) {
-		return [NSAlert
-				 alertWithMessageText:AILocalizedString(@"Delete Account", nil)
-						defaultButton:AILocalizedString(@"Delete", nil)
-					  alternateButton:AILocalizedString(@"Cancel", nil)
-						  otherButton:AILocalizedString(@"Delete & Unregister", nil)
-			informativeTextWithFormat:
+		NSAlert *alert = [[NSAlert alloc] init];
+		alert.messageText = AILocalizedString(@"Delete Account", nil);
+		alert.informativeText = [NSString
+			stringWithFormat:
 				AILocalizedString(
 					@"Delete the account %@? You can also optionally unregister the account on the server if possible.",
 					nil),
 				([self.formattedUID length] ? self.formattedUID : NEW_ACCOUNT_DISPLAY_TEXT)];
+		[alert addButtonWithTitle:AILocalizedString(@"Delete", nil)];
+		[alert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+		[alert addButtonWithTitle:AILocalizedString(@"Delete & Unregister", nil)];
+		return alert;
 
 	} else {
 		return [super alertForAccountDeletion];
@@ -3105,15 +3106,18 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host)
 
 	if (prpl_info && prpl_info->unregister_user) {
 		switch (returnCode) {
-		case NSAlertOtherReturn:
+		case NSAlertThirdButtonReturn: {
 			// delete & unregister
-			if (NSRunAlertPanel(AILocalizedString(@"Delete Account from Server", nil),
-								AILocalizedString(@"WARNING! This will delete the account %@ from the Jabber server, "
-												  @"and can not be undone.\nAre you sure you want to proceed?",
-												  nil),
-								AILocalizedString(@"Cancel", nil), AILocalizedString(@"Delete & Unregister", nil), nil,
-								([self.formattedUID length] ? self.formattedUID : NEW_ACCOUNT_DISPLAY_TEXT)) ==
-				NSAlertFirstButtonReturn) {
+			NSAlert *alert = [[NSAlert alloc] init];
+			alert.messageText = AILocalizedString(@"Delete Account from Server", nil);
+			alert.informativeText = [NSString
+				stringWithFormat:AILocalizedString(@"WARNING! This will delete the account %@ from the Jabber server, "
+												   @"and can not be undone.\nAre you sure you want to proceed?",
+												   nil),
+								 ([self.formattedUID length] ? self.formattedUID : NEW_ACCOUNT_DISPLAY_TEXT)];
+			[alert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+			[alert addButtonWithTitle:AILocalizedString(@"Delete & Unregister", nil)];
+			if ([alert runModal] == NSAlertFirstButtonReturn) {
 				if (self.online) {
 					[self unregister];
 				} else {
@@ -3123,7 +3127,8 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host)
 			}
 			// further progress happens in -unregisteredAccount:
 			break;
-		case NSAlertDefaultReturn:
+		}
+		case NSAlertFirstButtonReturn:
 			// delete without unregistering
 			[self performDelete];
 			break;
@@ -3134,7 +3139,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host)
 
 	} else {
 		switch (returnCode) {
-		case NSAlertDefaultReturn:
+		case NSAlertFirstButtonReturn:
 			[self performDelete];
 			break;
 		default:

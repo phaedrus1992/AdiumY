@@ -33,7 +33,7 @@ static guint sourceId = 0; // The next source key; continuously incrementing
  * gross, so three inline wrapper functions are provided to make things nice: sourceForTag, setSourceForTag, and
  * removeSourceForTag. The names should be self-explanatory. No retains or releases are done by them.
  */
-static inline CFMutableDictionaryRef sourceInfoDict()
+static inline CFMutableDictionaryRef sourceInfoDict(void)
 {
 	static CFMutableDictionaryRef _sourceInfoDict;
 	static dispatch_once_t sourceInfoDictToken;

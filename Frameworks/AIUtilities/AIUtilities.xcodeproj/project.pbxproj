@@ -120,35 +120,14 @@
 						<key>ProvisioningStyle</key>
 						<string>Manual</string>
 					</dict>
-					<key>34F3B9510BDF15F40011AB34</key>
+										<key>6334FBFB0F9C11DC003C77A9</key>
 					<dict>
 						<key>DevelopmentTeam</key>
 						<string>VQ6ZEL8UD3</string>
 						<key>ProvisioningStyle</key>
 						<string>Manual</string>
 					</dict>
-					<key>6334FBFB0F9C11DC003C77A9</key>
-					<dict>
-						<key>DevelopmentTeam</key>
-						<string>VQ6ZEL8UD3</string>
-						<key>ProvisioningStyle</key>
-						<string>Manual</string>
-					</dict>
-					<key>F53C25AE0A2F95F100F7B73D</key>
-					<dict>
-						<key>DevelopmentTeam</key>
-						<string>VQ6ZEL8UD3</string>
-						<key>ProvisioningStyle</key>
-						<string>Manual</string>
-					</dict>
-					<key>F5B17CCF0A16C6AC004AE99E</key>
-					<dict>
-						<key>DevelopmentTeam</key>
-						<string>VQ6ZEL8UD3</string>
-						<key>ProvisioningStyle</key>
-						<string>Manual</string>
-					</dict>
-				</dict>
+									</dict>
 			</dict>
 			<key>buildConfigurationList</key>
 			<string>DADE8E3A085507450062B664</string>
@@ -235,9 +214,6 @@
 			<array>
 				<string>6334FBFB0F9C11DC003C77A9</string>
 				<string>349C2EF90867AC97000BF883</string>
-				<string>F5B17CCF0A16C6AC004AE99E</string>
-				<string>F53C25AE0A2F95F100F7B73D</string>
-				<string>34F3B9510BDF15F40011AB34</string>
 				<string>633D4FA30F9D3073004F491E</string>
 			</array>
 		</dict>
@@ -407,73 +383,7 @@
 			<key>targetProxy</key>
 			<string>3437EDA925F3E53B00F99EDC</string>
 		</dict>
-		<key>3437EDAB25F3E53B00F99EDC</key>
-		<dict>
-			<key>containerPortal</key>
-			<string>29B97313FDCFA39411CA2CEA</string>
-			<key>isa</key>
-			<string>PBXContainerItemProxy</string>
-			<key>proxyType</key>
-			<string>1</string>
-			<key>remoteGlobalIDString</key>
-			<string>F5B17CCF0A16C6AC004AE99E</string>
-			<key>remoteInfo</key>
-			<string>Plist Macros</string>
-		</dict>
-		<key>3437EDAC25F3E53B00F99EDC</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXTargetDependency</string>
-			<key>target</key>
-			<string>F5B17CCF0A16C6AC004AE99E</string>
-			<key>targetProxy</key>
-			<string>3437EDAB25F3E53B00F99EDC</string>
-		</dict>
-		<key>3437EDAD25F3E53B00F99EDC</key>
-		<dict>
-			<key>containerPortal</key>
-			<string>29B97313FDCFA39411CA2CEA</string>
-			<key>isa</key>
-			<string>PBXContainerItemProxy</string>
-			<key>proxyType</key>
-			<string>1</string>
-			<key>remoteGlobalIDString</key>
-			<string>F53C25AE0A2F95F100F7B73D</string>
-			<key>remoteInfo</key>
-			<string>Setup Build Directory</string>
-		</dict>
-		<key>3437EDAE25F3E53B00F99EDC</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXTargetDependency</string>
-			<key>target</key>
-			<string>F53C25AE0A2F95F100F7B73D</string>
-			<key>targetProxy</key>
-			<string>3437EDAD25F3E53B00F99EDC</string>
-		</dict>
-		<key>3437EDB125F3E53B00F99EDC</key>
-		<dict>
-			<key>containerPortal</key>
-			<string>29B97313FDCFA39411CA2CEA</string>
-			<key>isa</key>
-			<string>PBXContainerItemProxy</string>
-			<key>proxyType</key>
-			<string>1</string>
-			<key>remoteGlobalIDString</key>
-			<string>34F3B9510BDF15F40011AB34</string>
-			<key>remoteInfo</key>
-			<string>Touch Framework Bundles to Executable Date</string>
-		</dict>
-		<key>3437EDB225F3E53B00F99EDC</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXTargetDependency</string>
-			<key>target</key>
-			<string>34F3B9510BDF15F40011AB34</string>
-			<key>targetProxy</key>
-			<string>3437EDB125F3E53B00F99EDC</string>
-		</dict>
-		<key>3448758D06D1EBDF00DA778C</key>
+										<key>3448758D06D1EBDF00DA778C</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFileReference</string>
@@ -757,123 +667,7 @@
 			<key>sourceTree</key>
 			<string>&lt;absolute&gt;</string>
 		</dict>
-		<key>34F3B9500BDF15F40011AB34</key>
-		<dict>
-			<key>buildActionMask</key>
-			<string>2147483647</string>
-			<key>files</key>
-			<array/>
-			<key>inputPaths</key>
-			<array>
-				<string>$(SRCROOT)/../libpurple.framework/Versions/Current/libpurple</string>
-				<string>$(SRCROOT)/../Growl-WithInstaller/Versions/A/Growl-WithInstaller</string>
-				<string>$(SRCROOT)/../LMX.framework/Versions/A/LMX</string>
-				<string>$(SRCROOT)/../Sparkle.framework/Versions/A/Sparkle</string>
-			</array>
-			<key>isa</key>
-			<string>PBXShellScriptBuildPhase</string>
-			<key>outputPaths</key>
-			<array>
-				<string>$(SRCROOT)/../Growl-WithInstaller.framework</string>
-				<string>$(SRCROOT)/../libpurple.framework</string>
-				<string>$(SRCROOT)/../LMX.framework</string>
-				<string>$(SRCROOT)/../Sparkle.framework</string>
-			</array>
-			<key>runOnlyForDeploymentPostprocessing</key>
-			<string>0</string>
-			<key>shellPath</key>
-			<string>/bin/sh</string>
-			<key>shellScript</key>
-			<string>#############################################################################################
-# Set framework bundles to have their executables' dates, thereby letting Xcode suck less.  #
-#############################################################################################
-touch "$SRCROOT/../libpurple.framework"
-touch "$SRCROOT/../Growl.framework"
-touch "$SRCROOT/../LMX.framework"
-touch "$SRCROOT/../Sparkle.framework"
-</string>
-		</dict>
-		<key>34F3B9510BDF15F40011AB34</key>
-		<dict>
-			<key>buildConfigurationList</key>
-			<string>34F3B95A0BDF16130011AB34</string>
-			<key>buildPhases</key>
-			<array>
-				<string>34F3B9500BDF15F40011AB34</string>
-			</array>
-			<key>dependencies</key>
-			<array/>
-			<key>isa</key>
-			<string>PBXAggregateTarget</string>
-			<key>name</key>
-			<string>Touch Framework Bundles to Executable Date</string>
-			<key>productName</key>
-			<string>Touch Framework Bundles to Executable Date</string>
-		</dict>
-		<key>34F3B95A0BDF16130011AB34</key>
-		<dict>
-			<key>buildConfigurations</key>
-			<array>
-				<string>34F3B95B0BDF16130011AB34</string>
-				<string>34F3B95C0BDF16130011AB34</string>
-				<string>34F3B95D0BDF16130011AB34</string>
-			</array>
-			<key>defaultConfigurationIsVisible</key>
-			<string>0</string>
-			<key>defaultConfigurationName</key>
-			<string>Debug</string>
-			<key>isa</key>
-			<string>XCConfigurationList</string>
-		</dict>
-		<key>34F3B95B0BDF16130011AB34</key>
-		<dict>
-			<key>baseConfigurationReference</key>
-			<string>63C7E1150FAFA35E00B310AC</string>
-			<key>buildSettings</key>
-			<dict>
-				<key>CLANG_ENABLE_OBJC_ARC</key>
-				<string>YES</string>
-				<key>CLANG_ENABLE_OBJC_WEAK</key>
-				<string>YES</string>
-			</dict>
-			<key>isa</key>
-			<string>XCBuildConfiguration</string>
-			<key>name</key>
-			<string>Debug</string>
-		</dict>
-		<key>34F3B95C0BDF16130011AB34</key>
-		<dict>
-			<key>baseConfigurationReference</key>
-			<string>63C7E1150FAFA35E00B310AC</string>
-			<key>buildSettings</key>
-			<dict>
-				<key>CLANG_ENABLE_OBJC_ARC</key>
-				<string>YES</string>
-				<key>CLANG_ENABLE_OBJC_WEAK</key>
-				<string>YES</string>
-			</dict>
-			<key>isa</key>
-			<string>XCBuildConfiguration</string>
-			<key>name</key>
-			<string>Release</string>
-		</dict>
-		<key>34F3B95D0BDF16130011AB34</key>
-		<dict>
-			<key>baseConfigurationReference</key>
-			<string>63C7E1150FAFA35E00B310AC</string>
-			<key>buildSettings</key>
-			<dict>
-				<key>CLANG_ENABLE_OBJC_ARC</key>
-				<string>YES</string>
-				<key>CLANG_ENABLE_OBJC_WEAK</key>
-				<string>YES</string>
-			</dict>
-			<key>isa</key>
-			<string>XCBuildConfiguration</string>
-			<key>name</key>
-			<string>Release-Debug</string>
-		</dict>
-		<key>4D9162362577EB5800930BC8</key>
+														<key>4D9162362577EB5800930BC8</key>
 		<dict>
 			<key>children</key>
 			<array>
@@ -7902,6 +7696,19 @@ touch "$SRCROOT/../Sparkle.framework"
 			<key>sourceTree</key>
 			<string>&lt;absolute&gt;</string>
 		</dict>
+		<key>F1E2D3C4B5A6978890A1B2C3</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>UniformTypeIdentifiers.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/UniformTypeIdentifiers.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
 		<key>633400DF0F9C1501003C77A9</key>
 		<dict>
 			<key>fileRef</key>
@@ -7962,6 +7769,13 @@ touch "$SRCROOT/../Sparkle.framework"
 		<dict>
 			<key>fileRef</key>
 			<string>633400DB0F9C1501003C77A9</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>F1E2D3C4B5A6978890A1B2C4</key>
+		<dict>
+			<key>fileRef</key>
+			<string>F1E2D3C4B5A6978890A1B2C3</string>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
@@ -8202,6 +8016,7 @@ touch "$SRCROOT/../Sparkle.framework"
 				<string>633400E60F9C1501003C77A9</string>
 				<string>633400E70F9C1501003C77A9</string>
 				<string>633400DF0F9C1501003C77A9</string>
+				<string>F1E2D3C4B5A6978890A1B2C4</string>
 			</array>
 			<key>isa</key>
 			<string>PBXFrameworksBuildPhase</string>
@@ -8224,9 +8039,6 @@ touch "$SRCROOT/../Sparkle.framework"
 			<key>dependencies</key>
 			<array>
 				<string>3437EDAA25F3E53B00F99EDC</string>
-				<string>3437EDAC25F3E53B00F99EDC</string>
-				<string>3437EDAE25F3E53B00F99EDC</string>
-				<string>3437EDB225F3E53B00F99EDC</string>
 			</array>
 			<key>isa</key>
 			<string>PBXNativeTarget</string>
@@ -11853,9 +11665,6 @@ touch "$SRCROOT/../Sparkle.framework"
 				<string>63C7E2060FAFAA4700B310AC</string>
 				<string>63C7E2070FAFAA4700B310AC</string>
 				<string>63C7E2080FAFAA4700B310AC</string>
-				<string>63C7E1150FAFA35E00B310AC</string>
-				<string>63C7E1160FAFA35E00B310AC</string>
-				<string>63C7E1170FAFA35E00B310AC</string>
 				<string>63C7E11A0FAFA35E00B310AC</string>
 			</array>
 			<key>isa</key>
@@ -11917,46 +11726,7 @@ touch "$SRCROOT/../Sparkle.framework"
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>63C7E1150FAFA35E00B310AC</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>text.xcconfig</string>
-			<key>path</key>
-			<string>Touch Framework Bundles to Executable Date.xcconfig</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>63C7E1160FAFA35E00B310AC</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>text.xcconfig</string>
-			<key>path</key>
-			<string>Plist Macros.xcconfig</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>63C7E1170FAFA35E00B310AC</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>text.xcconfig</string>
-			<key>path</key>
-			<string>Setup Build Directory.xcconfig</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>63C7E11A0FAFA35E00B310AC</key>
+								<key>63C7E11A0FAFA35E00B310AC</key>
 		<dict>
 			<key>fileEncoding</key>
 			<string>4</string>
@@ -12516,7 +12286,7 @@ touch "$SRCROOT/../Sparkle.framework"
 				<key>GCC_WARN_UNINITIALIZED_AUTOS</key>
 				<string>YES</string>
 				<key>MACOSX_DEPLOYMENT_TARGET</key>
-				<string>11.0</string>
+				<string>12.0</string>
 				<key>OTHER_CFLAGS</key>
 				<string>"$(CFLAGS)"</string>
 				<key>PRODUCT_NAME</key>
@@ -12694,119 +12464,7 @@ touch "$SRCROOT/../Sparkle.framework"
 			<key>sourceTree</key>
 			<string>&lt;absolute&gt;</string>
 		</dict>
-		<key>F53C25AD0A2F95F100F7B73D</key>
-		<dict>
-			<key>buildActionMask</key>
-			<string>2147483647</string>
-			<key>files</key>
-			<array/>
-			<key>inputPaths</key>
-			<array/>
-			<key>isa</key>
-			<string>PBXShellScriptBuildPhase</string>
-			<key>outputPaths</key>
-			<array/>
-			<key>runOnlyForDeploymentPostprocessing</key>
-			<string>0</string>
-			<key>shellPath</key>
-			<string>/bin/sh</string>
-			<key>shellScript</key>
-			<string>SOURCE="$SRCROOT/build"
-if [ "$SOURCE" != "$SYMROOT" ] ; then
-	if [ -d "$SOURCE" ] ; then
-		/bin/rm -Rf "$SOURCE"
-	fi
-	/bin/ln -fs "$SYMROOT" "$SOURCE"
-fi
-</string>
-		</dict>
-		<key>F53C25AE0A2F95F100F7B73D</key>
-		<dict>
-			<key>buildConfigurationList</key>
-			<string>F53C25AF0A2F95F600F7B73D</string>
-			<key>buildPhases</key>
-			<array>
-				<string>F53C25AD0A2F95F100F7B73D</string>
-			</array>
-			<key>dependencies</key>
-			<array/>
-			<key>isa</key>
-			<string>PBXAggregateTarget</string>
-			<key>name</key>
-			<string>Setup Build Directory</string>
-			<key>productName</key>
-			<string>Setup Build Directory</string>
-		</dict>
-		<key>F53C25AF0A2F95F600F7B73D</key>
-		<dict>
-			<key>buildConfigurations</key>
-			<array>
-				<string>F53C25B00A2F95F600F7B73D</string>
-				<string>F53C25B10A2F95F600F7B73D</string>
-				<string>F53C25B20A2F95F600F7B73D</string>
-			</array>
-			<key>defaultConfigurationIsVisible</key>
-			<string>0</string>
-			<key>defaultConfigurationName</key>
-			<string>Debug</string>
-			<key>isa</key>
-			<string>XCConfigurationList</string>
-		</dict>
-		<key>F53C25B00A2F95F600F7B73D</key>
-		<dict>
-			<key>baseConfigurationReference</key>
-			<string>63C7E1170FAFA35E00B310AC</string>
-			<key>buildSettings</key>
-			<dict>
-				<key>CLANG_ENABLE_OBJC_ARC</key>
-				<string>YES</string>
-				<key>CLANG_ENABLE_OBJC_WEAK</key>
-				<string>YES</string>
-				<key>PRODUCT_NAME</key>
-				<string>Setup Build Directory</string>
-			</dict>
-			<key>isa</key>
-			<string>XCBuildConfiguration</string>
-			<key>name</key>
-			<string>Debug</string>
-		</dict>
-		<key>F53C25B10A2F95F600F7B73D</key>
-		<dict>
-			<key>baseConfigurationReference</key>
-			<string>63C7E1170FAFA35E00B310AC</string>
-			<key>buildSettings</key>
-			<dict>
-				<key>CLANG_ENABLE_OBJC_ARC</key>
-				<string>YES</string>
-				<key>CLANG_ENABLE_OBJC_WEAK</key>
-				<string>YES</string>
-				<key>PRODUCT_NAME</key>
-				<string>Setup Build Directory</string>
-			</dict>
-			<key>isa</key>
-			<string>XCBuildConfiguration</string>
-			<key>name</key>
-			<string>Release</string>
-		</dict>
-		<key>F53C25B20A2F95F600F7B73D</key>
-		<dict>
-			<key>baseConfigurationReference</key>
-			<string>63C7E1170FAFA35E00B310AC</string>
-			<key>buildSettings</key>
-			<dict>
-				<key>CLANG_ENABLE_OBJC_ARC</key>
-				<string>YES</string>
-				<key>CLANG_ENABLE_OBJC_WEAK</key>
-				<string>YES</string>
-				<key>PRODUCT_NAME</key>
-				<string>Setup Build Directory</string>
-			</dict>
-			<key>isa</key>
-			<string>XCBuildConfiguration</string>
-			<key>name</key>
-			<string>Release-Debug</string>
-		</dict>
-		<key>F5819CE9032124CE01A8010A</key>
+														<key>F5819CE9032124CE01A8010A</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFileReference</string>
@@ -12818,118 +12476,6 @@ fi
 			<string>/System/Library/Frameworks/AppKit.framework</string>
 			<key>sourceTree</key>
 			<string>&lt;absolute&gt;</string>
-		</dict>
-		<key>F5B17CCE0A16C6AC004AE99E</key>
-		<dict>
-			<key>buildActionMask</key>
-			<string>12</string>
-			<key>files</key>
-			<array/>
-			<key>inputPaths</key>
-			<array/>
-			<key>isa</key>
-			<string>PBXShellScriptBuildPhase</string>
-			<key>outputPaths</key>
-			<array>
-				<string>$(TARGET_BUILD_DIR)/include/PlistMacros.h</string>
-				<string>$(TARGET_BUILD_DIR)/include/DummyFileToForceScriptToRunEveryTimeWithoutBeingCreated</string>
-			</array>
-			<key>runOnlyForDeploymentPostprocessing</key>
-			<string>0</string>
-			<key>shellPath</key>
-			<string>/bin/sh</string>
-			<key>shellScript</key>
-			<string>PATH=$PATH:/usr/local/bin:/usr/bin:/sw/bin:/opt/local/bin
-buildid="`hg parent --template {node\|short}`"
-
-echo "#define BUILDID $buildid" &gt; $SCRIPT_OUTPUT_FILE_0
-echo "#define BUILDDATE `date +%s`" &gt;&gt; $SCRIPT_OUTPUT_FILE_0
-echo "#define WHOAMI `whoami`" &gt;&gt; $SCRIPT_OUTPUT_FILE_0
-
-# Delete the intermediate Info.plist so that Xcode re-preprocesses the Info.plist with our updated macros.
-# Use -f because after a clean build, this file doesn't exist yet, so a plain rm would fail and stop the build.
-rm -f "${CONFIGURATION_TEMP_DIR}/Adium.build/Preprocessed-Info.plist"
-</string>
-		</dict>
-		<key>F5B17CCF0A16C6AC004AE99E</key>
-		<dict>
-			<key>buildConfigurationList</key>
-			<string>F5B17CD70A16C6BA004AE99E</string>
-			<key>buildPhases</key>
-			<array>
-				<string>F5B17CCE0A16C6AC004AE99E</string>
-			</array>
-			<key>dependencies</key>
-			<array/>
-			<key>isa</key>
-			<string>PBXAggregateTarget</string>
-			<key>name</key>
-			<string>Plist Macros</string>
-			<key>productName</key>
-			<string>Plist Macros</string>
-		</dict>
-		<key>F5B17CD70A16C6BA004AE99E</key>
-		<dict>
-			<key>buildConfigurations</key>
-			<array>
-				<string>F5B17CD80A16C6BA004AE99E</string>
-				<string>F5B17CD90A16C6BA004AE99E</string>
-				<string>F5B17CDA0A16C6BA004AE99E</string>
-			</array>
-			<key>defaultConfigurationIsVisible</key>
-			<string>0</string>
-			<key>defaultConfigurationName</key>
-			<string>Debug</string>
-			<key>isa</key>
-			<string>XCConfigurationList</string>
-		</dict>
-		<key>F5B17CD80A16C6BA004AE99E</key>
-		<dict>
-			<key>baseConfigurationReference</key>
-			<string>63C7E1160FAFA35E00B310AC</string>
-			<key>buildSettings</key>
-			<dict>
-				<key>CLANG_ENABLE_OBJC_ARC</key>
-				<string>YES</string>
-				<key>CLANG_ENABLE_OBJC_WEAK</key>
-				<string>YES</string>
-			</dict>
-			<key>isa</key>
-			<string>XCBuildConfiguration</string>
-			<key>name</key>
-			<string>Debug</string>
-		</dict>
-		<key>F5B17CD90A16C6BA004AE99E</key>
-		<dict>
-			<key>baseConfigurationReference</key>
-			<string>63C7E1160FAFA35E00B310AC</string>
-			<key>buildSettings</key>
-			<dict>
-				<key>CLANG_ENABLE_OBJC_ARC</key>
-				<string>YES</string>
-				<key>CLANG_ENABLE_OBJC_WEAK</key>
-				<string>YES</string>
-			</dict>
-			<key>isa</key>
-			<string>XCBuildConfiguration</string>
-			<key>name</key>
-			<string>Release</string>
-		</dict>
-		<key>F5B17CDA0A16C6BA004AE99E</key>
-		<dict>
-			<key>baseConfigurationReference</key>
-			<string>63C7E1160FAFA35E00B310AC</string>
-			<key>buildSettings</key>
-			<dict>
-				<key>CLANG_ENABLE_OBJC_ARC</key>
-				<string>YES</string>
-				<key>CLANG_ENABLE_OBJC_WEAK</key>
-				<string>YES</string>
-			</dict>
-			<key>isa</key>
-			<string>XCBuildConfiguration</string>
-			<key>name</key>
-			<string>Release-Debug</string>
 		</dict>
 	</dict>
 	<key>rootObject</key>

@@ -99,7 +99,7 @@
 		// Draw Image
 		[img drawInRect:targetRect
 			   fromRect:imgRect
-			  operation:NSCompositeSourceOver
+			  operation:NSCompositingOperationSourceOver
 			   fraction:([self isEnabled] ? 1.0f : 0.5f)];
 
 		[NSGraphicsContext restoreGraphicsState];
@@ -109,7 +109,7 @@
 // Super doesn't appear to handle the isHighlighted flag correctly, so we handle it to be safe.
 - (void)setHighlighted:(BOOL)flag
 {
-	[self setState:(flag ? NSOnState : NSOffState)];
+	[self setState:(flag ? NSControlStateValueOn : NSControlStateValueOff)];
 	isHighlighted = flag;
 }
 - (BOOL)isHighlighted

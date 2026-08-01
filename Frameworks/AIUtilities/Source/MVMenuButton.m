@@ -32,9 +32,9 @@
 		toolbarItem = nil;
 		arrowPath = nil;
 		drawsArrow = YES;
-		controlSize = NSRegularControlSize;
+		controlSize = NSControlSizeRegular;
 		[self setBordered:NO];
-		[self setButtonType:NSMomentaryChangeButton];
+		[self setButtonType:NSButtonTypeMomentaryChange];
 	}
 
 	return self;
@@ -68,19 +68,19 @@
 
 	// Update our containing toolbar item's size so it will scale with us
 	switch (controlSize) {
-	case NSRegularControlSize:
+	case NSControlSizeRegular:
 		targetSize = NSMakeSize(32, 32);
 		break;
-	case NSSmallControlSize:
+	case NSControlSizeSmall:
 		targetSize = NSMakeSize(24, 24);
 		break;
-	case NSMiniControlSize:
+	case NSControlSizeMini:
 		targetSize = NSMakeSize(16, 16); /*XXX Numbers right?*/
 		break;
+	default:
+		targetSize = NSMakeSize(32, 32);
+		break;
 	}
-
-	[toolbarItem setMinSize:targetSize];
-	[toolbarItem setMaxSize:targetSize];
 
 	bigImageSize = [bigImage size];
 	if ((bigImageSize.width > targetSize.width) || (bigImageSize.height > targetSize.height)) {
@@ -158,11 +158,11 @@
 
 		arrowPath = [NSBezierPath bezierPath];
 
-		if (controlSize == NSRegularControlSize) {
+		if (controlSize == NSControlSizeRegular) {
 			[arrowPath moveToPoint:NSMakePoint(NSWidth(frame) - 9, NSHeight(frame) - 5)];
 			[arrowPath relativeLineToPoint:NSMakePoint(8, 0)];
 			[arrowPath relativeLineToPoint:NSMakePoint(-4, 5)];
-		} else if (controlSize == NSSmallControlSize) {
+		} else if (controlSize == NSControlSizeSmall) {
 			[arrowPath moveToPoint:NSMakePoint(NSWidth(frame) - 7, NSHeight(frame) - 5)];
 			[arrowPath relativeLineToPoint:NSMakePoint(6, 0)];
 			[arrowPath relativeLineToPoint:NSMakePoint(-3, 4)];
@@ -196,7 +196,7 @@
 										   modifierFlags:[theEvent modifierFlags]
 											   timestamp:[theEvent timestamp]
 											windowNumber:[[theEvent window] windowNumber]
-												 context:[theEvent context]
+												 context:nil
 											 eventNumber:[theEvent eventNumber]
 											  clickCount:[theEvent clickCount]
 												pressure:[theEvent pressure]];
@@ -218,21 +218,6 @@
 - (void)mouseDragged:(NSEvent *)theEvent
 {
 	// Empty
-}
-
-#pragma mark Accessibility
-
-- (id)accessibilityAttributeValue:(NSString *)attribute
-{
-	if ([attribute isEqualToString:NSAccessibilityTitleAttribute]) {
-		return [toolbarItem label];
-	} else if ([attribute isEqualToString:NSAccessibilityHelpAttribute]) {
-		return [toolbarItem toolTip];
-	} else if ([attribute isEqualToString:NSAccessibilityToolbarButtonAttribute]) {
-		return [self toolbarItem];
-	} else {
-		return [super accessibilityAttributeValue:attribute];
-	}
 }
 
 @end

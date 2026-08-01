@@ -15,7 +15,6 @@
  */
 
 #import "AIWebKitMessageViewPlugin.h"
-#import "AIWebKitMessageViewController.h"
 #import "AIWebKitMessageViewWKController.h"
 #import "AIWebkitMessageViewStyle.h"
 #import "ESWebKitMessageViewPreferences.h"
@@ -61,13 +60,13 @@
 																	  forClass:[self class]]
 										forGroup:PREF_GROUP_WEBKIT_GROUP_MESSAGE_DISPLAY];
 
-	preferences =
+	preferences = (ESWebKitMessageViewPreferences *)[ESWebKitMessageViewPreferences preferencePaneForPlugin:self];
 
-		// Observe for installation of new styles
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(xtrasChanged:)
-													 name:AIXtrasDidChangeNotification
-												   object:nil];
+	// Observe for installation of new styles
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(xtrasChanged:)
+												 name:AIXtrasDidChangeNotification
+											   object:nil];
 
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY];
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_WEBKIT_GROUP_MESSAGE_DISPLAY];
@@ -175,7 +174,7 @@
 - (AIWebkitMessageViewStyle *)currentMessageStyleForChat:(AIChat *)chat
 {
 	NSString *loadFromGroup = nil;
-	AIWebkitMessageViewStyle **thisStyle = nil;
+	AIWebkitMessageViewStyle *__strong *thisStyle = nil;
 
 	if (!chat.isGroupChat || useRegularForGroupChat) {
 		if (!currentRegularStyle) {

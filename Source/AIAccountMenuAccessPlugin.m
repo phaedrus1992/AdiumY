@@ -39,10 +39,74 @@
  */
 - (void)installPlugin
 {
-	accountMenu = installedMenuItems = menuItems;
+	accountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountOptionsSubmenu showTitleVerbs:YES];
+
+	NSMenuItem *menuItem = [[NSMenuItem alloc]
+		initWithTitle:
+			[AILocalizedString(
+				@"Connect a Guest Account",
+				"Menu item title which opens the window for adding and connecting a guest (temporary) account")
+				stringByAppendingEllipsis]
+			   target:self
+			   action:@selector(showGuestAccountWindow:)
+		keyEquivalent:@""];
+	[adium.menuController addMenuItem:menuItem toLocation:LOC_File_Additions];
+}
+
+/*!
+ * @brief Uninstall Plugin
+ */
+- (void)uninstallPlugin
+{}
+
+/*!
+ * @brief Add account menu items to our location
+ *
+ * Implemented as required by the AccountMenuPlugin protocol.
+ *
+ * @param menuItemArray An <tt>NSArray</tt> of <tt>NSMenuItem</tt> objects to be added to the menu
+ */
+- (void)accountMenu:(AIAccountMenu *)inAccountMenu didRebuildMenuItems:(NSArray *)menuItems
+{
+	NSMenuItem *menuItem;
+
+	// Remove any existing menu items
+	for (menuItem in installedMenuItems) {
+		[adium.menuController removeMenuItem:menuItem];
+	}
+
+	// Add the new menu items
+	for (menuItem in menuItems) {
+		[adium.menuController addMenuItem:menuItem toLocation:LOC_File_Accounts];
+	}
+
+	// Remember the installed items so we can remove them later
+	installedMenuItems = menuItems;
 }
 - (void)accountMenu:(AIAccountMenu *)inAccountMenu didSelectAccount:(AIAccount *)inAccount
-{}
+{
+	[inAccount toggleOnline];
+}
+
+- (BOOL)accountMenuShouldIncludeAddAccountsMenu:(AIAccountMenu *)inAccountMenu
+{
+	return YES;
+}
+
+- (BOOL)accountMenuShouldIncludeDisabledAccountsMenu:(AIAccountMenu *)inAccountMenu
+{
+	return YES;
+}
+
+- (NSMenuItem *)accountMenuSpecialMenuItem:(AIAccountMenu *)inAccountMenu
+{
+	NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Connect All Accounts", nil)
+													  target:self
+													  action:@selector(connectAllAccounts:)
+											   keyEquivalent:@"R"];
+	[menuItem setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
+	return menuItem;
+}
 
 /*!
  * @brief Connects all offline, enabled acounts

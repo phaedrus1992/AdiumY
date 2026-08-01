@@ -38,7 +38,7 @@
 
 @interface AWEzvXMLStream : NSObject {
     XML_Parser	parser;
-    id <AWEzvXMLStreamProtocol>	delegate;
+    __weak id <AWEzvXMLStreamProtocol>	delegate;
     NSFileHandle *connection;
     AWEzvStack	*nodeStack;
     int		initiator, negotiated;

@@ -103,7 +103,7 @@
 
 	NSMutableAttributedString *text = nil;
 	if (_showPointSize) {
-#warning 64BIT: Check formatting arguments
+		// WARNING: 64BIT: Check formatting arguments
 		text = [[[NSMutableAttributedString alloc]
 			initWithString:[NSString
 							   stringWithFormat:@"%@ %.0f",

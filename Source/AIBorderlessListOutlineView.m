@@ -26,19 +26,19 @@
 {
 	if (![theEvent cmdKey]) {
 		// Wait for the next event
-		NSEvent *nextEvent =
-			[[self window] nextEventMatchingMask:(NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSPeriodicMask)
-									   untilDate:[NSDate distantFuture]
-										  inMode:NSEventTrackingRunLoopMode
-										 dequeue:NO];
+		NSEvent *nextEvent = [[self window]
+			nextEventMatchingMask:(NSEventMaskLeftMouseUp | NSEventMaskLeftMouseDragged | NSEventMaskPeriodic)
+						untilDate:[NSDate distantFuture]
+						   inMode:NSEventTrackingRunLoopMode
+						  dequeue:NO];
 
 		// Pass along the event (either to ourself or our window, depending on what it is)
 		switch ([nextEvent type]) {
-		case NSLeftMouseUp:
+		case NSEventTypeLeftMouseUp:
 			[super mouseDown:theEvent];
 			[super mouseUp:nextEvent];
 			break;
-		case NSLeftMouseDragged:
+		case NSEventTypeLeftMouseDragged:
 			[[self window] mouseDown:theEvent];
 			[[self window] mouseDragged:nextEvent];
 			break;

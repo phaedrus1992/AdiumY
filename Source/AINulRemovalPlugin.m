@@ -23,13 +23,44 @@
 - (void)installPlugin
 {
 	// Register us as a filter
-}
-else
-{
-	nulFreeAttributedString = inAttributedString;
+	[adium.contentController registerContentFilter:self ofType:AIFilterContent direction:AIFilterIncoming];
+	[adium.contentController registerContentFilter:self ofType:AIFilterContent direction:AIFilterOutgoing];
 }
 
-return nulFreeAttributedString;
+- (void)uninstallPlugin
+{
+	[adium.contentController unregisterContentFilter:self];
+}
+
+- (NSAttributedString *)filterAttributedString:(NSAttributedString *)inAttributedString context:(id)context
+{
+	if (!inAttributedString || ![inAttributedString length])
+		return inAttributedString;
+
+	// Don't allow embedded NULs
+	static NSString *nulString = nil;
+	if (!nulString) {
+		UInt8 bytes[1];
+		bytes[0] = '\0';
+		nulString =
+			CFBridgingRelease(CFStringCreateWithBytes(kCFAllocatorDefault, bytes, 1, kCFStringEncodingASCII, false));
+	}
+
+	NSAttributedString *nulFreeAttributedString;
+
+	if ([[inAttributedString string] rangeOfString:nulString options:NSLiteralSearch].location != NSNotFound) {
+		NSMutableAttributedString *temporaryString = [inAttributedString mutableCopy];
+		[temporaryString replaceOccurrencesOfString:nulString
+										 withString:@""
+											options:NSLiteralSearch
+											  range:NSMakeRange(0, [temporaryString length])];
+		nulFreeAttributedString = temporaryString;
+
+	} else {
+		nulFreeAttributedString = inAttributedString;
+	}
+
+	return nulFreeAttributedString;
 }
 
 /*!

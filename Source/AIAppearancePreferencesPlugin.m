@@ -209,9 +209,12 @@
 
 		return YES;
 	} else {
-		NSRunAlertPanel(AILocalizedString(@"Error Saving Theme", nil),
-						AILocalizedString(@"Unable to write file %@ to %@", nil), AILocalizedString(@"OK", nil), nil,
-						nil, fileName, path);
+		NSAlert *errorSavingThemeAlert = [[NSAlert alloc] init];
+		errorSavingThemeAlert.messageText = AILocalizedString(@"Error Saving Theme", nil);
+		errorSavingThemeAlert.informativeText =
+			[NSString stringWithFormat:AILocalizedString(@"Unable to write file %@ to %@", nil), fileName, path];
+		[errorSavingThemeAlert addButtonWithTitle:AILocalizedString(@"OK", nil)];
+		[errorSavingThemeAlert runModal];
 		return NO;
 	}
 }
@@ -288,7 +291,7 @@ NSInteger availableSetSort(NSDictionary *objectA, NSDictionary *objectB, void *c
 	NSMutableArray *setArray = [NSMutableArray array];
 	NSMutableSet *alreadyAddedArray = [NSMutableSet set];
 
-	for (NSString *filePath in [adium allResourcesForName:folder withExtensions:extension]) {
+	for (NSString *__strong filePath in [adium allResourcesForName:folder withExtensions:extension]) {
 		NSString *name;
 		NSBundle *xtraBundle;
 		NSDictionary *themeDict;

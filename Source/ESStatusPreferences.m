@@ -32,7 +32,7 @@
 
 #define STATE_DRAG_TYPE @"AIState"
 
-@interface ESStatusPreferences ()
+@interface ESStatusPreferences () <NSControlTextEditingDelegate>
 - (void)configureOtherControls;
 - (void)configureAutoAwayStatusStatePopUp;
 - (void)saveTimeValues;
@@ -46,8 +46,6 @@
 - (BOOL)addItemIfNeeded:(NSMenuItem *)menuItem
 		   toPopUpButton:(NSPopUpButton *)popUpButton
 	alreadyShowingAnItem:(BOOL)alreadyShowing;
-
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 
 - (void)newState;
 - (void)deleteState;
@@ -83,8 +81,7 @@
 	[outlineView_stateList setDrawsBackground:NO];
 	[outlineView_stateList setUsesAlternatingRowBackgroundColors:YES];
 
-	[outlineView_stateList accessibilitySetOverrideValue:AILocalizedString(@"Statuses", nil)
-											forAttribute:NSAccessibilityTitleAttribute];
+	[outlineView_stateList setAccessibilityTitle:AILocalizedString(@"Statuses", nil)];
 
 	/* Register as an observer of state array changes so we can refresh our list
 	 * in response to changes. */
@@ -273,25 +270,21 @@
 							 numberOfItems];
 
 		// Warn if deleting a group containing status items
-		NSBeginAlertSheet(AILocalizedString(@"Status Deletion Confirmation", nil), AILocalizedString(@"Delete", nil),
-						  AILocalizedString(@"Cancel", nil), nil, [[self view] window], self,
-						  @selector(sheetDidEnd:returnCode:contextInfo:), NULL, (void *)CFBridgingRetain(selectedItems),
-						  @"%@", message);
-	}
-}
+		NSAlert *alert = [[NSAlert alloc] init];
+		[alert setMessageText:AILocalizedString(@"Status Deletion Confirmation", nil)];
+		[alert addButtonWithTitle:AILocalizedString(@"Delete", nil)];
+		[alert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+		[alert setInformativeText:message];
+		[alert beginSheetModalForWindow:[[self view] window]
+					  completionHandler:^(NSModalResponse returnCode) {
+						  if (returnCode == NSAlertFirstButtonReturn) {
+							  AIStatusItem *statusItem;
 
-/*!
- * @brief Confirmed a status item deletion operation
- */
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
-{
-	NSArray *selectedItems = CFBridgingRelease(contextInfo);
-	if (returnCode == NSAlertDefaultReturn) {
-		AIStatusItem *statusItem;
-
-		for (statusItem in selectedItems) {
-			[[statusItem containingStatusGroup] removeStatusItem:statusItem];
-		}
+							  for (statusItem in selectedItems) {
+								  [[statusItem containingStatusGroup] removeStatusItem:statusItem];
+							  }
+						  }
+					  }];
 	}
 }
 
@@ -661,17 +654,17 @@
 {
 	BOOL idleControlsEnabled, autoAwayControlsEnabled;
 
-	idleControlsEnabled = ([checkBox_idle state] == NSOnState);
+	idleControlsEnabled = ([checkBox_idle state] == NSControlStateValueOn);
 	[textField_idleMinutes setEnabled:idleControlsEnabled];
 	[stepper_idleMinutes setEnabled:idleControlsEnabled];
 
-	autoAwayControlsEnabled = ([checkBox_autoAway state] == NSOnState);
+	autoAwayControlsEnabled = ([checkBox_autoAway state] == NSControlStateValueOn);
 	[popUp_autoAwayStatusState setEnabled:autoAwayControlsEnabled];
 	[textField_autoAwayMinutes setEnabled:autoAwayControlsEnabled];
 	[stepper_autoAwayMinutes setEnabled:autoAwayControlsEnabled];
 
-	[popUp_fastUserSwitchingStatusState setEnabled:([checkBox_fastUserSwitching state] == NSOnState)];
-	[popUp_screenSaverStatusState setEnabled:([checkBox_screenSaver state] == NSOnState)];
+	[popUp_fastUserSwitchingStatusState setEnabled:([checkBox_fastUserSwitching state] == NSControlStateValueOn)];
+	[popUp_screenSaverStatusState setEnabled:([checkBox_screenSaver state] == NSControlStateValueOn)];
 }
 
 /*!

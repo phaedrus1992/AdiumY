@@ -471,7 +471,7 @@ nothing.
  *
  * The AIMessageDisplayController is informed when the message view which is using it is closing.
  *
- * This is, for example, the AIWebKitMessageViewController.
+ * This is, for example, the AIWebKitMessageViewWKController.
  */
 @protocol AIMessageDisplayController <NSObject>
 - (void)setChatContentSource:(NSString *)source;

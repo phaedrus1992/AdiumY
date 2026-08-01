@@ -16,6 +16,7 @@
 
 #import "AIImageViewWithImagePicker.h"
 #import <Quartz/Quartz.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 #import "AIApplicationAdditions.h"
 #import "AIFileManagerAdditions.h"
@@ -29,7 +30,7 @@
 
 @class IKPictureTakerRecentPicture;
 
-@interface AIImageViewWithImagePicker ()
+@interface AIImageViewWithImagePicker () <NSDraggingSource, NSFilePromiseProviderDelegate>
 
 - (void)_initImageViewWithImagePicker;
 - (void)showPictureTaker;
@@ -183,10 +184,11 @@
 		NSEvent *nextEvent;
 
 		// Wait for the next event
-		nextEvent = [[self window] nextEventMatchingMask:(NSLeftMouseUpMask | NSLeftMouseDraggedMask | NSPeriodicMask)
-											   untilDate:[NSDate distantFuture]
-												  inMode:NSEventTrackingRunLoopMode
-												 dequeue:NO];
+		nextEvent = [[self window]
+			nextEventMatchingMask:(NSEventMaskLeftMouseUp | NSEventMaskLeftMouseDragged | NSEventMaskPeriodic)
+						untilDate:[NSDate distantFuture]
+						   inMode:NSEventTrackingRunLoopMode
+						  dequeue:NO];
 
 		mouseDownPos = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 
@@ -195,7 +197,7 @@
 		 * we don't have to handle it ourselves -- instead, the event loop will handle it after this invocation is
 		 * complete.
 		 */
-		if ([nextEvent type] != NSLeftMouseDragged) {
+		if ([nextEvent type] != NSEventTypeLeftMouseDragged) {
 			[super mouseDown:theEvent];
 		}
 
@@ -247,67 +249,31 @@
 		return;
 	}
 
-	// Start the drag
-	[self dragPromisedFilesOfTypes:[NSArray arrayWithObject:@"png"]
-						  fromRect:NSZeroRect
-							source:self
-						 slideBack:YES
-							 event:theEvent];
-}
+	// Start the drag, promising the image as a PNG file
+	NSFilePromiseProvider *promiseProvider = [[NSFilePromiseProvider alloc] initWithFileType:@"public.png"
+																					delegate:self];
+	NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter:promiseProvider];
 
-- (void)dragImage:(NSImage *)anImage
-			   at:(NSPoint)imageLoc
-		   offset:(NSSize)mouseOffset
-			event:(NSEvent *)theEvent
-	   pasteboard:(NSPasteboard *)pboard
-		   source:(id)sourceObject
-		slideBack:(BOOL)slideBack
-{
-	[pboard addTypes:[NSArray arrayWithObjects:NSTIFFPboardType, NSPDFPboardType, nil] owner:self];
-
-	NSImage *dragImage = [[NSImage alloc] initWithSize:[[self image] size]];
-
-	// Draw our original image as 50% transparent
-	[dragImage lockFocus];
-	[[self image] drawAtPoint:NSZeroPoint
-					 fromRect:NSMakeRect(0, 0, self.image.size.width, self.image.size.height)
-					operation:NSCompositeCopy
-					 fraction:0.5f];
-	[dragImage unlockFocus];
-
-	// Change to the size we are displaying
+	// Use a semi-transparent copy of the image as the drag representation
+	NSImage *dragImage = [[self image] copy];
 	[dragImage setSize:[self bounds].size];
 
-	[super dragImage:dragImage
-				  at:imageLoc
-			  offset:mouseOffset
-			   event:theEvent
-		  pasteboard:pboard
-			  source:sourceObject
-		   slideBack:slideBack];
+	NSImage *ghostImage = [[NSImage alloc] initWithSize:[self bounds].size];
+	[ghostImage lockFocus];
+	[dragImage drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositingOperationCopy fraction:0.5f];
+	[ghostImage unlockFocus];
+	[dragItem setDraggingFrame:[self bounds] contents:ghostImage];
+
+	[self beginDraggingSessionWithItems:[NSArray arrayWithObject:dragItem] event:theEvent source:self];
 }
 
 /*
  * @brief Declare what operations we can participate in as a drag and drop source
  */
-- (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)flag
+- (NSDragOperation)draggingSession:(NSDraggingSession *)session
+	sourceOperationMaskForDraggingContext:(NSDraggingContext)context
 {
 	return NSDragOperationCopy;
-}
-
-/*
- * @brief Method called to support drag types we said we could offer
- */
-- (void)pasteboard:(NSPasteboard *)sender provideDataForType:(NSString *)type
-{
-	// sender has accepted the drag and now we need to send the data for the type we promised
-	if ([type isEqualToString:NSTIFFPboardType]) {
-		// set data for TIFF type on the pasteboard as requested
-		[sender setData:[[self image] TIFFRepresentation] forType:NSTIFFPboardType];
-
-	} else if ([type isEqualToString:NSPDFPboardType]) {
-		[sender setData:[self dataWithPDFInsideRect:[self bounds]] forType:NSPDFPboardType];
-	}
 }
 
 /*
@@ -334,7 +300,10 @@
 	}
 }
 
-- (NSArray *)namesOfPromisedFilesDroppedAtDestination:(NSURL *)inDropDestination
+/*
+ * @brief Provide the name under which the promised PNG file will be written
+ */
+- (NSString *)filePromiseProvider:(NSFilePromiseProvider *)filePromiseProvider fileNameForType:(NSString *)fileType
 {
 	NSString *name = nil;
 	if ([[self delegate] respondsToSelector:@selector(fileNameForImageInImagePicker:)]) {
@@ -346,14 +315,23 @@
 	if (!name)
 		name = NSLocalizedString(@"Picture", nil);
 
-	name = [name stringByAppendingPathExtension:@"png"];
+	return [name stringByAppendingPathExtension:@"png"];
+}
 
-	NSString *fullPath = [[inDropDestination path] stringByAppendingPathComponent:name];
-	fullPath = [[NSFileManager defaultManager] uniquePathForPath:fullPath];
+/*
+ * @brief Write the promised PNG file for a completed drag
+ */
+- (void)filePromiseProvider:(NSFilePromiseProvider *)filePromiseProvider
+		  writePromiseToURL:(NSURL *)url
+		  completionHandler:(void (^)(NSError *))completionHandler
+{
+	NSError *error = nil;
 
-	[[[self image] bestRepresentationByType] writeToFile:fullPath atomically:YES];
+	if (![[[self image] bestRepresentationByType] writeToFile:[url path] atomically:YES]) {
+		error = [NSError errorWithDomain:NSCocoaErrorDomain code:NSFileWriteUnknownError userInfo:nil];
+	}
 
-	return [NSArray arrayWithObject:[fullPath lastPathComponent]];
+	completionHandler(error);
 }
 
 /*
@@ -435,8 +413,8 @@
 {
 	NSImage *image = [self image];
 	if (image) {
-		[[NSPasteboard generalPasteboard] declareTypes:[NSArray arrayWithObject:NSTIFFPboardType] owner:nil];
-		[[NSPasteboard generalPasteboard] setData:[image TIFFRepresentation] forType:NSTIFFPboardType];
+		[[NSPasteboard generalPasteboard] declareTypes:[NSArray arrayWithObject:NSPasteboardTypeTIFF] owner:nil];
+		[[NSPasteboard generalPasteboard] setData:[image TIFFRepresentation] forType:NSPasteboardTypeTIFF];
 	}
 }
 
@@ -446,7 +424,8 @@
 - (void)paste:(id)sender
 {
 	NSPasteboard *pb = [NSPasteboard generalPasteboard];
-	NSString *type = [pb availableTypeFromArray:[NSArray arrayWithObjects:NSTIFFPboardType, NSPDFPboardType, nil]];
+	NSString *type =
+		[pb availableTypeFromArray:[NSArray arrayWithObjects:NSPasteboardTypeTIFF, NSPasteboardTypePDF, nil]];
 	BOOL success = NO;
 
 	NSData *imageData = (type ? [pb dataForType:type] : nil);
@@ -523,7 +502,7 @@
 				returnCode:(NSInteger)returnCode
 			   contextInfo:(void *)contextInfo;
 {
-	if (returnCode == NSOKButton) {
+	if (returnCode == NSModalResponseOK) {
 		NSImage *image = [inPictureTaker outputImage];
 
 		// Update the NSImageView
@@ -606,9 +585,14 @@
 		openPanel = [NSOpenPanel openPanel];
 		[openPanel setTitle:AILocalizedStringFromTableInBundle(
 								@"Select Image", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil)];
-		[openPanel setAllowedFileTypes:[NSImage imageFileTypes]];
+		NSArray<NSString *> *imageTypes = [NSImage imageTypes];
+		NSMutableArray<UTType *> *contentTypes = [NSMutableArray arrayWithCapacity:[imageTypes count]];
+		for (NSString *uti in imageTypes) {
+			[contentTypes addObject:[UTType typeWithIdentifier:uti]];
+		}
+		[openPanel setAllowedContentTypes:contentTypes];
 
-		if ([openPanel runModal] == NSOKButton) {
+		if ([openPanel runModal] == NSModalResponseOK) {
 			NSData *imageData;
 			NSImage *image;
 			NSSize imageSize;

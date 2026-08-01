@@ -18,4 +18,4 @@
 
 PurpleCoreUiOps *adium_purple_core_get_ops(void);
 
-void configurePurpleDebugLogging();
+void configurePurpleDebugLogging(void);

@@ -44,14 +44,12 @@
 	id<AIProgressDataUploaderDelegate> delegate;
 	id context;
 
-	CFReadStreamRef stream;
+	NSURLSession *session;
+	NSURLSessionUploadTask *uploadTask;
 	NSMutableData *returnedData;
 
 	NSInteger totalSize;
 	NSInteger bytesSent;
-
-	NSTimer *timeoutTimer;
-	NSTimer *periodicTimer;
 }
 
 + (id)dataUploaderWithData:(NSData *)uploadData

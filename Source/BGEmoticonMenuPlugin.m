@@ -25,7 +25,7 @@
 #import <Adium/AIMenuControllerProtocol.h>
 #import <Adium/AIToolbarControllerProtocol.h>
 
-@interface BGEmoticonMenuPlugin ()
+@interface BGEmoticonMenuPlugin () <NSMenuItemValidation>
 - (void)registerToolbarItem;
 - (IBAction)dummyTarget:(id)sender;
 - (void)insertEmoticon:(id)sender;
@@ -51,13 +51,152 @@
 - (void)installPlugin
 {
 	// init the menus and menuItems
-	quickMenuItem =
+	quickMenuItem = [[NSMenuItem alloc] initWithTitle:TITLE_INSERT_EMOTICON
+											   target:self
+											   action:@selector(dummyTarget:)
+										keyEquivalent:@""];
+	quickContextualMenuItem = [[NSMenuItem alloc] initWithTitle:TITLE_INSERT_EMOTICON
+														 target:self
+														 action:@selector(dummyTarget:)
+												  keyEquivalent:@""];
+
+	/* Create a submenu for these so menu:updateItem:atIndex:shouldCancel: will be called
+	 * to populate them later. Don't need to check respondsToSelector:@selector(setDelegate:).
+	 */
+	NSMenu *tempMenu;
+	tempMenu = [[NSMenu alloc] init];
+	[tempMenu setDelegate:self];
+	[quickMenuItem setSubmenu:tempMenu];
+
+	tempMenu = [[NSMenu alloc] init];
+	[tempMenu setDelegate:self];
+	[quickContextualMenuItem setSubmenu:tempMenu];
+
+	// add the items to their menus.
+	[adium.menuController addContextualMenuItem:quickContextualMenuItem toLocation:Context_TextView_Edit];
+	[adium.menuController addMenuItem:quickMenuItem toLocation:LOC_Edit_Additions];
+
+	toolbarItems = [[NSMutableSet alloc] init];
+	[self registerToolbarItem];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(toolbarWillAddItem:)
+												 name:NSToolbarWillAddItemNotification
+											   object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(toolbarDidRemoveItem:)
+												 name:NSToolbarDidRemoveItemNotification
+											   object:nil];
 }
+
+/*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[adium.preferenceController unregisterPreferenceObserver:self];
 }
+
+/*!
+ * @brief Add the emoticon menu as an item goes into a toolbar
+ */
+- (void)toolbarWillAddItem:(NSNotification *)notification
+{
+	NSToolbarItem *item = [[notification userInfo] objectForKey:@"item"];
+
+	if ([[item itemIdentifier] isEqualToString:TOOLBAR_EMOTICON_IDENTIFIER]) {
+		NSMenu *theEmoticonMenu = [[NSMenu alloc] init];
+
+		[theEmoticonMenu setDelegate:self];
+
+		// Add menu to view
+		[[item view] setMenu:theEmoticonMenu];
+
+		// Add menu to toolbar item (for text mode)
+		NSMenuItem *mItem = [[NSMenuItem alloc] init];
+		[mItem setSubmenu:theEmoticonMenu];
+		[mItem setTitle:TITLE_EMOTICON];
+		[item setMenuFormRepresentation:mItem];
+
+		[toolbarItems addObject:item];
+	}
+}
+
+/*!
+ * @brief Stop tracking when an item is removed from a toolbar
+ */
+- (void)toolbarDidRemoveItem:(NSNotification *)notification
+{
+	NSToolbarItem *item = [[notification userInfo] objectForKey:@"item"];
+	if ([[item itemIdentifier] isEqualToString:TOOLBAR_EMOTICON_IDENTIFIER]) {
+		[item setView:nil];
+		[toolbarItems removeObject:item];
+	}
+}
+
+/*!
+ * @brief Register our toolbar item
+ */
+- (void)registerToolbarItem
+{
+	NSToolbarItem *toolbarItem;
+	MVMenuButton *button;
+
+	// Register our toolbar item
+	button = [[MVMenuButton alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
+	[button setImage:[NSImage imageNamed:@"emoticon32" forClass:[self class] loadLazily:YES]];
+	toolbarItem = [AIToolbarUtilities toolbarItemWithIdentifier:TOOLBAR_EMOTICON_IDENTIFIER
+														  label:TITLE_EMOTICON
+												   paletteLabel:TITLE_INSERT_EMOTICON
+														toolTip:TOOLTIP_INSERT_EMOTICON
+														 target:self
+												settingSelector:@selector(setView:)
+													itemContent:button
+														 action:@selector(insertEmoticon:)
+														   menu:nil];
+	[button setToolbarItem:toolbarItem];
+	[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"TextEntry"];
+}
+
+// Menu Generation
+#pragma mark Menu Generation
+
+/*!
+ * @brief Build a flat emoticon menu for a single pack
+ *
+ * @result A menu for the pack
+ */
+- (NSMenu *)flatEmoticonMenuForPack:(AIEmoticonPack *)incomingPack
+{
+	NSMenu *packMenu = [[NSMenu alloc] initWithTitle:TITLE_EMOTICON];
+
+	// loop through each emoticon and add a menu item for each
+	for (AIEmoticon *anEmoticon in incomingPack.emoticons) {
+		if (anEmoticon.isEnabled) {
+			NSArray *textEquivalents = [anEmoticon textEquivalents];
+			NSString *textEquivalent;
+			if ([textEquivalents count]) {
+				textEquivalent = [textEquivalents objectAtIndex:0];
+			} else {
+				textEquivalent = @"";
+			}
+			NSString *menuTitle = [NSString stringWithFormat:@"%@ %@", [anEmoticon name], textEquivalent];
+			NSMenuItem *newItem = [[NSMenuItem alloc] initWithTitle:menuTitle
+															 target:self
+															 action:@selector(insertEmoticon:)
+													  keyEquivalent:@""];
+
+			[newItem setImage:[[anEmoticon image] imageByScalingForMenuItem]];
+			[newItem setRepresentedObject:anEmoticon];
+			[packMenu addItem:newItem];
+		}
+	}
+
+	return packMenu;
 }
 
 // Menu Control
-// ---------------------------------------------------------------------------------------------------------
 #pragma mark Menu Control
 /*!
  * @brief Insert an emoticon into the first responder if possible

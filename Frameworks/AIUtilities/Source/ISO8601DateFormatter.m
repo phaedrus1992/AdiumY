@@ -74,7 +74,7 @@ bool ISO8601DateFormatter_GlobalCachesAreWarm(void)
 
 - (NSCalendar *)makeCalendarWithDesiredConfiguration
 {
-	NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+	NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
 	calendar.firstWeekday = 2; // Monday
 	calendar.timeZone = [NSTimeZone defaultTimeZone];
 	return calendar;
@@ -210,7 +210,7 @@ static BOOL is_leap_year(NSUInteger year);
 
 	NSDateComponents *components = [[NSDateComponents alloc] init];
 	NSDateComponents *nowComponents =
-		[parsingCalendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit) fromDate:now];
+		[parsingCalendar components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay) fromDate:now];
 
 	NSUInteger
 		// Date
@@ -841,14 +841,14 @@ static BOOL is_leap_year(NSUInteger year);
 {
 	unparsingCalendar.timeZone = timeZone;
 	NSDateComponents *components =
-		[unparsingCalendar components:NSYearCalendarUnit | NSWeekdayCalendarUnit | NSDayCalendarUnit fromDate:date];
+		[unparsingCalendar components:NSCalendarUnitYear | NSCalendarUnitWeekday | NSCalendarUnitDay fromDate:date];
 
 	// Determine the ordinal date.
-	NSDateComponents *startOfYearComponents = [unparsingCalendar components:NSYearCalendarUnit fromDate:date];
+	NSDateComponents *startOfYearComponents = [unparsingCalendar components:NSCalendarUnitYear fromDate:date];
 	startOfYearComponents.month = 1;
 	startOfYearComponents.day = 1;
 	NSDateComponents *ordinalComponents =
-		[unparsingCalendar components:NSDayCalendarUnit
+		[unparsingCalendar components:NSCalendarUnitDay
 							 fromDate:[unparsingCalendar dateFromComponents:startOfYearComponents]
 							   toDate:date
 							  options:0];

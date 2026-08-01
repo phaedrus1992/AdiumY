@@ -33,13 +33,12 @@
 #import <Adium/AIListBookmark.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIListObject.h>
+#import <Adium/AIStatus.h>
 #import <Adium/AIStatusControllerProtocol.h>
 #import <Adium/AIStatusIcons.h>
 // For the KEY_SHOW_OFFLINE_CONTACTS and PREF_GROUP_CONTACT_LIST_DISPLAY
 #import "AIContactController.h"
 #import "AIInterfaceController.h"
-
-#define STATUS_ITEM_MARGIN 8
 
 @interface CBStatusMenuItemController ()
 - (void)activateAdium;
@@ -48,7 +47,7 @@
 - (void)updateMenuIconsBundle;
 - (void)updateUnreadCount;
 - (void)updateOpenChats;
-- (void)updateStatusItemLength;
+- (void)statusItemClicked:(id)sender;
 
 - (void)switchToChat:(id)sender;
 - (void)activateAccountList:(id)sender;
@@ -70,11 +69,12 @@
 {
 	if ((self = [super init])) {
 		// Create and set up the status item
-		statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:25];
+		statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
 
-		statusItemView = [[AIStatusItemView alloc] initWithFrame:NSMakeRect(0, 0, 25, 22)];
-		statusItemView.statusItem = statusItem;
-		[statusItem setView:statusItemView];
+		NSStatusBarButton *statusItemButton = [statusItem button];
+		[statusItemButton setTarget:self];
+		[statusItemButton setAction:@selector(statusItemClicked:)];
+		[statusItemButton sendActionOn:NSEventMaskLeftMouseDown | NSEventMaskRightMouseDown];
 
 		unviewedContent = NO;
 		[self updateMenuIconsBundle];
@@ -89,20 +89,16 @@
 		mainOptionsMenu = [[NSMenu alloc] init];
 		[mainOptionsMenu setDelegate:self];
 
-		// Set the main menu as the status item's menu
-		statusItemView.menu = mainMenu;
-
 		// Flag all the menus as needing updates
 		mainMenuNeedsUpdate = YES;
 		contactsMenuNeedsUpdate = YES;
 		accountsMenuNeedsUpdate = YES;
 		optionsMenuNeedsUpdate = YES;
 
-		self.contactsMenuItem =
-			[[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Contacts", nil)
-																  target:self
-																  action:nil
-														   keyEquivalent:@""];
+		self.contactsMenuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Contacts", nil)
+														   target:self
+														   action:nil
+													keyEquivalent:@""];
 
 		NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 		// Register to recieve chat opened and chat closed notifications
@@ -147,8 +143,8 @@
 
 		// Account menu
 		accountMenu = [AIAccountMenu accountMenuWithDelegate:self
-												  submenuType:AIAccountStatusSubmenu
-											   showTitleVerbs:YES];
+												 submenuType:AIAccountStatusSubmenu
+											  showTitleVerbs:YES];
 
 		// Contact menu
 		contactMenu = [AIContactMenu contactMenuWithDelegate:self forContactsInObject:nil];
@@ -241,9 +237,9 @@
 
 	// Only show if enabled and greater-than zero; otherwise, set to nil.
 	if (showUnreadCount && unreadCount > 0) {
-		[statusItemView setStringValue:[NSString stringWithFormat:@"%lu", unreadCount]];
+		[[statusItem button] setTitle:[NSString stringWithFormat:@"%lu", unreadCount]];
 	} else {
-		[statusItemView setStringValue:nil];
+		[[statusItem button] setTitle:@""];
 	}
 }
 
@@ -352,25 +348,13 @@
 	NSImage *alternateMenuIcon = [menuIcons imageOfType:imageName alternate:YES];
 
 	// Set our icon.
-	statusItemView.regularImage = [self badgeDuck:menuIcon withImage:badge];
+	[[statusItem button] setImage:[self badgeDuck:menuIcon withImage:badge]];
 	// Badge the highlight image and set it.
-	statusItemView.alternateImage = [self badgeDuck:alternateMenuIcon withImage:badge];
+	[[statusItem button] setAlternateImage:[self badgeDuck:alternateMenuIcon withImage:badge]];
 	// Update our unread count.
 	if (showUnreadCount) {
 		[self updateUnreadCount];
 	}
-	// Update the status item length
-	[self updateStatusItemLength];
-}
-
-/*!
- * @brief Update the status item's width
- */
-- (void)updateStatusItemLength
-{
-	[statusItem setLength:statusItemView.desiredWidth + STATUS_ITEM_MARGIN];
-	[statusItemView setFrame:NSMakeRect(0, 0, statusItemView.desiredWidth + STATUS_ITEM_MARGIN, 22)];
-	[statusItemView setNeedsDisplay:YES];
 }
 
 /*!
@@ -416,7 +400,7 @@
 		// Move the drawing origin.
 		destRect.origin.x = [duckImage size].width - destRect.size.width;
 
-		[badgeImage drawInRect:destRect fromRect:srcRect operation:NSCompositeSourceOver fraction:1.0f];
+		[badgeImage drawInRect:destRect fromRect:srcRect operation:NSCompositingOperationSourceOver fraction:1.0f];
 		[image unlockFocus];
 	}
 
@@ -475,7 +459,7 @@
 	currentContactMenuItemsCount = menu.numberOfItems;
 
 	/* The alternate menu is what shows if you option-click the menu item */
-	statusItemView.alternateMenu = menu;
+	alternateMenu = menu;
 
 	[self.contactsMenuItem setSubmenu:menu];
 }
@@ -660,19 +644,19 @@
 
 		// If there's more than one account, show the accounts menu
 		if ([accountMenuItemsArray count] > 1) {
-			menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Accounts", nil)
-																			target:self
-																			action:nil
-																	 keyEquivalent:@""];
+			menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Accounts", nil)
+												  target:self
+												  action:nil
+										   keyEquivalent:@""];
 
 			[menuItem setSubmenu:mainAccountsMenu];
 			[menu addItem:menuItem];
 		}
 
-		menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Options", nil)
-																		target:self
-																		action:nil
-																 keyEquivalent:@""];
+		menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Options", nil)
+											  target:self
+											  action:nil
+									   keyEquivalent:@""];
 		[menuItem setSubmenu:mainOptionsMenu];
 		[menu addItem:menuItem];
 
@@ -699,10 +683,10 @@
 			for (AIChat *chat in openChatsArray) {
 				NSImage *image = nil;
 				// Create a menu item from the chat
-				menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:chat.displayName
-																				target:self
-																				action:@selector(switchToChat:)
-																		 keyEquivalent:@""];
+				menuItem = [[NSMenuItem alloc] initWithTitle:chat.displayName
+													  target:self
+													  action:@selector(switchToChat:)
+											   keyEquivalent:@""];
 				// Set the represented object
 				[menuItem setRepresentedObject:chat];
 
@@ -843,6 +827,26 @@
 	}
 }
 
+/*!
+ * @brief Display the appropriate menu for the status item
+ *
+ * Shows the alternate menu on right click; the main menu otherwise.
+ */
+- (void)statusItemClicked:(id)sender
+{
+	NSStatusBarButton *button = [statusItem button];
+	NSEvent *event = [NSApp currentEvent];
+	NSMenu *menuToDisplay =
+		((event.type == NSEventTypeRightMouseDown) && (alternateMenu != nil)) ? alternateMenu : mainMenu;
+	NSRect frame = [[button window] frame];
+
+	[button setHighlighted:YES];
+	[menuToDisplay popUpMenuPositioningItem:nil
+								 atLocation:NSMakePoint(NSMidX(frame), NSMinY(frame))
+									 inView:[[button window] contentView]];
+	[button setHighlighted:NO];
+}
+
 #pragma mark Preferences Observer
 /*!
  * @brief Preferences observer
@@ -867,7 +871,6 @@
 
 		[self updateMenuIcons];
 		[self updateUnreadCount];
-		[self updateStatusItemLength];
 	}
 
 	if ([group isEqualToString:PREF_GROUP_STATUS_PREFERENCES]) {

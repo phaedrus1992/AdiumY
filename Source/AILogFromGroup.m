@@ -26,12 +26,56 @@
 						 fromUID:(NSString *)inFromUID
 					serviceClass:(NSString *)inServiceClass;
 {
-	if ((self =
-}
-}
+	if ((self = [super init])) {
+		NSParameterAssert(inPath != nil);
+		path = [inPath copy];
+		fromUID = [inFromUID copy];
+		serviceClass = [inServiceClass copy];
+		toGroupArray = nil;
+	}
+
+	return self;
 }
 
-return toGroupArray;
+// Dealloc
+
+- (NSString *)fromUID
+{
+	return fromUID;
+}
+
+- (NSString *)serviceClass
+{
+	return serviceClass;
+}
+
+// Returns all of our 'to' groups, creating them if necessary
+- (NSArray *)toGroupArray
+{
+	if (!toGroupArray) {
+		NSString *fullPath;
+
+		toGroupArray = [[NSMutableArray alloc] init];
+
+		fullPath = [[AILoggerPlugin logBasePath] stringByAppendingPathComponent:path];
+		for (NSString *folderName in [[NSFileManager defaultManager] contentsOfDirectoryAtPath:fullPath error:NULL]) {
+			if (![folderName isEqualToString:@".DS_Store"]) {
+				AILogToGroup *toGroup = nil;
+
+				// #### Why does this alloc fail sometimes? ####
+				toGroup = [[AILogToGroup alloc] initWithPath:[path stringByAppendingPathComponent:folderName]
+														from:fromUID
+														  to:folderName
+												serviceClass:serviceClass];
+
+				// Not sure why, but I've had that alloc fail on me before
+				if (toGroup != nil)
+					[toGroupArray addObject:toGroup];
+			}
+		}
+	}
+
+	return toGroupArray;
 }
 
 - (void)removeToGroup:(AILogToGroup *)toGroup

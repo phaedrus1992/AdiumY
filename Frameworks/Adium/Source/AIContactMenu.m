@@ -293,11 +293,11 @@
 			// If there's any contained list objects, add ourself as a group and add the contained objects.
 			if ([containedListObjects count] > 0) {
 				// Create our menu item
-				NSMenuItem *menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:@""
-																							target:self
-																							action:nil
-																					 keyEquivalent:@""
-																				 representedObject:listObject];
+				NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@""
+																  target:self
+																  action:nil
+														   keyEquivalent:@""
+													   representedObject:listObject];
 
 				// The group isn't clickable.
 				[menuItem setEnabled:NO];
@@ -315,12 +315,11 @@
 			}
 		} else {
 			// Just add the menu item.
-			NSMenuItem *menuItem =
-				[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:@""
-																	 target:self
-																	 action:@selector(selectContactMenuItem:)
-															  keyEquivalent:@""
-														  representedObject:listObject];
+			NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@""
+															  target:self
+															  action:@selector(selectContactMenuItem:)
+													   keyEquivalent:@""
+												   representedObject:listObject];
 			[menuItemArray addObject:menuItem];
 
 			if (populateMenuLazily) {
@@ -343,7 +342,6 @@
 	AIListObject *listObject = [menuItem representedObject];
 
 	if (listObject) {
-		[[menuItem menu] setMenuChangedMessagesEnabled:NO];
 
 		if ([listObject isKindOfClass:[AIListContact class]]) {
 			[menuItem setImage:[self imageForListObject:listObject usingUserIcon:shouldUseUserIcon]];
@@ -359,8 +357,6 @@
 			[menuItem setTitle:displayName];
 
 		[menuItem setToolTip:(shouldSetTooltip ? [listObject.statusMessage string] : nil)];
-
-		[[menuItem menu] setMenuChangedMessagesEnabled:YES];
 	}
 }
 

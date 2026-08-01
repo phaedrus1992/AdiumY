@@ -32,7 +32,52 @@
 
 - (id)init
 {
-	if (self =
+	if (self = [super initWithWindowNibName:ADD_GROUP_PROMPT_NIB]) {
+	}
+
+	return self;
+}
+
+- (void)showOnWindow:(NSWindow *)parentWindow
+{
+	if (parentWindow) {
+		[parentWindow beginSheet:self.window
+			   completionHandler:^(NSModalResponse returnCode) {
+				   [self sheetDidEnd:self.window returnCode:returnCode contextInfo:nil];
+			   }];
+	} else {
+		[self showWindow:nil];
+	}
+}
+
+/*!
+ * @brief Setup the window before it is displayed
+ */
+- (void)windowDidLoad
+{
+	NSWindow *window = [self window];
+
+	[window setTitle:AILocalizedString(@"Add Group", nil)];
+
+	[label_groupName setLocalizedString:AILocalizedString(@"Enter group name:", nil)];
+	[button_add setLocalizedString:AILocalizedString(@"Add", nil)];
+	[button_cancel setLocalizedString:AILocalizedString(@"Cancel", nil)];
+
+	[window center];
+}
+
+/*!
+ * @brief Called as the user list edit sheet closes, dismisses the sheet
+ */
+- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"NewGroupWindowControllerDidEnd" object:sheet];
+	[sheet orderOut:nil];
+}
+
+- (void)windowWillClose:(id)sender
+{
+	[super windowWillClose:sender];
 }
 
 /*!

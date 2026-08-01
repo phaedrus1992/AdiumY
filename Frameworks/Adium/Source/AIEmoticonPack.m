@@ -295,11 +295,14 @@
 				if ([splitPath count] == 1) {
 					possiblePath = [splitPath objectAtIndex:0];
 				} else {
-					NSArray *components = [NSArray
-						arrayWithObjects:[[NSWorkspace sharedWorkspace]
-											 absolutePathForAppBundleWithIdentifier:[splitPath objectAtIndex:0]],
-										 [splitPath objectAtIndex:1], nil];
-					possiblePath = [NSString pathWithComponents:components];
+					NSURL *appURL = [[NSWorkspace sharedWorkspace]
+						URLForApplicationWithBundleIdentifier:[splitPath objectAtIndex:0]];
+
+					if (appURL != nil) {
+						NSArray *components =
+							[NSArray arrayWithObjects:[appURL path], [splitPath objectAtIndex:1], nil];
+						possiblePath = [NSString pathWithComponents:components];
+					}
 				}
 
 				/* If the directory exists, then we've found the location. If we

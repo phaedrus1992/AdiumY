@@ -22,7 +22,28 @@
 
 - (void)_initSourceListBackgroundView
 {
-	background =
+	background = [NSImage imageNamed:@"sourceListBackground" forClass:[KNShelfSplitView class]];
+	backgroundSize = [background size];
+
+	[self setNeedsDisplay:YES];
+}
+
+- (id)initWithCoder:(NSCoder *)inCoder
+{
+	if ((self = [super initWithCoder:inCoder])) {
+		[self _initSourceListBackgroundView];
+	}
+
+	return self;
+}
+
+- (id)initWithFrame:(NSRect)frame
+{
+	if ((self = [super initWithFrame:frame])) {
+		[self _initSourceListBackgroundView];
+	}
+
+	return self;
 }
 
 - (void)drawRect:(NSRect)rect
@@ -41,13 +62,13 @@
 			sourceRect.size.width = NSWidth(destRect);
 		}
 
-		[background drawInRect:destRect fromRect:sourceRect operation:NSCompositeSourceOver fraction:1.0f];
+		[background drawInRect:destRect fromRect:sourceRect operation:NSCompositingOperationSourceOver fraction:1.0f];
 		destRect.origin.x += NSWidth(destRect);
 	}
 
 	// Draw a border line at the top
 	NSRect lineRect = NSMakeRect(0, frame.size.height - 1, NSWidth(frame), 1);
-	[[NSColor windowFrameColor] set];
+	[[NSColor separatorColor] set];
 	NSRectFill(lineRect);
 }
 

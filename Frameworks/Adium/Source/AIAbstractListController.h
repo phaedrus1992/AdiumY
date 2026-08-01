@@ -235,7 +235,6 @@ typedef enum { STATUS_ONLY = 0, IDLE_ONLY, IDLE_AND_STATUS } EXTENDED_STATUS_STY
 
 - (void)setShowTooltips:(BOOL)inShowTooltips;
 - (void)setShowTooltipsInBackground:(BOOL)inShowTooltipsInBackground;
-- (void)pasteboard:(NSPasteboard *)sender provideDataForType:(NSString *)type;
 
 // Drag & Drop
 - (void)setDragItems:(NSNotification *)notification;

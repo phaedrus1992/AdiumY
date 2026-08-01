@@ -20,7 +20,6 @@
 #import <Adium/AIListObject.h>
 #import <Adium/AIMessageEntryTextView.h>
 #import <Adium/AITextAttachmentExtension.h>
-#import <Adium/ESFileWrapperExtension.h>
 
 #import <Adium/AIContentContext.h>
 #import <Adium/AIContentControllerProtocol.h>
@@ -35,7 +34,6 @@
 #import <AIUtilities/AIPasteboardAdditions.h>
 #import <AIUtilities/AITextAttributes.h>
 #import <Adium/AIContactControllerProtocol.h>
-#import <WebKit/WebKit.h>
 
 #import "NSString-FBAdditions.h"
 
@@ -63,9 +61,10 @@
 #define KEY_MAX_NUMBER_OF_CHARACTERS @"Maximum Number Of Characters"
 
 #define FILES_AND_IMAGES_TYPES                                                                                         \
-	[NSArray arrayWithObjects:NSFilenamesPboardType, AIiTunesTrackPboardType, NSTIFFPboardType, NSPDFPboardType, nil]
+	[NSArray arrayWithObjects:AINSPasteboardTypeFilenames, AIiTunesTrackPboardType, NSPasteboardTypeTIFF,              \
+							  NSPasteboardTypePDF, nil]
 
-#define PASS_TO_SUPERCLASS_DRAG_TYPE_ARRAY [NSArray arrayWithObjects:NSRTFPboardType, NSStringPboardType, nil]
+#define PASS_TO_SUPERCLASS_DRAG_TYPE_ARRAY [NSArray arrayWithObjects:NSPasteboardTypeRTF, NSPasteboardTypeString, nil]
 
 /**
  * @class AISimpleTextView
@@ -212,7 +211,7 @@
 		NSUInteger flags = [inEvent modifierFlags];
 
 		// We have to test ctrl before option, because otherwise we'd miss ctrl-option-* events
-		if (pushPopEnabled && (flags & NSControlKeyMask) && !(flags & NSShiftKeyMask)) {
+		if (pushPopEnabled && (flags & NSEventModifierFlagControl) && !(flags & NSEventModifierFlagShift)) {
 			if (inChar == NSUpArrowFunctionKey) {
 				[self popContent];
 			} else if (inChar == NSDownArrowFunctionKey) {
@@ -223,7 +222,7 @@
 				[super keyDown:inEvent];
 			}
 
-		} else if (historyEnabled && (flags & NSAlternateKeyMask) && !(flags & NSShiftKeyMask)) {
+		} else if (historyEnabled && (flags & NSEventModifierFlagOption) && !(flags & NSEventModifierFlagShift)) {
 			if (inChar == NSUpArrowFunctionKey) {
 				[self historyUp];
 			} else if (inChar == NSDownArrowFunctionKey) {
@@ -232,7 +231,7 @@
 				[super keyDown:inEvent];
 			}
 
-		} else if (associatedView && (flags & NSCommandKeyMask) && !(flags & NSShiftKeyMask)) {
+		} else if (associatedView && (flags & NSEventModifierFlagCommand) && !(flags & NSEventModifierFlagShift)) {
 			if ((inChar == NSUpArrowFunctionKey || inChar == NSDownArrowFunctionKey) ||
 				(inChar == NSHomeFunctionKey || inChar == NSEndFunctionKey) ||
 				(inChar == NSPageUpFunctionKey || inChar == NSPageDownFunctionKey)) {
@@ -242,7 +241,7 @@
 														  modifierFlags:0
 															  timestamp:[inEvent timestamp]
 														   windowNumber:[inEvent windowNumber]
-																context:[inEvent context]
+																context:nil
 															 characters:[inEvent characters]
 											charactersIgnoringModifiers:charactersIgnoringModifiers
 															  isARepeat:[inEvent isARepeat]
@@ -258,7 +257,7 @@
 			if (homeToStartOfLine) {
 				NSRange newRange;
 
-				if (flags & NSShiftKeyMask) {
+				if (flags & NSEventModifierFlagShift) {
 					// With shift, select to the beginning/end of the line
 					NSRange selectedRange = [self selectedRange];
 					if (inChar == NSHomeFunctionKey) {
@@ -488,11 +487,13 @@
 
 // Forbid loading the images embedded in a string when pasting.
 // They are very unlikely to work and a privacy issue.
-- (NSURLRequest *)webView:(WebView *)sender
+// Parameter types are id: the real types (WebView/WebDataSource) are deprecated, but the
+// selector must stay intact for NSAttributedString's HTML importer (NSWebResourceLoadDelegateDocumentOption).
+- (NSURLRequest *)webView:(id)sender
 				 resource:(id)identifier
 		  willSendRequest:(NSURLRequest *)request
 		 redirectResponse:(NSURLResponse *)redirectResponse
-		   fromDataSource:(WebDataSource *)dataSource
+		   fromDataSource:(id)dataSource
 {
 	return nil;
 }
@@ -505,9 +506,10 @@
 	// Types is ordered by the preference for handling of the data; enumerating it lets us allow the sending
 	// application's hints to be followed.
 	for (NSString *type in generalPasteboard.types) {
-		if ([type isEqualToString:NSRTFDPboardType]) {
-			NSData *data = [generalPasteboard dataForType:NSRTFDPboardType];
-			[self insertText:[self attributedStringWithAITextAttachmentExtensionsFromRTFDData:data]];
+		if ([type isEqualToString:NSPasteboardTypeRTFD]) {
+			NSData *data = [generalPasteboard dataForType:NSPasteboardTypeRTFD];
+			[self insertText:[self attributedStringWithAITextAttachmentExtensionsFromRTFDData:data]
+				replacementRange:NSMakeRange(NSNotFound, 0)];
 			handledPaste = YES;
 
 		} else if ([PASS_TO_SUPERCLASS_DRAG_TYPE_ARRAY containsObject:type]) {
@@ -517,8 +519,8 @@
 		} else if ([FILES_AND_IMAGES_TYPES containsObject:type]) {
 			[self addAttachmentsFromPasteboard:generalPasteboard];
 			handledPaste = YES;
-		} else if ([type isEqualToString:NSHTMLPboardType]) {
-			NSData *htmlData = [generalPasteboard dataForType:NSHTMLPboardType];
+		} else if ([type isEqualToString:NSPasteboardTypeHTML]) {
+			NSData *htmlData = [generalPasteboard dataForType:NSPasteboardTypeHTML];
 			[self insertText:[[NSAttributedString alloc]
 									   initWithData:htmlData
 											options:@{
@@ -527,7 +529,8 @@
 												NSWebResourceLoadDelegateDocumentOption : self
 											}
 								 documentAttributes:NULL
-											  error:NULL]];
+											  error:NULL]
+				replacementRange:NSMakeRange(NSNotFound, 0)];
 			handledPaste = YES;
 		}
 
@@ -562,13 +565,14 @@
 	NSString *type;
 
 	NSArray *supportedTypes =
-		[NSArray arrayWithObjects:NSURLPboardType, NSRTFDPboardType, NSRTFPboardType, NSHTMLPboardType,
-								  NSStringPboardType, NSFilenamesPboardType, NSTIFFPboardType, NSPDFPboardType, nil];
+		[NSArray arrayWithObjects:NSPasteboardTypeURL, NSPasteboardTypeRTFD, NSPasteboardTypeRTF, NSPasteboardTypeHTML,
+								  NSPasteboardTypeString, AINSPasteboardTypeFilenames, NSPasteboardTypeTIFF,
+								  NSPasteboardTypePDF, nil];
 
 	type = [[NSPasteboard generalPasteboard] availableTypeFromArray:supportedTypes];
 
-	if ([type isEqualToString:NSRTFPboardType] || [type isEqualToString:NSRTFDPboardType] ||
-		[type isEqualToString:NSHTMLPboardType] || [type isEqualToString:NSStringPboardType]) {
+	if ([type isEqualToString:NSPasteboardTypeRTF] || [type isEqualToString:NSPasteboardTypeRTFD] ||
+		[type isEqualToString:NSPasteboardTypeHTML] || [type isEqualToString:NSPasteboardTypeString]) {
 		NSData *data;
 
 		@try {
@@ -578,9 +582,9 @@
 		}
 
 		// Failed. Try again with the string type.
-		if (!data && ![type isEqualToString:NSStringPboardType]) {
-			if ([[[NSPasteboard generalPasteboard] types] containsObject:NSStringPboardType]) {
-				type = NSStringPboardType;
+		if (!data && ![type isEqualToString:NSPasteboardTypeString]) {
+			if ([[[NSPasteboard generalPasteboard] types] containsObject:NSPasteboardTypeString]) {
+				type = NSPasteboardTypeString;
 				@try {
 					data = [generalPasteboard dataForType:type];
 				} @catch (NSException *localException) {
@@ -601,24 +605,24 @@
 
 		NSMutableAttributedString *attributedString;
 
-		if ([type isEqualToString:NSStringPboardType]) {
+		if ([type isEqualToString:NSPasteboardTypeString]) {
 			NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 			attributedString = [[NSMutableAttributedString alloc] initWithString:string
 																	  attributes:[self typingAttributes]];
 
 		} else {
 			@try {
-				if ([type isEqualToString:NSRTFPboardType]) {
+				if ([type isEqualToString:NSPasteboardTypeRTF]) {
 					attributedString = [[NSMutableAttributedString alloc] initWithRTF:data documentAttributes:NULL];
-				} else if ([type isEqualToString:NSRTFDPboardType]) {
+				} else if ([type isEqualToString:NSPasteboardTypeRTFD]) {
 					attributedString = [[NSMutableAttributedString alloc] initWithRTFD:data documentAttributes:NULL];
-				} else /* NSHTMLPboardType */ {
+				} else /* NSPasteboardTypeHTML */ {
 					attributedString = [[NSMutableAttributedString alloc] initWithHTML:data documentAttributes:NULL];
 				}
 			} @catch (NSException *localException) {
 				// Error while reading the RTF or HTML data, which can happen. Fall back on plain text
-				if ([[[NSPasteboard generalPasteboard] types] containsObject:NSStringPboardType]) {
-					data = [generalPasteboard dataForType:NSStringPboardType];
+				if ([[[NSPasteboard generalPasteboard] types] containsObject:NSPasteboardTypeString]) {
+					data = [generalPasteboard dataForType:NSPasteboardTypeString];
 					NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 					attributedString = [[NSMutableAttributedString alloc] initWithString:string
 																			  attributes:[self typingAttributes]];
@@ -653,7 +657,7 @@
 		// Notify that we changed our text
 		[[NSNotificationCenter defaultCenter] postNotificationName:NSTextDidChangeNotification object:self];
 
-	} else if ([FILES_AND_IMAGES_TYPES containsObject:type] || [type isEqualToString:NSURLPboardType]) {
+	} else if ([FILES_AND_IMAGES_TYPES containsObject:type] || [type isEqualToString:NSPasteboardTypeURL]) {
 		if (![self handlePasteAsRichText]) {
 			[self paste:sender];
 		}
@@ -961,11 +965,11 @@
 		// Make the indicator and set its action. It is a button with no border.
 		pushIndicator = [[NSButton alloc]
 			initWithFrame:NSMakeRect(0, 0, [pushIndicatorImage size].width, [pushIndicatorImage size].height)];
-		[pushIndicator setButtonType:NSMomentaryPushButton];
+		[pushIndicator setButtonType:NSButtonTypeMomentaryPushIn];
 		[pushIndicator setAutoresizingMask:(NSViewMinXMargin)];
 		[pushIndicator setImage:pushIndicatorImage];
 		[pushIndicator setImagePosition:NSImageOnly];
-		[pushIndicator setBezelStyle:NSRegularSquareBezelStyle];
+		[pushIndicator setBezelStyle:NSBezelStyleRegularSquare];
 		[pushIndicator setBordered:NO];
 		[[self superview] addSubview:pushIndicator];
 		[pushIndicator setTarget:self];
@@ -1285,7 +1289,7 @@
  "NeXT RTFD pasteboard type",
  "NeXT Rich Text Format v1.0 pasteboard type",
  "Apple HTML pasteboard type",
- NSFilenamesPboardType,
+ AINSPasteboardTypeFilenames,
  "CorePasteboardFlavorType 0x6D6F6F76",
  "Apple PDF pasteboard type",
  "NeXT TIFF v4.0 pasteboard type",
@@ -1295,7 +1299,7 @@
  WebURLsWithTitlesPboardType,
  "CorePasteboardFlavorType 0x75726C20",
  "Apple URL pasteboard type",
- NSStringPboardType,
+ NSPasteboardTypeString,
  "NSColor pasteboard type",
  "NeXT font pasteboard type",
  "NeXT ruler pasteboard type",
@@ -1364,12 +1368,12 @@
 - (void)addAttachmentsFromPasteboard:(NSPasteboard *)pasteboard
 {
 	NSString *availableType;
-	if ((availableType = [pasteboard
-			 availableTypeFromArray:[NSArray arrayWithObjects:NSFilenamesPboardType, AIiTunesTrackPboardType, nil]])) {
+	if ((availableType = [pasteboard availableTypeFromArray:[NSArray arrayWithObjects:AINSPasteboardTypeFilenames,
+																					  AIiTunesTrackPboardType, nil]])) {
 		// The pasteboard points to one or more files on disc.  Use them directly.
 		NSArray *files = nil;
-		if ([availableType isEqualToString:NSFilenamesPboardType]) {
-			files = [pasteboard propertyListForType:NSFilenamesPboardType];
+		if ([availableType isEqualToString:AINSPasteboardTypeFilenames]) {
+			files = [pasteboard propertyListForType:AINSPasteboardTypeFilenames];
 
 		} else if ([availableType isEqualToString:AIiTunesTrackPboardType]) {
 			files = [pasteboard filesFromITunesDragPasteboard];
@@ -1535,19 +1539,6 @@
 	return completionRange;
 }
 
-#pragma mark Writing Direction
-- (void)toggleBaseWritingDirection:(id)sender
-{
-	if ([self baseWritingDirection] == NSWritingDirectionRightToLeft) {
-		[self setBaseWritingDirection:NSWritingDirectionLeftToRight];
-	} else {
-		[self setBaseWritingDirection:NSWritingDirectionRightToLeft];
-	}
-
-	// Apply it immediately
-	[self setBaseWritingDirection:[self baseWritingDirection] range:NSMakeRange(0, [[self textStorage] length])];
-}
-
 #pragma mark Attachments
 /*!
  * @brief Add an attachment of the file at inPath at the current insertion point
@@ -1567,7 +1558,7 @@
 			if (clipping) {
 				NSDictionary *attributes = [[self typingAttributes] copy];
 
-				[self insertText:clipping];
+				[self insertText:clipping replacementRange:NSMakeRange(NSNotFound, 0)];
 
 				if (attributes) {
 					[self setTypingAttributes:attributes];
@@ -1582,7 +1573,8 @@
 		[attachment setShouldSaveImageForLogging:YES];
 
 		// Insert an attributed string into the text at the current insertion point
-		[self insertText:[self attributedStringWithTextAttachmentExtension:attachment]];
+		[self insertText:[self attributedStringWithTextAttachmentExtension:attachment]
+			replacementRange:NSMakeRange(NSNotFound, 0)];
 	}
 }
 
@@ -1597,7 +1589,8 @@
 	[attachment setShouldSaveImageForLogging:YES];
 
 	// Insert an attributed string into the text at the current insertion point
-	[self insertText:[self attributedStringWithTextAttachmentExtension:attachment]];
+	[self insertText:[self attributedStringWithTextAttachmentExtension:attachment]
+		replacementRange:NSMakeRange(NSNotFound, 0)];
 }
 
 /*!
@@ -1654,7 +1647,10 @@
 				destinationPath = [destinationPath stringByAppendingPathComponent:preferredName];
 
 				// Write the file out to it
-				[fileWrapper writeToFile:destinationPath atomically:NO updateFilenames:NO];
+				[fileWrapper writeToURL:[NSURL fileURLWithPath:destinationPath]
+								options:0
+					originalContentsURL:nil
+								  error:NULL];
 
 				// Now create an AITextAttachmentExtension pointing to it
 				AITextAttachmentExtension *textAttachment = [[AITextAttachmentExtension alloc] init];
@@ -1700,9 +1696,9 @@
 	[[self textStorage] edited:NSTextStorageEditedAttributes range:selectedRange changeInLength:0];
 }
 
-- (void)insertText:(id)aString
+- (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
-	[super insertText:aString];
+	[super insertText:aString replacementRange:replacementRange];
 	// Auto set the writing direction based on our content
 	[self setBaseWritingDirection:[[[self textStorage] string] baseWritingDirection]];
 }

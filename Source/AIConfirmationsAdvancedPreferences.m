@@ -146,7 +146,7 @@
 
 - (void)configureControlDimming
 {
-	BOOL confirmQuitEnabled = (checkBox_confirmBeforeQuitting.state == NSOnState);
+	BOOL confirmQuitEnabled = (checkBox_confirmBeforeQuitting.state == NSControlStateValueOn);
 	BOOL enableSpecificConfirmations =
 		(confirmQuitEnabled && [[matrix_quitConfirmType selectedCell] tag] == AIQuitConfirmSelective);
 
@@ -155,7 +155,7 @@
 	[checkBox_quitConfirmUnread setEnabled:enableSpecificConfirmations];
 	[checkBox_quitConfirmOpenChats setEnabled:enableSpecificConfirmations];
 
-	BOOL confirmCloseEnabled = (checkBox_confirmBeforeClosing.state == NSOnState);
+	BOOL confirmCloseEnabled = (checkBox_confirmBeforeClosing.state == NSControlStateValueOn);
 	[matrix_closeConfirmType setEnabled:confirmCloseEnabled];
 }
 

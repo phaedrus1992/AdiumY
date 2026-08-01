@@ -24,8 +24,34 @@
 
 + (AIContactInfoContentController *)defaultInfoContentController
 {
-	return loadedPanes = newPanes;
+	return [[self alloc] initWithContentPanes:[self defaultPanes]];
 }
+
+- (id)initWithContentPanes:(NSArray *)panes
+{
+	if ((self = [self init])) {
+		[self loadContentPanes:panes];
+	}
+
+	return self;
+}
+
++ (NSArray *)defaultPanes
+{
+	return [NSArray arrayWithObjects:@"AIInfoInspectorPane", @"AIAddressBookInspectorPane", @"AIEventsInspectorPane",
+									 @"AIAdvancedInspectorPane", nil];
+}
+
+- (NSArray *)loadedPanes
+{
+	return loadedPanes;
+}
+
+- (void)_setLoadedPanes:(NSArray *)newPanes
+{
+	if (loadedPanes != newPanes) {
+		loadedPanes = newPanes;
+	}
 }
 
 - (void)loadContentPanes:(NSArray *)contentPanes
@@ -49,7 +75,7 @@
 
 - (IBAction)segmentSelected:(id)sender
 {
-#warning Needs implementation
+	// WARNING: Needs implementation
 }
 
 @end

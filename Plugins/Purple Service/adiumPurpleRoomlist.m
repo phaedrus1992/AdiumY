@@ -36,7 +36,7 @@ static PurpleRoomlistUiOps adiumPurpleRoomlistOps = {adiumPurpleRoomlistDialogSh
 													 /* _purple_reserved 1-4 */
 													 NULL, NULL, NULL, NULL};
 
-PurpleRoomlistUiOps *adium_purple_roomlist_get_ui_ops()
+PurpleRoomlistUiOps *adium_purple_roomlist_get_ui_ops(void)
 {
 	return &adiumPurpleRoomlistOps;
 }

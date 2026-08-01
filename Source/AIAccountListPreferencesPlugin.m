@@ -30,7 +30,12 @@
  */
 - (void)installPlugin
 {
-	accountListPreferences =
+	accountListPreferences = (AIAccountListPreferences *)[AIAccountListPreferences preferencePaneForPlugin:self];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(editAccount:)
+												 name:@"AIEditAccount"
+											   object:nil];
 }
 
 /*!
