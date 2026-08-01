@@ -734,7 +734,9 @@
 
 - (void)webviewWindowWillClose:(NSNotification *)notification
 {
-	[webview setNavigationDelegate:nil];
+	if (webview != nil) {
+		[webview setNavigationDelegate:nil];
+	}
 
 	if (wasSubmitted) {
 		if (okcb)
