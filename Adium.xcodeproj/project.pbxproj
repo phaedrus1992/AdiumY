@@ -7084,6 +7084,7 @@
 				34BD9D5F053146CC000AB133 /* Copy Frameworks */,
 				4BF2E91F067CB76300743318 /* Copy Built-in Xtras */,
 				34BD9D6A053146CC000AB133 /* Copy AdiumPlugins */,
+				AD6000000000000000000001 /* Relink vendored dylibs */,
 			);
 			buildRules = (
 				81F9D1DF0A7F81A5004A35BD /* PBXBuildRule */,
@@ -7653,6 +7654,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+		AD6000000000000000000001 /* Relink vendored dylibs */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Relink vendored dylibs";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "bash \"$SRCROOT/Dependencies/build-phases/relink-sandbox-refs.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
