@@ -277,6 +277,8 @@
 		<dict>
 			<key>buildSettings</key>
 			<dict>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>CODE_SIGN_IDENTITY</key>
@@ -323,6 +325,8 @@
 		<dict>
 			<key>buildSettings</key>
 			<dict>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>CODE_SIGN_IDENTITY</key>
@@ -367,6 +371,8 @@
 		<dict>
 			<key>buildSettings</key>
 			<dict>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>CODE_SIGN_IDENTITY</key>
@@ -632,6 +638,8 @@
 		<dict>
 			<key>buildSettings</key>
 			<dict>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>COPY_PHASE_STRIP</key>
@@ -1203,6 +1211,8 @@
 			<dict>
 				<key>ALWAYS_SEARCH_USER_PATHS</key>
 				<string>NO</string>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>COPY_PHASE_STRIP</key>
@@ -1248,6 +1258,8 @@
 			<dict>
 				<key>ALWAYS_SEARCH_USER_PATHS</key>
 				<string>NO</string>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>COPY_PHASE_STRIP</key>
@@ -1290,6 +1302,8 @@
 			<key>buildSettings</key>
 			<dict>
 				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
 				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
@@ -1481,6 +1495,8 @@
 		<dict>
 			<key>buildSettings</key>
 			<dict>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>CODE_SIGN_IDENTITY</key>
@@ -1520,6 +1536,8 @@
 		<dict>
 			<key>buildSettings</key>
 			<dict>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>CODE_SIGN_IDENTITY</key>
@@ -1555,6 +1573,8 @@
 		<dict>
 			<key>buildSettings</key>
 			<dict>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>CODE_SIGN_IDENTITY</key>
@@ -1878,6 +1898,8 @@
 		<dict>
 			<key>buildSettings</key>
 			<dict>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>CODE_SIGN_IDENTITY</key>
@@ -1924,6 +1946,8 @@
 		<dict>
 			<key>buildSettings</key>
 			<dict>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>CODE_SIGN_IDENTITY</key>
@@ -1968,6 +1992,8 @@
 		<dict>
 			<key>buildSettings</key>
 			<dict>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>CODE_SIGN_IDENTITY</key>
@@ -2197,6 +2223,8 @@
 		<dict>
 			<key>buildSettings</key>
 			<dict>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>COPY_PHASE_STRIP</key>
@@ -2235,6 +2263,8 @@
 		<dict>
 			<key>buildSettings</key>
 			<dict>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>NO</string>
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>COPY_PHASE_STRIP</key>
