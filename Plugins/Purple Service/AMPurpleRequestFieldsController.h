@@ -28,7 +28,7 @@
 	NSMutableDictionary *fieldobjects;
 	BOOL wasSubmitted;
 
-	IBOutlet WebView *webview;
+	IBOutlet WKWebView *webview;
 }
 
 - (id)initWithTitle:(NSString *)title

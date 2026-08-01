@@ -18,11 +18,6 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 
-@interface WebView ()
-- (void)setDrawsBackground:(BOOL)flag;
-- (void)setBackgroundColor:(NSColor *)color;
-@end
-
 @interface AMPurpleRequestField : NSObject {
 	PurpleRequestField *field;
 	CBPurpleAccount *account;
@@ -421,7 +416,7 @@
 
 @end
 
-@interface AMPurpleRequestFieldsController ()
+@interface AMPurpleRequestFieldsController () <WKNavigationDelegate>
 - (void)loadForm:(NSXMLDocument *)doc;
 - (void)webviewWindowWillClose:(NSNotification *)notification;
 @end
@@ -712,7 +707,11 @@
 - (void)loadForm:(NSXMLDocument *)doc
 {
 	NSData *formdata = [doc XMLDataWithOptions:NSXMLDocumentTidyHTML | NSXMLDocumentIncludeContentTypeDeclaration];
-	[[webview mainFrame] loadData:formdata MIMEType:@"application/xhtml+xml" textEncodingName:@"UTF-8" baseURL:nil];
+	[webview setNavigationDelegate:self];
+	[webview loadData:formdata
+			 MIMEType:@"application/xhtml+xml"
+	characterEncodingName:@"UTF-8"
+			  baseURL:[NSURL URLWithString:@"about:blank"]];
 
 	[self showWindow:nil];
 }
@@ -731,11 +730,11 @@
 	[super purpleRequestClose];
 }
 
-#pragma mark WebView Delegate Methods
+#pragma mark Navigation Delegate Methods
 
 - (void)webviewWindowWillClose:(NSNotification *)notification
 {
-	[webview setPolicyDelegate:nil];
+	[webview setNavigationDelegate:nil];
 
 	if (wasSubmitted) {
 		if (okcb)
@@ -748,50 +747,47 @@
 	CFBridgingRelease((__bridge void *)self); // no we don't need us no longer, commit suicide
 }
 
-- (void)webView:(WebView *)webView
-	decidePolicyForNavigationAction:(NSDictionary *)actionInformation
-							request:(NSURLRequest *)request
-							  frame:(WebFrame *)frame
-				   decisionListener:(id<WebPolicyDecisionListener>)listener
+- (void)webView:(WKWebView *)webView
+	decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
+					decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
-	if ([[[request URL] scheme] isEqualToString:@"applewebdata"] || [[[request URL] scheme] isEqualToString:@"about"])
-		[listener use];
+	NSString *scheme = [[[navigationAction request] URL] scheme];
+	if ([scheme isEqualToString:@"applewebdata"] || [scheme isEqualToString:@"about"]) {
+		decisionHandler(WKNavigationActionPolicyAllow);
+		return;
+	}
 
-	else {
-		if ([[[request URL] absoluteString] isEqualToString:@"https://github.com/phaedrus1992/adiumy/XMPP/form"]) {
-			NSString *info = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
-			NSArray *formfields = [info componentsSeparatedByString:@"&"];
-			NSString *field;
-			for (field in formfields) {
-				NSArray *keyvalue = [field componentsSeparatedByString:@"="];
-				if ([keyvalue count] != 2)
-					continue;
-
-				NSString *key = [[keyvalue objectAtIndex:0] mutableCopy];
-				[(NSMutableString *)key replaceOccurrencesOfString:@"+"
-														withString:@" "
-														   options:NSLiteralSearch
-															 range:NSMakeRange(0, [key length])];
-
-				key = [key stringByRemovingPercentEncoding];
-
-				NSString *value = [[keyvalue objectAtIndex:1] mutableCopy];
-				[(NSMutableString *)value replaceOccurrencesOfString:@"+"
-														  withString:@" "
-															 options:NSLiteralSearch
-															   range:NSMakeRange(0, [value length])];
-
-				value = [value stringByRemovingPercentEncoding];
-
-				[[fieldobjects objectForKey:key] applyValue:value];
+	if ([[[[navigationAction request] URL] absoluteString] isEqualToString:@"https://github.com/phaedrus1992/adiumy/XMPP/form"]) {
+		NSString *info = [[NSString alloc] initWithData:[[navigationAction request] HTTPBody] encoding:NSUTF8StringEncoding];
+		NSArray *formfields = [info componentsSeparatedByString:@"&"];
+		for (NSString *field in formfields) {
+			NSArray *keyvalue = [field componentsSeparatedByString:@"="];
+			if ([keyvalue count] != 2) {
+				continue;
 			}
 
-			wasSubmitted = YES;
-			[self close];
+			NSMutableString *key = [[keyvalue objectAtIndex:0] mutableCopy];
+			[key replaceOccurrencesOfString:@"+"
+								 withString:@" "
+									options:NSLiteralSearch
+									  range:NSMakeRange(0, [key length])];
+			NSString *decodedKey = [key stringByRemovingPercentEncoding];
+
+			NSMutableString *value = [[keyvalue objectAtIndex:1] mutableCopy];
+			[value replaceOccurrencesOfString:@"+"
+								   withString:@" "
+									  options:NSLiteralSearch
+										range:NSMakeRange(0, [value length])];
+			NSString *decodedValue = [value stringByRemovingPercentEncoding];
+
+			[[fieldobjects objectForKey:decodedKey] applyValue:decodedValue];
 		}
 
-		[listener ignore];
+		wasSubmitted = YES;
+		[self close];
 	}
+
+	decisionHandler(WKNavigationActionPolicyCancel);
 }
 
 @end
