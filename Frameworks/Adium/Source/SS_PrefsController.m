@@ -172,8 +172,8 @@
 	}
 
 	// Create prefs window
-	unsigned int styleMask =
-		(NSWindowStyleMaskClosable | NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskTitled);
+	unsigned int styleMask = (NSWindowStyleMaskClosable | NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable |
+							  NSWindowStyleMaskTitled);
 	prefsWindow = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 350, 200)
 											  styleMask:styleMask
 												backing:NSBackingStoreBuffered

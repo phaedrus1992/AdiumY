@@ -43,9 +43,8 @@
 	showStatusWindow = FALSE;
 	awayAccounts = [[NSMutableSet alloc] init];
 
-	//Observe preference changes for updating if we should show the status window
-	[adium.preferenceController registerPreferenceObserver:self
-													forGroup:PREF_GROUP_STATUS_PREFERENCES];
+	// Observe preference changes for updating if we should show the status window
+	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_STATUS_PREFERENCES];
 }
 
 /*!

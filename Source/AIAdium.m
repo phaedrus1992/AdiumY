@@ -217,7 +217,7 @@ static NSString *prefsCategory;
 	@autoreleasepool {
 		[menuController controllerDidLoad];    // Loaded by nib
 		[accountController controllerDidLoad]; //** Before contactController so accounts and services are available for
-											   //contact creation
+											   // contact creation
 
 		[AIAddressBookController
 			startAddressBookIntegration]; //** Before contactController so AB contacts are available
@@ -877,12 +877,13 @@ static NSString *prefsCategory;
 				[createFolderAlert addButtonWithTitle:AILocalizedString(@"Launch Disk Utility", nil)];
 				NSInteger result = [createFolderAlert runModal];
 				if (result == NSAlertSecondButtonReturn) {
-					NSURL *diskUtilityURL = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:@"com.apple.DiskUtility"];
+					NSURL *diskUtilityURL =
+						[[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:@"com.apple.DiskUtility"];
 
 					if (diskUtilityURL != nil) {
 						[[NSWorkspace sharedWorkspace] openApplicationAtURL:diskUtilityURL
-						                                      configuration:[NSWorkspaceOpenConfiguration configuration]
-						                                    completionHandler:nil];
+															  configuration:[NSWorkspaceOpenConfiguration configuration]
+														  completionHandler:nil];
 					}
 				}
 			}
@@ -1143,7 +1144,8 @@ static NSString *prefsCategory;
  *		key: 		The key to be used  when reporting data to the server
  *		value:		Value to be used when reporting data to the server
  */
-- (NSArray<NSDictionary<NSString *, NSString *> *> *)feedParametersForUpdater:(SPUUpdater *)updater sendingSystemProfile:(BOOL)sendProfileInfo
+- (NSArray<NSDictionary<NSString *, NSString *> *> *)feedParametersForUpdater:(SPUUpdater *)updater
+														 sendingSystemProfile:(BOOL)sendProfileInfo
 {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 

@@ -1,15 +1,15 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
@@ -17,7 +17,6 @@
 #import "AIMessageTabSplitView.h"
 
 @implementation AIMessageTabSplitView
-
 
 - (void)setLeftColor:(NSColor *)inLeftColor rightColor:(NSColor *)inRightColor
 {
@@ -28,7 +27,7 @@
 	if (rightColor != inRightColor) {
 		rightColor = inRightColor;
 	}
-	
+
 	[self setNeedsDisplay:YES];
 }
 
@@ -37,16 +36,16 @@
 	position = inPosition;
 }
 
--(void)drawDividerInRect:(NSRect)aRect
-{	
+- (void)drawDividerInRect:(NSRect)aRect
+{
 	if (rightColor && leftColor) {
-		NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:leftColor
-															 endingColor:rightColor];
+		NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:leftColor endingColor:rightColor];
 		[gradient drawInRect:self.bounds angle:90.0];
 		NSBezierPath *line = nil;
-		
+
 		if (position == AIMessageSplitTabPositionLeft) {
-			line = [NSBezierPath bezierPathWithRect:NSMakeRect(NSMaxX(aRect) - 1, aRect.origin.y, 1, aRect.size.height)];
+			line =
+				[NSBezierPath bezierPathWithRect:NSMakeRect(NSMaxX(aRect) - 1, aRect.origin.y, 1, aRect.size.height)];
 		}
 		[[NSColor separatorColor] set];
 		[line fill];

@@ -61,7 +61,7 @@
  */
 - (void)installPlugin
 {
-	//Register our observers
+	// Register our observers
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(listObjectAttributesChanged:)
 												 name:ListObject_AttributesChanged
@@ -93,8 +93,7 @@
 			for (AIChat *chat in adium.interfaceController.openChats) {
 				NSWindow *window = [adium.interfaceController windowForChat:chat];
 				if (window) {
-					[self _updateToolbarIconOfChat:chat
-										  inWindow:window];
+					[self _updateToolbarIconOfChat:chat inWindow:window];
 				}
 			}
 		}
@@ -110,13 +109,13 @@
  */
 - (void)registerToolbarItem
 {
-	AIImageButton	*button;
-	NSToolbarItem	*toolbarItem;
+	AIImageButton *button;
+	NSToolbarItem *toolbarItem;
 
 	toolbarItems = [[NSMutableSet alloc] init];
 	validatedItems = [[NSMutableSet alloc] init];
 
-	//Toolbar item registration
+	// Toolbar item registration
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(toolbarWillAddItem:)
 												 name:NSToolbarWillAddItemNotification
@@ -126,12 +125,12 @@
 												 name:NSToolbarDidRemoveItemNotification
 											   object:nil];
 
-	button = [[AIImageButton alloc] initWithFrame:NSMakeRect(0,0,32,32)];
+	button = [[AIImageButton alloc] initWithFrame:NSMakeRect(0, 0, 32, 32)];
 
 	toolbarItem = [AIToolbarUtilities toolbarItemWithIdentifier:@"UserIcon"
-														  label:AILocalizedString(@"Icon",nil)
-												   paletteLabel:AILocalizedString(@"Contact Icon",nil)
-														toolTip:AILocalizedString(@"Show this contact's icon",nil)
+														  label:AILocalizedString(@"Icon", nil)
+												   paletteLabel:AILocalizedString(@"Contact Icon", nil)
+														toolTip:AILocalizedString(@"Show this contact's icon", nil)
 														 target:self
 												settingSelector:@selector(setView:)
 													itemContent:button
@@ -142,7 +141,7 @@
 	[button setToolbarItem:toolbarItem];
 	[button setImage:[NSImage imageNamed:@"default-icon" forClass:[self class] loadLazily:YES]];
 
-	//Register our toolbar item
+	// Register our toolbar item
 	[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"MessageWindow"];
 }
 
@@ -151,15 +150,15 @@
  */
 - (void)toolbarWillAddItem:(NSNotification *)notification
 {
-	NSToolbarItem	*item = [[notification userInfo] objectForKey:@"item"];
+	NSToolbarItem *item = [[notification userInfo] objectForKey:@"item"];
 
 	if ([[item itemIdentifier] isEqualToString:@"UserIcon"]) {
 
 		[item setEnabled:YES];
 
-		//Add menu to toolbar item (for text mode)
-		NSMenuItem	*menuFormRepresentation, *blankMenuItem;
-		NSMenu		*menu;
+		// Add menu to toolbar item (for text mode)
+		NSMenuItem *menuFormRepresentation, *blankMenuItem;
+		NSMenu *menu;
 
 		menuFormRepresentation = [[NSMenuItem alloc] init];
 
@@ -179,7 +178,7 @@
 		[menuFormRepresentation setTitle:[item label]];
 		[item setMenuFormRepresentation:menuFormRepresentation];
 
-		//If this is the first item added, start observing for chats becoming visible so we can update the icon
+		// If this is the first item added, start observing for chats becoming visible so we can update the icon
 		if ([toolbarItems count] == 0) {
 			[[NSNotificationCenter defaultCenter] addObserver:self
 													 selector:@selector(chatDidBecomeVisible:)
@@ -189,9 +188,7 @@
 
 		[toolbarItems addObject:item];
 
-		[self performSelector:@selector(toolbarDidAddItem:)
-				   withObject:item
-				   afterDelay:0];
+		[self performSelector:@selector(toolbarDidAddItem:) withObject:item afterDelay:0];
 	}
 }
 

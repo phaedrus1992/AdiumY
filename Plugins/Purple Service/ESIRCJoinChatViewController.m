@@ -31,9 +31,9 @@
 	if ((self = [super init])) {
 		// Observe text changes instead of implementing the deprecated NSControlTextEditingDelegate method
 		[[NSNotificationCenter defaultCenter] addObserver:self
-		                                         selector:@selector(textFieldChanged:)
-		                                             name:NSControlTextDidChangeNotification
-		                                           object:textField_channel];
+												 selector:@selector(textFieldChanged:)
+													 name:NSControlTextDidChangeNotification
+												   object:textField_channel];
 	}
 
 	return self;
@@ -41,9 +41,7 @@
 
 - (void)dealloc
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-	                                                name:NSControlTextDidChangeNotification
-	                                              object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSControlTextDidChangeNotification object:nil];
 }
 
 - (NSString *)nibName

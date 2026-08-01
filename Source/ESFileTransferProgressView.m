@@ -14,16 +14,16 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import "ESFileTransferProgressRow.h"
 #import "ESFileTransferProgressView.h"
+#import "ESFileTransferProgressRow.h"
+#import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIParagraphStyleAdditions.h>
 #import <AIUtilities/AIRolloverButton.h>
-#import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 
-#define	NORMAL_TEXT_COLOR		[NSColor controlTextColor]
-#define	SELECTED_TEXT_COLOR		[NSColor whiteColor]
-#define TRANSFER_STATUS_COLOR	[NSColor disabledControlTextColor]
+#define NORMAL_TEXT_COLOR [NSColor controlTextColor]
+#define SELECTED_TEXT_COLOR [NSColor whiteColor]
+#define TRANSFER_STATUS_COLOR [NSColor disabledControlTextColor]
 
 @interface ESFileTransferProgressView ()
 - (void)updateButtonReveal;
@@ -35,8 +35,8 @@
 - (void)awakeFromNib
 {
 	if ([[self superclass] instancesRespondToSelector:@selector(awakeFromNib)]) {
-        [super awakeFromNib];
-    }
+		[super awakeFromNib];
+	}
 
 	[progressIndicator setUsesThreadedAnimation:YES];
 	[progressIndicator setIndeterminate:YES];
@@ -48,7 +48,7 @@
 	[button_reveal setDelegate:self];
 
 	buttonStopResumeIsHovered = NO;
-    buttonStopResumeIsResend = NO;
+	buttonStopResumeIsResend = NO;
 	buttonRevealIsHovered = NO;
 }
 #pragma mark Source and destination
@@ -72,9 +72,9 @@
 #pragma mark File and its icon
 - (void)setFileName:(NSString *)inFileName
 {
-	[textField_fileName setStringValue:(inFileName ?
-										   inFileName :
-										   [AILocalizedString(@"Initializing transfer",nil) stringByAppendingEllipsis])];
+	[textField_fileName
+		setStringValue:(inFileName ? inFileName
+								   : [AILocalizedString(@"Initializing transfer", nil) stringByAppendingEllipsis])];
 }
 - (void)setIconImage:(NSImage *)inIconImage
 {
@@ -103,27 +103,27 @@
 	if (flag != progressVisible) {
 		progressVisible = flag;
 		if (progressVisible) {
-			//Redisplay the progress bar.  We never do this at present, so unimplemented for now.
+			// Redisplay the progress bar.  We never do this at present, so unimplemented for now.
 		} else {
-			NSRect	progressRect = [progressIndicator frame];
-			NSRect	frame;
-			CGFloat	distanceToMove = progressRect.size.height / 2;
+			NSRect progressRect = [progressIndicator frame];
+			NSRect frame;
+			CGFloat distanceToMove = progressRect.size.height / 2;
 
 			[progressIndicator setDisplayedWhenStopped:NO];
 			[progressIndicator setIndeterminate:YES];
 			[progressIndicator stopAnimation:self];
 			[progressIndicator setHidden:YES];
 
-			//Top objects moving down
+			// Top objects moving down
 			{
 				frame = [textField_fileName frame];
 				frame.origin.y -= distanceToMove;
-				//Don't let it be any further right than the progress bar used to be to avoid our buttons
+				// Don't let it be any further right than the progress bar used to be to avoid our buttons
 				frame.size.width = (progressRect.origin.x + progressRect.size.width) - frame.origin.x;
 				[textField_fileName setFrame:frame];
 			}
 
-			//Bottom objects moving up
+			// Bottom objects moving up
 			{
 				frame = [twiddle_details frame];
 				frame.origin.y += distanceToMove;
@@ -135,7 +135,7 @@
 
 				frame = [box_transferStatusFrame frame];
 				frame.origin.y += distanceToMove;
-				//Don't let it be any further right than the progress bar used to be to avoid our buttons
+				// Don't let it be any further right than the progress bar used to be to avoid our buttons
 				frame.size.width = (progressRect.origin.x + progressRect.size.width) - frame.origin.x;
 				[box_transferStatusFrame setFrame:frame];
 			}
@@ -145,28 +145,26 @@
 
 - (void)setButtonStopResumeVisible:(BOOL)flag
 {
-    [button_stopResume setHidden:!flag];
+	[button_stopResume setHidden:!flag];
 }
 
 - (void)setButtonStopResumeIsResend:(BOOL)flag
 {
-    buttonStopResumeIsResend = flag;
-    [self updateButtonStopResume];
+	buttonStopResumeIsResend = flag;
+	[self updateButtonStopResume];
 }
 
 - (BOOL)buttonStopResumeIsResend
 {
-    return buttonStopResumeIsResend;
+	return buttonStopResumeIsResend;
 }
 
 - (void)setTransferBytesStatus:(NSString *)inTransferBytesStatus
-				   remainingStatus:(NSString *)inTransferRemainingStatus
-					   speedStatus:(NSString *)inTransferSpeedStatus
+			   remainingStatus:(NSString *)inTransferRemainingStatus
+				   speedStatus:(NSString *)inTransferSpeedStatus
 {
 	if (inTransferBytesStatus && inTransferRemainingStatus) {
-		transferStatus = [NSString stringWithFormat:@"%@ - %@",
-			inTransferBytesStatus,
-			inTransferRemainingStatus];
+		transferStatus = [NSString stringWithFormat:@"%@ - %@", inTransferBytesStatus, inTransferRemainingStatus];
 	} else if (inTransferBytesStatus) {
 		transferStatus = inTransferBytesStatus;
 	} else if (inTransferRemainingStatus) {
@@ -175,42 +173,42 @@
 		transferStatus = @"";
 	}
 
-//	[textField_transferStatus setStringValue:transferStatus];
+	//	[textField_transferStatus setStringValue:transferStatus];
 	[self setNeedsDisplayInRect:[box_transferStatusFrame frame]];
 	[textField_rate setStringValue:(inTransferSpeedStatus ? inTransferSpeedStatus : @"")];
 }
 
 #pragma mark Details
-//Sent when the details twiddle is clicked
+// Sent when the details twiddle is clicked
 - (IBAction)toggleDetails:(id)sender
 {
-	NSRect	detailsFrame = [view_details frame];
-	NSRect	primaryControlsFrame = [box_primaryControls frame];
-	NSRect	oldFrame = [self frame];
-	NSRect	newFrame = oldFrame;
+	NSRect detailsFrame = [view_details frame];
+	NSRect primaryControlsFrame = [box_primaryControls frame];
+	NSRect oldFrame = [self frame];
+	NSRect newFrame = oldFrame;
 
 	showingDetails = !showingDetails;
 
 	if (showingDetails) {
-		//Increase our height to make space
+		// Increase our height to make space
 		newFrame.size.height += detailsFrame.size.height;
 		newFrame.origin.y -= detailsFrame.size.height;
 		[self setFrame:newFrame];
 
-		//Move the box with our primary controls up
+		// Move the box with our primary controls up
 		primaryControlsFrame.origin.y += detailsFrame.size.height;
 		[box_primaryControls setFrame:primaryControlsFrame];
 
-		//Add the details subview
+		// Add the details subview
 		[self addSubview:view_details];
 
-		//Line up the details frame with the twiddle which revealed it
+		// Line up the details frame with the twiddle which revealed it
 		detailsFrame.origin.x = [twiddle_details frame].origin.x;
 		detailsFrame.origin.y = 0;
 
 		[view_details setFrame:detailsFrame];
 
-		//Update the twiddle
+		// Update the twiddle
 		[twiddle_details setState:NSControlStateValueOn];
 	} else {
 		newFrame.size.height -= detailsFrame.size.height;
@@ -218,20 +216,18 @@
 
 		[self setFrame:newFrame];
 
-		//Move the box with our primary controls back down
+		// Move the box with our primary controls back down
 		primaryControlsFrame.origin.y -= detailsFrame.size.height;
 		[box_primaryControls setFrame:primaryControlsFrame];
 
 		[view_details removeFromSuperview];
 
-		//Update the twiddle
+		// Update the twiddle
 		[twiddle_details setState:NSControlStateValueOff];
 	}
 
-	//Let the owner know our height changed so other rows can be adjusted accordingly
-	[owner fileTransferProgressView:self
-				  heightChangedFrom:oldFrame.size.height
-								 to:newFrame.size.height];
+	// Let the owner know our height changed so other rows can be adjusted accordingly
+	[owner fileTransferProgressView:self heightChangedFrom:oldFrame.size.height to:newFrame.size.height];
 }
 
 - (void)setShowsDetails:(BOOL)flag
@@ -248,7 +244,7 @@
 
 - (void)updateColors
 {
-	NSColor	*newColor;
+	NSColor *newColor;
 
 	if (isSelected && [[self window] isKeyWindow]) {
 		newColor = SELECTED_TEXT_COLOR;
@@ -263,7 +259,6 @@
 
 	[textField_detailsLabel setTextColor:newColor];
 
-
 	[self updateButtonStopResume];
 	[self updateButtonReveal];
 	[self setNeedsDisplay:YES];
@@ -276,12 +271,8 @@
 
 - (void)viewDidMoveToWindow
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-													name:NSWindowDidBecomeKeyNotification
-												  object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-													name:NSWindowDidResignKeyNotification
-												  object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidBecomeKeyNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignKeyNotification object:nil];
 	if ([self window]) {
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(windowDidChangeKey:)
@@ -308,16 +299,20 @@
 - (void)updateButtonStopResume
 {
 	if (buttonStopResumeIsResend) {
-	    [button_stopResume setKeyEquivalent:@""];
+		[button_stopResume setKeyEquivalent:@""];
 
 		if (isSelected) {
-			[button_stopResume setImage:[NSImage imageNamed:(buttonStopResumeIsHovered ? @"FTProgressResendRollover_Selected" : @"FTProgressResend_Selected")
-												   forClass:[self class]]];
+			[button_stopResume
+				setImage:[NSImage imageNamed:(buttonStopResumeIsHovered ? @"FTProgressResendRollover_Selected"
+																		: @"FTProgressResend_Selected")
+									forClass:[self class]]];
 
-			[button_stopResume setAlternateImage:[NSImage imageNamed:@"FTProgressResendPressed_Selected" forClass:[self class]]];
+			[button_stopResume setAlternateImage:[NSImage imageNamed:@"FTProgressResendPressed_Selected"
+															forClass:[self class]]];
 
 		} else {
-			[button_stopResume setImage:[NSImage imageNamed:(buttonStopResumeIsHovered ? @"FTProgressResendRollover" : @"FTProgressResend")
+			[button_stopResume setImage:[NSImage imageNamed:(buttonStopResumeIsHovered ? @"FTProgressResendRollover"
+																					   : @"FTProgressResend")
 												   forClass:[self class]]];
 
 			[button_stopResume setAlternateImage:[NSImage imageNamed:@"FTProgressResendPressed" forClass:[self class]]];
@@ -327,16 +322,20 @@
 			[button_stopResume setKeyEquivalent:@"."];
 			[button_stopResume setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
 
-			[button_stopResume setImage:[NSImage imageNamed:(buttonStopResumeIsHovered ? @"FTProgressStopRollover_Selected" : @"FTProgressStop_Selected")
-													forClass:[self class]]];
+			[button_stopResume
+				setImage:[NSImage imageNamed:(buttonStopResumeIsHovered ? @"FTProgressStopRollover_Selected"
+																		: @"FTProgressStop_Selected")
+									forClass:[self class]]];
 
-			[button_stopResume setAlternateImage:[NSImage imageNamed:@"FTProgressStopPressed_Selected" forClass:[self class]]];
+			[button_stopResume setAlternateImage:[NSImage imageNamed:@"FTProgressStopPressed_Selected"
+															forClass:[self class]]];
 
 		} else {
 			[button_stopResume setKeyEquivalent:@""];
 
-			[button_stopResume setImage:[NSImage imageNamed:(buttonStopResumeIsHovered ? @"FTProgressStopRollover" : @"FTProgressStop")
-													forClass:[self class]]];
+			[button_stopResume
+				setImage:[NSImage imageNamed:(buttonStopResumeIsHovered ? @"FTProgressStopRollover" : @"FTProgressStop")
+									forClass:[self class]]];
 
 			[button_stopResume setAlternateImage:[NSImage imageNamed:@"FTProgressStopPressed" forClass:[self class]]];
 		}
@@ -346,17 +345,19 @@
 - (void)updateButtonReveal
 {
 	if (isSelected) {
-		[button_reveal setImage:[NSImage imageNamed:(buttonRevealIsHovered ? @"FTProgressRevealRollover_Selected" : @"FTProgressReveal_Selected")
+		[button_reveal setImage:[NSImage imageNamed:(buttonRevealIsHovered ? @"FTProgressRevealRollover_Selected"
+																		   : @"FTProgressReveal_Selected")
 										   forClass:[self class]]];
 
-		[button_reveal setAlternateImage:[NSImage imageNamed:@"FTProgressRevealPressed_Selected" forClass:[self class]]];
+		[button_reveal setAlternateImage:[NSImage imageNamed:@"FTProgressRevealPressed_Selected"
+													forClass:[self class]]];
 
 	} else {
-		[button_reveal setImage:[NSImage imageNamed:(buttonRevealIsHovered ? @"FTProgressRevealRollover" : @"FTProgressReveal")
-										   forClass:[self class]]];
+		[button_reveal
+			setImage:[NSImage imageNamed:(buttonRevealIsHovered ? @"FTProgressRevealRollover" : @"FTProgressReveal")
+								forClass:[self class]]];
 
 		[button_reveal setAlternateImage:[NSImage imageNamed:@"FTProgressRevealPressed" forClass:[self class]]];
-
 	}
 }
 - (void)rolloverButton:(AIRolloverButton *)inButton mouseChangedToInsideButton:(BOOL)isInside
@@ -368,57 +369,57 @@
 	} else if (inButton == button_reveal) {
 		buttonRevealIsHovered = isInside;
 		[self updateButtonReveal];
-
 	}
 }
 
-static NSDictionary	*transferStatusAttributes = nil;
-static NSDictionary	*transferStatusSelectedAttributes = nil;
+static NSDictionary *transferStatusAttributes = nil;
+static NSDictionary *transferStatusSelectedAttributes = nil;
 
-//Draw the transfer status after other views draw.  This lets us use custom drawing behavior including the
-//NSLineBreakByTruncatingTail paragraph style.  We draw into a frame reserved for us by box_transferStatusFrame;
-//this lets us not worry about autosizing and positioning since the view takes care of that for us.
+// Draw the transfer status after other views draw.  This lets us use custom drawing behavior including the
+// NSLineBreakByTruncatingTail paragraph style.  We draw into a frame reserved for us by box_transferStatusFrame;
+// this lets us not worry about autosizing and positioning since the view takes care of that for us.
 - (void)drawRect:(NSRect)rect
 {
 	[super drawRect:rect];
 
-	NSDictionary	*attributes;
-	NSRect			primaryControlsRect = [box_primaryControls frame];
-	NSRect			targetRect = [box_transferStatusFrame frame];
+	NSDictionary *attributes;
+	NSRect primaryControlsRect = [box_primaryControls frame];
+	NSRect targetRect = [box_transferStatusFrame frame];
 
 	targetRect.origin.x += primaryControlsRect.origin.x;
 	targetRect.origin.y += primaryControlsRect.origin.y;
 
 	if (isSelected && [[self window] isKeyWindow]) {
 		if (!transferStatusSelectedAttributes) {
-			NSMutableParagraphStyle	*paragraphStyle = [NSMutableParagraphStyle styleWithAlignment:NSTextAlignmentLeft
-																					lineBreakMode:NSLineBreakByTruncatingTail];
+			NSMutableParagraphStyle *paragraphStyle =
+				[NSMutableParagraphStyle styleWithAlignment:NSTextAlignmentLeft
+											  lineBreakMode:NSLineBreakByTruncatingTail];
 			[paragraphStyle setMaximumLineHeight:[box_transferStatusFrame frame].size.height];
 
-			transferStatusSelectedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
-				paragraphStyle, NSParagraphStyleAttributeName,
-				[NSFont systemFontOfSize:9], NSFontAttributeName,
-				SELECTED_TEXT_COLOR, NSForegroundColorAttributeName, nil];
+			transferStatusSelectedAttributes =
+				[NSDictionary dictionaryWithObjectsAndKeys:paragraphStyle, NSParagraphStyleAttributeName,
+														   [NSFont systemFontOfSize:9], NSFontAttributeName,
+														   SELECTED_TEXT_COLOR, NSForegroundColorAttributeName, nil];
 		}
 
 		attributes = transferStatusSelectedAttributes;
 	} else {
 		if (!transferStatusAttributes) {
-			NSMutableParagraphStyle	*paragraphStyle = [NSMutableParagraphStyle styleWithAlignment:NSTextAlignmentLeft
-																					lineBreakMode:NSLineBreakByTruncatingTail];
+			NSMutableParagraphStyle *paragraphStyle =
+				[NSMutableParagraphStyle styleWithAlignment:NSTextAlignmentLeft
+											  lineBreakMode:NSLineBreakByTruncatingTail];
 			[paragraphStyle setMaximumLineHeight:[box_transferStatusFrame frame].size.height];
 
-			transferStatusAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
-				paragraphStyle, NSParagraphStyleAttributeName,
-				[NSFont systemFontOfSize:9], NSFontAttributeName,
-				TRANSFER_STATUS_COLOR, NSForegroundColorAttributeName, nil];
+			transferStatusAttributes =
+				[NSDictionary dictionaryWithObjectsAndKeys:paragraphStyle, NSParagraphStyleAttributeName,
+														   [NSFont systemFontOfSize:9], NSFontAttributeName,
+														   TRANSFER_STATUS_COLOR, NSForegroundColorAttributeName, nil];
 		}
 
 		attributes = transferStatusAttributes;
 	}
 
-	[transferStatus drawInRect:targetRect
-				withAttributes:attributes];
+	[transferStatus drawInRect:targetRect withAttributes:attributes];
 }
 
 #pragma mark Menu

@@ -50,7 +50,6 @@
 
 	AIAccountMenu *accountMenu;
 	AIAccountMenu *sheetAccountMenu;
-
 }
 
 + (void)showWindow;

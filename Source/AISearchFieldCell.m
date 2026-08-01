@@ -20,9 +20,7 @@
 @implementation AISearchFieldCell
 
 - (void)dealloc
-{
-
-}
+{}
 
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
@@ -36,7 +34,7 @@
 
 - (void)setTextColor:(NSColor *)inTextColor backgroundColor:(NSColor *)inBackgroundColor
 {
-	NSSearchField	*searchField = (NSSearchField *)[self controlView];
+	NSSearchField *searchField = (NSSearchField *)[self controlView];
 
 	[searchField setTextColor:(inTextColor ? inTextColor : [NSColor blackColor])];
 

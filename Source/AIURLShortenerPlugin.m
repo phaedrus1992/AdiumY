@@ -320,13 +320,14 @@
 	__block NSURLResponse *response = nil;
 	__block NSError *errorResponse = nil;
 	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-	NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request
-																completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error) {
-		shortenedData = data;
-		response = urlResponse;
-		errorResponse = error;
-		dispatch_semaphore_signal(semaphore);
-	}];
+	NSURLSessionDataTask *task =
+		[[NSURLSession sharedSession] dataTaskWithRequest:request
+										completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error) {
+											shortenedData = data;
+											response = urlResponse;
+											errorResponse = error;
+											dispatch_semaphore_signal(semaphore);
+										}];
 	[task resume];
 	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 

@@ -15,8 +15,8 @@
  */
 
 #import "ESGlassSplitView.h"
-#import <Adium/KNShelfSplitView.h>
 #import <AIUtilities/AIImageAdditions.h>
+#import <Adium/KNShelfSplitView.h>
 
 @implementation ESGlassSplitView
 - (void)_initGlassSplitView
@@ -45,37 +45,32 @@
 	return self;
 }
 
--(void)drawDividerInRect:(NSRect)aRect
+- (void)drawDividerInRect:(NSRect)aRect
 {
-	//Draw the background, tiling across
+	// Draw the background, tiling across
 	NSRect sourceRect = NSMakeRect(0, 0, backgroundSize.width, backgroundSize.height);
 	NSRect destRect = NSMakeRect(aRect.origin.x, aRect.origin.y, sourceRect.size.width, aRect.size.width);
 
 	while ((NSMinX(destRect) < NSMaxX(aRect)) && NSWidth(destRect) > 0) {
-		//Crop
+		// Crop
 		if (NSMaxX(destRect) > NSMaxX(aRect)) {
 			sourceRect.size.width = NSWidth(destRect);
 		}
 
-		[background drawInRect:destRect
-					  fromRect:sourceRect
-					 operation:NSCompositingOperationSourceOver
-					  fraction:1.0f];
+		[background drawInRect:destRect fromRect:sourceRect operation:NSCompositingOperationSourceOver fraction:1.0f];
 		destRect.origin.x += NSWidth(destRect);
 	}
 
-	//Draw the borders
+	// Draw the borders
 	[[NSColor separatorColor] set];
 	NSRectFill(NSMakeRect(aRect.origin.x, aRect.origin.y, aRect.size.width, 1.0f));
 	NSRectFill(NSMakeRect(aRect.origin.x, aRect.origin.y + aRect.size.height - 1, aRect.size.width, 1.0f));
 
-	//Draw the thumb
+	// Draw the thumb
 	//[[NSColor blackColor] set];
-	NSBezierPath *ovalPath = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(aRect.origin.x + (aRect.size.width / 2.0f) - 2,
-																			   aRect.origin.y + (aRect.size.height / 2.0f) - 2,
-																			   4,
-																			   4
-																			   )];
+	NSBezierPath *ovalPath =
+		[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(aRect.origin.x + (aRect.size.width / 2.0f) - 2,
+														  aRect.origin.y + (aRect.size.height / 2.0f) - 2, 4, 4)];
 	[[[NSColor lightGrayColor] colorWithAlphaComponent:0.5f] set];
 	[ovalPath fill];
 

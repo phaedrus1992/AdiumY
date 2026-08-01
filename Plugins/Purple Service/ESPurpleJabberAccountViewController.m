@@ -261,9 +261,10 @@ static NSComparisonResult compareByDistance(id one, id two, void *context)
 
 				NSAlert *alert = [[NSAlert alloc] init];
 				alert.messageText = AILocalizedString(@"Parse Error.", nil);
-				alert.informativeText = [NSString stringWithFormat:AILocalizedString(
-													   @"Unable to parse the server list at %@. Please try again later.",
-													   nil), SERVERFEEDRSSURL];
+				alert.informativeText = [NSString
+					stringWithFormat:AILocalizedString(
+										 @"Unable to parse the server list at %@. Please try again later.", nil),
+									 SERVERFEEDRSSURL];
 				[alert addButtonWithTitle:AILocalizedString(@"OK", nil)];
 				[alert runModal];
 			} else {
@@ -320,9 +321,10 @@ static NSComparisonResult compareByDistance(id one, id two, void *context)
 		}
 	}
 
-	[[sender window] beginSheet:window_registerServer completionHandler:^(NSModalResponse returnCode) {
-		[self registrationSheetDidEnd:self->window_registerServer returnCode:returnCode contextInfo:NULL];
-	}];
+	[[sender window] beginSheet:window_registerServer
+			  completionHandler:^(NSModalResponse returnCode) {
+				  [self registrationSheetDidEnd:self->window_registerServer returnCode:returnCode contextInfo:NULL];
+			  }];
 }
 
 - (void)registrationSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo

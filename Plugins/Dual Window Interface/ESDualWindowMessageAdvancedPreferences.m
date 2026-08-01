@@ -280,11 +280,10 @@
 	NSUInteger loopCounter;
 
 	for (loopCounter = 0; loopCounter < 23; loopCounter++) {
-		menuItem = [[NSMenuItem alloc]
-			initWithTitle:[[NSNumber numberWithInteger:sizes[loopCounter]] stringValue]
-				   target:nil
-				   action:nil
-			keyEquivalent:@""];
+		menuItem = [[NSMenuItem alloc] initWithTitle:[[NSNumber numberWithInteger:sizes[loopCounter]] stringValue]
+											  target:nil
+											  action:nil
+									   keyEquivalent:@""];
 		[menuItem setTag:sizes[loopCounter]];
 		[menu addItem:menuItem];
 	}

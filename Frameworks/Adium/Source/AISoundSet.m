@@ -128,9 +128,12 @@
 
 			NSAlert *alert = [[NSAlert alloc] init];
 			alert.messageText = AILocalizedString(@"Sound set upgrade failed", nil);
-			alert.informativeText = [NSString stringWithFormat:AILocalizedString(@"This version of AdiumY uses a new format for sound sets. AdiumY was not "
-									  @"able to update the sound set %@ located at %@. It has been disabled.",
-									  nil), [[inPath lastPathComponent] stringByDeletingPathExtension], inPath];
+			alert.informativeText = [NSString
+				stringWithFormat:AILocalizedString(
+									 @"This version of AdiumY uses a new format for sound sets. AdiumY was not "
+									 @"able to update the sound set %@ located at %@. It has been disabled.",
+									 nil),
+								 [[inPath lastPathComponent] stringByDeletingPathExtension], inPath];
 			[alert addButtonWithTitle:AILocalizedString(@"OK", nil)];
 			[alert runModal];
 			success = NO;
@@ -167,9 +170,12 @@
 		} else {
 			NSAlert *alert = [[NSAlert alloc] init];
 			alert.messageText = AILocalizedString(@"Cannot open sound set", nil);
-			alert.informativeText = [NSString stringWithFormat:AILocalizedString(@"The sound set %@ is version %i, and this version of AdiumY does not "
-									  @"know how to handle that; perhaps try a later version of AdiumY.",
-									  nil), [soundPlistPath lastPathComponent], version];
+			alert.informativeText =
+				[NSString stringWithFormat:AILocalizedString(
+											   @"The sound set %@ is version %i, and this version of AdiumY does not "
+											   @"know how to handle that; perhaps try a later version of AdiumY.",
+											   nil),
+										   [soundPlistPath lastPathComponent], version];
 			[alert addButtonWithTitle:AILocalizedString(@"OK", nil)];
 			[alert runModal];
 
@@ -210,12 +216,12 @@
 
 			// Resolve bundle relative paths
 			if ([splitPath count] == 2) {
-				NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:[splitPath objectAtIndex:0]];
+				NSURL *appURL =
+					[[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:[splitPath objectAtIndex:0]];
 
 				if (appURL != nil) {
-					location =
-						[NSString pathWithComponents:[NSArray arrayWithObjects:[appURL path],
-																   [splitPath objectAtIndex:1], nil]];
+					location = [NSString
+						pathWithComponents:[NSArray arrayWithObjects:[appURL path], [splitPath objectAtIndex:1], nil]];
 				}
 			}
 

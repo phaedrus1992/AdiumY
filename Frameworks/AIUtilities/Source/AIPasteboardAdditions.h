@@ -19,9 +19,8 @@
 // AppKit's NSFilenamesPboardType and NSPostScriptPboardType are deprecated with no modern named
 // replacement. These keep their exact legacy string values so drag/drop contracts with Finder
 // and other apps are unchanged.
-#define AINSPasteboardTypeFilenames	@"NSFilenamesPboardType"
-#define AINSPasteboardTypePostScript	@"NeXT Encapsulated PostScript v1.2 pasteboard type"
-
+#define AINSPasteboardTypeFilenames @"NSFilenamesPboardType"
+#define AINSPasteboardTypePostScript @"NeXT Encapsulated PostScript v1.2 pasteboard type"
 
 @interface NSPasteboard (AIPasteboardAdditions)
 - (NSArray *)filesFromITunesDragPasteboard;

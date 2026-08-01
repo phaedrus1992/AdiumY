@@ -15,12 +15,12 @@
  */
 
 #import "ESAddressBookIntegrationAdvancedPreferences.h"
-#import <Adium/AIAddressBookController.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AILocalizationTextField.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
+#import <Adium/AIAddressBookController.h>
+#import <Adium/AIContactControllerProtocol.h>
+#import <Adium/AILocalizationTextField.h>
 
 @interface NSTokenField (NSTokenFieldAdditions)
 - (void)updateDisplay;
@@ -57,19 +57,22 @@
 /*!
  * @brief Label
  */
-- (NSString *)label{
-    return AILocalizedString(@"Address Book",nil);
+- (NSString *)label
+{
+	return AILocalizedString(@"Address Book", nil);
 }
 /*!
  * @brief Nib name
  */
-- (NSString *)nibName{
-    return @"AddressBookPrefs";
+- (NSString *)nibName
+{
+	return @"AddressBookPrefs";
 }
 /*!
  * @brief Image for advanced preferences
  */
-- (NSImage *)image{
+- (NSImage *)image
+{
 	return [NSImage imageNamed:@"AddressBook" forClass:[self class]];
 }
 
@@ -78,10 +81,11 @@
  */
 - (void)viewDidLoad
 {
-	[label_instructions setLocalizedString:AILocalizedString(@"Type text and drag name elements to create a custom name format.", nil)];
-	[label_names setLocalizedString:AILocalizedString(@"Names",nil)];
-	[label_images setLocalizedString:AILocalizedString(@"Images",nil)];
-	[label_contacts setLocalizedString:AILocalizedString(@"Contacts",nil)];
+	[label_instructions
+		setLocalizedString:AILocalizedString(@"Type text and drag name elements to create a custom name format.", nil)];
+	[label_names setLocalizedString:AILocalizedString(@"Names", nil)];
+	[label_images setLocalizedString:AILocalizedString(@"Images", nil)];
+	[label_contacts setLocalizedString:AILocalizedString(@"Contacts", nil)];
 
 	[box_nameElements setTitle:AILocalizedString(@"Name elements", "Contains name format tokens")];
 
@@ -90,7 +94,8 @@
 	[label_lastToken setLocalizedString:AILocalizedString(@"Last", "Last name token")];
 	[label_nickToken setLocalizedString:AILocalizedString(@"Nick", "Nickname token")];
 
-	NSString *displayFormat = [adium.preferenceController preferenceForKey:KEY_AB_DISPLAYFORMAT group:PREF_GROUP_ADDRESSBOOK];
+	NSString *displayFormat = [adium.preferenceController preferenceForKey:KEY_AB_DISPLAYFORMAT
+																	 group:PREF_GROUP_ADDRESSBOOK];
 	[tokenField_format setDelegate:self];
 	[tokenField_format setTokenizingCharacterSet:[NSCharacterSet characterSetWithCharactersInString:@""]];
 	[tokenField_format setObjectValue:[self separateStringIntoTokens:displayFormat]];
@@ -104,28 +109,31 @@
 	[tokenField_nickToken setDelegate:self];
 	[tokenField_nickToken setStringValue:FORMAT_NICK_FULL];
 
-	[checkBox_enableImport setLocalizedString:AILocalizedString(@"Import my contacts' names from the Address Book",nil)];
+	[checkBox_enableImport
+		setLocalizedString:AILocalizedString(@"Import my contacts' names from the Address Book", nil)];
 	[checkBox_useFirstName setLocalizedString:AILocalizedString(@"Replace Nick with First if not available", nil)];
-	[checkBox_useNickName setLocalizedString:AILocalizedString(@"Use Nick exclusively if available",nil)];
-	[checkBox_useABImages setLocalizedString:AILocalizedString(@"Use Address Book images as contacts' icons",nil)];
-	[checkBox_preferABImages setLocalizedString:AILocalizedString(@"Even if the contact already has a contact icon",nil)];
-	[checkBox_syncAutomatic setLocalizedString:AILocalizedString(@"Overwrite Address Book images with contacts' icons",nil)];
-	[checkBox_metaContacts setLocalizedString:AILocalizedString(@"Combine contacts listed on a single card",nil)];
+	[checkBox_useNickName setLocalizedString:AILocalizedString(@"Use Nick exclusively if available", nil)];
+	[checkBox_useABImages setLocalizedString:AILocalizedString(@"Use Address Book images as contacts' icons", nil)];
+	[checkBox_preferABImages
+		setLocalizedString:AILocalizedString(@"Even if the contact already has a contact icon", nil)];
+	[checkBox_syncAutomatic
+		setLocalizedString:AILocalizedString(@"Overwrite Address Book images with contacts' icons", nil)];
+	[checkBox_metaContacts setLocalizedString:AILocalizedString(@"Combine contacts listed on a single card", nil)];
 
 	[checkBox_enableImport setState:[[adium.preferenceController preferenceForKey:KEY_AB_ENABLE_IMPORT
-																			  group:PREF_GROUP_ADDRESSBOOK] boolValue]];
+																			group:PREF_GROUP_ADDRESSBOOK] boolValue]];
 	[checkBox_useFirstName setState:[[adium.preferenceController preferenceForKey:KEY_AB_USE_FIRSTNAME
 																			group:PREF_GROUP_ADDRESSBOOK] boolValue]];
 	[checkBox_useNickName setState:[[adium.preferenceController preferenceForKey:KEY_AB_USE_NICKNAME
-																			 group:PREF_GROUP_ADDRESSBOOK] boolValue]];
+																		   group:PREF_GROUP_ADDRESSBOOK] boolValue]];
 	[checkBox_syncAutomatic setState:[[adium.preferenceController preferenceForKey:KEY_AB_IMAGE_SYNC
-																			   group:PREF_GROUP_ADDRESSBOOK] boolValue]];
-	[checkBox_useABImages setState:[[adium.preferenceController preferenceForKey:KEY_AB_USE_IMAGES
 																			 group:PREF_GROUP_ADDRESSBOOK] boolValue]];
+	[checkBox_useABImages setState:[[adium.preferenceController preferenceForKey:KEY_AB_USE_IMAGES
+																		   group:PREF_GROUP_ADDRESSBOOK] boolValue]];
 	[checkBox_preferABImages setState:[[adium.preferenceController preferenceForKey:KEY_AB_PREFER_ADDRESS_BOOK_IMAGES
-																				group:PREF_GROUP_ADDRESSBOOK] boolValue]];
-	[checkBox_metaContacts setState:[[adium.preferenceController preferenceForKey:KEY_AB_CREATE_METACONTACTS
 																			  group:PREF_GROUP_ADDRESSBOOK] boolValue]];
+	[checkBox_metaContacts setState:[[adium.preferenceController preferenceForKey:KEY_AB_CREATE_METACONTACTS
+																			group:PREF_GROUP_ADDRESSBOOK] boolValue]];
 
 	[self configureControlDimming];
 }
@@ -135,14 +143,15 @@
  */
 - (void)configureControlDimming
 {
-	BOOL            enableImport = [[adium.preferenceController preferenceForKey:KEY_AB_ENABLE_IMPORT
-																			 group:PREF_GROUP_ADDRESSBOOK] boolValue];
-	BOOL            useImages = [[adium.preferenceController preferenceForKey:KEY_AB_USE_IMAGES
-																		  group:PREF_GROUP_ADDRESSBOOK] boolValue];
+	BOOL enableImport = [[adium.preferenceController preferenceForKey:KEY_AB_ENABLE_IMPORT
+																group:PREF_GROUP_ADDRESSBOOK] boolValue];
+	BOOL useImages = [[adium.preferenceController preferenceForKey:KEY_AB_USE_IMAGES
+															 group:PREF_GROUP_ADDRESSBOOK] boolValue];
 
-	[label_instructions setTextColor:((enableImport) ? [NSColor controlTextColor] : [NSColor disabledControlTextColor])];
+	[label_instructions
+		setTextColor:((enableImport) ? [NSColor controlTextColor] : [NSColor disabledControlTextColor])];
 
-	//Use Nick Name and the format menu are irrelevent if importing of names is not enabled
+	// Use Nick Name and the format menu are irrelevent if importing of names is not enabled
 	[checkBox_useFirstName setEnabled:enableImport];
 	[checkBox_useNickName setEnabled:enableImport];
 
@@ -152,7 +161,7 @@
 	[tokenField_lastToken setEnabled:enableImport];
 	[tokenField_nickToken setEnabled:enableImport];
 
-	//Disable the image priority checkbox if we aren't using images
+	// Disable the image priority checkbox if we aren't using images
 	[checkBox_preferABImages setEnabled:useImages];
 }
 
@@ -172,50 +181,61 @@
 - (IBAction)changePreference:(id)sender
 {
 	if (sender == checkBox_syncAutomatic) {
-		[adium.preferenceController setPreference:[NSNumber numberWithBool:([(NSButton *)sender state]==NSControlStateValueOn)]
-											 forKey:KEY_AB_IMAGE_SYNC
-											  group:PREF_GROUP_ADDRESSBOOK];
+		[adium.preferenceController
+			setPreference:[NSNumber numberWithBool:([(NSButton *)sender state] == NSControlStateValueOn)]
+				   forKey:KEY_AB_IMAGE_SYNC
+					group:PREF_GROUP_ADDRESSBOOK];
 
 	} else if (sender == checkBox_useABImages) {
-		[adium.preferenceController setPreference:[NSNumber numberWithBool:([(NSButton *)sender state]==NSControlStateValueOn)]
-											 forKey:KEY_AB_USE_IMAGES
-											  group:PREF_GROUP_ADDRESSBOOK];
+		[adium.preferenceController
+			setPreference:[NSNumber numberWithBool:([(NSButton *)sender state] == NSControlStateValueOn)]
+				   forKey:KEY_AB_USE_IMAGES
+					group:PREF_GROUP_ADDRESSBOOK];
 	} else if (sender == checkBox_useFirstName) {
-		[adium.preferenceController setPreference:[NSNumber numberWithBool:([(NSButton *)sender state]==NSControlStateValueOn)]
-										   forKey:KEY_AB_USE_FIRSTNAME
-											group:PREF_GROUP_ADDRESSBOOK];
+		[adium.preferenceController
+			setPreference:[NSNumber numberWithBool:([(NSButton *)sender state] == NSControlStateValueOn)]
+				   forKey:KEY_AB_USE_FIRSTNAME
+					group:PREF_GROUP_ADDRESSBOOK];
 	} else if (sender == checkBox_useNickName) {
-		[adium.preferenceController setPreference:[NSNumber numberWithBool:([(NSButton *)sender state]==NSControlStateValueOn)]
-										   forKey:KEY_AB_USE_NICKNAME
-											group:PREF_GROUP_ADDRESSBOOK];
+		[adium.preferenceController
+			setPreference:[NSNumber numberWithBool:([(NSButton *)sender state] == NSControlStateValueOn)]
+				   forKey:KEY_AB_USE_NICKNAME
+					group:PREF_GROUP_ADDRESSBOOK];
 	} else if (sender == checkBox_enableImport) {
-		[adium.preferenceController setPreference:[NSNumber numberWithBool:([(NSButton *)sender state] == NSControlStateValueOn)]
-											 forKey:KEY_AB_ENABLE_IMPORT
-											  group:PREF_GROUP_ADDRESSBOOK];
+		[adium.preferenceController
+			setPreference:[NSNumber numberWithBool:([(NSButton *)sender state] == NSControlStateValueOn)]
+				   forKey:KEY_AB_ENABLE_IMPORT
+					group:PREF_GROUP_ADDRESSBOOK];
 
 	} else if (sender == checkBox_preferABImages) {
-		[adium.preferenceController setPreference:[NSNumber numberWithBool:([(NSButton *)sender state] == NSControlStateValueOn)]
-											 forKey:KEY_AB_PREFER_ADDRESS_BOOK_IMAGES
-											  group:PREF_GROUP_ADDRESSBOOK];
-
+		[adium.preferenceController
+			setPreference:[NSNumber numberWithBool:([(NSButton *)sender state] == NSControlStateValueOn)]
+				   forKey:KEY_AB_PREFER_ADDRESS_BOOK_IMAGES
+					group:PREF_GROUP_ADDRESSBOOK];
 
 	} else if (sender == checkBox_metaContacts) {
 		BOOL shouldCreateMetaContacts = ([(NSButton *)sender state] == NSControlStateValueOn);
 
 		if (shouldCreateMetaContacts) {
 			[adium.preferenceController setPreference:[NSNumber numberWithBool:YES]
-												 forKey:KEY_AB_CREATE_METACONTACTS
-												  group:PREF_GROUP_ADDRESSBOOK];
+											   forKey:KEY_AB_CREATE_METACONTACTS
+												group:PREF_GROUP_ADDRESSBOOK];
 
 		} else {
 			NSAlert *unconsolidateAlert = [[NSAlert alloc] init];
-			unconsolidateAlert.informativeText = AILocalizedString(@"Disabling automatic contact consolidation will also unconsolidate all existing metacontacts, including any created manually.  You will need to recreate any manually-created metacontacts if you proceed.",nil);
-			[unconsolidateAlert addButtonWithTitle:AILocalizedString(@"Unconsolidate all metacontacts",nil)];
-			[unconsolidateAlert addButtonWithTitle:AILocalizedString(@"Cancel",nil)];
+			unconsolidateAlert.informativeText =
+				AILocalizedString(@"Disabling automatic contact consolidation will also unconsolidate all existing "
+								  @"metacontacts, including any created manually.  You will need to recreate any "
+								  @"manually-created metacontacts if you proceed.",
+								  nil);
+			[unconsolidateAlert addButtonWithTitle:AILocalizedString(@"Unconsolidate all metacontacts", nil)];
+			[unconsolidateAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
 			[unconsolidateAlert beginSheetModalForWindow:[[self view] window]
-										completionHandler:^(NSModalResponse returnCode) {
-											[self sheetDidEnd:unconsolidateAlert.window returnCode:returnCode contextInfo:nil];
-										}];
+									   completionHandler:^(NSModalResponse returnCode) {
+										   [self sheetDidEnd:unconsolidateAlert.window
+												  returnCode:returnCode
+												 contextInfo:nil];
+									   }];
 		}
 	}
 
@@ -225,23 +245,19 @@
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
 	if (returnCode == NSAlertFirstButtonReturn) {
-		//If we now shouldn't create metaContacts, clear 'em all... not pretty, but effective.
+		// If we now shouldn't create metaContacts, clear 'em all... not pretty, but effective.
 
-		//Delay to the next run loop to give better UI responsiveness
-		[adium.contactController performSelector:@selector(clearAllMetaContactData)
-										withObject:nil
-										afterDelay:0];
-
+		// Delay to the next run loop to give better UI responsiveness
+		[adium.contactController performSelector:@selector(clearAllMetaContactData) withObject:nil afterDelay:0];
 
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:NO]
-											 forKey:KEY_AB_CREATE_METACONTACTS
-											  group:PREF_GROUP_ADDRESSBOOK];
+										   forKey:KEY_AB_CREATE_METACONTACTS
+											group:PREF_GROUP_ADDRESSBOOK];
 	} else {
-		//Put the checkbox back
+		// Put the checkbox back
 		[checkBox_metaContacts setState:![(NSButton *)checkBox_metaContacts state]];
 	}
 }
-
 
 #pragma mark Token Field Delegate
 
@@ -251,7 +267,9 @@
 	return [self separateStringIntoTokens:tokenStrings];
 }
 
-- (BOOL)tokenField:(NSTokenField *)tokenField writeRepresentedObjects:(NSArray *)objects toPasteboard:(NSPasteboard *)pboard
+- (BOOL)tokenField:(NSTokenField *)tokenField
+	writeRepresentedObjects:(NSArray *)objects
+			   toPasteboard:(NSPasteboard *)pboard
 {
 	[pboard setString:[objects componentsJoinedByString:@""] forType:NSPasteboardTypeString];
 	return YES;
@@ -390,7 +408,7 @@
 				}
 			}
 
-		// Search for start of next token
+			// Search for start of next token
 		} else {
 			for (; i < [string length]; i++) {
 				if ([[string substringFromIndex:(i + 1)] hasPrefix:@"%["]) {

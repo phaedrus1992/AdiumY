@@ -167,7 +167,8 @@ NSRectArray _copyRectArray(NSRectArray someRects, NSUInteger arraySize);
 
 				// Setup Tracking Info
 				distantFuture = [NSDate distantFuture];
-				eventMask = NSEventMaskLeftMouseUp | NSEventMaskRightMouseUp | NSEventMaskLeftMouseDragged | NSEventMaskRightMouseDragged;
+				eventMask = NSEventMaskLeftMouseUp | NSEventMaskRightMouseUp | NSEventMaskLeftMouseDragged |
+							NSEventMaskRightMouseDragged;
 
 				// Find region of clicked link
 				linkRects = [layoutManager rectArrayForCharacterRange:linkRange

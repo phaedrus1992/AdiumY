@@ -16,14 +16,14 @@
 
 #import "ESOTRFingerprintDetailsWindowController.h"
 #import "AdiumOTREncryption.h"
+#import <AIUtilities/AIImageAdditions.h>
 #import <Adium/AIAccount.h>
 #import <Adium/AIServiceIcons.h>
-#import <AIUtilities/AIImageAdditions.h>
 
 /* libotr headers */
-#import <libotr/proto.h>
 #import <libotr/context.h>
 #import <libotr/message.h>
+#import <libotr/proto.h>
 
 @interface ESOTRFingerprintDetailsWindowController ()
 - (id)initWithWindowNibName:(NSString *)windowNibName forFingerprintDict:(NSDictionary *)inFingerprintDict;
@@ -32,7 +32,7 @@
 
 @implementation ESOTRFingerprintDetailsWindowController
 
-static ESOTRFingerprintDetailsWindowController	*sharedController = nil;
+static ESOTRFingerprintDetailsWindowController *sharedController = nil;
 
 + (void)showDetailsForFingerprintDict:(NSDictionary *)inFingerprintDict
 {
@@ -41,7 +41,7 @@ static ESOTRFingerprintDetailsWindowController	*sharedController = nil;
 
 	} else {
 		sharedController = [[self alloc] initWithWindowNibName:@"OTRFingerprintDetailsWindow"
-												forFingerprintDict:inFingerprintDict];
+											forFingerprintDict:inFingerprintDict];
 	}
 
 	[sharedController showWindow:nil];
@@ -59,9 +59,9 @@ static ESOTRFingerprintDetailsWindowController	*sharedController = nil;
 
 - (void)configureWindow
 {
-	AIAccount	*account = [fingerprintDict objectForKey:@"AIAccount"];
+	AIAccount *account = [fingerprintDict objectForKey:@"AIAccount"];
 
-	//Ensure the window is loaded
+	// Ensure the window is loaded
 	[self window];
 
 	[textField_UID setStringValue:[fingerprintDict objectForKey:@"UID"]];
@@ -85,8 +85,8 @@ static ESOTRFingerprintDetailsWindowController	*sharedController = nil;
 {
 	[imageView_lock setImage:[NSImage imageNamed:@"lock-locked" forClass:[adium class]]];
 
-	[[self window] setTitle:AILocalizedString(@"OTR Fingerprint",nil)];
-	[button_OK setLocalizedString:AILocalizedString(@"OK",nil)];
+	[[self window] setTitle:AILocalizedString(@"OTR Fingerprint", nil)];
+	[button_OK setLocalizedString:AILocalizedString(@"OK", nil)];
 
 	[super windowDidLoad];
 }
@@ -99,7 +99,7 @@ static ESOTRFingerprintDetailsWindowController	*sharedController = nil;
 }
 
 /*!
-* @brief Auto-saving window frame key
+ * @brief Auto-saving window frame key
  *
  * This is the string used for saving this window's frame.  It should be unique to this window.
  */

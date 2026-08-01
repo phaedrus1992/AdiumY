@@ -156,20 +156,20 @@
 #ifdef LOG_RESPONDER_CHAIN
 // Can be called by a timer to periodically log the responder chain
 //[NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(reportResponderChain:) userInfo:nil
-//repeats:YES];
+// repeats:YES];
 - (void)reportResponderChain:(NSTimer *)inTimer
 {
 	NSMutableString *responderChain = [NSMutableString string];
 
 	NSWindow *keyWin = [[NSApplication sharedApplication] keyWindow];
-// WARNING: 64BIT: Check formatting arguments
+	// WARNING: 64BIT: Check formatting arguments
 	[responderChain appendFormat:@"%@ (%i): ", keyWin, [keyWin respondsToSelector:@selector(print:)]];
 
 	NSResponder *responder = [keyWin firstResponder];
 
 	// First, walk down the responder chain looking for a responder which can handle the preferred selector
 	while (responder) {
-// WARNING: 64BIT: Check formatting arguments
+		// WARNING: 64BIT: Check formatting arguments
 		[responderChain appendFormat:@"%@ (%i)", responder, [responder respondsToSelector:@selector(print:)]];
 		responder = [responder nextResponder];
 		if (responder)
@@ -450,8 +450,9 @@
  */
 - (void)restoreSavedContainers
 {
-	NSData *savedData = NULL; // [adium.preferenceController preferenceForKey:KEY_CONTAINERS
-							  //																	group:PREF_GROUP_INTERFACE];
+	NSData *savedData =
+		NULL; // [adium.preferenceController preferenceForKey:KEY_CONTAINERS
+			  //																	group:PREF_GROUP_INTERFACE];
 
 	// If there's no data, we can't restore anything.
 	if (!savedData)

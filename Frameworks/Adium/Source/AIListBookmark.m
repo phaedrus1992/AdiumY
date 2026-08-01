@@ -289,9 +289,12 @@
 	if (self.account.joiningGroupChatRequiresCreationDictionary && !self.chatCreationDictionary) {
 		NSAlert *alert = [[NSAlert alloc] init];
 		alert.messageText = AILocalizedString(@"Unable to join bookmarked chat", nil);
-		alert.informativeText = [NSString stringWithFormat:AILocalizedString(@"The bookmark %@ does not contain enough information and can not be used. Please "
-																  @"recreate it next time you join the chat.\nWould you like to remove this bookmark?",
-																  nil), [self displayName]];
+		alert.informativeText = [NSString
+			stringWithFormat:AILocalizedString(
+								 @"The bookmark %@ does not contain enough information and can not be used. Please "
+								 @"recreate it next time you join the chat.\nWould you like to remove this bookmark?",
+								 nil),
+							 [self displayName]];
 		[alert addButtonWithTitle:AILocalizedStringFromTable(@"Delete", @"Buttons", nil)];
 		[alert addButtonWithTitle:AILocalizedStringFromTable(@"Cancel", @"Buttons", nil)];
 		if ([alert runModal] == NSAlertFirstButtonReturn) {

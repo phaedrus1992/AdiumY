@@ -80,22 +80,21 @@
 
 	// Add Contact
 	menuItem_addContact = [[NSMenuItem alloc] initWithTitle:ADD_CONTACT_ELLIPSIS
-																			   target:self
-																			   action:@selector(addContact:)
-																		keyEquivalent:@"d"];
+													 target:self
+													 action:@selector(addContact:)
+											  keyEquivalent:@"d"];
 	[adium.menuController addMenuItem:menuItem_addContact toLocation:LOC_Contact_Manage];
 
-	menuItem_addContactContext =
-		[[NSMenuItem alloc] initWithTitle:ADD_CONTACT_TO_GROUP_ELLIPSIS
-															 target:self
-															 action:@selector(addContact:)
-													  keyEquivalent:@""];
+	menuItem_addContactContext = [[NSMenuItem alloc] initWithTitle:ADD_CONTACT_TO_GROUP_ELLIPSIS
+															target:self
+															action:@selector(addContact:)
+													 keyEquivalent:@""];
 	[adium.menuController addContextualMenuItem:menuItem_addContactContext toLocation:Context_Group_Manage];
 
 	menuItem_tabAddContact = [[NSMenuItem alloc] initWithTitle:ADD_CONTACT_ELLIPSIS
-																				   target:self
-																				   action:@selector(addContactFromTab:)
-																			keyEquivalent:@""];
+														target:self
+														action:@selector(addContactFromTab:)
+												 keyEquivalent:@""];
 	[adium.menuController addContextualMenuItem:menuItem_tabAddContact toLocation:Context_Contact_Stranger_ChatAction];
 
 	[[NSNotificationCenter defaultCenter] addObserver:self
@@ -105,22 +104,22 @@
 
 	// Add Group
 	menuItem_addGroup = [[NSMenuItem alloc] initWithTitle:ADD_GROUP_ELLIPSIS
-																			 target:self
-																			 action:@selector(addGroup:)
-																	  keyEquivalent:@"D"];
+												   target:self
+												   action:@selector(addGroup:)
+											keyEquivalent:@"D"];
 	[adium.menuController addMenuItem:menuItem_addGroup toLocation:LOC_Contact_Manage];
 
 	// Delete Selection
 	menuItem_delete = [[NSMenuItem alloc] initWithTitle:DELETE_CONTACT_ELLIPSIS
-																		   target:self
-																		   action:@selector(deleteSelection:)
-																	keyEquivalent:@"\b"];
+												 target:self
+												 action:@selector(deleteSelection:)
+										  keyEquivalent:@"\b"];
 	[adium.menuController addMenuItem:menuItem_delete toLocation:LOC_Contact_Manage];
 
 	menuItem = [[NSMenuItem alloc] initWithTitle:DELETE_CONTACT_CONTEXT_ELLIPSIS
-																	 target:self
-																	 action:@selector(deleteSelectionFromTab:)
-															  keyEquivalent:@""];
+										  target:self
+										  action:@selector(deleteSelectionFromTab:)
+								   keyEquivalent:@""];
 	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_Contact_NegativeAction];
 
 	// Add Contact toolbar item
@@ -370,7 +369,11 @@
 	// Guard deletion with a warning prompt
 	NSAlert *removeFromListAlert = [[NSAlert alloc] init];
 	removeFromListAlert.messageText = AILocalizedString(@"Remove from list?", nil);
-	removeFromListAlert.informativeText = [NSString stringWithFormat:AILocalizedString(@"Removing any contacts from their last group will permanently remove them from your contact list.\n\n%@", nil), message];
+	removeFromListAlert.informativeText =
+		[NSString stringWithFormat:AILocalizedString(@"Removing any contacts from their last group will permanently "
+													 @"remove them from your contact list.\n\n%@",
+													 nil),
+								   message];
 	[removeFromListAlert addButtonWithTitle:AILocalizedString(@"Remove", nil)];
 	[removeFromListAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
 	NSInteger result = [removeFromListAlert runModal];

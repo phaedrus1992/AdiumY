@@ -120,9 +120,9 @@
 #pragma mark NSURLSessionTaskDelegate
 
 - (void)URLSession:(NSURLSession *)theSession
-				  task:(NSURLSessionTask *)task
-		didSendBodyData:(int64_t)bytesSentDelta
-		 totalBytesSent:(int64_t)totalBytesSent
+						task:(NSURLSessionTask *)task
+			 didSendBodyData:(int64_t)bytesSentDelta
+			  totalBytesSent:(int64_t)totalBytesSent
 	totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 {
 	if (totalBytesSent > bytesSent) {
@@ -147,9 +147,7 @@
 
 #pragma mark NSURLSessionDataDelegate
 
-- (void)URLSession:(NSURLSession *)theSession
-			  dataTask:(NSURLSessionDataTask *)dataTask
-		didReceiveData:(NSData *)data
+- (void)URLSession:(NSURLSession *)theSession dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
 	[returnedData appendData:data];
 }

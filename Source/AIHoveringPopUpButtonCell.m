@@ -1,31 +1,31 @@
-/* 
+/*
  * Adium is the legal property of its developers, whose names are listed in the copyright file included
  * with this source distribution.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
  * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
  * Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #import "AIHoveringPopUpButtonCell.h"
-#import <AIUtilities/AIParagraphStyleAdditions.h>
 #import <AIUtilities/AIBezierPathAdditions.h>
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIImageDrawingAdditions.h>
+#import <AIUtilities/AIParagraphStyleAdditions.h>
 
-#define LEFT_MARGIN		5
-#define IMAGE_MARGIN	4
-#define ARROW_WIDTH		8
-#define ARROW_HEIGHT	(ARROW_WIDTH/2.0f)
-#define ARROW_XOFFSET	5
-#define RIGHT_MARGIN	5
+#define LEFT_MARGIN 5
+#define IMAGE_MARGIN 4
+#define ARROW_WIDTH 8
+#define ARROW_HEIGHT (ARROW_WIDTH / 2.0f)
+#define ARROW_XOFFSET 5
+#define RIGHT_MARGIN 5
 
 @implementation AIHoveringPopUpButtonCell
 
@@ -39,12 +39,11 @@
 	hoveredFraction = 0.0f;
 
 	statusParagraphStyle = [NSMutableParagraphStyle styleWithAlignment:NSTextAlignmentLeft
-														  lineBreakMode:NSLineBreakByTruncatingTail];
+														 lineBreakMode:NSLineBreakByTruncatingTail];
 
-	statusAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-		statusParagraphStyle, NSParagraphStyleAttributeName,
-		[NSFont systemFontOfSize:10], NSFontAttributeName,
-		nil];
+	statusAttributes =
+		[NSMutableDictionary dictionaryWithObjectsAndKeys:statusParagraphStyle, NSParagraphStyleAttributeName,
+														  [NSFont systemFontOfSize:10], NSFontAttributeName, nil];
 }
 
 - (id)initTextCell:(NSString *)str
@@ -52,54 +51,48 @@
 	if ((self = [super initTextCell:str])) {
 		[self commonInit];
 	}
-	
-	return self;    
+
+	return self;
 }
 - (id)initImageCell:(NSImage *)image
 {
 	if ((self = [super initImageCell:image])) {
 		[self commonInit];
 	}
-	
-	return self;    
+
+	return self;
 }
 
 - (id)copyWithZone:(NSZone *)zone
 {
-	AIHoveringPopUpButtonCell	*newCell = [[self class] allocWithZone:zone];
+	AIHoveringPopUpButtonCell *newCell = [[self class] allocWithZone:zone];
 
 	switch ([self type]) {
-		case NSImageCellType:
-			newCell = [newCell initImageCell:[self image]];
-			break;
-		case NSTextCellType:
-			newCell = [newCell initTextCell:[self stringValue]];
-			break;
-		default:
-			newCell = [newCell init]; //and hope for the best
-			break;
+	case NSImageCellType:
+		newCell = [newCell initImageCell:[self image]];
+		break;
+	case NSTextCellType:
+		newCell = [newCell initTextCell:[self stringValue]];
+		break;
+	default:
+		newCell = [newCell init]; // and hope for the best
+		break;
 	}
-	
+
 	[newCell setMenu:[[self menu] copy]];
 
-
-
-
-	
 	return newCell;
 }
-
 
 - (void)setTitle:(NSString *)inTitleString
 {
 
-
-	//Strip out all newlines
-	inTitleString = [inTitleString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\n\r"]];
+	// Strip out all newlines
+	inTitleString =
+		[inTitleString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\n\r"]];
 
 	if (inTitleString && [inTitleString length]) {
-		title = [[NSMutableAttributedString alloc] initWithString:inTitleString
-													   attributes:statusAttributes];
+		title = [[NSMutableAttributedString alloc] initWithString:inTitleString attributes:statusAttributes];
 		textSize = [title size];
 	} else {
 		title = nil;
@@ -111,42 +104,39 @@
 {
 	NSString *oldTitleString = [[title string] copy];
 
-	[statusAttributes setObject:inFont
-						 forKey:NSFontAttributeName];
+	[statusAttributes setObject:inFont forKey:NSFontAttributeName];
 	[self setTitle:oldTitleString];
 
-	
 	[super setFont:inFont];
 }
 
--(void)setImage:(NSImage *)inImage
+- (void)setImage:(NSImage *)inImage
 {
 	if (inImage != currentImage) {
 		currentImage = inImage;
-		
+
 		imageSize = [currentImage size];
-	}	
+	}
 }
 
 - (void)fadeHovered:(NSControl *)currentControlView
 {
 	if (hovered) {
-		if (hoveredFraction < 1.0) hoveredFraction += 0.05f;
+		if (hoveredFraction < 1.0)
+			hoveredFraction += 0.05f;
 	} else {
-		if (hoveredFraction > 0.0) hoveredFraction -= 0.05f;
+		if (hoveredFraction > 0.0)
+			hoveredFraction -= 0.05f;
 	}
 
 	[currentControlView setNeedsDisplay:YES];
 
-	if ((hoveredFraction > 0.0) &&
-		(hoveredFraction < 1.0)) {
+	if ((hoveredFraction > 0.0) && (hoveredFraction < 1.0)) {
 		[NSObject cancelPreviousPerformRequestsWithTarget:self
 												 selector:@selector(fadeHovered:)
 												   object:currentControlView];
-		
-		[self performSelector:@selector(fadeHovered:)
-				   withObject:currentControlView
-				   afterDelay:0];
+
+		[self performSelector:@selector(fadeHovered:) withObject:currentControlView afterDelay:0];
 	}
 }
 
@@ -156,18 +146,16 @@
 		hovered = inHovered;
 
 		hoveredFraction = (hovered ? 0.80f : 0.20f);
-		
+
 		[NSObject cancelPreviousPerformRequestsWithTarget:self
 												 selector:@selector(fadeHovered:)
 												   object:[self controlView]];
-		[self performSelector:@selector(fadeHovered:)
-				   withObject:[self controlView]
-				   afterDelay:0];
+		[self performSelector:@selector(fadeHovered:) withObject:[self controlView] afterDelay:0];
 	} else {
 		hovered = inHovered;
 
 		hoveredFraction = (hovered ? 1.0f : 0.0f);
-		[[self controlView] setNeedsDisplay:YES];	
+		[[self controlView] setNeedsDisplay:YES];
 	}
 }
 
@@ -178,7 +166,8 @@
 
 #pragma mark Drawing
 
-//for some unknown reason, NSButtonCell's -drawWithFrame:inView: draws a basic ridge border on the bottom-right if we do not override it.
+// for some unknown reason, NSButtonCell's -drawWithFrame:inView: draws a basic ridge border on the bottom-right if we
+// do not override it.
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
 	[self drawInteriorWithFrame:cellFrame inView:controlView];
@@ -187,7 +176,7 @@
 - (CGFloat)trackingWidth
 {
 	CGFloat trackingWidth;
-	
+
 	trackingWidth = LEFT_MARGIN + [title size].width + RIGHT_MARGIN;
 	if ([self menu]) {
 		trackingWidth += ARROW_XOFFSET + ARROW_WIDTH;
@@ -195,22 +184,21 @@
 	if (currentImage) {
 		trackingWidth += imageSize.width + IMAGE_MARGIN;
 	}
-	
+
 	return trackingWidth;
 }
 
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
-	NSRect	textRect;
-	NSColor	*drawingColor;
-	NSMenu	*myMenu = [self menu];
-	CGFloat	maxTextWidth;
+	NSRect textRect;
+	NSColor *drawingColor;
+	NSMenu *myMenu = [self menu];
+	CGFloat maxTextWidth;
 
 	[statusParagraphStyle setMaximumLineHeight:cellFrame.size.height];
 
 	textRect = NSMakeRect(cellFrame.origin.x + LEFT_MARGIN,
-						  cellFrame.origin.y + ((cellFrame.size.height - textSize.height) / 2),
-						  textSize.width,
+						  cellFrame.origin.y + ((cellFrame.size.height - textSize.height) / 2), textSize.width,
 						  textSize.height);
 	maxTextWidth = (cellFrame.size.width - LEFT_MARGIN - RIGHT_MARGIN);
 
@@ -228,11 +216,11 @@
 	}
 
 	if (hovered || (hoveredFraction > 0.0)) {
-		//Draw our hovered / highlighted background first
-		NSBezierPath	*path;
-		
+		// Draw our hovered / highlighted background first
+		NSBezierPath *path;
+
 		CGFloat backgroundWidth = LEFT_MARGIN + textRect.size.width + RIGHT_MARGIN;
-		
+
 		if (myMenu) {
 			backgroundWidth += (ARROW_XOFFSET + ARROW_WIDTH);
 		}
@@ -240,21 +228,19 @@
 			backgroundWidth += imageSize.width + IMAGE_MARGIN;
 		}
 
-		path = [NSBezierPath bezierPathWithRoundedRect:NSMakeRect(cellFrame.origin.x,
-																  cellFrame.origin.y,
-																  backgroundWidth,
-																  cellFrame.size.height)
+		path = [NSBezierPath bezierPathWithRoundedRect:NSMakeRect(cellFrame.origin.x, cellFrame.origin.y,
+																  backgroundWidth, cellFrame.size.height)
 												radius:10];
-		
+
 		if ([self isHighlighted]) {
 			[[[NSColor darkGrayColor] colorWithAlphaComponent:hoveredFraction] set];
 
 		} else {
-			[[[NSColor grayColor]  colorWithAlphaComponent:hoveredFraction] set];
+			[[[NSColor grayColor] colorWithAlphaComponent:hoveredFraction] set];
 		}
 
 		[path fill];
-		
+
 		if (hovered) {
 			drawingColor = [NSColor whiteColor];
 		} else {
@@ -263,31 +249,27 @@
 	} else {
 		drawingColor = [NSColor blackColor];
 	}
-	
+
 	if (currentImage) {
-		[currentImage drawInRect:NSMakeRect(cellFrame.origin.x + LEFT_MARGIN,
-											cellFrame.origin.y,
-											imageSize.width + IMAGE_MARGIN,
-											cellFrame.size.height)
+		[currentImage drawInRect:NSMakeRect(cellFrame.origin.x + LEFT_MARGIN, cellFrame.origin.y,
+											imageSize.width + IMAGE_MARGIN, cellFrame.size.height)
 						  atSize:imageSize
 						position:IMAGE_POSITION_LEFT
 						fraction:1.0f];
 	}
 
-	[statusAttributes setObject:drawingColor
-						 forKey:NSForegroundColorAttributeName];
-	[title setAttributes:statusAttributes
-				   range:NSMakeRange(0, [title length])];
+	[statusAttributes setObject:drawingColor forKey:NSForegroundColorAttributeName];
+	[title setAttributes:statusAttributes range:NSMakeRange(0, [title length])];
 	[title drawInRect:textRect];
-	
-	//Draw the arrow
+
+	// Draw the arrow
 	if (myMenu) {
 		NSBezierPath *arrowPath = [NSBezierPath bezierPath];
-	
-		[arrowPath moveToPoint:NSMakePoint(NSMaxX(textRect) + ARROW_XOFFSET, 
-										   (NSMaxY(cellFrame) / 2) - (ARROW_HEIGHT / 2))];
+
+		[arrowPath
+			moveToPoint:NSMakePoint(NSMaxX(textRect) + ARROW_XOFFSET, (NSMaxY(cellFrame) / 2) - (ARROW_HEIGHT / 2))];
 		[arrowPath relativeLineToPoint:NSMakePoint(ARROW_WIDTH, 0)];
-		[arrowPath relativeLineToPoint:NSMakePoint(-(ARROW_WIDTH/2), (ARROW_HEIGHT))];
+		[arrowPath relativeLineToPoint:NSMakePoint(-(ARROW_WIDTH / 2), (ARROW_HEIGHT))];
 
 		[drawingColor set];
 		[arrowPath fill];
@@ -296,7 +278,7 @@
 
 - (BOOL)isOpaque
 {
-    return NO;
+	return NO;
 }
 
 @end

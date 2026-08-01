@@ -72,7 +72,8 @@
 
 			// Set-up collection view
 			if ([[imageCollectionView collectionViewLayout] isKindOfClass:[NSCollectionViewGridLayout class]]) {
-				NSCollectionViewGridLayout *gridLayout = (NSCollectionViewGridLayout *)[imageCollectionView collectionViewLayout];
+				NSCollectionViewGridLayout *gridLayout =
+					(NSCollectionViewGridLayout *)[imageCollectionView collectionViewLayout];
 
 				[gridLayout setMaximumNumberOfColumns:5];
 				[gridLayout setMaximumNumberOfRows:2];
@@ -118,7 +119,9 @@
 
 - (NSArray *)recentPictures
 {
-	NSArray *recentPictures = [(IKPictureTakerRecentPictureRepository *)[IKPictureTakerRecentPictureRepository recentRepository] recentPictures];
+	NSArray *recentPictures =
+		[(IKPictureTakerRecentPictureRepository *)[IKPictureTakerRecentPictureRepository recentRepository]
+			recentPictures];
 
 	if ([recentPictures count] > 10) {
 		return [recentPictures subarrayWithRange:NSMakeRange(0, 10)];
@@ -142,8 +145,7 @@
 		if (imageOrNull == [NSNull null]) {
 			IKPictureTakerRecentPicture *picture = [recentPictures objectAtIndex:i];
 
-			[array replaceObjectAtIndex:i
-			                 withObject:[picture editedImage]];
+			[array replaceObjectAtIndex:i withObject:[picture editedImage]];
 		}
 	}
 
@@ -157,32 +159,34 @@
 	NSMenuItem *menuItem;
 
 	menuItem = [aMenu itemAtIndex:0];
-	[menuItem setTitle:AILocalizedString(@"Recent Icons:", "Label at the top of the recent icons picker shown in the contact list")];
+	[menuItem setTitle:AILocalizedString(@"Recent Icons:",
+										 "Label at the top of the recent icons picker shown in the contact list")];
 
 	// Add menu items for accounts
 	NSMutableSet *onlineAccounts = [NSMutableSet set];
 	NSMutableSet *ownIconAccounts = [NSMutableSet set];
 
-	AIAccount *activeAccount = [AIStandardListWindowController activeAccountForIconsGettingOnlineAccounts:onlineAccounts
-																						   ownIconAccounts:ownIconAccounts];
+	AIAccount *activeAccount =
+		[AIStandardListWindowController activeAccountForIconsGettingOnlineAccounts:onlineAccounts
+																   ownIconAccounts:ownIconAccounts];
 
 	NSUInteger ownIconAccountsCount = [ownIconAccounts count];
 	NSUInteger onlineAccountsCount = [onlineAccounts count];
 
 	if (ownIconAccountsCount > 1) {
 		menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Change Icon For:", nil)
-		                                      target:nil
-		                                      action:nil
-		                               keyEquivalent:@""];
+											  target:nil
+											  action:nil
+									   keyEquivalent:@""];
 
 		[menuItem setEnabled:NO];
 		[aMenu addItem:menuItem];
 
 		for (AIAccount *account in ownIconAccounts) {
 			menuItem = [[NSMenuItem alloc] initWithTitle:account.formattedUID
-			                                      target:self
-			                                      action:@selector(selectedAccount:)
-			                               keyEquivalent:@""];
+												  target:self
+												  action:@selector(selectedAccount:)
+										   keyEquivalent:@""];
 
 			[menuItem setRepresentedObject:account];
 
@@ -198,9 +202,9 @@
 		// There are at least some accounts using the global preference if the counts differ
 		if (onlineAccountsCount != ownIconAccountsCount) {
 			menuItem = [[NSMenuItem alloc] initWithTitle:ALL_OTHER_ACCOUNTS
-			                                      target:self
-			                                      action:@selector(selectedAccount:)
-			                               keyEquivalent:@""];
+												  target:self
+												  action:@selector(selectedAccount:)
+										   keyEquivalent:@""];
 			if (activeAccount == nil) {
 				[menuItem setState:NSControlStateValueOn];
 			}
@@ -213,16 +217,16 @@
 	}
 
 	menuItem = [[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"Choose Icon", nil) stringByAppendingEllipsis]
-	                                      target:self
-	                                      action:@selector(choosePicture:)
-	                               keyEquivalent:@""];
+										  target:self
+										  action:@selector(choosePicture:)
+								   keyEquivalent:@""];
 
 	[aMenu addItem:menuItem];
 
 	menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Clear Recent Pictures", nil)
-	                                      target:self
-	                                      action:@selector(clearRecentPictures:)
-	                               keyEquivalent:@""];
+										  target:self
+										  action:@selector(clearRecentPictures:)
+								   keyEquivalent:@""];
 
 	[aMenu addItem:menuItem];
 }
@@ -272,8 +276,8 @@
 
 	// Change the active account
 	[adium.preferenceController setPreference:(activeAccount ? activeAccount.internalObjectID : nil)
-	                                   forKey:@"Active Icon Selection Account"
-	                                    group:GROUP_ACCOUNT_STATUS];
+									   forKey:@"Active Icon Selection Account"
+										group:GROUP_ACCOUNT_STATUS];
 }
 
 - (void)choosePicture:(id)sender

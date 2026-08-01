@@ -709,9 +709,9 @@
 	NSData *formdata = [doc XMLDataWithOptions:NSXMLDocumentTidyHTML | NSXMLDocumentIncludeContentTypeDeclaration];
 	[webview setNavigationDelegate:self];
 	[webview loadData:formdata
-			 MIMEType:@"application/xhtml+xml"
-	characterEncodingName:@"UTF-8"
-			  baseURL:[NSURL URLWithString:@"about:blank"]];
+					 MIMEType:@"application/xhtml+xml"
+		characterEncodingName:@"UTF-8"
+					  baseURL:[NSURL URLWithString:@"about:blank"]];
 
 	[self showWindow:nil];
 }
@@ -759,8 +759,10 @@
 		return;
 	}
 
-	if ([[[[navigationAction request] URL] absoluteString] isEqualToString:@"https://github.com/phaedrus1992/adiumy/XMPP/form"]) {
-		NSString *info = [[NSString alloc] initWithData:[[navigationAction request] HTTPBody] encoding:NSUTF8StringEncoding];
+	if ([[[[navigationAction request] URL] absoluteString]
+			isEqualToString:@"https://github.com/phaedrus1992/adiumy/XMPP/form"]) {
+		NSString *info = [[NSString alloc] initWithData:[[navigationAction request] HTTPBody]
+											   encoding:NSUTF8StringEncoding];
 		NSArray *formfields = [info componentsSeparatedByString:@"&"];
 		for (NSString *field in formfields) {
 			NSArray *keyvalue = [field componentsSeparatedByString:@"="];

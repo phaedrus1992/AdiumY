@@ -44,16 +44,16 @@
 
 	// Add/Edit Link... menu item (edit menu)
 	menuItem = [[NSMenuItem alloc] initWithTitle:EDIT_LINK_TITLE
-																	target:self
-																	action:@selector(editFormattedLink:)
-															 keyEquivalent:@"k"];
+										  target:self
+										  action:@selector(editFormattedLink:)
+								   keyEquivalent:@"k"];
 	[adium.menuController addMenuItem:menuItem toLocation:LOC_Edit_Links];
 
 	// Context menu
 	menuItem = [[NSMenuItem alloc] initWithTitle:EDIT_LINK_TITLE
-																	target:self
-																	action:@selector(editFormattedLink:)
-															 keyEquivalent:@""];
+										  target:self
+										  action:@selector(editFormattedLink:)
+								   keyEquivalent:@""];
 	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_TextView_LinkEditing];
 	[self registerToolbarItem];
 }

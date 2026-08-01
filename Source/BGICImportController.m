@@ -17,13 +17,13 @@
 #import "BGICImportController.h"
 #import "BGICLogImportController.h"
 
-#import "ESJabberService.h"
 #import "AWBonjourService.h"
+#import "ESJabberService.h"
 
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIStatusGroup.h>
 #import <Adium/AIAccountControllerProtocol.h>
 #import <Adium/AIStatus.h>
+#import <Adium/AIStatusControllerProtocol.h>
+#import <Adium/AIStatusGroup.h>
 
 #import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
@@ -31,19 +31,19 @@
 #define ICHAT_LOCATION [@"~/Documents/iChats/" stringByExpandingTildeInPath]
 
 @interface BGICImportController ()
--(void)startLogImport;
--(void)populateAccountPicker;
--(void)deleteAllFromiChat;
--(void)importAccountsForService:(NSString *)serviceName;
--(void)importLogs;
--(void)importStatuses;
--(void)addStatusFromString:(NSString *)statusString isAway:(BOOL)shouldBeAway withGroup:(AIStatusGroup *)parentGroup;
--(void)deleteAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
+- (void)startLogImport;
+- (void)populateAccountPicker;
+- (void)deleteAllFromiChat;
+- (void)importAccountsForService:(NSString *)serviceName;
+- (void)importLogs;
+- (void)importStatuses;
+- (void)addStatusFromString:(NSString *)statusString isAway:(BOOL)shouldBeAway withGroup:(AIStatusGroup *)parentGroup;
+- (void)deleteAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 @end
 
 @implementation BGICImportController
 
--(void)startLogImport
+- (void)startLogImport
 {
 	[backButton setEnabled:NO];
 	[importProgress startAnimation:importProgress];
@@ -60,7 +60,7 @@
 
 // loop the accounts in Adium and add them to the popup.
 // This selection will be used for the log folder target (service.account in PATH_LOGS to be exact)
--(void)populateAccountPicker
+- (void)populateAccountPicker
 {
 	[accountSelectionPopup removeAllItems];
 
@@ -76,14 +76,19 @@
 
 		for (NSInteger accountLoop = 0; accountLoop < [accountsAvailable count]; accountLoop++) {
 			AIAccount *currentAccount = [accountsAvailable objectAtIndex:accountLoop];
-			[accountSelectionLabel setStringValue:AILocalizedString(@"Please select an account into which to import your transcripts:", nil)];
-			[accountSelectionPopup addItemWithTitle:[NSString stringWithFormat:@"%@ (%@)", currentAccount.formattedUID, currentAccount.service.serviceID]];
-			[accountsArray addObject:[NSString stringWithFormat:@"%@.%@", currentAccount.service.serviceID, currentAccount.formattedUID]];
+			[accountSelectionLabel
+				setStringValue:AILocalizedString(@"Please select an account into which to import your transcripts:",
+												 nil)];
+			[accountSelectionPopup addItemWithTitle:[NSString stringWithFormat:@"%@ (%@)", currentAccount.formattedUID,
+																			   currentAccount.service.serviceID]];
+			[accountsArray addObject:[NSString stringWithFormat:@"%@.%@", currentAccount.service.serviceID,
+																currentAccount.formattedUID]];
 		}
 	} else {
 		// no accounts are present so we'll error this phase out
 		currentStep--;
-		[accountSelectionLabel setStringValue:AILocalizedString(@"Importing transcripts requires at least 1 account to be present.", nil)];
+		[accountSelectionLabel
+			setStringValue:AILocalizedString(@"Importing transcripts requires at least 1 account to be present.", nil)];
 		[accountSelectionPopup setHidden:YES];
 		[backButton setEnabled:YES];
 		[proceedButton setEnabled:YES];
@@ -91,31 +96,35 @@
 }
 
 // loop through the iChat log paths and move them all to the Trash
--(void)deleteAllFromiChat
+- (void)deleteAllFromiChat
 {
 	for (NSInteger deleteLoop = 0; deleteLoop < [fullDump count]; deleteLoop++) {
 		NSString *logPath = [fullDump objectAtIndex:deleteLoop];
 
 		if ([logPath rangeOfString:@"DS_Store"].length == 0)
-			[[NSFileManager defaultManager] trashFileAtPath:[[ICHAT_LOCATION stringByAppendingPathComponent:logPath] stringByExpandingTildeInPath]];
+			[[NSFileManager defaultManager]
+				trashFileAtPath:[[ICHAT_LOCATION stringByAppendingPathComponent:logPath] stringByExpandingTildeInPath]];
 	}
 
 	[importDetails setStringValue:AILocalizedString(@"Your iChat transcripts have been removed.", nil)];
 	[proceedButton setEnabled:YES];
 }
 
--(void)importAccountsForService:(NSString *)serviceName
+- (void)importAccountsForService:(NSString *)serviceName
 {
 	// com.apple.iChat.AIM.plist -> accounts on AIM
-	NSDictionary *rawPrefsFile = [NSDictionary dictionaryWithContentsOfFile:[[NSString stringWithFormat:@"~/Library/Preferences/com.apple.iChat.%@.plist", serviceName] stringByExpandingTildeInPath]];
+	NSDictionary *rawPrefsFile = [NSDictionary
+		dictionaryWithContentsOfFile:[[NSString stringWithFormat:@"~/Library/Preferences/com.apple.iChat.%@.plist",
+																 serviceName] stringByExpandingTildeInPath]];
 	NSArray *accountsFromRaw = [[rawPrefsFile valueForKey:@"Accounts"] allValues];
 
-	// we'll grab these momentarily and use judiciously afterwards, Bonjour is external to this to method, unlike the others
+	// we'll grab these momentarily and use judiciously afterwards, Bonjour is external to this to method, unlike the
+	// others
 	AIService *aimService = nil;
 	AIService *macService = nil;
 	ESJabberService *jabberService = nil;
 
-// WARNING: iChat Import needs to be updated for MobileMe
+	// WARNING: iChat Import needs to be updated for MobileMe
 	for (AIService *service in adium.accountController.services) {
 		if ([service.serviceID isEqual:@"AIM"])
 			aimService = (AIService *)service;
@@ -133,28 +142,26 @@
 
 			NSString *accountName = [currentAccount objectForKey:@"LoginAs"];
 
-			AIAccount *newAcct = [adium.accountController createAccountWithService:
-				([serviceName isEqual:@"Jabber"] ? (AIService *)jabberService : ([accountName rangeOfString:@"mac.com"].length > 0 ? (AIService *)macService : (AIService *)aimService))
-																				 UID:accountName];
+			AIAccount *newAcct = [adium.accountController
+				createAccountWithService:([serviceName isEqual:@"Jabber"]
+											  ? (AIService *)jabberService
+											  : ([accountName rangeOfString:@"mac.com"].length > 0
+													 ? (AIService *)macService
+													 : (AIService *)aimService))
+									 UID:accountName];
 			if (newAcct == nil)
 				continue;
 
 			NSNumber *autoLogin = [currentAccount objectForKey:@"AutoLogin"];
-			[newAcct setPreference:autoLogin
-							forKey:@"isOnline"
-							 group:GROUP_ACCOUNT_STATUS];
+			[newAcct setPreference:autoLogin forKey:@"isOnline" group:GROUP_ACCOUNT_STATUS];
 
 			NSString *serverHost = [currentAccount objectForKey:@"ServerHost"];
 			if ([serverHost length] > 0)
-				[newAcct setPreference:serverHost
-								forKey:KEY_CONNECT_HOST
-								 group:GROUP_ACCOUNT_STATUS];
+				[newAcct setPreference:serverHost forKey:KEY_CONNECT_HOST group:GROUP_ACCOUNT_STATUS];
 
 			NSNumber *serverPort = [currentAccount objectForKey:@"ServerPort"];
 			if (serverPort)
-				[newAcct setPreference:serverPort
-								forKey:KEY_CONNECT_PORT
-								 group:GROUP_ACCOUNT_STATUS];
+				[newAcct setPreference:serverPort forKey:KEY_CONNECT_PORT group:GROUP_ACCOUNT_STATUS];
 
 			[adium.accountController addAccount:newAcct];
 
@@ -167,12 +174,11 @@
 
 			// Adium, however, has a more flexible Bonjour account configuration and we have to take this into account.
 			[[self window] beginSheet:bonjourNamePromptWindow completionHandler:nil];
-
 		}
 	}
 }
 
--(void)importLogs
+- (void)importLogs
 {
 	if (dumpLoop == 0) {
 		[importProgress setIndeterminate:NO];
@@ -195,15 +201,20 @@
 	} else {
 		NSString *logPath = [fullDump objectAtIndex:dumpLoop];
 
-		if (!logImporter) logImporter = [[BGICLogImportController alloc] initWithDestination:destinationAccount];
+		if (!logImporter)
+			logImporter = [[BGICLogImportController alloc] initWithDestination:destinationAccount];
 
 		[importProgress setDoubleValue:dumpLoop];
-		[importDetails setStringValue:[NSString stringWithFormat:[AILocalizedString(@"Now importing transcript %ld of %ld: %@", "%ld will be a number; %@ is a name")  stringByAppendingEllipsis],
-									   dumpLoop, dumpCount, [logPath stringByDeletingPathExtension]]];
+		[importDetails
+			setStringValue:[NSString stringWithFormat:[AILocalizedString(@"Now importing transcript %ld of %ld: %@",
+																		 "%ld will be a number; %@ is a name")
+														  stringByAppendingEllipsis],
+													  dumpLoop, dumpCount, [logPath stringByDeletingPathExtension]]];
 
 		if ([logPath rangeOfString:@"DS_Store"].location == NSNotFound) {
 			// pass the current log's path over and let the log conversion class do it's work
-			[logImporter createNewLogForPath:[[ICHAT_LOCATION stringByAppendingPathComponent:logPath] stringByExpandingTildeInPath]];
+			[logImporter createNewLogForPath:[[ICHAT_LOCATION stringByAppendingPathComponent:logPath]
+												 stringByExpandingTildeInPath]];
 		}
 	}
 
@@ -212,8 +223,13 @@
 	}
 
 	if (cancelImport) {
-		[importDetails setStringValue:[NSString stringWithFormat:AILocalizedString(@"Transcript importing cancelled. %ld of %ld transcripts already imported.", nil),
-									   dumpLoop, dumpCount]];
+		[importDetails
+			setStringValue:
+				[NSString
+					stringWithFormat:AILocalizedString(
+										 @"Transcript importing cancelled. %ld of %ld transcripts already imported.",
+										 nil),
+									 dumpLoop, dumpCount]];
 		[importProgress setIndeterminate:YES];
 		[importProgress stopAnimation:importProgress];
 		[importProgress setHidden:YES];
@@ -225,16 +241,19 @@
 	dumpLoop++;
 }
 
--(void)importStatuses
+- (void)importStatuses
 {
 	// iChat (on 10.4 at least) stores custom statuses in a couple of arrays in it's plist
-	NSDictionary *ichatPrefs = [NSDictionary dictionaryWithContentsOfFile:[@"~/Library/Preferences/com.apple.iChat.plist" stringByExpandingTildeInPath]];
+	NSDictionary *ichatPrefs = [NSDictionary
+		dictionaryWithContentsOfFile:[@"~/Library/Preferences/com.apple.iChat.plist" stringByExpandingTildeInPath]];
 
 	// loop through the availables and add them
 	NSArray *customAvailable = [ichatPrefs objectForKey:@"CustomAvailableMessages"];
 
-	[importStatusDetails setStringValue:[NSString stringWithFormat:[AILocalizedString(@"Now importing %lu 'Available' messages", nil) stringByAppendingEllipsis],
-										 [customAvailable count]]];
+	[importStatusDetails
+		setStringValue:[NSString stringWithFormat:[AILocalizedString(@"Now importing %lu 'Available' messages", nil)
+													  stringByAppendingEllipsis],
+												  [customAvailable count]]];
 
 	AIStatusGroup *availableGroup = nil;
 
@@ -265,8 +284,10 @@
 	// loop through the aways and add them
 	NSArray *customAways = [ichatPrefs objectForKey:@"CustomAwayMessages"];
 
-	[importStatusDetails setStringValue:[NSString stringWithFormat:[AILocalizedString(@"Now importing %lu 'Away' messages", nil) stringByAppendingEllipsis],
-										 [customAways count]]];
+	[importStatusDetails
+		setStringValue:[NSString stringWithFormat:[AILocalizedString(@"Now importing %lu 'Away' messages", nil)
+													  stringByAppendingEllipsis],
+												  [customAways count]]];
 
 	for (NSInteger awayLoop = 0; awayLoop < [customAways count]; awayLoop++) {
 		[self addStatusFromString:[customAways objectAtIndex:awayLoop] isAway:YES withGroup:awayGroup];
@@ -278,7 +299,7 @@
 }
 
 // the only difference between imported statuses is their type and reply behavior (optionally can be added to a group)
--(void)addStatusFromString:(NSString *)statusString isAway:(BOOL)shouldBeAway withGroup:(AIStatusGroup *)parentGroup
+- (void)addStatusFromString:(NSString *)statusString isAway:(BOOL)shouldBeAway withGroup:(AIStatusGroup *)parentGroup
 {
 	AIStatus *newStatus = [AIStatus statusOfType:(shouldBeAway ? AIAwayStatusType : AIAvailableStatusType)];
 	[newStatus setTitle:statusString];
@@ -296,15 +317,16 @@
 
 + (void)importIChatConfiguration
 {
-	//This is a leak.
+	// This is a leak.
 	BGICImportController *ichatCon = [[BGICImportController alloc] initWithWindowNibName:@"ICImport"];
 	[ichatCon showWindow:ichatCon];
 }
 
--(void)awakeFromNib {
+- (void)awakeFromNib
+{
 	currentStep = 0;
 
-	//Configure our background view; it should display the image transparently where our tabView overlaps it
+	// Configure our background view; it should display the image transparently where our tabView overlaps it
 	[backgroundView setBackgroundImage:[NSImage imageNamed:@"AdiumyButler"]];
 	NSRect tabViewFrame = [assistantPanes frame];
 	NSRect backgroundViewFrame = [backgroundView frame];
@@ -323,21 +345,23 @@
 	[backButton setEnabled:NO];
 }
 
--(IBAction)openHelp:(id)sender
+- (IBAction)openHelp:(id)sender
 {
-// WARNING: This help anchor is necessary and needs a corresponding page in the book + the index needs regenerated.
+	// WARNING: This help anchor is necessary and needs a corresponding page in the book + the index needs regenerated.
 	NSString *locBookName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleHelpBookName"];
-	[[NSHelpManager sharedHelpManager] openHelpAnchor:@"ichatImport"  inBook:locBookName];
+	[[NSHelpManager sharedHelpManager] openHelpAnchor:@"ichatImport" inBook:locBookName];
 }
 
-// this action is currently defined as returning to the start of the assistant, unchecking all and noting completed actions
--(IBAction)goBack:(id)sender
+// this action is currently defined as returning to the start of the assistant, unchecking all and noting completed
+// actions
+- (IBAction)goBack:(id)sender
 {
 	currentStep = 0;
 
 	[backButton setEnabled:NO];
 	[proceedButton setEnabled:YES];
-	[proceedButton setTitle:AILocalizedStringFromTable(@"Continue", @"Buttons", nil)]; // in case we are on the last step
+	[proceedButton
+		setTitle:AILocalizedStringFromTable(@"Continue", @"Buttons", nil)]; // in case we are on the last step
 
 	[importAccountsButton setState:NSControlStateValueOff];
 	[importStatusButton setState:NSControlStateValueOff];
@@ -347,7 +371,7 @@
 	[assistantPanes selectTabViewItemWithIdentifier:@"start"];
 }
 
--(IBAction)proceed:(id)sender
+- (IBAction)proceed:(id)sender
 {
 	BOOL doneSomething = NO;
 
@@ -372,8 +396,10 @@
 		doneSomething = YES;
 		[backButton setEnabled:NO];
 		[importAccountsProgress startAnimation:importAccountsProgress];
-		[importAccountsDetails setStringValue:[AILocalizedString(@"Now importing all your accounts from iChat", nil) stringByAppendingEllipsis]];
-		[titleField setStringValue:[AILocalizedString(@"Importing Accounts and Settings",nil) stringByAppendingEllipsis]];
+		[importAccountsDetails setStringValue:[AILocalizedString(@"Now importing all your accounts from iChat", nil)
+												  stringByAppendingEllipsis]];
+		[titleField
+			setStringValue:[AILocalizedString(@"Importing Accounts and Settings", nil) stringByAppendingEllipsis]];
 		[assistantPanes selectTabViewItemWithIdentifier:@"accounts"];
 		[importAccountsButton setState:NSControlStateValueOff]; // reset so we don't do this again
 		currentStep--;
@@ -382,7 +408,8 @@
 		[self importAccountsForService:@"Jabber"];
 		[self importAccountsForService:@"SubNet"]; // SubNet is where iChat stores Bonjour accounts
 		if (!blockForBonjour) {
-			[importAccountsDetails setStringValue:AILocalizedString(@"Your accounts have been successfully imported.", nil)];
+			[importAccountsDetails
+				setStringValue:AILocalizedString(@"Your accounts have been successfully imported.", nil)];
 			[importAccountsProgress stopAnimation:importAccountsProgress];
 			[backButton setEnabled:YES];
 		}
@@ -392,7 +419,8 @@
 		doneSomething = YES;
 		[backButton setEnabled:NO];
 		[importStatusProgress startAnimation:importStatusProgress];
-		[importStatusDetails setStringValue:[AILocalizedString(@"Preparing to import your custom status messages", nil)  stringByAppendingEllipsis]];
+		[importStatusDetails setStringValue:[AILocalizedString(@"Preparing to import your custom status messages", nil)
+												stringByAppendingEllipsis]];
 		[titleField setStringValue:[AILocalizedString(@"Importing Statuses", nil) stringByAppendingEllipsis]];
 		[assistantPanes selectTabViewItemWithIdentifier:@"statuses"];
 		[importStatusButton setState:NSControlStateValueOff]; // reset so we don't do this again
@@ -400,26 +428,26 @@
 		[self performSelector:@selector(importStatuses) withObject:nil afterDelay:0.3];
 	}
 
-	if ([importLogsButton state] == NSControlStateValueOn && currentStep > 0  && !doneSomething) {
+	if ([importLogsButton state] == NSControlStateValueOn && currentStep > 0 && !doneSomething) {
 		[proceedButton setEnabled:NO];
 		[self populateAccountPicker];
-		[titleField	setStringValue:[AILocalizedString(@"Importing iChat Transcripts", nil) stringByAppendingEllipsis]];
+		[titleField setStringValue:[AILocalizedString(@"Importing iChat Transcripts", nil) stringByAppendingEllipsis]];
 		[loggingPanes selectTabViewItemWithIdentifier:@"select"];
 		[assistantPanes selectTabViewItemWithIdentifier:@"logs"];
 		[importLogsButton setState:NSControlStateValueOff]; // reset so we don't do this again
-	} else if (currentStep == 0  && !doneSomething) {
+	} else if (currentStep == 0 && !doneSomething) {
 		[backButton setEnabled:YES];
-		[titleField	setStringValue:AILocalizedString(@"Import Finished", nil)];
+		[titleField setStringValue:AILocalizedString(@"Import Finished", nil)];
 		[assistantPanes selectTabViewItemWithIdentifier:@"end"];
 		[proceedButton setTitle:AILocalizedString(@"Done", nil)];
 		currentStep--;
 	}
 }
 
--(IBAction)completeBonjourCreation:(id)sender
+- (IBAction)completeBonjourCreation:(id)sender
 {
 	AIAccount *newAcct = [adium.accountController createAccountWithService:bonjourService
-																		 UID:[bonjourAccountNameField stringValue]];
+																	   UID:[bonjourAccountNameField stringValue]];
 	if (newAcct) {
 		[newAcct setPreference:[NSNumber numberWithBool:bonjourAutoLogin]
 						forKey:@"isOnline"
@@ -436,24 +464,26 @@
 	blockForBonjour = NO;
 }
 
--(IBAction)selectLogAccountDestination:(id)sender
+- (IBAction)selectLogAccountDestination:(id)sender
 {
 	destinationAccount = [accountsArray objectAtIndex:[sender indexOfSelectedItem]];
 	[self performSelector:@selector(startLogImport) withObject:nil afterDelay:0.7]; // immediate == scary :)
 }
 
 // we need only set the cancel flag appropriately and the recursive importLogs will handle on its next pass
--(IBAction)cancelLogImport:(id)sender
+- (IBAction)cancelLogImport:(id)sender
 {
 	[importDetails setStringValue:[AILocalizedString(@"Cancelling transcript import", nil) stringByAppendingEllipsis]];
 	cancelImport = YES;
 }
 
--(IBAction)deleteLogs:(id)sender
+- (IBAction)deleteLogs:(id)sender
 {
 	NSAlert *warningBeforehand = [[NSAlert alloc] init];
-	warningBeforehand.messageText = AILocalizedString(@"Are you sure you want to delete all of your iChat Transcripts?", nil);
-	warningBeforehand.informativeText = AILocalizedString(@"All of the iChat transcripts that were imported into Adium will be moved to the Trash.", nil);
+	warningBeforehand.messageText =
+		AILocalizedString(@"Are you sure you want to delete all of your iChat Transcripts?", nil);
+	warningBeforehand.informativeText = AILocalizedString(
+		@"All of the iChat transcripts that were imported into Adium will be moved to the Trash.", nil);
 	[warningBeforehand addButtonWithTitle:AILocalizedStringFromTable(@"Delete", @"Buttons", nil)];
 	[warningBeforehand addButtonWithTitle:AILocalizedStringFromTable(@"Cancel", @"Buttons", nil)];
 	[warningBeforehand beginSheetModalForWindow:[self window]
@@ -465,7 +495,8 @@
 - (void)deleteAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
 	if (returnCode == NSAlertFirstButtonReturn) {
-		[importDetails setStringValue:[AILocalizedString(@"Deleting iChat Transcripts", nil) stringByAppendingEllipsis]];
+		[importDetails
+			setStringValue:[AILocalizedString(@"Deleting iChat Transcripts", nil) stringByAppendingEllipsis]];
 		[deleteLogsButton setHidden:YES];
 		[proceedButton setEnabled:NO];
 		[self performSelector:@selector(deleteAllFromiChat) withObject:nil afterDelay:0.3];

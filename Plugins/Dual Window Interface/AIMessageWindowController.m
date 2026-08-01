@@ -1345,11 +1345,11 @@
 
 - (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar
 {
-	return
-		[NSArray arrayWithObjects:@"UserIcon", @"Encryption", NSToolbarFlexibleSpaceItemIdentifier, @"SourceDestination",
-								  @"InsertEmoticon", @"BlockParticipants", @"LinkEditor", @"SafariLink", @"AddBookmark",
-								  NSToolbarShowColorsItemIdentifier, NSToolbarShowFontsItemIdentifier,
-								  NSToolbarFlexibleSpaceItemIdentifier, @"SendFile", @"ShowInfo", @"LogViewer", nil];
+	return [NSArray arrayWithObjects:@"UserIcon", @"Encryption", NSToolbarFlexibleSpaceItemIdentifier,
+									 @"SourceDestination", @"InsertEmoticon", @"BlockParticipants", @"LinkEditor",
+									 @"SafariLink", @"AddBookmark", NSToolbarShowColorsItemIdentifier,
+									 NSToolbarShowFontsItemIdentifier, NSToolbarFlexibleSpaceItemIdentifier,
+									 @"SendFile", @"ShowInfo", @"LogViewer", nil];
 }
 
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar

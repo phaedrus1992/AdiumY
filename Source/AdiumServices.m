@@ -26,11 +26,11 @@
  */
 - (id)init
 {
-    if ((self = [super init])) {
-        services = [[NSMutableDictionary alloc] init];
-    }
+	if ((self = [super init])) {
+		services = [[NSMutableDictionary alloc] init];
+	}
 
-    return self;
+	return self;
 }
 
 /*!
@@ -40,7 +40,7 @@
  */
 - (void)registerService:(AIService *)inService
 {
-    [services setObject:inService forKey:inService.serviceCodeUniqueID];
+	[services setObject:inService forKey:inService.serviceCodeUniqueID];
 }
 
 /*!
@@ -50,7 +50,7 @@
  */
 - (NSArray *)services
 {
-    return [services allValues];
+	return [services allValues];
 }
 
 /*!
@@ -63,34 +63,34 @@
  */
 - (NSSet *)activeServicesIncludingCompatibleServices:(BOOL)includeCompatible
 {
-    NSMutableSet *activeServices = [NSMutableSet set];
+	NSMutableSet *activeServices = [NSMutableSet set];
 
-    if (includeCompatible) {
-        // Scan our user's accounts and build a list of service classes that they cover
-        NSMutableSet *serviceClasses = [NSMutableSet set];
+	if (includeCompatible) {
+		// Scan our user's accounts and build a list of service classes that they cover
+		NSMutableSet *serviceClasses = [NSMutableSet set];
 
-        for (AIAccount *account in adium.accountController.accounts) {
-            if (account.enabled) {
-                [serviceClasses addObject:account.service.serviceClass];
-            }
-        }
+		for (AIAccount *account in adium.accountController.accounts) {
+			if (account.enabled) {
+				[serviceClasses addObject:account.service.serviceClass];
+			}
+		}
 
-        // Gather and return all services compatible with these service classes
-        for (AIService *service in [services objectEnumerator]) {
-            if ([serviceClasses containsObject:service.serviceClass]) {
-                [activeServices addObject:service];
-            }
-        }
+		// Gather and return all services compatible with these service classes
+		for (AIService *service in [services objectEnumerator]) {
+			if ([serviceClasses containsObject:service.serviceClass]) {
+				[activeServices addObject:service];
+			}
+		}
 
-    } else {
-        for (AIAccount *account in adium.accountController.accounts) {
-            if (account.enabled) {
-                [activeServices addObject:account.service];
-            }
-        }
-    }
+	} else {
+		for (AIAccount *account in adium.accountController.accounts) {
+			if (account.enabled) {
+				[activeServices addObject:account.service];
+			}
+		}
+	}
 
-    return activeServices;
+	return activeServices;
 }
 
 /*!
@@ -102,7 +102,7 @@
  */
 - (AIService *)serviceWithUniqueID:(NSString *)uniqueID
 {
-    return [services objectForKey:uniqueID];
+	return [services objectForKey:uniqueID];
 }
 
 /*!
@@ -114,12 +114,12 @@
  */
 - (AIService *)firstServiceWithServiceID:(NSString *)serviceID
 {
-    for (AIService *service in [services objectEnumerator]) {
-        if ([service.serviceID isEqualToString:serviceID])
-            return service;
-    }
+	for (AIService *service in [services objectEnumerator]) {
+		if ([service.serviceID isEqualToString:serviceID])
+			return service;
+	}
 
-    return nil;
+	return nil;
 }
 
 @end

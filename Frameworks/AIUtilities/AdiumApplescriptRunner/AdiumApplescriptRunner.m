@@ -178,16 +178,15 @@
 			// Selector will be of the form applescriptDidRun:resultString:
 			SEL selector = NSSelectorFromString([targetDict objectForKey:@"selector"]);
 
-			// Notify our target
-			#pragma clang diagnostic push
+// Notify our target
+#pragma clang diagnostic push
 
-			#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 
 			[target performSelector:selector
 						 withObject:[targetDict objectForKey:@"userInfo"]
 						 withObject:[userInfo objectForKey:@"resultString"]];
-			#pragma clang diagnostic pop
-
+#pragma clang diagnostic pop
 		}
 	}
 }

@@ -594,7 +594,6 @@
 	[preview setFrame:[view_previewLocation frame]];
 	// Will be released in viewWillClose
 	[[view_previewLocation superview] replaceSubview:view_previewLocation with:preview];
-
 }
 
 - (AIChat *)previewChatWithDictionary:(NSDictionary *)previewDict

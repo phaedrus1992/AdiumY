@@ -111,8 +111,9 @@
 - (NSRect)rectOfRow:(NSInteger)rowIndex
 {
 	if (animationsCount > 0) {
-		return [self currentDisplayRectForItemPointer:[NSValue valueWithPointer:(__bridge const void *)[self itemAtRow:rowIndex]]
-												atRow:rowIndex];
+		return [self
+			currentDisplayRectForItemPointer:[NSValue valueWithPointer:(__bridge const void *)[self itemAtRow:rowIndex]]
+									   atRow:rowIndex];
 
 	} else {
 		return [super rectOfRow:rowIndex];
@@ -198,7 +199,8 @@
 		}
 
 		if (item)
-			[dict setObject:[NSNumber numberWithInteger:idx] forKey:[NSValue valueWithPointer:(__bridge const void *)item]];
+			[dict setObject:[NSNumber numberWithInteger:idx]
+					 forKey:[NSValue valueWithPointer:(__bridge const void *)item]];
 	}
 
 	return dict;

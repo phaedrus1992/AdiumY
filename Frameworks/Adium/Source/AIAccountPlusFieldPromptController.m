@@ -82,14 +82,17 @@
 			contact = [adium.contactController contactWithService:account.service account:account UID:UID];
 		} else {
 			NSAlert *alert = [[NSAlert alloc] init];
-			alert.messageText = AILocalizedStringFromTableInBundle(@"Contact not found", nil,
-												   [NSBundle bundleForClass:[AIAccountPlusFieldPromptController class]],
-												   nil);
-			alert.informativeText = [NSString stringWithFormat:AILocalizedStringFromTableInBundle(
-					@"%@ is not on any account. Please select a specific account or add this contact first.", nil,
-					[NSBundle bundleForClass:[AIAccountPlusFieldPromptController class]], nil), impliedValue];
+			alert.messageText = AILocalizedStringFromTableInBundle(
+				@"Contact not found", nil, [NSBundle bundleForClass:[AIAccountPlusFieldPromptController class]], nil);
+			alert.informativeText = [NSString
+				stringWithFormat:
+					AILocalizedStringFromTableInBundle(
+						@"%@ is not on any account. Please select a specific account or add this contact first.", nil,
+						[NSBundle bundleForClass:[AIAccountPlusFieldPromptController class]], nil),
+					impliedValue];
 			[alert addButtonWithTitle:AILocalizedStringFromTableInBundle(
-				@"OK", nil, [NSBundle bundleForClass:[AIAccountPlusFieldPromptController class]], nil)];
+										  @"OK", nil,
+										  [NSBundle bundleForClass:[AIAccountPlusFieldPromptController class]], nil)];
 			[alert runModal];
 
 			return nil;

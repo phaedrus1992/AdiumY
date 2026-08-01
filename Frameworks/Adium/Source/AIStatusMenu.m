@@ -369,7 +369,8 @@
 	NSEventType eventType = [[NSApp currentEvent] type];
 	BOOL keyEvent = (eventType == NSEventTypeKeyDown || eventType == NSEventTypeKeyUp);
 	BOOL isOptionClick = [NSEvent optionKey] && !keyEvent;
-	if (isOptionClick || (([sender state] == NSControlStateValueOn) && (statusItem.statusType != AIOfflineStatusType))) {
+	if (isOptionClick ||
+		(([sender state] == NSControlStateValueOn) && (statusItem.statusType != AIOfflineStatusType))) {
 		[AIEditStateWindowController editCustomState:(AIStatus *)statusItem
 											 forType:statusItem.statusType
 										  andAccount:account
@@ -503,7 +504,6 @@
 
 		[statusStatesMenu addItem:menuItem];
 	}
-
 
 	return statusStatesMenu;
 }

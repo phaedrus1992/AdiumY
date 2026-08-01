@@ -163,13 +163,12 @@
 //'Send' our content
 - (IBAction)sendContent:(id)sender
 {
-	#pragma clang diagnostic push
+#pragma clang diagnostic push
 
-	#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 
 	[target performSelector:selector withObject:self];
-	#pragma clang diagnostic pop
-
+#pragma clang diagnostic pop
 }
 
 @end

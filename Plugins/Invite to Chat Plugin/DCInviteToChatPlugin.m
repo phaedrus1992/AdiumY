@@ -42,16 +42,16 @@
 {
 	// Invite to Chat menu item
 	menuItem_inviteToChat = [[NSMenuItem alloc] initWithTitle:INVITE_CONTACT
-																				  target:self
-																				  action:@selector(dummyTarget:)
-																		   keyEquivalent:@""];
+													   target:self
+													   action:@selector(dummyTarget:)
+												keyEquivalent:@""];
 	[adium.menuController addMenuItem:menuItem_inviteToChat toLocation:LOC_Contact_Action];
 
 	// Invite to Chat context menu item
 	menuItem_inviteToChatContext = [[NSMenuItem alloc] initWithTitle:INVITE_CONTACT
-																						 target:self
-																						 action:@selector(dummyTarget:)
-																				  keyEquivalent:@""];
+															  target:self
+															  action:@selector(dummyTarget:)
+													   keyEquivalent:@""];
 	[adium.menuController addContextualMenuItem:menuItem_inviteToChatContext toLocation:Context_Contact_Action];
 }
 
@@ -174,7 +174,6 @@
 
 			[menu_chatMenu removeItemAtIndex:(currentNumberOfItems - 1)];
 		}
-
 	}
 
 	return menu_chatMenu;

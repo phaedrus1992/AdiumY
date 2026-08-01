@@ -65,8 +65,8 @@ static AIXtrasManager *manager;
 
 	[tableView_categories setStyle:NSTableViewStyleSourceList];
 
-	AIImageTextCell			*cell;
-	//Configure our tableViews
+	AIImageTextCell *cell;
+	// Configure our tableViews
 	cell = [[AIImageTextCell alloc] init];
 	[cell setFont:[NSFont systemFontOfSize:12]];
 	[[tableView_categories tableColumnWithIdentifier:@"name"] setDataCell:cell];
@@ -75,7 +75,7 @@ static AIXtrasManager *manager;
 	[cell setFont:[NSFont systemFontOfSize:12]];
 	[[xtraList tableColumnWithIdentifier:@"xtras"] setDataCell:cell];
 
-	//XXX ???
+	// XXX ???
 	[previewContainerView setHasVerticalScroller:YES];
 	[previewContainerView setAutohidesScrollers:YES];
 	[previewContainerView setBorderType:NSBezelBorder];
@@ -93,9 +93,9 @@ static AIXtrasManager *manager;
 		showInfo = NO;
 
 		[[NSNotificationCenter defaultCenter] addObserver:self
-											   selector:@selector(xtrasChanged:)
-												   name:AIXtrasDidChangeNotification
-												 object:nil];
+												 selector:@selector(xtrasChanged:)
+													 name:AIXtrasDidChangeNotification
+												   object:nil];
 		NSNib *xtrasManagerNib = [[NSNib alloc] initWithNibNamed:@"XtrasManager" bundle:nil];
 		[xtrasManagerNib instantiateWithOwner:self topLevelObjects:NULL];
 		[self windowDidLoad];
@@ -106,32 +106,29 @@ static AIXtrasManager *manager;
 
 - (void)windowWillClose:(NSNotification *)aNotification
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-												  name:AIXtrasDidChangeNotification
-												object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:AIXtrasDidChangeNotification object:nil];
 
 	categories = nil;
 	toolbarItems = nil;
 
-	//Release top-level nib objects besides the window
+	// Release top-level nib objects besides the window
 	view_content = nil;
 	view_shelf = nil;
 
-	//XXX don't need to do this when this is a window controller
+	// XXX don't need to do this when this is a window controller
 	window = nil;
 }
 
-
 - (void)xtrasChanged:(NSNotification *)not
 {
-	//Clear our cache of loaded Xtras
+	// Clear our cache of loaded Xtras
 	[self loadXtras];
 
-	//Now redisplay our current category, in case it changed
+	// Now redisplay our current category, in case it changed
 	[self updateForSelectedCategory];
 }
 
-NSInteger categorySort(id categoryA, id categoryB, void * context)
+NSInteger categorySort(id categoryA, id categoryB, void *context)
 {
 	return [[categoryA objectForKey:@"Name"] caseInsensitiveCompare:[categoryB objectForKey:@"Name"]];
 }
@@ -140,78 +137,90 @@ NSInteger categorySort(id categoryA, id categoryB, void * context)
 {
 	categories = [[NSMutableArray alloc] init];
 
-	[categories addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithInteger:AIMessageStylesDirectory], @"Directory",
-		AILocalizedString(@"Message Styles", "AdiumXtras category name"), @"Name",
-		[NSImage imageNamed:@"AdiumMessageStyle"], @"Image", nil]];
+	[categories
+		addObject:[NSDictionary
+					  dictionaryWithObjectsAndKeys:[NSNumber numberWithInteger:AIMessageStylesDirectory], @"Directory",
+												   AILocalizedString(@"Message Styles", "AdiumXtras category name"),
+												   @"Name", [NSImage imageNamed:@"AdiumMessageStyle"], @"Image", nil]];
 
-	[categories addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithInteger:AIContactListDirectory], @"Directory",
-		AILocalizedString(@"Contact List Themes", "AdiumXtras category name"), @"Name",
-		[NSImage imageNamed:@"AdiumListTheme"], @"Image", nil]];
+	[categories
+		addObject:[NSDictionary
+					  dictionaryWithObjectsAndKeys:[NSNumber numberWithInteger:AIContactListDirectory], @"Directory",
+												   AILocalizedString(@"Contact List Themes",
+																	 "AdiumXtras category name"),
+												   @"Name", [NSImage imageNamed:@"AdiumListTheme"], @"Image", nil]];
 
+	[categories
+		addObject:[NSDictionary
+					  dictionaryWithObjectsAndKeys:[NSNumber numberWithInteger:AIStatusIconsDirectory], @"Directory",
+												   AILocalizedString(@"Status Icons", "AdiumXtras category name"),
+												   @"Name", [NSImage imageNamed:@"AdiumStatusIcons"], @"Image", nil]];
 
-	[categories addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithInteger:AIStatusIconsDirectory], @"Directory",
-		AILocalizedString(@"Status Icons", "AdiumXtras category name"), @"Name",
-		[NSImage imageNamed:@"AdiumStatusIcons"], @"Image", nil]];
+	[categories
+		addObject:[NSDictionary
+					  dictionaryWithObjectsAndKeys:[NSNumber numberWithInteger:AISoundsDirectory], @"Directory",
+												   AILocalizedString(@"Sound Sets", "AdiumXtras category name"),
+												   @"Name", [NSImage imageNamed:@"AdiumSoundset"], @"Image", nil]];
 
-	[categories addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithInteger:AISoundsDirectory], @"Directory",
-		AILocalizedString(@"Sound Sets", "AdiumXtras category name"), @"Name",
-		[NSImage imageNamed:@"AdiumSoundset"], @"Image", nil]];
+	[categories
+		addObject:[NSDictionary
+					  dictionaryWithObjectsAndKeys:[NSNumber numberWithInteger:AIDockIconsDirectory], @"Directory",
+												   AILocalizedString(@"Dock Icons", "AdiumXtras category name"),
+												   @"Name", [NSImage imageNamed:@"AdiumIcon"], @"Image", nil]];
 
-	[categories addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithInteger:AIDockIconsDirectory], @"Directory",
-		AILocalizedString(@"Dock Icons", "AdiumXtras category name"), @"Name",
-		[NSImage imageNamed:@"AdiumIcon"], @"Image", nil]];
+	[categories
+		addObject:[NSDictionary
+					  dictionaryWithObjectsAndKeys:[NSNumber numberWithInteger:AIEmoticonsDirectory], @"Directory",
+												   AILocalizedString(@"Emoticons", "AdiumXtras category name"), @"Name",
+												   [NSImage imageNamed:@"AdiumEmoticonset"], @"Image", nil]];
 
-	[categories addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithInteger:AIEmoticonsDirectory], @"Directory",
-		AILocalizedString(@"Emoticons", "AdiumXtras category name"), @"Name",
-		[NSImage imageNamed:@"AdiumEmoticonset"], @"Image", nil]];
+	[categories
+		addObject:[NSDictionary
+					  dictionaryWithObjectsAndKeys:[NSNumber numberWithInteger:AIScriptsDirectory], @"Directory",
+												   AILocalizedString(@"Scripts", "AdiumXtras category name"), @"Name",
+												   [NSImage imageNamed:@"AdiumScripts"], @"Image", nil]];
 
-	[categories addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithInteger:AIScriptsDirectory], @"Directory",
-		AILocalizedString(@"Scripts", "AdiumXtras category name"), @"Name",
-		[NSImage imageNamed:@"AdiumScripts"], @"Image", nil]];
+	[categories
+		addObject:[NSDictionary
+					  dictionaryWithObjectsAndKeys:[NSNumber numberWithInteger:AIServiceIconsDirectory], @"Directory",
+												   AILocalizedString(@"Service Icons", "AdiumXtras category name"),
+												   @"Name", [NSImage imageNamed:@"AdiumServiceIcons"], @"Image", nil]];
 
-	[categories addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithInteger:AIServiceIconsDirectory], @"Directory",
-		AILocalizedString(@"Service Icons", "AdiumXtras category name"), @"Name",
-		[NSImage imageNamed:@"AdiumServiceIcons"], @"Image", nil]];
+	[categories
+		addObject:[NSDictionary
+					  dictionaryWithObjectsAndKeys:[NSNumber numberWithInteger:AIMenuBarIconsDirectory], @"Directory",
+												   AILocalizedString(@"Menu Bar Icons", "AdiumXtras category name"),
+												   @"Name", [NSImage imageNamed:@"AdiumMenuBarIcons"], @"Image", nil]];
 
-	[categories addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-		[NSNumber numberWithInteger:AIMenuBarIconsDirectory], @"Directory",
-		AILocalizedString(@"Menu Bar Icons", "AdiumXtras category name"), @"Name",
-		[NSImage imageNamed:@"AdiumMenuBarIcons"], @"Image", nil]];
-
-	[categories addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-						   [NSNumber numberWithInteger:AIPluginsDirectory], @"Directory",
-						   AILocalizedString(@"Plugins", "AdiumXtras category name"), @"Name",
-						   [NSImage imageNamed:@"AdiumPlugin"], @"Image", nil]];
-
+	[categories
+		addObject:[NSDictionary
+					  dictionaryWithObjectsAndKeys:[NSNumber numberWithInteger:AIPluginsDirectory], @"Directory",
+												   AILocalizedString(@"Plugins", "AdiumXtras category name"), @"Name",
+												   [NSImage imageNamed:@"AdiumPlugin"], @"Image", nil]];
 
 	[categories sortUsingFunction:categorySort context:NULL];
 }
 
 - (NSArray *)arrayOfXtrasAtPaths:(NSArray *)paths
 {
-	NSMutableArray	*contents = [NSMutableArray array];
-	NSFileManager	*fileManager = [NSFileManager defaultManager];
+	NSMutableArray *contents = [NSMutableArray array];
+	NSFileManager *fileManager = [NSFileManager defaultManager];
 
 	for (NSString *path in paths) {
 		for (NSString *xtraName in [fileManager contentsOfDirectoryAtPath:path error:NULL]) {
 			if (![xtraName hasPrefix:@"."]) {
-				[contents addObject:[AIXtraInfo infoWithURL:[NSURL fileURLWithPath:[path stringByAppendingPathComponent:xtraName]]]];
+				[contents
+					addObject:[AIXtraInfo
+								  infoWithURL:[NSURL fileURLWithPath:[path stringByAppendingPathComponent:xtraName]]]];
 			}
 		}
 
-		NSString *disabledPath = [[path stringByDeletingLastPathComponent] stringByAppendingPathComponent:
-								  [[path lastPathComponent] stringByAppendingString:@" (Disabled)"]];
+		NSString *disabledPath = [[path stringByDeletingLastPathComponent]
+			stringByAppendingPathComponent:[[path lastPathComponent] stringByAppendingString:@" (Disabled)"]];
 		for (NSString *xtraName in [fileManager contentsOfDirectoryAtPath:disabledPath error:NULL]) {
 			if (![xtraName hasPrefix:@"."]) {
-				AIXtraInfo *xtraInfo = [AIXtraInfo infoWithURL:[NSURL fileURLWithPath:[disabledPath stringByAppendingPathComponent:xtraName]]];
+				AIXtraInfo *xtraInfo = [AIXtraInfo
+					infoWithURL:[NSURL fileURLWithPath:[disabledPath stringByAppendingPathComponent:xtraName]]];
 				[xtraInfo setEnabled:NO];
 				[contents addObject:xtraInfo];
 			}
@@ -223,17 +232,18 @@ NSInteger categorySort(id categoryA, id categoryB, void * context)
 
 - (NSArray *)xtrasForCategoryAtIndex:(NSInteger)inIndex
 {
-	if (inIndex == -1) return nil;
+	if (inIndex == -1)
+		return nil;
 
-	NSDictionary	*xtrasDict = [categories objectAtIndex:inIndex];
-	NSArray			*xtras;
+	NSDictionary *xtrasDict = [categories objectAtIndex:inIndex];
+	NSArray *xtras;
 
 	if (!(xtras = [xtrasDict objectForKey:@"Xtras"])) {
-		xtras = [self arrayOfXtrasAtPaths:AISearchPathForDirectories([[xtrasDict objectForKey:@"Directory"] integerValue])];
+		xtras =
+			[self arrayOfXtrasAtPaths:AISearchPathForDirectories([[xtrasDict objectForKey:@"Directory"] integerValue])];
 		NSMutableDictionary *newDictionary = [xtrasDict mutableCopy];
 		[newDictionary setObject:xtras forKey:@"Xtras"];
-		[categories replaceObjectAtIndex:inIndex
-							  withObject:newDictionary];
+		[categories replaceObjectAtIndex:inIndex withObject:newDictionary];
 	}
 
 	return xtras;
@@ -261,20 +271,22 @@ NSInteger categorySort(id categoryA, id categoryB, void * context)
 
 	if (xtra) {
 		//[showInfoControl setHidden:NO];
-		if(showInfo) {
+		if (showInfo) {
 			NSNib *infoNib = [[NSNib alloc] initWithNibNamed:@"XtraInfoView" bundle:nil];
 			[infoNib instantiateWithOwner:self topLevelObjects:NULL];
 		} else {
 			NSNib *imageNib = [[NSNib alloc] initWithNibNamed:@"XtraPreviewImageView" bundle:nil];
 			[imageNib instantiateWithOwner:self topLevelObjects:NULL];
 		}
-		if (previewController/* && previewContainerView*/) {
+		if (previewController /* && previewContainerView*/) {
 			NSView *pv = [previewController previewView];
 			NSSize docSize = [previewContainerView documentVisibleRect].size;
 			NSRect viewFrame = [pv frame];
 			viewFrame.size.width = docSize.width;
-			if([pv respondsToSelector:@selector(image)]) viewFrame.size.height = [[(NSImageView *)pv image]size].height;
-			if(viewFrame.size.height < docSize.height) viewFrame.size.height = docSize.height;
+			if ([pv respondsToSelector:@selector(image)])
+				viewFrame.size.height = [[(NSImageView *)pv image] size].height;
+			if (viewFrame.size.height < docSize.height)
+				viewFrame.size.height = docSize.height;
 			[pv setFrameSize:viewFrame.size];
 			[previewContainerView setDocumentView:pv];
 			[previewController setXtra:xtra];
@@ -283,7 +295,7 @@ NSInteger categorySort(id categoryA, id categoryB, void * context)
 	}
 }
 
-- (IBAction) setShowsInfo:(id)sender
+- (IBAction)setShowsInfo:(id)sender
 {
 	showInfo = ([sender selectedSegment] != 0);
 
@@ -293,10 +305,10 @@ NSInteger categorySort(id categoryA, id categoryB, void * context)
 - (void)deleteXtrasAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
 	if (returnCode == NSAlertFirstButtonReturn) {
-		NSFileManager * fileManager = [NSFileManager defaultManager];
-		NSIndexSet * indices = [xtraList selectedRowIndexes];
-		NSMutableSet * pathExtensions = [NSMutableSet set];
-		NSString * path;
+		NSFileManager *fileManager = [NSFileManager defaultManager];
+		NSIndexSet *indices = [xtraList selectedRowIndexes];
+		NSMutableSet *pathExtensions = [NSMutableSet set];
+		NSString *path;
 		for (NSInteger i = [indices lastIndex]; i >= 0; i--) {
 			if ([indices containsIndex:i]) {
 				path = [[selectedCategory objectAtIndex:i] path];
@@ -310,32 +322,33 @@ NSInteger categorySort(id categoryA, id categoryB, void * context)
 		/*
 		 XXX this is ugly. We should use the AIXtraInfo's type instead of the path extension
 		*/
-		for (path in pathExtensions) { //usually this will only run once
-			[[NSNotificationCenter defaultCenter] postNotificationName:AIXtrasDidChangeNotification
-													  object:path];
+		for (path in pathExtensions) { // usually this will only run once
+			[[NSNotificationCenter defaultCenter] postNotificationName:AIXtrasDidChangeNotification object:path];
 		}
 	}
 }
 
-- (IBAction) deleteXtra:(id)sender
+- (IBAction)deleteXtra:(id)sender
 {
 	NSUInteger selectionCount = [[xtraList selectedRowIndexes] count];
 
 	NSAlert *warning = [[NSAlert alloc] init];
 	if (selectionCount > 1) {
-		warning.messageText = [NSString stringWithFormat:AILocalizedString(@"Delete %lu Xtras?", nil), (unsigned long)selectionCount];
+		warning.messageText =
+			[NSString stringWithFormat:AILocalizedString(@"Delete %lu Xtras?", nil), (unsigned long)selectionCount];
 	} else {
 		warning.messageText = AILocalizedString(@"Delete Xtra?", nil);
 	}
-	warning.informativeText = (selectionCount > 1) ?
-		AILocalizedString(@"The selected Xtras will be moved to the Trash.", nil) :
-		AILocalizedString(@"The selected Xtra will be moved to the Trash.", nil);
+	warning.informativeText = (selectionCount > 1)
+								  ? AILocalizedString(@"The selected Xtras will be moved to the Trash.", nil)
+								  : AILocalizedString(@"The selected Xtra will be moved to the Trash.", nil);
 	[warning addButtonWithTitle:AILocalizedString(@"Delete", nil)];
 	[warning addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
 
-	[warning beginSheetModalForWindow:window completionHandler:^(NSModalResponse returnCode) {
-		[self deleteXtrasAlertDidEnd:warning returnCode:returnCode contextInfo:NULL];
-	}];
+	[warning beginSheetModalForWindow:window
+					completionHandler:^(NSModalResponse returnCode) {
+						[self deleteXtrasAlertDidEnd:warning returnCode:returnCode contextInfo:NULL];
+					}];
 }
 
 - (IBAction)browseXtras:(id)sender
@@ -344,33 +357,29 @@ NSInteger categorySort(id categoryA, id categoryB, void * context)
 }
 
 - (IBAction)checkForUpdates:(id)sender
-{
-
-}
+{}
 
 + (BOOL)createXtraBundleAtPath:(NSString *)path
 {
-	NSString *contentsPath  = [path stringByAppendingPathComponent:@"Contents"];
+	NSString *contentsPath = [path stringByAppendingPathComponent:@"Contents"];
 	NSString *resourcesPath = [contentsPath stringByAppendingPathComponent:@"Resources"];
 	NSString *infoPlistPath = [contentsPath stringByAppendingPathComponent:@"Info.plist"];
 
-	NSFileManager * fileManager = [NSFileManager defaultManager];
-	NSString * name = [[path lastPathComponent] stringByDeletingPathExtension];
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+	NSString *name = [[path lastPathComponent] stringByDeletingPathExtension];
 	if (![fileManager fileExistsAtPath:path]) {
 		[fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:NULL];
 		[fileManager createDirectoryAtPath:contentsPath withIntermediateDirectories:YES attributes:nil error:NULL];
 
-		//Info.plist
-		[[NSDictionary dictionaryWithObjectsAndKeys:
-			@"English", kCFBundleDevelopmentRegionKey,
-			name, kCFBundleNameKey,
-			@"AdIM", @"CFBundlePackageType",
-			[@"com.adiumx." stringByAppendingString:name], kCFBundleIdentifierKey,
-			[NSNumber numberWithInteger:1], @"XtraBundleVersion",
-			@"1.0", kCFBundleInfoDictionaryVersionKey,
-			nil] writeToFile:infoPlistPath atomically:YES];
+		// Info.plist
+		[[NSDictionary
+			dictionaryWithObjectsAndKeys:@"English", kCFBundleDevelopmentRegionKey, name, kCFBundleNameKey, @"AdIM",
+										 @"CFBundlePackageType", [@"com.adiumx." stringByAppendingString:name],
+										 kCFBundleIdentifierKey, [NSNumber numberWithInteger:1], @"XtraBundleVersion",
+										 @"1.0", kCFBundleInfoDictionaryVersionKey, nil] writeToFile:infoPlistPath
+																						  atomically:YES];
 
-		//Resources
+		// Resources
 		[fileManager createDirectoryAtPath:resourcesPath withIntermediateDirectories:YES attributes:nil error:NULL];
 	}
 
@@ -381,13 +390,15 @@ NSInteger categorySort(id categoryA, id categoryB, void * context)
 	return success;
 }
 
-- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
+- (void)tableView:(NSTableView *)tableView
+	willDisplayCell:(id)cell
+	 forTableColumn:(NSTableColumn *)tableColumn
+				row:(NSInteger)row
 {
 	if (tableView == tableView_categories) {
 		[cell setImage:[[categories objectAtIndex:row] objectForKey:@"Image"]];
 		[cell setSubString:nil];
-	}
-	else {
+	} else {
 		AIXtraInfo *xtraInfo = [selectedCategory objectAtIndex:row];
 		[cell setImage:[xtraInfo icon]];
 		[cell setSubString:nil];
@@ -399,8 +410,7 @@ NSInteger categorySort(id categoryA, id categoryB, void * context)
 {
 	if (tableView == tableView_categories) {
 		return [categories count];
-	}
-	else {
+	} else {
 		return [selectedCategory count];
 	}
 }
@@ -410,9 +420,9 @@ NSInteger categorySort(id categoryA, id categoryB, void * context)
 	if (tableView == tableView_categories) {
 		return [[categories objectAtIndex:row] objectForKey:@"Name"];
 	} else {
-		NSString * name = [(AIXtraInfo *)[selectedCategory objectAtIndex:row] name];
-		NSString * version = [(AIXtraInfo *)[selectedCategory objectAtIndex:row] version];
-		NSString * displayString;
+		NSString *name = [(AIXtraInfo *)[selectedCategory objectAtIndex:row] name];
+		NSString *version = [(AIXtraInfo *)[selectedCategory objectAtIndex:row] version];
+		NSString *displayString;
 
 		if (name) {
 			if (version)
@@ -430,9 +440,10 @@ NSInteger categorySort(id categoryA, id categoryB, void * context)
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification
 {
 	if ([aNotification object] == xtraList) {
-		//int	selectedRow = [xtraList selectedRow];
-		//if ((selectedRow >= 0) && (selectedRow < [selectedCategory count])) {
-			//AIXtraInfo *xtraInfo  = [AIXtraInfo infoWithURL:[NSURL fileURLWithPath:[[selectedCategory objectAtIndex:selectedRow] path]]];
+		// int	selectedRow = [xtraList selectedRow];
+		// if ((selectedRow >= 0) && (selectedRow < [selectedCategory count])) {
+		// AIXtraInfo *xtraInfo  = [AIXtraInfo infoWithURL:[NSURL fileURLWithPath:[[selectedCategory
+		// objectAtIndex:selectedRow] path]]];
 		//	if ([[xtraList selectedRowIndexes] count] == 1)
 		//		[previewController setXtra:xtraInfo];
 		//}
@@ -467,7 +478,7 @@ NSInteger categorySort(id categoryA, id categoryB, void * context)
 	[toolbar setAutosavesConfiguration:YES];
 	toolbarItems = [[NSMutableDictionary alloc] init];
 
-	//Delete Logs
+	// Delete Logs
 	[AIToolbarUtilities addToolbarItemToDictionary:toolbarItems
 									withIdentifier:@"delete"
 											 label:DELETE

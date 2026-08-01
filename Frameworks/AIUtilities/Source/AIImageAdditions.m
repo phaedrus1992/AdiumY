@@ -316,15 +316,15 @@
 	NSRect rect = NSMakeRect(0.0f, 0.0f, size.width, size.height);
 
 	NSBitmapImageRep *bm = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:nil
-	                                                              pixelsWide:MAX(1, (NSInteger)lround(size.width))
-	                                                              pixelsHigh:MAX(1, (NSInteger)lround(size.height))
-	                                                           bitsPerSample:8
-	                                                         samplesPerPixel:4
-	                                                                hasAlpha:YES
-	                                                                isPlanar:NO
-	                                                          colorSpaceName:NSCalibratedRGBColorSpace
-	                                                             bytesPerRow:0
-	                                                            bitsPerPixel:0];
+																   pixelsWide:MAX(1, (NSInteger)lround(size.width))
+																   pixelsHigh:MAX(1, (NSInteger)lround(size.height))
+																bitsPerSample:8
+															  samplesPerPixel:4
+																	 hasAlpha:YES
+																	 isPlanar:NO
+															   colorSpaceName:NSCalibratedRGBColorSpace
+																  bytesPerRow:0
+																 bitsPerPixel:0];
 	[bm setSize:size];
 
 	[NSGraphicsContext saveGraphicsState];

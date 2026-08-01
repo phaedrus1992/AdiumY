@@ -26,14 +26,14 @@
 #import <Adium/AIMenuControllerProtocol.h>
 #import <Adium/AIMetaContact.h>
 
-#define HIDE_CONTACTS_MENU_TITLE	AILocalizedString(@"Hide Certain Contacts", nil)
-#define HIDE_OFFLINE_MENU_TITLE		AILocalizedString(@"Hide Offline Contacts", nil)
-#define HIDE_IDLE_MENU_TITLE		AILocalizedString(@"Hide Idle Contacts", nil)
-#define HIDE_MOBILE_MENU_TITLE		AILocalizedString(@"Hide Mobile Contacts", nil)
-#define HIDE_BLOCKED_MENU_TITLE		AILocalizedString(@"Hide Blocked Contacts", nil)
-#define HIDE_ACCOUNT_CONTACT_MENU_TITLE	AILocalizedString(@"Hide Contacts for Accounts", nil)
-#define HIDE_AWAY_MENU_TITLE		AILocalizedString(@"Hide Away Contacts", nil)
-#define USE_OFFLINE_GROUP_MENU_TITLE	AILocalizedString(@"Use Offline Group", nil)
+#define HIDE_CONTACTS_MENU_TITLE AILocalizedString(@"Hide Certain Contacts", nil)
+#define HIDE_OFFLINE_MENU_TITLE AILocalizedString(@"Hide Offline Contacts", nil)
+#define HIDE_IDLE_MENU_TITLE AILocalizedString(@"Hide Idle Contacts", nil)
+#define HIDE_MOBILE_MENU_TITLE AILocalizedString(@"Hide Mobile Contacts", nil)
+#define HIDE_BLOCKED_MENU_TITLE AILocalizedString(@"Hide Blocked Contacts", nil)
+#define HIDE_ACCOUNT_CONTACT_MENU_TITLE AILocalizedString(@"Hide Contacts for Accounts", nil)
+#define HIDE_AWAY_MENU_TITLE AILocalizedString(@"Hide Away Contacts", nil)
+#define USE_OFFLINE_GROUP_MENU_TITLE AILocalizedString(@"Use Offline Group", nil)
 
 @interface AIContactVisibilityControlPlugin () <NSMenuItemValidation>
 - (void)updateAccountMenu;
@@ -53,9 +53,10 @@
  */
 - (void)installPlugin
 {
-	//Default preferences
-	[adium.preferenceController registerDefaults:[NSDictionary dictionaryNamed:@"OfflineContactHidingDefaults" forClass:[self class]]
-										  forGroup:PREF_GROUP_CONTACT_LIST_DISPLAY];
+	// Default preferences
+	[adium.preferenceController registerDefaults:[NSDictionary dictionaryNamed:@"OfflineContactHidingDefaults"
+																	  forClass:[self class]]
+										forGroup:PREF_GROUP_CONTACT_LIST_DISPLAY];
 
 	menu_hideAccounts = [[NSMenu alloc] init];
 	[menu_hideAccounts setDelegate:self];
@@ -71,7 +72,7 @@
 												keyEquivalent:@"H"];
 	[adium.menuController addMenuItem:menuItem_hideContacts toLocation:LOC_View_Toggles];
 
-	//Hide Contacts for Account
+	// Hide Contacts for Account
 	menuItem_hideAccountContact = [[NSMenuItem alloc] initWithTitle:HIDE_ACCOUNT_CONTACT_MENU_TITLE
 															 target:self
 															 action:@selector(toggleHide:)
@@ -80,7 +81,7 @@
 	[menuItem_hideAccountContact setSubmenu:menu_hideAccounts];
 	[adium.menuController addMenuItem:menuItem_hideAccountContact toLocation:LOC_View_Toggles];
 
-	//Hide Offline Contacts
+	// Hide Offline Contacts
 	menuItem_hideOffline = [[NSMenuItem alloc] initWithTitle:HIDE_OFFLINE_MENU_TITLE
 													  target:self
 													  action:@selector(toggleHide:)
@@ -88,7 +89,7 @@
 	[menuItem_hideOffline setIndentationLevel:1];
 	[adium.menuController addMenuItem:menuItem_hideOffline toLocation:LOC_View_Toggles];
 
-	//Hide Idle Contacts
+	// Hide Idle Contacts
 	menuItem_hideIdle = [[NSMenuItem alloc] initWithTitle:HIDE_IDLE_MENU_TITLE
 												   target:self
 												   action:@selector(toggleHide:)
@@ -96,7 +97,7 @@
 	[menuItem_hideIdle setIndentationLevel:1];
 	[adium.menuController addMenuItem:menuItem_hideIdle toLocation:LOC_View_Toggles];
 
-	//Hide Away Contacts
+	// Hide Away Contacts
 	menuItem_hideAway = [[NSMenuItem alloc] initWithTitle:HIDE_AWAY_MENU_TITLE
 												   target:self
 												   action:@selector(toggleHide:)
@@ -104,7 +105,7 @@
 	[menuItem_hideAway setIndentationLevel:1];
 	[adium.menuController addMenuItem:menuItem_hideAway toLocation:LOC_View_Toggles];
 
-	//Hide Mobile Contacts
+	// Hide Mobile Contacts
 	menuItem_hideMobile = [[NSMenuItem alloc] initWithTitle:HIDE_MOBILE_MENU_TITLE
 													 target:self
 													 action:@selector(toggleHide:)
@@ -112,7 +113,7 @@
 	[menuItem_hideMobile setIndentationLevel:1];
 	[adium.menuController addMenuItem:menuItem_hideMobile toLocation:LOC_View_Toggles];
 
-	//Hide Blocked Contacts
+	// Hide Blocked Contacts
 	menuItem_hideBlocked = [[NSMenuItem alloc] initWithTitle:HIDE_BLOCKED_MENU_TITLE
 													  target:self
 													  action:@selector(toggleHide:)
@@ -120,14 +121,14 @@
 	[menuItem_hideBlocked setIndentationLevel:1];
 	[adium.menuController addMenuItem:menuItem_hideBlocked toLocation:LOC_View_Toggles];
 
-	//Hide Offline Contacts
+	// Hide Offline Contacts
 	menuItem_useOfflineGroup = [[NSMenuItem alloc] initWithTitle:USE_OFFLINE_GROUP_MENU_TITLE
 														  target:self
 														  action:@selector(toggleHide:)
 												   keyEquivalent:@""];
 	[adium.menuController addMenuItem:menuItem_useOfflineGroup toLocation:LOC_View_Toggles];
 
-	//Register preference observer first so values will be correct for the following calls
+	// Register preference observer first so values will be correct for the following calls
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_CONTACT_LIST_DISPLAY];
 }
 
@@ -147,8 +148,11 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)preferencesChangedForGroup:(NSString *)group key:(NSString *)key
-							object:(AIListObject *)object preferenceDict:(NSDictionary *)prefDict firstTime:(BOOL)firstTime
+- (void)preferencesChangedForGroup:(NSString *)group
+							   key:(NSString *)key
+							object:(AIListObject *)object
+					preferenceDict:(NSDictionary *)prefDict
+						 firstTime:(BOOL)firstTime
 {
 	if (object)
 		return;
@@ -168,8 +172,9 @@
 	useContactListGroups = ![[prefDict objectForKey:KEY_HIDE_CONTACT_LIST_GROUPS] boolValue];
 	useOfflineGroup = (useContactListGroups && [[prefDict objectForKey:KEY_USE_OFFLINE_GROUP] boolValue]);
 
-	//Update our menu to reflect the current preferences
-	[menuItem_hideAccountContact setState:(array_hideAccounts.count ? NSControlStateValueMixed : NSControlStateValueOff)];
+	// Update our menu to reflect the current preferences
+	[menuItem_hideAccountContact
+		setState:(array_hideAccounts.count ? NSControlStateValueMixed : NSControlStateValueOff)];
 	[menuItem_hideContacts setState:hideContacts];
 	[menuItem_hideOffline setState:!showOfflineContacts];
 	[menuItem_hideIdle setState:!showIdleContacts];
@@ -184,49 +189,48 @@
  */
 - (IBAction)toggleHide:(id)sender
 {
-	//Toggle hide/show for contacts
+	// Toggle hide/show for contacts
 	if (sender == menuItem_hideContacts) {
 		hideContacts = !hideContacts;
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:hideContacts]
-											 forKey:KEY_HIDE_CONTACTS
-											  group:PREF_GROUP_CONTACT_LIST_DISPLAY];
+										   forKey:KEY_HIDE_CONTACTS
+											group:PREF_GROUP_CONTACT_LIST_DISPLAY];
 
 	} else if (sender == menuItem_hideOffline) {
 		showOfflineContacts = !showOfflineContacts;
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:showOfflineContacts]
-											 forKey:KEY_SHOW_OFFLINE_CONTACTS
-											  group:PREF_GROUP_CONTACT_LIST_DISPLAY];
+										   forKey:KEY_SHOW_OFFLINE_CONTACTS
+											group:PREF_GROUP_CONTACT_LIST_DISPLAY];
 
 	} else if (sender == menuItem_hideIdle) {
 		showIdleContacts = !showIdleContacts;
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:showIdleContacts]
-											 forKey:KEY_SHOW_IDLE_CONTACTS
-											  group:PREF_GROUP_CONTACT_LIST_DISPLAY];
+										   forKey:KEY_SHOW_IDLE_CONTACTS
+											group:PREF_GROUP_CONTACT_LIST_DISPLAY];
 
 	} else if (sender == menuItem_hideMobile) {
 		showMobileContacts = !showMobileContacts;
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:showMobileContacts]
-											 forKey:KEY_SHOW_MOBILE_CONTACTS
-											  group:PREF_GROUP_CONTACT_LIST_DISPLAY];
+										   forKey:KEY_SHOW_MOBILE_CONTACTS
+											group:PREF_GROUP_CONTACT_LIST_DISPLAY];
 
 	} else if (sender == menuItem_hideBlocked) {
 		showBlockedContacts = !showBlockedContacts;
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:showBlockedContacts]
-											 forKey:KEY_SHOW_BLOCKED_CONTACTS
-											  group:PREF_GROUP_CONTACT_LIST_DISPLAY];
+										   forKey:KEY_SHOW_BLOCKED_CONTACTS
+											group:PREF_GROUP_CONTACT_LIST_DISPLAY];
 
 	} else if (sender == menuItem_hideAway) {
 		showAwayContacts = !showAwayContacts;
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:showAwayContacts]
-											 forKey:KEY_SHOW_AWAY_CONTACTS
-											  group:PREF_GROUP_CONTACT_LIST_DISPLAY];
-
+										   forKey:KEY_SHOW_AWAY_CONTACTS
+											group:PREF_GROUP_CONTACT_LIST_DISPLAY];
 
 	} else if (sender == menuItem_useOfflineGroup) {
 		useOfflineGroup = !useOfflineGroup;
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:useOfflineGroup]
-											 forKey:KEY_USE_OFFLINE_GROUP
-											  group:PREF_GROUP_CONTACT_LIST_DISPLAY];
+										   forKey:KEY_USE_OFFLINE_GROUP
+											group:PREF_GROUP_CONTACT_LIST_DISPLAY];
 	}
 }
 
@@ -237,12 +241,12 @@
 {
 	[menu_hideAccounts removeAllItems];
 
-	//Add all the accounts as menu items.
+	// Add all the accounts as menu items.
 	for (NSMenuItem *menuItem in menuItems) {
 		[menu_hideAccounts addItem:[menuItem copy]];
 	}
 
-	//Remove any dead accounts from the array.
+	// Remove any dead accounts from the array.
 	BOOL removedAnyAccounts = NO;
 	for (NSString *internalID in [array_hideAccounts copy]) {
 		if ([adium.accountController accountWithInternalObjectID:internalID] == nil) {
@@ -251,7 +255,7 @@
 		}
 	}
 
-	//Save if necessary.
+	// Save if necessary.
 	if (removedAnyAccounts) {
 		[adium.preferenceController setPreference:[array_hideAccounts copy]
 										   forKey:KEY_HIDE_ACCOUNT_CONTACTS

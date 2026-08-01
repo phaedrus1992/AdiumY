@@ -17,13 +17,13 @@
 #import "AITemporaryIRCAccountWindowController.h"
 
 #import "AIEditAccountWindowController.h"
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIService.h>
 #import "AIServiceMenu.h"
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIStringFormatter.h>
+#import <Adium/AIAccount.h>
+#import <Adium/AIAccountControllerProtocol.h>
+#import <Adium/AIChatControllerProtocol.h>
+#import <Adium/AIService.h>
 
 @implementation AITemporaryIRCAccountWindowController
 
@@ -33,11 +33,15 @@
  * @param newChannel The channel part of the IRC link
  * @param newServer The server part of the link
  * @param newPort The port number of the link, or -1 if no port number specified (will assume 6667)
- * @param newPassword The password part of the link. This is the password of the channel, _not_ the password of the account!
+ * @param newPassword The password part of the link. This is the password of the channel, _not_ the password of the
+ * account!
  */
-- (id)initWithChannel:(NSString *)newChannel server:(NSString *)newServer port:(NSInteger)newPort andPassword:(NSString *)newPassword
+- (id)initWithChannel:(NSString *)newChannel
+			   server:(NSString *)newServer
+				 port:(NSInteger)newPort
+		  andPassword:(NSString *)newPassword
 {
-	if((self = [super initWithWindowNibName:@"TemporaryIRCAccountWindow"])) {
+	if ((self = [super initWithWindowNibName:@"TemporaryIRCAccountWindow"])) {
 		channel = newChannel;
 		server = newServer;
 		port = (newPort == -1 ? 6667 : newPort);
@@ -65,10 +69,14 @@
 {
 	[super windowDidLoad];
 
-	[textField_explanation setStringValue:[NSString stringWithFormat:AILocalizedString(@"You need to create a new IRC account to connect to irc://%@%@/%@:", nil),
-					       server,
-					       (port == 6667 ? @"" : [NSString stringWithFormat:@":%li", (long)port]),
-					       channel]];
+	[textField_explanation
+		setStringValue:[NSString
+						   stringWithFormat:AILocalizedString(
+												@"You need to create a new IRC account to connect to irc://%@%@/%@:",
+												nil),
+											server,
+											(port == 6667 ? @"" : [NSString stringWithFormat:@":%li", (long)port]),
+											channel]];
 
 	[textField_server setStringValue:server];
 
@@ -80,7 +88,6 @@
 	[button_advanced setLocalizedString:[AILocalizedString(@"Advanced", nil) stringByAppendingEllipsis]];
 
 	[button_remember setLocalizedString:AILocalizedString(@"Remember this account", nil)];
-
 }
 
 - (void)windowWillClose:(id)sender
@@ -92,8 +99,9 @@
 {
 	NSString *UID = [textField_name stringValue];
 
-	//Use the default user name if possible, if no UID is specified
-	if (!UID || ![UID length]) UID = [[adium.accountController firstServiceWithServiceID:@"IRC"] defaultUserName];
+	// Use the default user name if possible, if no UID is specified
+	if (!UID || ![UID length])
+		UID = [[adium.accountController firstServiceWithServiceID:@"IRC"] defaultUserName];
 
 	return UID;
 }
@@ -102,8 +110,9 @@
 {
 	NSString *host = [textField_server stringValue];
 
-	//Use the supplied host if the text field is empty
-	if (!host || ![host length]) host = server;
+	// Use the supplied host if the text field is empty
+	if (!host || ![host length])
+		host = server;
 
 	return host;
 }
@@ -111,8 +120,9 @@
 - (AIAccount *)account
 {
 	if (!account) {
-		account = [adium.accountController createAccountWithService:[adium.accountController firstServiceWithServiceID:@"IRC"]
-									UID:self.UID];
+		account =
+			[adium.accountController createAccountWithService:[adium.accountController firstServiceWithServiceID:@"IRC"]
+														  UID:self.UID];
 
 		[account setPreference:server forKey:KEY_CONNECT_HOST group:GROUP_ACCOUNT_STATUS];
 	}
@@ -122,24 +132,22 @@
 
 - (IBAction)okay:(id)sender
 {
-	AIAccount	*theAccount = self.account;
+	AIAccount *theAccount = self.account;
 
 	[account filterAndSetUID:self.UID];
 
 	[theAccount setIsTemporary:([button_remember state] == NSControlStateValueOff)];
 
-	[theAccount setPreference:self.host
-			   forKey:KEY_CONNECT_HOST
-				group:GROUP_ACCOUNT_STATUS];
+	[theAccount setPreference:self.host forKey:KEY_CONNECT_HOST group:GROUP_ACCOUNT_STATUS];
 
 	[adium.accountController addAccount:theAccount];
 
 	[[NSNotificationCenter defaultCenter] addObserver:self
-						 selector:@selector(accountConnected:)
-						     name:ACCOUNT_CONNECTED
-						   object:theAccount];
+											 selector:@selector(accountConnected:)
+												 name:ACCOUNT_CONNECTED
+											   object:theAccount];
 
-	//Connect the account
+	// Connect the account
 	[theAccount setPreference:[NSNumber numberWithBool:YES] forKey:@"Online" group:GROUP_ACCOUNT_STATUS];
 
 	[button_okay setEnabled:FALSE];
@@ -152,24 +160,22 @@
 	}
 
 	if (![account.host isEqualToString:self.host]) {
-		[account setPreference:self.host
-			       forKey:KEY_CONNECT_HOST
-				group:GROUP_ACCOUNT_STATUS];
+		[account setPreference:self.host forKey:KEY_CONNECT_HOST group:GROUP_ACCOUNT_STATUS];
 	}
 
-	AIEditAccountWindowController *editAccountWindowController = [[AIEditAccountWindowController alloc] initWithAccount:self.account
-													notifyingTarget:self];
+	AIEditAccountWindowController *editAccountWindowController =
+		[[AIEditAccountWindowController alloc] initWithAccount:self.account notifyingTarget:self];
 	[editAccountWindowController showOnWindow:[self window]];
 }
 
 - (void)editAccountSheetDidEndForAccount:(AIAccount *)inAccount withSuccess:(BOOL)inSuccess
 {
-	//If the AIEditAccountWindowController changes the account object, update to follow suit
+	// If the AIEditAccountWindowController changes the account object, update to follow suit
 	if (inAccount != account) {
 		account = inAccount;
 	}
 
-	//Make sure our UID is still accurate
+	// Make sure our UID is still accurate
 	if (![inAccount.UID isEqualToString:self.UID]) {
 		[textField_name setStringValue:inAccount.UID];
 	}
@@ -181,13 +187,13 @@
 
 - (void)accountConnected:(NSNotification *)not
 {
-	[adium.chatController chatWithName:channel
-				identifier:nil
-				 onAccount:account
-		  chatCreationInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-				    channel, @"channel",
-				    password, @"password", /* may be nil, so should be last */
-				    nil]];
+	[adium.chatController
+			chatWithName:channel
+			  identifier:nil
+			   onAccount:account
+		chatCreationInfo:[NSDictionary dictionaryWithObjectsAndKeys:channel, @"channel", password,
+																	@"password", /* may be nil, so should be last */
+																	nil]];
 
 	[[self window] performClose:nil];
 }

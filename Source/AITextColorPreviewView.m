@@ -27,20 +27,20 @@
 
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
-    if ((self = [super initWithCoder:aDecoder])) {
-    	[self AI_initTextColorPreviewView];
+	if ((self = [super initWithCoder:aDecoder])) {
+		[self AI_initTextColorPreviewView];
 	}
 
-    return self;
+	return self;
 }
 
 - (id)initWithFrame:(NSRect)frameRect
 {
-    if ((self = [super initWithFrame:frameRect])) {
-    	[self AI_initTextColorPreviewView];
+	if ((self = [super initWithFrame:frameRect])) {
+		[self AI_initTextColorPreviewView];
 	}
 
-    return self;
+	return self;
 }
 
 - (void)AI_initTextColorPreviewView
@@ -50,14 +50,15 @@
 
 - (void)drawRect:(NSRect)rect
 {
-	NSMutableDictionary	*attributes;
-	NSAttributedString	*sample;
-	NSShadow			*textShadow = nil;
-	NSSize				sampleSize;
+	NSMutableDictionary *attributes;
+	NSAttributedString *sample;
+	NSShadow *textShadow = nil;
+	NSSize sampleSize;
 
 	// Background
 	if (([backgroundEnabled state] != NSControlStateValueOff) && backgroundGradientColor) {
-		[[[NSGradient alloc] initWithStartingColor:[backgroundGradientColor color] endingColor:[backgroundColor color]] drawInRect:rect angle:90.0f];
+		[[[NSGradient alloc] initWithStartingColor:[backgroundGradientColor color]
+									   endingColor:[backgroundColor color]] drawInRect:rect angle:90.0f];
 	} else {
 		NSColor *backColor = (backColorOverride ? backColorOverride : [backgroundColor color]);
 
@@ -85,21 +86,19 @@
 		}
 	}
 
-	attributes = [NSMutableDictionary dictionaryWithObjectsAndKeys: [NSFont systemFontOfSize:12], NSFontAttributeName,
-																	[NSParagraphStyle styleWithAlignment:NSTextAlignmentCenter], NSParagraphStyleAttributeName,
-																	colorForText, NSForegroundColorAttributeName,
-																	textShadow, NSShadowAttributeName,
-																	nil];
+	attributes = [NSMutableDictionary
+		dictionaryWithObjectsAndKeys:[NSFont systemFontOfSize:12], NSFontAttributeName,
+									 [NSParagraphStyle styleWithAlignment:NSTextAlignmentCenter],
+									 NSParagraphStyleAttributeName, colorForText, NSForegroundColorAttributeName,
+									 textShadow, NSShadowAttributeName, nil];
 
-	sample = [[NSAttributedString alloc] initWithString:AILocalizedString(@"Sample",nil)
-										  attributes:attributes];
+	sample = [[NSAttributedString alloc] initWithString:AILocalizedString(@"Sample", nil) attributes:attributes];
 
 	sampleSize = [sample size];
 
 	[sample drawInRect:NSIntegralRect(NSMakeRect(rect.origin.x + ((rect.size.width - sampleSize.width) / 2.0f),
 												 rect.origin.y + ((rect.size.height - sampleSize.height) / 2.0f),
-												 sampleSize.width,
-												 sampleSize.height))];
+												 sampleSize.width, sampleSize.height))];
 }
 
 // Overrides. Pass nil to disable

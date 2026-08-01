@@ -18,8 +18,8 @@
 #import "AICoreComponentLoader.h"
 #import "AILoggerPlugin.h"
 #import "AIXMLAppender.h"
-#import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIDataAdditions.h>
+#import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/ISO8601DateFormatter.h>
 #import <Adium/AIHTMLDecoder.h>
@@ -146,9 +146,9 @@
 								 stringFromDate:[(InstantMessage *)[[rawChat objectAtIndex:2] objectAtIndex:i] date]],
 							 nil];
 
-		NSMutableString *chatContents = [[xhtmlDecoder encodeHTML:[[NSAttributedString alloc]
-							   initWithString:[[[rawChat objectAtIndex:2] objectAtIndex:i] text]]
-													   imagesPath:imagesPath] mutableCopy];
+		NSMutableString *chatContents = [[xhtmlDecoder
+			encodeHTML:[[NSAttributedString alloc] initWithString:[[[rawChat objectAtIndex:2] objectAtIndex:i] text]]
+			imagesPath:imagesPath] mutableCopy];
 
 		NSString *elementName =
 			![[[(InstantMessage *)[[rawChat objectAtIndex:2] objectAtIndex:i] sender] senderID] isEqual:@""]

@@ -32,7 +32,7 @@
  */
 - (id)performDefaultImplementation
 {
-// WARNING: This uses a Private API
+	// WARNING: This uses a Private API
 	NSScriptClassDescription *newObjectDescription = [self createClassDescription];
 	id target = [self subjectsSpecifier];
 

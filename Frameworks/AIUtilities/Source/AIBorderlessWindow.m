@@ -50,8 +50,8 @@
 	return self;
 }
 
-// Custom windows that use the NSWindowStyleMaskBorderless can't become key by default.  Therefore, controls in such windows
-// won't ever be enabled by default.  Thus, we override this method to change that.
+// Custom windows that use the NSWindowStyleMaskBorderless can't become key by default.  Therefore, controls in such
+// windows won't ever be enabled by default.  Thus, we override this method to change that.
 - (BOOL)canBecomeKeyWindow
 {
 	return YES;

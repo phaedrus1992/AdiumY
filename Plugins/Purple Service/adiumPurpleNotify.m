@@ -149,14 +149,14 @@ static void *adiumPurpleNotifyUri(const char *uri)
 				}
 
 				// Open the HTML file with a web browser, not with an HTML editor
-				NSURL *browserURL =
-					[[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:[NSURL URLWithString:@"http://google.com"]];
+				NSURL *browserURL = [[NSWorkspace sharedWorkspace]
+					URLForApplicationToOpenURL:[NSURL URLWithString:@"http://google.com"]];
 
 				if (browserURL) {
-					[[NSWorkspace sharedWorkspace] openURLs:@[[NSURL fileURLWithPath:actualURI]]
-									 withApplicationAtURL:browserURL
-										 configuration:[NSWorkspaceOpenConfiguration configuration]
-										 completionHandler:nil];
+					[[NSWorkspace sharedWorkspace] openURLs:@[ [NSURL fileURLWithPath:actualURI] ]
+									   withApplicationAtURL:browserURL
+											  configuration:[NSWorkspaceOpenConfiguration configuration]
+										  completionHandler:nil];
 				}
 			} else {
 				[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:passedURI]];

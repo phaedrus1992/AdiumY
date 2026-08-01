@@ -269,11 +269,11 @@
 	}
 
 	// Wait for the next event
-	NSEvent *nextEvent =
-		[[self window] nextEventMatchingMask:(NSEventMaskLeftMouseUp | NSEventMaskLeftMouseDragged | NSEventMaskPeriodic)
-								   untilDate:[NSDate distantFuture]
-									  inMode:NSEventTrackingRunLoopMode
-									 dequeue:NO];
+	NSEvent *nextEvent = [[self window]
+		nextEventMatchingMask:(NSEventMaskLeftMouseUp | NSEventMaskLeftMouseDragged | NSEventMaskPeriodic)
+					untilDate:[NSDate distantFuture]
+					   inMode:NSEventTrackingRunLoopMode
+					  dequeue:NO];
 
 	// Only expand/contract if they release the mouse. Otherwise pass on the goods.
 	switch ([nextEvent type]) {
@@ -352,7 +352,6 @@
 		[pasteboard writeObjects:writableItems];
 	}
 }
-
 
 #pragma mark Menu items
 

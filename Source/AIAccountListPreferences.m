@@ -545,7 +545,8 @@
 	NSPasteboard *generalPasteboard = [NSPasteboard generalPasteboard];
 
 	[generalPasteboard declareTypes:[NSArray arrayWithObject:NSPasteboardTypeString] owner:nil];
-	[generalPasteboard setString:[self statusMessageForAccount:[sender representedObject]] forType:NSPasteboardTypeString];
+	[generalPasteboard setString:[self statusMessageForAccount:[sender representedObject]]
+						 forType:NSPasteboardTypeString];
 }
 
 /*!
@@ -1012,7 +1013,6 @@
 	[item setString:@"Account" forType:ACCOUNT_DRAG_TYPE];
 	return item;
 }
-
 
 /*!
  * @brief Drag validate

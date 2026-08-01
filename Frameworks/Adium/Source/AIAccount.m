@@ -79,9 +79,10 @@
 
 - (void)beginSheetModalForWindow:(NSWindow *)window
 {
-	[alert beginSheetModalForWindow:window completionHandler:^(NSModalResponse returnCode) {
-		[self alertDidEnd:self->alert returnCode:returnCode contextInfo:NULL];
-	}];
+	[alert beginSheetModalForWindow:window
+				  completionHandler:^(NSModalResponse returnCode) {
+					  [self alertDidEnd:self->alert returnCode:returnCode contextInfo:NULL];
+				  }];
 }
 
 - (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
@@ -284,7 +285,8 @@ typedef enum {
 	NSAlert *alert = [[NSAlert alloc] init];
 	[alert setMessageText:AILocalizedString(@"Delete Account", nil)];
 	[alert setInformativeText:[NSString stringWithFormat:AILocalizedString(@"Delete the account %@?", nil),
-							 ([self.formattedUID length] ? self.formattedUID : NEW_ACCOUNT_DISPLAY_TEXT)]];
+														 ([self.formattedUID length] ? self.formattedUID
+																					 : NEW_ACCOUNT_DISPLAY_TEXT)]];
 	[alert addButtonWithTitle:AILocalizedString(@"Delete", nil)];
 	[alert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
 	return alert;

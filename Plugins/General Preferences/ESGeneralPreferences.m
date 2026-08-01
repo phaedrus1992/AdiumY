@@ -118,8 +118,7 @@
 
 	// Global hotkey
 	AIHotKey *hotKey = [[AIHotKey alloc]
-		initWithDictionary:[adium.preferenceController preferenceForKey:KEY_GENERAL_HOTKEY
-																  group:PREF_GROUP_GENERAL]];
+		initWithDictionary:[adium.preferenceController preferenceForKey:KEY_GENERAL_HOTKEY group:PREF_GROUP_GENERAL]];
 	self.shortcutRecorder.hotKey = hotKey;
 
 	[label_shortcutRecorder
@@ -302,9 +301,10 @@
 	AILogByAccountWindowController *windowController =
 		[[AILogByAccountWindowController alloc] initWithWindowNibName:@"AILogByAccountWindow"];
 
-	[self.view.window beginSheet:windowController.window completionHandler:^(NSModalResponse returnCode) {
-		[self sheetDidEnd:windowController.window returnCode:returnCode contextInfo:nil];
-	}];
+	[self.view.window beginSheet:windowController.window
+			   completionHandler:^(NSModalResponse returnCode) {
+				   [self sheetDidEnd:windowController.window returnCode:returnCode contextInfo:nil];
+			   }];
 }
 
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo

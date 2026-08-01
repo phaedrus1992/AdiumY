@@ -47,10 +47,11 @@ static NSMutableDictionary *proxyPasswordPromptControllerDict = nil;
 	ESProxyPasswordPromptController *controller = nil;
 	NSString *identifier = [NSString stringWithFormat:@"%@.%@.%p", inServer, inUserName, inTarget];
 
-	if (!proxyPasswordPromptControllerDict) proxyPasswordPromptControllerDict = [[NSMutableDictionary alloc] init];
+	if (!proxyPasswordPromptControllerDict)
+		proxyPasswordPromptControllerDict = [[NSMutableDictionary alloc] init];
 
 	if ((controller = [proxyPasswordPromptControllerDict objectForKey:identifier])) {
-		//Update the existing controller for this account to have the new target, selector, and context
+		// Update the existing controller for this account to have the new target, selector, and context
 		[controller setTarget:inTarget selector:inSelector context:inContext];
 
 	} else {
@@ -60,12 +61,11 @@ static NSMutableDictionary *proxyPasswordPromptControllerDict = nil;
 											  notifyingTarget:inTarget
 													 selector:inSelector
 													  context:inContext])) {
-			[proxyPasswordPromptControllerDict setObject:controller
-												  forKey:identifier];
+			[proxyPasswordPromptControllerDict setObject:controller forKey:identifier];
 		}
 	}
 
-	//bring the window front
+	// bring the window front
 	[controller showWindowInFrontIfAllowed:YES];
 }
 
@@ -76,7 +76,11 @@ static NSMutableDictionary *proxyPasswordPromptControllerDict = nil;
 				   selector:(SEL)inSelector
 					context:(id)inContext
 {
-	if ((self = [super initWithWindowNibName:windowNibName password:nil notifyingTarget:inTarget selector:inSelector context:inContext])) {
+	if ((self = [super initWithWindowNibName:windowNibName
+									password:nil
+							 notifyingTarget:inTarget
+									selector:inSelector
+									 context:inContext])) {
 		server = inServer;
 		userName = inUserName;
 	}

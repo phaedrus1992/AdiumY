@@ -211,7 +211,8 @@
 	} else {
 		NSAlert *errorSavingThemeAlert = [[NSAlert alloc] init];
 		errorSavingThemeAlert.messageText = AILocalizedString(@"Error Saving Theme", nil);
-		errorSavingThemeAlert.informativeText = [NSString stringWithFormat:AILocalizedString(@"Unable to write file %@ to %@", nil), fileName, path];
+		errorSavingThemeAlert.informativeText =
+			[NSString stringWithFormat:AILocalizedString(@"Unable to write file %@ to %@", nil), fileName, path];
 		[errorSavingThemeAlert addButtonWithTitle:AILocalizedString(@"OK", nil)];
 		[errorSavingThemeAlert runModal];
 		return NO;

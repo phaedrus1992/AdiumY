@@ -129,9 +129,12 @@
 
 		if (errorMessage != nil && errorCount > ERRORS_BEFORE_DIALOG) {
 			NSAlert *stringFormatterAlert = [[NSAlert alloc] init];
-			stringFormatterAlert.messageText = AILocalizedStringFromTableInBundle(@"Invalid Input", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil);
+			stringFormatterAlert.messageText = AILocalizedStringFromTableInBundle(
+				@"Invalid Input", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil);
 			stringFormatterAlert.informativeText = [NSString stringWithFormat:@"%@", errorMessage];
-			[stringFormatterAlert addButtonWithTitle:AILocalizedStringFromTableInBundle(@"OK", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil)];
+			[stringFormatterAlert
+				addButtonWithTitle:AILocalizedStringFromTableInBundle(
+									   @"OK", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil)];
 			[stringFormatterAlert runModal];
 			errorCount = 0;
 

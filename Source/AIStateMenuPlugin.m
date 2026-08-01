@@ -15,14 +15,14 @@
  */
 
 #import "AIStateMenuPlugin.h"
+#import <AIUtilities/AIMenuAdditions.h>
+#import <Adium/AIAccount.h>
 #import <Adium/AIAccountControllerProtocol.h>
 #import <Adium/AIEditStateWindowController.h>
 #import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIAccount.h>
 #import <Adium/AIService.h>
 #import <Adium/AISocialNetworkingStatusMenu.h>
-#import <AIUtilities/AIMenuAdditions.h>
+#import <Adium/AIStatusControllerProtocol.h>
 
 @interface AIStateMenuPlugin ()
 - (void)updateKeyEquivalents;
@@ -49,29 +49,29 @@
  */
 - (void)installPlugin
 {
-	//Wait for Adium to finish launching before we perform further actions
+	// Wait for Adium to finish launching before we perform further actions
 	[[NSNotificationCenter defaultCenter] addObserver:self
-									   selector:@selector(adiumFinishedLaunching:)
-										   name:AIApplicationDidFinishLoadingNotification
-										 object:nil];
+											 selector:@selector(adiumFinishedLaunching:)
+												 name:AIApplicationDidFinishLoadingNotification
+											   object:nil];
 }
 
 - (void)adiumFinishedLaunching:(NSNotification *)notification
 {
 	accountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountStatusSubmenu showTitleVerbs:NO];
 
-	dockStatusMenuRoot = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Status",nil)
-																			  target:self
-																			  action:@selector(dummyAction:)
-																	   keyEquivalent:@""];
+	dockStatusMenuRoot = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Status", nil)
+													target:self
+													action:@selector(dummyAction:)
+											 keyEquivalent:@""];
 	[adium.menuController addMenuItem:dockStatusMenuRoot toLocation:LOC_Dock_Status];
 
 	statusMenu = [AIStatusMenu statusMenuWithDelegate:self];
 
 	[[NSNotificationCenter defaultCenter] addObserver:self
-									   selector:@selector(stateMenuSelectionsChanged:)
-										   name:AIStatusActiveStateChangedNotification
-										 object:nil];
+											 selector:@selector(stateMenuSelectionsChanged:)
+												 name:AIStatusActiveStateChangedNotification
+											   object:nil];
 
 	[[AIContactObserverManager sharedManager] registerListObjectObserver:self];
 }
@@ -99,21 +99,21 @@
  */
 - (void)statusMenu:(AIStatusMenu *)inStatusMenu didRebuildStatusMenuItems:(NSArray *)menuItemArray
 {
-	NSMenuItem		*menuItem;
-	NSMenu			*dockStatusMenu = [[NSMenu alloc] init];
+	NSMenuItem *menuItem;
+	NSMenu *dockStatusMenu = [[NSMenu alloc] init];
 
-    for (menuItem in menuItemArray) {
-		NSMenuItem	*dockMenuItem;
+	for (menuItem in menuItemArray) {
+		NSMenuItem *dockMenuItem;
 
 		[adium.menuController addMenuItem:menuItem toLocation:LOC_Status_State];
 
 		dockMenuItem = [menuItem copy];
 		[dockStatusMenu addItem:dockMenuItem];
-    }
+	}
 
 	[dockStatusMenuRoot setSubmenu:dockStatusMenu];
 
-	//Tell the status controller to update these items as necessary
+	// Tell the status controller to update these items as necessary
 	[statusMenu delegateCreatedMenuItems:[dockStatusMenu itemArray]];
 
 	if (currentMenuItemArray != menuItemArray) {
@@ -126,18 +126,18 @@
 - (void)statusMenu:(AIStatusMenu *)inStatusMenu willRemoveStatusMenuItems:(NSArray *)inMenuItems
 {
 	if ([inMenuItems count]) {
-		NSMenuItem		*menuItem;
+		NSMenuItem *menuItem;
 
-		NSMenu			*menubarMenu = [(NSMenuItem *)[inMenuItems objectAtIndex:0] menu];
+		NSMenu *menubarMenu = [(NSMenuItem *)[inMenuItems objectAtIndex:0] menu];
 
 		for (menuItem in inMenuItems) {
 			[adium.menuController removeMenuItem:menuItem];
 		}
-
 	}
 }
 
-- (void)dummyAction:(id)sender {};
+- (void)dummyAction:(id)sender
+{};
 
 /*!
  * @brief Update key equivalents for our main status menu
@@ -147,32 +147,31 @@
  */
 - (void)updateKeyEquivalents
 {
-	NSMenuItem		*menuItem;
+	NSMenuItem *menuItem;
 
-	AIStatusType	activeStatusType = [adium.statusController activeStatusTypeTreatingInvisibleAsAway:YES];
-	AIStatusType	targetStatusType = AIAvailableStatusType;
-	AIStatus		*targetStatusState = nil;
-	BOOL			assignCmdOptionY;
+	AIStatusType activeStatusType = [adium.statusController activeStatusTypeTreatingInvisibleAsAway:YES];
+	AIStatusType targetStatusType = AIAvailableStatusType;
+	AIStatus *targetStatusState = nil;
+	BOOL assignCmdOptionY;
 
 	if (activeStatusType == AIAvailableStatusType) {
-		//If currently available, set an equivalent for the base away
+		// If currently available, set an equivalent for the base away
 		targetStatusType = AIAwayStatusType;
 		targetStatusState = nil;
 		assignCmdOptionY = NO;
 
 	} else {
-		//If away, invisible, or offline, set an equivalent for the available state
+		// If away, invisible, or offline, set an equivalent for the available state
 		targetStatusType = AIAvailableStatusType;
 		targetStatusState = [adium.statusController defaultInitialStatusState];
 		assignCmdOptionY = YES;
 	}
 
-    for (menuItem in currentMenuItemArray) {
-		AIStatus	*representedStatus = [[menuItem representedObject] objectForKey:@"AIStatus"];
+	for (menuItem in currentMenuItemArray) {
+		AIStatus *representedStatus = [[menuItem representedObject] objectForKey:@"AIStatus"];
 
-		NSInteger			tag = [menuItem tag];
-		if ((tag == targetStatusType) &&
-		   (representedStatus == targetStatusState)) {
+		NSInteger tag = [menuItem tag];
+		if ((tag == targetStatusType) && (representedStatus == targetStatusState)) {
 			[menuItem setKeyEquivalent:@"y"];
 			[menuItem setKeyEquivalentModifierMask:NSEventModifierFlagCommand];
 
@@ -186,7 +185,6 @@
 
 		} else {
 			[menuItem setKeyEquivalent:@""];
-
 		}
 	}
 }
@@ -244,25 +242,26 @@
  */
 - (void)accountMenu:(AIAccountMenu *)inAccountMenu didRebuildMenuItems:(NSArray *)menuItems
 {
-	NSMenuItem		*menuItem;
+	NSMenuItem *menuItem;
 
-	//Remove any existing menu items
-    for (menuItem in installedMenuItems) {
+	// Remove any existing menu items
+	for (menuItem in installedMenuItems) {
 		[adium.menuController removeMenuItem:menuItem];
-    }
+	}
 
-	//Add the new menu items
-    for (menuItem in menuItems) {
+	// Add the new menu items
+	for (menuItem in menuItems) {
 		[adium.menuController addMenuItem:menuItem toLocation:LOC_Status_Accounts];
-    }
+	}
 
-	//Remember the installed items so we can remove them later
+	// Remember the installed items so we can remove them later
 	if (installedMenuItems != menuItems) {
 		installedMenuItems = menuItems;
 	}
 }
 
-- (void)accountMenu:(AIAccountMenu *)inAccountMenu didSelectAccount:(AIAccount *)inAccount {
+- (void)accountMenu:(AIAccountMenu *)inAccountMenu didSelectAccount:(AIAccount *)inAccount
+{
 	[inAccount toggleOnline];
 }
 

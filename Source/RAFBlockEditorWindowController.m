@@ -167,9 +167,10 @@ static RAFBlockEditorWindowController *sharedInstance = nil;
 	sheetAccountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu showTitleVerbs:NO];
 	[self selectAccountInSheet:[[popUp_sheetAccounts selectedItem] representedObject]];
 
-	[[self window] beginSheet:sheet completionHandler:^(NSModalResponse returnCode) {
-		[self didEndSheet:self->sheet returnCode:returnCode contextInfo:nil];
-	}];
+	[[self window] beginSheet:sheet
+			completionHandler:^(NSModalResponse returnCode) {
+				[self didEndSheet:self->sheet returnCode:returnCode contextInfo:nil];
+			}];
 }
 
 - (IBAction)cancelBlockSheet:(id)sender
@@ -786,7 +787,6 @@ static RAFBlockEditorWindowController *sharedInstance = nil;
 
 	return pasteboardItem;
 }
-
 
 - (NSDragOperation)tableView:(NSTableView *)tv
 				validateDrop:(id<NSDraggingInfo>)info

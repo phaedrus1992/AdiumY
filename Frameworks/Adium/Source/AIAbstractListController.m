@@ -817,8 +817,8 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 									 @"Mac", //.Mac
 									 @"aim://goim?screenname=%@", @"MobileMe", @"xmpp:%@?message", @"Jabber",
 									 @"xmpp:%@?message", @"GTalk", @"xmpp:%@?message", @"LiveJournal",
-									 @"xmpp:%@?message", @"Gizmo", @"msn://%@", @"MSN", @"ymsgr://im?to=%@",
-									 @"Yahoo!", @"ymsgr://im?to=%@", @"Yahoo! Japan", nil];
+									 @"xmpp:%@?message", @"Gizmo", @"msn://%@", @"MSN", @"ymsgr://im?to=%@", @"Yahoo!",
+									 @"ymsgr://im?to=%@", @"Yahoo! Japan", nil];
 
 	for (AIProxyListObject *proxyListObject in items) {
 		AIListObject *listObject = proxyListObject.listObject;
@@ -834,7 +834,7 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 					[URLStrings
 						addObject:[NSString stringWithFormat:format, [subcontact.UID stringByEncodingURLEscapes]]];
 					[linkTitles addObject:[NSString stringWithFormat:LINK_TITLE_FORMAT, subcontact.UID,
-																[subcontact.service longDescription]]];
+																	 [subcontact.service longDescription]]];
 				}
 			}
 		} else if ([listObject isKindOfClass:[AIListContact class]]) {
@@ -845,10 +845,9 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 								   listObject, listObject.service.serviceID);
 
 			} else {
-				[URLStrings
-					addObject:[NSString stringWithFormat:format, [listObject.UID stringByEncodingURLEscapes]]];
+				[URLStrings addObject:[NSString stringWithFormat:format, [listObject.UID stringByEncodingURLEscapes]]];
 				[linkTitles addObject:[NSString stringWithFormat:LINK_TITLE_FORMAT, listObject.UID,
-																listObject.service.longDescription]];
+																 listObject.service.longDescription]];
 			}
 		}
 		// We ignore groups.
@@ -907,14 +906,13 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 
 - (void)outlineView:(NSOutlineView *)outlineView
 	 draggingSession:(NSDraggingSession *)session
-	  willBeginAtPoint:(NSPoint)screenPoint
+	willBeginAtPoint:(NSPoint)screenPoint
 			forItems:(NSArray *)draggedItems
 {
 	// Begin the drag
 	[[NSNotificationCenter defaultCenter] postNotificationName:@"AIListControllerDraggedItems" object:draggedItems];
 	[self setShowTooltips:NO];
 }
-
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView
 		 acceptDrop:(id<NSDraggingInfo>)info
@@ -964,8 +962,6 @@ static NSString *AIWebURLsWithTitlesPboardType = @"WebURLsWithTitlesPboardType";
 
 	[self setDragItems:nil];
 }
-
-
 
 // Tooltip
 // --------------------------------------------------------------------------------------------------------------

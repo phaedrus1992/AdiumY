@@ -597,7 +597,8 @@ PurpleConversation *convLookupFromChat(AIChat *chat, id adiumAccount)
 						NSDateFormatter *utcFormatter = [[NSDateFormatter alloc] init];
 						[utcFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'Z'"];
 						[utcFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
-						NSString *historySince = [utcFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:lastMessageInterval + 1]];
+						NSString *historySince = [utcFormatter
+							stringFromDate:[NSDate dateWithTimeIntervalSince1970:lastMessageInterval + 1]];
 
 						g_hash_table_replace(components, g_strdup("history_since"),
 											 g_strdup([historySince UTF8String]));

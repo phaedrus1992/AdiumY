@@ -28,8 +28,7 @@
 }
 
 - (void)controllerDidLoad
-{
-}
+{}
 
 - (void)controllerWillClose
 {

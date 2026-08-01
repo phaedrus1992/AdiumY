@@ -53,17 +53,17 @@
  */
 - (void)controllerDidLoad
 {
-    [self _upgradeAccountPasswordKeychainEntries];
+	[self _upgradeAccountPasswordKeychainEntries];
 }
 
 + (dispatch_queue_t)queue
 {
-    static dispatch_queue_t passwordQueue = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        passwordQueue = dispatch_queue_create("AdiumPasswords Queue", NULL);
-    });
-    return passwordQueue;
+	static dispatch_queue_t passwordQueue = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		passwordQueue = dispatch_queue_create("AdiumPasswords Queue", NULL);
+	});
+	return passwordQueue;
 }
 
 /*!
@@ -133,76 +133,76 @@
  */
 - (NSString *)passwordForAccount:(AIAccount *)inAccount
 {
-    NSError		*error    = nil;
-    AIKeychain	*keychain = [AIKeychain defaultKeychain_error:&error];
-    NSString	*password = [keychain internetPasswordForServer:[self _serverNameForAccount:inAccount]
-                                                        account:[self _accountNameForAccount:inAccount]
-                                                       protocol:FOUR_CHAR_CODE('AdIM')
-                                                          error:&error];
+	NSError *error = nil;
+	AIKeychain *keychain = [AIKeychain defaultKeychain_error:&error];
+	NSString *password = [keychain internetPasswordForServer:[self _serverNameForAccount:inAccount]
+													 account:[self _accountNameForAccount:inAccount]
+													protocol:FOUR_CHAR_CODE('AdIM')
+													   error:&error];
 
-    if (error) {
-        OSStatus err = (OSStatus)[error code];
-        if (err != errSecItemNotFound) {
-            NSDictionary *userInfo = [error userInfo];
-            NSLog(@"could not retrieve password for account %@: %@ returned %ld (%@)", [self _accountNameForAccount:inAccount], [userInfo objectForKey:AIKEYCHAIN_ERROR_USERINFO_SECURITYFUNCTIONNAME], (long)err, [userInfo objectForKey:AIKEYCHAIN_ERROR_USERINFO_ERRORDESCRIPTION]);
-        }
-    }
-    return password;
+	if (error) {
+		OSStatus err = (OSStatus)[error code];
+		if (err != errSecItemNotFound) {
+			NSDictionary *userInfo = [error userInfo];
+			NSLog(@"could not retrieve password for account %@: %@ returned %ld (%@)",
+				  [self _accountNameForAccount:inAccount],
+				  [userInfo objectForKey:AIKEYCHAIN_ERROR_USERINFO_SECURITYFUNCTIONNAME], (long)err,
+				  [userInfo objectForKey:AIKEYCHAIN_ERROR_USERINFO_ERRORDESCRIPTION]);
+		}
+	}
+	return password;
 }
 
 - (void)retrievedPassword:(NSDictionary *)requestDict
 {
-    NSString		*password = [requestDict objectForKey:@"Password"];
-    AIAccount		*account = [requestDict objectForKey:@"Account"];
-    AIPromptOption	promptOption = [[requestDict objectForKey:@"AIPromptOption"] intValue];
-    id				target = [requestDict objectForKey:@"Target"];
-    SEL				selector = NSSelectorFromString([requestDict objectForKey:@"Selector"]);
-    id				context = [requestDict objectForKey:@"Context"];
-    BOOL			shouldPrompt = YES;
+	NSString *password = [requestDict objectForKey:@"Password"];
+	AIAccount *account = [requestDict objectForKey:@"Account"];
+	AIPromptOption promptOption = [[requestDict objectForKey:@"AIPromptOption"] intValue];
+	id target = [requestDict objectForKey:@"Target"];
+	SEL selector = NSSelectorFromString([requestDict objectForKey:@"Selector"]);
+	id context = [requestDict objectForKey:@"Context"];
+	BOOL shouldPrompt = YES;
 
-    switch (promptOption)
-    {
-        case AIPromptAlways:
-            shouldPrompt = YES;
-            break;
-        case AIPromptAsNeeded:
-        {
-            if (password && [password length])
-                shouldPrompt = NO;
-            else
-                shouldPrompt = YES;
-            break;
-        }
-        case AIPromptNever:
-            shouldPrompt = NO;
-            break;
-    }
+	switch (promptOption) {
+	case AIPromptAlways:
+		shouldPrompt = YES;
+		break;
+	case AIPromptAsNeeded: {
+		if (password && [password length])
+			shouldPrompt = NO;
+		else
+			shouldPrompt = YES;
+		break;
+	}
+	case AIPromptNever:
+		shouldPrompt = NO;
+		break;
+	}
 
-    if (shouldPrompt) {
-        //Prompt the user for their password
-        [ESAccountPasswordPromptController showPasswordPromptForAccount:account
-                                                               password:password
-                                                        notifyingTarget:target
-                                                               selector:selector
-                                                                context:context];
-    } else {
-        //Invoke the target right away
-        void (*targetMethodSender)(id, SEL, id, AIPasswordPromptReturn, id) = (void (*)(id, SEL, id, AIPasswordPromptReturn, id)) objc_msgSend;
-        targetMethodSender(target, selector, password, AIPasswordPromptOKReturn, context);
-    }
+	if (shouldPrompt) {
+		// Prompt the user for their password
+		[ESAccountPasswordPromptController showPasswordPromptForAccount:account
+															   password:password
+														notifyingTarget:target
+															   selector:selector
+																context:context];
+	} else {
+		// Invoke the target right away
+		void (*targetMethodSender)(id, SEL, id, AIPasswordPromptReturn, id) =
+			(void (*)(id, SEL, id, AIPasswordPromptReturn, id))objc_msgSend;
+		targetMethodSender(target, selector, password, AIPasswordPromptOKReturn, context);
+	}
 }
 
 - (void)threadedPasswordRetrieval:(NSMutableDictionary *)requestDict
 {
-    @autoreleasepool {
-        NSString	*password = [self passwordForAccount:[requestDict objectForKey:@"Account"]];
-        if (password)
-            [requestDict setObject:password forKey:@"Password"];
+	@autoreleasepool {
+		NSString *password = [self passwordForAccount:[requestDict objectForKey:@"Account"]];
+		if (password)
+			[requestDict setObject:password forKey:@"Password"];
 
-        [self performSelectorOnMainThread:@selector(retrievedPassword:)
-                               withObject:requestDict
-                            waitUntilDone:NO];
-    }
+		[self performSelectorOnMainThread:@selector(retrievedPassword:) withObject:requestDict waitUntilDone:NO];
+	}
 }
 
 /*!

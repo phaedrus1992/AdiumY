@@ -56,9 +56,10 @@
 - (void)openOnWindow:(NSWindow *)parentWindow
 {
 	if (parentWindow) {
-		[parentWindow beginSheet:self.window completionHandler:^(NSModalResponse returnCode) {
-			[self sheetDidEnd:self.window returnCode:returnCode contextInfo:nil];
-		}];
+		[parentWindow beginSheet:self.window
+			   completionHandler:^(NSModalResponse returnCode) {
+				   [self sheetDidEnd:self.window returnCode:returnCode contextInfo:nil];
+			   }];
 	} else {
 		[self showWindow:nil];
 		[self.window makeKeyAndOrderFront:nil];
@@ -357,7 +358,6 @@
 	return item;
 }
 
-
 - (NSDragOperation)tableView:(NSTableView *)tableView
 				validateDrop:(id<NSDraggingInfo>)info
 				 proposedRow:(NSInteger)row
@@ -440,13 +440,19 @@
 	NSString *name = [selectedEmoticonPack.name copy];
 	NSAlert *deletePackAlert = [[NSAlert alloc] init];
 	deletePackAlert.messageText = AILocalizedString(@"Delete Emoticon Pack", nil);
-	deletePackAlert.informativeText = [NSString stringWithFormat:AILocalizedString(@"Are you sure you want to delete the %@ Emoticon Pack? It will be moved to the Trash.", nil), name];
+	deletePackAlert.informativeText = [NSString
+		stringWithFormat:AILocalizedString(
+							 @"Are you sure you want to delete the %@ Emoticon Pack? It will be moved to the Trash.",
+							 nil),
+						 name];
 	[deletePackAlert addButtonWithTitle:AILocalizedString(@"Delete", nil)];
 	[deletePackAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
 	[deletePackAlert beginSheetModalForWindow:[self window]
-						   completionHandler:^(NSModalResponse returnCode) {
-							   [self trashConfirmSheetDidEnd:deletePackAlert.window returnCode:returnCode contextInfo:nil];
-						   }];
+							completionHandler:^(NSModalResponse returnCode) {
+								[self trashConfirmSheetDidEnd:deletePackAlert.window
+												   returnCode:returnCode
+												  contextInfo:nil];
+							}];
 }
 
 - (void)trashConfirmSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo

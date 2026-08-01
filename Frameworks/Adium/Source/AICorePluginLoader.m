@@ -201,8 +201,10 @@ static NSMutableArray *deferredPluginPaths = nil;
 													   "%@ will be the name of a plugin. This is the title of the "
 													   "dialogue shown when an plugin is blacklisted."),
 									 [[pluginPath lastPathComponent] stringByDeletingPathExtension]];
-				alert.informativeText = [NSString stringWithFormat:AILocalizedString(@"This plugin is known to be incompatible with AdiumY %@.",
-																  "%@ will be a version number of Adium"), [NSApp applicationVersion]];
+				alert.informativeText = [NSString
+					stringWithFormat:AILocalizedString(@"This plugin is known to be incompatible with AdiumY %@.",
+													   "%@ will be a version number of Adium"),
+									 [NSApp applicationVersion]];
 				[alert addButtonWithTitle:AILocalizedString(@"Disable", nil)];
 				[alert runModal];
 				[self disablePlugin:pluginPath];
@@ -236,8 +238,8 @@ static NSMutableArray *deferredPluginPaths = nil;
 			// the user that they'll need to restart.
 			[self disablePlugin:pluginPath];
 			NSAlert *alert = [[NSAlert alloc] init];
-			alert.messageText = [NSString stringWithFormat:@"Error loading %@", [[pluginPath lastPathComponent]
-																						stringByDeletingPathExtension]];
+			alert.messageText = [NSString
+				stringWithFormat:@"Error loading %@", [[pluginPath lastPathComponent] stringByDeletingPathExtension]];
 			alert.informativeText = @"An external plugin failed to load and has been disabled.  Please relaunch AdiumY";
 			[alert addButtonWithTitle:@"Quit"];
 			[alert runModal];
@@ -260,14 +262,14 @@ static NSMutableArray *deferredPluginPaths = nil;
 	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"AdiumYAutoConfirmExternalPlugins"] &&
 		(!confirmed || ![confirmed containsObject:[pluginPath lastPathComponent]])) {
 		NSAlert *alert = [[NSAlert alloc] init];
-		alert.messageText = [NSString stringWithFormat:AILocalizedString(@"Disable %@?",
-											 "%@ will be the name of a plugin. This is the title of "
-											 "the dialogue shown when an unknown plugin is loaded"),
-									   [[pluginPath lastPathComponent] stringByDeletingPathExtension]];
-		alert.informativeText = AILocalizedString(
-			@"External plugins may cause crashes and odd behavior after updating AdiumY.  Disable "
-			@"this plugin if you experience any issues.",
-			nil);
+		alert.messageText = [NSString
+			stringWithFormat:AILocalizedString(@"Disable %@?", "%@ will be the name of a plugin. This is the title of "
+															   "the dialogue shown when an unknown plugin is loaded"),
+							 [[pluginPath lastPathComponent] stringByDeletingPathExtension]];
+		alert.informativeText =
+			AILocalizedString(@"External plugins may cause crashes and odd behavior after updating AdiumY.  Disable "
+							  @"this plugin if you experience any issues.",
+							  nil);
 		[alert addButtonWithTitle:AILocalizedString(@"Disable", nil)];
 		[alert addButtonWithTitle:AILocalizedString(@"Continue", nil)];
 		if ([alert runModal] == NSAlertFirstButtonReturn) {
@@ -318,8 +320,10 @@ static NSMutableArray *deferredPluginPaths = nil;
 
 		NSAlert *alert = [[NSAlert alloc] init];
 		alert.messageText = [NSString stringWithFormat:@"Could not load %@", pluginName];
-		alert.informativeText = [NSString stringWithFormat:@"The %@ plugin is not compatible with AdiumY %@. Please check github.com/phaedrus1992/adiumy to see if an "
-			@"update is available.", pluginName, [NSApp applicationVersion]];
+		alert.informativeText = [NSString stringWithFormat:@"The %@ plugin is not compatible with AdiumY %@. Please "
+														   @"check github.com/phaedrus1992/adiumy to see if an "
+														   @"update is available.",
+														   pluginName, [NSApp applicationVersion]];
 		[alert addButtonWithTitle:AILocalizedString(@"Disable", nil)];
 		[alert runModal];
 		[self disablePlugin:pluginPath];
@@ -340,7 +344,9 @@ static NSMutableArray *deferredPluginPaths = nil;
 
 		NSAlert *alert = [[NSAlert alloc] init];
 		alert.messageText = [NSString stringWithFormat:@"Could not load %@", pluginName];
-		alert.informativeText = [NSString stringWithFormat:@"%@ requires AdiumY %@ or later, but you have AdiumY %@. Please upgrade AdiumY to use %@", pluginName, minimumVersionOfPlugin, appVersion, pluginName];
+		alert.informativeText = [NSString
+			stringWithFormat:@"%@ requires AdiumY %@ or later, but you have AdiumY %@. Please upgrade AdiumY to use %@",
+							 pluginName, minimumVersionOfPlugin, appVersion, pluginName];
 		[alert addButtonWithTitle:AILocalizedString(@"Disable", nil)];
 		[alert runModal];
 		[self disablePlugin:pluginPath];

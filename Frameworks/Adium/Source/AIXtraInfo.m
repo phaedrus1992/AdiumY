@@ -87,7 +87,8 @@
 
 			} else {
 				UTType *contentType = [UTType typeWithFilenameExtension:[path pathExtension]];
-				icon = [[NSWorkspace sharedWorkspace] iconForContentType:(contentType != nil ? contentType : UTTypeData)];
+				icon =
+					[[NSWorkspace sharedWorkspace] iconForContentType:(contentType != nil ? contentType : UTTypeData)];
 			}
 		}
 		if (!previewImage)

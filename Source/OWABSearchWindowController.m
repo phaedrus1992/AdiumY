@@ -68,9 +68,10 @@
 	newABSearchWindow = [[self alloc] initWithWindowNibName:AB_SEARCH_NIB initialService:inService];
 
 	if (parentWindow) {
-		[parentWindow beginSheet:[newABSearchWindow window] completionHandler:^(NSModalResponse returnCode) {
-			[newABSearchWindow sheetDidEnd:[newABSearchWindow window] returnCode:returnCode contextInfo:nil];
-		}];
+		[parentWindow beginSheet:[newABSearchWindow window]
+			   completionHandler:^(NSModalResponse returnCode) {
+				   [newABSearchWindow sheetDidEnd:[newABSearchWindow window] returnCode:returnCode contextInfo:nil];
+			   }];
 		[newABSearchWindow _setCarryingWindow:parentWindow];
 	} else {
 		[newABSearchWindow showWindow:nil];
@@ -227,9 +228,10 @@
 
 	// and show it
 	if (carryingWindow) {
-		[carryingWindow beginSheet:newContactPanel completionHandler:^(NSModalResponse returnCode) {
-			[self sheetDidEnd:self->newContactPanel returnCode:returnCode contextInfo:nil];
-		}];
+		[carryingWindow beginSheet:newContactPanel
+				 completionHandler:^(NSModalResponse returnCode) {
+					 [self sheetDidEnd:self->newContactPanel returnCode:returnCode contextInfo:nil];
+				 }];
 	} else {
 		[self showWindow:nil];
 		[[self window] center];

@@ -23,7 +23,13 @@
 + (void)showUnknownFingerprintPromptWithResponseInfo:(NSDictionary *)responseInfo;
 + (void)showVerifyFingerprintPromptWithResponseInfo:(NSDictionary *)responseInfo;
 
-+ (void)showSMPRequestForContact:(AIListContact *)contact question:(NSString *)question plugin:(AdiumOTREncryption *)plugin;
-+ (void)showSMPRequestForContact:(AIListContact *)contact question:(NSString *)question plugin:(AdiumOTREncryption *)plugin smpMessage:(char *)smpMessage length:(size_t)length;
++ (void)showSMPRequestForContact:(AIListContact *)contact
+						question:(NSString *)question
+						  plugin:(AdiumOTREncryption *)plugin;
++ (void)showSMPRequestForContact:(AIListContact *)contact
+						question:(NSString *)question
+						  plugin:(AdiumOTREncryption *)plugin
+					  smpMessage:(char *)smpMessage
+						  length:(size_t)length;
 
 @end

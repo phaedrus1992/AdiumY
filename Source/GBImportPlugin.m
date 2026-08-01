@@ -37,14 +37,20 @@
 
 	NSMenu *subMenu = [[NSMenu alloc] init];
 
-	[subMenu addItemWithTitle:AILocalizedString(@"iChat Accounts, Statuses, and Transcripts", "Menu item title under the 'Import' submenu. iChat is another OS X instant messaging client.")
+	[subMenu addItemWithTitle:
+				 AILocalizedString(
+					 @"iChat Accounts, Statuses, and Transcripts",
+					 "Menu item title under the 'Import' submenu. iChat is another OS X instant messaging client.")
 					   target:self
 					   action:@selector(importIChat:)
 				keyEquivalent:@""];
 
 	[subMenu addItem:[NSMenuItem separatorItem]];
 
-	[subMenu addItemWithTitle:AILocalizedString(@"Reindex Adium Logs", "Menu item titel under the 'Import' submenu. This causes existing Adium logs to be reindexed.")
+	[subMenu addItemWithTitle:
+				 AILocalizedString(
+					 @"Reindex Adium Logs",
+					 "Menu item titel under the 'Import' submenu. This causes existing Adium logs to be reindexed.")
 					   target:self
 					   action:@selector(reindexAdiumLogs:)
 				keyEquivalent:@""];

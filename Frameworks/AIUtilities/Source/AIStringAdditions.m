@@ -23,8 +23,8 @@
 #import "AIFunctions.h"
 #import "AIScannerAdditions.h"
 
-#import <time.h>
 #import <limits.h>
+#import <time.h>
 #import <unistd.h>
 
 #endif // ndef BSD_LICENSE_ONLY
@@ -665,8 +665,8 @@ enum {
 
 - (NSString *)volumePath
 {
-	NSArray<NSURL *> *volumeURLs =
-		[[NSFileManager defaultManager] mountedVolumeURLsIncludingResourceValuesForKeys:nil options:0];
+	NSArray<NSURL *> *volumeURLs = [[NSFileManager defaultManager] mountedVolumeURLsIncludingResourceValuesForKeys:nil
+																										   options:0];
 	NSString *volumePath = nil;
 	for (NSURL *volumeURL in volumeURLs) {
 		NSString *candidatePath = [volumeURL path];

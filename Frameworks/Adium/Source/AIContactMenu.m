@@ -294,10 +294,10 @@
 			if ([containedListObjects count] > 0) {
 				// Create our menu item
 				NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@""
-																							target:self
-																							action:nil
-																					 keyEquivalent:@""
-																				 representedObject:listObject];
+																  target:self
+																  action:nil
+														   keyEquivalent:@""
+													   representedObject:listObject];
 
 				// The group isn't clickable.
 				[menuItem setEnabled:NO];
@@ -315,12 +315,11 @@
 			}
 		} else {
 			// Just add the menu item.
-			NSMenuItem *menuItem =
-				[[NSMenuItem alloc] initWithTitle:@""
-																	 target:self
-																	 action:@selector(selectContactMenuItem:)
-															  keyEquivalent:@""
-														  representedObject:listObject];
+			NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@""
+															  target:self
+															  action:@selector(selectContactMenuItem:)
+													   keyEquivalent:@""
+												   representedObject:listObject];
 			[menuItemArray addObject:menuItem];
 
 			if (populateMenuLazily) {
@@ -358,7 +357,6 @@
 			[menuItem setTitle:displayName];
 
 		[menuItem setToolTip:(shouldSetTooltip ? [listObject.statusMessage string] : nil)];
-
 	}
 }
 

@@ -295,10 +295,12 @@
 				if ([splitPath count] == 1) {
 					possiblePath = [splitPath objectAtIndex:0];
 				} else {
-					NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:[splitPath objectAtIndex:0]];
+					NSURL *appURL = [[NSWorkspace sharedWorkspace]
+						URLForApplicationWithBundleIdentifier:[splitPath objectAtIndex:0]];
 
 					if (appURL != nil) {
-						NSArray *components = [NSArray arrayWithObjects:[appURL path], [splitPath objectAtIndex:1], nil];
+						NSArray *components =
+							[NSArray arrayWithObjects:[appURL path], [splitPath objectAtIndex:1], nil];
 						possiblePath = [NSString pathWithComponents:components];
 					}
 				}

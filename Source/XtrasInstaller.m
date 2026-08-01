@@ -97,7 +97,9 @@
 		NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:urlToDownload];
 		[request setHTTPShouldHandleCookies:NO];
 		NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-		downloadSession = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+		downloadSession = [NSURLSession sessionWithConfiguration:configuration
+														delegate:self
+												   delegateQueue:[NSOperationQueue mainQueue]];
 		self.download = [downloadSession dataTaskWithRequest:request];
 		[self.download resume];
 		//		[download setDestination:dest allowOverwrite:YES];
@@ -175,8 +177,9 @@
 		if ([error code] != NSURLErrorCancelled) {
 			NSString *errorMsg;
 
-			errorMsg = [NSString stringWithFormat:AILocalizedString(@"An error occurred while downloading this Xtra: %@.", nil),
-												  [error localizedDescription]];
+			errorMsg = [NSString
+				stringWithFormat:AILocalizedString(@"An error occurred while downloading this Xtra: %@.", nil),
+								 [error localizedDescription]];
 
 			NSAlert *xtraDownloadErrorAlert = [[NSAlert alloc] init];
 			xtraDownloadErrorAlert.messageText = AILocalizedString(@"Xtra Downloading Error", nil);

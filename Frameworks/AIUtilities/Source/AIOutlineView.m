@@ -91,13 +91,12 @@
 			// doubleAction is NULL by default
 			SEL doubleActionSelector = [self doubleAction];
 			if (doubleActionSelector) {
-				#pragma clang diagnostic push
+#pragma clang diagnostic push
 
-				#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 
 				[[self delegate] performSelector:doubleActionSelector withObject:self];
-				#pragma clang diagnostic pop
-
+#pragma clang diagnostic pop
 			}
 
 		} else if (pressedChar == NSLeftArrowFunctionKey) { // left
@@ -144,7 +143,8 @@
 			[self findNext:self];
 
 		} else if ([[self delegate] respondsToSelector:@selector(outlineView:forwardKeyEventToFindPanel:)] &&
-				   !([theEvent modifierFlags] & NSEventModifierFlagCommand) && !([theEvent modifierFlags] & NSEventModifierFlagControl)) {
+				   !([theEvent modifierFlags] & NSEventModifierFlagCommand) &&
+				   !([theEvent modifierFlags] & NSEventModifierFlagControl)) {
 			// handle any key we have not alredy handled that is a visable character and likely not to be a shortcut key
 			// (no command or control key modifiers) by asking the delegate to add it to the search string
 			if (![(id<AIOutlineViewDelegate>)[self delegate] outlineView:self forwardKeyEventToFindPanel:theEvent]) {

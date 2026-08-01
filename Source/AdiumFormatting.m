@@ -14,16 +14,16 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
 #import "AdiumFormatting.h"
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIFontAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AITextAttributes.h>
+#import <Adium/AIContentControllerProtocol.h>
+#import <Adium/AIMenuControllerProtocol.h>
 
-#define DEFAULT_FORMATTING_DEFAULT_PREFS	@"FormattingDefaults"
+#define DEFAULT_FORMATTING_DEFAULT_PREFS @"FormattingDefaults"
 
 @interface AdiumFormatting () <NSMenuItemValidation>
 - (void)restoreDefaultFormat:(id)sender;
@@ -38,8 +38,8 @@
 {
 	if ((self = [super init])) {
 		[adium.preferenceController registerDefaults:[NSDictionary dictionaryNamed:DEFAULT_FORMATTING_DEFAULT_PREFS
-																			forClass:[self class]]
-											  forGroup:PREF_GROUP_FORMATTING];
+																		  forClass:[self class]]
+											forGroup:PREF_GROUP_FORMATTING];
 		_defaultAttributes = nil;
 	}
 
@@ -54,14 +54,14 @@
  */
 - (void)controllerDidLoad
 {
-	//Observe formatting preference changes
+	// Observe formatting preference changes
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_FORMATTING];
 
-	//Reset formatting menu item
-	NSMenuItem	*menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Restore Default Formatting",nil)
-																				 target:self
-																				 action:@selector(restoreDefaultFormat:)
-																		  keyEquivalent:@""];
+	// Reset formatting menu item
+	NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Restore Default Formatting", nil)
+													  target:self
+													  action:@selector(restoreDefaultFormat:)
+											   keyEquivalent:@""];
 	[adium.menuController addMenuItem:menuItem toLocation:LOC_Format_Additions];
 }
 
@@ -73,18 +73,19 @@
  */
 - (NSDictionary *)defaultFormattingAttributes
 {
-	if(!_defaultAttributes){
-		NSFont	*font = [[adium.preferenceController preferenceForKey:KEY_FORMATTING_FONT
-																  group:PREF_GROUP_FORMATTING] representedFont];
-		NSColor	*textColor = [[adium.preferenceController preferenceForKey:KEY_FORMATTING_TEXT_COLOR
-																	   group:PREF_GROUP_FORMATTING] representedColor];
-		NSColor	*backgroundColor = [[adium.preferenceController preferenceForKey:KEY_FORMATTING_BACKGROUND_COLOR
-																			 group:PREF_GROUP_FORMATTING] representedColor];
+	if (!_defaultAttributes) {
+		NSFont *font = [[adium.preferenceController preferenceForKey:KEY_FORMATTING_FONT
+															   group:PREF_GROUP_FORMATTING] representedFont];
+		NSColor *textColor = [[adium.preferenceController preferenceForKey:KEY_FORMATTING_TEXT_COLOR
+																	 group:PREF_GROUP_FORMATTING] representedColor];
+		NSColor *backgroundColor =
+			[[adium.preferenceController preferenceForKey:KEY_FORMATTING_BACKGROUND_COLOR
+													group:PREF_GROUP_FORMATTING] representedColor];
 
-		//Build formatting dict
+		// Build formatting dict
 		_defaultAttributes = [NSMutableDictionary dictionaryWithObject:font forKey:NSFontAttributeName];
 		if (textColor && ![textColor equalToRGBColor:[NSColor textColor]]) {
-			AILog(@"TextColor is %@; -[NSColor textColor] gives %@",textColor,[NSColor textColor]);
+			AILog(@"TextColor is %@; -[NSColor textColor] gives %@", textColor, [NSColor textColor]);
 			[_defaultAttributes setObject:textColor forKey:NSForegroundColorAttributeName];
 		}
 		if (backgroundColor && ![backgroundColor equalToRGBColor:[NSColor textBackgroundColor]]) {
@@ -99,8 +100,11 @@
 /*!
  * @brief Formatting preferences changed, reset our formatting cache
  */
-- (void)preferencesChangedForGroup:(NSString *)group key:(NSString *)key object:(AIListObject *)object
-					preferenceDict:(NSDictionary *)prefDict firstTime:(BOOL)firstTime
+- (void)preferencesChangedForGroup:(NSString *)group
+							   key:(NSString *)key
+							object:(AIListObject *)object
+					preferenceDict:(NSDictionary *)prefDict
+						 firstTime:(BOOL)firstTime
 {
 	_defaultAttributes = nil;
 }
@@ -116,7 +120,8 @@
 /*!
  * @brief Enable/disable our restore default formatting menu item
  *
- * The item should only be enabled if the current responder has typing attributes and those typing attributes are not the default attributes
+ * The item should only be enabled if the current responder has typing attributes and those typing attributes are not
+ * the default attributes
  */
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
@@ -128,7 +133,8 @@
 
 	NSDictionary *defaultAttributes = [self defaultFormattingAttributes];
 	NSSet *defaultAttributeKeysSet = [NSSet setWithArray:[defaultAttributes allKeys]];
-	NSDictionary *typingAttributes = [[(NSTextView *)responder typingAttributes] dictionaryWithIntersectionWithSetOfKeys:defaultAttributeKeysSet];
+	NSDictionary *typingAttributes =
+		[[(NSTextView *)responder typingAttributes] dictionaryWithIntersectionWithSetOfKeys:defaultAttributeKeysSet];
 
 	return (![typingAttributes isEqualToDictionary:defaultAttributes]);
 }

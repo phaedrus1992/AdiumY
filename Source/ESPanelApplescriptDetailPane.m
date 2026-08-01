@@ -17,9 +17,9 @@
 #import "ESPanelApplescriptDetailPane.h"
 #import "ESApplescriptContactAlertPlugin.h"
 #import <AIUtilities/AIStringAdditions.h>
-#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <Adium/AILocalizationButton.h>
 #import <Adium/AILocalizationTextField.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 @interface ESPanelApplescriptDetailPane ()
 - (void)setScriptPath:(NSString *)inPath;
@@ -48,8 +48,8 @@
 
 	scriptPath = nil;
 
-	[label_applescript setLocalizedString:AILocalizedString(@"AppleScript:",nil)];
-	[button_browse setLocalizedString:[AILocalizedString(@"Browse",nil) stringByAppendingEllipsis]];
+	[label_applescript setLocalizedString:AILocalizedString(@"AppleScript:", nil)];
+	[button_browse setLocalizedString:[AILocalizedString(@"Browse", nil) stringByAppendingEllipsis]];
 }
 
 /*!
@@ -76,9 +76,7 @@
  */
 - (NSDictionary *)actionDetails
 {
-	return (scriptPath ?
-		   [NSDictionary dictionaryWithObject:scriptPath forKey:KEY_APPLESCRIPT_TO_RUN] :
-		   nil);
+	return (scriptPath ? [NSDictionary dictionaryWithObject:scriptPath forKey:KEY_APPLESCRIPT_TO_RUN] : nil);
 }
 
 /*!
@@ -87,8 +85,8 @@
 - (IBAction)chooseFile:(id)sender
 {
 	NSOpenPanel *openPanel = [NSOpenPanel openPanel];
-	[openPanel setTitle:AILocalizedString(@"Select an AppleScript",nil)];
-	NSArray<NSString *> *scriptExtensions = @[@"applescript", @"scptd", @"scpt"];
+	[openPanel setTitle:AILocalizedString(@"Select an AppleScript", nil)];
+	NSArray<NSString *> *scriptExtensions = @[ @"applescript", @"scptd", @"scpt" ];
 	NSMutableArray<UTType *> *contentTypes = [NSMutableArray arrayWithCapacity:[scriptExtensions count]];
 	for (NSString *extension in scriptExtensions) {
 		UTType *type = [UTType typeWithFilenameExtension:extension];
@@ -112,11 +110,11 @@
  */
 - (void)setScriptPath:(NSString *)inPath
 {
-	NSString	*scriptName;
+	NSString *scriptName;
 
 	scriptPath = inPath;
 
-	//Update the display for this name
+	// Update the display for this name
 	scriptName = [[scriptPath lastPathComponent] stringByDeletingPathExtension];
 	[textField_scriptName setStringValue:(scriptName ? scriptName : @"")];
 

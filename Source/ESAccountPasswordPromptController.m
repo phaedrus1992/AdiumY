@@ -55,7 +55,8 @@ static NSMutableDictionary *passwordPromptControllerDict = nil;
 	ESAccountPasswordPromptController *controller = nil;
 	NSString *identifier = inAccount.internalObjectID;
 
-	if (!passwordPromptControllerDict) passwordPromptControllerDict = [[NSMutableDictionary alloc] init];
+	if (!passwordPromptControllerDict)
+		passwordPromptControllerDict = [[NSMutableDictionary alloc] init];
 
 	if ((controller = [passwordPromptControllerDict objectForKey:identifier])) {
 		[controller setTarget:inTarget selector:inSelector context:inContext];
@@ -66,8 +67,7 @@ static NSMutableDictionary *passwordPromptControllerDict = nil;
 											  notifyingTarget:inTarget
 													 selector:inSelector
 													  context:inContext])) {
-			[passwordPromptControllerDict setObject:controller
-											 forKey:identifier];
+			[passwordPromptControllerDict setObject:controller forKey:identifier];
 		}
 	}
 

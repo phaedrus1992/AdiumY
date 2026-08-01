@@ -33,8 +33,8 @@
 #import <Adium/AIListBookmark.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIListObject.h>
-#import <Adium/AIStatusControllerProtocol.h>
 #import <Adium/AIStatus.h>
+#import <Adium/AIStatusControllerProtocol.h>
 #import <Adium/AIStatusIcons.h>
 // For the KEY_SHOW_OFFLINE_CONTACTS and PREF_GROUP_CONTACT_LIST_DISPLAY
 #import "AIContactController.h"
@@ -95,11 +95,10 @@
 		accountsMenuNeedsUpdate = YES;
 		optionsMenuNeedsUpdate = YES;
 
-		self.contactsMenuItem =
-			[[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Contacts", nil)
-																  target:self
-																  action:nil
-														   keyEquivalent:@""];
+		self.contactsMenuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Contacts", nil)
+														   target:self
+														   action:nil
+													keyEquivalent:@""];
 
 		NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 		// Register to recieve chat opened and chat closed notifications
@@ -144,8 +143,8 @@
 
 		// Account menu
 		accountMenu = [AIAccountMenu accountMenuWithDelegate:self
-												  submenuType:AIAccountStatusSubmenu
-											   showTitleVerbs:YES];
+												 submenuType:AIAccountStatusSubmenu
+											  showTitleVerbs:YES];
 
 		// Contact menu
 		contactMenu = [AIContactMenu contactMenuWithDelegate:self forContactsInObject:nil];
@@ -646,18 +645,18 @@
 		// If there's more than one account, show the accounts menu
 		if ([accountMenuItemsArray count] > 1) {
 			menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Accounts", nil)
-																			target:self
-																			action:nil
-																	 keyEquivalent:@""];
+												  target:self
+												  action:nil
+										   keyEquivalent:@""];
 
 			[menuItem setSubmenu:mainAccountsMenu];
 			[menu addItem:menuItem];
 		}
 
 		menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Options", nil)
-																		target:self
-																		action:nil
-																 keyEquivalent:@""];
+											  target:self
+											  action:nil
+									   keyEquivalent:@""];
 		[menuItem setSubmenu:mainOptionsMenu];
 		[menu addItem:menuItem];
 
@@ -685,9 +684,9 @@
 				NSImage *image = nil;
 				// Create a menu item from the chat
 				menuItem = [[NSMenuItem alloc] initWithTitle:chat.displayName
-																				target:self
-																				action:@selector(switchToChat:)
-																		 keyEquivalent:@""];
+													  target:self
+													  action:@selector(switchToChat:)
+											   keyEquivalent:@""];
 				// Set the represented object
 				[menuItem setRepresentedObject:chat];
 
@@ -837,13 +836,14 @@
 {
 	NSStatusBarButton *button = [statusItem button];
 	NSEvent *event = [NSApp currentEvent];
-	NSMenu *menuToDisplay = ((event.type == NSEventTypeRightMouseDown) && (alternateMenu != nil)) ? alternateMenu : mainMenu;
+	NSMenu *menuToDisplay =
+		((event.type == NSEventTypeRightMouseDown) && (alternateMenu != nil)) ? alternateMenu : mainMenu;
 	NSRect frame = [[button window] frame];
 
 	[button setHighlighted:YES];
 	[menuToDisplay popUpMenuPositioningItem:nil
-	                             atLocation:NSMakePoint(NSMidX(frame), NSMinY(frame))
-	                                 inView:[[button window] contentView]];
+								 atLocation:NSMakePoint(NSMidX(frame), NSMinY(frame))
+									 inView:[[button window] contentView]];
 	[button setHighlighted:NO];
 }
 

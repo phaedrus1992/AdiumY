@@ -26,7 +26,9 @@
 - (void)setXtra:(AIXtraInfo *)xtraInfo
 {
 	NSString *resourcePath = [xtraInfo resourcePath];
-	NSDictionary *iconDict = [[NSDictionary dictionaryWithContentsOfFile:[resourcePath stringByAppendingPathComponent:@"Icons.plist"]] objectForKey:@"List"];
+	NSDictionary *iconDict =
+		[[NSDictionary dictionaryWithContentsOfFile:[resourcePath stringByAppendingPathComponent:@"Icons.plist"]]
+			objectForKey:@"List"];
 
 	statusNames = [iconDict allKeys];
 
@@ -68,8 +70,8 @@
 }
 
 - (id)tableView:(NSTableView *)aTableView
-objectValueForTableColumn:(NSTableColumn *)aTableColumn
-			row:(NSInteger)rowIndex
+	objectValueForTableColumn:(NSTableColumn *)aTableColumn
+						  row:(NSInteger)rowIndex
 {
 	if ([[aTableColumn identifier] isEqualToString:@"Status Icon"])
 		return [images objectAtIndex:rowIndex];

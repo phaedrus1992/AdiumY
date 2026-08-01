@@ -1049,10 +1049,11 @@
 	// since this is a potentially dangerous operation, get a confirmation from the user first
 	NSAlert *alert = [[NSAlert alloc] init];
 	alert.messageText = AILocalizedString(@"Really remove gateway?", nil);
-	alert.informativeText = [NSString stringWithFormat:AILocalizedString(
-											   @"This operation would remove the gateway %@ itself and all contacts "
-											   @"belonging to the gateway on your contact list. It cannot be undone.",
-											   nil), gateway.UID];
+	alert.informativeText = [NSString
+		stringWithFormat:AILocalizedString(@"This operation would remove the gateway %@ itself and all contacts "
+										   @"belonging to the gateway on your contact list. It cannot be undone.",
+										   nil),
+						 gateway.UID];
 	[alert addButtonWithTitle:AILocalizedString(@"Remove", "alert default button")];
 	[alert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
 	if ([alert runModal] == NSAlertFirstButtonReturn) {

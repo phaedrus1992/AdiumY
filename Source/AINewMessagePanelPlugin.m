@@ -43,13 +43,14 @@
  */
 - (void)installPlugin
 {
-	NSMenuItem *newMessageMenuItem = [[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"New Chat",nil) stringByAppendingEllipsis]
-																target:self
-																action:@selector(newMessage:)
-														 keyEquivalent:@"n"];
+	NSMenuItem *newMessageMenuItem =
+		[[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"New Chat", nil) stringByAppendingEllipsis]
+								   target:self
+								   action:@selector(newMessage:)
+							keyEquivalent:@"n"];
 	[adium.menuController addMenuItem:newMessageMenuItem toLocation:LOC_File_New];
 
-	NSMenuItem *openChatMenuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Open Chat",nil)
+	NSMenuItem *openChatMenuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Open Chat", nil)
 															  target:self
 															  action:@selector(contextualOpenChat:)
 													   keyEquivalent:@""];

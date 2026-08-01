@@ -234,10 +234,10 @@
 																fromContact:listContact
 																  onAccount:self];
 	else
-		attributedMessage = [[NSAttributedString alloc]
-			initWithString:[adium.contentController decryptedIncomingMessage:message
-																 fromContact:listContact
-																   onAccount:self]];
+		attributedMessage =
+			[[NSAttributedString alloc] initWithString:[adium.contentController decryptedIncomingMessage:message
+																							 fromContact:listContact
+																							   onAccount:self]];
 
 	msgObj = [AIContentMessage messageInChat:chat
 								  withSource:listContact

@@ -74,35 +74,38 @@
 	[self _updateDisplay];
 
 	__unsafe_unretained AIHotKeyRecorder *weakSelf = self;
-	_localMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskKeyDown
-														 handler:^NSEvent *(NSEvent *event) {
-															 AIHotKeyRecorder *strongSelf = weakSelf;
-															 if (!strongSelf) return event;
+	_localMonitor = [NSEvent
+		addLocalMonitorForEventsMatchingMask:NSEventMaskKeyDown
+									 handler:^NSEvent *(NSEvent *event) {
+										 AIHotKeyRecorder *strongSelf = weakSelf;
+										 if (!strongSelf)
+											 return event;
 
-															 id del = strongSelf.delegate;
-															 if ([del respondsToSelector:@selector(hotKeyRecorder:shouldCaptureKeyCode:modifierFlags:)]) {
-																 if (![del hotKeyRecorder:strongSelf
-																	 shouldCaptureKeyCode:event.keyCode
-																			modifierFlags:event.modifierFlags]) {
-																	 return event;
-																 }
-															 }
+										 id del = strongSelf.delegate;
+										 if ([del respondsToSelector:
+													  @selector(hotKeyRecorder:shouldCaptureKeyCode:modifierFlags:)]) {
+											 if (![del hotKeyRecorder:strongSelf
+													 shouldCaptureKeyCode:event.keyCode
+															modifierFlags:event.modifierFlags]) {
+												 return event;
+											 }
+										 }
 
-															 AIHotKey *newHotKey = [[AIHotKey alloc] initWithIdentifier:nil
-																												  keyCode:event.keyCode
-																											modifierFlags:event.modifierFlags
-																												   target:nil
-																												   action:nil];
-															 strongSelf.hotKey = newHotKey;
+										 AIHotKey *newHotKey = [[AIHotKey alloc] initWithIdentifier:nil
+																							keyCode:event.keyCode
+																					  modifierFlags:event.modifierFlags
+																							 target:nil
+																							 action:nil];
+										 strongSelf.hotKey = newHotKey;
 
-															 [strongSelf _stopRecording];
+										 [strongSelf _stopRecording];
 
-															 if ([del respondsToSelector:@selector(hotKeyRecorder:keyComboDidChange:)]) {
-																 [del hotKeyRecorder:strongSelf keyComboDidChange:newHotKey];
-															 }
+										 if ([del respondsToSelector:@selector(hotKeyRecorder:keyComboDidChange:)]) {
+											 [del hotKeyRecorder:strongSelf keyComboDidChange:newHotKey];
+										 }
 
-															 return nil; // consume the event
-														 }];
+										 return nil; // consume the event
+									 }];
 }
 
 - (void)_stopRecording

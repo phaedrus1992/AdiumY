@@ -29,7 +29,7 @@ static void adiumPurpleAccountStatusChanged(PurpleAccount *account, PurpleStatus
 static void adiumPurpleAccountRequestAdd(PurpleAccount *account, const char *remote_user, const char *accountID,
 										 const char *alias, const char *message)
 {
-// WARNING: Something is better than nothing, but we should display a message which includes message and alias
+	// WARNING: Something is better than nothing, but we should display a message which includes message and alias
 	/* purple displays something like "Add remote_user to your list? remote_user (alias) has made accountID his buddy."
 	 */
 	[accountLookup(account) requestAddContactWithUID:[NSString stringWithUTF8String:remote_user]];

@@ -341,7 +341,6 @@
 	return item;
 }
 
-
 /*!
  * @brief Drag validate
  */

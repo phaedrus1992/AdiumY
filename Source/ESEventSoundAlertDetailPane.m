@@ -20,9 +20,9 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <Adium/AILocalizationTextField.h>
 #import <Adium/AISoundSet.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 #define PLAY_A_SOUND AILocalizedString(@"Play a sound", nil)
 #define KEY_DEFAULT_SOUND_DICT @"Default Sound Dict"
@@ -56,9 +56,10 @@
 
 	/* Loading and using the real file icons is slow, and all the sound files should have the same icons anyway.  So
 	 * we can cheat and load a sound icon from our bundle here (for all the menu items) for a nice speed boost. */
-	if (!soundFileIcon) soundFileIcon = [NSImage imageNamed:@"SoundFileIcon" forClass:[self class]];
+	if (!soundFileIcon)
+		soundFileIcon = [NSImage imageNamed:@"SoundFileIcon" forClass:[self class]];
 
-	//Prepare our sound menu
+	// Prepare our sound menu
 	[popUp_actionDetails setMenu:[self soundListMenu]];
 
 	[super viewDidLoad];
@@ -69,8 +70,8 @@
  */
 - (void)viewWillClose
 {
-	//The user probably does not want the sound to continue playing (especially if it's long), so stop it.
-	NSString	*soundPath = [[popUp_actionDetails selectedItem] representedObject];
+	// The user probably does not want the sound to continue playing (especially if it's long), so stop it.
+	NSString *soundPath = [[popUp_actionDetails selectedItem] representedObject];
 	[adium.soundController stopPlayingSoundAtPath:soundPath];
 
 	soundFileIcon = nil;
@@ -82,21 +83,22 @@
  */
 - (void)configureForActionDetails:(NSDictionary *)inDetails listObject:(AIListObject *)inObject
 {
-	NSString	*selectedSound;
-	NSInteger	soundIndex;
+	NSString *selectedSound;
+	NSInteger soundIndex;
 
-	if (!inDetails) inDetails = [adium.preferenceController preferenceForKey:KEY_DEFAULT_SOUND_DICT
-																		group:PREF_GROUP_SOUNDS];
+	if (!inDetails)
+		inDetails = [adium.preferenceController preferenceForKey:KEY_DEFAULT_SOUND_DICT group:PREF_GROUP_SOUNDS];
 
-	//If the user has a custom sound selected, we need to create an entry in the menu for it
+	// If the user has a custom sound selected, we need to create an entry in the menu for it
 	selectedSound = [inDetails objectForKey:KEY_ALERT_SOUND_PATH];
 	if (selectedSound) {
 		if ([[popUp_actionDetails menu] indexOfItemWithRepresentedObject:selectedSound] == -1) {
 			[self addSound:selectedSound toMenu:[popUp_actionDetails menu]];
 		}
 
-		//Set the menu to its previous setting if the stored event matches
-		soundIndex = [popUp_actionDetails indexOfItemWithRepresentedObject:[inDetails objectForKey:KEY_ALERT_SOUND_PATH]];
+		// Set the menu to its previous setting if the stored event matches
+		soundIndex =
+			[popUp_actionDetails indexOfItemWithRepresentedObject:[inDetails objectForKey:KEY_ALERT_SOUND_PATH]];
 		if (soundIndex >= 0 && soundIndex < [popUp_actionDetails numberOfItems]) {
 			[popUp_actionDetails selectItemAtIndex:soundIndex];
 		}
@@ -111,23 +113,21 @@
  */
 - (NSDictionary *)actionDetails
 {
-	NSString		*soundPath = [[popUp_actionDetails selectedItem] representedObject];
-	NSDictionary	*actionDetails = nil;
+	NSString *soundPath = [[popUp_actionDetails selectedItem] representedObject];
+	NSDictionary *actionDetails = nil;
 
 	if (soundPath && [soundPath length]) {
 		actionDetails = [NSDictionary dictionaryWithObject:soundPath forKey:KEY_ALERT_SOUND_PATH];
 	}
 
-	//Save the preferred settings for future use as defaults
-	[adium.preferenceController setPreference:actionDetails
-									   forKey:KEY_DEFAULT_SOUND_DICT
-										group:PREF_GROUP_SOUNDS];
+	// Save the preferred settings for future use as defaults
+	[adium.preferenceController setPreference:actionDetails forKey:KEY_DEFAULT_SOUND_DICT group:PREF_GROUP_SOUNDS];
 
 	return actionDetails;
 }
 
-
-//Sound Menu -----------------------------------------------------------------------------------------------------------
+// Sound Menu
+// -----------------------------------------------------------------------------------------------------------
 #pragma mark Sound Menu
 /*!
  * @brief Builds and returns a sound list menu
@@ -136,14 +136,14 @@
  */
 - (NSMenu *)soundListMenu
 {
-	NSMenu			*soundMenu = [[NSMenu alloc] init];
-	NSMenuItem		*menuItem;
+	NSMenu *soundMenu = [[NSMenu alloc] init];
+	NSMenuItem *menuItem;
 
-	//Add all soundsets to our menu
+	// Add all soundsets to our menu
 	for (AISoundSet *soundSet in adium.soundController.soundSets) {
-		NSString		*soundSetName = nil;
-		NSArray			*soundSetContents = nil;
-		NSString		*soundPath;
+		NSString *soundSetName = nil;
+		NSArray *soundSetContents = nil;
+		NSString *soundPath;
 
 		soundSetName = [soundSet name];
 		soundSetContents = [[soundSet sounds] allValues];
@@ -151,15 +151,12 @@
 		NSAssert1(soundSetName != nil, @"Sound set does not have a name: %@", soundSet);
 
 		if (soundSetContents && [soundSetContents count]) {
-			NSMenu	*soundsetMenu = [[NSMenu alloc] init];
+			NSMenu *soundsetMenu = [[NSMenu alloc] init];
 
-			//Add an item for the set
-			menuItem = [[NSMenuItem alloc] initWithTitle:soundSetName
-												  target:nil
-												  action:nil
-										   keyEquivalent:@""];
+			// Add an item for the set
+			menuItem = [[NSMenuItem alloc] initWithTitle:soundSetName target:nil action:nil keyEquivalent:@""];
 
-			//Add an item for each sound
+			// Add an item for each sound
 			for (soundPath in soundSetContents) {
 				[self addSound:soundPath toMenu:soundsetMenu];
 			}
@@ -170,10 +167,10 @@
 		}
 	}
 
-	//Add a divider between the sets and Other...
+	// Add a divider between the sets and Other...
 	[soundMenu addItem:[NSMenuItem separatorItem]];
 
-	//Add the "Other..." item
+	// Add the "Other..." item
 	menuItem = [[NSMenuItem alloc] initWithTitle:OTHER_ELLIPSIS
 										  target:self
 										  action:@selector(selectSound:)
@@ -189,11 +186,11 @@
  */
 - (void)addSound:(NSString *)soundPath toMenu:(NSMenu *)soundMenu
 {
-	NSString	*soundTitle = [[soundPath lastPathComponent] stringByDeletingPathExtension];
-	NSMenuItem	*menuItem = [[NSMenuItem alloc] initWithTitle:soundTitle
-													   target:self
-													   action:@selector(selectSound:)
-												keyEquivalent:@""];
+	NSString *soundTitle = [[soundPath lastPathComponent] stringByDeletingPathExtension];
+	NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:soundTitle
+													  target:self
+													  action:@selector(selectSound:)
+											   keyEquivalent:@""];
 
 	[menuItem setRepresentedObject:[soundPath stringByCollapsingBundlePath]];
 	[menuItem setImage:soundFileIcon];
@@ -207,13 +204,13 @@
  */
 - (void)addAndSelectSoundPath:(NSString *)soundPath
 {
-	NSMenu	*rootMenu = [popUp_actionDetails menu];
-	NSInteger		menuIndex;
+	NSMenu *rootMenu = [popUp_actionDetails menu];
+	NSInteger menuIndex;
 
-	//Check for it currently being present in the root menu
+	// Check for it currently being present in the root menu
 	menuIndex = [popUp_actionDetails indexOfItemWithRepresentedObject:soundPath];
 	if (menuIndex == -1) {
-		//Add it if it wasn't found
+		// Add it if it wasn't found
 		[self addSound:soundPath toMenu:rootMenu];
 		menuIndex = [popUp_actionDetails indexOfItemWithRepresentedObject:soundPath];
 	}
@@ -230,35 +227,36 @@
  */
 - (IBAction)selectSound:(id)sender
 {
-	NSString	*soundPath = [sender representedObject];
+	NSString *soundPath = [sender representedObject];
 
 	if (soundPath != nil && [soundPath length] != 0) {
-		[adium.soundController playSoundAtPath:[soundPath stringByExpandingBundlePath]]; //Play the sound
+		[adium.soundController playSoundAtPath:[soundPath stringByExpandingBundlePath]]; // Play the sound
 
-		//Update the menu and and the selection
+		// Update the menu and and the selection
 		[self addAndSelectSoundPath:soundPath];
 
 		[self detailsForHeaderChanged];
-	} else { //selected "Other..."
+	} else { // selected "Other..."
 		NSOpenPanel *openPanel = [NSOpenPanel openPanel];
-		NSArray<NSString *> *soundTypes = [NSSound soundUnfilteredTypes]; //allow all the sounds NSSound understands
+		NSArray<NSString *> *soundTypes = [NSSound soundUnfilteredTypes]; // allow all the sounds NSSound understands
 		NSMutableArray<UTType *> *contentTypes = [NSMutableArray arrayWithCapacity:[soundTypes count]];
 		for (NSString *uti in soundTypes) {
 			[contentTypes addObject:[UTType typeWithIdentifier:uti]];
 		}
 		[openPanel setAllowedContentTypes:contentTypes];
-		[openPanel beginSheetModalForWindow:[view window] completionHandler:^(NSInteger result) {
-			if (result == NSModalResponseOK) {
-				NSString *path = openPanel.URL.path;
+		[openPanel beginSheetModalForWindow:[view window]
+						  completionHandler:^(NSInteger result) {
+							  if (result == NSModalResponseOK) {
+								  NSString *path = openPanel.URL.path;
 
-				[adium.soundController playSoundAtPath:path]; //Play the sound
+								  [adium.soundController playSoundAtPath:path]; // Play the sound
 
-				//Update the menu and and the selection
-				[self addAndSelectSoundPath:[path stringByCollapsingBundlePath]];
+								  // Update the menu and and the selection
+								  [self addAndSelectSoundPath:[path stringByCollapsingBundlePath]];
 
-				[self detailsForHeaderChanged];
-			}
-		}];
+								  [self detailsForHeaderChanged];
+							  }
+						  }];
 	}
 }
 

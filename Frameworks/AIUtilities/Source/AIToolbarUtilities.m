@@ -68,13 +68,12 @@
 	 * (in the itemContent parameter).  Then this next line will do the right thing automatically.
 	 */
 	if (settingSelector && itemContent) {
-		#pragma clang diagnostic push
+#pragma clang diagnostic push
 
-		#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 
 		[item performSelector:settingSelector withObject:itemContent];
-		#pragma clang diagnostic pop
-
+#pragma clang diagnostic pop
 	}
 	if (action) {
 		[item setAction:action];

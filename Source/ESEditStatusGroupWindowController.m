@@ -16,10 +16,10 @@
 
 #import "ESEditStatusGroupWindowController.h"
 #import "AIStatusController.h"
-#import <Adium/AIStatusGroup.h>
-#import <Adium/AIStatusIcons.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIPopUpButtonAdditions.h>
+#import <Adium/AIStatusGroup.h>
+#import <Adium/AIStatusIcons.h>
 
 @interface ESEditStatusGroupWindowController ()
 - (NSMenu *)groupWithStatusMenu;
@@ -31,9 +31,10 @@
 - (void)showOnWindow:(NSWindow *)parentWindow
 {
 	if (parentWindow) {
-		[parentWindow beginSheet:self.window completionHandler:^(NSModalResponse returnCode) {
-			[self sheetDidEnd:self.window returnCode:returnCode contextInfo:nil];
-		}];
+		[parentWindow beginSheet:self.window
+			   completionHandler:^(NSModalResponse returnCode) {
+				   [self sheetDidEnd:self.window returnCode:returnCode contextInfo:nil];
+			   }];
 	} else {
 		[self showWindow:nil];
 		[self.window makeKeyAndOrderFront:nil];
@@ -63,7 +64,10 @@
 	[label_groupWith setAutoresizingMask:NSViewMaxXMargin];
 
 	[label_title setAutoresizingMask:NSViewMinXMargin];
-	[label_groupWith setLocalizedString:AILocalizedString(@"Group with:", "The popup button after this lists status types; it will determine the status type with which a status group will be listed in status menus")];
+	[label_groupWith
+		setLocalizedString:AILocalizedString(@"Group with:",
+											 "The popup button after this lists status types; it will determine the "
+											 "status type with which a status group will be listed in status menus")];
 	[label_title setAutoresizingMask:NSViewMaxXMargin];
 
 	[button_OK setLocalizedString:AILocalizedString(@"OK", nil)];
@@ -91,7 +95,6 @@
 	[sheet orderOut:nil];
 }
 
-
 /*!
  * @brief Okay
  *
@@ -103,10 +106,8 @@
 	[statusGroup setStatusType:(AIStatusType)[[popUp_groupWith selectedItem] tag]];
 
 	if (target && [target respondsToSelector:@selector(finishedStatusGroupEdit:)]) {
-		//Perform on a delay so the sheet can begin closing immediately.
-		[target performSelector:@selector(finishedStatusGroupEdit:)
-				   withObject:statusGroup
-				   afterDelay:0];
+		// Perform on a delay so the sheet can begin closing immediately.
+		[target performSelector:@selector(finishedStatusGroupEdit:) withObject:statusGroup afterDelay:0];
 	}
 
 	[self closeWindow:nil];
@@ -127,10 +128,11 @@
 	NSMenu *menu = [[NSMenu alloc] init];
 	NSMenuItem *menuItem;
 
-	menuItem = [[NSMenuItem alloc] initWithTitle:[adium.statusController localizedDescriptionForCoreStatusName:STATUS_NAME_AVAILABLE]
-										  target:nil
-										  action:nil
-								   keyEquivalent:@""];
+	menuItem = [[NSMenuItem alloc]
+		initWithTitle:[adium.statusController localizedDescriptionForCoreStatusName:STATUS_NAME_AVAILABLE]
+			   target:nil
+			   action:nil
+		keyEquivalent:@""];
 	[menuItem setTag:AIAvailableStatusType];
 	[menuItem setImage:[AIStatusIcons statusIconForStatusName:nil
 												   statusType:AIAvailableStatusType
@@ -138,10 +140,11 @@
 													direction:AIIconNormal]];
 	[menu addItem:menuItem];
 
-	menuItem = [[NSMenuItem alloc] initWithTitle:[adium.statusController localizedDescriptionForCoreStatusName:STATUS_NAME_AWAY]
-										  target:nil
-										  action:nil
-								   keyEquivalent:@""];
+	menuItem = [[NSMenuItem alloc]
+		initWithTitle:[adium.statusController localizedDescriptionForCoreStatusName:STATUS_NAME_AWAY]
+			   target:nil
+			   action:nil
+		keyEquivalent:@""];
 	[menuItem setTag:AIAwayStatusType];
 	[menuItem setImage:[AIStatusIcons statusIconForStatusName:nil
 												   statusType:AIAwayStatusType

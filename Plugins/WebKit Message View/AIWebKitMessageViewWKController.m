@@ -28,7 +28,7 @@
 /// WKWebView.scrollView requires macOS 10.14+. Forward-declared so we can
 /// wrap call sites in @available(macOS 10.14, *) checks.
 @interface WKWebView (AIWebKitWKScrollViewForwardDecl)
-@property (nonatomic, readonly) NSScrollView *scrollView API_AVAILABLE(macos(10.14));
+@property(nonatomic, readonly) NSScrollView *scrollView API_AVAILABLE(macos(10.14));
 @end
 
 #import <AIUtilities/AIAttributedStringAdditions.h>
@@ -53,13 +53,13 @@
 #import <Adium/AIContentStatus.h>
 #import <Adium/AIContentTopic.h>
 #import <Adium/AIEmoticon.h>
-#import <Adium/ESFileTransfer.h>
 #import <Adium/AIFileTransferControllerProtocol.h>
 #import <Adium/AIHTMLDecoder.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIListObject.h>
 #import <Adium/AIMenuControllerProtocol.h>
 #import <Adium/AIMetaContact.h>
+#import <Adium/ESFileTransfer.h>
 
 #import <Adium/AIPreferenceControllerProtocol.h>
 
@@ -211,10 +211,10 @@ static NSArray *draggedTypes = nil;
 	[_webView setUIDelegate:self];
 
 	if (!draggedTypes) {
-		draggedTypes =
-			[[NSArray alloc] initWithObjects:AINSPasteboardTypeFilenames, AIiTunesTrackPboardType, NSPasteboardTypeTIFF,
-											 NSPasteboardTypePDF, NSPasteboardTypeHTML, NSFileContentsPboardType,
-											 NSPasteboardTypeRTF, NSPasteboardTypeString, AINSPasteboardTypePostScript, nil];
+		draggedTypes = [[NSArray alloc] initWithObjects:AINSPasteboardTypeFilenames, AIiTunesTrackPboardType,
+														NSPasteboardTypeTIFF, NSPasteboardTypePDF, NSPasteboardTypeHTML,
+														NSFileContentsPboardType, NSPasteboardTypeRTF,
+														NSPasteboardTypeString, AINSPasteboardTypePostScript, nil];
 	}
 	[_webView registerForDraggedTypes:draggedTypes];
 }
@@ -420,8 +420,10 @@ static NSArray *draggedTypes = nil;
 		BOOL contentIsSimilar = [content isSimilarToContent:_previousContent];
 		BOOL replaceLastContent = NO;
 
-		if ([_previousContent isKindOfClass:[AIContentStatus class]] && [content isKindOfClass:[AIContentStatus class]] &&
-			[[(AIContentStatus *)_previousContent coalescingKey] isEqualToString:[(AIContentStatus *)content coalescingKey]]) {
+		if ([_previousContent isKindOfClass:[AIContentStatus class]] &&
+			[content isKindOfClass:[AIContentStatus class]] &&
+			[[(AIContentStatus *)_previousContent coalescingKey]
+				isEqualToString:[(AIContentStatus *)content coalescingKey]]) {
 			contentIsSimilar = NO;
 			replaceLastContent = YES;
 		}
@@ -810,17 +812,18 @@ static NSArray *draggedTypes = nil;
 - (void)_appendCorrectedMessageFallback:(NSString *)html fromSenderJID:(NSString *)senderJID
 {
 	AIListObject *source = [[adium contactController] contactWithService:[[_chat account] service]
-															  account:[_chat account]
-																 UID:senderJID];
+																 account:[_chat account]
+																	 UID:senderJID];
 	if (!source) {
 		source = [_chat listObject];
 	}
 
-	AIContentMessage *content = [[AIContentMessage alloc] initWithChat:_chat
-															   source:source
-														  destination:nil
-																 date:[NSDate date]
-															  message:[[NSAttributedString alloc] initWithString:html]];
+	AIContentMessage *content =
+		[[AIContentMessage alloc] initWithChat:_chat
+										source:source
+								   destination:nil
+										  date:[NSDate date]
+									   message:[[NSAttributedString alloc] initWithString:html]];
 	[content setDisplayContentImmediately:YES];
 
 	[_contentQueue addObject:content];
@@ -888,7 +891,7 @@ static NSArray *draggedTypes = nil;
 			[scroller setAction:@selector(markedScrollerClicked:)];
 			[scrollView setVerticalScroller:scroller];
 		}
-	
+
 		if (scroller && !_markedScroller) {
 			_markedScroller = scroller;
 		}
@@ -1004,7 +1007,8 @@ static NSArray *draggedTypes = nil;
 	} else if ([action isEqualToString:@"reveal"]) {
 		NSString *filename = [fileTransfer localFilename];
 		if (filename != nil) {
-			[[NSWorkspace sharedWorkspace] selectFile:filename inFileViewerRootedAtPath:[filename stringByDeletingLastPathComponent]];
+			[[NSWorkspace sharedWorkspace] selectFile:filename
+							 inFileViewerRootedAtPath:[filename stringByDeletingLastPathComponent]];
 		}
 	}
 }

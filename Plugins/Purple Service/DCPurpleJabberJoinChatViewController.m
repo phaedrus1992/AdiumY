@@ -41,29 +41,29 @@
 		// Observe text changes instead of implementing the deprecated NSControlTextEditingDelegate method
 		NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 		[notificationCenter addObserver:self
-		                       selector:@selector(textFieldChanged:)
-		                           name:NSControlTextDidChangeNotification
-		                         object:textField_roomName];
+							   selector:@selector(textFieldChanged:)
+								   name:NSControlTextDidChangeNotification
+								 object:textField_roomName];
 		[notificationCenter addObserver:self
-		                       selector:@selector(textFieldChanged:)
-		                           name:NSControlTextDidChangeNotification
-		                         object:textField_server];
+							   selector:@selector(textFieldChanged:)
+								   name:NSControlTextDidChangeNotification
+								 object:textField_server];
 		[notificationCenter addObserver:self
-		                       selector:@selector(textFieldChanged:)
-		                           name:NSControlTextDidChangeNotification
-		                         object:textField_handle];
+							   selector:@selector(textFieldChanged:)
+								   name:NSControlTextDidChangeNotification
+								 object:textField_handle];
 		[notificationCenter addObserver:self
-		                       selector:@selector(textFieldChanged:)
-		                           name:NSControlTextDidChangeNotification
-		                         object:textField_password];
+							   selector:@selector(textFieldChanged:)
+								   name:NSControlTextDidChangeNotification
+								 object:textField_password];
 		[notificationCenter addObserver:self
-		                       selector:@selector(textFieldChanged:)
-		                           name:NSControlTextDidChangeNotification
-		                         object:textField_inviteMessage];
+							   selector:@selector(textFieldChanged:)
+								   name:NSControlTextDidChangeNotification
+								 object:textField_inviteMessage];
 		[notificationCenter addObserver:self
-		                       selector:@selector(textFieldChanged:)
-		                           name:NSControlTextDidChangeNotification
-		                         object:textField_inviteUsers];
+							   selector:@selector(textFieldChanged:)
+								   name:NSControlTextDidChangeNotification
+								 object:textField_inviteUsers];
 	}
 
 	return self;
@@ -71,9 +71,7 @@
 
 - (void)dealloc
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-	                                                name:NSControlTextDidChangeNotification
-	                                              object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSControlTextDidChangeNotification object:nil];
 }
 
 /*!

@@ -16,7 +16,6 @@
 
 #import "AIGradientView.h"
 
-
 /*!
  * @class AIGradientView
  * @brief A view which draws an NSGradient on itself
@@ -55,37 +54,33 @@
 
 	if (startingColor) {
 		if (middleColor && ![startingColor isEqual:middleColor]) {
-			//Start to Middle
+			// Start to Middle
 			endColor = middleColor;
 			drawingRect = halfRect;
 		} else if (endingColor && ![startingColor isEqual:endingColor]) {
-			//Start to End
+			// Start to End
 			endColor = endingColor;
 		} else {
-			//Start only
+			// Start only
 			endColor = startingColor;
 		}
 
-		gradient = [[NSGradient alloc] initWithStartingColor:startingColor
-												 endingColor:endColor];
+		gradient = [[NSGradient alloc] initWithStartingColor:startingColor endingColor:endColor];
 		[gradient drawInRect:drawingRect angle:angle];
-
 	}
 
 	if (middleColor) {
 		halfRect.origin.y = 0.0f;
 		if (endingColor && ![middleColor isEqual:endingColor]) {
-			//Middle to End
+			// Middle to End
 			endColor = endingColor;
 		} else {
-			//Middle only
+			// Middle only
 			endColor = middleColor;
 		}
 
-		gradient = [[NSGradient alloc] initWithStartingColor:middleColor
-												 endingColor:endColor];
+		gradient = [[NSGradient alloc] initWithStartingColor:middleColor endingColor:endColor];
 		[gradient drawInRect:halfRect angle:angle];
-
 	}
 
 	[super drawRect:rect];

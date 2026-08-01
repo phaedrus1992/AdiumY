@@ -366,8 +366,8 @@ static NSTimer *timer_savingOfAccountCache = nil;
 #ifdef PREFERENCE_CONTAINER_DEBUG
 //	{
 //		NSData		 *data = [NSData dataWithContentsOfFile:[adium.loginController.userDirectory
-//stringByAppendingPathComponent:[globalPrefsName stringByAppendingPathExtension:@"plist"]]]; 		NSError *errorString =
-//nil; 		NSDictionary *theDict = [NSPropertyListSerialization propertyListFromData:data
+// stringByAppendingPathComponent:[globalPrefsName stringByAppendingPathExtension:@"plist"]]]; 		NSError *errorString
+// = nil; 		NSDictionary *theDict = [NSPropertyListSerialization propertyListFromData:data
 //																 mutabilityOption:NSPropertyListMutableContainers
 //																		   format:NULL
 //																 errorDescription:&errorString];

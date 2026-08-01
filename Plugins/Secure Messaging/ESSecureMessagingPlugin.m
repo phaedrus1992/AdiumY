@@ -86,11 +86,10 @@
 	NSMenu *menu = [self _secureMessagingMenu];
 
 	// Add menu to toolbar item (for text mode)
-	menuItem_encryption =
-		[[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Encryption", nil)
-															 target:self
-															 action:@selector(dummyAction:)
-													  keyEquivalent:@""];
+	menuItem_encryption = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Encryption", nil)
+													 target:self
+													 action:@selector(dummyAction:)
+											  keyEquivalent:@""];
 	[menuItem_encryption setSubmenu:menu];
 	[menuItem_encryption setTag:AISecureMessagingMenu_Root];
 
@@ -297,7 +296,8 @@
 {
 	NSAlert *detailsAlert = [[NSAlert alloc] init];
 	detailsAlert.messageText = AILocalizedString(@"Details", nil);
-	detailsAlert.informativeText = (NSString *)[[adium.interfaceController.activeChat securityDetails] objectForKey:@"Description"];
+	detailsAlert.informativeText =
+		(NSString *)[[adium.interfaceController.activeChat securityDetails] objectForKey:@"Description"];
 	[detailsAlert addButtonWithTitle:AILocalizedString(@"OK", nil)];
 	[detailsAlert runModal];
 }

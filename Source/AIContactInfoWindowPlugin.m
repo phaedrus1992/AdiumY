@@ -136,33 +136,30 @@
 - (void)prepareContactInfo
 {
 	// Add our get info contextual menu item
-	menuItem_getInfoContextualContact =
-		[[NSMenuItem alloc] initWithTitle:VIEW_CONTACTS_INFO
-															 target:self
-															 action:@selector(showContactInfo:)
-													  keyEquivalent:@""];
+	menuItem_getInfoContextualContact = [[NSMenuItem alloc] initWithTitle:VIEW_CONTACTS_INFO
+																   target:self
+																   action:@selector(showContactInfo:)
+															keyEquivalent:@""];
 	[adium.menuController addContextualMenuItem:menuItem_getInfoContextualContact toLocation:Context_Contact_Manage];
 
-	menuItem_getInfoContextualGroup =
-		[[NSMenuItem alloc] initWithTitle:VIEW_CONTACTS_INFO
-															 target:self
-															 action:@selector(showContactInfo:)
-													  keyEquivalent:@""];
+	menuItem_getInfoContextualGroup = [[NSMenuItem alloc] initWithTitle:VIEW_CONTACTS_INFO
+																 target:self
+																 action:@selector(showContactInfo:)
+														  keyEquivalent:@""];
 	[adium.menuController addContextualMenuItem:menuItem_getInfoContextualGroup toLocation:Context_Group_Manage];
 
-	menuItem_getInfoContextualGroupChat =
-		[[NSMenuItem alloc] initWithTitle:VIEW_BOOKMARK_GET_INFO
-															 target:self
-															 action:@selector(showBookmarkInfo:)
-													  keyEquivalent:@""];
+	menuItem_getInfoContextualGroupChat = [[NSMenuItem alloc] initWithTitle:VIEW_BOOKMARK_GET_INFO
+																	 target:self
+																	 action:@selector(showBookmarkInfo:)
+															  keyEquivalent:@""];
 	[adium.menuController addContextualMenuItem:menuItem_getInfoContextualGroupChat
 									 toLocation:Context_GroupChat_Manage];
 
 	// Install the standard Get Info menu item which will always be command-shift-I
 	menuItem_getInfo = [[NSMenuItem alloc] initWithTitle:VIEW_CONTACTS_INFO
-																			target:self
-																			action:@selector(showContactInfo:)
-																	 keyEquivalent:@"i"];
+												  target:self
+												  action:@selector(showContactInfo:)
+										   keyEquivalent:@"i"];
 	[menuItem_getInfo setKeyEquivalentModifierMask:GET_INFO_MASK];
 	[adium.menuController addMenuItem:menuItem_getInfo toLocation:LOC_Contact_Info];
 
@@ -170,9 +167,9 @@
 	 * list and in all other places, respectively.
 	 */
 	menuItem_getInfoAlternate = [[NSMenuItem alloc] initWithTitle:VIEW_CONTACTS_INFO
-																					 target:self
-																					 action:@selector(showContactInfo:)
-																			  keyEquivalent:@"i"];
+														   target:self
+														   action:@selector(showContactInfo:)
+													keyEquivalent:@"i"];
 	[menuItem_getInfoAlternate setKeyEquivalentModifierMask:ALTERNATE_GET_INFO_MASK];
 	[menuItem_getInfoAlternate setAlternate:YES];
 	[adium.menuController addMenuItem:menuItem_getInfoAlternate toLocation:LOC_Contact_Info];
@@ -195,11 +192,10 @@
 											   object:[menuItem_getInfoAlternate menu]];
 
 	// Install the Get Info (prompting for a contact name) menu item
-	menuItem_getInfoWithPrompt =
-		[[NSMenuItem alloc] initWithTitle:VIEW_CONTACTS_INFO_WITH_PROMPT
-															 target:self
-															 action:@selector(showSpecifiedContactInfo:)
-													  keyEquivalent:@"i"];
+	menuItem_getInfoWithPrompt = [[NSMenuItem alloc] initWithTitle:VIEW_CONTACTS_INFO_WITH_PROMPT
+															target:self
+															action:@selector(showSpecifiedContactInfo:)
+													 keyEquivalent:@"i"];
 	[menuItem_getInfoWithPrompt setKeyEquivalentModifierMask:(NSEventModifierFlagCommand | NSEventModifierFlagOption)];
 	[adium.menuController addMenuItem:menuItem_getInfoWithPrompt toLocation:LOC_Contact_Info];
 

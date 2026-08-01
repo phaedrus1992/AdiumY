@@ -1513,9 +1513,9 @@ static NSString *horizontalRule = nil;
 		if (value == [NSNull null])
 			value = nil;
 
-		#pragma clang diagnostic push
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-			[textAttributes performSelector:selector withObject:value];
+		[textAttributes performSelector:selector withObject:value];
 #pragma clang diagnostic pop
 	}
 }

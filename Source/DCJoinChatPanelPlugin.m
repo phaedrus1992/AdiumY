@@ -23,7 +23,7 @@
 #import <Adium/AIMenuControllerProtocol.h>
 #import <Adium/AIService.h>
 
-#define JOIN_CHAT_MENU_ITEM		[AILocalizedString(@"Join Group Chat",nil) stringByAppendingEllipsis]
+#define JOIN_CHAT_MENU_ITEM [AILocalizedString(@"Join Group Chat", nil) stringByAppendingEllipsis]
 
 /*!
  * @class DCJoinChatPanelPlugin
@@ -37,9 +37,9 @@
 - (void)installPlugin
 {
 	joinChatMenuItem = [[NSMenuItem alloc] initWithTitle:JOIN_CHAT_MENU_ITEM
-													target:self
-													action:@selector(joinChat:)
-											 keyEquivalent:@"J"];
+												  target:self
+												  action:@selector(joinChat:)
+										   keyEquivalent:@"J"];
 	[adium.menuController addMenuItem:joinChatMenuItem toLocation:LOC_File_New];
 }
 

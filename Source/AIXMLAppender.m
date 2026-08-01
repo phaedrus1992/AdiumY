@@ -97,16 +97,16 @@ enum { xmlMarkerLength = 21, failedUtf8BomLength = 6 };
 - (id)initWithPath:(NSString *)inPath rootElement:(AIXMLElement *)root
 {
 	if ((self = [super init])) {
-		//Set up our instance variables
+		// Set up our instance variables
 		self.rootElement = root;
 		self.path = inPath;
 		self.initialized = NO;
 
-		//Create our strings
+		// Create our strings
 		NSInteger closingTagLength = [self.rootElement.name length] + 3; //</rootElementName>
 		NSString *initialDocument = [NSString stringWithFormat:@"%@\n%@", XML_MARKER, [rootElement XMLString]];
 
-		//Write the data, and then seek backwards
+		// Write the data, and then seek backwards
 		[self writeData:[initialDocument dataUsingEncoding:NSUTF8StringEncoding] seekBackLength:closingTagLength];
 	}
 
@@ -129,98 +129,101 @@ enum { xmlMarkerLength = 21, failedUtf8BomLength = 6 };
 - (void)writeData:(NSData *)data seekBackLength:(NSInteger)seekBackLength
 {
 	[AISharedWriterQueue addOperation:^{
-        BOOL success = YES;
-        if (!self.fileHandle)
-            [self prepareFileHandle];
+		BOOL success = YES;
+		if (!self.fileHandle)
+			[self prepareFileHandle];
 
-        @try {
-            [self.fileHandle writeData:data];
+		@try {
+			[self.fileHandle writeData:data];
 
-        } @catch (NSException *writingException) {
-            /* NSFileHandle raises an exception if:
-             *    * the file descriptor is closed or is not valid - we should reopen the file and try again
-             *    * if the receiver represents an unconnected pipe or socket endpoint - this should never happen
-             *    * if no free space is left on the file system - this should be handled gracefully if possible.. but the user is probably in trouble.
-             *    * if any other writing error occurs - as with lack of free space.
-             */
-            if (self.initialized &&
-                [[writingException name] isEqualToString:NSFileHandleOperationException] &&
-                [[writingException reason] rangeOfString:@"Bad file descriptor"].location != NSNotFound) {
+		} @catch (NSException *writingException) {
+			/* NSFileHandle raises an exception if:
+			 *    * the file descriptor is closed or is not valid - we should reopen the file and try again
+			 *    * if the receiver represents an unconnected pipe or socket endpoint - this should never happen
+			 *    * if no free space is left on the file system - this should be handled gracefully if possible.. but
+			 * the user is probably in trouble.
+			 *    * if any other writing error occurs - as with lack of free space.
+			 */
+			if (self.initialized && [[writingException name] isEqualToString:NSFileHandleOperationException] &&
+				[[writingException reason] rangeOfString:@"Bad file descriptor"].location != NSNotFound) {
 
-                self.fileHandle = nil;
+				self.fileHandle = nil;
 
-                [self prepareFileHandle];
+				[self prepareFileHandle];
 
-                @try {
-                    [self.fileHandle writeData:data];
-                    success = YES;
+				@try {
+					[self.fileHandle writeData:data];
+					success = YES;
 
-                } @catch (NSException *secondWritingException) {
-                    NSLog(@"Exception while writing %@ log file %@: %@ (%@)",
-                          (self.initialized ? @"initialized" : @"uninitialized"), self.path, [secondWritingException name], [secondWritingException reason]);
-                    success = NO;
-                }
+				} @catch (NSException *secondWritingException) {
+					NSLog(@"Exception while writing %@ log file %@: %@ (%@)",
+						  (self.initialized ? @"initialized" : @"uninitialized"), self.path,
+						  [secondWritingException name], [secondWritingException reason]);
+					success = NO;
+				}
 
-            } else {
-                NSLog(@"Exception while writing %@ log file %@: %@ (%@)",
-                      (self.initialized ? @"initialized" : @"uninitialized"), self.path, [writingException name], [writingException reason]);
-                success = NO;
-            }
-        }
+			} else {
+				NSLog(@"Exception while writing %@ log file %@: %@ (%@)",
+					  (self.initialized ? @"initialized" : @"uninitialized"), self.path, [writingException name],
+					  [writingException reason]);
+				success = NO;
+			}
+		}
 
-        if (success) {
-            [self.fileHandle synchronizeFile];
+		if (success) {
+			[self.fileHandle synchronizeFile];
 
-            @try {
-                [self.fileHandle seekToFileOffset:([self.fileHandle offsetInFile] - seekBackLength)];
+			@try {
+				[self.fileHandle seekToFileOffset:([self.fileHandle offsetInFile] - seekBackLength)];
 
-            } @catch (NSException *seekException) {
-                /* -[NSFileHandler seekToFileOffset:] raises an exception if
-                 *    * the message is sent to an NSFileHandle object representing a pipe or socket
-                 *    * if the file descriptor is closed
-                 *    * if any other error occurs in seeking.
-                 */
-                NSLog(@"Exception while seeking in %@ log file %@: %@ (%@)",
-                      (self.initialized ? @"initialized" : @"uninitialized"), self.path, [seekException name], [seekException reason]);
-                success = NO;
-            }
-        }
-    }];
+			} @catch (NSException *seekException) {
+				/* -[NSFileHandler seekToFileOffset:] raises an exception if
+				 *    * the message is sent to an NSFileHandle object representing a pipe or socket
+				 *    * if the file descriptor is closed
+				 *    * if any other error occurs in seeking.
+				 */
+				NSLog(@"Exception while seeking in %@ log file %@: %@ (%@)",
+					  (self.initialized ? @"initialized" : @"uninitialized"), self.path, [seekException name],
+					  [seekException reason]);
+				success = NO;
+			}
+		}
+	}];
 }
 
 - (void)prepareFileHandle
 {
 	NSFileManager *manager = [NSFileManager defaultManager];
 
-	//Check if the file already exists
+	// Check if the file already exists
 	if ([manager fileExistsAtPath:self.path]) {
-		//Get the root element name and set initialized
+		// Get the root element name and set initialized
 		NSString *rootElementName = [self rootElementNameForFileAtPath:self.path];
 		if (rootElementName)
 			self.rootElement = [[AIXMLElement alloc] initWithName:rootElementName];
 		self.initialized = (rootElementName != nil);
 
 	} else {
-		//Create each component of the path, then change into it.
+		// Create each component of the path, then change into it.
 		NSError *error = nil;
 		if (![manager createDirectoryAtPath:[self.path stringByDeletingLastPathComponent]
 				withIntermediateDirectories:YES
-								 attributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithUnsignedLong:0700UL] forKey:NSFilePosixPermissions]
+								 attributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithUnsignedLong:0700UL]
+																		forKey:NSFilePosixPermissions]
 									  error:&error]) {
-			AILogWithSignature(@"Error creating directory at %@: %@",
-							   [self.path stringByDeletingLastPathComponent],
+			AILogWithSignature(@"Error creating directory at %@: %@", [self.path stringByDeletingLastPathComponent],
 							   error);
 		}
 
 		self.initialized = NO;
 	}
 
-	//Open our file handle and seek if necessary
+	// Open our file handle and seek if necessary
 	const char *pathCString = [self.path fileSystemRepresentation];
 	int fd = open(pathCString, O_CREAT | O_WRONLY, 0600);
-	if(fd == -1) {
-		AILog(@"Couldn't open log file %@ (%s - length %lu) for writing!",
-			  self.path, pathCString, (pathCString ? strlen(pathCString) : 0));
+	if (fd == -1) {
+		AILog(@"Couldn't open log file %@ (%s - length %lu) for writing!", self.path, pathCString,
+			  (pathCString ? strlen(pathCString) : 0));
 	} else {
 		self.fileHandle = [[NSFileHandle alloc] initWithFileDescriptor:fd closeOnDealloc:YES];
 		if (self.initialized) {
@@ -239,7 +242,8 @@ enum { xmlMarkerLength = 21, failedUtf8BomLength = 6 };
 	if ([chatlogURL setResourceValue:nil forKey:NSURLQuarantinePropertiesKey error:&quarantineError]) {
 		AILogWithSignature(@"Un-quarantining file %@ succeeded!", [self.path stringByDeletingLastPathComponent]);
 	} else {
-		AILogWithSignature(@"Un-quarantining file %@ failed: %@", [self.path stringByDeletingLastPathComponent], quarantineError);
+		AILogWithSignature(@"Un-quarantining file %@ failed: %@", [self.path stringByDeletingLastPathComponent],
+						   quarantineError);
 	}
 }
 
@@ -251,14 +255,14 @@ enum { xmlMarkerLength = 21, failedUtf8BomLength = 6 };
 
 - (void)appendElement:(AIXMLElement *)element
 {
-	//Create our strings
+	// Create our strings
 	NSString *elementString = [NSString stringWithFormat:@"\n%@", [element XMLString]];
 	NSString *closingTag = [NSString stringWithFormat:@"</%@>", self.rootElement.name];
 
 	if (elementString != nil) {
-		//Write the data, and then seek backwards
+		// Write the data, and then seek backwards
 		[self writeData:[[elementString stringByAppendingString:closingTag] dataUsingEncoding:NSUTF8StringEncoding]
-		 seekBackLength:[closingTag length]];
+			seekBackLength:[closingTag length]];
 	}
 }
 
@@ -271,17 +275,18 @@ enum { xmlMarkerLength = 21, failedUtf8BomLength = 6 };
  */
 - (NSString *)rootElementNameForFileAtPath:(NSString *)inPath
 {
-	//Create a temporary file handle for validation, and read the marker
+	// Create a temporary file handle for validation, and read the marker
 	NSFileHandle *handle = [NSFileHandle fileHandleForReadingAtPath:inPath];
 
-	if(!handle) return nil;
+	if (!handle)
+		return nil;
 
 	NSScanner *scanner = nil;
 	do {
-		//Read a block of arbitrary size
+		// Read a block of arbitrary size
 		NSString *block = [[NSString alloc] initWithData:[handle readDataOfLength:XML_APPENDER_BLOCK_SIZE]
-													 encoding:NSUTF8StringEncoding];
-		//If we read 0 characters, then we have reached the end of the file, so return
+												encoding:NSUTF8StringEncoding];
+		// If we read 0 characters, then we have reached the end of the file, so return
 		if ([block length] == 0) {
 			[handle closeFile];
 			return nil;
@@ -289,28 +294,28 @@ enum { xmlMarkerLength = 21, failedUtf8BomLength = 6 };
 
 		scanner = [NSScanner scannerWithString:block];
 		[scanner scanUpToString:@"<" intoString:nil];
-	} while([scanner isAtEnd]); //If the scanner is at the end, not found in this block
+	} while ([scanner isAtEnd]); // If the scanner is at the end, not found in this block
 
-	//Scn past the '<' we know is there
+	// Scn past the '<' we know is there
 	[scanner scanString:@"<" intoString:nil];
 
 	NSString *accumulated = [NSString string];
 	NSMutableString *accumulator = [NSMutableString string];
 	BOOL found = NO;
 	do {
-		[scanner scanUpToString:@" " intoString:&accumulated]; //very naive
+		[scanner scanUpToString:@" " intoString:&accumulated]; // very naive
 		[accumulator appendString:accumulated];
 
-		//If the scanner is at the end, not found in this block
+		// If the scanner is at the end, not found in this block
 		found = ![scanner isAtEnd];
 
-		//If we've found the end of the element name, break
+		// If we've found the end of the element name, break
 		if (found)
 			break;
 
 		NSString *block = [[NSString alloc] initWithData:[handle readDataOfLength:XML_APPENDER_BLOCK_SIZE]
-													 encoding:NSUTF8StringEncoding];
-		//Again, if we've reached the end of the file, we aren't initialized, so return nil
+												encoding:NSUTF8StringEncoding];
+		// Again, if we've reached the end of the file, we aren't initialized, so return nil
 		if ([block length] == 0) {
 			[handle closeFile];
 			return nil;
@@ -321,7 +326,7 @@ enum { xmlMarkerLength = 21, failedUtf8BomLength = 6 };
 
 	[handle closeFile];
 
-	//We've obviously found the root element name, so return a nonmutable copy.
+	// We've obviously found the root element name, so return a nonmutable copy.
 	return [NSString stringWithString:accumulator];
 }
 

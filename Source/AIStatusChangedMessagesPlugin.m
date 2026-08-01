@@ -15,17 +15,18 @@
  */
 
 #import "AIStatusChangedMessagesPlugin.h"
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIListContact.h>
 #import <Adium/AIChat.h>
+#import <Adium/AIChatControllerProtocol.h>
+#import <Adium/AIContactAlertsControllerProtocol.h>
+#import <Adium/AIContentControllerProtocol.h>
 #import <Adium/AIContentStatus.h>
+#import <Adium/AIListContact.h>
 
-#define	CONTACT_STATUS_UPDATE_COALESCING_KEY	@"Contact Status Update"
+#define CONTACT_STATUS_UPDATE_COALESCING_KEY @"Contact Status Update"
 
 @interface AIStatusChangedMessagesPlugin ()
-- (void)statusMessage:(NSString *)message forContact:(AIListContact *)contact
+- (void)statusMessage:(NSString *)message
+			  forContact:(AIListContact *)contact
 				withType:(NSString *)type
 	phraseWithoutSubject:(NSString *)statusPhrase
 		   loggedMessage:(NSAttributedString *)loggedMessage
@@ -43,43 +44,65 @@
  */
 @implementation AIStatusChangedMessagesPlugin
 
-static	NSDictionary	*statusTypeDict = nil;
+static NSDictionary *statusTypeDict = nil;
 
 /*!
  * @brief Install
  */
 - (void)installPlugin
 {
-	statusTypeDict = [NSDictionary dictionaryWithObjectsAndKeys:
-		@"away",CONTACT_STATUS_AWAY_YES,
-		@"return_away",CONTACT_STATUS_AWAY_NO,
-		@"online",CONTACT_STATUS_ONLINE_YES,
-		@"offline",CONTACT_STATUS_ONLINE_NO,
-		@"idle",CONTACT_STATUS_IDLE_YES,
-		@"return_idle",CONTACT_STATUS_IDLE_NO,
-		@"away_message",CONTACT_STATUS_MESSAGE,
-		@"mobile",CONTACT_STATUS_MOBILE_YES,
-		@"return_mobile",CONTACT_STATUS_MOBILE_NO,
-		nil];
+	statusTypeDict = [NSDictionary
+		dictionaryWithObjectsAndKeys:@"away", CONTACT_STATUS_AWAY_YES, @"return_away", CONTACT_STATUS_AWAY_NO,
+									 @"online", CONTACT_STATUS_ONLINE_YES, @"offline", CONTACT_STATUS_ONLINE_NO,
+									 @"idle", CONTACT_STATUS_IDLE_YES, @"return_idle", CONTACT_STATUS_IDLE_NO,
+									 @"away_message", CONTACT_STATUS_MESSAGE, @"mobile", CONTACT_STATUS_MOBILE_YES,
+									 @"return_mobile", CONTACT_STATUS_MOBILE_NO, nil];
 
 	previousStatusChangedMessages = [[NSMutableDictionary alloc] init];
 
-    //Observe contact status changes
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contactStatusChanged:) name:CONTACT_STATUS_ONLINE_YES object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contactStatusChanged:) name:CONTACT_STATUS_ONLINE_NO object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contactStatusChanged:) name:CONTACT_STATUS_IDLE_YES object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contactStatusChanged:) name:CONTACT_STATUS_IDLE_NO object:nil];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contactStatusChanged:) name:CONTACT_STATUS_MOBILE_YES object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contactStatusChanged:) name:CONTACT_STATUS_MOBILE_NO object:nil];
-
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contactAwayChanged:) name:CONTACT_STATUS_AWAY_YES object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contactAwayChanged:) name:CONTACT_STATUS_AWAY_NO object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contact_statusMessage:) name:CONTACT_STATUS_MESSAGE object:nil];
+	// Observe contact status changes
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(contactStatusChanged:)
+												 name:CONTACT_STATUS_ONLINE_YES
+											   object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(contactStatusChanged:)
+												 name:CONTACT_STATUS_ONLINE_NO
+											   object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(contactStatusChanged:)
+												 name:CONTACT_STATUS_IDLE_YES
+											   object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(contactStatusChanged:)
+												 name:CONTACT_STATUS_IDLE_NO
+											   object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(contactStatusChanged:)
+												 name:CONTACT_STATUS_MOBILE_YES
+											   object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(contactStatusChanged:)
+												 name:CONTACT_STATUS_MOBILE_NO
+											   object:nil];
 
 	[[NSNotificationCenter defaultCenter] addObserver:self
-									   selector:@selector(chatWillClose:)
-										   name:Chat_WillClose
-										 object:nil];
+											 selector:@selector(contactAwayChanged:)
+												 name:CONTACT_STATUS_AWAY_YES
+											   object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(contactAwayChanged:)
+												 name:CONTACT_STATUS_AWAY_NO
+											   object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(contact_statusMessage:)
+												 name:CONTACT_STATUS_MESSAGE
+											   object:nil];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(chatWillClose:)
+												 name:Chat_WillClose
+											   object:nil];
 }
 
 /*!
@@ -87,25 +110,27 @@ static	NSDictionary	*statusTypeDict = nil;
  *
  * @param notification <tt>NSNotification</tt> whose object is the AIListContact
  */
-- (void)contact_statusMessage:(NSNotification *)notification{
-	NSSet			*allChats;
-	AIListContact	*contact = [notification object];
+- (void)contact_statusMessage:(NSNotification *)notification
+{
+	NSSet *allChats;
+	AIListContact *contact = [notification object];
 
 	allChats = [adium.chatController allChatsWithContact:contact];
-	AILog(@"Status message for %@ changed (%@)",contact,allChats);
+	AILog(@"Status message for %@ changed (%@)", contact, allChats);
 	if ([allChats count]) {
 		if (contact.statusType != AIAvailableStatusType) {
 			NSAttributedString *statusMessage = contact.statusMessage;
-			NSString			*statusMessageString = [statusMessage string];
-			NSString			*statusType = [statusTypeDict objectForKey:CONTACT_STATUS_MESSAGE];
+			NSString *statusMessageString = [statusMessage string];
+			NSString *statusType = [statusTypeDict objectForKey:CONTACT_STATUS_MESSAGE];
 
 			if (statusMessage && [statusMessage length] != 0) {
-				[self statusMessage:[NSString stringWithFormat:AILocalizedString(@"Away Message: %@",nil),statusMessageString]
-						 forContact:contact
-						   withType:statusType
-			   phraseWithoutSubject:statusMessageString
-					  loggedMessage:statusMessage
-							inChats:allChats];
+				[self statusMessage:[NSString stringWithFormat:AILocalizedString(@"Away Message: %@", nil),
+															   statusMessageString]
+							  forContact:contact
+								withType:statusType
+					phraseWithoutSubject:statusMessageString
+						   loggedMessage:statusMessage
+								 inChats:allChats];
 			}
 		}
 	}
@@ -116,30 +141,31 @@ static	NSDictionary	*statusTypeDict = nil;
  *
  * @param notification <tt>NSNotification</tt> whose object is the AIListContact and whose name is the eventID
  */
-- (void)contactStatusChanged:(NSNotification *)notification{
-	NSSet			*allChats;
-	AIListContact	*contact = [notification object];
+- (void)contactStatusChanged:(NSNotification *)notification
+{
+	NSSet *allChats;
+	AIListContact *contact = [notification object];
 
 	allChats = [adium.chatController allChatsWithContact:contact];
 	if ([allChats count]) {
-		NSString		*description, *phraseWithoutSubject;
-		NSString		*name = [notification name];
-		NSDictionary	*userInfo = [notification userInfo];
+		NSString *description, *phraseWithoutSubject;
+		NSString *name = [notification name];
+		NSDictionary *userInfo = [notification userInfo];
 
 		description = [adium.contactAlertsController naturalLanguageDescriptionForEventID:name
-																				 listObject:contact
-																				   userInfo:userInfo
-																			 includeSubject:YES];
+																			   listObject:contact
+																				 userInfo:userInfo
+																		   includeSubject:YES];
 		phraseWithoutSubject = [adium.contactAlertsController naturalLanguageDescriptionForEventID:name
-																						  listObject:contact
-																							userInfo:userInfo
-																					  includeSubject:NO];
+																						listObject:contact
+																						  userInfo:userInfo
+																					includeSubject:NO];
 		[self statusMessage:description
-				 forContact:contact
-				   withType:[statusTypeDict objectForKey:name]
-	   phraseWithoutSubject:phraseWithoutSubject
-			  loggedMessage:nil
-					inChats:allChats];
+					  forContact:contact
+						withType:[statusTypeDict objectForKey:name]
+			phraseWithoutSubject:phraseWithoutSubject
+				   loggedMessage:nil
+						 inChats:allChats];
 	}
 }
 
@@ -150,7 +176,7 @@ static	NSDictionary	*statusTypeDict = nil;
  */
 - (void)contactAwayChanged:(NSNotification *)notification
 {
-	NSDictionary	*userInfo = [notification userInfo];
+	NSDictionary *userInfo = [notification userInfo];
 
 	if (![[userInfo objectForKey:@"Already Posted StatusMessage"] boolValue]) {
 		[self contactStatusChanged:notification];
@@ -160,24 +186,26 @@ static	NSDictionary	*statusTypeDict = nil;
 /*!
  * @brief Post a status message on all active chats for this object
  */
-- (void)statusMessage:(NSString *)message forContact:(AIListContact *)contact
+- (void)statusMessage:(NSString *)message
+			  forContact:(AIListContact *)contact
 				withType:(NSString *)type
 	phraseWithoutSubject:(NSString *)statusPhrase
 		   loggedMessage:(NSAttributedString *)loggedMessage
 				 inChats:(NSSet *)inChats
 {
-    AIChat				*chat;
-	NSAttributedString	*attributedMessage = [[NSAttributedString alloc] initWithString:message
-																			  attributes:[adium.contentController defaultFormattingAttributes]];
+	AIChat *chat;
+	NSAttributedString *attributedMessage =
+		[[NSAttributedString alloc] initWithString:message
+										attributes:[adium.contentController defaultFormattingAttributes]];
 
 	for (chat in inChats) {
-		//Don't do anything if the message is the same as the last message displayed for this chat
+		// Don't do anything if the message is the same as the last message displayed for this chat
 		if ([[previousStatusChangedMessages objectForKey:chat.uniqueChatID] isEqualToString:message])
 			continue;
 
-		AIContentStatus	*content;
+		AIContentStatus *content;
 
-		//Create our content object
+		// Create our content object
 		content = [AIContentStatus statusInChat:chat
 									 withSource:contact
 									destination:chat.account
@@ -186,8 +214,7 @@ static	NSDictionary	*statusTypeDict = nil;
 									   withType:type];
 
 		if (statusPhrase) {
-			NSDictionary	*userInfo = [NSDictionary dictionaryWithObject:statusPhrase
-																	forKey:@"Status Phrase"];
+			NSDictionary *userInfo = [NSDictionary dictionaryWithObject:statusPhrase forKey:@"Status Phrase"];
 			[content setUserInfo:userInfo];
 		}
 
@@ -197,12 +224,11 @@ static	NSDictionary	*statusTypeDict = nil;
 
 		[content setCoalescingKey:CONTACT_STATUS_UPDATE_COALESCING_KEY];
 
-		//Add the object
+		// Add the object
 		[adium.contentController receiveContentObject:content];
 
-		//Keep track of this message for this chat so we don't display it again sequentially
-		[previousStatusChangedMessages setObject:message
-										  forKey:chat.uniqueChatID];
+		// Keep track of this message for this chat so we don't display it again sequentially
+		[previousStatusChangedMessages setObject:message forKey:chat.uniqueChatID];
 	}
 }
 

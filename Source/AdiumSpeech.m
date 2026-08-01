@@ -18,10 +18,10 @@
 #import "AISoundController.h"
 #import <Adium/AIListObject.h>
 
-#define TEXT_TO_SPEAK			@"Text"
-#define VOICE					@"Voice"
-#define PITCH					@"Pitch"
-#define RATE					@"Rate"
+#define TEXT_TO_SPEAK @"Text"
+#define VOICE @"Voice"
+#define PITCH @"Pitch"
+#define RATE @"Rate"
 
 @interface AdiumSpeech ()
 - (NSSpeechSynthesizer *)defaultVoice;
@@ -45,7 +45,7 @@
 		workspaceSessionIsActive = YES;
 		speaking = NO;
 
-		//Observe workspace activity changes so we can mute sounds as necessary
+		// Observe workspace activity changes so we can mute sounds as necessary
 		NSNotificationCenter *workspaceCenter = [[NSWorkspace sharedWorkspace] notificationCenter];
 
 		[workspaceCenter addObserver:self
@@ -81,7 +81,7 @@
  */
 - (void)controllerDidLoad
 {
-	//Observe changes
+	// Observe changes
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_SOUNDS];
 }
 
@@ -90,24 +90,29 @@
 /*!
  * @brief Preferences changed, adjust to the new values
  */
-- (void)preferencesChangedForGroup:(NSString *)group key:(NSString *)key
-							object:(AIListObject *)object preferenceDict:(NSDictionary *)prefDict firstTime:(BOOL)firstTime
+- (void)preferencesChangedForGroup:(NSString *)group
+							   key:(NSString *)key
+							object:(AIListObject *)object
+					preferenceDict:(NSDictionary *)prefDict
+						 firstTime:(BOOL)firstTime
 {
 	float newVolume = [[prefDict objectForKey:KEY_SOUND_CUSTOM_VOLUME_LEVEL] floatValue];
 
-	//If sound volume has changed, we must update all existing sounds to the new volume
+	// If sound volume has changed, we must update all existing sounds to the new volume
 	if (customVolume != newVolume) {
 		[self _setVolumeOfVoicesTo:newVolume];
 	}
 
-	//Load the new preferences
+	// Load the new preferences
 	customVolume = newVolume;
 }
 
 - (void)_setVolumeOfVoicesTo:(float)newVolume
 {
-	if (_defaultVoice) [_defaultVoice setVolume:newVolume];
-	if (_variableVoice) [_variableVoice setVolume:newVolume];
+	if (_defaultVoice)
+		[_defaultVoice setVolume:newVolume];
+	if (_variableVoice)
+		[_variableVoice setVolume:newVolume];
 }
 
 #pragma mark Speech
@@ -119,7 +124,7 @@
  */
 - (void)speakText:(NSString *)text
 {
-    [self speakText:text withVoice:nil pitch:0 rate:0];
+	[self speakText:text withVoice:nil pitch:0 rate:0];
 }
 
 /*!
@@ -140,10 +145,13 @@
 			[dict setObject:text forKey:TEXT_TO_SPEAK];
 		}
 
-		if (voiceString) [dict setObject:voiceString forKey:VOICE];
-		if (pitch > FLT_EPSILON) [dict setObject:[NSNumber numberWithDouble:pitch] forKey:PITCH];
-		if (rate  > FLT_EPSILON) [dict setObject:[NSNumber numberWithDouble:rate]  forKey:RATE];
-		AILog(@"AdiumSpeech: %@",dict);
+		if (voiceString)
+			[dict setObject:voiceString forKey:VOICE];
+		if (pitch > FLT_EPSILON)
+			[dict setObject:[NSNumber numberWithDouble:pitch] forKey:PITCH];
+		if (rate > FLT_EPSILON)
+			[dict setObject:[NSNumber numberWithDouble:rate] forKey:RATE];
+		AILog(@"AdiumSpeech: %@", dict);
 		[speechArray addObject:dict];
 
 		[self _speakNext];
@@ -159,14 +167,17 @@
  */
 - (void)speakDemoTextForVoice:(NSString *)voiceString withPitch:(float)pitch andRate:(float)rate
 {
-	if(workspaceSessionIsActive) {
+	if (workspaceSessionIsActive) {
 		[self _stopSpeaking];
-		[self speakText:[[NSSpeechSynthesizer attributesForVoice:voiceString] objectForKey:NSVoiceDemoText] withVoice:voiceString pitch:pitch rate:rate];
+		[self speakText:[[NSSpeechSynthesizer attributesForVoice:voiceString] objectForKey:NSVoiceDemoText]
+			  withVoice:voiceString
+				  pitch:pitch
+				   rate:rate];
 	}
 }
 
-
-//Voices ---------------------------------------------------------------------------------------------------------------
+// Voices
+// ---------------------------------------------------------------------------------------------------------------
 #pragma mark Voices
 
 /*!
@@ -174,7 +185,7 @@
  */
 - (float)defaultRate
 {
-	if (!_defaultRate) { //Cache this, since the calculation may be slow
+	if (!_defaultRate) { // Cache this, since the calculation may be slow
 		_defaultRate = [[self defaultVoice] rate];
 	}
 	return _defaultRate;
@@ -185,7 +196,7 @@
  */
 - (float)defaultPitch
 {
-	if (!_defaultPitch) { //Cache this, since the calculation may be slow
+	if (!_defaultPitch) { // Cache this, since the calculation may be slow
 		NSNumber *pitchNumber = [[self defaultVoice] objectForProperty:NSSpeechPitchBaseProperty error:NULL];
 		if (pitchNumber) {
 			_defaultPitch = [pitchNumber floatValue];
@@ -223,36 +234,34 @@
 	return _variableVoice;
 }
 
-
-//Speaking -------------------------------------------------------------------------------------------------------------
+// Speaking
+// -------------------------------------------------------------------------------------------------------------
 #pragma mark Speaking
 /*!
  * @brief Attempt to speak the next item in the queue
  */
 - (void)_speakNext
 {
-	//we have items left to speak and aren't already speaking
+	// we have items left to speak and aren't already speaking
 	if ([speechArray count] && !speaking) {
-		//Don't speak on top of other apps; instead, wait 1 second and try again
+		// Don't speak on top of other apps; instead, wait 1 second and try again
 		if ([NSSpeechSynthesizer isAnyApplicationSpeaking]) {
-			[self performSelector:@selector(_speakNext)
-					   withObject:nil
-					   afterDelay:1.0];
+			[self performSelector:@selector(_speakNext) withObject:nil afterDelay:1.0];
 		} else {
 			speaking = YES;
 
-			//Speak the next entry in our queue
+			// Speak the next entry in our queue
 			NSMutableDictionary *dict = [speechArray objectAtIndex:0];
-			NSString 			*text = [dict objectForKey:TEXT_TO_SPEAK];
-			NSNumber 			*pitchNumber = [dict objectForKey:PITCH];
-			NSNumber 			*rateNumber = [dict objectForKey:RATE];
+			NSString *text = [dict objectForKey:TEXT_TO_SPEAK];
+			NSNumber *pitchNumber = [dict objectForKey:PITCH];
+			NSNumber *rateNumber = [dict objectForKey:RATE];
 			NSSpeechSynthesizer *theSpeaker = [self variableVoice];
 			[theSpeaker setVoice:[dict objectForKey:VOICE]];
 
 			if (!pitchNumber)
 				pitchNumber = [NSNumber numberWithFloat:[self defaultPitch]];
 			[theSpeaker setObject:pitchNumber forProperty:NSSpeechPitchBaseProperty error:NULL];
-			[theSpeaker setRate:(rateNumber ?  [rateNumber floatValue] : [self defaultRate])];
+			[theSpeaker setRate:(rateNumber ? [rateNumber floatValue] : [self defaultRate])];
 			[theSpeaker setVolume:customVolume];
 
 			[theSpeaker startSpeakingString:text];
@@ -281,8 +290,8 @@
 	[_variableVoice stopSpeaking];
 }
 
-
-//Misc -----------------------------------------------------------------------------------------------------------------
+// Misc
+// -----------------------------------------------------------------------------------------------------------------
 #pragma mark Misc
 /*!
  * @brief Workspace activated (Computer switched to our user)

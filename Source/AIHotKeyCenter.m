@@ -86,9 +86,9 @@
 
 	if ([_hotKeys count] > 0) {
 		_globalMonitor = [NSEvent addGlobalMonitorForEventsMatchingMask:NSEventMaskKeyDown
-															   handler:^(NSEvent *event) {
-																   [self _handleKeyEvent:event];
-															   }];
+																handler:^(NSEvent *event) {
+																	[self _handleKeyEvent:event];
+																}];
 	}
 }
 
@@ -125,13 +125,12 @@
 	SEL action = hotKey.action;
 
 	if (target && action && [target respondsToSelector:action]) {
-		#pragma clang diagnostic push
+#pragma clang diagnostic push
 
-		#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 
 		[target performSelector:action withObject:hotKey];
-		#pragma clang diagnostic pop
-
+#pragma clang diagnostic pop
 	}
 }
 

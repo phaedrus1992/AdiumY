@@ -82,8 +82,8 @@
 	[self performSelector:@selector(beginNotifications) withObject:nil afterDelay:0];
 
 	[[NSNotificationCenter defaultCenter] removeObserver:self
-												  name:AIApplicationDidFinishLoadingNotification
-												object:nil];
+													name:AIApplicationDidFinishLoadingNotification
+												  object:nil];
 }
 
 /*!
@@ -96,10 +96,10 @@
 		[center setDelegate:self];
 		[center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert | UNAuthorizationOptionSound)
 							  completionHandler:^(BOOL granted, NSError *error) {
-			if (error != nil) {
-				NSLog(@"User notification authorization failed: %@", error);
-			}
-		}];
+								  if (error != nil) {
+									  NSLog(@"User notification authorization failed: %@", error);
+								  }
+							  }];
 	}
 }
 
@@ -154,9 +154,9 @@
 	[center setDelegate:self];
 
 	UNMutableNotificationContent *content = [self contentForEventID:eventID
-													   forListObject:listObject
-														 withDetails:details
-															userInfo:userInfo];
+													  forListObject:listObject
+														withDetails:details
+														   userInfo:userInfo];
 	if (content != nil) {
 		UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:[[NSUUID UUID] UUIDString]
 																			  content:content

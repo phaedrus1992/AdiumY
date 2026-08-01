@@ -43,25 +43,25 @@
  */
 - (id)init
 {
-    if ((self = [super init])) {
-        [self _setMachineIsIdle:NO];
-        [[NSDistributedNotificationCenter defaultCenter] addObserver:self
-                                                            selector:@selector(screenSaverDidStart)
-                                                                name:@"com.apple.screensaver.didstart"
-                                                              object:nil];
-        [[NSDistributedNotificationCenter defaultCenter] addObserver:self
-                                                            selector:@selector(screenSaverDidStop)
-                                                                name:@"com.apple.screensaver.didstop"
-                                                              object:nil];
-    }
+	if ((self = [super init])) {
+		[self _setMachineIsIdle:NO];
+		[[NSDistributedNotificationCenter defaultCenter] addObserver:self
+															selector:@selector(screenSaverDidStart)
+																name:@"com.apple.screensaver.didstart"
+															  object:nil];
+		[[NSDistributedNotificationCenter defaultCenter] addObserver:self
+															selector:@selector(screenSaverDidStop)
+																name:@"com.apple.screensaver.didstop"
+															  object:nil];
+	}
 
-    return self;
+	return self;
 }
 
 - (void)dealloc
 {
-    [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
-    [idleTimer invalidate];
+	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
+	[idleTimer invalidate];
 }
 
 /*!
@@ -74,20 +74,20 @@
  */
 - (CFTimeInterval)currentMachineIdle
 {
-    CFTimeInterval smallestIdleTime;
-    CFTimeInterval tmp;
+	CFTimeInterval smallestIdleTime;
+	CFTimeInterval tmp;
 
-    smallestIdleTime = CGEventSourceSecondsSinceLastEventType(kCGEventSourceStateCombinedSessionState, kCGEventKeyDown);
-    tmp = CGEventSourceSecondsSinceLastEventType(kCGEventSourceStateCombinedSessionState, kCGEventMouseMoved);
-    if (tmp < smallestIdleTime) {
-        smallestIdleTime = tmp;
-    }
-    tmp = CGEventSourceSecondsSinceLastEventType(kCGEventSourceStateCombinedSessionState, kCGEventFlagsChanged);
-    if (tmp < smallestIdleTime) {
-        smallestIdleTime = tmp;
-    }
+	smallestIdleTime = CGEventSourceSecondsSinceLastEventType(kCGEventSourceStateCombinedSessionState, kCGEventKeyDown);
+	tmp = CGEventSourceSecondsSinceLastEventType(kCGEventSourceStateCombinedSessionState, kCGEventMouseMoved);
+	if (tmp < smallestIdleTime) {
+		smallestIdleTime = tmp;
+	}
+	tmp = CGEventSourceSecondsSinceLastEventType(kCGEventSourceStateCombinedSessionState, kCGEventFlagsChanged);
+	if (tmp < smallestIdleTime) {
+		smallestIdleTime = tmp;
+	}
 
-    return smallestIdleTime;
+	return smallestIdleTime;
 }
 
 /*!
@@ -104,31 +104,34 @@
  */
 - (void)_idleCheckTimer:(NSTimer *)inTimer
 {
-    CFTimeInterval currentIdle = [self currentMachineIdle];
+	CFTimeInterval currentIdle = [self currentMachineIdle];
 
-    if (machineIsIdle) {
-        if (currentIdle < lastSeenIdle) {
-            /* If the machine is less idle than the last time we recorded, it means that activity has occured and the
-             * user is no longer idle.
-             */
-            [self _setMachineIsIdle:NO];
-        } else {
-            // Periodically broadcast a 'MachineIdleUpdate' notification
-            [[NSNotificationCenter defaultCenter] postNotificationName:AIMachineIdleUpdateNotification
-                                                      object:nil
-                                                    userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                        [NSNumber numberWithDouble:currentIdle], @"Duration",
-                                                        [NSDate dateWithTimeIntervalSinceNow:-currentIdle], @"idleSince",
-                                                        nil]];
-        }
-    } else {
-        // If machine inactivity is over the threshold, the user has gone idle.
-        if (currentIdle > MACHINE_IDLE_THRESHOLD) {
-            [self _setMachineIsIdle:YES];
-        }
-    }
+	if (machineIsIdle) {
+		if (currentIdle < lastSeenIdle) {
+			/* If the machine is less idle than the last time we recorded, it means that activity has occured and the
+			 * user is no longer idle.
+			 */
+			[self _setMachineIsIdle:NO];
+		} else {
+			// Periodically broadcast a 'MachineIdleUpdate' notification
+			[[NSNotificationCenter defaultCenter]
+				postNotificationName:AIMachineIdleUpdateNotification
+							  object:nil
+							userInfo:[NSDictionary
+										 dictionaryWithObjectsAndKeys:[NSNumber numberWithDouble:currentIdle],
+																	  @"Duration",
+																	  [NSDate
+																		  dateWithTimeIntervalSinceNow:-currentIdle],
+																	  @"idleSince", nil]];
+		}
+	} else {
+		// If machine inactivity is over the threshold, the user has gone idle.
+		if (currentIdle > MACHINE_IDLE_THRESHOLD) {
+			[self _setMachineIsIdle:YES];
+		}
+	}
 
-    lastSeenIdle = currentIdle;
+	lastSeenIdle = currentIdle;
 }
 
 /*!
@@ -140,22 +143,23 @@
  */
 - (void)_setMachineIsIdle:(BOOL)inIdle
 {
-    machineIsIdle = inIdle;
+	machineIsIdle = inIdle;
 
-    // Post the appropriate idle or active notification
-    if (machineIsIdle) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:AIMachineIsIdleNotification object:nil];
-    } else {
-        [[NSNotificationCenter defaultCenter] postNotificationName:AIMachineIsActiveNotification object:nil];
-    }
+	// Post the appropriate idle or active notification
+	if (machineIsIdle) {
+		[[NSNotificationCenter defaultCenter] postNotificationName:AIMachineIsIdleNotification object:nil];
+	} else {
+		[[NSNotificationCenter defaultCenter] postNotificationName:AIMachineIsActiveNotification object:nil];
+	}
 
-    // Update our timer interval for either idle or active polling
-    [idleTimer invalidate];
-    idleTimer = [NSTimer scheduledTimerWithTimeInterval:(machineIsIdle ? MACHINE_IDLE_POLL_INTERVAL : MACHINE_ACTIVE_POLL_INTERVAL)
-                                                 target:self
-                                               selector:@selector(_idleCheckTimer:)
-                                               userInfo:nil
-                                                repeats:YES];
+	// Update our timer interval for either idle or active polling
+	[idleTimer invalidate];
+	idleTimer = [NSTimer
+		scheduledTimerWithTimeInterval:(machineIsIdle ? MACHINE_IDLE_POLL_INTERVAL : MACHINE_ACTIVE_POLL_INTERVAL)
+								target:self
+							  selector:@selector(_idleCheckTimer:)
+							  userInfo:nil
+							   repeats:YES];
 }
 
 /*!
@@ -165,9 +169,9 @@
  */
 - (void)screenSaverDidStart
 {
-    @autoreleasepool {
-        [self _setMachineIsIdle:YES];
-    }
+	@autoreleasepool {
+		[self _setMachineIsIdle:YES];
+	}
 }
 
 /*!
@@ -177,9 +181,9 @@
  */
 - (void)screenSaverDidStop
 {
-    @autoreleasepool {
-        [self _setMachineIsIdle:NO];
-    }
+	@autoreleasepool {
+		[self _setMachineIsIdle:NO];
+	}
 }
 
 @end
