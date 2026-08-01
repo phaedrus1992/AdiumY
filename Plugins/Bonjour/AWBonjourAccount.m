@@ -234,7 +234,7 @@
 																fromContact:listContact
 																  onAccount:self];
 	else
-		attributedMessage = [[[NSAttributedString alloc]
+		attributedMessage = [[NSAttributedString alloc]
 			initWithString:[adium.contentController decryptedIncomingMessage:message
 																 fromContact:listContact
 																   onAccount:self]];
