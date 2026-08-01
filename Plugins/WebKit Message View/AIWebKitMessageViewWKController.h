@@ -17,7 +17,7 @@
 #import <Adium/AIInterfaceControllerProtocol.h>
 #import <WebKit/WebKit.h>
 
-@class AIChat, AIWebKitMessageViewPlugin, AIWebkitMessageViewStyle, JVMarkedScroller;
+@class AIChat, AIContentObject, AIWebKitMessageViewPlugin, AIWebkitMessageViewStyle, JVMarkedScroller;
 
 @interface AIWebKitMessageViewWKController
 	: NSObject <AIMessageDisplayController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler> {
@@ -36,7 +36,7 @@
 	NSMutableDictionary *_objectIconPathDict;
 	NSMutableArray *_objectsWithUserIconsArray;
 	NSString *_cachedChatContentSource;
-	NSString *_previousContent;
+	AIContentObject *_previousContent;
 
 	BOOL _webViewIsReady;
 	BOOL _shouldReflectPreferenceChanges;

@@ -18,7 +18,7 @@
 
 @implementation WebFrameView (ESWebFrameViewAdditions)
 
-#warning This needs to go away before 10.6. It's used in the wkmv's printing code.
+// WARNING: This needs to go away before 10.6. It's used in the wkmv's printing code.
 
 // WebDynamicScrollBarsView is a subclass of NSScrollView
 - (WebDynamicScrollBarsView *)frameScrollView

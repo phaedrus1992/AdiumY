@@ -22,6 +22,15 @@
 #import "ESWebKitMessageViewPreferences.h"
 
 #import <AIUtilities/AIArrayAdditions.h>
+
+#pragma mark - WKWebView scrollView availability forward declaration
+
+/// WKWebView.scrollView requires macOS 10.14+. Forward-declared so we can
+/// wrap call sites in @available(macOS 10.14, *) checks.
+@interface WKWebView (AIWebKitWKScrollViewForwardDecl)
+@property (nonatomic, readonly) NSScrollView *scrollView API_AVAILABLE(macos(10.14));
+@end
+
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIDateFormatterAdditions.h>
@@ -43,16 +52,18 @@
 #import <Adium/AIContentObject.h>
 #import <Adium/AIContentTopic.h>
 #import <Adium/AIEmoticon.h>
-#import <Adium/AIFileTransfer.h>
+#import <Adium/ESFileTransfer.h>
 #import <Adium/AIFileTransferControllerProtocol.h>
 #import <Adium/AIHTMLDecoder.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIListObject.h>
+#import <Adium/AIUserIcons.h>
 #import <Adium/AIMenuControllerProtocol.h>
 #import <Adium/AIMetaContact.h>
 
 #import <Adium/AIPreferenceControllerProtocol.h>
 
+#undef NEW_CONTENT_RETRY_DELAY
 #define NEW_CONTENT_RETRY_DELAY 0.25
 
 static NSArray *draggedTypes = nil;
@@ -214,9 +225,9 @@ static NSArray *draggedTypes = nil;
 
 	if (!draggedTypes) {
 		draggedTypes =
-			[[NSArray alloc] initWithObjects:NSFilenamesPboardType, AIiTunesTrackPboardType, NSTIFFPboardType,
-											 NSPDFPboardType, NSHTMLPboardType, NSFileContentsPboardType,
-											 NSRTFPboardType, NSStringPboardType, NSPostScriptPboardType, nil];
+			[[NSArray alloc] initWithObjects:AINSPasteboardTypeFilenames, AIiTunesTrackPboardType, NSPasteboardTypeTIFF,
+											 NSPasteboardTypePDF, NSPasteboardTypeHTML, NSFileContentsPboardType,
+											 NSPasteboardTypeRTF, NSPasteboardTypeString, AINSPasteboardTypePostScript, nil];
 	}
 	[_webView registerForDraggedTypes:draggedTypes];
 }
@@ -304,7 +315,10 @@ static NSArray *draggedTypes = nil;
 
 - (NSView *)messageScrollView
 {
-	return [_webView scrollView];
+	if (@available(macOS 10.14, *)) {
+		return [_webView scrollView];
+	}
+	return _webView;
 }
 
 - (NSString *)contentSourceName
@@ -413,7 +427,7 @@ static NSArray *draggedTypes = nil;
 		}
 
 		BOOL contentIsSimilar = [content isSimilarToContent:_previousContent];
-		BOOL replaceLastContent = [content messageType] == CONTENT_MESSAGE_CORRECTED;
+		BOOL replaceLastContent = NO;
 
 		if (!replaceLastContent) {
 			[self _markCurrentLocation];
@@ -522,7 +536,7 @@ static NSArray *draggedTypes = nil;
  */
 - (void)_updateWebViewForCurrentPreferences
 {
-	dispatch_assert(dispatch_get_main_queue());
+	NSCParameterAssert([NSThread isMainThread]);
 
 	_isUpdatingView = YES;
 
@@ -609,7 +623,7 @@ static NSArray *draggedTypes = nil;
 
 	// WKWebView transparency
 	BOOL isBackgroundTransparent = [_messageStyle isBackgroundTransparent];
-	[_webView setDrawsBackground:!isBackgroundTransparent];
+	[_webView setValue:@(!isBackgroundTransparent) forKey:@"drawsBackground"];
 	NSWindow *win = [_webView window];
 	if (win) {
 		[win setOpaque:!isBackgroundTransparent];
@@ -769,7 +783,6 @@ static NSArray *draggedTypes = nil;
 
 - (void)customEmoticonUpdated:(NSNotification *)inNotification
 {
-	[_messageStyle flushEmoticonCache];
 	[_webView evaluateJavaScript:@"initStyle()"
 			   completionHandler:^(id result, NSError *error) {
 				   if (error) {
@@ -787,25 +800,24 @@ static NSArray *draggedTypes = nil;
 
 - (void)messageWasCorrected:(NSNotification *)notification
 {
-	AIContentObject *content = [[notification userInfo] objectForKey:@"AIContentObject"];
-	if (!content) {
+	NSDictionary *userInfo = [notification userInfo];
+	NSString *senderJID = [userInfo objectForKey:@"AICorrectionSender"];
+	NSString *domId = [userInfo objectForKey:@"AICorrectionDOMId"];
+	NSString *html = [userInfo objectForKey:@"AICorrectionHTML"];
+
+	if (!senderJID || !domId || !html) {
 		return;
 	}
 
-	NSString *domId = [content valueForKey:@"displayedDomID"];
-	if (!domId) {
-		// Message not yet displayed — let it flow through the normal queue
-		[_contentQueue addObject:content];
-		if (_webViewIsReady) {
-			[self _processContentQueue];
-		}
+	// Verify this correction is for our chat
+	NSString *chatBareJID = [[[_chat listObject] UID] isKindOfClass:[NSString class]] ? [[_chat listObject] UID] : nil;
+	if (![senderJID isEqualToString:chatBareJID]) {
 		return;
 	}
 
-	NSString *contentHTML = [_messageStyle completedTemplateForContent:content similar:NO];
-	NSString *escaped = [self _jsStringLiteral:contentHTML];
+	NSString *escapedHTML = [self _jsStringLiteral:html];
 	NSString *escapedDomId = [self _jsStringLiteral:domId];
-	NSString *js = [NSString stringWithFormat:@"correctMessage(%@, %@)", escapedDomId, escaped];
+	NSString *js = [NSString stringWithFormat:@"correctMessage(%@, %@)", escapedDomId, escapedHTML];
 	[_webView evaluateJavaScript:js
 			   completionHandler:^(id result, NSError *error) {
 				   if (error) {
@@ -816,12 +828,13 @@ static NSArray *draggedTypes = nil;
 
 - (void)stanzaWasTracked:(NSNotification *)notification
 {
-	AIContentObject *content = [[notification userInfo] objectForKey:@"AIContentObject"];
-	if (!content || !content.displayedDomID) {
+	NSDictionary *userInfo = [notification userInfo];
+	NSString *domId = [userInfo objectForKey:@"AICorrectionDOMId"];
+	if (!domId) {
 		return;
 	}
 
-	NSString *escapedDomId = [self _jsStringLiteral:content.displayedDomID];
+	NSString *escapedDomId = [self _jsStringLiteral:domId];
 	NSString *js = [NSString stringWithFormat:@"(function(){"
 											  @" var e=document.getElementById(%@);"
 											  @" if(e&&!e.classList.contains('tracked')){e.classList.add('tracked');}"
@@ -841,8 +854,8 @@ static NSArray *draggedTypes = nil;
 		return;
 	}
 
-	NSString *topicHTML = [_messageStyle templateForTopic:[_chat topic]];
-	NSString *escaped = [self _jsStringLiteral:topicHTML];
+	NSString *topicValue = [_chat valueForProperty:KEY_TOPIC] ?: @"";
+	NSString *escaped = [self _jsStringLiteral:topicValue];
 	NSString *js = [NSString stringWithFormat:@"(function(){"
 											  @" var e=document.getElementById('topic');"
 											  @" if(e){e.innerHTML=%@;}"
@@ -860,22 +873,24 @@ static NSArray *draggedTypes = nil;
 
 - (void)setupMarkedScroller
 {
-	NSScrollView *scrollView = [_webView scrollView];
-	if (!scrollView) {
-		return;
-	}
+	if (@available(macOS 10.14, *)) {
+		NSScrollView *scrollView = [_webView scrollView];
+		if (!scrollView) {
+			return;
+		}
 
-	JVMarkedScroller *scroller = (JVMarkedScroller *)[scrollView verticalScroller];
-	if (scroller && ![scroller isMemberOfClass:[JVMarkedScroller class]]) {
-		NSRect scrollerFrame = [scroller frame];
-		scroller = [[JVMarkedScroller alloc] initWithFrame:scrollerFrame];
-		[scroller setTarget:self];
-		[scroller setAction:@selector(markedScrollerClicked:)];
-		[scrollView setVerticalScroller:scroller];
-	}
-
-	if (scroller && !_markedScroller) {
-		_markedScroller = scroller;
+		JVMarkedScroller *scroller = (JVMarkedScroller *)[scrollView verticalScroller];
+		if (scroller && ![scroller isMemberOfClass:[JVMarkedScroller class]]) {
+			NSRect scrollerFrame = [scroller frame];
+			scroller = [[JVMarkedScroller alloc] initWithFrame:scrollerFrame];
+			[scroller setTarget:self];
+			[scroller setAction:@selector(markedScrollerClicked:)];
+			[scrollView setVerticalScroller:scroller];
+		}
+	
+		if (scroller && !_markedScroller) {
+			_markedScroller = scroller;
+		}
 	}
 }
 
@@ -941,9 +956,11 @@ static NSArray *draggedTypes = nil;
 
 - (void)adiumPrint:(id)sender
 {
-	NSPrintOperation *printOp = [_webView printOperationWithPrintInfo:[NSPrintInfo sharedPrintInfo]];
-	[printOp setShowsPrintPanel:YES];
-	[printOp runOperation];
+	if (@available(macOS 11.0, *)) {
+		NSPrintOperation *printOp = [_webView printOperationWithPrintInfo:[NSPrintInfo sharedPrintInfo]];
+		[printOp setShowsPrintPanel:YES];
+		[printOp runOperation];
+	}
 }
 
 #pragma mark - Utilities
@@ -974,7 +991,7 @@ static NSArray *draggedTypes = nil;
 		return;
 	}
 
-	id<AIFileTransfer> fileTransfer = [adium.fileTransferController existingFileTransferWithID:fileTransferID];
+	ESFileTransfer *fileTransfer = [ESFileTransfer existingFileTransferWithID:fileTransferID];
 	if (!fileTransfer) {
 		return;
 	}
@@ -984,7 +1001,10 @@ static NSArray *draggedTypes = nil;
 	} else if ([action isEqualToString:@"decline"]) {
 		[ESFileTransferRequestPromptController declineFileTransfer:fileTransfer];
 	} else if ([action isEqualToString:@"reveal"]) {
-		[[NSWorkspace sharedWorkspace] selectFile:[fileTransfer localFilename] inFileViewerRootedAtPath:nil];
+		NSString *filename = [fileTransfer localFilename];
+		if (filename != nil) {
+			[[NSWorkspace sharedWorkspace] selectFile:filename inFileViewerRootedAtPath:[filename stringByDeletingLastPathComponent]];
+		}
 	}
 }
 
@@ -1033,7 +1053,7 @@ static NSArray *draggedTypes = nil;
 	NSString *iconPath = [contact valueForProperty:KEY_WEBKIT_USER_ICON];
 	if (!iconPath) {
 		// Fall back to the contact's user icon
-		NSImage *icon = [[adium.contactController userIconForObject:contact] copy];
+		NSImage *icon = [[AIUserIcons userIconForObject:contact] copy];
 		if (icon) {
 			NSString *path = [[_plugin styleSpecificKey:@"UserIconPath" forStyle:_activeStyle]
 				stringByAppendingPathComponent:[contact internalObjectID]];

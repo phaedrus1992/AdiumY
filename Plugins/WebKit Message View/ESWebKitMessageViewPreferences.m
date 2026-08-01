@@ -189,11 +189,11 @@
 
 	[checkBox_showUserIcons setState:([[previewController messageStyle] allowsUserIcons]
 										  ? [[prefDict objectForKey:KEY_WEBKIT_SHOW_USER_ICONS] boolValue]
-										  : NSOffState)];
+										  : NSControlStateValueOff)];
 	[checkBox_showHeader setState:[[prefDict objectForKey:KEY_WEBKIT_SHOW_HEADER] boolValue]];
 	[checkBox_showMessageColors setState:([[previewController messageStyle] allowsColors]
 											  ? [[prefDict objectForKey:KEY_WEBKIT_SHOW_MESSAGE_COLORS] boolValue]
-											  : NSOffState)];
+											  : NSControlStateValueOff)];
 	[checkBox_showMessageFonts setState:[[prefDict objectForKey:KEY_WEBKIT_SHOW_MESSAGE_FONTS] boolValue]];
 
 	[checkBox_useRegularChatForGroup
@@ -479,16 +479,13 @@
  */
 - (NSMenu *)_stylesMenu
 {
-	NSMenu *menu = [[NSMenu allocWithZone:[NSMenu menuZone]] initWithTitle:@""];
+	NSMenu *menu = [[NSMenu alloc] initWithTitle:@""];
 	NSMutableArray *menuItemArray = [NSMutableArray array];
 	NSArray *availableStyles = [[plugin availableMessageStyles] allValues];
 	NSMenuItem *menuItem;
 
 	for (NSBundle *style in availableStyles) {
-		menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:[style name]
-																		target:nil
-																		action:nil
-																 keyEquivalent:@""];
+		menuItem = [[NSMenuItem alloc] initWithTitle:[style name] target:nil action:nil keyEquivalent:@""];
 		[menuItem setRepresentedObject:[style bundleIdentifier]];
 		[menuItemArray addObject:menuItem];
 	}
@@ -507,7 +504,7 @@
  */
 - (NSMenu *)_variantsMenu
 {
-	NSMenu *menu = [[NSMenu allocWithZone:[NSMenu menuZone]] initWithTitle:@""];
+	NSMenu *menu = [[NSMenu alloc] initWithTitle:@""];
 
 	// Add a menu item for each variant
 	for (NSString *variant in previewController.messageStyle.availableVariants) {
@@ -522,7 +519,7 @@
  */
 - (NSMenu *)_backgroundImageTypeMenu
 {
-	NSMenu *menu = [[NSMenu allocWithZone:[NSMenu menuZone]] init];
+	NSMenu *menu = [[NSMenu alloc] init];
 
 	[self
 		_addBackgroundImageTypeChoice:BackgroundNormal
@@ -556,9 +553,7 @@
 }
 - (void)_addBackgroundImageTypeChoice:(NSInteger)tag toMenu:(NSMenu *)menu withTitle:(NSString *)title
 {
-	NSMenuItem *menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:title
-																				action:nil
-																		 keyEquivalent:@""];
+	NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
 	[menuItem setTag:tag];
 	[menu addItem:menuItem];
 }
@@ -692,7 +687,10 @@
 
 	// Date opened
 	if ((dateOpened = [chatDict objectForKey:@"Date Opened"])) {
-		[inChat setDateOpened:[NSDate dateWithNaturalLanguageString:dateOpened]];
+		NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+		dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
+		dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss Z";
+		[inChat setDateOpened:[dateFormatter dateFromString:dateOpened]];
 	}
 
 	// Source/Destination
@@ -720,6 +718,9 @@
 - (void)_addContent:(NSArray *)chatArray toChat:(AIChat *)inChat withParticipants:(NSDictionary *)participants
 {
 	NSDictionary *messageDict;
+	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
+	dateFormatter.dateFormat = @"yyyy-MM-dd HH:mm:ss Z";
 
 	for (messageDict in chatArray) {
 		AIContentObject *content = nil;
@@ -744,13 +745,13 @@
 
 			// The other person is always the one we're chatting with right now
 			dest = [participants objectForKey:to];
-			content = [AIPreviewContentMessage
-				messageInChat:inChat
-				   withSource:source
-				  destination:dest
-						 date:[NSDate dateWithNaturalLanguageString:[messageDict objectForKey:@"Date"]]
-					  message:message
-					autoreply:[[messageDict objectForKey:@"Autoreply"] boolValue]];
+			content =
+				[AIPreviewContentMessage messageInChat:inChat
+											withSource:source
+										   destination:dest
+												  date:[dateFormatter dateFromString:[messageDict objectForKey:@"Date"]]
+											   message:message
+											 autoreply:[[messageDict objectForKey:@"Autoreply"] boolValue]];
 
 			// AIContentMessage won't know whether the message is outgoing unless we tell it since neither our source
 			// nor our destination are AIAccount objects.
@@ -764,13 +765,12 @@
 			statusMessageType = [messageDict objectForKey:@"Status Message Type"];
 
 			// Create our content object
-			content =
-				[AIContentEvent eventInChat:inChat
-								 withSource:source
-								destination:nil
-									   date:[NSDate dateWithNaturalLanguageString:[messageDict objectForKey:@"Date"]]
-									message:message
-								   withType:statusMessageType];
+			content = [AIContentEvent eventInChat:inChat
+									   withSource:source
+									  destination:nil
+											 date:[dateFormatter dateFromString:[messageDict objectForKey:@"Date"]]
+										  message:message
+										 withType:statusMessageType];
 		}
 
 		if (content) {

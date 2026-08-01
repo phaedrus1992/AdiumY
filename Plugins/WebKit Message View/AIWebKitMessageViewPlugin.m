@@ -61,7 +61,7 @@
 																	  forClass:[self class]]
 										forGroup:PREF_GROUP_WEBKIT_GROUP_MESSAGE_DISPLAY];
 
-	preferences =
+	preferences = (ESWebKitMessageViewPreferences *)[ESWebKitMessageViewPreferences preferencePaneForPlugin:self];
 
 		// Observe for installation of new styles
 		[[NSNotificationCenter defaultCenter] addObserver:self
@@ -175,7 +175,7 @@
 - (AIWebkitMessageViewStyle *)currentMessageStyleForChat:(AIChat *)chat
 {
 	NSString *loadFromGroup = nil;
-	AIWebkitMessageViewStyle **thisStyle = nil;
+	AIWebkitMessageViewStyle * __strong *thisStyle = nil;
 
 	if (!chat.isGroupChat || useRegularForGroupChat) {
 		if (!currentRegularStyle) {

@@ -993,7 +993,7 @@ static NSArray *draggedTypes = nil;
 - (void)openImage:(id)sender
 {
 	NSURL *imageURL = [sender representedObject];
-	[[NSWorkspace sharedWorkspace] openFile:[imageURL path]];
+	[[NSWorkspace sharedWorkspace] openURL:imageURL];
 }
 
 - (void)saveImageAs:(id)sender

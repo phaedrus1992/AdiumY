@@ -25,6 +25,8 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
 
 @interface AIWebKitMessageViewController (DelegateCallbacks)
 - (void)webViewIsReady;
+- (NSArray *)webView:(WebView *)sender contextMenuItemsForElement:(NSDictionary *)element defaultMenuItems:(NSArray *)defaultMenuItems;
+- (void)webView:(WebView *)sender didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame;
 @end
 
 @implementation AIWebKitDelegate
@@ -40,8 +42,6 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
 	return self;
 }
 
-- (void)dealloc
-{}
 
 + (AIWebKitDelegate *)sharedWebKitDelegate
 {
@@ -52,7 +52,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
 
 - (void)addDelegate:(AIWebKitMessageViewController *)controller forView:(ESWebView *)webView
 {
-	[mapping setObject:controller forKey:[NSValue valueWithPointer:webView]];
+	[mapping setObject:controller forKey:[NSValue valueWithPointer:(__bridge const void *)webView]];
 
 	[webView setFrameLoadDelegate:self];
 	[webView setPolicyDelegate:self];
@@ -74,7 +74,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
 	[webView setEditingDelegate:nil];
 	[webView setResourceLoadDelegate:nil];
 
-	[mapping removeObjectForKey:[NSValue valueWithPointer:webView]];
+	[mapping removeObjectForKey:[NSValue valueWithPointer:(__bridge const void *)webView]];
 }
 
 // WebView Delegates
@@ -85,7 +85,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
  */
 - (void)webView:(ESWebView *)sender didFinishLoadForFrame:(WebFrame *)frame
 {
-	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:sender]];
+	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:(__bridge const void *)sender]];
 	if (controller) {
 		// Flag the view as ready (as soon as the current methods exit) so we know it's now safe to add content
 		[controller performSelector:@selector(webViewIsReady) withObject:nil afterDelay:0];
@@ -107,7 +107,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
 	NSInteger actionKey = [[actionInformation objectForKey:WebActionNavigationTypeKey] integerValue];
 	if (actionKey == WebNavigationTypeOther) {
 		[listener use];
-	} else if ([[CFBridgingRelease(LSCopyDefaultHandlerForURLScheme((CFStringRef)request.URL.scheme)) lowercaseString]
+	} else if ([[CFBridgingRelease(LSCopyDefaultHandlerForURLScheme((__bridge CFStringRef)request.URL.scheme)) lowercaseString]
 				   isEqualToString:@"com.github.phaedrus1992.adiumy.adiumx"]) {
 		// We're the default for this URL, let's open it ourself.
 		[[NSNotificationCenter defaultCenter] postNotificationName:@"AIURLHandleNotification"
@@ -143,7 +143,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
 	contextMenuItemsForElement:(NSDictionary *)element
 			  defaultMenuItems:(NSArray *)defaultMenuItems
 {
-	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:sender]];
+	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:(__bridge const void *)sender]];
 	if (controller)
 		return [controller webView:sender contextMenuItemsForElement:element defaultMenuItems:defaultMenuItems];
 	return defaultMenuItems;
@@ -154,7 +154,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
  */
 - (void)webView:(WebView *)sender didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame
 {
-	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:sender]];
+	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:(__bridge const void *)sender]];
 	if (controller)
 		[controller webView:sender didClearWindowObject:windowObject forFrame:frame];
 }
@@ -164,7 +164,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
  */
 - (NSDragOperation)webView:(ESWebView *)sender draggingEntered:(id<NSDraggingInfo>)info
 {
-	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:sender]];
+	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:(__bridge const void *)sender]];
 
 	return controller ? [controller draggingEntered:info] : NSDragOperationNone;
 }
@@ -174,7 +174,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
  */
 - (NSDragOperation)webView:(ESWebView *)sender draggingUpdated:(id<NSDraggingInfo>)info
 {
-	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:sender]];
+	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:(__bridge const void *)sender]];
 	return controller ? [controller draggingUpdated:info] : NSDragOperationNone;
 }
 
@@ -185,7 +185,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
  */
 - (BOOL)webView:(ESWebView *)sender performDragOperation:(id<NSDraggingInfo>)info
 {
-	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:sender]];
+	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:(__bridge const void *)sender]];
 	return controller ? [controller performDragOperation:info] : NO;
 }
 
@@ -194,7 +194,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
  */
 - (BOOL)webView:(ESWebView *)sender prepareForDragOperation:(id<NSDraggingInfo>)info
 {
-	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:sender]];
+	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:(__bridge const void *)sender]];
 	return controller ? [controller prepareForDragOperation:info] : NO;
 }
 
@@ -203,14 +203,14 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
  */
 - (void)webView:(ESWebView *)sender concludeDragOperation:(id<NSDraggingInfo>)info
 {
-	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:sender]];
+	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:(__bridge const void *)sender]];
 	if (controller)
 		[controller concludeDragOperation:info];
 }
 
 - (BOOL)webView:(ESWebView *)sender shouldHandleDragWithPasteboard:(NSPasteboard *)pasteboard
 {
-	// AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:sender]];
+	// AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:(__bridge const void *)sender]];
 	// return controller ? [controller shouldHandleDragWithPasteboard:pasteboard] : NO;
 	return NO;
 }
@@ -221,7 +221,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
 		  givenAction:(WebViewInsertAction)action
 {
 	if ([text rangeOfCharacterFromSet:[NSCharacterSet newlineCharacterSet]].location != NSNotFound) {
-		AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:sender]];
+		AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:(__bridge const void *)sender]];
 		if (controller)
 			[controller editingDidComplete:range];
 
@@ -234,7 +234,7 @@ static AIWebKitDelegate *AISharedWebKitDelegate;
 
 - (BOOL)webView:(ESWebView *)sender shouldEndEditingInDOMRange:(DOMRange *)range
 {
-	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:sender]];
+	AIWebKitMessageViewController *controller = [mapping objectForKey:[NSValue valueWithPointer:(__bridge const void *)sender]];
 	if (controller)
 		[controller editingDidComplete:range];
 

@@ -316,7 +316,8 @@
 
 	if ([format rangeOfString:@"%"].location != NSNotFound) {
 		/* Support strftime-style format strings, which old message styles may use */
-		timeStampFormatter = [[NSDateFormatter alloc] initWithDateFormat:format allowNaturalLanguage:NO];
+		timeStampFormatter = [[NSDateFormatter alloc] init];
+		[timeStampFormatter setDateFormat:format];
 	} else {
 		timeStampFormatter = [[NSDateFormatter alloc] init];
 		[timeStampFormatter setDateFormat:format];
@@ -896,8 +897,8 @@
 					if (!dateFormatter) {
 						if ([timeFormat rangeOfString:@"%"].location != NSNotFound) {
 							/* Support strftime-style format strings, which old message styles may use */
-							dateFormatter = [[NSDateFormatter alloc] initWithDateFormat:timeFormat
-																   allowNaturalLanguage:NO];
+							dateFormatter = [[NSDateFormatter alloc] init];
+							[dateFormatter setDateFormat:timeFormat];
 						} else {
 							dateFormatter = [[NSDateFormatter alloc] init];
 							[dateFormatter setDateFormat:timeFormat];
@@ -1322,7 +1323,8 @@
 				NSDateFormatter *dateFormatter;
 				if ([timeFormat rangeOfString:@"%"].location != NSNotFound) {
 					/* Support strftime-style format strings, which old message styles may use */
-					dateFormatter = [[NSDateFormatter alloc] initWithDateFormat:timeFormat allowNaturalLanguage:NO];
+					dateFormatter = [[NSDateFormatter alloc] init];
+					[dateFormatter setDateFormat:timeFormat];
 				} else {
 					dateFormatter = [[NSDateFormatter alloc] init];
 					[dateFormatter setDateFormat:timeFormat];

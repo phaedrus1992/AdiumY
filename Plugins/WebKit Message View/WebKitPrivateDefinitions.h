@@ -197,10 +197,10 @@
 @interface NSPasteboard (NSTypeConversion)
 + _cocoaTypeNameFromIdentifier:(struct __CFString *)fp8;
 + (struct __CFString *)_typeIdentifierFromCocoaName:fp8;
-#warning 64BIT: Inspect use of unsigned long
+// WARNING: 64BIT: Inspect use of unsigned long
 + (struct __CFString *)_typeIdentifierFromCarbonCode:(unsigned long)fp8;
 + _typesIncludingConversionsFromTypes:fp8;
-#warning 64BIT: Inspect use of long
+// WARNING: 64BIT: Inspect use of long
 + (void)_setConversionFromData:fp8
 						  type:fp12
 				  inPasteboard:(struct __CFPasteboard *)fp16
