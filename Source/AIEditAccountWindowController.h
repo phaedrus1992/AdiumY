@@ -16,7 +16,7 @@
 
 #import <Adium/AIWindowController.h>
 
-@class AIAccountProxySettings, AIAccountViewController, AIImageViewWithImagePicker;
+@class AIAccount, AIAccountProxySettings, AIAccountViewController, AIImageViewWithImagePicker;
 
 @interface AIEditAccountWindowController : AIWindowController {
 	// Account preferences
