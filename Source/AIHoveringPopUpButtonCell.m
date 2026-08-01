@@ -38,13 +38,13 @@
 	hovered = NO;
 	hoveredFraction = 0.0f;
 
-	statusParagraphStyle = [[NSMutableParagraphStyle styleWithAlignment:NSLeftTextAlignment
+	statusParagraphStyle = [NSMutableParagraphStyle styleWithAlignment:NSTextAlignmentLeft
 														  lineBreakMode:NSLineBreakByTruncatingTail];
-	
-	statusAttributes = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
+
+	statusAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
 		statusParagraphStyle, NSParagraphStyleAttributeName,
-		[NSFont systemFontOfSize:10], NSFontAttributeName, 
-		nil];	
+		[NSFont systemFontOfSize:10], NSFontAttributeName,
+		nil];
 }
 
 - (id)initTextCell:(NSString *)str
@@ -80,7 +80,7 @@
 			break;
 	}
 	
-	[newCell setMenu:[[[self menu] copy]];
+	[newCell setMenu:[[self menu] copy]];
 
 
 

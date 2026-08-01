@@ -45,12 +45,12 @@
 	NSTableColumn * column = [[NSTableColumn alloc] initWithIdentifier:@"Dock Icon"];
 	[column setMaxWidth:48.0f];
 	[column setMinWidth:48.0f];
-	[column setDataCell:[[[NSImageCell alloc]init]];
+	[column setDataCell:[[NSImageCell alloc]init]];
 	[tableView addTableColumn:column];
 
 	
 	column = [[NSTableColumn alloc] initWithIdentifier:@"Status"];
-	[column setDataCell:[[[AIVerticallyCenteredTextCell alloc] init]];
+	[column setDataCell:[[AIVerticallyCenteredTextCell alloc] init]];
 	[tableView addTableColumn:column];
 
 }

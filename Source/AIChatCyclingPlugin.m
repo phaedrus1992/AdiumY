@@ -88,7 +88,7 @@
 	unichar left = NSLeftArrowFunctionKey;
 	unichar right = NSRightArrowFunctionKey;
 	NSString *leftKey, *rightKey;
-	NSUInteger leftKeyMask = NSCommandKeyMask, rightKeyMask = NSCommandKeyMask;
+	NSUInteger leftKeyMask = NSEventModifierFlagCommand, rightKeyMask = NSEventModifierFlagCommand;
 
 	switch ([[prefDict objectForKey:KEY_TAB_SWITCH_KEYS] integerValue]) {
 	case AISwitchArrows:
@@ -99,7 +99,7 @@
 	case AISwitchShiftArrows:
 		leftKey = [NSString stringWithCharacters:&left length:1];
 		rightKey = [NSString stringWithCharacters:&right length:1];
-		leftKeyMask = rightKeyMask = (NSCommandKeyMask | NSShiftKeyMask);
+		leftKeyMask = rightKeyMask = (NSEventModifierFlagCommand | NSEventModifierFlagShift);
 		break;
 	case AIBrackets:
 		leftKey = @"[";
@@ -112,24 +112,22 @@
 	case AIOptArrows:
 		leftKey = [NSString stringWithCharacters:&left length:1];
 		rightKey = [NSString stringWithCharacters:&right length:1];
-		leftKeyMask = rightKeyMask = (NSCommandKeyMask | NSAlternateKeyMask);
+		leftKeyMask = rightKeyMask = (NSEventModifierFlagCommand | NSEventModifierFlagOption);
 		break;
 	case AICtrlTab:
 		leftKey = rightKey = @"\t";
-		leftKeyMask = (NSControlKeyMask | NSShiftKeyMask);
-		rightKeyMask = NSControlKeyMask;
+		leftKeyMask = (NSEventModifierFlagControl | NSEventModifierFlagShift);
+		rightKeyMask = NSEventModifierFlagControl;
 		break;
 	}
 
 	// Previous and nextMessage menuItems are in the same menu, so the setMenuChangedMessagesEnabled applies to both.
-	[[previousChatMenuItem menu] setMenuChangedMessagesEnabled:NO];
 	[previousChatMenuItem setKeyEquivalent:@""];
 	[previousChatMenuItem setKeyEquivalent:leftKey];
 	[previousChatMenuItem setKeyEquivalentModifierMask:leftKeyMask];
 	[nextChatMenuItem setKeyEquivalent:@""];
 	[nextChatMenuItem setKeyEquivalent:rightKey];
 	[nextChatMenuItem setKeyEquivalentModifierMask:rightKeyMask];
-	[[previousChatMenuItem menu] setMenuChangedMessagesEnabled:YES];
 }
 
 /*!

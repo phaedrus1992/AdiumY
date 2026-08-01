@@ -51,7 +51,6 @@
 	AIAccountMenu *accountMenu;
 	AIAccountMenu *sheetAccountMenu;
 
-	NSArray *dragItems;
 }
 
 + (void)showWindow;

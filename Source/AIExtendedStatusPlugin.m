@@ -111,7 +111,7 @@
 																usingFilterType:AIFilterContactList
 																	  direction:AIFilterIncoming
 																		context:inObject];
-			statusMessage = [[[[filteredMessage string] stringByTrimmingCharactersInSet:whitespaceAndNewlineCharacterSet] mutableCopy];
+			statusMessage = [[[filteredMessage string] stringByTrimmingCharactersInSet:whitespaceAndNewlineCharacterSet] mutableCopy];
 
 			//Incredibly long status messages are slow to size, so we crop them to a reasonable length
 			NSInteger statusMessageLength = [statusMessage length];

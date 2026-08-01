@@ -63,7 +63,7 @@
 										  forGroup:PREF_GROUP_DISPLAYFORMAT];
 	
 	//Create the menu item
-	menuItem_contactName = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:CONTACT_NAME_MENU_TITLE
+	menuItem_contactName = [[NSMenuItem alloc] initWithTitle:CONTACT_NAME_MENU_TITLE
 																				 target:nil
 																				 action:nil
 																		  keyEquivalent:@""];
@@ -136,13 +136,13 @@
 							object:(AIListObject *)object preferenceDict:(NSDictionary *)prefDict firstTime:(BOOL)firstTime
 {
 	//Clear old checkmark
-	[[menu_contactSubmenu itemWithTag:displayFormat] setState:NSOffState];
+	[[menu_contactSubmenu itemWithTag:displayFormat] setState:NSControlStateValueOff];
 	
 	//Load new displayFormat
 	displayFormat = [[prefDict objectForKey:@"Long Display Format"] integerValue]; 
 	
 	//Set new checkmark
-	[[menu_contactSubmenu itemWithTag:displayFormat] setState:NSOnState];
+	[[menu_contactSubmenu itemWithTag:displayFormat] setState:NSControlStateValueOn];
 	
 	if (firstTime) {
 		//Register ourself as a handle observer
@@ -272,30 +272,30 @@
 	NSMenu		*choicesMenu;
 	NSMenuItem  *menuItem;
 	
-	choicesMenu = [[[NSMenu allocWithZone:[NSMenu menuZone]] initWithTitle:@""];
+	choicesMenu = [[NSMenu alloc] initWithTitle:@""];
 	
-    menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:ALIAS
+    menuItem = [[NSMenuItem alloc] initWithTitle:ALIAS
 																	 target:self
 																	 action:@selector(changeFormat:)
 															  keyEquivalent:@""];
     [menuItem setTag:AINameFormat_DisplayName];
     [choicesMenu addItem:menuItem];
 	
-    menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:ALIAS_SCREENNAME
+    menuItem = [[NSMenuItem alloc] initWithTitle:ALIAS_SCREENNAME
 																	 target:self
 																	 action:@selector(changeFormat:)
 															  keyEquivalent:@""];
     [menuItem setTag:AINameFormat_DisplayName_ScreenName];
     [choicesMenu addItem:menuItem];
 	
-    menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:SCREENNAME_ALIAS
+    menuItem = [[NSMenuItem alloc] initWithTitle:SCREENNAME_ALIAS
 																	 target:self
 																	 action:@selector(changeFormat:)
 															  keyEquivalent:@""];
     [menuItem setTag:AINameFormat_ScreenName_DisplayName];
     [choicesMenu addItem:menuItem];
 	
-    menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:SCREENNAME
+    menuItem = [[NSMenuItem alloc] initWithTitle:SCREENNAME
 																	 target:self
 																	 action:@selector(changeFormat:)
 															  keyEquivalent:@""];

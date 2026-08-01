@@ -44,6 +44,8 @@ typedef enum {
 
 #define KEY_CL_ALL_SPACES @"Show Contact List On All Spaces"
 
+@class AIAutoScrollView;
+
 @protocol AIContactListViewController
 , AIInterfaceContainer;
 

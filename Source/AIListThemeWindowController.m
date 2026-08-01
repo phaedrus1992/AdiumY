@@ -20,6 +20,7 @@
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIPopUpButtonAdditions.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <Adium/AIAbstractListController.h>
 #import <Adium/AIListOutlineView.h>
 
@@ -39,11 +40,9 @@
 - (void)showOnWindow:(id)parentWindow
 {
 	if (parentWindow) {
-		[NSApp beginSheet:self.window
-		   modalForWindow:parentWindow
-			modalDelegate:self
-		   didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			  contextInfo:nil];
+		[parentWindow beginSheet:self.window completionHandler:^(NSModalResponse returnCode) {
+			[self sheetDidEnd:self.window returnCode:returnCode contextInfo:nil];
+		}];
 	} else {
 		[self showWindow:nil];
 	}
@@ -179,7 +178,7 @@
 	
 	// Not all themes have the draw-custom-highlight setting
 	NSNumber *number = [prefDict objectForKey:KEY_LIST_THEME_HIGHLIGHT_ENABLED];
-	[checkBox_drawCustomHighlight setState:number ? [number boolValue] : NSOffState];
+	[checkBox_drawCustomHighlight setState:number ? [number boolValue] : NSControlStateValueOff];
 	[checkBox_drawGrid setState:[[prefDict objectForKey:KEY_LIST_THEME_GRID_ENABLED] boolValue]];
 	[checkBox_backgroundAsStatus setState:[[prefDict objectForKey:KEY_LIST_THEME_BACKGROUND_AS_STATUS] boolValue]];
 	[checkBox_backgroundAsEvents setState:[[prefDict objectForKey:KEY_LIST_THEME_BACKGROUND_AS_EVENTS] boolValue]];
@@ -461,9 +460,14 @@
 {
 	NSOpenPanel *openPanel = [NSOpenPanel openPanel];
 	[openPanel setTitle:@"Background Image"];
-	[openPanel setAllowedFileTypes:[NSImage imageFileTypes]];
+	NSArray<NSString *> *imageTypes = [NSImage imageTypes];
+	NSMutableArray<UTType *> *contentTypes = [NSMutableArray arrayWithCapacity:[imageTypes count]];
+	for (NSString *uti in imageTypes) {
+		[contentTypes addObject:[UTType typeWithIdentifier:uti]];
+	}
+	[openPanel setAllowedContentTypes:contentTypes];
 	 
-	if ([openPanel runModal] == NSOKButton) {
+	if ([openPanel runModal] == 1) {
 		NSString *filename = [[openPanel URL] path];
 		[adium.preferenceController setPreference:filename
 											 forKey:KEY_LIST_THEME_BACKGROUND_IMAGE_PATH
@@ -547,31 +551,31 @@
 
 - (NSMenu *)displayImageStyleMenu
 {
-	NSMenu		*displayImageStyleMenu = [[[NSMenu allocWithZone:[NSMenu menuZone]] init];
+	NSMenu		*displayImageStyleMenu = [[NSMenu allocWithZone:NULL] init];
     NSMenuItem	*menuItem;
 	
-	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Normal",nil)
+	menuItem = [[NSMenuItem allocWithZone:NULL] initWithTitle:AILocalizedString(@"Normal",nil)
 																	 target:nil
 																	 action:nil
 															  keyEquivalent:@""];
 	[menuItem setTag:AINormalBackground];
 	[displayImageStyleMenu addItem:menuItem];
 	
-	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Tile",nil)
+	menuItem = [[NSMenuItem allocWithZone:NULL] initWithTitle:AILocalizedString(@"Tile",nil)
 																	 target:nil
 																	 action:nil
 															  keyEquivalent:@""];
 	[menuItem setTag:AITileBackground];
 	[displayImageStyleMenu addItem:menuItem];
 	
-	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Fill",nil)
+	menuItem = [[NSMenuItem allocWithZone:NULL] initWithTitle:AILocalizedString(@"Fill",nil)
 																	 target:nil
 																	 action:nil
 															  keyEquivalent:@""];
 	[menuItem setTag:AIFillProportionatelyBackground];
 	[displayImageStyleMenu addItem:menuItem];
 	
-	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Stretch to fill",nil)
+	menuItem = [[NSMenuItem allocWithZone:NULL] initWithTitle:AILocalizedString(@"Stretch to fill",nil)
 																	 target:nil
 																	 action:nil
 															  keyEquivalent:@""];

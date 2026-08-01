@@ -52,30 +52,71 @@
 
 - (id)init
 {
-	self = displayedObject =
-		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
+	self = [super init];
+	if (self != nil) {
+		[[NSBundle mainBundle] loadNibNamed:[self nibName] owner:self topLevelObjects:NULL];
 
-	displayedObject;
+		// Load Encryption menus
+		[popUp_encryption setMenu:[adium.contentController encryptionMenuNotifyingTarget:self withDefault:YES]];
+		[[popUp_encryption menu] setAutoenablesItems:NO];
 
-	// Rebuild the account and contacts lists
-	[self reloadPopup];
+		// Observe contact list changes
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(reloadPopup)
+													 name:Contact_ListChanged
+												   object:nil];
+		// Observe account changes
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(reloadPopup)
+													 name:Account_ListChanged
+												   object:nil];
+
+		accountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu showTitleVerbs:NO];
+	}
+
+	return self;
 }
 
-if (![inObject isKindOfClass:[AIListContact class]]) {
-	[popUp_encryption selectItemWithTag:EncryptedChat_Default];
-} else {
-	[popUp_encryption selectItemWithTag:((AIListContact *)inObject).encryptedChatPreferences];
+- (NSString *)nibName
+{
+	return ADVANCED_NIB_NAME;
 }
 
-[checkBox_alwaysShow setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
-[checkBox_alwaysShow setState:inObject.alwaysVisible];
+- (NSView *)inspectorContentView
+{
+	return inspectorContentView;
+}
 
-[checkBox_autoJoin setEnabled:[inObject isKindOfClass:[AIListBookmark class]]];
-[checkBox_autoJoin setState:[[inObject preferenceForKey:KEY_AUTO_JOIN group:GROUP_LIST_BOOKMARK] boolValue]];
+- (void)configureControlDimming
+{
+	[button_addOrRemoveGroup setEnabled:[tableView_groups numberOfSelectedRows] forSegment:1];
+}
 
-[popUp_accounts setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
-[popUp_contact setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
-[button_addOrRemoveGroup setEnabled:![inObject isKindOfClass:[AIListGroup class]] forSegment:0];
+- (void)updateForListObject:(AIListObject *)inObject
+{
+	if (displayedObject != inObject) {
+		displayedObject =
+			([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
+
+		// Rebuild the account and contacts lists
+		[self reloadPopup];
+	}
+
+	if (![inObject isKindOfClass:[AIListContact class]]) {
+		[popUp_encryption selectItemWithTag:EncryptedChat_Default];
+	} else {
+		[popUp_encryption selectItemWithTag:((AIListContact *)inObject).encryptedChatPreferences];
+	}
+
+	[checkBox_alwaysShow setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
+	[checkBox_alwaysShow setState:inObject.alwaysVisible];
+
+	[checkBox_autoJoin setEnabled:[inObject isKindOfClass:[AIListBookmark class]]];
+	[checkBox_autoJoin setState:[[inObject preferenceForKey:KEY_AUTO_JOIN group:GROUP_LIST_BOOKMARK] boolValue]];
+
+	[popUp_accounts setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
+	[popUp_contact setEnabled:![inObject isKindOfClass:[AIListGroup class]]];
+	[button_addOrRemoveGroup setEnabled:![inObject isKindOfClass:[AIListGroup class]] forSegment:0];
 }
 
 #pragma mark Preference callbacks
@@ -192,7 +233,7 @@ if (![inObject isKindOfClass:[AIListContact class]]) {
 
 - (NSControlSize)controlSizeForAccountMenu:(AIAccountMenu *)inAccountMenu
 {
-	return NSSmallControlSize;
+	return NSControlSizeSmall;
 }
 
 #pragma mark Group control

@@ -38,7 +38,27 @@
 
 - (void)_initAnimatingListOutlineView
 {
-	allAnimatingItemsDict =
+	allAnimatingItemsDict = [[NSMutableDictionary alloc] init];
+	animationsCount = 0;
+	animations = [[NSMutableSet alloc] init];
+	animationHedgeFactor = NSZeroSize;
+	enableAnimation = YES;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+	if ((self = [super initWithCoder:aDecoder])) {
+		[self _initAnimatingListOutlineView];
+	}
+	return self;
+}
+
+- (instancetype)init
+{
+	if ((self = [super init])) {
+		[self _initAnimatingListOutlineView];
+	}
+	return self;
 }
 
 #pragma mark Enabling
@@ -91,7 +111,7 @@
 - (NSRect)rectOfRow:(NSInteger)rowIndex
 {
 	if (animationsCount > 0) {
-		return [self currentDisplayRectForItemPointer:[NSValue valueWithPointer:[self itemAtRow:rowIndex]]
+		return [self currentDisplayRectForItemPointer:[NSValue valueWithPointer:(__bridge const void *)[self itemAtRow:rowIndex]]
 												atRow:rowIndex];
 
 	} else {
@@ -178,7 +198,7 @@
 		}
 
 		if (item)
-			[dict setObject:[NSNumber numberWithInteger:idx] forKey:[NSValue valueWithPointer:item]];
+			[dict setObject:[NSNumber numberWithInteger:idx] forKey:[NSValue valueWithPointer:(__bridge const void *)item]];
 	}
 
 	return dict;

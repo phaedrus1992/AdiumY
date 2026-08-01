@@ -15,15 +15,17 @@
  */
 
 #import "ESFileTransferRequestPromptController.h"
-#import "ESFileTransfer.h"
 #import "ESFileTransferController.h"
+#import "ESFileTransfer.h"
+#import <Adium/AIListContact.h>
+#import <Adium/AIContentControllerProtocol.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIListContact.h>
 
 @interface ESFileTransferRequestPromptController ()
-- (id)initForFileTransfer:(ESFileTransfer *)inFileTransfer notifyingTarget:(id)inTarget selector:(SEL)inSelector;
+- (id)initForFileTransfer:(ESFileTransfer *)inFileTransfer
+		  notifyingTarget:(id)inTarget
+				 selector:(SEL)inSelector;
 @end
 
 @implementation ESFileTransferRequestPromptController
@@ -33,13 +35,110 @@
  *
  * @param inFileTransfer The file transfer
  * @param inTarget The target on which inSelector will be called
- * @param inSelector A selector, which must accept two arguments. The first will be inFileTransfer. The second will be
- * the filename to save to, or nil to cancel.
+ * @param inSelector A selector, which must accept two arguments. The first will be inFileTransfer. The second will be the filename to save to, or nil to cancel.
  */
 + (void)displayPromptForFileTransfer:(ESFileTransfer *)inFileTransfer
 					 notifyingTarget:(id)inTarget
 							selector:(SEL)inSelector
-{}
+{
+	(void)[[self alloc] initForFileTransfer:inFileTransfer
+							 notifyingTarget:inTarget
+									selector:inSelector];
+}
+
+- (id)initForFileTransfer:(ESFileTransfer *)inFileTransfer
+		  notifyingTarget:(id)inTarget
+				 selector:(SEL)inSelector
+{
+	if ((self = [super init])) {
+		fileTransfer = inFileTransfer;
+		target       = inTarget;
+		selector     =  inSelector;
+
+		[fileTransfer setFileTransferRequestPromptController:self];
+		AILog(@"%@: Requeseting file transfer %@", self, fileTransfer);
+		[adium.contentController receiveContentObject:fileTransfer];
+
+		// We don't want it to be a normal event, but we DO want to increment the unviewed content count.
+		[fileTransfer.chat incrementUnviewedContentCount];
+	}
+
+	return self;
+}
+
+/*!
+ * @brief The user did something with the file transfer request
+ */
+- (void)handleFileTransferAction:(AIFileTransferAction)action
+{
+	NSString	*localFilename = [[adium.preferenceController userPreferredDownloadFolder] stringByAppendingPathComponent:[fileTransfer remoteFilename]];;
+	BOOL		finished = NO;
+
+	switch (action) {
+		case AISaveFile: /* Save */
+		{
+			/* If the file doesn't exist, we're done.  If it does, fall through to AISaveFileAs
+			 * triggering a Save As... panel.
+			 */
+			if (![[NSFileManager defaultManager] fileExistsAtPath:localFilename]) {
+				finished = YES;
+				break;
+			}
+		}
+		case AISaveFileAs: /* Save As... */
+		{
+			//Prompt for a location to save
+			NSSavePanel *savePanel = [NSSavePanel savePanel];
+			savePanel.directoryURL = [NSURL fileURLWithPath:localFilename];
+			savePanel.nameFieldStringValue = [localFilename lastPathComponent];
+			NSInteger returnCode = [savePanel runModal];
+			//Only need to take action if the user pressed OK; if she pressed cancel, just return to our window.
+			if (returnCode == NSModalResponseOK) {
+				localFilename = savePanel.URL.path;
+				finished = YES;
+			}
+
+			break;
+		}
+		case AICancel: /* Closed = Cancel */
+		{
+			localFilename = nil;
+			/* File name remains nil and the transfer will therefore be cancelled */
+			finished = YES;
+			break;
+		}
+	}
+
+	BOOL remotelyCanceled = [fileTransfer isStopped];
+	if(remotelyCanceled) {
+		return;
+	}
+
+	if (finished) {
+		#pragma clang diagnostic push
+
+		#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+
+		[target performSelector:selector
+					 withObject:fileTransfer
+					 withObject:localFilename];
+		#pragma clang diagnostic pop
+
+
+		[fileTransfer setFileTransferRequestPromptController:nil];
+	}
+}
+
++ (void)acceptFileTransfer:(ESFileTransfer *)inFileTransfer
+{
+	ESFileTransferRequestPromptController *controller = [inFileTransfer fileTransferRequestPromptController];
+	[controller handleFileTransferAction:AISaveFile];
+}
+
++ (void)declineFileTransfer:(ESFileTransfer *)inFileTransfer
+{
+	ESFileTransferRequestPromptController *controller = [inFileTransfer fileTransferRequestPromptController];
+	[controller handleFileTransferAction:AICancel];
 }
 
 - (ESFileTransfer *)fileTransfer

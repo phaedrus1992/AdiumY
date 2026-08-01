@@ -28,6 +28,7 @@
 
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
+#import <AIUtilities/AIDataAdditions.h>
 #import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
@@ -176,7 +177,7 @@
 		[contactPropertiesObserverManager delayListObjectNotifications];
 		
 		//Remove all the metaContacts to get any existing objects out of them
-		for (AIMetaContact *metaContact in [[[metaContactDict copy] objectEnumerator]) {
+		for (AIMetaContact *metaContact in [[metaContactDict copy] objectEnumerator]) {
 			[self explodeMetaContact:metaContact];
 		}
 		
@@ -224,7 +225,7 @@
 	
 	NSMutableArray *bookmarks = [NSMutableArray array];
 	for (AIListBookmark *bookmark in self.allBookmarks) {
-		[bookmarks addObject:[NSKeyedArchiver archivedDataWithRootObject:bookmark]];
+		[bookmarks addObject:[NSKeyedArchiver archivedDataWithObject:bookmark]];
 	}
 	
 	[adium.preferenceController setPreference:bookmarks
@@ -236,7 +237,7 @@
 {
 	for (NSData *data in [adium.preferenceController preferenceForKey:KEY_BOOKMARKS group:PREF_GROUP_CONTACT_LIST]) {
 		//As a bookmark is initialized, it will add itself to the contact list in the right place
-		AIListBookmark	*bookmark = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+		AIListBookmark	*bookmark = [NSKeyedUnarchiver objectWithArchivedData:data];
 
 		if(bookmark) {
 			if ([bookmarkDict objectForKey:bookmark.internalObjectID]) {
@@ -255,10 +256,11 @@
 - (void)_loadMetaContactsFromArray:(NSArray *)array
 {	
 	for (NSString *identifier in array) {
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		@autoreleasepool {
 		NSNumber *objectID = [NSNumber numberWithInteger:[[[identifier componentsSeparatedByString:@"-"] objectAtIndex:1] integerValue]];
 		[self metaContactWithObjectID:objectID];
 	}
+}
 }
 
 #pragma mark Contact Grouping
@@ -1049,7 +1051,7 @@ NSInteger contactDisplayNameSort(AIListObject *objectA, AIListObject *objectB, v
  */
 - (NSArray *)allContacts
 {
-	NSMutableArray *result = [[[NSMutableArray alloc] init];
+	NSMutableArray *result = [[NSMutableArray alloc] init];
 
 	for (AIListContact *contact in self.contactEnumerator) {
 		/* We want only contacts, not metacontacts. For a given contact, -[contact parentContact] could be used to access the meta. */
@@ -1065,7 +1067,7 @@ NSInteger contactDisplayNameSort(AIListObject *objectA, AIListObject *objectB, v
  */
 - (NSArray *)allBookmarks
 {
-	return [[[bookmarkDict allValues] copy];
+	return [[bookmarkDict allValues] copy];
 }
 
 /*!
@@ -1123,7 +1125,7 @@ NSInteger contactDisplayNameSort(AIListObject *objectA, AIListObject *objectB, v
         NSMutableArray *groups = [groupsByList objectForKey:list.UID];
         [groups sortUsingActiveSortControllerInContainer:list];
         for (AIListGroup *group in groups) {
-            NSMenuItem	*menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:group.displayName
+            NSMenuItem	*menuItem = [[NSMenuItem alloc] initWithTitle:group.displayName
                                                                                         target:target
                                                                                         action:@selector(selectGroup:)
                                                                                  keyEquivalent:@""];
@@ -1141,7 +1143,7 @@ NSInteger contactDisplayNameSort(AIListObject *objectA, AIListObject *objectB, v
     }
     
 	
-	return [menu autorelease];
+	return menu;
 }
 
 #pragma mark Retrieving Specific Contacts
@@ -1266,7 +1268,7 @@ NSInteger contactDisplayNameSort(AIListObject *objectA, AIListObject *objectB, v
 	AIListBookmark *bookmark = [self existingBookmarkForChat:inChat];
 	
 	if (!bookmark) {
-		bookmark = [[[AIListBookmark alloc] initWithChat:inChat];
+		bookmark = [[AIListBookmark alloc] initWithChat:inChat];
 		
 		if ([bookmarkDict objectForKey:bookmark.internalObjectID]) {
 			// In case we end up with two bookmarks with the same internalObjectID; this should be almost impossible.

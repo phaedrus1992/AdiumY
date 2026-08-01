@@ -27,6 +27,8 @@ typedef enum { AISaveFile = 0, AISaveFileAs, AICancel } AIFileTransferAction;
 + (void)displayPromptForFileTransfer:(ESFileTransfer *)inFileTransfer
 					 notifyingTarget:(id)inTarget
 							selector:(SEL)inSelector;
++ (void)acceptFileTransfer:(ESFileTransfer *)inFileTransfer;
++ (void)declineFileTransfer:(ESFileTransfer *)inFileTransfer;
 - (ESFileTransfer *)fileTransfer;
 - (void)handleFileTransferAction:(AIFileTransferAction)action;
 

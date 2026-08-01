@@ -26,7 +26,7 @@
 #define CONSOLIDATE_CHATS_MENU_TITLE AILocalizedString(@"Consolidate Chats", nil)
 #define NEW_TAB_MENU_TITLE AILocalizedString(@"Move Chat to New Window", nil)
 
-@interface AIChatConsolidationPlugin ()
+@interface AIChatConsolidationPlugin () <NSMenuItemValidation>
 - (void)consolidateChats:(id)sender;
 - (void)moveChatToNewWindow:(id)sender;
 @end
@@ -44,7 +44,17 @@
  */
 - (void)installPlugin
 {
-	consolidateMenuItem =
+	consolidateMenuItem = [[NSMenuItem alloc] initWithTitle:CONSOLIDATE_CHATS_MENU_TITLE
+													 target:self
+													 action:@selector(consolidateChats:)
+											  keyEquivalent:@"O"];
+	[adium.menuController addMenuItem:consolidateMenuItem toLocation:LOC_Window_Commands];
+
+	newWndowMenuItem = [[NSMenuItem alloc] initWithTitle:NEW_TAB_MENU_TITLE
+												  target:self
+												  action:@selector(moveChatToNewWindow:)
+										   keyEquivalent:@""];
+	[adium.menuController addMenuItem:newWndowMenuItem toLocation:LOC_Window_Commands];
 }
 
 /*!

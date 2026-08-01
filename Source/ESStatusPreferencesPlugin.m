@@ -44,8 +44,16 @@
 {
 	NSMenuItem *menuItem;
 
-	// Install our preference view
-	preferences = [adium.menuController addMenuItem:menuItem toLocation:LOC_Status_Additions];
+	//Install our preference view
+	preferences = (ESStatusPreferences *)[ESStatusPreferences preferencePaneForPlugin:self];
+	advancedPreferences = (ESStatusAdvancedPreferences *)[ESStatusAdvancedPreferences preferencePaneForPlugin:self];
+
+	//Add our menu item
+	menuItem = [[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"Edit Status Menu", nil) stringByAppendingEllipsis]
+										  target:self
+										  action:@selector(showStatusPreferences:)
+								   keyEquivalent:@""];
+	[adium.menuController addMenuItem:menuItem toLocation:LOC_Status_Additions];
 
 	// Register defaults
 	[adium.preferenceController registerDefaults:[NSDictionary dictionaryNamed:STATUS_DEFAULT_PREFS

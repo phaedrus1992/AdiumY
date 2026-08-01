@@ -55,8 +55,41 @@ static NSMutableDictionary *passwordPromptControllerDict = nil;
 	ESAccountPasswordPromptController *controller = nil;
 	NSString *identifier = inAccount.internalObjectID;
 
-	if (!passwordPromptControllerDict)
-		passwordPromptControllerDict =
+	if (!passwordPromptControllerDict) passwordPromptControllerDict = [[NSMutableDictionary alloc] init];
+
+	if ((controller = [passwordPromptControllerDict objectForKey:identifier])) {
+		[controller setTarget:inTarget selector:inSelector context:inContext];
+	} else {
+		if ((controller = [[self alloc] initWithWindowNibName:ACCOUNT_PASSWORD_PROMPT_NIB
+												   forAccount:inAccount
+													 password:inPassword
+											  notifyingTarget:inTarget
+													 selector:inSelector
+													  context:inContext])) {
+			[passwordPromptControllerDict setObject:controller
+											 forKey:identifier];
+		}
+	}
+
+	[controller showWindowInFrontIfAllowed:YES];
+}
+
+- (id)initWithWindowNibName:(NSString *)windowNibName
+				 forAccount:(AIAccount *)inAccount
+				   password:(NSString *)inPassword
+			notifyingTarget:(id)inTarget
+				   selector:(SEL)inSelector
+					context:(id)inContext
+{
+	if ((self = [super initWithWindowNibName:windowNibName
+									password:inPassword
+							 notifyingTarget:inTarget
+									selector:inSelector
+									 context:inContext])) {
+		account = inAccount;
+	}
+
+	return self;
 }
 
 /*!

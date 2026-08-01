@@ -37,10 +37,7 @@
  */
 - (NSImage *)applicationIconImage
 {
-	return for (NSInteger i = 0; i < [windows count];
-				i++) if ([[windows objectAtIndex:i]
-							 isKindOfClass:[AIMessageWindow class]])[chatWindows addObject:[windows objectAtIndex:i]];
-	return chatWindows;
+	return [adium.dockController baseApplicationIconImage] ?: [super applicationIconImage];
 }
 - (AIMessageWindow *)valueInChatWindowsWithUniqueID:(NSNumber *)uniqueID
 {

@@ -25,7 +25,7 @@
 
 #define SHORTEN_LINK_TITLE AILocalizedString(@"Replace with Shortened URL", nil)
 
-@interface AIURLShortenerPlugin ()
+@interface AIURLShortenerPlugin () <NSMenuItemValidation>
 - (void)shortenLink;
 
 - (void)shortenAddress:(NSString *)address withService:(AIShortenLinkService)service inTextView:(NSTextView *)textView;
@@ -41,7 +41,27 @@
 {
 	NSMenuItem *menuItem;
 
-	NSMenu *shortenerSubMenu = [menuItem setSubmenu:[shortenerSubMenu copy]];
+	NSMenu *shortenerSubMenu = [[NSMenu alloc] init];
+	[shortenerSubMenu setDelegate:self];
+
+	// Edit menu
+	menuItem = [[NSMenuItem alloc] initWithTitle:SHORTEN_LINK_TITLE
+										  target:self
+										  action:@selector(shortenLink)
+								   keyEquivalent:@"K"
+										 keyMask:NSEventModifierFlagCommand];
+
+	[menuItem setSubmenu:shortenerSubMenu];
+
+	[adium.menuController addMenuItem:menuItem toLocation:LOC_Edit_Links];
+
+	// Context menu
+	menuItem = [[NSMenuItem alloc] initWithTitle:SHORTEN_LINK_TITLE
+										  target:self
+										  action:@selector(shortenLink)
+								   keyEquivalent:@""];
+
+	[menuItem setSubmenu:[shortenerSubMenu copy]];
 
 	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_TextView_Edit];
 
@@ -52,9 +72,6 @@
 {
 	[adium.preferenceController unregisterPreferenceObserver:self];
 }
-
-- (void)dealloc
-{}
 
 #pragma mark Preferences
 - (void)preferencesChangedForGroup:(NSString *)group
@@ -185,7 +202,7 @@
 			linkURL = unknownLinkURL;
 		}
 	} else {
-		linkURL = [[textView attributedSubstringFromRange:selectedRange] string];
+		linkURL = [[[textView textStorage] attributedSubstringFromRange:selectedRange] string];
 	}
 
 	if (linkURL.length) {
@@ -290,18 +307,28 @@
 {
 	NSString *resultString = nil;
 
-	NSURLResponse *response = nil;
-	NSError *errorResponse = nil;
-
 	// We send a synchronous request so the user can't change selection on us.
 	// If the target site is slow, this may seem unpleasant.
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:inURL];
 	[request setHTTPShouldHandleCookies:NO];
-	NSData *shortenedData = [NSURLConnection sendSynchronousRequest:request
-												  returningResponse:&response
-															  error:&errorResponse];
 
 	AILogWithSignature(@"Requesting %@", inURL);
+
+	// NSURLSession has no synchronous API; block on a semaphore (bounded by the request timeout)
+	// so the URL selection can't change underneath us, matching the previous behavior.
+	__block NSData *shortenedData = nil;
+	__block NSURLResponse *response = nil;
+	__block NSError *errorResponse = nil;
+	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+	NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request
+																completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error) {
+		shortenedData = data;
+		response = urlResponse;
+		errorResponse = error;
+		dispatch_semaphore_signal(semaphore);
+	}];
+	[task resume];
+	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 
 	// If the request was successful, replace the selected text with the shortened URL. Otherwise fail silently.
 	if (shortenedData && !errorResponse && ((NSHTTPURLResponse *)response).statusCode == 200) {

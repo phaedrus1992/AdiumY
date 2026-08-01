@@ -148,7 +148,7 @@
 	if (autoReply) {
 		if (!supportsAutoreply) {
 			//Tthe service isn't natively expecting an autoresponse, so make it a bit clearer what's going on
-			NSMutableAttributedString *mutableAutoReply = [[autoReply mutableCopy];
+			NSMutableAttributedString *mutableAutoReply = [autoReply mutableCopy];
 			[mutableAutoReply replaceCharactersInRange:NSMakeRange(0, 0) 
 											withString:AILocalizedString(@"(Autoreply) ", 
 												"Prefix to place before autoreplies on services which do not natively support them")];

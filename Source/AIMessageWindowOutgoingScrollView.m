@@ -18,25 +18,4 @@
 
 @implementation AIMessageWindowOutgoingScrollView
 
-- (BOOL)accessibilityIsIgnored
-{
-	return YES;
-}
-
-- (void)setAccessibilityChild:(id)inChild
-{
-	accessibilityChild = inChild;
-}
-
-- (id)accessibilityAttributeValue:(NSString *)attribute
-{
-	if ([attribute isEqualToString:NSAccessibilityChildrenAttribute])
-		return [NSArray arrayWithObject:accessibilityChild];
-
-	else if ([attribute isEqualToString:NSAccessibilityParentAttribute])
-		return NSAccessibilityUnignoredAncestor([self superview]);
-
-	else
-		return [super accessibilityAttributeValue:attribute];
-}
 @end

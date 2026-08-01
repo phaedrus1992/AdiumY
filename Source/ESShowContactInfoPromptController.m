@@ -48,7 +48,7 @@ static ESShowContactInfoPromptController *sharedShowInfoPromptInstance = nil;
  */
 + (id)createSharedInstance
 {
-	sharedShowInfoPromptInstance = sharedShowInfoPromptInstance = nil;
+	sharedShowInfoPromptInstance = nil;
 }
 
 /*!

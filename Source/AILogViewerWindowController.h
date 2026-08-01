@@ -108,8 +108,6 @@ typedef enum {
 	NSInteger cachedSelectionIndex;
 	BOOL deleteOccurred; // YES only if a delete occurs, allowing the table to preserve selection after a search begins
 
-	NSString *horizontalRule;
-
 	NSUndoManager *undoManager;
 
 	NSNumber *allContactsIdentifier;

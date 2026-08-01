@@ -62,9 +62,11 @@ LNAboutBoxController *sharedAboutBoxInstance = nil;
 	NSAttributedString *creditsString;
 
 	// Credits
-	creditsString = [[NSAttributedString alloc] initWithPath:[[NSBundle mainBundle] pathForResource:@"Credits"
-																							 ofType:@"rtf"]
-										  documentAttributes:nil];
+	creditsString = [[NSAttributedString alloc] initWithURL:[[NSBundle mainBundle] URLForResource:@"Credits"
+																							 withExtension:@"rtf"]
+												options:@{}
+									 documentAttributes:nil
+												  error:NULL];
 	[textView_credits loadText:creditsString];
 
 	// Setup the build date / version
@@ -144,11 +146,7 @@ LNAboutBoxController *sharedAboutBoxInstance = nil;
 																								ofType:@"txt"]];
 	[textView_license setString:[NSString stringWithContentsOfURL:licenseURL encoding:NSUTF8StringEncoding error:NULL]];
 
-	[NSApp beginSheet:panel_licenseSheet
-		modalForWindow:[self window]
-		 modalDelegate:nil
-		didEndSelector:nil
-		   contextInfo:nil];
+	[[self window] beginSheet:panel_licenseSheet completionHandler:nil];
 }
 
 // Close the software license sheet

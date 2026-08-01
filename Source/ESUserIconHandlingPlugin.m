@@ -34,7 +34,7 @@
 
 #define TOOLBAR_ITEM_TAG -999
 
-@interface ESUserIconHandlingPlugin ()
+@interface ESUserIconHandlingPlugin () <NSMenuItemValidation>
 - (void)registerToolbarItem;
 - (void)_updateToolbarIconOfChat:(AIChat *)inChat inWindow:(NSWindow *)window;
 - (void)_updateToolbarItem:(NSToolbarItem *)item forChat:(AIChat *)chat;
@@ -61,24 +61,138 @@
  */
 - (void)installPlugin
 {
-	// Register our observers
+	//Register our observers
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(listObjectAttributesChanged:)
+												 name:ListObject_AttributesChanged
+											   object:nil];
 
-	[menuFormRepresentation setSubmenu:menu];
-	[menuFormRepresentation setTitle:[item label]];
-	[item setMenuFormRepresentation:menuFormRepresentation];
-
-	// If this is the first item added, start observing for chats becoming visible so we can update the icon
-	if ([toolbarItems count] == 0) {
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(chatDidBecomeVisible:)
-													 name:@"AIChatDidBecomeVisible"
-												   object:nil];
-	}
-
-	[toolbarItems addObject:item];
-
-	[self performSelector:@selector(toolbarDidAddItem:) withObject:item afterDelay:0];
+	[self registerToolbarItem];
 }
+
+/*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	[adium.preferenceController unregisterPreferenceObserver:self];
+}
+
+/*!
+ * @brief A plugin, or this plugin, modified the display array for the object; ensure our cache is up to date.
+ */
+- (void)listObjectAttributesChanged:(NSNotification *)notification
+{
+	AIListObject *inObject = [notification object];
+	NSSet *keys = [[notification userInfo] objectForKey:@"Keys"];
+
+	if ([keys containsObject:KEY_USER_ICON]) {
+		if (inObject != nil) {
+			[self updateToolbarItemForObject:inObject];
+		} else {
+			for (AIChat *chat in adium.interfaceController.openChats) {
+				NSWindow *window = [adium.interfaceController windowForChat:chat];
+				if (window) {
+					[self _updateToolbarIconOfChat:chat
+										  inWindow:window];
+				}
+			}
+		}
+	}
+}
+
+#pragma mark Toolbar Item
+
+/*!
+ * @brief Register our toolbar item
+ *
+ * Our toolbar item shows an image for the current chat, displaying it full size/animating if clicked.
+ */
+- (void)registerToolbarItem
+{
+	AIImageButton	*button;
+	NSToolbarItem	*toolbarItem;
+
+	toolbarItems = [[NSMutableSet alloc] init];
+	validatedItems = [[NSMutableSet alloc] init];
+
+	//Toolbar item registration
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(toolbarWillAddItem:)
+												 name:NSToolbarWillAddItemNotification
+											   object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(toolbarDidRemoveItem:)
+												 name:NSToolbarDidRemoveItemNotification
+											   object:nil];
+
+	button = [[AIImageButton alloc] initWithFrame:NSMakeRect(0,0,32,32)];
+
+	toolbarItem = [AIToolbarUtilities toolbarItemWithIdentifier:@"UserIcon"
+														  label:AILocalizedString(@"Icon",nil)
+												   paletteLabel:AILocalizedString(@"Contact Icon",nil)
+														toolTip:AILocalizedString(@"Show this contact's icon",nil)
+														 target:self
+												settingSelector:@selector(setView:)
+													itemContent:button
+														 action:@selector(dummyAction:)
+														   menu:nil];
+
+	[button setCornerRadius:3.0f];
+	[button setToolbarItem:toolbarItem];
+	[button setImage:[NSImage imageNamed:@"default-icon" forClass:[self class] loadLazily:YES]];
+
+	//Register our toolbar item
+	[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"MessageWindow"];
+}
+
+/*!
+ * @brief After the toolbar has added the item we can set up the submenus
+ */
+- (void)toolbarWillAddItem:(NSNotification *)notification
+{
+	NSToolbarItem	*item = [[notification userInfo] objectForKey:@"item"];
+
+	if ([[item itemIdentifier] isEqualToString:@"UserIcon"]) {
+
+		[item setEnabled:YES];
+
+		//Add menu to toolbar item (for text mode)
+		NSMenuItem	*menuFormRepresentation, *blankMenuItem;
+		NSMenu		*menu;
+
+		menuFormRepresentation = [[NSMenuItem alloc] init];
+
+		menu = [[NSMenu alloc] init];
+		[menu setDelegate:self];
+		[menu setAutoenablesItems:NO];
+
+		blankMenuItem = [[NSMenuItem alloc] initWithTitle:@""
+												   target:self
+												   action:@selector(dummyAction:)
+											keyEquivalent:@""];
+		[blankMenuItem setRepresentedObject:item];
+		[blankMenuItem setEnabled:YES];
+		[menu addItem:blankMenuItem];
+
+		[menuFormRepresentation setSubmenu:menu];
+		[menuFormRepresentation setTitle:[item label]];
+		[item setMenuFormRepresentation:menuFormRepresentation];
+
+		//If this is the first item added, start observing for chats becoming visible so we can update the icon
+		if ([toolbarItems count] == 0) {
+			[[NSNotificationCenter defaultCenter] addObserver:self
+													 selector:@selector(chatDidBecomeVisible:)
+														 name:@"AIChatDidBecomeVisible"
+													   object:nil];
+		}
+
+		[toolbarItems addObject:item];
+
+		[self performSelector:@selector(toolbarDidAddItem:)
+				   withObject:item
+				   afterDelay:0];
+	}
 }
 
 - (void)toolbarDidAddItem:(NSToolbarItem *)item

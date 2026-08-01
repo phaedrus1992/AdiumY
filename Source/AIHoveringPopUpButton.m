@@ -100,7 +100,13 @@
 {
 	if (![self menu]) {
 		if (doubleAction && (([theEvent clickCount] % 2) == 0)) {
+#pragma clang diagnostic push
+
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+
 			[[self target] performSelector:doubleAction withObject:self];
+#pragma clang diagnostic pop
+
 		} else {
 			[super mouseDown:theEvent];
 		}
@@ -121,7 +127,7 @@
 										   modifierFlags:[theEvent modifierFlags]
 											   timestamp:[theEvent timestamp]
 											windowNumber:[[theEvent window] windowNumber]
-												 context:[theEvent context]
+												 context:nil
 											 eventNumber:[theEvent eventNumber]
 											  clickCount:[theEvent clickCount]
 												pressure:[theEvent pressure]];
@@ -267,7 +273,7 @@
 			trackRect.size.width = myFrame.size.width;
 		}
 
-		NSPoint localPoint = [self convertPoint:[[self window] convertScreenToBase:[NSEvent mouseLocation]]
+		NSPoint localPoint = [self convertPoint:[[self window] convertPointFromScreen:[NSEvent mouseLocation]]
 									   fromView:nil];
 		// FIX - replacement for deprecation; reverted for 10.11 fix.
 		//		NSPoint	localPoint = [self convertPoint:[[self window] convertPointFromScreen:[NSEvent mouseLocation]]

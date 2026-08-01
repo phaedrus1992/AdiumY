@@ -21,6 +21,11 @@
 - (void)awakeFromNib
 {}
 
+- (void)setXtra:(AIXtraInfo *)xtraInfo
+{
+	// AIXtraInfoController displays a readme view; xtraInfo is not used directly
+}
+
 - (NSView *)previewView
 {
 	return readMeView;

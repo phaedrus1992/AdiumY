@@ -35,7 +35,7 @@
 
 #define KEY_HIDE_CONTACT_LIST_GROUPS @"Hide Contact List Groups"
 
-@interface CBContactCountingDisplayPlugin ()
+@interface CBContactCountingDisplayPlugin () <NSMenuItemValidation>
 - (void)toggleMenuItem:(id)sender;
 @end
 

@@ -17,11 +17,18 @@
 #import "AIAddressBookInspectorPane.h"
 #import <AIUtilities/AIDelayedTextField.h>
 #import <AIUtilities/AIStringAdditions.h>
+#import <AddressBook/ABPeoplePickerView.h>
+#import <AddressBook/ABPerson.h>
 #import <Adium/AIContactControllerProtocol.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIListObject.h>
 
 #define ADDRESS_BOOK_NIB_NAME (@"AIAddressBookInspectorPane")
+
+#pragma mark - Address Book support
+@interface AIListContact (AIAddressBookInspectorPane_AddressBook)
+@property(readwrite) ABPerson *addressBookPerson;
+@end
 
 @interface AIAddressBookInspectorPane ()
 - (void)didEndSheet:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
@@ -31,10 +38,43 @@
 
 - (id)init
 {
-	if ((self = 
+	if ((self = [super init])) {
+		[[NSBundle mainBundle] loadNibNamed:[self nibName] owner:self topLevelObjects:NULL];
+		[label_notes
+			setLocalizedString:
+				AILocalizedString(
+					@"Notes:", "Label beside the field for contact notes in the Settings tab of the Get Info window")];
+		[button_chooseCard
+			setLocalizedString:[AILocalizedStringFromTable(@"Choose Address Book Card", @"Buttons",
+														   "Button title to choose an Address Book card for a contact")
+								   stringByAppendingEllipsis]];
+
+		[label_abPeoplePickerChooseAnAddressCard setLocalizedString:AILocalizedString(@"Choose an Address Card:", nil)];
+		[button_abPeoplePickerOkay setLocalizedString:AILocalizedStringFromTable(@"Choose Card", @"Buttons", nil)];
+		[button_abPeoplePickerCancel setLocalizedString:AILocalizedStringFromTable(@"Cancel", @"Buttons", nil)];
+	}
+
+	return self;
+}
+
+- (NSString *)nibName
+{
+	return ADDRESS_BOOK_NIB_NAME;
+}
+
+- (NSView *)inspectorContentView
+{
+	return inspectorContentView;
+}
+
+- (void)updateForListObject:(AIListObject *)inObject
+{
+	NSString *currentNotes;
+
+	// Hold onto the object, using the highest-up metacontact if necessary
+
 	displayedObject =
 		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
-	displayedObject;
 
 	// Current note
 	if ((currentNotes = [displayedObject notes])) {
@@ -56,11 +96,10 @@
 // Address Book Panel methods.
 - (IBAction)runABPanel:(id)sender
 {
-	[NSApp beginSheet:addressBookPanel
-		modalForWindow:[inspectorContentView window]
-		 modalDelegate:self
-		didEndSelector:@selector(didEndSheet:returnCode:contextInfo:)
-		   contextInfo:nil];
+	[[inspectorContentView window] beginSheet:addressBookPanel
+							completionHandler:^(NSModalResponse returnCode) {
+								[self didEndSheet:self->addressBookPanel returnCode:returnCode contextInfo:nil];
+							}];
 }
 
 - (IBAction)cardSelected:(id)sender

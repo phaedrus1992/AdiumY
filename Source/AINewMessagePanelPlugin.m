@@ -25,7 +25,7 @@
 #import <Adium/AIListObject.h>
 #import <Adium/AIMenuControllerProtocol.h>
 
-@interface AINewMessagePanelPlugin ()
+@interface AINewMessagePanelPlugin () <NSMenuItemValidation>
 - (void)contextualOpenChat:(id)sender;
 @end
 
@@ -43,9 +43,17 @@
  */
 - (void)installPlugin
 {
-	NSMenuItem *newMessageMenuItem =
+	NSMenuItem *newMessageMenuItem = [[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"New Chat",nil) stringByAppendingEllipsis]
+																target:self
+																action:@selector(newMessage:)
+														 keyEquivalent:@"n"];
+	[adium.menuController addMenuItem:newMessageMenuItem toLocation:LOC_File_New];
 
-		[adium.menuController addContextualMenuItem:openChatMenuItem toLocation:Context_Contact_Message];
+	NSMenuItem *openChatMenuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Open Chat",nil)
+															  target:self
+															  action:@selector(contextualOpenChat:)
+													   keyEquivalent:@""];
+	[adium.menuController addContextualMenuItem:openChatMenuItem toLocation:Context_Contact_Message];
 }
 
 /*!

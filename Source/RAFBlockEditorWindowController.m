@@ -167,11 +167,9 @@ static RAFBlockEditorWindowController *sharedInstance = nil;
 	sheetAccountMenu = [AIAccountMenu accountMenuWithDelegate:self submenuType:AIAccountNoSubmenu showTitleVerbs:NO];
 	[self selectAccountInSheet:[[popUp_sheetAccounts selectedItem] representedObject]];
 
-	[NSApp beginSheet:sheet
-		modalForWindow:[self window]
-		 modalDelegate:self
-		didEndSelector:@selector(didEndSheet:returnCode:contextInfo:)
-		   contextInfo:nil];
+	[[self window] beginSheet:sheet completionHandler:^(NSModalResponse returnCode) {
+		[self didEndSheet:self->sheet returnCode:returnCode contextInfo:nil];
+	}];
 }
 
 - (IBAction)cancelBlockSheet:(id)sender
@@ -758,71 +756,37 @@ static RAFBlockEditorWindowController *sharedInstance = nil;
 	return nil;
 }
 
-- (BOOL)writeListObjects:(NSArray *)inArray toPasteboard:(NSPasteboard *)pboard
+- (id<NSPasteboardWriting>)tableView:(NSTableView *)aTableView pasteboardWriterForRow:(NSInteger)row
 {
-	[pboard declareTypes:[NSArray arrayWithObjects:@"AIListObject", @"AIListObjectUniqueIDs", nil] owner:self];
-	[pboard setString:@"Private" forType:@"AIListObject"];
-
-	if (dragItems != inArray) {
-		dragItems = inArray;
+	// AppKit calls this once per dragged row; the dragged set is the table's selection.
+	NSMutableIndexSet *selection = [[aTableView selectedRowIndexes] mutableCopy];
+	if (![selection containsIndex:(NSUInteger)row]) {
+		[selection addIndex:(NSUInteger)row];
 	}
 
-	return YES;
-}
-
-- (BOOL)tableView:(NSTableView *)tv writeRows:(NSArray *)rows toPasteboard:(NSPasteboard *)pboard
-{
 	NSMutableArray *itemArray = [NSMutableArray array];
-	NSNumber *rowNumber;
-	for (rowNumber in rows) {
-		[itemArray addObject:[listContents objectAtIndex:[rowNumber integerValue]]];
-	}
-
-	return [self writeListObjects:itemArray toPasteboard:pboard];
-}
-
-- (BOOL)tableView:(NSTableView *)aTableView
-	writeRowsWithIndexes:(NSIndexSet *)rowIndexes
-			toPasteboard:(NSPasteboard *)pboard
-{
-	NSMutableArray *itemArray = [NSMutableArray array];
-	id item;
-
-	NSUInteger bufSize = [rowIndexes count];
-	NSUInteger *buf = malloc(bufSize * sizeof(NSUInteger));
-	NSUInteger i;
-
-	NSRange range = NSMakeRange([rowIndexes firstIndex], ([rowIndexes lastIndex] - [rowIndexes firstIndex]) + 1);
-	[rowIndexes getIndexes:buf maxCount:bufSize inIndexRange:&range];
-
-	for (i = 0; i != bufSize; i++) {
-		if ((item = [listContents objectAtIndex:buf[i]])) {
+	NSUInteger idx = [selection firstIndex];
+	while (idx != NSNotFound) {
+		id item = [listContents objectAtIndex:idx];
+		if (item != nil) {
 			[itemArray addObject:item];
 		}
+		idx = [selection indexGreaterThanIndex:idx];
 	}
 
-	free(buf);
-
-	return [self writeListObjects:itemArray toPasteboard:pboard];
-}
-
-- (void)pasteboard:(NSPasteboard *)sender provideDataForType:(NSString *)type
-{
 	// Provide an array of internalObjectIDs which can be used to reference all the dragged contacts
-	if ([type isEqualToString:@"AIListObjectUniqueIDs"]) {
+	NSPasteboardItem *pasteboardItem = [[NSPasteboardItem alloc] init];
+	[pasteboardItem setString:@"Private" forType:@"AIListObject"];
 
-		if (dragItems) {
-			NSMutableArray *dragItemsArray = [NSMutableArray array];
-			AIListObject *listObject;
-
-			for (listObject in dragItems) {
-				[dragItemsArray addObject:listObject.internalObjectID];
-			}
-
-			[sender setPropertyList:dragItemsArray forType:@"AIListObjectUniqueIDs"];
-		}
+	NSMutableArray *uniqueIDs = [NSMutableArray arrayWithCapacity:[itemArray count]];
+	for (AIListObject *listObject in itemArray) {
+		[uniqueIDs addObject:listObject.internalObjectID];
 	}
+	[pasteboardItem setPropertyList:uniqueIDs forType:@"AIListObjectUniqueIDs"];
+
+	return pasteboardItem;
 }
+
 
 - (NSDragOperation)tableView:(NSTableView *)tv
 				validateDrop:(id<NSDraggingInfo>)info

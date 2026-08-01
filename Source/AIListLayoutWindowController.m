@@ -47,11 +47,9 @@
 - (void)showOnWindow:(NSWindow *)parentWindow
 {
 	if (parentWindow) {
-		[NSApp beginSheet:self.window
-		   modalForWindow:parentWindow
-			modalDelegate:self
-		   didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			  contextInfo:nil];
+		[parentWindow beginSheet:self.window completionHandler:^(NSModalResponse returnCode) {
+			[self sheetDidEnd:self.window returnCode:returnCode contextInfo:nil];
+		}];
 	} else {
 		[self showWindow:nil];
 	}
@@ -133,9 +131,9 @@
 	NSDictionary 	*prefDict = [adium.preferenceController preferencesForGroup:PREF_GROUP_LIST_LAYOUT];
 	NSInteger 		textAlignmentChoices[4];
 	
-	textAlignmentChoices[0] = NSLeftTextAlignment;
-	textAlignmentChoices[1] = NSCenterTextAlignment;
-	textAlignmentChoices[2] = NSRightTextAlignment;
+	textAlignmentChoices[0] = NSTextAlignmentLeft;
+	textAlignmentChoices[1] = NSTextAlignmentCenter;
+	textAlignmentChoices[2] = NSTextAlignmentRight;
 	textAlignmentChoices[3] = -1;
 	
 	[self updateDisplayedTabsFromPrefDict:prefDict];
@@ -363,7 +361,7 @@
 		[checkBox_extendedStatusVisible setState:NO];
 	}
 	
-	if (nonFitted || ([[prefDict objectForKey:KEY_LIST_LAYOUT_ALIGNMENT] integerValue] != NSCenterTextAlignment)) {
+	if (nonFitted || ([[prefDict objectForKey:KEY_LIST_LAYOUT_ALIGNMENT] integerValue] != NSTextAlignmentCenter)) {
 		// For non-fitted or non-centered fitted, enable and set the appropriate value
 		[checkBox_userIconVisible setEnabled:YES];
 		[checkBox_userIconVisible setState:[[prefDict objectForKey:KEY_LIST_LAYOUT_SHOW_ICON] boolValue]];
@@ -433,19 +431,19 @@
 	} else {
 		// For fitted pillows, only show the options which correspond to the text alignment
 		switch ([[prefDict objectForKey:KEY_LIST_LAYOUT_ALIGNMENT] integerValue]) {
-			case NSLeftTextAlignment:
+			case NSTextAlignmentLeft:
 				statusAndServicePositionChoices[0] = LIST_POSITION_FAR_LEFT;
 				statusAndServicePositionChoices[1] = LIST_POSITION_LEFT;
 				indexForFinishingChoices = 2;
 				break;
 
-			case NSRightTextAlignment:
+			case NSTextAlignmentRight:
 				statusAndServicePositionChoices[0] = LIST_POSITION_RIGHT;
 				statusAndServicePositionChoices[1] = LIST_POSITION_FAR_RIGHT;
 				indexForFinishingChoices = 2;
 				break;
 				
-			case NSCenterTextAlignment:
+			case NSTextAlignmentCenter:
 				break;
 		}	
 	}
@@ -496,16 +494,16 @@
 	} else {
 		// For fitted pillows, only show the options which correspond to the text alignment
 		switch ([[prefDict objectForKey:KEY_LIST_LAYOUT_ALIGNMENT] integerValue]) {
-			case NSLeftTextAlignment:
+			case NSTextAlignmentLeft:
 				userIconPositionChoices[0] = LIST_POSITION_LEFT;
 				userIconPositionChoices[1] = -1;
 				break;
 				
-			case NSRightTextAlignment:		
+			case NSTextAlignmentRight:		
 				userIconPositionChoices[0] = LIST_POSITION_RIGHT;
 				userIconPositionChoices[1] = -1;
 				break;
-			case NSCenterTextAlignment:
+			case NSTextAlignmentCenter:
 				userIconPositionChoices[0] = -1;				
 				break;
 		}	
@@ -520,7 +518,7 @@
 
 - (NSMenu *)alignmentMenuWithChoices:(NSInteger [])alignmentChoices
 {
-    NSMenu		*alignmentMenu = [[[NSMenu allocWithZone:[NSMenu menuZone]] init];
+    NSMenu		*alignmentMenu = [[NSMenu alloc] init];
 	NSMenuItem	*menuItem;
 
 	NSUInteger	i = 0;
@@ -529,14 +527,14 @@
 		NSString *menuTitle = nil;
 		
 		switch (alignmentChoices[i]) {
-			case NSLeftTextAlignment:	menuTitle = AILocalizedString(@"Left",nil);
+			case NSTextAlignmentLeft:	menuTitle = AILocalizedString(@"Left",nil);
 				break;
-			case NSCenterTextAlignment:	menuTitle = AILocalizedString(@"Center",nil);
+			case NSTextAlignmentCenter:	menuTitle = AILocalizedString(@"Center",nil);
 				break;
-			case NSRightTextAlignment:	menuTitle = AILocalizedString(@"Right",nil);
+			case NSTextAlignmentRight:	menuTitle = AILocalizedString(@"Right",nil);
 				break;
 		}
-		menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:menuTitle
+		menuItem = [[NSMenuItem alloc] initWithTitle:menuTitle
 																		 target:nil
 																		 action:nil
 																  keyEquivalent:@""];
@@ -552,7 +550,7 @@
 
 - (NSMenu *)positionMenuWithChoices:(NSInteger [])positionChoices
 {
-    NSMenu		*positionMenu = [[[NSMenu allocWithZone:[NSMenu menuZone]] init];
+    NSMenu		*positionMenu = [[NSMenu alloc] init];
     NSMenuItem	*menuItem;
     
 	NSUInteger	i = 0;
@@ -576,7 +574,7 @@
 			case LIST_POSITION_BADGE_RIGHT: menuTitle = AILocalizedString(@"Badge (Lower Right)",nil);
 				break;
 		}
-		menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:menuTitle
+		menuItem = [[NSMenuItem alloc] initWithTitle:menuTitle
 																		 target:nil
 																		 action:nil
 																  keyEquivalent:@""];
@@ -591,24 +589,24 @@
 
 - (NSMenu *)extendedStatusPositionMenu
 {
-	NSMenu		*extendedStatusPositionMenu = [[[NSMenu allocWithZone:[NSMenu menuZone]] init];
+	NSMenu		*extendedStatusPositionMenu = [[NSMenu alloc] init];
     NSMenuItem	*menuItem;
 	
-	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Below Name",nil)
+	menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Below Name",nil)
 																	 target:nil
 																	 action:nil
 															  keyEquivalent:@""];
 	[menuItem setTag:EXTENDED_STATUS_POSITION_BELOW_NAME];
 	[extendedStatusPositionMenu addItem:menuItem];
 	
-	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Beside Name",nil)
+	menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Beside Name",nil)
 																	 target:nil
 																	 action:nil
 															  keyEquivalent:@""];
 	[menuItem setTag:EXTENDED_STATUS_POSITION_BESIDE_NAME];
 	[extendedStatusPositionMenu addItem:menuItem];
 	
-	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Idle Beside, Status Below",nil)
+	menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Idle Beside, Status Below",nil)
 																	 target:nil
 																	 action:nil
 															  keyEquivalent:@""];
@@ -620,24 +618,24 @@
 
 - (NSMenu *)extendedStatusStyleMenu
 {
-    NSMenu		*extendedStatusStyleMenu = [[[NSMenu allocWithZone:[NSMenu menuZone]] init];
+    NSMenu		*extendedStatusStyleMenu = [[NSMenu allocWithZone:NULL] init];
     NSMenuItem	*menuItem;
 	
-	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Status",nil)
+	menuItem = [[NSMenuItem allocWithZone:NULL] initWithTitle:AILocalizedString(@"Status",nil)
 																	 target:nil
 																	 action:nil
 															  keyEquivalent:@""];
 	[menuItem setTag:STATUS_ONLY];
 	[extendedStatusStyleMenu addItem:menuItem];
 	
-	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Idle Time",nil)
+	menuItem = [[NSMenuItem allocWithZone:NULL] initWithTitle:AILocalizedString(@"Idle Time",nil)
 																	 target:nil
 																	 action:nil
 															  keyEquivalent:@""];
 	[menuItem setTag:IDLE_ONLY];
 	[extendedStatusStyleMenu addItem:menuItem];
 	
-	menuItem = [[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Idle and Status",nil)
+	menuItem = [[NSMenuItem allocWithZone:NULL] initWithTitle:AILocalizedString(@"Idle and Status",nil)
 																	 target:nil
 																	 action:nil
 															  keyEquivalent:@""];

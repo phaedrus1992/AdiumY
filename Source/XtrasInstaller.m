@@ -74,7 +74,7 @@
 		ALLOW_UNTRUSTED_XTRAS) {
 		NSURL *urlToDownload;
 
-		[NSBundle loadNibNamed:@"XtraProgressWindow" owner:self];
+		[[NSBundle mainBundle] loadNibNamed:@"XtraProgressWindow" owner:self topLevelObjects:NULL];
 		[progressBar setUsesThreadedAnimation:YES];
 
 		xtraName = nil;
@@ -96,15 +96,19 @@
 		AILogWithSignature(@"Downloading %@", urlToDownload);
 		NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:urlToDownload];
 		[request setHTTPShouldHandleCookies:NO];
-		self.download = [[NSURLDownload alloc] initWithRequest:request delegate:self];
+		NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+		downloadSession = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+		self.download = [downloadSession dataTaskWithRequest:request];
+		[self.download resume];
 		//		[download setDestination:dest allowOverwrite:YES];
 
 	} else {
-		NSRunAlertPanel(
-			AILocalizedString(@"Nontrusted Xtra", nil),
-			AILocalizedString(
-				@"This Xtra is not hosted on the Adium Xtras website. Automatic installation is not allowed.", nil),
-			AILocalizedString(@"Cancel", nil), nil, nil);
+		NSAlert *nontrustedXtraAlert = [[NSAlert alloc] init];
+		nontrustedXtraAlert.messageText = AILocalizedString(@"Nontrusted Xtra", nil);
+		nontrustedXtraAlert.informativeText = AILocalizedString(
+			@"This Xtra is not hosted on the Adium Xtras website. Automatic installation is not allowed.", nil);
+		[nontrustedXtraAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+		[nontrustedXtraAlert runModal];
 		[self closeInstaller];
 	}
 }
@@ -120,81 +124,88 @@
 	[infoText setStringValue:[NSString stringWithFormat:@"%@ (%lu%%)", installText, percentComplete]];
 }
 
-- (void)download:(NSURLDownload *)connection didReceiveResponse:(NSHTTPURLResponse *)response
+- (void)URLSession:(NSURLSession *)session
+			  dataTask:(NSURLSessionDataTask *)dataTask
+	didReceiveResponse:(NSURLResponse *)response
+	 completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler
 {
-	self.xtraName = [[response allHeaderFields] objectForKey:@"X-Xtraname"];
+	NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+	self.xtraName = [[httpResponse allHeaderFields] objectForKey:@"X-Xtraname"];
 	amountDownloaded = 0;
-	downloadSize = [response expectedContentLength];
+	downloadSize = [httpResponse expectedContentLength];
 	[progressBar setMaxValue:downloadSize];
 	[progressBar setDoubleValue:0.0];
 	NSLog(@"Beginning download of, which has size %llu", downloadSize);
 	[self updateInfoText];
-}
 
-- (void)download:(NSURLDownload *)connection decideDestinationWithSuggestedFilename:(NSString *)filename
-{
+	// Set up the destination file before data begins arriving.
+	// (Replaces NSURLDownload's decideDestinationWithSuggestedFilename:.)
 	NSString *downloadDir = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString uuid]];
 	[[NSFileManager defaultManager] createDirectoryAtPath:downloadDir
 							  withIntermediateDirectories:YES
 											   attributes:nil
 													error:NULL];
-	self.dest = [downloadDir stringByAppendingPathComponent:filename];
+	self.dest = [downloadDir stringByAppendingPathComponent:[response suggestedFilename]];
 	AILogWithSignature(@"Downloading to is %@", self.dest);
-	[self.download setDestination:self.dest allowOverwrite:YES];
+	[[NSFileManager defaultManager] createFileAtPath:self.dest contents:nil attributes:nil];
+	downloadFileHandle = [NSFileHandle fileHandleForWritingAtPath:self.dest];
+	[downloadFileHandle seekToEndOfFile];
+
+	completionHandler(NSURLSessionResponseAllow);
 }
 
-- (void)download:(NSURLDownload *)download didReceiveDataOfLength:(NSUInteger)length
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
-	amountDownloaded += (long long)length;
+	[downloadFileHandle writeData:data];
+	amountDownloaded += [data length];
 	if (downloadSize != NSURLResponseUnknownLength) {
 		[progressBar setDoubleValue:(double)amountDownloaded];
 		[self updateInfoText];
-	} else
+	} else {
 		[progressBar setIndeterminate:YES];
-}
-
-- (BOOL)download:(NSURLDownload *)download shouldDecodeSourceDataOfMIMEType:(NSString *)encodingType
-{
-	return NO;
-}
-
-- (void)download:(NSURLDownload *)inDownload didFailWithError:(NSError *)error
-{
-	NSString *errorMsg;
-
-	errorMsg = [NSString stringWithFormat:AILocalizedString(@"An error occurred while downloading this Xtra: %@.", nil),
-										  [error localizedDescription]];
-
-	NSBeginAlertSheet(AILocalizedString(@"Xtra Downloading Error", nil), AILocalizedString(@"Cancel", nil), nil, nil,
-					  window, self, NULL, @selector(sheetDidDismiss:returnCode:contextInfo:), nil, @"%@", errorMsg);
-}
-
-- (void)setQuarantineProperties:(NSDictionary *)dict forDirectory:(FSRef *)dir
-{
-	FSIterator iterator;
-
-	if (FSOpenIterator(dir, kFSIterateFlat, &iterator) != noErr) {
-		AILogWithSignature(@"Error quarantining %p", dir);
 	}
+}
 
-	FSRef ref;
-	ItemCount num;
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
+{
+	[downloadFileHandle closeFile];
+	[downloadSession invalidateAndCancel];
 
-	while (FSGetCatalogInfoBulk(iterator, 1, &num, NULL, kFSCatInfoNone, NULL, &ref, NULL, NULL) == noErr) {
-		LSSetItemAttribute(&ref, kLSRolesAll, kLSItemQuarantineProperties, dict);
+	if (error != nil) {
+		if ([error code] != NSURLErrorCancelled) {
+			NSString *errorMsg;
 
-		FSCatalogInfo catinfo;
-		FSGetCatalogInfo(&ref, kFSCatInfoNodeFlags, &catinfo, NULL, NULL, NULL);
+			errorMsg = [NSString stringWithFormat:AILocalizedString(@"An error occurred while downloading this Xtra: %@.", nil),
+												  [error localizedDescription]];
 
-		if (catinfo.nodeFlags & kFSNodeIsDirectoryMask) {
-			[self setQuarantineProperties:dict forDirectory:&ref];
+			NSAlert *xtraDownloadErrorAlert = [[NSAlert alloc] init];
+			xtraDownloadErrorAlert.messageText = AILocalizedString(@"Xtra Downloading Error", nil);
+			xtraDownloadErrorAlert.informativeText = [NSString stringWithFormat:@"%@", errorMsg];
+			[xtraDownloadErrorAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+			[xtraDownloadErrorAlert beginSheetModalForWindow:window
+										   completionHandler:^(NSModalResponse returnCode) {
+											   [self sheetDidDismiss:xtraDownloadErrorAlert.window
+														  returnCode:returnCode
+														 contextInfo:nil];
+										   }];
 		}
+	} else {
+		[self downloadDidFinish];
 	}
-
-	FSCloseIterator(iterator);
 }
 
-- (void)downloadDidFinish:(NSURLDownload *)inDownload
+- (void)setQuarantineProperties:(NSDictionary *)dict forDirectory:(NSURL *)dir
+{
+	NSDirectoryEnumerator *enumerator = [[NSFileManager defaultManager] enumeratorAtURL:dir
+															 includingPropertiesForKeys:nil
+																				options:0
+																		   errorHandler:nil];
+	for (NSURL *url in enumerator) {
+		[url setResourceValue:dict forKey:NSURLQuarantinePropertiesKey error:nil];
+	}
+}
+
+- (void)downloadDidFinish
 {
 	NSString *lastPathComponent = [self.dest lastPathComponent];
 	NSString *pathExtension = [[lastPathComponent pathExtension] lowercaseString];
@@ -276,51 +287,37 @@
 
 	self.dest = [self.dest stringByDeletingLastPathComponent];
 
-	FSRef fsRef;
-	OSStatus err;
+	NSURL *fileURL = [NSURL fileURLWithPath:self.dest];
 
-	if (FSPathMakeRef((const UInt8 *)[self.dest fileSystemRepresentation], &fsRef, NULL) == noErr) {
+	NSMutableDictionary *quarantineProperties = nil;
+	NSDictionary *oldQuarantineProperties = nil;
 
-		NSMutableDictionary *quarantineProperties = nil;
-		CFTypeRef cfOldQuarantineProperties = NULL;
-
-		err = LSCopyItemAttribute(&fsRef, kLSRolesAll, kLSItemQuarantineProperties, &cfOldQuarantineProperties);
-
-		if (err == noErr) {
-
-			if (CFGetTypeID(cfOldQuarantineProperties) == CFDictionaryGetTypeID()) {
-				quarantineProperties = [(NSDictionary *)cfOldQuarantineProperties mutableCopy];
-			} else {
-				AILogWithSignature(@"Getting quarantine data failed for %@ (%@)", self, self.dest);
-				[self closeInstaller];
-				return;
-			}
-
-			CFRelease(cfOldQuarantineProperties);
-
-			if (!quarantineProperties) {
-				[self closeInstaller];
-				return;
-			}
+	if ([fileURL getResourceValue:&oldQuarantineProperties forKey:NSURLQuarantinePropertiesKey error:nil]) {
+		if (oldQuarantineProperties) {
+			quarantineProperties = [oldQuarantineProperties mutableCopy];
 
 			AILogWithSignature(@"Old quarantine data: %@", quarantineProperties);
-
-		} else if (err == kLSAttributeNotFoundErr) {
+		} else {
 			quarantineProperties = [NSMutableDictionary dictionaryWithCapacity:2];
 		}
 
-		[quarantineProperties setObject:(NSString *)kLSQuarantineTypeWebDownload
-								 forKey:(NSString *)kLSQuarantineTypeKey];
-
-		[quarantineProperties setObject:[[self.download request] URL] forKey:(NSString *)kLSQuarantineDataURLKey];
-
-		[self setQuarantineProperties:quarantineProperties forDirectory:&fsRef];
-
-		AILogWithSignature(@"Quarantined %@ with %@", self.dest, quarantineProperties);
-
+		if (!quarantineProperties) {
+			[self closeInstaller];
+			return;
+		}
 	} else {
-		AILogWithSignature(@"Danger! Could not find file to quarantine: %@!", self.dest);
+		AILogWithSignature(@"Getting quarantine data failed for %@ (%@)", self, self.dest);
+		[self closeInstaller];
+		return;
 	}
+
+	[quarantineProperties setObject:(NSString *)kLSQuarantineTypeWebDownload forKey:(NSString *)kLSQuarantineTypeKey];
+
+	[quarantineProperties setObject:[[self.download originalRequest] URL] forKey:(NSString *)kLSQuarantineDataURLKey];
+
+	[self setQuarantineProperties:quarantineProperties forDirectory:fileURL];
+
+	AILogWithSignature(@"Quarantined %@ with %@", self.dest, quarantineProperties);
 
 	// the remaining files in the directory should be the contents of the xtra
 	fileEnumerator = [fileManager enumeratorAtPath:self.dest];

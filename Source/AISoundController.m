@@ -22,7 +22,24 @@
 
 - (id)init
 {
-	if ((self = 
+	if ((self = [super init])) {
+		adiumSound = [[AdiumSound alloc] init];
+		adiumSpeech = [[AdiumSpeech alloc] init];
+		adiumSoundSets = [[AdiumSoundSets alloc] init];
+	}
+	return self;
+}
+
+- (void)controllerDidLoad
+{
+	[adiumSound controllerDidLoad];
+	[adiumSpeech controllerDidLoad];
+}
+
+- (void)controllerWillClose
+{
+	adiumSound = nil;
+	adiumSpeech = nil;
 	adiumSoundSets = nil;
 }
 

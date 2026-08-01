@@ -35,22 +35,107 @@
 #import <Adium/AIToolbarControllerProtocol.h>
 
 #define ADD_CONTACT AILocalizedString(@"Add Contact", nil)
-#define ADD_CONTACT_ELLIPSIS
-[adium.menuController addContextualMenuItem:menuItem toLocation:Context_Contact_NegativeAction];
+#define ADD_CONTACT_ELLIPSIS [ADD_CONTACT stringByAppendingEllipsis]
 
-// Add Contact toolbar item
-toolbarItem = [AIToolbarUtilities toolbarItemWithIdentifier:ADD_CONTACT_IDENTIFIER
-													  label:ADD_CONTACT
-											   paletteLabel:ADD_CONTACT
-													toolTip:AILocalizedString(@"Add a new contact", nil)
-													 target:self
-											settingSelector:@selector(setImage:)
-												itemContent:[NSImage imageNamed:@"msg-add-contact"
-																	   forClass:[self class]
-																	 loadLazily:YES]
-													 action:@selector(addContact:)
-													   menu:nil];
-[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"ListObject"];
+#define ADD_CONTACT_TO_GROUP AILocalizedString(@"Add Contact To Group", nil)
+#define ADD_CONTACT_TO_GROUP_ELLIPSIS [ADD_CONTACT_TO_GROUP stringByAppendingEllipsis]
+
+#define ADD_GROUP AILocalizedString(@"Add Group", nil)
+#define ADD_GROUP_ELLIPSIS [ADD_GROUP stringByAppendingEllipsis]
+
+#define DELETE_CONTACT_ELLIPSIS [AILocalizedString(@"Remove Contact", nil) stringByAppendingEllipsis]
+#define DELETE_GROUP_ELLIPSIS [AILocalizedString(@"Remove Group", nil) stringByAppendingEllipsis]
+#define DELETE_CONTACT_OR_GROUP_ELLIPSIS [AILocalizedString(@"Remove Contact or Group", nil) stringByAppendingEllipsis]
+#define DELETE_CONTACT_CONTEXT_ELLIPSIS [AILocalizedString(@"Remove", nil) stringByAppendingEllipsis]
+
+#define RENAME_GROUP AILocalizedString(@"Rename Group", nil)
+#define RENAME_GROUP_ELLIPSIS [RENAME_GROUP stringByAppendingEllipsis]
+
+#define ADD_CONTACT_IDENTIFIER @"AddContact"
+#define ADD_GROUP_IDENTIFIER @"AddGroup"
+
+@interface AIContactListEditorPlugin () <NSMenuItemValidation>
+- (void)deleteFromArray:(NSArray *)array;
+- (void)promptForNewContactOnWindow:(NSWindow *)inWindow selectedListObject:(AIListObject *)inListObject;
+
+- (IBAction)addContactFromTab:(id)sender;
+- (void)addContactRequest:(NSNotification *)notification;
+- (IBAction)deleteSelection:(id)sender;
+- (IBAction)deleteSelectionFromTab:(id)sender;
+@end
+
+/*!
+ * @class AIContactListEditorPlugin
+ * @brief Component for managing adding and deleting contacts and groups
+ */
+@implementation AIContactListEditorPlugin
+
+/*!
+ * @brief Install
+ */
+- (void)installPlugin
+{
+	NSMenuItem *menuItem;
+	NSToolbarItem *toolbarItem;
+
+	// Add Contact
+	menuItem_addContact = [[NSMenuItem alloc] initWithTitle:ADD_CONTACT_ELLIPSIS
+																			   target:self
+																			   action:@selector(addContact:)
+																		keyEquivalent:@"d"];
+	[adium.menuController addMenuItem:menuItem_addContact toLocation:LOC_Contact_Manage];
+
+	menuItem_addContactContext =
+		[[NSMenuItem alloc] initWithTitle:ADD_CONTACT_TO_GROUP_ELLIPSIS
+															 target:self
+															 action:@selector(addContact:)
+													  keyEquivalent:@""];
+	[adium.menuController addContextualMenuItem:menuItem_addContactContext toLocation:Context_Group_Manage];
+
+	menuItem_tabAddContact = [[NSMenuItem alloc] initWithTitle:ADD_CONTACT_ELLIPSIS
+																				   target:self
+																				   action:@selector(addContactFromTab:)
+																			keyEquivalent:@""];
+	[adium.menuController addContextualMenuItem:menuItem_tabAddContact toLocation:Context_Contact_Stranger_ChatAction];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(addContactRequest:)
+												 name:Contact_AddNewContact
+											   object:nil];
+
+	// Add Group
+	menuItem_addGroup = [[NSMenuItem alloc] initWithTitle:ADD_GROUP_ELLIPSIS
+																			 target:self
+																			 action:@selector(addGroup:)
+																	  keyEquivalent:@"D"];
+	[adium.menuController addMenuItem:menuItem_addGroup toLocation:LOC_Contact_Manage];
+
+	// Delete Selection
+	menuItem_delete = [[NSMenuItem alloc] initWithTitle:DELETE_CONTACT_ELLIPSIS
+																		   target:self
+																		   action:@selector(deleteSelection:)
+																	keyEquivalent:@"\b"];
+	[adium.menuController addMenuItem:menuItem_delete toLocation:LOC_Contact_Manage];
+
+	menuItem = [[NSMenuItem alloc] initWithTitle:DELETE_CONTACT_CONTEXT_ELLIPSIS
+																	 target:self
+																	 action:@selector(deleteSelectionFromTab:)
+															  keyEquivalent:@""];
+	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_Contact_NegativeAction];
+
+	// Add Contact toolbar item
+	toolbarItem = [AIToolbarUtilities toolbarItemWithIdentifier:ADD_CONTACT_IDENTIFIER
+														  label:ADD_CONTACT
+												   paletteLabel:ADD_CONTACT
+														toolTip:AILocalizedString(@"Add a new contact", nil)
+														 target:self
+												settingSelector:@selector(setImage:)
+													itemContent:[NSImage imageNamed:@"msg-add-contact"
+																		   forClass:[self class]
+																		 loadLazily:YES]
+														 action:@selector(addContact:)
+														   menu:nil];
+	[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"ListObject"];
 }
 
 /*!
@@ -283,14 +368,14 @@ toolbarItem = [AIToolbarUtilities toolbarItemWithIdentifier:ADD_CONTACT_IDENTIFI
 	[NSApp activateIgnoringOtherApps:YES];
 
 	// Guard deletion with a warning prompt
-	NSInteger result = NSRunAlertPanel(
-		AILocalizedString(@"Remove from list?", nil),
-		AILocalizedString(
-			@"Removing any contacts from their last group will permanently remove them from your contact list.\n\n%@",
-			nil),
-		AILocalizedString(@"Remove", nil), AILocalizedString(@"Cancel", nil), nil, message);
+	NSAlert *removeFromListAlert = [[NSAlert alloc] init];
+	removeFromListAlert.messageText = AILocalizedString(@"Remove from list?", nil);
+	removeFromListAlert.informativeText = [NSString stringWithFormat:AILocalizedString(@"Removing any contacts from their last group will permanently remove them from your contact list.\n\n%@", nil), message];
+	[removeFromListAlert addButtonWithTitle:AILocalizedString(@"Remove", nil)];
+	[removeFromListAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+	NSInteger result = [removeFromListAlert runModal];
 
-	if (result == NSAlertDefaultReturn) {
+	if (result == NSAlertFirstButtonReturn) {
 		for (NSDictionary *dict in array) {
 			[[dict objectForKey:@"ListObject"] removeFromGroup:[dict objectForKey:@"ContainingObject"]];
 		}

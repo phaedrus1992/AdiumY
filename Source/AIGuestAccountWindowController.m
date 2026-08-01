@@ -98,8 +98,8 @@ static AIGuestAccountWindowController *sharedGuestAccountWindowController = nil;
 		if ((self.service != account.service) ||
 			(![self.UID isEqualToString:account.UID])) {
 
-			account = [[adium.accountController createAccountWithService:self.service
-																	   UID:self.UID]];
+			account = [adium.accountController createAccountWithService:self.service
+																	   UID:self.UID];
 		}
 	}
 	

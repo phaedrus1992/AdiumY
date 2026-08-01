@@ -81,7 +81,7 @@
             //Track the handle
             if (!idleObjectArray) {
                 idleObjectArray = [[NSMutableArray alloc] init];
-                idleObjectTimer = [[NSTimer scheduledTimerWithTimeInterval:IDLE_UPDATE_INTERVAL
+                idleObjectTimer = [NSTimer scheduledTimerWithTimeInterval:IDLE_UPDATE_INTERVAL
 																	target:self 
 																  selector:@selector(updateIdleObjectsTimer:)
 																  userInfo:nil 
@@ -194,7 +194,7 @@
 		entry = [[NSAttributedString alloc] initWithString:[NSDateFormatter stringForTimeInterval:(idleMinutes * 60.0)]];    
 	}
 
-    return [entry autorelease];
+    return entry;
 }
 
 - (BOOL)shouldDisplayInContactInspector

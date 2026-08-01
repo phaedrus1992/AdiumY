@@ -42,7 +42,11 @@
 - (void)installPlugin
 {
 	//
-	onlineCache =
+	onlineCache = [[NSMutableDictionary alloc] init];
+	awayCache = [[NSMutableDictionary alloc] init];
+	idleCache = [[NSMutableDictionary alloc] init];
+	statusMessageCache = [[NSMutableDictionary alloc] init];
+	mobileCache = [[NSMutableDictionary alloc] init];
 }
 
 /*!

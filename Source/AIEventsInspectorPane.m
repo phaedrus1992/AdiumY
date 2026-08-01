@@ -26,7 +26,12 @@
 
 - (id)init
 {
-	self =
+	self = [super init];
+	if (self != nil) {
+		[[NSBundle mainBundle] loadNibNamed:[self nibName] owner:self topLevelObjects:NULL];
+		// Other init goes here.
+	}
+	return self;
 }
 
 - (NSString *)nibName

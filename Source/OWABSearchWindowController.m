@@ -68,11 +68,9 @@
 	newABSearchWindow = [[self alloc] initWithWindowNibName:AB_SEARCH_NIB initialService:inService];
 
 	if (parentWindow) {
-		[NSApp beginSheet:[newABSearchWindow window]
-			modalForWindow:parentWindow
-			 modalDelegate:newABSearchWindow
-			didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			   contextInfo:nil];
+		[parentWindow beginSheet:[newABSearchWindow window] completionHandler:^(NSModalResponse returnCode) {
+			[newABSearchWindow sheetDidEnd:[newABSearchWindow window] returnCode:returnCode contextInfo:nil];
+		}];
 		[newABSearchWindow _setCarryingWindow:parentWindow];
 	} else {
 		[newABSearchWindow showWindow:nil];
@@ -98,9 +96,10 @@
 	return self;
 }
 
-/*!
+- (void)dealloc
 {
 	[self setDelegate:nil];
+}
 
 /*!
  * @brief Setup the window before it is displayed
@@ -151,7 +150,7 @@
  */
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
-	if (delegate && returnCode == NSOKButton)
+	if (delegate && returnCode == NSModalResponseOK)
 		[delegate absearchWindowControllerDidSelectPerson:self];
 
 	[sheet orderOut:nil];
@@ -164,7 +163,7 @@
 {
 	if ([self windowShouldClose:self.window]) {
 		if ([[self window] isSheet]) {
-			[NSApp endSheet:[self window] returnCode:NSCancelButton];
+			[NSApp endSheet:[self window] returnCode:NSModalResponseCancel];
 		} else {
 			[[self window] close];
 		}
@@ -182,7 +181,7 @@
 	// Close our window
 	if ([self windowShouldClose:self.window]) {
 		if ([[self window] isSheet]) {
-			[NSApp endSheet:[self window] returnCode:NSOKButton];
+			[NSApp endSheet:[self window] returnCode:NSModalResponseOK];
 		} else {
 			[[self window] close];
 			if (delegate)
@@ -206,7 +205,7 @@
 
 	// Close our window
 	if ([[self window] isSheet]) {
-		[NSApp endSheet:[self window] returnCode:NSOKButton];
+		[NSApp endSheet:[self window] returnCode:NSModalResponseOK];
 	} else {
 		[[self window] close];
 		if (delegate)
@@ -228,11 +227,9 @@
 
 	// and show it
 	if (carryingWindow) {
-		[NSApp beginSheet:newContactPanel
-			modalForWindow:carryingWindow
-			 modalDelegate:self
-			didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			   contextInfo:nil];
+		[carryingWindow beginSheet:newContactPanel completionHandler:^(NSModalResponse returnCode) {
+			[self sheetDidEnd:self->newContactPanel returnCode:returnCode contextInfo:nil];
+		}];
 	} else {
 		[self showWindow:nil];
 		[[self window] center];
@@ -263,12 +260,12 @@
 			// Set the person's instant message address
 			CNInstantMessageAddress *imAddress = [[CNInstantMessageAddress alloc] initWithUsername:contactID
 																						   service:serviceIdentifier];
-			CNLabeledValue *labeledIM = [CNLabeledValue labeledValueWithLabel:CNLabelInstantMessage value:imAddress];
+			CNLabeledValue *labeledIM = [CNLabeledValue labeledValueWithLabel:@"IM" value:imAddress];
 			newPerson.instantMessageAddresses = @[ labeledIM ];
 
 			// Set the person's email address
 			if (![email isEqualToString:@""]) {
-				CNLabeledValue *labeledEmail = [CNLabeledValue labeledValueWithLabel:CNLabelEmail value:email];
+				CNLabeledValue *labeledEmail = [CNLabeledValue labeledValueWithLabel:@"email" value:email];
 				newPerson.emailAddresses = @[ labeledEmail ];
 			}
 
@@ -295,7 +292,7 @@
 				// Close our window
 				if ([self windowShouldClose:self.window]) {
 					if ([[self window] isSheet]) {
-						[NSApp endSheet:[self window] returnCode:NSOKButton];
+						[NSApp endSheet:[self window] returnCode:NSModalResponseOK];
 					} else {
 						[[self window] close];
 						if (delegate)

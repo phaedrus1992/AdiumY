@@ -292,7 +292,7 @@
 //Given an Adium log file name, return an NSDate with year, month, and day specified
 NSDate *dateFromFileName(NSString *fileName)
 {
-	ISO8601DateFormatter *formatter = [[[ISO8601DateFormatter alloc] init];
+	ISO8601DateFormatter *formatter = [[ISO8601DateFormatter alloc] init];
 	formatter.timeSeparator = '.';
 	NSRange openParenRange, closeParenRange;
 	

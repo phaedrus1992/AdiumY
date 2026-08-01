@@ -21,8 +21,8 @@
 
 @interface AIDockIconSelectionSheet : AIWindowController <AIImageCollectionViewDelegate> {
   @private
-	IBOutlet AIImageCollectionView *imageCollectionView;
-	IBOutlet NSButton *okButton;
+	IBOutlet __unsafe_unretained AIImageCollectionView *imageCollectionView;
+	IBOutlet __unsafe_unretained NSButton *okButton;
 
 	NSMutableArray *icons;
 	NSMutableArray *iconsData;

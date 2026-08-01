@@ -148,7 +148,13 @@
 
 	//
 	for (dictionary in setArray) {
+		#pragma clang diagnostic push
+
+		#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+
 		[adium.contactAlertsController addGlobalAlert:[self performSelector:selector withObject:dictionary]];
+		#pragma clang diagnostic pop
+
 	}
 }
 

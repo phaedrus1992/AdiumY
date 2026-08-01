@@ -24,7 +24,7 @@
 
 #define CONTEXT_DISPLAY_DEFAULTS @"MessageContextDisplayDefaults"
 
-@class SMSQLiteLoggerPlugin, ISO8601DateFormatter;
+@class AIChat, SMSQLiteLoggerPlugin, ISO8601DateFormatter;
 
 @interface DCMessageContextDisplayPlugin : AIPlugin {
 	BOOL isObserving;

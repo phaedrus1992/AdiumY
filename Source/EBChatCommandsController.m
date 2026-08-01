@@ -76,15 +76,16 @@
 		[NSBundle loadNibNamed:@"BanPrompt" owner:self];
 		[label_target setStringValue:@"Join room:"];
 	} else {
-		NSRunAlertPanel(@"Command not supported", @"This command is not supported at this time",@"Cancel",@"OK",nil);
+		NSAlert *commandNotSupportedAlert = [[NSAlert alloc] init];
+		commandNotSupportedAlert.messageText = @"Command not supported";
+		commandNotSupportedAlert.informativeText = @"This command is not supported at this time";
+		[commandNotSupportedAlert addButtonWithTitle:@"Cancel"];
+		[commandNotSupportedAlert addButtonWithTitle:@"OK"];
+		[commandNotSupportedAlert runModal];
 	}
 	
 	//show sheet
-	[NSApp beginSheet:sheet
-				modalForWindow:[NSApp keyWindow]
-				modalDelegate:self
-				didEndSelector:nil
-				contextInfo:nil];
+	[[NSApp keyWindow] beginSheet:sheet completionHandler:nil];
 
 }
 

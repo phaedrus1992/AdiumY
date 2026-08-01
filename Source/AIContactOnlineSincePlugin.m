@@ -59,13 +59,10 @@
 				currentDay = [dayFormatter stringForObjectValue:[NSDate date]];
 				signonDay = [dayFormatter stringForObjectValue:signonDate];
 			}];
-			[currentDay autorelease];
-			[signonDay autorelease];
 			
 			[NSDateFormatter withLocalizedDateFormatterShowingSeconds:NO showingAMorPM:YES perform:^(NSDateFormatter *timeFormatter){
 				signonTime = [timeFormatter stringForObjectValue:signonDate];
 			}];
-			[signonTime autorelease];
             
             if ([currentDay isEqualToString:signonDay]) { //Show time
                 entry = [[NSAttributedString alloc] initWithString:signonTime];
@@ -77,7 +74,7 @@
         }
     }
 
-    return [entry autorelease];
+    return entry;
 }
 
 - (BOOL)shouldDisplayInContactInspector
