@@ -50,6 +50,7 @@
 #import <Adium/AIContentEvent.h>
 #import <Adium/AIContentMessage.h>
 #import <Adium/AIContentObject.h>
+#import <Adium/AIContentStatus.h>
 #import <Adium/AIContentTopic.h>
 #import <Adium/AIEmoticon.h>
 #import <Adium/ESFileTransfer.h>
@@ -57,7 +58,6 @@
 #import <Adium/AIHTMLDecoder.h>
 #import <Adium/AIListContact.h>
 #import <Adium/AIListObject.h>
-#import <Adium/AIUserIcons.h>
 #import <Adium/AIMenuControllerProtocol.h>
 #import <Adium/AIMetaContact.h>
 
@@ -104,8 +104,9 @@ static NSArray *draggedTypes = nil;
 - (void)_processContentQueue;
 - (void)_updateVariantWithoutPrimingView;
 - (void)_appendContentWithScript:(NSString *)js shouldScroll:(BOOL)shouldScroll;
+- (void)_drainStoredContentObjects;
 - (void)_handleFileTransferAction:(NSString *)action fileTransferID:(NSString *)fileTransferID;
-- (void)_updateUserIcons;
+- (void)_appendCorrectedMessageFallback:(NSString *)html fromSenderJID:(NSString *)senderJID;
 - (NSString *)_jsStringLiteral:(NSString *)string;
 - (NSString *)_webKitBackgroundImagePathForUniqueID:(NSInteger)uniqueID;
 @end
@@ -129,9 +130,6 @@ static NSArray *draggedTypes = nil;
 		_plugin = inPlugin;
 		_contentQueue = [[NSMutableArray alloc] init];
 		_storedContentObjects = [[NSMutableArray alloc] init];
-		_objectIconPathDict = [[NSMutableDictionary alloc] init];
-		_objectsWithUserIconsArray = [[NSMutableArray alloc] init];
-		_pendingDomIdQueues = [[NSMutableDictionary alloc] init];
 		_shouldReflectPreferenceChanges = NO;
 		_nextMessageFocus = YES;
 		_nextMessageRegainedFocus = YES;
@@ -145,20 +143,6 @@ static NSArray *draggedTypes = nil;
 		[self _updateWebViewForCurrentPreferences];
 
 		// Chat notifications
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(participatingListObjectsChanged:)
-													 name:Chat_ParticipatingListObjectsChanged
-												   object:inChat];
-
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(sourceOrDestinationChanged:)
-													 name:Chat_SourceChanged
-												   object:inChat];
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(sourceOrDestinationChanged:)
-													 name:Chat_DestinationChanged
-												   object:inChat];
-
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(contentObjectAdded:)
 													 name:Content_ContentObjectAdded
@@ -193,6 +177,9 @@ static NSArray *draggedTypes = nil;
 
 - (void)dealloc
 {
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[adium.preferenceController unregisterPreferenceObserver:self];
+
 	[_webView setNavigationDelegate:nil];
 	[_webView setUIDelegate:nil];
 	[_webView.configuration.userContentController removeScriptMessageHandlerForName:@"adium"];
@@ -240,6 +227,9 @@ static NSArray *draggedTypes = nil;
 
 	// Set up marked scroller after the scroll view exists
 	[self setupMarkedScroller];
+
+	// Content that arrived while the view was loading was parked in _storedContentObjects
+	[self _drainStoredContentObjects];
 
 	[self _processContentQueue];
 }
@@ -297,6 +287,7 @@ static NSArray *draggedTypes = nil;
 		// Don't re-process gate if already ready
 		if (!_webViewIsReady) {
 			_webViewIsReady = YES;
+			[self _drainStoredContentObjects];
 			[self _processContentQueue];
 		}
 	} else if ([type isEqualToString:@"fileTransfer"]) {
@@ -429,6 +420,12 @@ static NSArray *draggedTypes = nil;
 		BOOL contentIsSimilar = [content isSimilarToContent:_previousContent];
 		BOOL replaceLastContent = NO;
 
+		if ([_previousContent isKindOfClass:[AIContentStatus class]] && [content isKindOfClass:[AIContentStatus class]] &&
+			[[(AIContentStatus *)_previousContent coalescingKey] isEqualToString:[(AIContentStatus *)content coalescingKey]]) {
+			contentIsSimilar = NO;
+			replaceLastContent = YES;
+		}
+
 		if (!replaceLastContent) {
 			[self _markCurrentLocation];
 		}
@@ -443,6 +440,8 @@ static NSArray *draggedTypes = nil;
 					   // Update cached source after each append
 					   if (!error) {
 						   [self _syncCachedSource];
+					   } else {
+						   AILogWithSignature(@"evaluateJavaScript failed: %@", error);
 					   }
 				   }];
 
@@ -450,11 +449,20 @@ static NSArray *draggedTypes = nil;
 		_previousContent = content;
 	}
 
-	// Update user icons after content
 	[_contentQueue removeAllObjects];
+}
 
-	// Update icons after appending
-	[self _updateUserIcons];
+/*!
+ * @brief Move content parked while the webview was loading into the processing queue.
+ */
+- (void)_drainStoredContentObjects
+{
+	if ([_storedContentObjects count] == 0) {
+		return;
+	}
+
+	[_contentQueue addObjectsFromArray:_storedContentObjects];
+	[_storedContentObjects removeAllObjects];
 }
 
 /*!
@@ -466,7 +474,12 @@ static NSArray *draggedTypes = nil;
 {
 	[_webView evaluateJavaScript:@"document.getElementById('Chat').outerHTML"
 			   completionHandler:^(id result, NSError *error) {
-				   if (error || ![result isKindOfClass:[NSString class]]) {
+				   if (error) {
+					   AILogWithSignature(@"_syncCachedSource failed: %@", error);
+					   return;
+				   }
+				   if (![result isKindOfClass:[NSString class]]) {
+					   AILogWithSignature(@"_syncCachedSource returned a non-string result");
 					   return;
 				   }
 				   self->_cachedChatContentSource = [result copy];
@@ -496,6 +509,8 @@ static NSArray *draggedTypes = nil;
 			   completionHandler:^(id result, NSError *error) {
 				   if (!error) {
 					   [self _syncCachedSource];
+				   } else {
+					   AILogWithSignature(@"evaluateJavaScript failed: %@", error);
 				   }
 			   }];
 }
@@ -523,6 +538,7 @@ static NSArray *draggedTypes = nil;
 				   if (self->_nextMessageFocus) {
 					   [self.markedScroller addMarkAt:h withColor:[NSColor blueColor]];
 					   self->_nextMessageFocus = NO;
+					   self->_nextMessageRegainedFocus = YES;
 				   }
 				   if (self->_nextMessageRegainedFocus) {
 					   [self.markedScroller addMarkAt:h withColor:[NSColor greenColor]];
@@ -629,9 +645,6 @@ static NSArray *draggedTypes = nil;
 		[win setOpaque:!isBackgroundTransparent];
 	}
 
-	// Update our icons before loading
-	[self sourceOrDestinationChanged:nil];
-
 	// Prime the webview
 	[self _primeWebViewAndReprocessContent:YES];
 	_isUpdatingView = NO;
@@ -640,23 +653,22 @@ static NSArray *draggedTypes = nil;
 - (void)_updateVariantWithoutPrimingView
 {
 	static const NSUInteger kMaxRetries = 40;
-	static NSUInteger retryCount = 0;
 
 	if (_webViewIsReady) {
-		retryCount = 0;
+		_variantRetryCount = 0;
 		[_webView evaluateJavaScript:[_messageStyle scriptForChangingVariant]
 				   completionHandler:^(id result, NSError *error) {
 					   if (error) {
 						   AILogWithSignature(@"evaluateJavaScript failed: %@", error);
 					   }
 				   }];
-	} else if (retryCount < kMaxRetries) {
-		retryCount++;
+	} else if (_variantRetryCount < kMaxRetries) {
+		_variantRetryCount++;
 		[self performSelector:@selector(_updateVariantWithoutPrimingView)
 				   withObject:nil
 				   afterDelay:NEW_CONTENT_RETRY_DELAY];
 	} else {
-		retryCount = 0;
+		_variantRetryCount = 0;
 		AILogWithSignature(@"Gave up waiting for webview to become ready after %lu attempts",
 						   (unsigned long)kMaxRetries);
 	}
@@ -735,52 +747,6 @@ static NSArray *draggedTypes = nil;
 
 #pragma mark - Notifications
 
-- (void)participatingListObjectsChanged:(NSNotification *)notification
-{
-	[_objectIconPathDict removeAllObjects];
-	[_objectsWithUserIconsArray removeAllObjects];
-
-	[self sourceOrDestinationChanged:nil];
-}
-
-- (void)sourceOrDestinationChanged:(NSNotification *)notification
-{
-	if (!_webViewIsReady) {
-		return;
-	}
-
-	// We need to store icon paths for persisting when the view is re-primed
-	// On WKWebView, we use evaluateJavaScript to update icons in the DOM
-	NSString *updateJSPrefix = @"(function(){var imgs=document.querySelectorAll('img');";
-	NSMutableString *updateJS = [NSMutableString stringWithString:updateJSPrefix];
-
-	// Walk stored content objects to update their display icons
-	for (AIContentObject *content in _objectsWithUserIconsArray) {
-		NSString *domID = [content valueForKey:@"displayedDomID"];
-		if (domID) {
-			NSString *iconPath = [self _pathForUserIconOfContact:[content source]];
-			if (iconPath) {
-				NSString *escapedDomId = [self _jsStringLiteral:domID];
-				NSString *escapedIconPath = [self _jsStringLiteral:iconPath];
-				[updateJS appendFormat:@"var e=document.getElementById(%@);"
-									   @" if(e)e.src=%@;",
-									   escapedDomId, escapedIconPath];
-			}
-		}
-	}
-
-	[updateJS appendString:@"})()"];
-
-	if (![updateJS isEqualToString:updateJSPrefix]) {
-		[_webView evaluateJavaScript:updateJS
-				   completionHandler:^(id result, NSError *error) {
-					   if (error) {
-						   AILogWithSignature(@"evaluateJavaScript failed: %@", error);
-					   }
-				   }];
-	}
-}
-
 - (void)customEmoticonUpdated:(NSNotification *)inNotification
 {
 	[_webView evaluateJavaScript:@"initStyle()"
@@ -822,8 +788,43 @@ static NSArray *draggedTypes = nil;
 			   completionHandler:^(id result, NSError *error) {
 				   if (error) {
 					   AILogWithSignature(@"evaluateJavaScript failed: %@", error);
+					   return;
+				   }
+
+				   // correctMessage() returns false when no element with the DOM id exists
+				   // (the original message was never rendered); append it as a fallback.
+				   BOOL correctedInPlace = ([result respondsToSelector:@selector(boolValue)] && [result boolValue]);
+				   if (!correctedInPlace) {
+					   [self _appendCorrectedMessageFallback:html fromSenderJID:senderJID];
 				   }
 			   }];
+}
+
+/*!
+ * @brief Append corrected content as a new message when no DOM element could be corrected.
+ *
+ * The correction notification can arrive before the original message was rendered (e.g. while
+ * the webview was loading), so correctMessage() finds no element. Enqueue the corrected content
+ * so it displays instead of being silently dropped.
+ */
+- (void)_appendCorrectedMessageFallback:(NSString *)html fromSenderJID:(NSString *)senderJID
+{
+	AIListObject *source = [[adium contactController] contactWithService:[[_chat account] service]
+															  account:[_chat account]
+																 UID:senderJID];
+	if (!source) {
+		source = [_chat listObject];
+	}
+
+	AIContentMessage *content = [[AIContentMessage alloc] initWithChat:_chat
+															   source:source
+														  destination:nil
+																 date:[NSDate date]
+															  message:[[NSAttributedString alloc] initWithString:html]];
+	[content setDisplayContentImmediately:YES];
+
+	[_contentQueue addObject:content];
+	[self _processContentQueue];
 }
 
 - (void)stanzaWasTracked:(NSNotification *)notification
@@ -949,7 +950,7 @@ static NSArray *draggedTypes = nil;
 - (void)markForFocusChange
 {
 	_nextMessageFocus = YES;
-	_nextMessageRegainedFocus = YES;
+	_nextMessageRegainedFocus = NO;
 }
 
 #pragma mark - Printing
@@ -1006,68 +1007,6 @@ static NSArray *draggedTypes = nil;
 			[[NSWorkspace sharedWorkspace] selectFile:filename inFileViewerRootedAtPath:[filename stringByDeletingLastPathComponent]];
 		}
 	}
-}
-
-/*!
- * @brief Update user icons in displayed messages.
- *
- * Iterates stored content objects that have user icons and updates their
- * img.src to the current icon path via evaluateJavaScript.
- */
-- (void)_updateUserIcons
-{
-	if (!_webViewIsReady || ![_objectsWithUserIconsArray count]) {
-		return;
-	}
-
-	NSMutableString *js = [NSMutableString stringWithString:@"(function(){var imgs=document.querySelectorAll('img');"];
-
-	for (AIContentObject *content in _objectsWithUserIconsArray) {
-		NSString *domID = [content valueForKey:@"displayedDomID"];
-		if (domID) {
-			NSString *iconPath = [self _pathForUserIconOfContact:[content source]];
-			if (iconPath) {
-				NSString *escapedDomId = [self _jsStringLiteral:domID];
-				NSString *escapedIconPath = [self _jsStringLiteral:iconPath];
-				[js appendFormat:@"var e=document.getElementById(%@);"
-								 @" if(e)e.src=%@;",
-								 escapedDomId, escapedIconPath];
-			}
-		}
-	}
-
-	[js appendString:@"})()"];
-	[_webView evaluateJavaScript:js
-			   completionHandler:^(id result, NSError *error) {
-				   if (error) {
-					   AILogWithSignature(@"evaluateJavaScript failed: %@", error);
-				   }
-			   }];
-}
-
-/*!
- * @brief Path for a contact's user icon or a default.
- */
-- (NSString *)_pathForUserIconOfContact:(AIListObject *)contact
-{
-	NSString *iconPath = [contact valueForProperty:KEY_WEBKIT_USER_ICON];
-	if (!iconPath) {
-		// Fall back to the contact's user icon
-		NSImage *icon = [[AIUserIcons userIconForObject:contact] copy];
-		if (icon) {
-			NSString *path = [[_plugin styleSpecificKey:@"UserIconPath" forStyle:_activeStyle]
-				stringByAppendingPathComponent:[contact internalObjectID]];
-
-			NSData *data = [icon PNGRepresentation];
-			if (data) {
-				static NSInteger iconUniqueID = 0;
-				NSString *iconFile = [NSString stringWithFormat:@"%@/%ld.png", path, (long)iconUniqueID++];
-				[data writeToFile:iconFile atomically:YES];
-				iconPath = iconFile;
-			}
-		}
-	}
-	return iconPath;
 }
 
 /*!

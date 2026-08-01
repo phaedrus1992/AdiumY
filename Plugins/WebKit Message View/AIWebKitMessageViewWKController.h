@@ -32,11 +32,10 @@
 
 	NSMutableArray *_contentQueue;
 	NSMutableArray *_storedContentObjects;
-	NSMutableDictionary *_pendingDomIdQueues;
-	NSMutableDictionary *_objectIconPathDict;
-	NSMutableArray *_objectsWithUserIconsArray;
 	NSString *_cachedChatContentSource;
 	AIContentObject *_previousContent;
+
+	NSUInteger _variantRetryCount;
 
 	BOOL _webViewIsReady;
 	BOOL _shouldReflectPreferenceChanges;
