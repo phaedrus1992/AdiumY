@@ -72,9 +72,9 @@ static NSArray *draggedTypes = nil;
 
 /// Weak proxy that forwards WKScriptMessageHandler messages without retaining the target.
 /// Breaks the retain cycle caused by -[WKUserContentController addScriptMessageHandler:name:].
-/// Uses assign (MRC) — caller must remove the handler before dealloc, same as any delegate pattern.
+/// The caller must remove the handler before dealloc, same as any delegate pattern.
 @interface _AIWKScriptMessageHandlerWeakProxy : NSObject <WKScriptMessageHandler> {
-	id<WKScriptMessageHandler> _target; // assign (MRC idiom for weak)
+	__weak id<WKScriptMessageHandler> _target;
 }
 - (instancetype)initWithTarget:(id<WKScriptMessageHandler>)target;
 @end
