@@ -124,7 +124,6 @@ static NSMutableArray *deferredPluginPaths = nil;
 {
 	for (id<AIPlugin> plugin in pluginArray) {
 		[[NSNotificationCenter defaultCenter] removeObserver:plugin];
-		[[NSNotificationCenter defaultCenter] removeObserver:plugin];
 		[plugin uninstallPlugin];
 	}
 }
