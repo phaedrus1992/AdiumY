@@ -34,7 +34,6 @@
 #import <AIUtilities/AIPasteboardAdditions.h>
 #import <AIUtilities/AITextAttributes.h>
 #import <Adium/AIContactControllerProtocol.h>
-#import <WebKit/WebKit.h>
 
 #import "NSString-FBAdditions.h"
 
@@ -488,11 +487,13 @@
 
 // Forbid loading the images embedded in a string when pasting.
 // They are very unlikely to work and a privacy issue.
-- (NSURLRequest *)webView:(WebView *)sender
+// Parameter types are id: the real types (WebView/WebDataSource) are deprecated, but the
+// selector must stay intact for NSAttributedString's HTML importer (NSWebResourceLoadDelegateDocumentOption).
+- (NSURLRequest *)webView:(id)sender
 				 resource:(id)identifier
 		  willSendRequest:(NSURLRequest *)request
 		 redirectResponse:(NSURLResponse *)redirectResponse
-		   fromDataSource:(WebDataSource *)dataSource
+		   fromDataSource:(id)dataSource
 {
 	return nil;
 }
