@@ -48,7 +48,7 @@
 																	  forClass:[self class]]
 										forGroup:PREF_GROUP_DUAL_WINDOW_INTERFACE];
 
-	preferenceMessageAdvController =
+	preferenceMessageAdvController = (ESDualWindowMessageAdvancedPreferences *)[ESDualWindowMessageAdvancedPreferences preferencePane];
 
 		// Watch Adium hide and unhide (Used for better window opening behavior)
 		[[NSNotificationCenter defaultCenter] addObserver:self

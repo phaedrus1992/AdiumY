@@ -68,7 +68,7 @@
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
 	if ((self = [super initWithCoder:aDecoder])) {
-		[self _init];
+		self = [self _init];
 	}
 	return self;
 }
@@ -79,7 +79,7 @@
 - (id)initWithFrame:(NSRect)frameRect
 {
 	if ((self = [super initWithFrame:frameRect])) {
-		[self _init];
+		self = [self _init];
 	}
 	return self;
 }
@@ -317,7 +317,7 @@
 }
 - (NSControlSize)controlSizeForAccountMenu:(AIAccountMenu *)inAccountMenu;
 {
-	return NSRegularControlSize;
+	return NSControlSizeRegular;
 }
 
 /*!
@@ -466,7 +466,7 @@
 	[label setBordered:NO];
 	[label setDrawsBackground:NO];
 	[label setFont:[NSFont systemFontOfSize:[NSFont systemFontSize]]];
-	[label setAlignment:NSRightTextAlignment];
+	[label setAlignment:NSTextAlignmentRight];
 
 	return label;
 }

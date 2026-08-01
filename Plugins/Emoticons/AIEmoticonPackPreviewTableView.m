@@ -47,8 +47,9 @@
 	// and then draw the cell into it at the regular size.  This way the cell can overflow its bounds as normal and not
 	// spill outside the drag image.
 	rowRect = [self rectOfRow:firstRow];
-	image = [[[NSImage alloc]
+	image = [[NSImage alloc]
 		initWithSize:NSMakeSize(rowRect.size.width, rowRect.size.height * count +
+														[self intercellSpacing].height * (count - 1))];
 
 	// Draw
 	[image lockFocus];
@@ -107,26 +108,6 @@
 	[dragRows getIndexes:buf maxCount:bufSize inIndexRange:&range];
 
 	image = [self dragImageForRows:buf count:bufSize tableColumns:tableColumns event:dragEvent offset:dragImageOffset];
-
-	free(buf);
-
-	return image;
-}
-
-// Our default drag image will be cropped incorrectly, so we need a custom one here
-- (NSImage *)dragImageForRows:(NSArray *)dragRows
-						event:(NSEvent *)dragEvent
-			  dragImageOffset:(NSPointPointer)dragImageOffset
-{
-	NSImage *image;
-	NSUInteger i, bufSize = [dragRows count];
-	NSUInteger *buf = malloc(bufSize * sizeof(NSUInteger));
-
-	for (i = 0; i < bufSize; i++) {
-		buf[i] = [[dragRows objectAtIndex:0] unsignedIntegerValue];
-	}
-
-	image = [self dragImageForRows:buf count:bufSize tableColumns:nil event:dragEvent offset:dragImageOffset];
 
 	free(buf);
 

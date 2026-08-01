@@ -24,6 +24,7 @@
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIPasteboardAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
 #import <AIUtilities/AIWindowAdditions.h>
@@ -67,7 +68,7 @@
 
 - (void)tabDraggingNotificationReceived:(NSNotification *)notification;
 - (void)tabBarFrameChanged:(NSNotification *)notification;
-- (void)closeAlertDidEnd:(NSAlert *)alert returnCode:(int)result contextInfo:(void *)contextInfo;
+- (void)closeAlertDidEnd:(NSAlert *)alert returnCode:(NSModalResponse)result contextInfo:(void *)contextInfo;
 - (void)_relayoutWindow;
 @end
 
@@ -78,10 +79,10 @@
 															withID:(NSString *)inContainerID
 															  name:(NSString *)inName
 {
-	return [[[self alloc] initWithWindowNibName:MESSAGE_WINDOW_NIB
-									  interface:inInterface
-									containerID:inContainerID
-								  containerName:inName];
+	return [[self alloc] initWithWindowNibName:MESSAGE_WINDOW_NIB
+									 interface:inInterface
+								   containerID:inContainerID
+								 containerName:inName];
 }
 
 // init
@@ -185,7 +186,6 @@
 
 	// Exclude this window from the window menu (since we add it manually)
 	[theWindow setExcludedFromWindowsMenu:YES];
-	[theWindow useOptimizedDrawing:YES];
 
 	[self _configureToolbar];
 
@@ -295,20 +295,19 @@
 		}
 
 		if (suppressionText) {
-			NSAlert *alert =
-				[NSAlert alertWithMessageText:AILocalizedString(@"Are you sure you want to close this window?", nil)
-								defaultButton:AILocalizedString(@"Close", nil)
-							  alternateButton:AILocalizedStringFromTable(@"Cancel", @"Buttons", nil)
-								  otherButton:nil
-					informativeTextWithFormat:@"%@", question];
+			NSAlert *alert = [[NSAlert alloc] init];
+			alert.messageText = AILocalizedString(@"Are you sure you want to close this window?", nil);
+			alert.informativeText = [NSString stringWithFormat:@"%@", question];
+			[alert addButtonWithTitle:AILocalizedString(@"Close", nil)];
+			[alert addButtonWithTitle:AILocalizedStringFromTable(@"Cancel", @"Buttons", nil)];
 
 			[alert setShowsSuppressionButton:YES];
 			[[alert suppressionButton] setTitle:suppressionText];
 
 			[alert beginSheetModalForWindow:self.window
-							  modalDelegate:self
-							 didEndSelector:@selector(closeAlertDidEnd:returnCode:contextInfo:)
-								contextInfo:nil];
+						  completionHandler:^(NSModalResponse returnCode) {
+							  [self closeAlertDidEnd:alert returnCode:returnCode contextInfo:nil];
+						  }];
 
 			return NO;
 		}
@@ -317,14 +316,14 @@
 	return YES;
 }
 
-- (void)closeAlertDidEnd:(NSAlert *)alert returnCode:(int)result contextInfo:(void *)contextInfo;
+- (void)closeAlertDidEnd:(NSAlert *)alert returnCode:(NSModalResponse)result contextInfo:(void *)contextInfo;
 {
 
-	if ([alert suppressionButton].state == NSOnState) {
+	if ([alert suppressionButton].state == NSControlStateValueOn) {
 		[adium.preferenceController setPreference:nil forKey:KEY_CONFIRM_MSG_CLOSE group:PREF_GROUP_CONFIRMATIONS];
 	}
 
-	if (result == NSAlertDefaultReturn) {
+	if (result == NSAlertFirstButtonReturn) {
 		// Dismiss the alert sheet.
 		[self.window orderOut:nil];
 		// Don't prompt again.
@@ -501,9 +500,8 @@
 			NSUInteger mask = (tabPosition == AdiumTabPositionBottom) ? (NSViewMaxYMargin | NSViewWidthSizable)
 																	  : (NSViewMinYMargin | NSViewWidthSizable);
 			tabView_horzLine = [[NSBox alloc] initWithFrame:horzLineFrame];
-			[tabView_horzLine setBorderColor:[NSColor windowFrameColor]];
+			[tabView_horzLine setBorderColor:[NSColor separatorColor]];
 			[tabView_horzLine setBorderWidth:1];
-			[tabView_horzLine setBorderType:NSLineBorder];
 			[tabView_horzLine setBoxType:NSBoxCustom];
 			[tabView_horzLine setAutoresizingMask:mask];
 			[[[self window] contentView] addSubview:tabView_horzLine];
@@ -578,13 +576,19 @@
 
 	NSInteger count = [tabView_tabBar numberOfTabViewItems];
 	for (NSInteger i = [tabView_tabBar numberOfVisibleTabViewItems]; i < count; i++) {
-		if ([[[[tabView_tabBar visibleTabViewItems] objectAtIndex:i] chat] unviewedContentCount] > 0) {
+		if ([[(AIMessageTabViewItem *)[[tabView_tabBar visibleTabViewItems] objectAtIndex:i] chat]
+				unviewedContentCount] > 0) {
 			someUnviewedContent = YES;
 			break;
 		}
 	}
 
-	[[tabView_tabBar overflowPopUpButton] setAlternateImage:someUnviewedContent];
+	[[tabView_tabBar overflowPopUpButton]
+		setImage:(someUnviewedContent ? [AIStatusIcons statusIconForStatusName:@"content"
+																	statusType:AIAvailableStatusType
+																	  iconType:AIStatusIconTab
+																	 direction:AIIconNormal]
+									  : nil)];
 }
 
 - (void)updateIconForTabViewItem:(AIMessageTabViewItem *)tabViewItem
@@ -1007,8 +1011,8 @@
 // Allow dragging of text
 - (NSArray *)allowedDraggedTypesForTabView:(NSTabView *)aTabView
 {
-	return [NSArray arrayWithObjects:NSRTFPboardType, NSStringPboardType, NSFilenamesPboardType, NSTIFFPboardType,
-									 NSPDFPboardType, nil];
+	return [NSArray arrayWithObjects:NSPasteboardTypeRTF, NSPasteboardTypeString, AINSPasteboardTypeFilenames,
+									 NSPasteboardTypeTIFF, NSPasteboardTypePDF, nil];
 }
 
 // Accept dragged text
@@ -1028,10 +1032,12 @@
 	// grabs whole window image
 	NSImage *viewImage = [[NSImage alloc] init];
 	NSRect contentFrame = [[[self window] contentView] frame];
-	[[[self window] contentView] lockFocus];
-	NSBitmapImageRep *viewRep = [[NSBitmapImageRep alloc] initWithFocusedViewRect:contentFrame];
-	[viewImage addRepresentation:viewRep];
-	[[[self window] contentView] unlockFocus];
+	NSView *contentView = [[self window] contentView];
+	NSBitmapImageRep *viewRep = [contentView bitmapImageRepForCachingDisplayInRect:contentFrame];
+	if (viewRep != nil) {
+		[contentView cacheDisplayInRect:contentFrame toBitmapImageRep:viewRep];
+		[viewImage addRepresentation:viewRep];
+	}
 
 	// grabs snapshot of dragged tabViewItem's view (represents content being dragged)
 	NSView *viewForImage = [tabViewItem view];
@@ -1045,7 +1051,7 @@
 	NSPoint tabOrigin = [tabView frame].origin;
 	tabOrigin.x += 10;
 	tabOrigin.y += 13;
-	[tabViewImage drawAtPoint:tabOrigin fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+	[tabViewImage drawAtPoint:tabOrigin fromRect:NSZeroRect operation:NSCompositingOperationSourceOver fraction:1.0];
 	[viewImage unlockFocus];
 
 	// draw over where the tab bar would usually be
@@ -1084,7 +1090,7 @@
 		break;
 	}
 
-	*styleMask = NSTitledWindowMask;
+	*styleMask = NSWindowStyleMaskTitled;
 
 	return viewImage;
 }
@@ -1340,7 +1346,7 @@
 - (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar
 {
 	return
-		[NSArray arrayWithObjects:@"UserIcon", @"Encryption", NSToolbarSeparatorItemIdentifier, @"SourceDestination",
+		[NSArray arrayWithObjects:@"UserIcon", @"Encryption", NSToolbarFlexibleSpaceItemIdentifier, @"SourceDestination",
 								  @"InsertEmoticon", @"BlockParticipants", @"LinkEditor", @"SafariLink", @"AddBookmark",
 								  NSToolbarShowColorsItemIdentifier, NSToolbarShowFontsItemIdentifier,
 								  NSToolbarFlexibleSpaceItemIdentifier, @"SendFile", @"ShowInfo", @"LogViewer", nil];
@@ -1349,12 +1355,11 @@
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar
 {
 	return [[toolbarItems allKeys]
-		arrayByAddingObjectsFromArray:[NSArray arrayWithObjects:NSToolbarSeparatorItemIdentifier,
+		arrayByAddingObjectsFromArray:[NSArray arrayWithObjects:NSToolbarFlexibleSpaceItemIdentifier,
 																NSToolbarSpaceItemIdentifier,
 																NSToolbarFlexibleSpaceItemIdentifier,
 																NSToolbarShowColorsItemIdentifier,
-																NSToolbarShowFontsItemIdentifier,
-																NSToolbarCustomizeToolbarItemIdentifier, nil]];
+																NSToolbarShowFontsItemIdentifier, nil]];
 }
 
 - (void)toolbarWillAddItem:(NSNotification *)notification
@@ -1436,13 +1441,13 @@
 		[chatImage drawInRect:NSMakeRect((128 - newChatImageSize.width) / 2, (128 - newChatImageSize.height) / 2,
 										 newChatImageSize.width, newChatImageSize.height)
 					 fromRect:NSMakeRect(0, 0, chatImageSize.width, chatImageSize.height)
-					operation:NSCompositeSourceOver
+					operation:NSCompositingOperationSourceOver
 					 fraction:1.0f];
 
 		// Draw the Adium icon as a badge in the bottom right
 		[appImage drawInRect:NSMakeRect(128 - badgeSize.width, 0, badgeSize.width, badgeSize.height)
 					fromRect:NSMakeRect(0, 0, appImageSize.width, appImageSize.height)
-				   operation:NSCompositeSourceOver
+				   operation:NSCompositingOperationSourceOver
 					fraction:1.0f];
 	}
 	[miniwindowImage unlockFocus];

@@ -34,6 +34,7 @@
 #import <Adium/AIListContact.h>
 #import <Adium/AIListObject.h>
 #import <Adium/AIStatusControllerProtocol.h>
+#import <Adium/AIStatus.h>
 #import <Adium/AIStatusIcons.h>
 // For the KEY_SHOW_OFFLINE_CONTACTS and PREF_GROUP_CONTACT_LIST_DISPLAY
 #import "AIContactController.h"
@@ -99,7 +100,7 @@
 		optionsMenuNeedsUpdate = YES;
 
 		self.contactsMenuItem =
-			[[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Contacts", nil)
+			[[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Contacts", nil)
 																  target:self
 																  action:nil
 														   keyEquivalent:@""];
@@ -416,7 +417,7 @@
 		// Move the drawing origin.
 		destRect.origin.x = [duckImage size].width - destRect.size.width;
 
-		[badgeImage drawInRect:destRect fromRect:srcRect operation:NSCompositeSourceOver fraction:1.0f];
+		[badgeImage drawInRect:destRect fromRect:srcRect operation:NSCompositingOperationSourceOver fraction:1.0f];
 		[image unlockFocus];
 	}
 
@@ -660,7 +661,7 @@
 
 		// If there's more than one account, show the accounts menu
 		if ([accountMenuItemsArray count] > 1) {
-			menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Accounts", nil)
+			menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Accounts", nil)
 																			target:self
 																			action:nil
 																	 keyEquivalent:@""];
@@ -669,7 +670,7 @@
 			[menu addItem:menuItem];
 		}
 
-		menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Options", nil)
+		menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Options", nil)
 																		target:self
 																		action:nil
 																 keyEquivalent:@""];
@@ -699,7 +700,7 @@
 			for (AIChat *chat in openChatsArray) {
 				NSImage *image = nil;
 				// Create a menu item from the chat
-				menuItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:chat.displayName
+				menuItem = [[NSMenuItem alloc] initWithTitle:chat.displayName
 																				target:self
 																				action:@selector(switchToChat:)
 																		 keyEquivalent:@""];

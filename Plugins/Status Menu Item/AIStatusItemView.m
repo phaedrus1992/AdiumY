@@ -43,13 +43,8 @@
 
 - (void)drawRect:(NSRect)rect
 {
-	// A known bug with screen flashing and updating: http://www.cocoabuilder.com/archive/message/cocoa/2008/4/22/204861
-	NSDisableScreenUpdates();
-
 	[statusItem drawStatusBarBackgroundInRect:[self frame] withHighlight:mouseDown];
 	[super drawRect:rect];
-
-	NSEnableScreenUpdates();
 }
 
 /*!

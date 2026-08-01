@@ -117,7 +117,7 @@
 	[[placeholder_shortcutRecorder superview] addSubview:shortcutRecorder];
 
 	// Global hotkey
-	AIHotKey *hotKey = [[[AIHotKey alloc]
+	AIHotKey *hotKey = [[AIHotKey alloc]
 		initWithDictionary:[adium.preferenceController preferenceForKey:KEY_GENERAL_HOTKEY
 																  group:PREF_GROUP_GENERAL]];
 	self.shortcutRecorder.hotKey = hotKey;
@@ -172,7 +172,7 @@
 	[checkBox_updatesProfileInfo setEnabled:[checkBox_updatesAutomatic state]];
 #ifdef BETA_RELEASE
 	[checkBox_updatesIncludeBetas setEnabled:NO];
-	[checkBox_updatesIncludeBetas setState:NSOnState];
+	[checkBox_updatesIncludeBetas setState:NSControlStateValueOn];
 #else
 	[checkBox_updatesIncludeBetas setEnabled:[checkBox_updatesAutomatic state]];
 #endif
@@ -183,7 +183,7 @@
  */
 - (NSMenu *)tabChangeKeysMenu
 {
-	NSMenu *menu = [[NSMenu allocWithZone:[NSMenu menuZone]] init];
+	NSMenu *menu = [[NSMenu alloc] init];
 #define PLACE_OF_INTEREST_SIGN "\u2318"
 #define LEFTWARDS_ARROW "\u2190"
 #define RIGHTWARDS_ARROW "\u2192"
@@ -274,7 +274,7 @@
  */
 - (NSMenu *)sendKeysMenu
 {
-	NSMenu *menu = [[NSMenu allocWithZone:[NSMenu menuZone]] init];
+	NSMenu *menu = [[NSMenu alloc] init];
 
 	[menu addItemWithTitle:AILocalizedString(@"Enter", "Enter key for sending messages")
 					target:nil
@@ -302,11 +302,9 @@
 	AILogByAccountWindowController *windowController =
 		[[AILogByAccountWindowController alloc] initWithWindowNibName:@"AILogByAccountWindow"];
 
-	[NSApp beginSheet:windowController.window
-		modalForWindow:self.view.window
-		 modalDelegate:self
-		didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-		   contextInfo:nil];
+	[self.view.window beginSheet:windowController.window completionHandler:^(NSModalResponse returnCode) {
+		[self sheetDidEnd:windowController.window returnCode:returnCode contextInfo:nil];
+	}];
 }
 
 - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
@@ -316,7 +314,7 @@
 
 - (NSMenu *)tabPositionMenu
 {
-	NSMenu *menu = [[NSMenu allocWithZone:[NSMenu menuZone]] init];
+	NSMenu *menu = [[NSMenu alloc] init];
 
 	[menu addItemWithTitle:AILocalizedString(@"Top", "Position menu item for tabs at the top of the message window")
 					target:nil

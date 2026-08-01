@@ -28,7 +28,7 @@
 - (void)insertLinkTo:(NSURL *)urlString withText:(NSString *)linkString inView:(NSTextView *)inView;
 - (void)informTargetOfLink;
 
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSModalResponse)returnCode contextInfo:(void *)contextInfo;
 
 @end
 
@@ -45,11 +45,10 @@
 - (void)showOnWindow:(NSWindow *)parentWindow
 {
 	if (parentWindow) {
-		[NSApp beginSheet:self.window
-			modalForWindow:parentWindow
-			 modalDelegate:self
-			didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			   contextInfo:nil];
+		[parentWindow beginSheet:self.window
+			   completionHandler:^(NSModalResponse returnCode) {
+				   [self sheetDidEnd:self.window returnCode:returnCode contextInfo:nil];
+			   }];
 	} else {
 		[self showWindow:nil];
 	}
@@ -103,15 +102,15 @@
 		} else {
 			// Fill the URL field from the pasteboard if possible
 			NSPasteboard *pboard = [NSPasteboard generalPasteboard];
-			NSString *availableType =
-				[pboard availableTypeFromArray:[NSArray arrayWithObjects:NSURLPboardType, NSStringPboardType, nil]];
+			NSString *availableType = [pboard
+				availableTypeFromArray:[NSArray arrayWithObjects:NSPasteboardTypeURL, NSPasteboardTypeString, nil]];
 
 			if (availableType) {
-				if ([availableType isEqualToString:NSURLPboardType]) {
+				if ([availableType isEqualToString:NSPasteboardTypeURL]) {
 					linkURL = [[NSURL URLFromPasteboard:pboard] absoluteString];
 
-				} else { /* NSStringPboardType */
-					linkURL = [pboard stringForType:NSStringPboardType];
+				} else { /* NSPasteboardTypeString */
+					linkURL = [pboard stringForType:NSPasteboardTypeString];
 				}
 			}
 
@@ -128,7 +127,7 @@
 		}
 
 		// Get the selected text
-		linkText = [[textView attributedSubstringFromRange:selectedRange] string];
+		linkText = [[[textView textStorage] attributedSubstringFromRange:selectedRange] string];
 
 		// Place the link title and URL in our panel. Automatically select the URL.
 		if (linkURL) {
@@ -169,7 +168,7 @@
 }
 
 // Called as the sheet closes, dismisses the sheet
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSModalResponse)returnCode contextInfo:(void *)contextInfo
 {
 	[sheet orderOut:nil];
 }

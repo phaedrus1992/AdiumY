@@ -64,9 +64,9 @@
 			NSString *linkURLString;
 
 			if ([linkURL isKindOfClass:[NSURL class]]) {
-				linkURLString = (NSString *)CFURLCreateStringByReplacingPercentEscapes(
+				linkURLString = CFBridgingRelease(CFURLCreateStringByReplacingPercentEscapes(
 					kCFAllocatorDefault, (CFStringRef)[(NSURL *)linkURL absoluteString],
-					/* characters to leave escaped */ CFSTR(""));
+					/* characters to leave escaped */ CFSTR("")));
 
 			} else {
 				linkURLString = (NSString *)linkURL;
@@ -80,14 +80,12 @@
 				if (result) {
 					NSURL *newURL;
 					NSString *escapedLinkURLString;
-					NSString *charactersToLeaveUnescaped = @"#";
 
 					if (!filteredMessage)
 						filteredMessage = [inAttributedString mutableCopy];
-					escapedLinkURLString = (NSString *)CFURLCreateStringByAddingPercentEscapes(
-						/* allocator */ kCFAllocatorDefault, (CFStringRef)result,
-						(CFStringRef)charactersToLeaveUnescaped,
-						/* legal characters to escape */ NULL, kCFStringEncodingUTF8);
+					NSMutableCharacterSet *allowedSet = [NSMutableCharacterSet alphanumericCharacterSet];
+					[allowedSet addCharactersInString:@"-._~!*'(),;/?:@&=+$#"];
+					escapedLinkURLString = [result stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
 					newURL = [NSURL URLWithString:escapedLinkURLString];
 
 					if (newURL) {
@@ -172,18 +170,16 @@
 	// Current Date
 	if ([self string:str containsValidKeyword:@"%d"]) {
 		NSDate *currentDate = [NSDate date];
-		__block NSString *calendarFormat;
+		__block NSString *dateString;
 		[NSDateFormatter withLocalizedShortDateFormatterPerform:^(NSDateFormatter *dateFormatter) {
-			calendarFormat = [dateFormatter dateFormat];
+			dateString = [dateFormatter stringFromDate:currentDate];
 		}];
 
 		if (!newAttributedString)
 			newAttributedString = [attributedString mutableCopy];
 
 		[newAttributedString replaceOccurrencesOfString:@"%d"
-											 withString:[currentDate descriptionWithCalendarFormat:calendarFormat
-																						  timeZone:nil
-																							locale:nil]
+											 withString:dateString
 												options:NSLiteralSearch
 												  range:NSMakeRange(0, [newAttributedString length])];
 	}

@@ -45,7 +45,7 @@
 #define CHAT_NOW_SECURE_UNVERIFIED AILocalizedString(@"Encrypted OTR chat initiated. %@'s identity not verified.", nil)
 #define CHAT_NO_LONGER_SECURE AILocalizedString(@"Ended encrypted OTR chat.", nil)
 
-@interface ESSecureMessagingPlugin ()
+@interface ESSecureMessagingPlugin () <NSMenuItemValidation>
 - (void)configureMenuItems;
 - (void)registerToolbarItem;
 - (NSMenu *)_secureMessagingMenu;
@@ -87,7 +87,7 @@
 
 	// Add menu to toolbar item (for text mode)
 	menuItem_encryption =
-		[[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:AILocalizedString(@"Encryption", nil)
+		[[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Encryption", nil)
 															 target:self
 															 action:@selector(dummyAction:)
 													  keyEquivalent:@""];
@@ -133,8 +133,6 @@
 					  itemContent:button
 						   action:@selector(toggleSecureMessaging:)
 							 menu:nil];
-	[toolbarItem setMinSize:NSMakeSize(32, 32)];
-	[toolbarItem setMaxSize:NSMakeSize(32, 32)];
 	[button setToolbarItem:toolbarItem];
 
 	// Register our toolbar item
@@ -162,7 +160,7 @@
 		[[item view] setMenu:menu];
 
 		// Add menu to toolbar item (for text mode)
-		NSMenuItem *mItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]] init];
+		NSMenuItem *mItem = [[NSMenuItem alloc] init];
 		[mItem setSubmenu:menu];
 		[mItem setTitle:[menu title]];
 		[item setMenuFormRepresentation:mItem];
@@ -297,9 +295,11 @@
 
 - (IBAction)showDetails:(id)sender
 {
-	NSRunInformationalAlertPanel(AILocalizedString(@"Details", nil),
-								 [[adium.interfaceController.activeChat securityDetails] objectForKey:@"Description"],
-								 @"%@", nil, nil, AILocalizedString(@"OK", nil));
+	NSAlert *detailsAlert = [[NSAlert alloc] init];
+	detailsAlert.messageText = AILocalizedString(@"Details", nil);
+	detailsAlert.informativeText = (NSString *)[[adium.interfaceController.activeChat securityDetails] objectForKey:@"Description"];
+	[detailsAlert addButtonWithTitle:AILocalizedString(@"OK", nil)];
+	[detailsAlert runModal];
 }
 
 - (IBAction)verify:(id)sender
@@ -316,8 +316,11 @@
 	aboutEncryption = adium.interfaceController.activeChat.account.aboutEncryption;
 
 	if (aboutEncryption) {
-		NSRunInformationalAlertPanel(AILocalizedString(@"About Encryption", nil), @"%@", AILocalizedString(@"OK", nil),
-									 nil, nil, aboutEncryption);
+		NSAlert *aboutEncryptionAlert = [[NSAlert alloc] init];
+		aboutEncryptionAlert.messageText = AILocalizedString(@"About Encryption", nil);
+		aboutEncryptionAlert.informativeText = aboutEncryption;
+		[aboutEncryptionAlert addButtonWithTitle:AILocalizedString(@"OK", nil)];
+		[aboutEncryptionAlert runModal];
 	}
 }
 
@@ -430,7 +433,7 @@
 	if (!_secureMessagingMenu) {
 		NSMenuItem *item;
 
-		_secureMessagingMenu = [[NSMenu allocWithZone:[NSMenu menuZone]] init];
+		_secureMessagingMenu = [[NSMenu alloc] init];
 		[_secureMessagingMenu setTitle:TITLE_ENCRYPTION];
 
 		item = [[NSMenuItem alloc] initWithTitle:TITLE_MAKE_SECURE
