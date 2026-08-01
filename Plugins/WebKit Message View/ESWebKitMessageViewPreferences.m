@@ -19,7 +19,6 @@
 #import "AIWebKitMessageViewPlugin.h"
 #import "AIWebKitPreviewMessageViewController.h"
 #import "AIWebkitMessageViewStyle.h"
-#import "ESWebView.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIBundleAdditions.h>
 #import <AIUtilities/AIColorAdditions.h>
@@ -596,15 +595,6 @@
 	// Will be released in viewWillClose
 	[[view_previewLocation superview] replaceSubview:view_previewLocation with:preview];
 
-	// Disable drag and drop onto the preview chat - Jeff doesn't need your porn :)
-	if ([preview respondsToSelector:@selector(setAllowsDragAndDrop:)]) {
-		[(ESWebView *)preview setAllowsDragAndDrop:NO];
-	}
-
-	// Disable forwarding of events so the preferences responder chain works properly
-	if ([preview respondsToSelector:@selector(setShouldForwardEvents:)]) {
-		[(ESWebView *)preview setShouldForwardEvents:NO];
-	}
 }
 
 - (AIChat *)previewChatWithDictionary:(NSDictionary *)previewDict
