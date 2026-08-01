@@ -74,7 +74,7 @@ typedef enum {
  *	@class AIWebkitMessageViewStyle AIWebkitMessageViewStyle.h
  *	@brief Handles all interaction between the webkit message view controller and the message style, including creating
  * the actual html strings to be appended
- *	@see AIWebKitMessageViewController
+ *	@see AIWebKitMessageViewWKController
  */
 @interface AIWebkitMessageViewStyle : NSObject {
 	NSInteger styleVersion;

@@ -100,7 +100,7 @@ typedef enum { AIWebkitRegularChat = 0, AIWebkitGroupChat } AIWebkitStyleType;
 /*!
  *	@class AIWebKitMessageViewPlugin AIWebKitMessageViewPlugin.h
  *	@brief Handles loading the WKMV plugin into Adium
- *	@see AIWebKitMessageViewController
+ *	@see AIWebKitMessageViewWKController
  */
 @interface AIWebKitMessageViewPlugin : AIPlugin <AIMessageDisplayPlugin> {
 	ESWebKitMessageViewPreferences *preferences;
