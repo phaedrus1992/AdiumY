@@ -15,6 +15,7 @@
  */
 
 #import "AFSIAppDelegate.h"
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 extern Boolean GetMetadataForFile(void *thisInterface, NSMutableDictionary *attributes, NSString *contentTypeUTI,
 								  NSString *pathToFile);
@@ -24,8 +25,10 @@ extern Boolean GetMetadataForFile(void *thisInterface, NSMutableDictionary *attr
 - (void)importOneChatlogFromPath:(NSString *)path numFilesProcessed:(inout NSUInteger *)numFilesProcessed
 {
 	NSError *error = nil;
-	GetMetadataForFile(NULL, [NSMutableDictionary dictionary],
-					   [[NSWorkspace sharedWorkspace] typeOfFile:path error:&error], path);
+	NSURL *fileURL = [NSURL fileURLWithPath:path];
+	UTType *contentType = nil;
+	[fileURL getResourceValue:&contentType forKey:NSURLContentTypeKey error:&error];
+	GetMetadataForFile(NULL, [NSMutableDictionary dictionary], [contentType identifier], path);
 	++*numFilesProcessed;
 }
 
