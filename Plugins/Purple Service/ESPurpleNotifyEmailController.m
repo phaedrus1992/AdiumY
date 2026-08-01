@@ -52,7 +52,7 @@
 	NSMutableAttributedString *message;
 
 	centeredParagraphStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
-	[centeredParagraphStyle setAlignment:NSCenterTextAlignment];
+	[centeredParagraphStyle setAlignment:NSTextAlignmentCenter];
 	message = [[NSMutableAttributedString alloc] init];
 
 	// Title
@@ -237,7 +237,16 @@
  */
 + (void)startMailApplication
 {
-	if ([[NSWorkspace sharedWorkspace] launchApplication:[self mailApplicationName]] == NO) {
+	NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:[NSURL URLWithString:@"mailto:"]];
+	if (appURL) {
+		[[NSWorkspace sharedWorkspace] openApplicationAtURL:appURL
+			configuration:[NSWorkspaceOpenConfiguration configuration]
+			completionHandler:^(NSRunningApplication *app, NSError *error) {
+			if (!app) {
+				NSLog(@"Could not launch mail application '%@' (%@)", [self mailApplicationName], error);
+			}
+			}];
+	} else {
 		NSLog(@"Could not launch mail application '%@'", [self mailApplicationName]);
 	}
 }
