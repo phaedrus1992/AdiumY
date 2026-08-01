@@ -725,8 +725,8 @@ static NSArray *draggedTypes = nil;
 
 		// Fallback: message not in loaded view, append as a new message
 		AIListContact *contact = (AIListContact *)[[adium contactController] contactWithService:[[chat account] service]
-																							UID:senderJID
-																						account:[chat account]];
+															  account:[chat account]
+																 UID:senderJID];
 		if (!contact) {
 			contact = (AIListContact *)[chat listObject];
 		}
@@ -824,9 +824,9 @@ static NSArray *draggedTypes = nil;
 							  withSource:content.chat.listObject
 							 destination:content.chat.account
 									date:content.date
-								 message:[[[NSAttributedString alloc]
+								 message:[[NSAttributedString alloc]
 											 initWithString:dateMessage
-												 attributes:[adium.contentController defaultFormattingAttributes]]]
+												 attributes:[adium.contentController defaultFormattingAttributes]]
 								withType:@"date_separator"];
 
 		if ([content isKindOfClass:[AIContentContext class]])
