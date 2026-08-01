@@ -25,6 +25,7 @@
 #import "AIPreferenceContainer.h"
 #import "AIPreferencePane.h"
 #import "AIPreferenceWindowController.h"
+#import <AIUtilities/AIApplicationAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
@@ -139,12 +140,6 @@
 {
 	[AIPreferenceContainer preferenceControllerWillClose];
 }
-
-/*!
- * @brief Deallocate
- */
-- (void)dealloc
-{}
 
 // Preference Window
 // ----------------------------------------------------------------------------------------------------
@@ -523,8 +518,7 @@
 	if (!userPreferredDownloadFolder) {
 		// 10.5: ICGetPref() for kICDownloadFolder is useless
 		// Use Safari's preference as a default if it's the default browser and it is set
-		NSURL *urlToDefaultBrowser = (__bridge_transfer NSURL *)LSCopyDefaultApplicationURLForURL(
-			(__bridge CFURLRef)[NSURL URLWithString:@"http://google.com"], kLSRolesViewer, NULL);
+		NSURL *urlToDefaultBrowser = [NSApp defaultBrowserURL];
 		if (urlToDefaultBrowser) {
 			NSString *defaultBrowserName = nil;
 

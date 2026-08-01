@@ -15,6 +15,7 @@
  */
 
 #import "AIApplicationAdditions.h"
+#import <CoreServices/CoreServices.h>
 
 // Make sure the version number defines exist; when compiling on 10.6, NSAppKitVersionNumber10_6 isn't defined
 #ifndef NSAppKitVersionNumber10_6
@@ -39,6 +40,12 @@
 - (BOOL)isOnMavericksOrNewer
 {
 	return (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_8);
+}
+
+- (NSURL *)defaultBrowserURL
+{
+	return (__bridge_transfer NSURL *)LSCopyDefaultApplicationURLForURL(
+		(__bridge CFURLRef)[NSURL URLWithString:@"http://google.com"], kLSRolesViewer, NULL);
 }
 
 @end

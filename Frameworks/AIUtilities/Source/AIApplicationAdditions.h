@@ -21,4 +21,7 @@
 - (BOOL)isOnLionOrNewer;
 - (BOOL)isOnMavericksOrNewer;
 
+/// The URL of the application currently registered as the default browser.
+- (NSURL *)defaultBrowserURL;
+
 @end

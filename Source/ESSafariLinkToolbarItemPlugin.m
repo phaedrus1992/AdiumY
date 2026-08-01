@@ -16,6 +16,7 @@
 
 #import "ESSafariLinkToolbarItemPlugin.h"
 #import "ESApplescriptabilityController.h"
+#import <AIUtilities/AIApplicationAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
 #import <AIUtilities/AIWindowAdditions.h>
@@ -45,8 +46,7 @@
 	NSString *browserName = nil;
 	NSImage *browserImage = nil;
 
-	NSURL *urlToDefaultBrowser = (__bridge_transfer NSURL *)LSCopyDefaultApplicationURLForURL(
-		(__bridge CFURLRef)[NSURL URLWithString:@"http://google.com"], kLSRolesViewer, NULL);
+	NSURL *urlToDefaultBrowser = [NSApp defaultBrowserURL];
 	if (urlToDefaultBrowser) {
 		NSString *defaultBrowserName;
 		NSString *defaultBrowserPath;
