@@ -36,13 +36,13 @@
 
 @interface AWEzvContact ()
 @property (readwrite, nonatomic) AWEzvStatus status;
-@property (readwrite, retain, nonatomic) NSDate *idleSinceDate;
-@property (readwrite, retain, nonatomic) NSString *name;
+@property (readwrite, strong, nonatomic) NSDate *idleSinceDate;
+@property (readwrite, strong, nonatomic) NSString *name;
 @property (readwrite, retain, nonatomic) AWEzvXMLStream *stream;
 @property (readwrite, retain, nonatomic) AWEzvRendezvousData *rendezvous;
 @property (readwrite, retain, nonatomic) NSString *ipAddr;
 @property (readwrite, nonatomic) u_int16_t port;
-@property (readwrite, retain, nonatomic) AWEzvContactManager *manager;
+@property (readwrite, strong, nonatomic) AWEzvContactManager *manager;
 @property (readwrite, retain, nonatomic) ServiceController * resolveServiceController;
 @property (readwrite, retain, nonatomic) ServiceController * imageServiceController;
 @property (readwrite, retain, nonatomic) ServiceController * addressServiceController;

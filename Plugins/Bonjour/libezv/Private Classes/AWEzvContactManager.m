@@ -56,8 +56,8 @@
 			CFRelease(uuid);		
 		}
 		avInstanceName = [[NSString alloc] initWithFormat:@"%@@%@",
-						  (consoleUser ? (NSString *)consoleUser : @""),
-						  (computerName ? (NSString *)computerName : @"")];
+						  (consoleUser ? (__bridge NSString *)consoleUser : @""),
+						  (computerName ? (__bridge NSString *)computerName : @"")];
 		if (consoleUser) CFRelease(consoleUser);
 		if (computerName) CFRelease(computerName);		
 	}

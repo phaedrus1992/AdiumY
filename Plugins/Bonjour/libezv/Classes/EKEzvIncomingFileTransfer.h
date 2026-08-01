@@ -8,12 +8,16 @@
 #import "EKEzvFileTransfer.h"
 #import <AIUtilities/AIOSCompatibility.h>
 
-@interface EKEzvIncomingFileTransfer : EKEzvFileTransfer <NSURLDownloadDelegate> {
+@interface EKEzvIncomingFileTransfer : EKEzvFileTransfer <NSURLSessionDelegate, NSURLSessionDataDelegate> {
 	NSMutableDictionary *itemsToDownload;
 	NSMutableDictionary *permissionsToApply;
 
 	NSMutableArray *encodedDownloads;
 	NSMutableArray *currentDownloads;
+
+	NSURLSession *downloadSession;
+	NSMutableDictionary *downloadPaths;
+	NSMutableDictionary *downloadFileHandles;
 }
 - (void)startDownload;
 - (void)cancelDownload;

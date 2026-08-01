@@ -160,6 +160,7 @@ static void MyCFWriteStreamCallback (CFWriteStreamRef stream, CFStreamEventType 
 
 - (void)dealloc
 {
+	[super dealloc];
 }
 
 @end
@@ -196,6 +197,7 @@ static void MyCFWriteStreamCallback (CFWriteStreamRef stream, CFStreamEventType 
 
 - (void)dealloc
 {
+	[super dealloc];
 }
 
 @end
@@ -260,6 +262,7 @@ static void MyCFWriteStreamCallback (CFWriteStreamRef stream, CFStreamEventType 
 	[self close];
 	[NSObject cancelPreviousPerformRequestsWithTarget:theDelegate selector:@selector(onSocketDidDisconnect:) object:self];
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];
+	[super dealloc];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

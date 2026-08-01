@@ -90,8 +90,6 @@
 
 - (void)setIdleTime:(NSDate *)date
 {
-	if (idleTime)
-
 	if (!date) {
 		idleTime = nil;
 		status = AWEzvOnline;

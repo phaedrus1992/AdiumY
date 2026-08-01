@@ -95,7 +95,7 @@ void xml_char_data	(void *userData,
 					  object:connection];
     
     parser = XML_ParserCreate(NULL);
-    XML_SetUserData(parser, self);
+    XML_SetUserData(parser, (__bridge void *)self);
     XML_SetElementHandler(parser, &xml_start_element, &xml_end_element);
     XML_SetCharacterDataHandler(parser, &xml_char_data);
     XML_SetParamEntityParsing(parser, XML_PARAM_ENTITY_PARSING_NEVER);
@@ -270,14 +270,17 @@ void xml_char_data	(void *userData,
 
 	/* and make an element info structure */
 	CFXMLElementInfo	xmlElementInfo;
-	xmlElementInfo.attributes = (CFDictionaryRef)handshakeElements;
-	xmlElementInfo.attributeOrder = (CFArrayRef)[NSArray arrayWithObjects:@"to", @"from", @"xmlns", @"xmlns:stream", nil];
+	xmlElementInfo.attributes = (__bridge CFDictionaryRef)handshakeElements;
+	xmlElementInfo.attributeOrder = (__bridge CFArrayRef)[NSArray arrayWithObjects:@"to", @"from", @"xmlns", @"xmlns:stream", nil];
 	xmlElementInfo.isEmpty = YES;
 
 	/* create node and tree, then convert to XML text */
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 	CFXMLNodeRef xmlNode = CFXMLNodeCreate(NULL, kCFXMLNodeTypeElement, (CFStringRef)@"stream:stream", &xmlElementInfo, kCFXMLNodeCurrentVersion);
 	CFXMLTreeRef xmlTree = CFXMLTreeCreateWithNode(NULL, xmlNode);
 	NSData *data = CFBridgingRelease(CFXMLTreeCreateXMLData(NULL, xmlTree));
+	#pragma clang diagnostic pop
 	CFRelease(xmlNode);
 	CFRelease(xmlTree);
 
@@ -299,19 +302,19 @@ void xml_char_data	(void *userData,
 void xml_start_element	 (void *userData,
                           const XML_Char *name,
                           const XML_Char **atts) {
-    AWEzvXMLStream  *self = userData;    
+    AWEzvXMLStream  *self = (__bridge AWEzvXMLStream *)userData;    
     [self xmlStartElement:name attributes:atts];
 }
 
 void xml_end_element	(void *userData,
                          const XML_Char *name) {
-    AWEzvXMLStream  *self = userData;
+    AWEzvXMLStream  *self = (__bridge AWEzvXMLStream *)userData;
     [self xmlEndElement:name];
 }
 
 void xml_char_data	(void *userData,
                          const XML_Char *s,
                          int len) {
-    AWEzvXMLStream  *self = userData;
+    AWEzvXMLStream  *self = (__bridge AWEzvXMLStream *)userData;
     [self xmlCharData:s length:len];
 }
