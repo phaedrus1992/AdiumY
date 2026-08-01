@@ -32,7 +32,7 @@
 	AIEmoticonController, AIFileTransferController, AILoginController, AIInterfaceController, AIContactController,
 	AIDockController, AIMediaController;
 
-@interface AIAdium : NSObject <AIAdium, SUVersionComparison, SPUUpdaterDelegate> {
+@interface AIAdium : NSObject <AIAdium, SPUUpdaterDelegate> {
   @private
 	IBOutlet NSObject<AIMenuController> *menuController;
 	IBOutlet NSObject<AIInterfaceController> *interfaceController;

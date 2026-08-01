@@ -877,7 +877,13 @@ static NSString *prefsCategory;
 				[createFolderAlert addButtonWithTitle:AILocalizedString(@"Launch Disk Utility", nil)];
 				NSInteger result = [createFolderAlert runModal];
 				if (result == NSAlertSecondButtonReturn) {
-					[[NSWorkspace sharedWorkspace] launchApplication:@"Disk Utility"];
+					NSURL *diskUtilityURL = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:@"com.apple.DiskUtility"];
+
+					if (diskUtilityURL != nil) {
+						[[NSWorkspace sharedWorkspace] openApplicationAtURL:diskUtilityURL
+						                                      configuration:[NSWorkspaceOpenConfiguration configuration]
+						                                    completionHandler:nil];
+					}
 				}
 			}
 		}
@@ -1088,6 +1094,13 @@ static NSString *prefsCategory;
 }
 
 #pragma mark Scripting
+
+// application:delegateHandlesKey: is declared both as an optional NSApplicationDelegate method and (deprecated) in the
+// NSApplicationScripting category. Implementing it necessarily satisfies the deprecated declaration as well, so the
+// implementation must be exempted from -Wdeprecated-implementations. The method is still required so that the scripting
+// system routes AppleScript KVC for the "applescriptabilityController" and "interfaceController" keys to this delegate.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (BOOL)application:(NSApplication *)sender delegateHandlesKey:(NSString *)key
 {
 	BOOL handleKey = NO;
@@ -1098,6 +1111,7 @@ static NSString *prefsCategory;
 
 	return handleKey;
 }
+#pragma clang diagnostic pop
 
 #pragma mark Sparkle Delegate Methods
 
@@ -1129,7 +1143,7 @@ static NSString *prefsCategory;
  *		key: 		The key to be used  when reporting data to the server
  *		value:		Value to be used when reporting data to the server
  */
-- (NSArray *)feedParametersForUpdater:(SUUpdater *)updater sendingSystemProfile:(BOOL)sendProfileInfo
+- (NSArray<NSDictionary<NSString *, NSString *> *> *)feedParametersForUpdater:(SPUUpdater *)updater sendingSystemProfile:(BOOL)sendProfileInfo
 {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
@@ -1222,11 +1236,6 @@ static NSString *prefsCategory;
 	}
 
 	return profileInfo;
-}
-
-- (id<SUVersionComparison>)versionComparatorForUpdater:(SUUpdater *)updater
-{
-	return self;
 }
 
 #pragma mark Version Comparison (Copied from SUStandardVersionComparator)
