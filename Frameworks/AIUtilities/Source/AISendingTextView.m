@@ -96,7 +96,7 @@
 }
 
 // special characters only work at the end of a string of input
-- (void)insertText:(id)aString
+- (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
 	BOOL insertText = YES;
 	NSString *theString = nil;
@@ -114,9 +114,9 @@
 		if ([theString length] > 1) {
 			NSRange range = NSMakeRange(0, [theString length] - 1);
 			if ([aString isKindOfClass:[NSString class]]) {
-				[super insertText:[aString substringWithRange:range]];
+				[super insertText:[aString substringWithRange:range] replacementRange:replacementRange];
 			} else if ([aString isKindOfClass:[NSAttributedString class]]) {
-				[super insertText:[aString attributedSubstringFromRange:range]];
+				[super insertText:[aString attributedSubstringFromRange:range] replacementRange:replacementRange];
 			}
 		}
 
@@ -125,8 +125,9 @@
 		insertText = NO;
 	}
 
-	if (insertText)
-		[super insertText:aString];
+	if (insertText) {
+		[super insertText:aString replacementRange:replacementRange];
+	}
 }
 
 - (void)interpretKeyEvents:(NSArray *)eventArray
@@ -137,19 +138,19 @@
 	while (idx < numEvents) {
 		NSEvent *theEvent = [eventArray objectAtIndex:idx];
 
-		if ([theEvent type] == NSKeyDown) {
+		if ([theEvent type] == NSEventTypeKeyDown) {
 			unichar lastChar = [[theEvent charactersIgnoringModifiers] lastCharacter];
 			if (lastChar == NSCarriageReturnCharacter) {
 				nextIsEnter = NO;
 				nextIsReturn = YES;
 
-				optionPressedWithNext = ([theEvent modifierFlags] & NSAlternateKeyMask) != 0;
+				optionPressedWithNext = ([theEvent modifierFlags] & NSEventModifierFlagOption) != 0;
 
 			} else if (lastChar == NSEnterCharacter) {
 				nextIsReturn = NO;
 				nextIsEnter = YES;
 
-				optionPressedWithNext = ([theEvent modifierFlags] & NSAlternateKeyMask) != 0;
+				optionPressedWithNext = ([theEvent modifierFlags] & NSEventModifierFlagOption) != 0;
 			}
 		}
 
@@ -162,7 +163,13 @@
 //'Send' our content
 - (IBAction)sendContent:(id)sender
 {
+	#pragma clang diagnostic push
+
+	#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+
 	[target performSelector:selector withObject:self];
+	#pragma clang diagnostic pop
+
 }
 
 @end

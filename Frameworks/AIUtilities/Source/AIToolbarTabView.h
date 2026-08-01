@@ -80,7 +80,7 @@
  * @see <tt><a href="category_n_s_object(_a_i_toolbar_tab_view_delegate).html"
  * target="_top">NSObject(AIToolbarTabViewDelegate)</a></tt>
  */
-@interface AIToolbarTabView : NSTabView <NSToolbarDelegate, AIToolbarTabViewDelegate> {
+@interface AIToolbarTabView : NSTabView <NSToolbarDelegate, NSToolbarItemValidation, AIToolbarTabViewDelegate> {
 	NSMutableDictionary *toolbarItems;
 	int oldHeight;
 

@@ -20,42 +20,42 @@
 
 + (BOOL)cmdKey
 {
-	return ([NSEvent modifierFlags] & NSCommandKeyMask) != 0;
+	return ([NSEvent modifierFlags] & NSEventModifierFlagCommand) != 0;
 }
 
 + (BOOL)shiftKey
 {
-	return ([NSEvent modifierFlags] & NSShiftKeyMask) != 0;
+	return ([NSEvent modifierFlags] & NSEventModifierFlagShift) != 0;
 }
 
 + (BOOL)optionKey
 {
-	return ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0;
+	return ([NSEvent modifierFlags] & NSEventModifierFlagOption) != 0;
 }
 
 + (BOOL)controlKey
 {
-	return ([NSEvent modifierFlags] & NSControlKeyMask) != 0;
+	return ([NSEvent modifierFlags] & NSEventModifierFlagControl) != 0;
 }
 
 - (BOOL)cmdKey
 {
-	return ([self modifierFlags] & NSCommandKeyMask) != 0;
+	return ([self modifierFlags] & NSEventModifierFlagCommand) != 0;
 }
 
 - (BOOL)shiftKey
 {
-	return ([self modifierFlags] & NSShiftKeyMask) != 0;
+	return ([self modifierFlags] & NSEventModifierFlagShift) != 0;
 }
 
 - (BOOL)optionKey
 {
-	return ([self modifierFlags] & NSAlternateKeyMask) != 0;
+	return ([self modifierFlags] & NSEventModifierFlagOption) != 0;
 }
 
 - (BOOL)controlKey
 {
-	return ([self modifierFlags] & NSControlKeyMask) != 0;
+	return ([self modifierFlags] & NSEventModifierFlagControl) != 0;
 }
 
 @end

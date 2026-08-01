@@ -71,7 +71,7 @@
  */
 - (BOOL)isBorderless
 {
-	return ([self styleMask] == NSBorderlessWindowMask);
+	return ([self styleMask] == NSWindowStyleMaskBorderless);
 }
 
 /*

@@ -109,7 +109,11 @@ struct _mark {
 	NSRectClip(NSInsetRect([self rectForPart:NSScrollerKnobSlot], 1, 1));
 
 	if (![shades isEmpty]) {
-		[[[NSColor knobColor] colorWithAlphaComponent:0.45f] set];
+		if (@available(macOS 10.14, *)) {
+			[[[NSColor controlAccentColor] colorWithAlphaComponent:0.45f] set];
+		} else {
+			[[[NSColor controlColor] colorWithAlphaComponent:0.45f] set];
+		}
 		[shades fill];
 	}
 
@@ -170,7 +174,11 @@ struct _mark {
 		_nearestNextMark = NSNotFound;
 
 	if (![lines isEmpty]) {
-		[[NSColor selectedKnobColor] set];
+		if (@available(macOS 10.14, *)) {
+			[[NSColor controlAccentColor] set];
+		} else {
+			[[NSColor controlColor] set];
+		}
 		[lines stroke];
 	}
 
@@ -265,7 +273,7 @@ struct _mark {
 			   action:@selector(jumpToPreviousMark:)
 		keyEquivalent:@"["];
 	[item setTarget:self];
-	[item setKeyEquivalentModifierMask:NSAlternateKeyMask | NSCommandKeyMask];
+	[item setKeyEquivalentModifierMask:NSEventModifierFlagOption | NSEventModifierFlagCommand];
 	[menu addItem:item];
 
 	item = [[NSMenuItem alloc]
@@ -275,7 +283,7 @@ struct _mark {
 			   action:@selector(jumpToNextMark:)
 		keyEquivalent:@"]"];
 	[item setTarget:self];
-	[item setKeyEquivalentModifierMask:NSAlternateKeyMask | NSCommandKeyMask];
+	[item setKeyEquivalentModifierMask:NSEventModifierFlagOption | NSEventModifierFlagCommand];
 	[menu addItem:item];
 
 	item = [[NSMenuItem alloc]

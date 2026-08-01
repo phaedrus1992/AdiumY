@@ -79,21 +79,18 @@
 
 	// Houston, we are go for launch.
 	if (applescriptRunnerPath) {
-		LSLaunchFSRefSpec spec;
-		FSRef appRef;
-		OSStatus err = FSPathMakeRef((UInt8 *)[applescriptRunnerPath fileSystemRepresentation], &appRef, NULL);
-		if (err == noErr) {
-			spec.appRef = &appRef;
-			spec.numDocs = 0;
-			spec.itemRefs = NULL;
-			spec.passThruParams = NULL;
-			spec.launchFlags = kLSLaunchDontAddToRecents | kLSLaunchDontSwitch | kLSLaunchNoParams | kLSLaunchAsync;
-			spec.asyncRefCon = NULL;
-			err = LSOpenFromRefSpec(&spec, NULL);
+		NSURL *applescriptRunnerURL = [NSURL fileURLWithPath:applescriptRunnerPath];
 
-			if (err != noErr) {
-				NSLog(@"Could not launch %@", applescriptRunnerPath);
-			}
+		LSLaunchURLSpec spec;
+		spec.appURL = (__bridge CFURLRef)applescriptRunnerURL;
+		spec.itemURLs = NULL;
+		spec.passThruParams = NULL;
+		spec.launchFlags = kLSLaunchDontAddToRecents | kLSLaunchDontSwitch | kLSLaunchAsync;
+		spec.asyncRefCon = NULL;
+		OSStatus err = LSOpenFromURLSpec(&spec, NULL);
+
+		if (err != noErr) {
+			NSLog(@"Could not launch %@", applescriptRunnerPath);
 		}
 	} else {
 		NSLog(@"Could not find AdiumApplescriptRunner...");
@@ -182,9 +179,15 @@
 			SEL selector = NSSelectorFromString([targetDict objectForKey:@"selector"]);
 
 			// Notify our target
+			#pragma clang diagnostic push
+
+			#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+
 			[target performSelector:selector
 						 withObject:[targetDict objectForKey:@"userInfo"]
 						 withObject:[userInfo objectForKey:@"resultString"]];
+			#pragma clang diagnostic pop
+
 		}
 	}
 }

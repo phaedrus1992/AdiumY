@@ -68,7 +68,13 @@
 	 * (in the itemContent parameter).  Then this next line will do the right thing automatically.
 	 */
 	if (settingSelector && itemContent) {
+		#pragma clang diagnostic push
+
+		#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+
 		[item performSelector:settingSelector withObject:itemContent];
+		#pragma clang diagnostic pop
+
 	}
 	if (action) {
 		[item setAction:action];
@@ -110,12 +116,7 @@
 		}
 	}
 
-	// If we have a custom view, we *have* to set the min/max size - otherwise, it'll default to 0,0 and the custom
-	// view won't show up at all!  This doesn't affect toolbar items with images, however.
 	if ([newItem view] != NULL) {
-		[newItem setMinSize:[item minSize]];
-		[newItem setMaxSize:[item maxSize]];
-
 		if ([[newItem view] respondsToSelector:@selector(setToolbarItem:)]) {
 			[[newItem view] setToolbarItem:newItem];
 		}

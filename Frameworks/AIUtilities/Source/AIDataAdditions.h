@@ -20,3 +20,11 @@
 - (NSData *)subdataToIndex:(NSUInteger)stop;
 
 @end
+
+@interface NSKeyedArchiver (AIDataAdditions)
++ (NSData *)archivedDataWithObject:(id)object;
+@end
+
+@interface NSKeyedUnarchiver (AIDataAdditions)
++ (id)objectWithArchivedData:(NSData *)data;
+@end

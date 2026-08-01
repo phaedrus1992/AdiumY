@@ -72,7 +72,7 @@
 // Navigate outline view with the keyboard, send select actions to delegate
 - (void)keyDown:(NSEvent *)theEvent
 {
-	if (!([theEvent modifierFlags] & NSCommandKeyMask)) {
+	if (!([theEvent modifierFlags] & NSEventModifierFlagCommand)) {
 
 		NSString *charString = [theEvent charactersIgnoringModifiers];
 		unichar pressedChar = 0;
@@ -91,7 +91,13 @@
 			// doubleAction is NULL by default
 			SEL doubleActionSelector = [self doubleAction];
 			if (doubleActionSelector) {
+				#pragma clang diagnostic push
+
+				#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+
 				[[self delegate] performSelector:doubleActionSelector withObject:self];
+				#pragma clang diagnostic pop
+
 			}
 
 		} else if (pressedChar == NSLeftArrowFunctionKey) { // left
@@ -138,7 +144,7 @@
 			[self findNext:self];
 
 		} else if ([[self delegate] respondsToSelector:@selector(outlineView:forwardKeyEventToFindPanel:)] &&
-				   !([theEvent modifierFlags] & NSCommandKeyMask) && !([theEvent modifierFlags] & NSControlKeyMask)) {
+				   !([theEvent modifierFlags] & NSEventModifierFlagCommand) && !([theEvent modifierFlags] & NSEventModifierFlagControl)) {
 			// handle any key we have not alredy handled that is a visable character and likely not to be a shortcut key
 			// (no command or control key modifiers) by asking the delegate to add it to the search string
 			if (![(id<AIOutlineViewDelegate>)[self delegate] outlineView:self forwardKeyEventToFindPanel:theEvent]) {
@@ -263,37 +269,11 @@
 }
 
 #pragma mark Dragging
-// Draging ------------------------------------------
-// Invoked in the dragging source as the drag ends
-- (void)draggedImage:(NSImage *)image endedAt:(NSPoint)screenPoint operation:(NSDragOperation)operation
-{
-	if ([[self delegate] respondsToSelector:@selector(outlineView:draggedImage:endedAt:operation:)]) {
-		[(id<AIOutlineViewDelegate>)[self delegate] outlineView:self
-												   draggedImage:image
-														endedAt:screenPoint
-													  operation:operation];
-	}
-
-	[super draggedImage:image endedAt:screenPoint operation:operation];
-}
-
 // Prevent dragging of items to another application
-- (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)isLocal
+- (NSDragOperation)draggingSession:(NSDraggingSession *)session
+	sourceOperationMaskForDraggingContext:(NSDraggingContext)context
 {
-	return (isLocal ? NSDragOperationEvery : NSDragOperationNone);
-}
-
-#pragma mark Accessibility
-
-- (NSArray *)accessibilityActionNames
-{
-	NSMutableArray *accessibilityActionNames = [[super accessibilityActionNames] mutableCopy];
-
-	// These are both handled by NSOutlineView by default but not included in the accessibilityActionNames by default
-	[accessibilityActionNames addObject:NSAccessibilityPressAction];
-	[accessibilityActionNames addObject:NSAccessibilityShowMenuAction];
-
-	return accessibilityActionNames;
+	return (context == NSDraggingContextWithinApplication ? NSDragOperationEvery : NSDragOperationNone);
 }
 
 @end

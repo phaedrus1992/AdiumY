@@ -32,10 +32,10 @@
 							backing:(NSBackingStoreType)backingStoreType
 							  defer:(BOOL)flag
 {
-	// Call NSWindow's version of this function, but pass in the all-important value of NSBorderlessWindowMask
+	// Call NSWindow's version of this function, but pass in the all-important value of NSWindowStyleMaskBorderless
 	// for the styleMask so that the window doesn't have a title bar
 	if ((self = [super initWithContentRect:contentRect
-								 styleMask:NSBorderlessWindowMask
+								 styleMask:NSWindowStyleMaskBorderless
 								   backing:NSBackingStoreBuffered
 									 defer:flag])) {
 
@@ -50,7 +50,7 @@
 	return self;
 }
 
-// Custom windows that use the NSBorderlessWindowMask can't become key by default.  Therefore, controls in such windows
+// Custom windows that use the NSWindowStyleMaskBorderless can't become key by default.  Therefore, controls in such windows
 // won't ever be enabled by default.  Thus, we override this method to change that.
 - (BOOL)canBecomeKeyWindow
 {
@@ -149,7 +149,7 @@
 // to establish the initial location.
 - (void)mouseDown:(NSEvent *)theEvent
 {
-	if (![theEvent cmdKey] && ([theEvent type] == NSLeftMouseDown) && moveable) {
+	if (![theEvent cmdKey] && ([theEvent type] == NSEventTypeLeftMouseDown) && moveable) {
 		// grab the mouse location in global coordinates
 		originalMouseLocation = [self convertPointToScreen:[theEvent locationInWindow]];
 		windowFrame = [self frame];

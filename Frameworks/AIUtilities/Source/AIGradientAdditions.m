@@ -23,7 +23,12 @@
 {
 	static NSGradient *grad;
 	if (!grad) {
-		NSColor *selectedColor = [NSColor alternateSelectedControlColor];
+		NSColor *selectedColor;
+		if (@available(macOS 10.14, *)) {
+			selectedColor = [NSColor selectedContentBackgroundColor];
+		} else {
+			selectedColor = [NSColor selectedControlColor];
+		}
 		grad = [[NSGradient alloc] initWithStartingColor:[selectedColor darkenAndAdjustSaturationBy:-0.1f]
 											 endingColor:[selectedColor darkenAndAdjustSaturationBy:0.1f]];
 	}

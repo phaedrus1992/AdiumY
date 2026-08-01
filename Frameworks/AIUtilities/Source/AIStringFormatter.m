@@ -128,12 +128,11 @@
 		errorCount++;
 
 		if (errorMessage != nil && errorCount > ERRORS_BEFORE_DIALOG) {
-			NSRunAlertPanel(AILocalizedStringFromTableInBundle(
-								@"Invalid Input", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil),
-							@"%@",
-							AILocalizedStringFromTableInBundle(
-								@"OK", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil),
-							nil, nil, errorMessage);
+			NSAlert *stringFormatterAlert = [[NSAlert alloc] init];
+			stringFormatterAlert.messageText = AILocalizedStringFromTableInBundle(@"Invalid Input", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil);
+			stringFormatterAlert.informativeText = [NSString stringWithFormat:@"%@", errorMessage];
+			[stringFormatterAlert addButtonWithTitle:AILocalizedStringFromTableInBundle(@"OK", nil, [NSBundle bundleWithIdentifier:AIUTILITIES_BUNDLE_ID], nil)];
+			[stringFormatterAlert runModal];
 			errorCount = 0;
 
 		} else {

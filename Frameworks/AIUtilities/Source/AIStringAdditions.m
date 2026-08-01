@@ -23,6 +23,7 @@
 #import "AIFunctions.h"
 #import "AIScannerAdditions.h"
 
+#import <time.h>
 #import <limits.h>
 #import <unistd.h>
 
@@ -85,7 +86,7 @@ enum {
 // Random alphanumeric string
 + (id)randomStringOfLength:(unsigned int)inLength
 {
-	srandom(TickCount());
+	srandom((unsigned)(clock_gettime_nsec_np(CLOCK_UPTIME_RAW) / 1e6));
 
 	if (!inLength)
 		return [self string];
@@ -664,11 +665,15 @@ enum {
 
 - (NSString *)volumePath
 {
-	NSEnumerator *pathEnum = [[[NSWorkspace sharedWorkspace] mountedLocalVolumePaths] objectEnumerator];
-	NSString *volumePath;
-	while ((volumePath = [pathEnum nextObject])) {
-		if ([self hasPrefix:[volumePath stringByAppendingString:@"/"]])
+	NSArray<NSURL *> *volumeURLs =
+		[[NSFileManager defaultManager] mountedVolumeURLsIncludingResourceValuesForKeys:nil options:0];
+	NSString *volumePath = nil;
+	for (NSURL *volumeURL in volumeURLs) {
+		NSString *candidatePath = [volumeURL path];
+		if ([self hasPrefix:[candidatePath stringByAppendingString:@"/"]]) {
+			volumePath = candidatePath;
 			break;
+		}
 	}
 	if (!volumePath)
 		volumePath = @"/";
@@ -863,8 +868,9 @@ enum {
 	// RFC 2396:
 	//       reserved    = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" |	"$" | ","
 
-	NSString *string = CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(
-		NULL, (__bridge CFStringRef)self, NULL, (__bridge CFStringRef) @";/?:@&=+$", kCFStringEncodingUTF8));
+	NSMutableCharacterSet *allowedSet = [NSMutableCharacterSet alphanumericCharacterSet];
+	[allowedSet addCharactersInString:@"-._~!*'(),"];
+	NSString *string = [self stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
 
 	return string;
 }

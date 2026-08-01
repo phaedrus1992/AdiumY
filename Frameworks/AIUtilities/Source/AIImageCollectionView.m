@@ -94,7 +94,11 @@
 {
 	// Draw selection
 	if ([[self selectionIndexes] count] > 0) {
-		[[NSColor selectedMenuItemColor] set];
+		if (@available(macOS 10.14, *)) {
+			[[NSColor selectedContentBackgroundColor] set];
+		} else {
+			[[NSColor selectedControlColor] set];
+		}
 
 		[[self selectionIndexes] enumerateIndexesUsingBlock:^(NSUInteger anIndex, BOOL *stop) {
 			NSRect highlightRect = [self frameForItemAtIndex:anIndex];
@@ -134,7 +138,11 @@
 	if ([self highlightedIndex] != NSNotFound) {
 		NSRect highlightRect = [[[self subviews] objectAtIndex:[self highlightedIndex]] frame];
 
-		[[NSColor selectedMenuItemColor] set];
+		if (@available(macOS 10.14, *)) {
+			[[NSColor selectedContentBackgroundColor] set];
+		} else {
+			[[NSColor selectedControlColor] set];
+		}
 
 		// Adjust Pattern
 		[[NSGraphicsContext currentContext] setPatternPhase:NSMakePoint(0.0f, NSMaxY([self convertRect:highlightRect
@@ -275,10 +283,12 @@
  */
 - (NSUInteger)indexAtPoint:(NSPoint)aPoint
 {
-	NSUInteger numberOfCols = [self maxNumberOfColumns];
+	NSCollectionViewGridLayout *gridLayout = (NSCollectionViewGridLayout *)self.collectionViewLayout;
 
-	NSUInteger indexX = AIceil(aPoint.x / self.maxItemSize.width);
-	NSUInteger indexY = AIceil(aPoint.y / self.maxItemSize.height);
+	NSUInteger numberOfCols = gridLayout.maximumNumberOfColumns;
+
+	NSUInteger indexX = AIceil(aPoint.x / gridLayout.maximumItemSize.width);
+	NSUInteger indexY = AIceil(aPoint.y / gridLayout.maximumItemSize.height);
 
 	NSUInteger anIndex = (((indexY * numberOfCols) - (numberOfCols - indexX)) - 1);
 

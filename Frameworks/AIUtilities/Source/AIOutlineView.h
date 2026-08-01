@@ -75,22 +75,6 @@
 - (void)outlineViewDeleteSelectedRows:(NSOutlineView *)outlineView;
 
 /*!
- * @brief Passes on NSObject's <tt>draggedImage:endedAt:operation:</tt> to the delegate
- *
- * Passes on NSObject's <tt>draggedImage:endedAt:operation:</tt>, which is invoked in the dragging source as the drag
- * ends, to the delegate.  See <tt>NSObject</tt>'s documentation for more details.
- *
- * @param outlineView The <tt>NSOutlineView</tt> which ended the drag
- * @param image The <tt>NSImage</tt> drag image
- * @param screenPoint An <tt>NSPoint</tt> in screen coordinates
- * @param operation The <tt>NSDragOperation</tt> of the drag
- */
-- (void)outlineView:(NSOutlineView *)outlineView
-	   draggedImage:(NSImage *)image
-			endedAt:(NSPoint)screenPoint
-		  operation:(NSDragOperation)operation;
-
-/*!
  * @brief Informs the delegate of a request to show or hide the fine panel
  *
  * Informs the delegate of a request to show the find panel if it is hidden, and hide it if shown. The delegate must

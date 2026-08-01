@@ -95,7 +95,7 @@
 			[[NSBezierPath bezierPathWithRoundedRect:imageFrame xRadius:[self cornerRadius]
 											 yRadius:[self cornerRadius]] addClip];
 
-			[bigImage drawInRect:imageFrame fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0f];
+			[bigImage drawInRect:imageFrame fromRect:NSZeroRect operation:NSCompositingOperationCopy fraction:1.0f];
 
 			[roundedImage unlockFocus];
 
@@ -110,7 +110,7 @@
 			point.x = maxXOrigin;
 		}
 
-		imageFloater = [AIFloater newFloaterWithImage:bigImage styleMask:NSBorderlessWindowMask];
+		imageFloater = [AIFloater newFloaterWithImage:bigImage styleMask:NSWindowStyleMaskBorderless];
 		[imageFloater setMaxOpacity:1.0f];
 		[imageFloater moveFloaterToPoint:point];
 		[imageFloater setVisible:YES animate:NO];
@@ -140,17 +140,6 @@
 	if (!imageFloaterShouldBeOpen) {
 		[imageFloater close:nil];
 		imageFloater = nil;
-	}
-}
-
-#pragma mark Accessibility
-
-- (id)accessibilityAttributeValue:(NSString *)attribute
-{
-	if ([attribute isEqualToString:NSAccessibilityRoleAttribute]) {
-		return @"AIImageButton";
-	} else {
-		return [super accessibilityAttributeValue:attribute];
 	}
 }
 

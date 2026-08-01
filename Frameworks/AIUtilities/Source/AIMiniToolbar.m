@@ -217,7 +217,7 @@
 		if (toolbarBackground && imageWidth) {
 			int xOffset = 0;
 			while (xOffset < rect.size.width) {
-				[toolbarBackground compositeToPoint:NSMakePoint(xOffset, 0) operation:NSCompositeSourceOver];
+				[toolbarBackground compositeToPoint:NSMakePoint(xOffset, 0) operation:NSCompositingOperationSourceOver];
 				xOffset += imageWidth;
 			}
 		}
@@ -588,7 +588,7 @@
 		NSPasteboard *pboard;
 
 		// Put information on the pasteboard
-		pboard = [NSPasteboard pasteboardWithName:NSDragPboard];
+		pboard = [NSPasteboard pasteboardWithName:NSPasteboardNameDrag];
 		[pboard declareTypes:[NSArray arrayWithObjects:MINI_TOOLBAR_ITEM_DRAGTYPE, MINI_TOOLBAR_TYPE,
 													   MINI_TOOLBAR_SOURCE, nil]
 					   owner:self];

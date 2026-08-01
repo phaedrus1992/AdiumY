@@ -50,7 +50,10 @@
 			}
 
 			// Draw and shift
-			[self drawAtPoint:destRect.origin fromRect:sourceRect operation:NSCompositeSourceOver fraction:1.0];
+			[self drawAtPoint:destRect.origin
+					 fromRect:sourceRect
+					operation:NSCompositingOperationSourceOver
+					 fraction:1.0];
 			destRect.origin.x += destRect.size.width;
 		}
 
@@ -136,7 +139,10 @@
 		newImage = [[NSImage alloc] initWithSize:size];
 
 		if (flipImage) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 			[newImage setFlipped:YES];
+#pragma clang diagnostic pop
 		}
 
 		NSImageRep *bestRep;
@@ -168,7 +174,7 @@
 
 				[self drawInRect:newRect
 						fromRect:NSMakeRect(0.0f, 0.0f, originalSize.width, originalSize.height)
-					   operation:NSCompositeCopy
+					   operation:NSCompositingOperationCopy
 						fraction:delta];
 
 				[newImage unlockFocus];
@@ -180,7 +186,7 @@
 			GIFRepresentationData = [NSMutableData
 				dataWithData:[NSBitmapImageRep
 								 representationOfImageRepsInArray:images
-														usingType:NSGIFFileType
+														usingType:NSBitmapImageFileTypeGIF
 													   properties:[self
 																	  GIFPropertiesForRepresentation:(NSBitmapImageRep
 																										  *)bestRep]]];
@@ -198,7 +204,7 @@
 
 			[self drawInRect:newRect
 					fromRect:NSMakeRect(0.0f, 0.0f, originalSize.width, originalSize.height)
-				   operation:NSCompositeCopy
+				   operation:NSCompositingOperationCopy
 					fraction:delta];
 
 			[newImage unlockFocus];
@@ -287,7 +293,7 @@
 				// Scale
 				[self drawInRect:scaleRect
 						fromRect:NSMakeRect(0.0f, 0.0f, originalSize.width, originalSize.height)
-					   operation:NSCompositeCopy
+					   operation:NSCompositingOperationCopy
 						fraction:delta];
 
 				[scaledImage unlockFocus];
@@ -296,7 +302,7 @@
 				// Fit
 				[scaledImage drawAtPoint:fitFromPoint
 								fromRect:NSMakeRect(0.0f, 0.0f, newImage.size.width, newImage.size.height)
-							   operation:NSCompositeCopy
+							   operation:NSCompositingOperationCopy
 								fraction:delta];
 
 				[newImage unlockFocus];
@@ -308,7 +314,7 @@
 			GIFRepresentationData = [NSMutableData
 				dataWithData:[NSBitmapImageRep
 								 representationOfImageRepsInArray:images
-														usingType:NSGIFFileType
+														usingType:NSBitmapImageFileTypeGIF
 													   properties:[self
 																	  GIFPropertiesForRepresentation:(NSBitmapImageRep
 																										  *)bestRep]]];
@@ -327,7 +333,7 @@
 			// Scale
 			[self drawInRect:scaleRect
 					fromRect:NSMakeRect(0.0f, 0.0f, originalSize.width, originalSize.height)
-				   operation:NSCompositeCopy
+				   operation:NSCompositingOperationCopy
 					fraction:delta];
 
 			[scaledImage unlockFocus];
@@ -336,7 +342,7 @@
 			// Fit
 			[scaledImage drawAtPoint:fitFromPoint
 							fromRect:NSMakeRect(0.0f, 0.0f, newImage.size.width, newImage.size.height)
-						   operation:NSCompositeCopy
+						   operation:NSCompositingOperationCopy
 							fraction:delta];
 
 			[newImage unlockFocus];
@@ -376,7 +382,7 @@
 	// Draw
 	[self drawInRect:drawRect
 			fromRect:NSMakeRect(0, 0, ownSize.width, ownSize.height)
-		   operation:NSCompositeSourceOver
+		   operation:NSCompositingOperationSourceOver
 			fraction:inFraction];
 
 	// Shift the origin if needed, and decrease the available destination rect width, by the passed size
@@ -473,7 +479,7 @@
 	// Draw
 	[self drawInRect:drawRect
 			fromRect:NSMakeRect(0, 0, ownSize.width, ownSize.height)
-		   operation:NSCompositeSourceOver
+		   operation:NSCompositingOperationSourceOver
 			fraction:inFraction];
 
 	[NSGraphicsContext restoreGraphicsState];

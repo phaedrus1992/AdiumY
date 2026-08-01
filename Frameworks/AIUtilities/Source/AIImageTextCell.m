@@ -256,7 +256,7 @@
 	[[NSGraphicsContext currentContext] setImageInterpolation:NSImageInterpolationHigh];
 	[image drawInRect:destRect
 			 fromRect:NSMakeRect(0, 0, size.width, size.height)
-			operation:NSCompositeSourceOver
+			operation:NSCompositingOperationSourceOver
 			 fraction:1.0f];
 	[NSGraphicsContext restoreGraphicsState];
 
@@ -414,36 +414,6 @@
 	}
 
 	[NSGraphicsContext restoreGraphicsState];
-}
-
-#pragma mark Accessibility
-
-- (id)accessibilityAttributeValue:(NSString *)attribute
-{
-	if ([attribute isEqualToString:NSAccessibilityRoleAttribute]) {
-		return NSAccessibilityButtonRole;
-
-	} else if ([attribute isEqualToString:NSAccessibilityTitleAttribute]) {
-		return [self stringValue];
-
-	} else if ([attribute isEqualToString:NSAccessibilityRoleDescriptionAttribute]) {
-		if (subString)
-			return [NSString stringWithFormat:@"%@\n%@", [self stringValue], subString];
-		else
-			return [self stringValue];
-
-	} else if ([attribute isEqualToString:NSAccessibilityHelpAttribute]) {
-		return [self stringValue];
-
-	} else if ([attribute isEqualToString:NSAccessibilityWindowAttribute]) {
-		return [super accessibilityAttributeValue:NSAccessibilityWindowAttribute];
-
-	} else if ([attribute isEqualToString:NSAccessibilityTopLevelUIElementAttribute]) {
-		return [super accessibilityAttributeValue:NSAccessibilityTopLevelUIElementAttribute];
-
-	} else {
-		return [super accessibilityAttributeValue:attribute];
-	}
 }
 
 @end

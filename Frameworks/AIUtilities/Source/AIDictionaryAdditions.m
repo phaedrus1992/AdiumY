@@ -102,10 +102,11 @@
 													error:NULL]; // make sure the path exists
 
 	NSData *plistData;
-	NSString *retainedError = nil;
-	plistData = [NSPropertyListSerialization dataFromPropertyList:self
+	NSError *retainedError = nil;
+	plistData = [NSPropertyListSerialization dataWithPropertyList:self
 														   format:NSPropertyListBinaryFormat_v1_0
-												 errorDescription:&retainedError];
+														  options:0
+															error:&retainedError];
 	if (plistData) {
 		BOOL success =
 			[plistData writeToFile:[[path stringByAppendingPathComponent:name] stringByAppendingPathExtension:@"plist"]
@@ -265,15 +266,15 @@
 	NSParameterAssert([name length] != 0);
 
 	NSData *plistData;
-	NSString *error;
+	NSError *error;
 
 	plistData = [[NSData alloc]
 		initWithContentsOfFile:[[path stringByAppendingPathComponent:name] stringByAppendingPathExtension:@"plist"]];
 
-	dictionary = [NSPropertyListSerialization propertyListFromData:plistData
-												  mutabilityOption:NSPropertyListMutableContainers
+	dictionary = [NSPropertyListSerialization propertyListWithData:plistData
+														   options:NSPropertyListMutableContainers
 															format:NULL
-												  errorDescription:&error];
+															 error:&error];
 
 	if (!dictionary && create)
 		dictionary = [NSMutableDictionary dictionary];

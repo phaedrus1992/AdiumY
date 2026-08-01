@@ -99,7 +99,7 @@ NSString *AIFontStyleAttributeName = @"AIFontStyle";
 	CGFloat backgroundBrightness, backgroundSum;
 
 	//--get the brightness of our background--
-	backgroundColor = [backgroundColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+	backgroundColor = [backgroundColor colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
 	backgroundBrightness = [backgroundColor brightnessComponent];
 	backgroundSum = [backgroundColor redComponent] + [backgroundColor greenComponent] + [backgroundColor blueComponent];
 	// we need to scan each colored "chunk" of the message - and check to make sure it is a "visible" color
@@ -114,7 +114,7 @@ NSString *AIFontStyleAttributeName = @"AIFontStyle";
 		fontColor = [self attribute:NSForegroundColorAttributeName atIndex:idx effectiveRange:&effectiveRange];
 		if (fontColor == nil)
 			fontColor = [NSColor blackColor];
-		fontColor = [fontColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+		fontColor = [fontColor colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
 
 		//--check brightness--
 		brightness = [fontColor brightnessComponent];
@@ -125,7 +125,7 @@ NSString *AIFontStyleAttributeName = @"AIFontStyle";
 											 saturation:[fontColor saturationComponent]
 											 brightness:backgroundBrightness - 0.4f
 												  alpha:[fontColor alphaComponent]];
-			fontColor = [fontColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+			fontColor = [fontColor colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
 			colorChanged = YES;
 
 		} else if (deltaBrightness < 0 && deltaBrightness > -0.4f) { // too close
@@ -134,7 +134,7 @@ NSString *AIFontStyleAttributeName = @"AIFontStyle";
 											 saturation:[fontColor saturationComponent]
 											 brightness:backgroundBrightness + 0.4f
 												  alpha:[fontColor alphaComponent]];
-			fontColor = [fontColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+			fontColor = [fontColor colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
 
 			colorChanged = YES;
 		}
@@ -145,9 +145,9 @@ NSString *AIFontStyleAttributeName = @"AIFontStyle";
 		if (deltaSum < 1.0f && deltaSum > -1.0f) { // still too similar
 			// just give up and make the color black or white
 			if (backgroundBrightness <= 0.5f) {
-				fontColor = [[NSColor whiteColor] colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+				fontColor = [[NSColor whiteColor] colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
 			} else {
-				fontColor = [[NSColor blackColor] colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+				fontColor = [[NSColor blackColor] colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
 			}
 			colorChanged = YES;
 		}
@@ -170,7 +170,7 @@ NSString *AIFontStyleAttributeName = @"AIFontStyle";
 	NSColor *backColor = nil;
 	//--get the brightness of our background--
 	if (backgroundColor) {
-		backColor = [backgroundColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+		backColor = [backgroundColor colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
 		backgroundBrightness = [backColor brightnessComponent];
 	}
 
@@ -193,7 +193,7 @@ NSString *AIFontStyleAttributeName = @"AIFontStyle";
 			fontBackColor = [self attribute:AIBodyColorAttributeName atIndex:idx effectiveRange:&backgroundRange];
 			if (!fontBackColor) {
 				fontBackColor = [NSColor whiteColor];
-				fontBackColor = [fontBackColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+				fontBackColor = [fontBackColor colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
 			}
 		}
 
@@ -203,7 +203,7 @@ NSString *AIFontStyleAttributeName = @"AIFontStyle";
 
 		if (!fontColor)
 			fontColor = [NSColor blackColor];
-		fontColor = [fontColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+		fontColor = [fontColor colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
 
 		brightness = [fontColor brightnessComponent];
 
@@ -231,7 +231,7 @@ NSString *AIFontStyleAttributeName = @"AIFontStyle";
 												 saturation:[fontColor saturationComponent]
 												 brightness:newBrightness
 													  alpha:[fontColor alphaComponent]];
-				fontColor = [fontColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+				fontColor = [fontColor colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
 			}
 		}
 
@@ -261,9 +261,9 @@ NSString *AIFontStyleAttributeName = @"AIFontStyle";
 
 		if (deltaSum >= -0.3f && deltaSum <= 0.3f) { // still too similar
 			if (backgroundBrightness <= 0.5f) {
-				fontColor = [[NSColor whiteColor] colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+				fontColor = [[NSColor whiteColor] colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
 			} else {
-				fontColor = [[NSColor blackColor] colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+				fontColor = [[NSColor blackColor] colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
 			}
 
 			colorChanged = YES;
@@ -471,32 +471,32 @@ NSString *AIFontStyleAttributeName = @"AIFontStyle";
 
 - (NSData *)dataRepresentation
 {
-	return [NSArchiver archivedDataWithRootObject:self];
+	return [NSKeyedArchiver archivedDataWithRootObject:self requiringSecureCoding:NO error:NULL];
 }
 
 + (NSAttributedString *)stringWithData:(NSData *)inData
 {
 	NSAttributedString *returnValue = nil;
 
-	/* We use an exception handler here because NSUnarchiver can throw an NSInvalidArgumentException with a reason:
+	/* We use an exception handler here because NSKeyedUnarchiver can throw an NSInvalidArgumentException with a reason:
 	 *		-[NSPlaceholderDictionary initWithObjects_ex:forKeys:count:]: attempt to insert nil value
 	 * if we feed it invalid data.
 	 */
 	@try {
 		if (inData && [inData length]) {
 			// If inData (which must bt non-nil) is not valid archived data, this returns nil.
-			NSUnarchiver *unarchiver = [[NSUnarchiver alloc] initForReadingWithData:inData];
+			NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:inData error:NULL];
 
 			if (unarchiver) {
-				/* NSUnarchiver's decodeObject returns an object which is retained by the unarchiver and released
-				 * when the unarchiver is deallocated.  We could rely upon autoreleasing the unarchiver, but it
+				/* NSKeyedUnarchiver's decodeObjectForKey: returns an object which is retained by the unarchiver and
+				 * released when the unarchiver is deallocated.  We could rely upon autoreleasing the unarchiver, but it
 				 * is cleaner to make the NSAttributedString autorelease itself.
 				 */
-				returnValue = (NSAttributedString *)[unarchiver decodeObject];
+				returnValue = (NSAttributedString *)[unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
 
 			} else {
 				/* For reading previously stored NSData objects - we used to store them as RTF data, but that
-				 * method is both slower and buggier. Any modern storage will use NSUnarchiver, so leaving this
+				 * method is both slower and buggier. Any modern storage will use NSKeyedUnarchiver, so leaving this
 				 * here isn't a speed problem.  We previously used AIHTMLDecoder to handle Jaguar old-data
 				 * unarchiving... but that's in Adium.framework and the cross over most certainly isn't worth it.
 				 */
