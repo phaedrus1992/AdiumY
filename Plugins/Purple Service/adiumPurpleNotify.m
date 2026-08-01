@@ -148,25 +148,15 @@ static void *adiumPurpleNotifyUri(const char *uri)
 					[[NSFileManager defaultManager] copyItemAtPath:passedURI toPath:actualURI error:NULL];
 				}
 
-				FSRef appRef;
-
 				// Open the HTML file with a web browser, not with an HTML editor
-				if (LSGetApplicationForURL((__bridge CFURLRef)[NSURL URLWithString:@"http://google.com"],
-										   kLSRolesViewer, &appRef, NULL) != kLSApplicationNotFoundErr) {
-					FSRef urlRef;
+				NSURL *browserURL =
+					[[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:[NSURL URLWithString:@"http://google.com"]];
 
-					if (FSPathMakeRef((UInt8 *)[actualURI fileSystemRepresentation], &urlRef, NULL) == noErr) {
-						LSLaunchFSRefSpec spec;
-
-						spec.appRef = &appRef;
-						spec.numDocs = 1;
-						spec.itemRefs = &urlRef;
-						spec.passThruParams = NULL;
-						spec.launchFlags = kLSLaunchDontAddToRecents | kLSLaunchAsync;
-						spec.asyncRefCon = NULL;
-
-						LSOpenFromRefSpec(&spec, NULL);
-					}
+				if (browserURL) {
+					[[NSWorkspace sharedWorkspace] openURLs:@[[NSURL fileURLWithPath:actualURI]]
+									 withApplicationAtURL:browserURL
+										 configuration:[NSWorkspaceOpenConfiguration configuration]
+										 completionHandler:nil];
 				}
 			} else {
 				[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:passedURI]];

@@ -265,8 +265,10 @@
 									 kLSRolesViewer,
 									 /*outAppRef*/ NULL, &appURL);
 		if (err == noErr) {
-			[[NSWorkspace sharedWorkspace] openFile:[urlString stringByExpandingTildeInPath]
-									withApplication:[(__bridge NSURL *)appURL path]];
+			[[NSWorkspace sharedWorkspace] openURLs:@[[NSURL fileURLWithPath:[urlString stringByExpandingTildeInPath]]]
+									withApplicationAtURL:(__bridge NSURL *)appURL
+										configuration:[NSWorkspaceOpenConfiguration configuration]
+										completionHandler:nil];
 		} else {
 			NSURL *url;
 
@@ -297,12 +299,15 @@
  */
 + (NSString *)mailApplicationName
 {
-	FSRef myAppRef;
+	NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:[NSURL URLWithString:@"mailto:"]];
+	NSString *appName = nil;
 
-	LSGetApplicationForURL((__bridge CFURLRef)[NSURL URLWithString:@"mailto://"], kLSRolesAll, &myAppRef, NULL);
-	CFStringRef appNameCF = NULL;
-	LSCopyDisplayNameForRef(&myAppRef, &appNameCF);
-	NSString *appName = CFBridgingRelease(appNameCF);
+	if (appURL) {
+		appName = [[NSBundle bundleWithURL:appURL] objectForInfoDictionaryKey:@"CFBundleName"];
+		if (!appName) {
+			appName = [[appURL path] lastPathComponent];
+		}
+	}
 
 	NSRange appRange;
 	if ((appRange = [appName rangeOfString:@".app"
