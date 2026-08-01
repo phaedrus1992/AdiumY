@@ -210,11 +210,13 @@
 
 			// Resolve bundle relative paths
 			if ([splitPath count] == 2) {
-				location =
-					[NSString pathWithComponents:[NSArray arrayWithObjects:[[NSWorkspace sharedWorkspace]
-																			   absolutePathForAppBundleWithIdentifier:
-																				   [splitPath objectAtIndex:0]],
-																		   [splitPath objectAtIndex:1], nil]];
+				NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:[splitPath objectAtIndex:0]];
+
+				if (appURL != nil) {
+					location =
+						[NSString pathWithComponents:[NSArray arrayWithObjects:[appURL path],
+																   [splitPath objectAtIndex:1], nil]];
+				}
 			}
 
 			// If we found the sound file, return its path

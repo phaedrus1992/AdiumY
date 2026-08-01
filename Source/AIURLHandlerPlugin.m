@@ -215,7 +215,10 @@
  */
 - (NSString *)defaultApplicationBundleIDForScheme:(NSString *)scheme
 {
-	return [(NSString *)CFBridgingRelease(LSCopyDefaultHandlerForURLScheme((__bridge CFStringRef)scheme)) lowercaseString];
+	NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:[NSURL URLWithString:[scheme stringByAppendingString:@":"]]];
+	NSString *bundleID = [[NSBundle bundleWithURL:appURL] bundleIdentifier];
+
+	return [bundleID lowercaseString];
 }
 
 #pragma mark URL Handling

@@ -204,7 +204,7 @@
  */
 - (void)installPlugin
 {
-	NSString		*itunesPath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:@"com.apple.iTunes"];
+	NSString *itunesPath = [[[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:@"com.apple.iTunes"] path];
 
 	iTunesCurrentInfo = nil;
 
@@ -752,7 +752,13 @@
  */
 - (void)bringiTunesToFront
 {
-	[[NSWorkspace sharedWorkspace] launchApplication:@"iTunes"];
+	NSURL *itunesAppURL = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:@"com.apple.iTunes"];
+
+	if (itunesAppURL != nil) {
+		[[NSWorkspace sharedWorkspace] openApplicationAtURL:itunesAppURL
+		                                      configuration:[NSWorkspaceOpenConfiguration configuration]
+		                                    completionHandler:nil];
+	}
 }
 
 #pragma mark -
