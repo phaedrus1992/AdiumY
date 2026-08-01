@@ -8,10 +8,9 @@ INSTALL_PATH = @executable_path/../Frameworks
 HEADER_SEARCH_PATHS_QUOTED_4 = Plugins/Purple\ Service/Include/
 FRAMEWORK_VERSION = A
 
-// AIUtilities builds into a subdirectory of its own project tree
-// rather than into the shared build dir, so add its output path
-// here so the PCH import <AIUtilities/AIStringUtilities.h> resolves.
-FRAMEWORK_SEARCH_PATHS = $(inherited) $(SRCROOT)/Frameworks/AIUtilities/build/$(CONFIGURATION)
+// AIUtilities.framework builds into the shared build products dir.
+FRAMEWORK_SEARCH_PATHS = $(inherited) $(CONFIGURATION_BUILD_DIR)
 
 // ARC migration (issue #37)
 CLANG_ENABLE_OBJC_ARC = YES
+CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO
