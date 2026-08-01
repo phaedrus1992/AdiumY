@@ -270,8 +270,9 @@ void xml_char_data	(void *userData,
 
 	/* and make an element info structure */
 	CFXMLElementInfo	xmlElementInfo;
+	NSArray *handshakeAttributeOrder = [NSArray arrayWithObjects:@"to", @"from", @"xmlns", @"xmlns:stream", nil];
 	xmlElementInfo.attributes = (__bridge CFDictionaryRef)handshakeElements;
-	xmlElementInfo.attributeOrder = (__bridge CFArrayRef)[NSArray arrayWithObjects:@"to", @"from", @"xmlns", @"xmlns:stream", nil];
+	xmlElementInfo.attributeOrder = (__bridge CFArrayRef)handshakeAttributeOrder;
 	xmlElementInfo.isEmpty = YES;
 
 	/* create node and tree, then convert to XML text */
