@@ -70,7 +70,7 @@ static NSArray *ABDefaultContactKeys(void)
 	return keys;
 }
 
-@interface AIAddressBookController ()
+@interface AIAddressBookController () <NSMenuItemValidation>
 + (CNContact *)_searchForUID:(NSString *)UID serviceID:(NSString *)serviceID;
 - (void)updateAllContacts;
 - (void)updateSelfIncludingIcon:(BOOL)includeIcon;
@@ -316,7 +316,7 @@ NSString *serviceIDForJabberUID(NSString *UID);
 															action:@selector(editInAddressBook)
 													 keyEquivalent:@""];
 	[editInABContextualMenuItem setTarget:self];
-	[editInABContextualMenuItem setKeyEquivalentModifierMask:NSAlternateKeyMask];
+	[editInABContextualMenuItem setKeyEquivalentModifierMask:NSEventModifierFlagOption];
 	[editInABContextualMenuItem setAlternate:YES];
 	[editInABContextualMenuItem setTag:AIRequiresAddressBookEntry];
 
@@ -1465,11 +1465,13 @@ NSString *serviceIDForJabberUID(NSString *UID)
 			[contact setPreference:newContact.identifier forKey:KEY_AB_UNIQUE_ID group:PREF_GROUP_ADDRESSBOOK];
 
 			// Ask the user whether it would like to edit the new contact
-			NSInteger alertResult = NSRunAlertPanel(CONTACT_ADDED_SUCCESS_TITLE, CONTACT_ADDED_SUCCESS_Message,
-													AILocalizedString(@"Yes", nil), AILocalizedString(@"No", nil), nil,
-													contact.displayName);
+			NSAlert *alert = [[NSAlert alloc] init];
+			alert.messageText = CONTACT_ADDED_SUCCESS_TITLE;
+			alert.informativeText = [NSString stringWithFormat:CONTACT_ADDED_SUCCESS_Message, contact.displayName];
+			[alert addButtonWithTitle:AILocalizedString(@"Yes", nil)];
+			[alert addButtonWithTitle:AILocalizedString(@"No", nil)];
 
-			if (alertResult == NSOKButton) {
+			if ([alert runModal] == NSAlertFirstButtonReturn) {
 				NSString *url = [[NSString alloc] initWithFormat:@"addressbook://%@?edit", newContact.identifier];
 				[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:url]];
 			}
@@ -1480,8 +1482,13 @@ NSString *serviceIDForJabberUID(NSString *UID)
 		}
 	}
 
-	if (!success)
-		NSRunAlertPanel(CONTACT_ADDED_ERROR_TITLE, CONTACT_ADDED_ERROR_Message, nil, nil, nil, contact.displayName);
+	if (!success) {
+		NSAlert *alert = [[NSAlert alloc] init];
+		alert.messageText = CONTACT_ADDED_ERROR_TITLE;
+		alert.informativeText = [NSString stringWithFormat:CONTACT_ADDED_ERROR_Message, contact.displayName];
+		[alert addButtonWithTitle:AILocalizedString(@"OK", nil)];
+		[alert runModal];
+	}
 
 	// Clean up
 }

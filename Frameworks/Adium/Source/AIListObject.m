@@ -149,7 +149,6 @@
 
 - (NSSet *)groups
 {
-#warning Very inefficient
 	return [m_groups copy];
 }
 

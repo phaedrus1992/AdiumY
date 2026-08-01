@@ -44,7 +44,6 @@
 - (void)calculateAllHeights;
 - (void)calculateHeightForItem:(id)item;
 
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (IBAction)didDoubleClick:(id)sender;
 
 - (void)addAlert;
@@ -89,8 +88,7 @@ int globalAlertAlphabeticalSort(id objectA, id objectB, void *context);
 									forSegment:0];
 	[[button_addOrRemoveAlert cell] setToolTip:AILocalizedString(@"Remove the selected action(s)", nil) forSegment:1];
 
-	[outlineView_summary accessibilitySetOverrideValue:AILocalizedString(@"Events", nil)
-										  forAttribute:NSAccessibilityDescriptionAttribute];
+	[outlineView_summary setAccessibilityLabel:AILocalizedString(@"Events", nil)];
 
 	// Update enable state of our buttons
 	[self outlineViewSelectionDidChange:[NSNotification notificationWithName:@"SelectionChanged" object:nil]];
@@ -254,13 +252,22 @@ int globalAlertAlphabeticalSort(id objectA, id objectB, void *context);
 
 			if (contactEventsCount > 1) {
 				// Warn before deleting more than one event simultaneously
-				NSBeginAlertSheet(AILocalizedString(@"Delete Event?", nil), AILocalizedString(@"OK", nil),
-								  AILocalizedString(@"Cancel", nil), nil, /*otherButton*/
-								  [view window], self, @selector(sheetDidEnd:returnCode:contextInfo:),
-								  NULL, /* didDismissSelector */
-								  (__bridge_retained void *)contactEvents,
-								  AILocalizedString(@"Remove the %lu actions associated with this event?", nil),
-								  (unsigned long)contactEventsCount);
+				NSAlert *alert = [[NSAlert alloc] init];
+				[alert setMessageText:AILocalizedString(@"Delete Event?", nil)];
+				[alert addButtonWithTitle:AILocalizedString(@"OK", nil)];
+				[alert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+				[alert
+					setInformativeText:[NSString
+										   stringWithFormat:AILocalizedString(
+																@"Remove the %lu actions associated with this event?",
+																nil),
+															(unsigned long)contactEventsCount]];
+				[alert beginSheetModalForWindow:[view window]
+							  completionHandler:^(NSModalResponse returnCode) {
+								  if (returnCode == NSAlertFirstButtonReturn) {
+									  [self deleteContactActionsInArray:contactEvents];
+								  }
+							  }];
 			} else {
 				// Delete a single event immediately
 				[self deleteContactActionsInArray:contactEvents];
@@ -280,18 +287,6 @@ int globalAlertAlphabeticalSort(id objectA, id objectB, void *context);
 
 	} else {
 		NSBeep();
-	}
-}
-
-/*!
- * @brief Warning sheet for deleting multiple events ended
- *
- * If the user pressed OK, go ahead with deleting the events.
- */
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
-{
-	if (returnCode == NSAlertDefaultReturn) {
-		[self deleteContactActionsInArray:(__bridge_transfer NSArray *)contextInfo];
 	}
 }
 
@@ -329,7 +324,7 @@ int globalAlertAlphabeticalSort(id objectA, id objectB, void *context);
 	AIVerticallyCenteredTextCell *verticallyCenteredTextCell;
 
 	imageCell = [[AIScaledImageCell alloc] init];
-	[imageCell setAlignment:NSCenterTextAlignment];
+	[imageCell setAlignment:NSTextAlignmentCenter];
 	[imageCell setMaxSize:NSMakeSize(MINIMUM_IMAGE_HEIGHT, MINIMUM_IMAGE_HEIGHT)];
 	[[outlineView_summary tableColumnWithIdentifier:@"image"] setDataCell:imageCell];
 

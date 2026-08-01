@@ -60,7 +60,7 @@
 				[backgroundImage
 					drawInRect:NSMakeRect(visRect.origin.x, visRect.origin.y, imageSize.width, imageSize.height)
 					  fromRect:imageRect
-					 operation:NSCompositeSourceOver
+					 operation:NSCompositingOperationSourceOver
 					  fraction:imageFade];
 				break;
 			}
@@ -78,7 +78,7 @@
 				// Background image stretch
 				[backgroundImage drawInRect:visRect
 								   fromRect:imageRect
-								  operation:NSCompositeSourceOver
+								  operation:NSCompositingOperationSourceOver
 								   fraction:imageFade];
 				break;
 			}
@@ -86,7 +86,7 @@
 				// Background image stretch
 				[backgroundImage drawInRect:visRect
 								   fromRect:imageRect
-								  operation:NSCompositeSourceOver
+								  operation:NSCompositingOperationSourceOver
 								   fraction:imageFade];
 				break;
 			}
@@ -108,7 +108,7 @@
 							// Draw at the current x and y at least once with the original size
 							[backgroundImage drawInRect:drawingRect
 											   fromRect:imageRect
-											  operation:NSCompositeSourceOver
+											  operation:NSCompositingOperationSourceOver
 											   fraction:imageFade];
 						}
 
@@ -142,7 +142,6 @@
 		backgroundImage = inImage;
 	}
 
-	[(NSClipView *)[self superview] setCopiesOnScroll:(!backgroundImage)];
 	[self setNeedsDisplay:YES];
 }
 
@@ -274,8 +273,6 @@
 - (void)viewWillMoveToSuperview:(NSView *)newSuperview
 {
 	[super viewWillMoveToSuperview:newSuperview];
-
-	[(NSClipView *)newSuperview setCopiesOnScroll:(!backgroundImage)];
 }
 
 - (void)drawRect:(NSRect)rect
@@ -320,14 +317,22 @@
  */
 - (void)_drawDropHighlightOnRow:(int)rowIndex
 {
+	NSRect highlightFrame = [self rectOfRow:rowIndex];
 	id item = [self itemAtRow:rowIndex];
 	AIListCell *cell = [self cellForTableColumn:nil item:item];
+	NSBitmapImageRep *rep;
 
 	[self.delegate outlineView:self willDisplayCell:cell forTableColumn:nil item:item];
 
-	[self lockFocus];
-	[cell drawDropHighlightWithFrame:[self rectOfRow:rowIndex]];
-	[self unlockFocus];
+	// Draw the highlight into a cached bitmap at the view's resolution, then composite it back into the view
+	rep = [self bitmapImageRepForCachingDisplayInRect:highlightFrame];
+	if (rep != nil) {
+		[NSGraphicsContext saveGraphicsState];
+		[NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
+		[cell drawDropHighlightWithFrame:highlightFrame];
+		[NSGraphicsContext restoreGraphicsState];
+		[self cacheDisplayInRect:highlightFrame toBitmapImageRep:rep];
+	}
 }
 
 /*!
@@ -371,7 +376,7 @@
 	[self.delegate outlineView:self willDisplayCell:cell forTableColumn:nil item:item];
 
 	switch ([cell textAlignment]) {
-	case NSRightTextAlignment:
+	case NSTextAlignmentRight:
 		// Right alignment indents on the right
 		aHighlightRect.size.width -= [cell indentation];
 		break;
@@ -392,24 +397,28 @@
 	NSPoint aStartPoint = NSMakePoint(NSMaxX(anAccentRect), aYPosition);
 	NSPoint anEndPoint = NSMakePoint(NSMaxX(aHighlightRect) - NSWidth(anAccentRect), aYPosition);
 
-	// Lock focus for drawing
-	[self lockFocus];
+	// Draw the drop indicator into a cached bitmap at the view's resolution, then composite it back into the view
+	NSBitmapImageRep *rep = [self bitmapImageRepForCachingDisplayInRect:aHighlightRect];
+	if (rep != nil) {
+		[NSGraphicsContext saveGraphicsState];
+		[NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
 
-	// Make a bezier path, add the circle and line
-	NSBezierPath *aHighlightPath = [NSBezierPath bezierPath];
-	[aHighlightPath appendBezierPathWithOvalInRect:anAccentRect];
-	[aHighlightPath moveToPoint:aStartPoint];
-	[aHighlightPath lineToPoint:anEndPoint];
+		// Make a bezier path, add the circle and line
+		NSBezierPath *aHighlightPath = [NSBezierPath bezierPath];
+		[aHighlightPath appendBezierPathWithOvalInRect:anAccentRect];
+		[aHighlightPath moveToPoint:aStartPoint];
+		[aHighlightPath lineToPoint:anEndPoint];
 
-	// Fill with white for the accent circle and stroke the path with black
-	[[NSColor whiteColor] set];
-	[aHighlightPath fill];
-	[aHighlightPath setLineWidth:2.0f];
-	[[NSColor blackColor] set];
-	[aHighlightPath stroke];
+		// Fill with white for the accent circle and stroke the path with black
+		[[NSColor whiteColor] set];
+		[aHighlightPath fill];
+		[aHighlightPath setLineWidth:2.0f];
+		[[NSColor blackColor] set];
+		[aHighlightPath stroke];
 
-	// Unlock focus
-	[self unlockFocus];
+		[NSGraphicsContext restoreGraphicsState];
+		[self cacheDisplayInRect:aHighlightRect toBitmapImageRep:rep];
+	}
 }
 
 /*!

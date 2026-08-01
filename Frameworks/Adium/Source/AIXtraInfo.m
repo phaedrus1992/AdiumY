@@ -17,6 +17,7 @@
 #import "AIXtraInfo.h"
 #import "AIIconState.h"
 #import <Adium/AIDockControllerProtocol.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 @implementation AIXtraInfo
 
@@ -85,7 +86,8 @@
 				icon = [previewState image];
 
 			} else {
-				icon = [[NSWorkspace sharedWorkspace] iconForFileType:[path pathExtension]];
+				UTType *contentType = [UTType typeWithFilenameExtension:[path pathExtension]];
+				icon = [[NSWorkspace sharedWorkspace] iconForContentType:(contentType != nil ? contentType : UTTypeData)];
 			}
 		}
 		if (!previewImage)

@@ -30,7 +30,6 @@
 
 #import <Adium/AITextAttachmentExtension.h>
 #import <Adium/AIXMLElement.h>
-#import <Adium/ESFileWrapperExtension.h>
 
 #import "NSString-FBAdditions.h"
 
@@ -1514,7 +1513,10 @@ static NSString *horizontalRule = nil;
 		if (value == [NSNull null])
 			value = nil;
 
-		[textAttributes performSelector:selector withObject:value];
+		#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+			[textAttributes performSelector:selector withObject:value];
+#pragma clang diagnostic pop
 	}
 }
 

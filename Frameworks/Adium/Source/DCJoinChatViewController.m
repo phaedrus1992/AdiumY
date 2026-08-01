@@ -46,7 +46,7 @@
 
 		NSString *nibName = [self nibName];
 		if (nibName) {
-			[NSBundle loadNibNamed:nibName owner:self];
+			[[NSBundle bundleForClass:[self class]] loadNibNamed:nibName owner:self topLevelObjects:nil];
 		}
 	}
 

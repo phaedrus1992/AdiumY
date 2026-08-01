@@ -911,9 +911,15 @@
 
 	//
 	if (originalContext) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 		[self performSelector:selector withObject:filteredValue withObject:originalContext];
+#pragma clang diagnostic pop
 	} else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 		[self performSelector:selector withObject:filteredValue];
+#pragma clang diagnostic pop
 	}
 }
 
@@ -1672,7 +1678,10 @@
 	}
 
 	if (notifyTargetNow) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 		[target performSelector:selector withObject:proxyConfiguration withObject:context];
+#pragma clang diagnostic pop
 	}
 }
 
@@ -1694,7 +1703,10 @@
 
 		[proxyConfiguration setObject:inPassword forKey:@"Password"];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 		[target performSelector:selector withObject:proxyConfiguration withObject:context];
+#pragma clang diagnostic pop
 
 	} else {
 		// If passed a nil password, cancel the connection attempt

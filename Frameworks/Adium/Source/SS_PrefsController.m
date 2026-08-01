@@ -84,7 +84,7 @@
 {
 	if ((self = [self init])) {
 		if (!ext || [ext isEqualToString:@""]) {
-			bundleExtension = [[NSString alloc] initWithString:@"preferencePane"];
+			bundleExtension = @"preferencePane";
 		} else {
 			bundleExtension = ext;
 		}
@@ -174,9 +174,9 @@
 
 	// Create prefs window
 	unsigned int styleMask =
-		(NSClosableWindowMask | NSResizableWindowMask | NSMiniaturizableWindowMask | NSTitledWindowMask);
+		(NSWindowStyleMaskClosable | NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskTitled);
 	if (usesTexturedWindow) {
-		styleMask = (styleMask | NSTexturedBackgroundWindowMask);
+		styleMask = (styleMask | NSWindowStyleMaskTexturedBackground);
 	}
 	prefsWindow = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 350, 200)
 											  styleMask:styleMask
@@ -234,7 +234,11 @@
 
 	// Show alert dialog.
 	NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-	NSRunAlertPanel(@"Preferences", @"Preferences are not available for %@.", @"OK", nil, nil, appName);
+	NSAlert *alert = [[NSAlert alloc] init];
+	alert.messageText = @"Preferences";
+	alert.informativeText = [NSString stringWithFormat:@"Preferences are not available for %@.", appName];
+	[alert addButtonWithTitle:@"OK"];
+	[alert runModal];
 	[prefsWindow close];
 	prefsWindow = nil;
 }
@@ -456,7 +460,7 @@ CGFloat ToolbarHeightForWindow(NSWindow *window)
 			[item setTarget:self];
 			[item setAction:@selector(prefsToolbarItemClicked:)]; // action called when item is clicked
 			[prefsToolbarItems setObject:item forKey:identifier]; // add to items
-		} else if ([identifier isEqual:NSToolbarSeparatorItemIdentifier]) {
+		} else if ([identifier isEqual:NSToolbarFlexibleSpaceItemIdentifier]) {
 			// Don't have to do anything
 		} else {
 			[self debugLog:[NSString stringWithFormat:@"Could not create toolbar item for preference pane \"%@\", "
@@ -578,7 +582,7 @@ CGFloat ToolbarHeightForWindow(NSWindow *window)
 	NSString *name;
 
 	for (name in newPanesOrder) {
-		if (([preferencePanes objectForKey:name] != nil) || ([name isEqual:NSToolbarSeparatorItemIdentifier])) {
+		if (([preferencePanes objectForKey:name] != nil) || ([name isEqual:NSToolbarFlexibleSpaceItemIdentifier])) {
 			[panesOrder addObject:name];
 		} else {
 			[self debugLog:[NSString stringWithFormat:@"Did not add preference pane \"%@\" to the toolbar ordering "

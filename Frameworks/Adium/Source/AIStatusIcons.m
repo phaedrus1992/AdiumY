@@ -184,8 +184,11 @@ NSString *defaultNameForStatusType(AIStatusType statusType)
 								[[statusIconBasePath lastPathComponent] stringByDeletingPathExtension],
 								statusIconBasePath, defaultStatusName];
 
-						NSRunCriticalAlertPanel(AILocalizedString(@"Invalid status icon pack", nil), @"%@", nil, nil,
-												nil, errorMessage);
+						NSAlert *alert = [[NSAlert alloc] init];
+						alert.messageText = AILocalizedString(@"Invalid status icon pack", nil);
+						alert.informativeText = errorMessage;
+						[alert addButtonWithTitle:AILocalizedString(@"OK", nil)];
+						[alert runModal];
 
 						// Post a notification so someone, somewhere can fix us :)
 						[[NSNotificationCenter defaultCenter] postNotificationName:AIStatusIconSetInvalidSetNotification
@@ -351,7 +354,7 @@ static NSString *statusNameForChat(AIChat *inChat)
 
 				[anIcon drawInRect:targetRect
 						  fromRect:NSMakeRect(0, 0, anIconSize.width, anIconSize.height)
-						 operation:NSCompositeCopy
+						 operation:NSCompositingOperationCopy
 						  fraction:1.0f];
 
 				// Shift right in preparation for next image

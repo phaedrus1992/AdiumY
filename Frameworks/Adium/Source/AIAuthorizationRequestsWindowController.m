@@ -58,7 +58,7 @@
 
 @end
 
-@interface AIAuthorizationRequestsWindowController ()
+@interface AIAuthorizationRequestsWindowController () <NSMenuItemValidation, NSToolbarItemValidation>
 - (void)reloadData;
 - (void)rebuildHeights;
 
@@ -71,7 +71,6 @@
 - (void)denyBlock:(id)sender;
 - (void)ignore:(id)sender;
 - (void)ignoreBlock:(id)sender;
-- (void)authorize:(id)sender;
 - (void)authorizeAdd:(id)sender;
 @end
 
@@ -108,8 +107,7 @@ static AIAuthorizationRequestsWindowController *sharedController = nil;
 												 name:NSWindowDidResizeNotification
 											   object:self.window];
 
-	[tableView accessibilitySetOverrideValue:AILocalizedString(@"Authorization Requests", nil)
-								forAttribute:NSAccessibilityTitleAttribute];
+	[tableView setAccessibilityTitle:AILocalizedString(@"Authorization Requests", nil)];
 	[tableView selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
 
 	[self.window setTitle:AUTHORIZATION_REQUESTS];
@@ -261,17 +259,16 @@ static AIAuthorizationRequestsWindowController *sharedController = nil;
 
 - (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar
 {
-	return [NSArray arrayWithObjects:AUTHORIZE, NSToolbarSeparatorItemIdentifier, GET_INFO,
+	return [NSArray arrayWithObjects:AUTHORIZE, NSToolbarFlexibleSpaceItemIdentifier, GET_INFO,
 									 NSToolbarFlexibleSpaceItemIdentifier, IGNORE, DENY, nil];
 }
 
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar
 {
 	return [[toolbarItems allKeys]
-		arrayByAddingObjectsFromArray:[NSArray arrayWithObjects:NSToolbarSeparatorItemIdentifier,
+		arrayByAddingObjectsFromArray:[NSArray arrayWithObjects:NSToolbarFlexibleSpaceItemIdentifier,
 																NSToolbarSpaceItemIdentifier,
-																NSToolbarFlexibleSpaceItemIdentifier,
-																NSToolbarCustomizeToolbarItemIdentifier, nil]];
+																NSToolbarFlexibleSpaceItemIdentifier, nil]];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
@@ -542,10 +539,9 @@ static AIAuthorizationRequestsWindowController *sharedController = nil;
 	if ([identifier isEqualToString:@"request"]) {
 		[(AIImageTextCell *)cell setSubString:[request objectForKey:@"Reason"]];
 	} else if ([identifier isEqualToString:@"icon"]) {
-		[cell accessibilitySetOverrideValue:[[[request objectForKey:@"Account"] service] longDescription]
-							   forAttribute:NSAccessibilityTitleAttribute];
+		[cell setAccessibilityTitle:[[[request objectForKey:@"Account"] service] longDescription]];
 
-		[cell accessibilitySetOverrideValue:@" " forAttribute:NSAccessibilityRoleDescriptionAttribute];
+		[cell setAccessibilityRoleDescription:@" "];
 	}
 }
 

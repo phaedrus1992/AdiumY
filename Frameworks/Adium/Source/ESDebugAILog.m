@@ -26,13 +26,13 @@ BOOL AIDebugLoggingEnabled = NO;
 
 NSString *const AIDebugLoggingEnabledNotification = @"AIDebugLoggingEnabledNotification";
 
-void AIEnableDebugLogging()
+void AIEnableDebugLogging(void)
 {
 	AIDebugLoggingEnabled = YES;
 	[[NSNotificationCenter defaultCenter] postNotificationName:AIDebugLoggingEnabledNotification object:nil];
 }
 
-BOOL AIDebugLoggingIsEnabled()
+BOOL AIDebugLoggingIsEnabled(void)
 {
 	return AIDebugLoggingEnabled;
 }
@@ -47,8 +47,9 @@ BOOL AIDebugLoggingIsEnabled()
  */
 void AIAddDebugMessage(NSString *debugMessage)
 {
-	NSString *actualMessage = [[[NSDate date] descriptionWithCalendarFormat:@"%H:%M:%S: " timeZone:nil
-																	 locale:nil] stringByAppendingString:debugMessage];
+	NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+	[formatter setDateFormat:@"HH:mm:ss: "];
+	NSString *actualMessage = [[formatter stringFromDate:[NSDate date]] stringByAppendingString:debugMessage];
 
 	/* Be careful; we should only modify debugLogArray and the windowController's view on the main thread. */
 	if ([NSRunLoop currentRunLoop] == [NSRunLoop mainRunLoop]) {
@@ -81,8 +82,8 @@ void AILogWithSignature_impl(const char *name, int line, NSString *format, ...)
 	NSString *debugMessage, *actualMessage;
 	const char *queue = NULL;
 
-	if (dispatch_get_current_queue() != dispatch_get_main_queue()) {
-		queue = dispatch_queue_get_label(dispatch_get_current_queue());
+	if (![NSThread isMainThread]) {
+		queue = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
 	}
 
 	va_start(ap, format); /* Make ap point to the first unnamed argument */
@@ -113,7 +114,7 @@ void AILogWithPrefix_impl(const char *prefix, NSString *format, ...)
 	va_end(ap); /* clean up when done */
 }
 
-void AILogBacktrace_impl()
+void AILogBacktrace_impl(void)
 {
 	void *callstack[128];
 	int i, frames = backtrace(callstack, 128);
@@ -132,4 +133,4 @@ void AILogBacktrace_impl()
 #undef AILogWithBacktrace
 void AILog(NSString *fmt, ...) {}
 void AILogWithPrefix(const char *signature, NSString *fmt, ...) {}
-void AILogWithBacktrace() {}
+void AILogWithBacktrace(void) {}

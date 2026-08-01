@@ -45,7 +45,7 @@
 - (void)sort
 {
 	if (adium.contactController.useContactListGroups) {
-#warning rewrite this once we can enforce that AIContactLists only contain AIListGroups
+// WARNING: rewrite this once we can enforce that AIContactLists only contain AIListGroups
 		for (AIListObject *object in self) {
 			if ([object isKindOfClass:[AIListGroup class]]) {
 				[(AIListGroup *)object sort];

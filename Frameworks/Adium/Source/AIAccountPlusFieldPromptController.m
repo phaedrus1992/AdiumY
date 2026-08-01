@@ -24,7 +24,7 @@
 #import <Adium/AIMetaContact.h>
 #import <Adium/AIService.h>
 
-@interface AIAccountPlusFieldPromptController ()
+@interface AIAccountPlusFieldPromptController () <NSControlTextEditingDelegate>
 
 - (void)AI_configureTextFieldForAccount:(AIAccount *)account;
 
@@ -81,16 +81,16 @@
 
 			contact = [adium.contactController contactWithService:account.service account:account UID:UID];
 		} else {
-			NSRunAlertPanel(
-				AILocalizedStringFromTableInBundle(@"Contact not found", nil,
+			NSAlert *alert = [[NSAlert alloc] init];
+			alert.messageText = AILocalizedStringFromTableInBundle(@"Contact not found", nil,
 												   [NSBundle bundleForClass:[AIAccountPlusFieldPromptController class]],
-												   nil),
-				AILocalizedStringFromTableInBundle(
+												   nil);
+			alert.informativeText = [NSString stringWithFormat:AILocalizedStringFromTableInBundle(
 					@"%@ is not on any account. Please select a specific account or add this contact first.", nil,
-					[NSBundle bundleForClass:[AIAccountPlusFieldPromptController class]], nil),
-				AILocalizedStringFromTableInBundle(
-					@"OK", nil, [NSBundle bundleForClass:[AIAccountPlusFieldPromptController class]], nil),
-				nil, nil, impliedValue);
+					[NSBundle bundleForClass:[AIAccountPlusFieldPromptController class]], nil), impliedValue];
+			[alert addButtonWithTitle:AILocalizedStringFromTableInBundle(
+				@"OK", nil, [NSBundle bundleForClass:[AIAccountPlusFieldPromptController class]], nil)];
+			[alert runModal];
 
 			return nil;
 		}

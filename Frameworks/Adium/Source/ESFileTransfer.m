@@ -22,6 +22,7 @@
 
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIBezierPathAdditions.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 #define MAGIC_ARROW_SCALE 0.85f
 #define MAGIC_ARROW_TRANSLATE_X 2.85f
@@ -336,7 +337,7 @@ static NSMutableDictionary *fileTransferDict = nil;
 
 - (void)openFile
 {
-	[[NSWorkspace sharedWorkspace] openFile:localFilename];
+	[[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:localFilename]];
 }
 
 - (NSImage *)iconImage
@@ -352,11 +353,12 @@ static NSMutableDictionary *fileTransferDict = nil;
 		extension = self.remoteFilename.pathExtension;
 
 	if (extension && [extension length]) {
-		systemIcon = [[NSWorkspace sharedWorkspace] iconForFileType:extension];
+		UTType *contentType = [UTType typeWithFilenameExtension:extension];
+		systemIcon = [[NSWorkspace sharedWorkspace] iconForContentType:(contentType != nil ? contentType : UTTypeData)];
 
 	} else {
 		if ([self.account canSendFolders] && [self isDirectory]) {
-			systemIcon = [[NSWorkspace sharedWorkspace] iconForFileType:NSFileTypeForHFSTypeCode(kGenericFolderIcon)];
+			systemIcon = [[NSWorkspace sharedWorkspace] iconForContentType:UTTypeFolder];
 		} else {
 			systemIcon = [[NSWorkspace sharedWorkspace] iconForFile:self.localFilename];
 		}
@@ -383,7 +385,7 @@ static NSMutableDictionary *fileTransferDict = nil;
 	// draw our circle background...
 	NSBezierPath *circle = [NSBezierPath bezierPathWithOvalInRect:circleRect];
 	[circle setLineWidth:line];
-	[[[NSColor alternateSelectedControlColor] colorWithAlphaComponent:0.75f] setStroke];
+	[[[NSColor selectedContentBackgroundColor] colorWithAlphaComponent:0.75f] setStroke];
 	[[[NSColor alternateSelectedControlTextColor] colorWithAlphaComponent:0.75f] setFill];
 	[circle fill];
 	[circle stroke];
@@ -411,7 +413,7 @@ static NSMutableDictionary *fileTransferDict = nil;
 		[arrow transformUsingAffineTransform:transform];
 
 		[circle addClip];
-		[[NSColor alternateSelectedControlColor] setFill];
+		[[NSColor selectedContentBackgroundColor] setFill];
 		[arrow fill];
 	}
 

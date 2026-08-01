@@ -79,10 +79,9 @@
 
 - (void)beginSheetModalForWindow:(NSWindow *)window
 {
-	[alert beginSheetModalForWindow:window
-					  modalDelegate:self
-					 didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
-						contextInfo:NULL];
+	[alert beginSheetModalForWindow:window completionHandler:^(NSModalResponse returnCode) {
+		[self alertDidEnd:self->alert returnCode:returnCode contextInfo:NULL];
+	}];
 }
 
 - (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
@@ -282,12 +281,13 @@ typedef enum {
  */
 - (NSAlert *)alertForAccountDeletion
 {
-	return [NSAlert alertWithMessageText:AILocalizedString(@"Delete Account", nil)
-						   defaultButton:AILocalizedString(@"Delete", nil)
-						 alternateButton:AILocalizedString(@"Cancel", nil)
-							 otherButton:nil
-			   informativeTextWithFormat:AILocalizedString(@"Delete the account %@?", nil),
-										 ([self.formattedUID length] ? self.formattedUID : NEW_ACCOUNT_DISPLAY_TEXT)];
+	NSAlert *alert = [[NSAlert alloc] init];
+	[alert setMessageText:AILocalizedString(@"Delete Account", nil)];
+	[alert setInformativeText:[NSString stringWithFormat:AILocalizedString(@"Delete the account %@?", nil),
+							 ([self.formattedUID length] ? self.formattedUID : NEW_ACCOUNT_DISPLAY_TEXT)]];
+	[alert addButtonWithTitle:AILocalizedString(@"Delete", nil)];
+	[alert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+	return alert;
 }
 
 /*!
@@ -298,13 +298,13 @@ typedef enum {
  *
  * This method should be overridden when alertForAccountDeletion: was overridden, and/or asynchronous behavior is
  * required. This implementation disconnects and deletes the account from the accounts list when returnCode ==
- * NSAlertDefaultReturn.
+ * NSAlertFirstButtonReturn.
  *
  * If this implementation is not called, dialog should be released by the subclass.
  */
 - (void)alertForAccountDeletion:(id<AIAccountControllerRemoveConfirmationDialog>)dialog didReturn:(NSInteger)returnCode
 {
-	if (returnCode == NSAlertDefaultReturn) {
+	if (returnCode == NSAlertFirstButtonReturn) {
 		[self performDelete];
 	}
 

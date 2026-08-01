@@ -31,7 +31,7 @@
 
 #define SEND_ON_ENTER @"Send On Enter"
 
-@interface AIEditStateWindowController ()
+@interface AIEditStateWindowController () <NSControlTextEditingDelegate>
 - (id)initWithWindowNibName:(NSString *)windowNibName
 					forType:(AIStatusType)inStatusType
 				 andAccount:(AIAccount *)inAccount
@@ -45,7 +45,7 @@
 - (void)setAccount:(AIAccount *)inAccount;
 - (void)configureForAccountAndWorkingStatusState;
 
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSModalResponse)returnCode contextInfo:(void *)contextInfo;
 - (void)notifyOfStateChange;
 @end
 
@@ -107,11 +107,10 @@ static NSMutableDictionary *controllerDict = nil;
 	}
 
 	if (parentWindow) {
-		[NSApp beginSheet:[controller window]
-			modalForWindow:parentWindow
-			 modalDelegate:controller
-			didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-			   contextInfo:nil];
+		[parentWindow beginSheet:[controller window]
+			   completionHandler:^(NSModalResponse returnCode) {
+				   [controller sheetDidEnd:[controller window] returnCode:returnCode contextInfo:nil];
+			   }];
 	} else {
 		[controller showWindow:nil];
 		[[controller window] makeKeyAndOrderFront:nil];
@@ -294,7 +293,7 @@ static NSMutableDictionary *controllerDict = nil;
 /*!
  * Invoked as the sheet closes, dismiss the sheet
  */
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
+- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSModalResponse)returnCode contextInfo:(void *)contextInfo
 {
 	// Stop tracking with the controllerDict
 	NSNumber *targetHash = [NSNumber numberWithUnsignedInteger:[target hash]];
@@ -663,7 +662,7 @@ static NSMutableDictionary *controllerDict = nil;
 {
 	double idleStart = [textField_idleHours intValue] * 3600 + [textField_idleMinutes intValue] * 60;
 
-	[workingStatusState setMutabilityType:((!showSaveCheckbox || ([checkBox_save state] == NSOnState))
+	[workingStatusState setMutabilityType:((!showSaveCheckbox || ([checkBox_save state] == NSControlStateValueOn))
 											   ? AIEditableStatusState
 											   : AITemporaryEditableStatusState)];
 
