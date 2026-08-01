@@ -179,15 +179,6 @@ static 	NSMutableSet			*temporaryStateArray = nil;
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 }
 
-/*!
- * @brief Deallocate
- */
-- (void)dealloc
-{
-	_rootStateGroup = nil;
-	_sortedFullStateArray = nil;
-}
-
 #pragma mark Status registration
 /*!
  * @brief Register a status for a service

@@ -87,10 +87,7 @@
  */
 - (void)dealloc
 {
-	fingerprintDictArray = nil;
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
-
-
 }
 
 /*!

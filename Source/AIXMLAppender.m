@@ -113,14 +113,6 @@ enum { xmlMarkerLength = 21, failedUtf8BomLength = 6 };
 	return self;
 }
 
-/*!
- * @brief Clean up.
- */
-- (void)dealloc
-{
-	// ARC releases ivars; NSFileHandle's dealloc closes the fd (closeOnDealloc:YES)
-}
-
 #pragma mark -
 
 /*!
