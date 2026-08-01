@@ -26,10 +26,18 @@ WebView ran in-process with **synchronous** DOM access (`DOMDocument`, `stringBy
 
 ## 4. Known gap: context menus
 
-`WKContextMenuElementInfo` and the `WKUIDelegate` context-menu family are **iOS-only** in the macOS SDK. macOS WKWebView has **no public** context-menu customization hook. The old WebView-era chat view had a rich per-message menu; that behavior has no public equivalent and was not preserved. The default WKWebView context menu now appears in the main chat and in the prefs preview. Recreating per-message menus would require private API or JS hit-testing events — tracked as a deliberate non-goal (per the original proposal's "do not chase pixel parity via private API").
+`WKContextMenuElementInfo` and the `WKUIDelegate` context-menu family are **iOS-only** in the macOS SDK. macOS WKWebView has **no public** context-menu customization hook. The old WebView-era chat view had a rich per-message menu; that behavior has no public equivalent and was not preserved. The default WKWebView context menu now appears in the main chat and in the prefs preview. Recreating per-message menus would require private API or JS hit-testing events — tracked as a deliberate non-goal (per the original proposal's "do not chase pixel parity via private API"). Follow-ups are tracked in §6.
 
 ## 5. Verification
 
 - `xcodebuild -scheme "Adium - Debug" -configuration Debug` → exit 0, **zero warnings, zero errors** (forced rebuild).
 - `git grep -l "WebKit/WebView.h\|DOMDocument\|stringByEvaluatingJavaScript"` → no hits in first-party source.
 - Form dialog behavior unchanged: HTML generated as before; only the renderer and the navigation policy callback swapped.
+
+## 6. Follow-ups
+
+Gaps from this transition are tracked as GitHub issues:
+
+- **#119** — chat message view lost its custom context menu after the WKWebView migration (macOS WKWebView has no public context-menu hook; see §4).
+- **#120** — the HTML-paste image-loading guard relies on the deprecated `NSWebResourceLoadDelegateDocumentOption` WebView machinery.
+- **#121** — stale `WebView` designer metadata remains in the `GeneralPreferences` nibs.
