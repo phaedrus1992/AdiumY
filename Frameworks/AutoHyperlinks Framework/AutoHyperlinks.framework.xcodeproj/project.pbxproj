@@ -725,7 +725,7 @@
 				<key>GCC_WARN_UNINITIALIZED_AUTOS</key>
 				<string>YES</string>
 				<key>MACOSX_DEPLOYMENT_TARGET</key>
-				<string>11.0</string>
+				<string>12.0</string>
 				<key>ONLY_ACTIVE_ARCH</key>
 				<string>YES</string>
 				<key>VALID_ARCHS</key>
@@ -2345,7 +2345,7 @@
 				<key>GCC_WARN_UNINITIALIZED_AUTOS</key>
 				<string>YES</string>
 				<key>MACOSX_DEPLOYMENT_TARGET</key>
-				<string>11.0</string>
+				<string>12.0</string>
 				<key>VALID_ARCHS</key>
 				<string>x86_64</string>
 			</dict>
@@ -2409,7 +2409,7 @@
 				<key>GCC_WARN_UNINITIALIZED_AUTOS</key>
 				<string>YES</string>
 				<key>MACOSX_DEPLOYMENT_TARGET</key>
-				<string>11.0</string>
+				<string>12.0</string>
 				<key>VALID_ARCHS</key>
 				<string>x86_64</string>
 			</dict>
