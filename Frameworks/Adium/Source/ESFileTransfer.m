@@ -355,12 +355,14 @@ static NSMutableDictionary *fileTransferDict = nil;
 	iconImage = [[NSImage alloc] initWithSize:[systemIcon size]];
 
 	NSRect rect = {NSZeroPoint, [iconImage size]};
-	NSRect bottomRight = NSMakeRect(NSMidX(rect), ([iconImage isFlipped] ? NSMidY(rect) : NSMinY(rect)),
-									(NSWidth(rect) / 2.0f), (NSHeight(rect) / 2.0f));
 
 	[iconImage lockFocus];
 
-	[systemIcon drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+	[systemIcon drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositingOperationSourceOver fraction:1.0];
+
+	BOOL isFlipped = [[NSGraphicsContext currentContext] isFlipped];
+	NSRect bottomRight = NSMakeRect(NSMidX(rect), (isFlipped ? NSMidY(rect) : NSMinY(rect)),
+									(NSWidth(rect) / 2.0f), (NSHeight(rect) / 2.0f));
 
 	CGFloat line = ((NSWidth(bottomRight) / 15) + ((NSHeight(bottomRight) / 15) / 2));
 	NSRect circleRect = NSMakeRect(NSMinX(bottomRight), NSMinY(bottomRight) + (line), NSWidth(bottomRight) - (line),
