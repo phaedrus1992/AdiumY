@@ -18,9 +18,6 @@
 #import "ESPurpleJabberAccount.h"
 #import <Adium/AIAccountControllerProtocol.h>
 #import <Security/SecPolicy.h>
-#import <Security/SecPolicySearch.h>
-#import <Security/SecureTransport.h>
-#import <Security/oidsalg.h>
 #import <SecurityInterface/SFCertificateTrustPanel.h>
 
 // #define ALWAYS_SHOW_TRUST_WARNING
@@ -90,6 +87,7 @@
 
 		certificates = certs;
 		CFRetain(certificates);
+		trustRef = NULL;
 
 		account = _account;
 		hostname = [_hostname copy];
@@ -101,110 +99,72 @@
 
 - (void)dealloc
 {
-	CFRelease(certificates);
-	CFRelease(trustRef);
+	if (certificates != NULL) {
+		CFRelease(certificates);
+	}
+	if (trustRef != NULL) {
+		CFRelease(trustRef);
+	}
 }
 
 - (IBAction)showWindow:(id)sender
 {
-	OSStatus err;
-	SecPolicySearchRef searchRef = NULL;
-	SecPolicyRef policyRef;
-
-	CSSM_DATA data;
-	err = SecCertificateGetData((SecCertificateRef)CFArrayGetValueAtIndex(certificates, 0), &data);
-
-	err = SecPolicySearchCreate(CSSM_CERT_X_509v3, &CSSMOID_APPLE_TP_SSL, NULL, &searchRef);
-	if (err != noErr) {
-		NSBeep();
-		_selfRetain = nil;
-		return;
-	}
-
-	err = SecPolicySearchCopyNext(searchRef, &policyRef);
-	if (err != noErr) {
-		CFRelease(searchRef);
-		NSBeep();
-		_selfRetain = nil;
-		return;
-	}
-
 	NSAssert(UINT_MAX > [hostname length], @"More string data than libpurple can handle.  Abort.");
 
-	CSSM_APPLE_TP_SSL_OPTIONS ssloptions = {.Version = CSSM_APPLE_TP_SSL_OPTS_VERSION,
-											.ServerNameLen = (UInt32)([hostname length] + 1),
-											.ServerName = [hostname cStringUsingEncoding:NSASCIIStringEncoding],
-											.Flags = 0};
+	// Build an SSL policy bound to the hostname we expect, so the trust evaluation verifies the
+	// server's identity as well as the certificate chain. (Replaces the deprecated
+	// SecPolicySearchCreate/SecPolicySearchCopyNext/SecPolicySetValue dance with SecPolicyCreateSSL.)
+	SecPolicyRef policyRef = SecPolicyCreateSSL(true, (__bridge CFStringRef)hostname);
 
-	CSSM_DATA theCssmData = {.Length = sizeof(ssloptions), .Data = (uint8 *)&ssloptions};
-
-	SecPolicySetValue(policyRef, &theCssmData); // Don't care about the error
-
-	err = SecTrustCreateWithCertificates(certificates, policyRef, &trustRef);
+	OSStatus err = SecTrustCreateWithCertificates(certificates, policyRef, &trustRef);
+	CFRelease(policyRef);
 
 	if (err != noErr) {
-		CFRelease(searchRef);
-		CFRelease(policyRef);
 		NSBeep();
 		_selfRetain = nil;
 		return;
 	}
 
-	// test whether we aren't already trusting this certificate
-	SecTrustResultType result;
-	err = SecTrustEvaluate(trustRef, &result);
-	if (err == noErr) {
-		// with help from http://lists.apple.com/archives/Apple-cdsa/2006/Apr/msg00013.html
-		switch (result) {
-		case kSecTrustResultProceed:     // trust ok, go right ahead
-		case kSecTrustResultUnspecified: // trust ok, user has no particular opinion about this
+	// Test whether we aren't already trusting this certificate.
+	BOOL trusted = SecTrustEvaluateWithError(trustRef, NULL);
+
+	// A RecoverableTrustFailure (or an unrelated OtherError) can be argued with the user;
+	// a FatalTrustFailure or Invalid result means the user can't fix it. (Replaces a
+	// comparison against errSecInvalid, which no longer exists in the Security SDK.)
+	SecTrustResultType result = kSecTrustResultInvalid;
+	BOOL recoverable = NO;
+	if (SecTrustGetTrustResult(trustRef, &result) == noErr) {
+		recoverable = (result == kSecTrustResultRecoverableTrustFailure) || (result == kSecTrustResultOtherError);
+	}
+
+	if (trusted) {
 #ifndef ALWAYS_SHOW_TRUST_WARNING
-			query_cert_cb(true, userdata);
-			_selfRetain = nil;
-			break;
+		// Trust ok, go right ahead.
+		query_cert_cb(true, userdata);
+		_selfRetain = nil;
+		return;
 #endif
-		case kSecTrustResultConfirm: // trust ok, but user asked (earlier) that you check with him before proceeding
-		case kSecTrustResultDeny:    // trust ok, but user previously said not to trust it anyway
-		case kSecTrustResultRecoverableTrustFailure: // trust broken, perhaps argue with the user
-		case kSecTrustResultOtherError: // failure other than trust evaluation; e.g., internal failure of the
-										// SecTrustEvaluate function. We'll let the user decide where to go from here.
-		{
+		// ALWAYS_SHOW_TRUST_WARNING: fall through and show the panel even for trusted certificates.
+	}
 
-#if 1
-			// Show on an independent window.
+	if (trusted || recoverable) {
+		// Trust broken, perhaps argue with the user. Show on an independent window.
 #define TRUST_PANEL_WIDTH 535
-			NSWindow *fakeWindow =
-				[[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, TRUST_PANEL_WIDTH, 1)
-											styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable)
-											  backing:NSBackingStoreBuffered
-												defer:NO];
-			[fakeWindow center];
-			[fakeWindow setTitle:AILocalizedString(@"Verify Certificate", nil)];
+		NSWindow *fakeWindow =
+			[[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, TRUST_PANEL_WIDTH, 1)
+										styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable)
+										  backing:NSBackingStoreBuffered
+											defer:NO];
+		[fakeWindow center];
+		[fakeWindow setTitle:AILocalizedString(@"Verify Certificate", nil)];
 
-			[self runTrustPanelOnWindow:fakeWindow];
-			[fakeWindow makeKeyAndOrderFront:nil];
-#else
-			// Show as a sheet on the account's preferences
-			[adium.accountController editAccount:account onWindow:nil notifyingTarget:self];
-#endif
-			break;
-		}
-		default:
-			/*
-			 * kSecTrustResultFatalTrustFailure -> trust broken, user can't fix it
-			 * kSecTrustResultInvalid -> logic error; fix your program (SecTrust was used incorrectly)
-			 */
-			query_cert_cb(false, userdata);
-			_selfRetain = nil;
-			break;
-		}
+		[self runTrustPanelOnWindow:fakeWindow];
+		[fakeWindow makeKeyAndOrderFront:nil];
 	} else {
+		// Trust broken and not recoverable (e.g. an invalid certificate); the user can't fix it.
 		query_cert_cb(false, userdata);
 		_selfRetain = nil;
 	}
-
-	CFRelease(searchRef);
-	CFRelease(policyRef);
 }
 
 - (void)runTrustPanelOnWindow:(NSWindow *)window

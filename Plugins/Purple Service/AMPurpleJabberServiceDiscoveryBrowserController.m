@@ -280,7 +280,7 @@ static NSImage *det_triangle_closed = nil;
 		return [[NSAttributedString alloc] initWithString:AILocalizedString(@"(unknown)", nil) attributes:style];
 	} else if ([identifier isEqualToString:@"category"]) {
 		if (![item identities])
-			[[NSAttributedString alloc] initWithString:AILocalizedString(@"Fetching...", nil) attributes:style];
+			(void)([[NSAttributedString alloc] initWithString:AILocalizedString(@"Fetching...", nil) attributes:style]);
 
 		NSMutableArray *identities = [[NSMutableArray alloc] init];
 
@@ -358,7 +358,7 @@ static NSImage *det_triangle_closed = nil;
 		[transform set];
 		[downloadprogress drawInRect:NSMakeRect(0.0f, 0.0f, imgsize.width, imgsize.height)
 							fromRect:NSMakeRect(0.0f, 0.0f, imgsize.width, imgsize.height)
-						   operation:NSCompositeSourceOver
+						   operation:NSCompositingOperationSourceOver
 							fraction:1.0f];
 		[[NSAffineTransform transform] set];
 		[img unlockFocus];
@@ -375,9 +375,9 @@ static NSImage *det_triangle_closed = nil;
 			if (!det_triangle_opened) {
 				det_triangle_opened = [[NSImage alloc] initWithSize:NSMakeSize(13.0f, 13.0f)];
 				NSButtonCell *triangleCell = [[NSButtonCell alloc] initImageCell:nil];
-				[triangleCell setButtonType:NSOnOffButton];
-				[triangleCell setBezelStyle:NSDisclosureBezelStyle];
-				[triangleCell setState:NSOnState];
+				[triangleCell setButtonType:NSButtonTypeOnOff];
+				[triangleCell setBezelStyle:NSBezelStyleDisclosure];
+				[triangleCell setState:NSControlStateValueOn];
 
 				[det_triangle_opened lockFocus];
 				[triangleCell drawWithFrame:NSMakeRect(0.0f, 0.0f, 13.0f, 13.0f) inView:outlineView];
@@ -389,9 +389,9 @@ static NSImage *det_triangle_closed = nil;
 			if (!det_triangle_closed) {
 				det_triangle_closed = [[NSImage alloc] initWithSize:NSMakeSize(13.0f, 13.0f)];
 				NSButtonCell *triangleCell = [[NSButtonCell alloc] initImageCell:nil];
-				[triangleCell setButtonType:NSOnOffButton];
-				[triangleCell setBezelStyle:NSDisclosureBezelStyle];
-				[triangleCell setIntegerValue:NSOffState];
+				[triangleCell setButtonType:NSButtonTypeOnOff];
+				[triangleCell setBezelStyle:NSBezelStyleDisclosure];
+				[triangleCell setIntegerValue:NSControlStateValueOff];
 
 				[det_triangle_closed lockFocus];
 				[triangleCell drawWithFrame:NSMakeRect(0.0f, 0.0f, 13.0f, 13.0f) inView:outlineView];

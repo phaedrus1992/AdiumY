@@ -23,6 +23,11 @@
 #import <libpurple/sslconn.h>
 #import <libpurple/version.h>
 
+/* Vendored CDSA SSL plugin: the Security APIs used here are deprecated with no
+ * direct replacement, so suppress the deprecation diagnostics for this file. */
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 #define SSL_CDSA_PLUGIN_ID "ssl-cdsa"
 
 #ifdef HAVE_CDSA
@@ -719,3 +724,4 @@ static PurplePluginInfo info = {PURPLE_PLUGIN_MAGIC, PURPLE_MAJOR_VERSION, PURPL
 static void init_plugin(PurplePlugin *plugin) {}
 
 PURPLE_INIT_PLUGIN(ssl_cdsa, init_plugin, info)
+#pragma clang diagnostic pop

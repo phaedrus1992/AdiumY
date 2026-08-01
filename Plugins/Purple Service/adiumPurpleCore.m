@@ -36,7 +36,7 @@
 #import <Adium/AIAccountControllerProtocol.h>
 #import <AdiumLibpurple/SLPurpleCocoaAdapter.h>
 
-#warning This include and the jabber_auth_add_mech() will be part of the FacebookXMPP account's initialization
+// WARNING: This include and the jabber_auth_add_mech() will be part of the FacebookXMPP account's initialization
 #import <libpurple/auth.h>
 
 #pragma mark Debug
@@ -73,7 +73,7 @@ extern gboolean purple_init_ssl_openssl_plugin(void);
 extern gboolean purple_init_ssl_cdsa_plugin(void);
 extern gboolean purple_init_carbons_plugin(void);
 
-static void init_all_plugins()
+static void init_all_plugins(void)
 {
 	AILog(@"adiumPurpleCore: load_all_plugins()");
 
@@ -86,7 +86,7 @@ static void init_all_plugins()
 #ifdef HAVE_OPENSSL
 	purple_init_ssl_openssl_plugin();
 #else
-#warning No SSL plugin!
+// WARNING: No SSL plugin!
 #endif
 #endif
 
@@ -144,7 +144,7 @@ static void adiumPurplePrefsInit(void)
 	purple_buddy_icons_set_caching(TRUE);
 }
 
-void configurePurpleDebugLogging()
+void configurePurpleDebugLogging(void)
 {
 	purple_debug_set_ui_ops(AIDebugLoggingIsEnabled() ? adium_purple_debug_get_ui_ops() : NULL);
 }

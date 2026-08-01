@@ -108,7 +108,7 @@ static void xmlnode_sent_cb(PurpleConnection *gc, char **packet, gpointer this)
 {
 	if (!xmlConsoleWindow) {
 		// Load the window if it's not already loaded
-		[NSBundle loadNibNamed:@"AMPurpleJabberXMLConsole" owner:self];
+		[[NSBundle bundleForClass:[self class]] loadNibNamed:@"AMPurpleJabberXMLConsole" owner:self topLevelObjects:nil];
 		if (!xmlConsoleWindow)
 			AILog(@"Unable to load AMPurpleJabberXMLConsole!");
 

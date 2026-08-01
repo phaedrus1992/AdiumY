@@ -22,7 +22,10 @@
 #import <libpurple/jabber.h>
 
 #define NS_HTTP_UPLOAD @"urn:xmpp:http:upload:0"
+// NS_DISCO_ITEMS and NS_DISCO_INFO are already defined as C strings in libpurple/namespaces.h
+#undef NS_DISCO_ITEMS
 #define NS_DISCO_ITEMS @"http://jabber.org/protocol/disco#items"
+#undef NS_DISCO_INFO
 #define NS_DISCO_INFO @"http://jabber.org/protocol/disco#info"
 
 // ponytail: only 3 whitelisted headers per XEP-0363 §3.2

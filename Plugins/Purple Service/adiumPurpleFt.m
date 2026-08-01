@@ -72,7 +72,7 @@ static PurpleXferUiOps adiumPurpleFileTransferOps = {adiumPurpleNewXfer,       a
 													 /* data_not_sent */ NULL,
 													 /* reserved 1 */ NULL};
 
-PurpleXferUiOps *adium_purple_xfers_get_ui_ops()
+PurpleXferUiOps *adium_purple_xfers_get_ui_ops(void)
 {
 	return &adiumPurpleFileTransferOps;
 }

@@ -392,7 +392,7 @@
 		NSData *imageTIFFData = [image TIFFRepresentation];
 		NSBitmapImageRep *bitmapRep = [NSBitmapImageRep imageRepWithData:imageTIFFData];
 
-		data = [bitmapRep representationUsingType:NSPNGFileType
+		data = [bitmapRep representationUsingType:NSBitmapImageFileTypePNG
 									   properties:[NSDictionary dictionaryWithValuesForKeys:[NSArray array]]];
 		extension = @"png";
 	}
@@ -773,8 +773,7 @@
 														   options:NSLiteralSearch
 															 range:NSMakeRange(0, [key length])];
 
-				key = CFBridgingRelease(CFURLCreateStringByReplacingPercentEscapesUsingEncoding(
-					kCFAllocatorDefault, (CFStringRef)key, (CFStringRef) @"", kCFStringEncodingUTF8));
+				key = [key stringByRemovingPercentEncoding];
 
 				NSString *value = [[keyvalue objectAtIndex:1] mutableCopy];
 				[(NSMutableString *)value replaceOccurrencesOfString:@"+"
@@ -782,8 +781,7 @@
 															 options:NSLiteralSearch
 															   range:NSMakeRange(0, [value length])];
 
-				value = CFBridgingRelease(CFURLCreateStringByReplacingPercentEscapesUsingEncoding(
-					kCFAllocatorDefault, (CFStringRef)value, (CFStringRef) @"", kCFStringEncodingUTF8));
+				value = [value stringByRemovingPercentEncoding];
 
 				[[fieldobjects objectForKey:key] applyValue:value];
 			}

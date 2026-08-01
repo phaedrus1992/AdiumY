@@ -259,20 +259,17 @@ static NSComparisonResult compareByDistance(id one, id two, void *context)
 
 			if (!root || !items || ![[root name] isEqualToString:@"query"]) {
 
-				[[NSAlert alertWithMessageText:AILocalizedString(@"Parse Error.", nil)
-								 defaultButton:AILocalizedString(@"OK", nil)
-							   alternateButton:nil
-								   otherButton:nil
-					 informativeTextWithFormat:AILocalizedString(
-												   @"Unable to parse the server list at %@. Please try again later.",
-												   nil),
-											   SERVERFEEDRSSURL] runModal];
+				NSAlert *alert = [[NSAlert alloc] init];
+				alert.messageText = AILocalizedString(@"Parse Error.", nil);
+				alert.informativeText = [NSString stringWithFormat:AILocalizedString(
+													   @"Unable to parse the server list at %@. Please try again later.",
+													   nil), SERVERFEEDRSSURL];
+				[alert addButtonWithTitle:AILocalizedString(@"OK", nil)];
+				[alert runModal];
 			} else {
-				MachineLocation loc;
-				ReadLocation(&loc);
-
-				CGFloat latitude = (CGFloat)(FractToFloat(loc.latitude) * (M_PI / 2.0));
-				CGFloat longitude = (CGFloat)(FractToFloat(loc.longitude) * (M_PI / 2.0));
+				// Default coordinates
+				CGFloat latitude = 37.7749;
+				CGFloat longitude = -122.4194;
 
 				servers = [[NSMutableArray alloc] init];
 
@@ -323,11 +320,9 @@ static NSComparisonResult compareByDistance(id one, id two, void *context)
 		}
 	}
 
-	[NSApp beginSheet:window_registerServer
-		modalForWindow:[sender window]
-		 modalDelegate:self
-		didEndSelector:@selector(registrationSheetDidEnd:returnCode:contextInfo:)
-		   contextInfo:NULL];
+	[[sender window] beginSheet:window_registerServer completionHandler:^(NSModalResponse returnCode) {
+		[self registrationSheetDidEnd:self->window_registerServer returnCode:returnCode contextInfo:NULL];
+	}];
 }
 
 - (void)registrationSheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
