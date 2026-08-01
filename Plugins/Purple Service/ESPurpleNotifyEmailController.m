@@ -253,20 +253,15 @@
 {
 	if ([urlString rangeOfString:[NSString stringWithUTF8String:g_get_tmp_dir()]].location != NSNotFound) {
 		// Local HTML file
-		CFURLRef appURL = NULL;
-		OSStatus err;
-
 		/* Obtain the default http:// handler. We don't care what would handle _this file_ (its extension doesn't
 		 * matter) nor what normally happens when the user opens a .html file since that is, on many systems, an HTML
 		 * editor. Instead, we want to know what application to use for viewing web pages... and then open this file in
 		 * it.
 		 */
-		err = LSGetApplicationForURL((__bridge CFURLRef)[NSURL URLWithString:@"https://github.com/phaedrus1992/adiumy"],
-									 kLSRolesViewer,
-									 /*outAppRef*/ NULL, &appURL);
-		if (err == noErr) {
+		NSURL *appURL = [[NSWorkspace sharedWorkspace] URLForApplicationToOpenURL:[NSURL URLWithString:@"http://"]];
+		if (appURL) {
 			[[NSWorkspace sharedWorkspace] openURLs:@[[NSURL fileURLWithPath:[urlString stringByExpandingTildeInPath]]]
-									withApplicationAtURL:(__bridge NSURL *)appURL
+									withApplicationAtURL:appURL
 										configuration:[NSWorkspaceOpenConfiguration configuration]
 										completionHandler:nil];
 		} else {
@@ -275,11 +270,6 @@
 			// Web address
 			url = [NSURL URLWithString:urlString];
 			[[NSWorkspace sharedWorkspace] openURL:url];
-		}
-
-		if (appURL) {
-			// LSGetApplicationForURL() requires us to release the appURL when we are done with it
-			CFRelease(appURL);
 		}
 
 	} else {
