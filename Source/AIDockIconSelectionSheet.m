@@ -72,9 +72,15 @@
 	[self setPreviousIndex:NSNotFound];
 	
 	// Set-up collection view
-	[[self imageCollectionView] setMaxNumberOfColumns:7];
-	[[self imageCollectionView] setMaxItemSize:NSMakeSize(64.0f, 64.0f)];
-	[[self imageCollectionView] setMinItemSize:NSMakeSize(64.0f, 64.0f)];
+	NSCollectionViewLayout *collectionViewLayout = [[self imageCollectionView] collectionViewLayout];
+
+	if ([collectionViewLayout isKindOfClass:[NSCollectionViewGridLayout class]]) {
+		NSCollectionViewGridLayout *gridLayout = (NSCollectionViewGridLayout *)collectionViewLayout;
+
+		[gridLayout setMaximumNumberOfColumns:7];
+		[gridLayout setMaximumItemSize:NSMakeSize(64.0f, 64.0f)];
+		[gridLayout setMinimumItemSize:NSMakeSize(64.0f, 64.0f)];
+	}
 	[[self imageCollectionView] setHighlightStyle:AIImageCollectionViewHighlightBackgroundStyle];
 	[[self imageCollectionView] setHighlightCornerRadius:4.0f];
 	
