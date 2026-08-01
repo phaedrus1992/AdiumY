@@ -25,7 +25,6 @@
 		110763F608676CC9005987A5 /* RAFBlockEditorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 110763F208676CC9005987A5 /* RAFBlockEditorPlugin.m */; };
 		110763F808676CC9005987A5 /* RAFBlockEditorWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 110763F408676CC9005987A5 /* RAFBlockEditorWindowController.m */; };
 		110763FA08676D05005987A5 /* BlockEditorWindow.nib in Resources */ = {isa = PBXBuildFile; fileRef = 110763F908676D04005987A5 /* BlockEditorWindow.nib */; };
-		11077B6F0DE647C100A4DD25 /* AIStatusItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 11077B6E0DE647C100A4DD25 /* AIStatusItemView.m */; };
 		1111B2300F8478500068CE51 /* Filter Bar.nib in Resources */ = {isa = PBXBuildFile; fileRef = 1111B22F0F8478500068CE51 /* Filter Bar.nib */; };
 		1111B2680F847CAD0068CE51 /* AIFilterBarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1111B2670F847CAD0068CE51 /* AIFilterBarView.m */; };
 		111256060F8DA2B200E76177 /* ESBonjourAccountView.nib in Resources */ = {isa = PBXBuildFile; fileRef = 34F4675B080F46AC007800AB /* ESBonjourAccountView.nib */; };
@@ -1404,8 +1403,6 @@
 		110763F308676CC9005987A5 /* RAFBlockEditorWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RAFBlockEditorWindowController.h; path = Source/RAFBlockEditorWindowController.h; sourceTree = "<group>"; };
 		110763F408676CC9005987A5 /* RAFBlockEditorWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RAFBlockEditorWindowController.m; path = Source/RAFBlockEditorWindowController.m; sourceTree = "<group>"; };
 		110763F908676D04005987A5 /* BlockEditorWindow.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = BlockEditorWindow.nib; path = Resources/BlockEditorWindow.nib; sourceTree = "<group>"; };
-		11077B6D0DE647C100A4DD25 /* AIStatusItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIStatusItemView.h; path = "Plugins/Status Menu Item/AIStatusItemView.h"; sourceTree = "<group>"; };
-		11077B6E0DE647C100A4DD25 /* AIStatusItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AIStatusItemView.m; path = "Plugins/Status Menu Item/AIStatusItemView.m"; sourceTree = "<group>"; };
 		1111B22F0F8478500068CE51 /* Filter Bar.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = "Filter Bar.nib"; path = "Resources/Filter Bar.nib"; sourceTree = "<group>"; };
 		1111B2660F847CAD0068CE51 /* AIFilterBarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIFilterBarView.h; path = Source/AIFilterBarView.h; sourceTree = "<group>"; };
 		1111B2670F847CAD0068CE51 /* AIFilterBarView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AIFilterBarView.m; path = Source/AIFilterBarView.m; sourceTree = "<group>"; };
@@ -6335,8 +6332,6 @@
 		9E791D8505768A3000547562 /* Status Menu Item */ = {
 			isa = PBXGroup;
 			children = (
-				11077B6D0DE647C100A4DD25 /* AIStatusItemView.h */,
-				11077B6E0DE647C100A4DD25 /* AIStatusItemView.m */,
 				11F146090B546C1200CA91F6 /* AIMenuBarIcons.h */,
 				11F1460A0B546C1200CA91F6 /* AIMenuBarIcons.m */,
 				9E217B7706A74CA7002A3F27 /* StatusMenuItemDefaultPrefs.plist */,
@@ -8088,7 +8083,6 @@
 				4F1CB6320D640D7F0073A1E6 /* AIEventsInspectorPane.m in Sources */,
 				632D859E0DB70FC800040EC7 /* AIMentionEventPlugin.m in Sources */,
 				34EBB2C30DCA8DE500B4CB6E /* AISearchFieldCell.m in Sources */,
-				11077B6F0DE647C100A4DD25 /* AIStatusItemView.m in Sources */,
 				34A1AB6C0DFC531000AC78CF /* AIXMLChatlogConverter.m in Sources */,
 				34A1B2C30DFDBA1200AC78CF /* AIStringDebug.m in Sources */,
 				111DDF3A0E8E7D2F00114FCA /* AIAutomaticStatus.m in Sources */,

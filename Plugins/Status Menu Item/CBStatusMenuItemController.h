@@ -14,8 +14,9 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import <Cocoa/Cocoa.h>
+
 #import "AIMenuBarIcons.h"
-#import "AIStatusItemView.h"
 #import <Adium/AIAccountMenu.h>
 #import <Adium/AIChatControllerProtocol.h>
 #import <Adium/AIContactMenu.h>
@@ -32,11 +33,11 @@
 @interface CBStatusMenuItemController : NSObject <AIChatObserver, AIListObjectObserver, AIAccountMenuDelegate,
 												  AIStatusMenuDelegate, AIContactMenuDelegate, NSMenuDelegate> {
 	NSStatusItem *statusItem;
-	AIStatusItemView *statusItemView;
 
 	NSMenu *mainMenu;
 	NSMenu *mainAccountsMenu;
 	NSMenu *mainOptionsMenu;
+	NSMenu *alternateMenu;
 
 	NSMenuItem *contactsMenuItem;
 
