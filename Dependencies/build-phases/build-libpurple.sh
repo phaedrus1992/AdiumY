@@ -66,6 +66,14 @@ build_libpurple_phase() {
     patch -d "$LIBPURPLE_SRC" -p1 < "$patches_dir/Makefile.am.patch"
     patch -d "$LIBPURPLE_SRC" -p1 < "$patches_dir/Makefile.in.patch"
 
+    # Route prpl-irc's send-handler timer through purple's eventloop. irc_send
+    # only queues; the 1s send-handler timer flushes the queue (PONG etc). As a
+    # raw g_timeout_add_seconds it schedules on glib's default context, which
+    # Adium never services, so queued traffic never hits the wire. Mirror the
+    # jabber patch pattern.
+    local irc_patches_dir="$ROOTDIR/patches/pidgin-2.14.14/irc"
+    patch -d "$LIBPURPLE_SRC" -p1 < "$irc_patches_dir/irc.c.patch"
+
     build_for_archs build_libpurple "libpurple.0.dylib"
 
     # Stage headers from sandbox so framework doesn't reference ephemeral paths

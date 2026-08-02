@@ -1,0 +1,21 @@
+--- a/libpurple/protocols/irc/irc.c
++++ b/libpurple/protocols/irc/irc.c
+@@ -518,8 +518,8 @@ static gboolean do_login(PurpleConnection *gc)
+ 	burst = purple_account_get_int(irc->account, "ratelimit-burst",
+ 	                               IRC_DEFAULT_COMMAND_MAX_BURST);
+
+ 	irc->send_time = time(NULL) - (interval * burst);
+-	irc->send_handler = g_timeout_add_seconds(1, irc_send_handler_cb, irc);
++	irc->send_handler = purple_timeout_add_seconds(1, irc_send_handler_cb, irc);
+
+ 	return TRUE;
+ }
+@@ -596,7 +596,7 @@ static void irc_close(PurpleConnection *gc)
+
+ 	g_queue_free_full(irc->send_queue, g_free);
+ 	if(irc->send_handler != 0) {
+-		g_source_remove(irc->send_handler);
++		purple_timeout_remove(irc->send_handler);
+ 	}
+
+ 	g_free(irc->mode_chars);
