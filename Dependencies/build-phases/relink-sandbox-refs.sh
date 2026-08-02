@@ -152,7 +152,7 @@ refresh_frameworks() {
             fi
             if [ -f "$srcbin" ] && { [ ! -f "$dstbin" ] || [ "$srcbin" -nt "$dstbin" ]; }; then
                 echo "relink: refreshing $fw"
-                rm -rf "$FW_DIR/$fw"
+                rm -rf "${FW_DIR:?}/${fw:?}"
                 ditto "$src" "$FW_DIR/$fw"
                 codesign -f -s - "$FW_DIR/$fw"
             fi
