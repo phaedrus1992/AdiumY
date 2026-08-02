@@ -7302,8 +7302,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				31034F0C0C8142720003F5AA /* UTF8Snowman.txt in Resources */,
-				31FA804C0D4A8EB200ABE634 /* Adium.sdef in Resources */,
-				8705FD124693CDB6DDA2205E /* NSString-FBAdditions.m in Sources */,);
+				31FA804C0D4A8EB200ABE634 /* Adium.sdef in Resources */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		3485D67C09EB416300232CC4 /* Resources */ = {
@@ -8112,6 +8111,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8705FD124693CDB6DDA2205E /* NSString-FBAdditions.m in Sources */,
 				1164A9270F7AD70700110AE4 /* AIContentTopic.m in Sources */,
 				11FC23C30F768C2900C1C906 /* AIXMLElement.m in Sources */,
 				636D94090E4EAB9D00E5F558 /* AIContactObserverManager.m in Sources */,
@@ -9457,6 +9457,7 @@
 			baseConfigurationReference = 63C7E2070FAFAA4700B310AC /* Adium.framework.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG_BUILD;
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Frameworks/Adium/Resources/Info.plist;
@@ -9504,6 +9505,7 @@
 			baseConfigurationReference = 63C7E2040FAFAA4700B310AC /* Adium.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG_BUILD;
 					CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
