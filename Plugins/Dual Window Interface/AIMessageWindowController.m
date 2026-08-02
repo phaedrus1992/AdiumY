@@ -574,11 +574,13 @@
 {
 	BOOL someUnviewedContent = NO;
 
-	NSArray *visibleTabViewItems = [tabView_tabBar visibleTabViewItems];
-	NSInteger count = MIN((NSInteger)[visibleTabViewItems count],
-						  (NSInteger)[tabView_tabBar numberOfTabViewItems]);
+	// Overflow tabs live in the full NSTabView, not in visibleTabViewItems (which only
+	// holds items with attached buttons). Index the full item array from the first
+	// overflow item, or the loop range is always empty and the icon never updates.
+	NSArray *tabViewItems = [tabView_messages tabViewItems];
+	NSInteger count = (NSInteger)[tabViewItems count];
 	for (NSInteger i = [tabView_tabBar numberOfVisibleTabViewItems]; i < count; i++) {
-		if ([[(AIMessageTabViewItem *)[visibleTabViewItems objectAtIndex:i] chat]
+		if ([[(AIMessageTabViewItem *)[tabViewItems objectAtIndex:i] chat]
 				unviewedContentCount] > 0) {
 			someUnviewedContent = YES;
 			break;
@@ -705,11 +707,17 @@
 	AIChat *chat = inTabViewItem.chat;
 
 	if ([self.containedChats indexOfObject:chat] != idx) {
-		NSMutableArray *cells = [[tabView_tabBar attachedButtons] mutableCopy];
+		// The tab bar's attached buttons only cover visible tabs; a tab in the overflow
+		// menu has no button (indexOfObject: -> NSNotFound) and a destination past the
+		// visible bar has no cell. In both cases reorder the model but skip the bar reorder.
+		NSInteger visibleIndex = [[tabView_tabBar visibleTabViewItems] indexOfObject:inTabViewItem];
+		NSArray *attachedButtons = [tabView_tabBar attachedButtons];
+		if (visibleIndex != NSNotFound && idx < (NSInteger)[attachedButtons count]) {
+			NSMutableArray *cells = [attachedButtons mutableCopy];
+			[cells moveObject:[cells objectAtIndex:visibleIndex] toIndex:idx];
+			[tabView_tabBar setNeedsDisplay:YES];
+		}
 
-		[cells moveObject:[cells objectAtIndex:[[tabView_tabBar visibleTabViewItems] indexOfObject:inTabViewItem]]
-				  toIndex:idx];
-		[tabView_tabBar setNeedsDisplay:YES];
 		[m_containedChats moveObject:chat toIndex:idx];
 
 		[adium.interfaceController chatOrderDidChange];
@@ -921,7 +929,7 @@
 // Our selected tab has changed, update the active chat
 - (void)tabView:(NSTabView *)aTabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
 {
-	if (tabViewItem != nil) {
+	if ([tabViewItem isKindOfClass:[AIMessageTabViewItem class]]) {
 		AIChat *chat = [(AIMessageTabViewItem *)tabViewItem chat];
 		[(AIMessageTabViewItem *)tabViewItem tabViewItemWasSelected]; // Let the tab know it was selected
 
@@ -956,6 +964,10 @@
 // Contextual menu for tabs
 - (NSMenu *)tabView:(NSTabView *)tabView menuForTabViewItem:(NSTabViewItem *)tabViewItem
 {
+	if (![tabViewItem isKindOfClass:[AIMessageTabViewItem class]]) {
+		return nil;
+	}
+
 	AIChat *chat = [(AIMessageTabViewItem *)tabViewItem chat];
 	AIListContact *selectedObject = chat.listObject.parentContact;
 	NSMenu *tmp = nil;
