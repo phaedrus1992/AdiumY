@@ -40,7 +40,8 @@ static inline CFMutableDictionaryRef sourceInfoDict(void)
 	static dispatch_once_t sourceInfoDictToken;
 	dispatch_once(&sourceInfoDictToken, ^{
 		static const CFDictionaryKeyCallBacks keyCallbacks = {0, NULL, NULL, NULL, NULL, NULL};
-		_sourceInfoDict = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &keyCallbacks, &kCFTypeDictionaryValueCallBacks);
+		_sourceInfoDict =
+			CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &keyCallbacks, &kCFTypeDictionaryValueCallBacks);
 	});
 	return _sourceInfoDict;
 }

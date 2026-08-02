@@ -580,8 +580,7 @@
 	NSArray *tabViewItems = [tabView_messages tabViewItems];
 	NSInteger count = (NSInteger)[tabViewItems count];
 	for (NSInteger i = [tabView_tabBar numberOfVisibleTabViewItems]; i < count; i++) {
-		if ([[(AIMessageTabViewItem *)[tabViewItems objectAtIndex:i] chat]
-				unviewedContentCount] > 0) {
+		if ([[(AIMessageTabViewItem *)[tabViewItems objectAtIndex:i] chat] unviewedContentCount] > 0) {
 			someUnviewedContent = YES;
 			break;
 		}
