@@ -240,16 +240,16 @@
 		const char *ivarType = ivar_getTypeEncoding(ivar);
 
 		if (strcmp(ivarType, @encode(NSInteger)) != 0) {
-			AILogWithSignature(@"%@'s %@ ivar is not an NSInteger but an %s! Will attempt to cast, but should not use "
+			AILogWithSignature(@"%@'s %@ ivar is not an NSInteger but an %s! Should not use "
 							   @"-integerValueForProperty: @\"%@\"",
 							   self, key, ivarType, key);
+		} else {
+			// Same raw read as _valueForProperty:; object_getIvar would return the scalar as id
+			// and ARC would retain (and crash on) a non-pointer value.
+			NSInteger rawValue;
+			memcpy(&rawValue, (char *)(__bridge void *)self + ivar_getOffset(ivar), sizeof(rawValue));
+			ret = rawValue;
 		}
-
-		// Same raw read as _valueForProperty:; object_getIvar would return the scalar as id
-		// and ARC would retain (and crash on) a non-pointer value.
-		NSInteger rawValue;
-		memcpy(&rawValue, (char *)(__bridge void *)self + ivar_getOffset(ivar), sizeof(rawValue));
-		ret = rawValue;
 	}
 
 	return ret;
