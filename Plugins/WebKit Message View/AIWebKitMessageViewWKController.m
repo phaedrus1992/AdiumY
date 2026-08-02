@@ -973,7 +973,7 @@ static NSArray *draggedTypes = nil;
 	if (!string) {
 		return @"''";
 	}
-	NSData *jsonData = [NSJSONSerialization dataWithJSONObject:string options:0 error:NULL];
+	NSData *jsonData = [NSJSONSerialization dataWithJSONObject:string options:NSJSONWritingFragmentsAllowed error:NULL];
 	if (!jsonData) {
 		return @"''";
 	}
