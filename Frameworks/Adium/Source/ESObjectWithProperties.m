@@ -189,32 +189,32 @@
 - (id)_valueForProperty:(NSString *)key
 {
 	id ret = nil;
-	id value = nil;
 
 	Ivar ivar = class_getInstanceVariable([self class], [key UTF8String]);
 
 	if (ivar == NULL) {
-		value = nil;
-
 		// no dictionary -> this property is certainly nil
 		if (propertiesDictionary) {
 			ret = [propertiesDictionary objectForKey:key];
 		}
 
 	} else {
-		value = object_getIvar(self, ivar);
-
 		const char *ivarType = ivar_getTypeEncoding(ivar);
 
 		// attempt to wrap it, if we know how
 		if (strcmp(ivarType, @encode(NSInteger)) == 0) {
-			ret = [[NSNumber alloc] initWithInteger:(NSInteger)value];
-		} else if (ivarType[0] != _C_ID) {
+			// NSInteger ivars store the raw integer as the ivar value, not an object pointer.
+			// object_getIvar returns id, so ARC would retain the scalar as an object and crash.
+			// Read the ivar memory directly instead.
+			NSInteger rawValue;
+			memcpy(&rawValue, (char *)(__bridge void *)self + ivar_getOffset(ivar), sizeof(rawValue));
+			ret = [[NSNumber alloc] initWithInteger:rawValue];
+		} else if (ivarType[0] == _C_ID) {
+			ret = object_getIvar(self, ivar);
+		} else {
 			AILogWithSignature(
 				@" *** This ivar is not an object but an %s! Should not use -valueForProperty: @\"%@\" ***", ivarType,
 				key);
-		} else {
-			ret = value;
 		}
 	}
 
@@ -240,12 +240,16 @@
 		const char *ivarType = ivar_getTypeEncoding(ivar);
 
 		if (strcmp(ivarType, @encode(NSInteger)) != 0) {
-			AILogWithSignature(@"%@'s %@ ivar is not an NSInteger but an %s! Will attempt to cast, but should not use "
+			AILogWithSignature(@"%@'s %@ ivar is not an NSInteger but an %s! Should not use "
 							   @"-integerValueForProperty: @\"%@\"",
 							   self, key, ivarType, key);
+		} else {
+			// Same raw read as _valueForProperty:; object_getIvar would return the scalar as id
+			// and ARC would retain (and crash on) a non-pointer value.
+			NSInteger rawValue;
+			memcpy(&rawValue, (char *)(__bridge void *)self + ivar_getOffset(ivar), sizeof(rawValue));
+			ret = rawValue;
 		}
-
-		ret = (NSInteger)object_getIvar(self, ivar);
 	}
 
 	return ret;

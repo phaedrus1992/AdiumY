@@ -232,6 +232,7 @@
 	}
 
 	// Add our new observer
+	[groupObservers addObject:[NSValue valueWithNonretainedObject:observer]];
 
 	// Blanket change notification for initialization
 	[observer preferencesChangedForGroup:group

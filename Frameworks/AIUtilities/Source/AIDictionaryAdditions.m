@@ -271,10 +271,15 @@
 	plistData = [[NSData alloc]
 		initWithContentsOfFile:[[path stringByAppendingPathComponent:name] stringByAppendingPathExtension:@"plist"]];
 
-	dictionary = [NSPropertyListSerialization propertyListWithData:plistData
-														   options:NSPropertyListMutableContainers
-															format:NULL
-															 error:&error];
+	// propertyListWithData: raises if data is nil; a missing file (first run) must
+	// fall through to the create:YES branch below, not abort startup.
+	dictionary = nil;
+	if (plistData != nil) {
+		dictionary = [NSPropertyListSerialization propertyListWithData:plistData
+															   options:NSPropertyListMutableContainers
+																format:NULL
+																 error:&error];
+	}
 
 	if (!dictionary && create)
 		dictionary = [NSMutableDictionary dictionary];

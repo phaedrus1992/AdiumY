@@ -23,14 +23,6 @@
 
 #import <AIUtilities/AIArrayAdditions.h>
 
-#pragma mark - WKWebView scrollView availability forward declaration
-
-/// WKWebView.scrollView requires macOS 10.14+. Forward-declared so we can
-/// wrap call sites in @available(macOS 10.14, *) checks.
-@interface WKWebView (AIWebKitWKScrollViewForwardDecl)
-@property(nonatomic, readonly) NSScrollView *scrollView API_AVAILABLE(macos(10.14));
-@end
-
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIDateFormatterAdditions.h>
@@ -306,8 +298,9 @@ static NSArray *draggedTypes = nil;
 
 - (NSView *)messageScrollView
 {
-	if (@available(macOS 10.14, *)) {
-		return [_webView scrollView];
+	NSScrollView *scrollView = [_webView enclosingScrollView];
+	if (scrollView != nil) {
+		return scrollView;
 	}
 	return _webView;
 }
@@ -877,24 +870,25 @@ static NSArray *draggedTypes = nil;
 
 - (void)setupMarkedScroller
 {
-	if (@available(macOS 10.14, *)) {
-		NSScrollView *scrollView = [_webView scrollView];
-		if (!scrollView) {
-			return;
-		}
+	// WKWebView on macOS has no public scroll view and exposes no enclosing
+	// NSScrollView (it scrolls internally), so the marked scroller can only be
+	// attached when a real enclosing scroll view exists.
+	NSScrollView *scrollView = [_webView enclosingScrollView];
+	if (scrollView == nil) {
+		return;
+	}
 
-		JVMarkedScroller *scroller = (JVMarkedScroller *)[scrollView verticalScroller];
-		if (scroller && ![scroller isMemberOfClass:[JVMarkedScroller class]]) {
-			NSRect scrollerFrame = [scroller frame];
-			scroller = [[JVMarkedScroller alloc] initWithFrame:scrollerFrame];
-			[scroller setTarget:self];
-			[scroller setAction:@selector(markedScrollerClicked:)];
-			[scrollView setVerticalScroller:scroller];
-		}
+	JVMarkedScroller *scroller = (JVMarkedScroller *)[scrollView verticalScroller];
+	if (scroller && ![scroller isMemberOfClass:[JVMarkedScroller class]]) {
+		NSRect scrollerFrame = [scroller frame];
+		scroller = [[JVMarkedScroller alloc] initWithFrame:scrollerFrame];
+		[scroller setTarget:self];
+		[scroller setAction:@selector(markedScrollerClicked:)];
+		[scrollView setVerticalScroller:scroller];
+	}
 
-		if (scroller && !_markedScroller) {
-			_markedScroller = scroller;
-		}
+	if (scroller && !_markedScroller) {
+		_markedScroller = scroller;
 	}
 }
 
@@ -979,7 +973,7 @@ static NSArray *draggedTypes = nil;
 	if (!string) {
 		return @"''";
 	}
-	NSData *jsonData = [NSJSONSerialization dataWithJSONObject:string options:0 error:NULL];
+	NSData *jsonData = [NSJSONSerialization dataWithJSONObject:string options:NSJSONWritingFragmentsAllowed error:NULL];
 	if (!jsonData) {
 		return @"''";
 	}

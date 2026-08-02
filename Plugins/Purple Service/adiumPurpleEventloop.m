@@ -28,10 +28,11 @@ static guint sourceId = 0; // The next source key; continuously incrementing
 
 /*
  * glib, unfortunately, identifies all sources and timers via unsigned 32 bit tags. We would like to map them to
- * dispatch_source_t objects. So: we make a CFDictionary with all null callbacks (hash on the value of the integer, cast
- * to a void*, and don't retain/release anything). That gives us a guint->dispatch_source_t map, but it's a little
- * gross, so three inline wrapper functions are provided to make things nice: sourceForTag, setSourceForTag, and
- * removeSourceForTag. The names should be self-explanatory. No retains or releases are done by them.
+ * dispatch_source_t objects. So: we make a CFDictionary whose keys are the integer tags (cast to void*) and whose
+ * values are the sources. The dictionary retains its values: under ARC the caller's reference to a newly created
+ * source is transient, so the dictionary's retain is what keeps a source alive until it is removed. That gives us
+ * a guint->dispatch_source_t map, but it's a little gross, so three inline wrapper functions are provided to make
+ * things nice: sourceForTag, setSourceForTag, and removeSourceForTag.
  */
 static inline CFMutableDictionaryRef sourceInfoDict(void)
 {
@@ -39,8 +40,8 @@ static inline CFMutableDictionaryRef sourceInfoDict(void)
 	static dispatch_once_t sourceInfoDictToken;
 	dispatch_once(&sourceInfoDictToken, ^{
 		static const CFDictionaryKeyCallBacks keyCallbacks = {0, NULL, NULL, NULL, NULL, NULL};
-		static const CFDictionaryValueCallBacks valueCallbacks = {0, NULL, NULL, NULL, NULL};
-		_sourceInfoDict = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &keyCallbacks, &valueCallbacks);
+		_sourceInfoDict =
+			CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &keyCallbacks, &kCFTypeDictionaryValueCallBacks);
 	});
 	return _sourceInfoDict;
 }
