@@ -8,6 +8,18 @@ BUILD_LIBPURPLE_VERSION="2.14.14"
 BUILD_LIBPURPLE_FILE="pidgin-${BUILD_LIBPURPLE_VERSION}.tar.bz2"
 BUILD_LIBPURPLE_SHA256="0ffc9994def10260f98a55cd132deefa8dc4a9835451cc0e982747bd458e2356"
 
+# The phase applies patches on top of the vanilla tarball, but skip_cached keys
+# the stamp on the tarball SHA alone — a patch change would leave a stale stamp
+# silently skipping the patched build. Fold a content hash of every file under
+# patches/pidgin-2.14.14 (patches + copied sources) into the cache key so any
+# patch edit invalidates the stamp.
+libpurple_cache_key() {
+    local patches_dir="$ROOTDIR/patches/pidgin-2.14.14"
+    local patches_hash
+    patches_hash="$(cd "$patches_dir" && find . -type f -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256 | awk '{print $1}')"
+    printf '%s-%s' "$BUILD_LIBPURPLE_SHA256" "$patches_hash"
+}
+
 build_libpurple() {
     # Source already extracted in build_libpurple_phase(); LIBPURPLE_SRC is set there.
     # build_for_archs runs build functions in a subshell, so vars set inside don't
@@ -47,7 +59,9 @@ build_libpurple() {
 
 build_libpurple_phase() {
     echo "=== Phase: libpurple $BUILD_LIBPURPLE_VERSION ==="
-    skip_cached "libpurple" "$BUILD_LIBPURPLE_SHA256" && return 0
+    local cache_key
+    cache_key="$(libpurple_cache_key)"
+    skip_cached "libpurple" "$cache_key" && return 0
 
     # Extract here (outer scope) so LIBPURPLE_SRC survives build_for_archs's subshell.
     local src_dir
@@ -103,5 +117,5 @@ build_libpurple_phase() {
     # named "purple.h", so alias it so the quoted path resolves.
     cp "$hdr/purple.h" "$hdr/libpurple.h"
 
-    write_cache "libpurple" "$BUILD_LIBPURPLE_SHA256"
+    write_cache "libpurple" "$cache_key"
 }
