@@ -574,9 +574,11 @@
 {
 	BOOL someUnviewedContent = NO;
 
-	NSInteger count = [tabView_tabBar numberOfTabViewItems];
+	NSArray *visibleTabViewItems = [tabView_tabBar visibleTabViewItems];
+	NSInteger count = MIN((NSInteger)[visibleTabViewItems count],
+						  (NSInteger)[tabView_tabBar numberOfTabViewItems]);
 	for (NSInteger i = [tabView_tabBar numberOfVisibleTabViewItems]; i < count; i++) {
-		if ([[(AIMessageTabViewItem *)[[tabView_tabBar visibleTabViewItems] objectAtIndex:i] chat]
+		if ([[(AIMessageTabViewItem *)[visibleTabViewItems objectAtIndex:i] chat]
 				unviewedContentCount] > 0) {
 			someUnviewedContent = YES;
 			break;
@@ -1221,6 +1223,13 @@
 
 - (NSString *)tabView:(NSTabView *)tabView toolTipForTabViewItem:(NSTabViewItem *)tabViewItem
 {
+	// _configureToolbar runs before windowDidLoad strips the nib's placeholder tab items,
+	// and MMTabBarView queries tooltips on whatever items exist. Plain NSTabViewItems have
+	// no chat, so the unconditional cast below would crash. Only our subclass carries a chat.
+	if (![tabViewItem isKindOfClass:[AIMessageTabViewItem class]]) {
+		return nil;
+	}
+
 	AIChat *chat = [(AIMessageTabViewItem *)tabViewItem chat];
 	NSString *tooltip = nil;
 
