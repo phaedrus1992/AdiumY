@@ -408,7 +408,7 @@ static NSString *const AIWKContextMenuScript =
 	NSMenu *menu = [[NSMenu alloc] init];
 	NSMenuItem *menuItem;
 
-	NSURL *imageURL = nil;
+	NSURL *imageURL;
 	if (imageURLString != nil) {
 		imageURL = [NSURL URLWithString:imageURLString];
 	}
@@ -421,13 +421,15 @@ static NSString *const AIWKContextMenuScript =
 		[menuItem setRepresentedObject:imageURL];
 		[menu addItem:menuItem];
 
-		menuItem =
-			[[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"Save Image As", nil) stringByAppendingEllipsis]
-									   action:@selector(saveImageAs:)
-								keyEquivalent:@""];
-		[menuItem setTarget:self];
-		[menuItem setRepresentedObject:imageURL];
-		[menu addItem:menuItem];
+		if ([imageURL isFileURL]) {
+			menuItem =
+				[[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"Save Image As", nil) stringByAppendingEllipsis]
+										   action:@selector(saveImageAs:)
+									keyEquivalent:@""];
+			[menuItem setTarget:self];
+			[menuItem setRepresentedObject:imageURL];
+			[menu addItem:menuItem];
+		}
 
 		[menu addItem:[NSMenuItem separatorItem]];
 	}
@@ -485,22 +487,38 @@ static NSString *const AIWKContextMenuScript =
 - (void)openImage:(id)sender
 {
 	NSURL *imageURL = [sender representedObject];
-	[[NSWorkspace sharedWorkspace] openURL:imageURL];
+	if (![imageURL isKindOfClass:[NSURL class]]) {
+		return;
+	}
+
+	if (![[NSWorkspace sharedWorkspace] openURL:imageURL]) {
+		AILogWithSignature(@"Failed to open image URL: %@", imageURL);
+	}
 }
 
 - (void)saveImageAs:(id)sender
 {
 	NSURL *imageURL = [sender representedObject];
-	NSString *path = [imageURL path];
+	if (![imageURL isKindOfClass:[NSURL class]] || ![imageURL isFileURL]) {
+		return;
+	}
 
+	NSWindow *window = [_webView window];
 	NSSavePanel *savePanel = [NSSavePanel savePanel];
-	savePanel.nameFieldStringValue = [path lastPathComponent];
-	[savePanel beginSheetModalForWindow:[_webView window]
-					  completionHandler:^(NSInteger result) {
-						  if (result == NSModalResponseOK) {
-							  [[NSFileManager defaultManager] copyItemAtURL:imageURL toURL:savePanel.URL error:nil];
-						  }
-					  }];
+	savePanel.nameFieldStringValue = [[imageURL path] lastPathComponent];
+	[savePanel
+		beginSheetModalForWindow:window
+			   completionHandler:^(NSInteger result) {
+				   if (result != NSModalResponseOK || savePanel.URL == nil) {
+					   return;
+				   }
+
+				   NSError *copyError = nil;
+				   if (![[NSFileManager defaultManager] copyItemAtURL:imageURL toURL:savePanel.URL error:&copyError]) {
+					   AILogWithSignature(@"Failed to save image to %@: %@", savePanel.URL, copyError);
+					   [[NSAlert alertWithError:copyError] beginSheetModalForWindow:window completionHandler:nil];
+				   }
+			   }];
 }
 
 #pragma mark - AIMessageDisplayController
