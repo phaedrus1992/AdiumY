@@ -43,6 +43,7 @@
 
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
+#import <AIUtilities/AIBundleIdentifier.h>
 #import <AIUtilities/AIDateAdditions.h>
 #import <AIUtilities/AIDateFormatterAdditions.h>
 #import <AIUtilities/AIFileManagerAdditions.h>
@@ -144,7 +145,7 @@ static NSInteger toArraySort(id itemA, id itemB, void *context);
 		if ([logViewerQueue respondsToSelector:@selector(setName:)])
 			[logViewerQueue
 				performSelector:@selector(setName:)
-					 withObject:@"com.github.phaedrus1992.adiumy.AILogViewerWindowController.logViewerQueue"];
+					 withObject:kAdiumYBundleIdentifierPrefix ".AILogViewerWindowController.logViewerQueue"];
 	});
 
 	return logViewerQueue;

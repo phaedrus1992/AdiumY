@@ -14,6 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 #import "GetMetadataForHTMLLog.h"
+#import <AIUtilities/AIBundleIdentifier.h>
 #import <AIUtilities/ISO8601DateFormatter.h>
 #import <CoreFoundation/CoreFoundation.h>
 #import <CoreServices/CoreServices.h>
@@ -56,11 +57,11 @@ Boolean GetMetadataForFile(void *thisInterface, CFMutableDictionaryRef attribute
 
 	Boolean success = FALSE;
 	@autoreleasepool {
-		if (CFStringCompare(contentTypeUTI, (__bridge CFStringRef) @"com.github.phaedrus1992.adiumy.htmllog",
+		if (CFStringCompare(contentTypeUTI, (__bridge CFStringRef)kAdiumYBundleIdentifierPrefix ".htmllog",
 							kCFCompareBackwards) == kCFCompareEqualTo) {
 			success =
 				GetMetadataForHTMLLog((__bridge NSMutableDictionary *)attributes, (__bridge NSString *)pathToFile);
-		} else if (CFStringCompare(contentTypeUTI, (__bridge CFStringRef) @"com.github.phaedrus1992.adiumy.xmllog",
+		} else if (CFStringCompare(contentTypeUTI, (__bridge CFStringRef)kAdiumYBundleIdentifierPrefix ".xmllog",
 								   kCFCompareBackwards) == kCFCompareEqualTo) {
 			success = GetMetadataForXMLLog((__bridge NSMutableDictionary *)attributes, (__bridge NSString *)pathToFile);
 		} else {
@@ -78,13 +79,13 @@ static CFStringRef ResolveUTI(CFStringRef contentTypeUTI, NSURL *urlToFile)
 	if (contentTypeUTI == NULL) {
 		if (CFStringCompare(pathExtension, CFSTR("chatLog"), (kCFCompareBackwards | kCFCompareCaseInsensitive)) ==
 			kCFCompareEqualTo) {
-			contentTypeUTI = CFSTR("com.github.phaedrus1992.adiumy.xmllog");
+			contentTypeUTI = CFSTR(kAdiumYBundleIdentifierPrefixC ".xmllog");
 		} else if (CFStringCompare(pathExtension, CFSTR("AdiumXMLLog"),
 								   (kCFCompareBackwards | kCFCompareCaseInsensitive)) == kCFCompareEqualTo) {
-			contentTypeUTI = CFSTR("com.github.phaedrus1992.adiumy.xmllog");
+			contentTypeUTI = CFSTR(kAdiumYBundleIdentifierPrefixC ".xmllog");
 		} else {
 			// Treat all other log extensions as HTML logs (plaintext will come out fine this way, too)
-			contentTypeUTI = CFSTR("com.github.phaedrus1992.adiumy.htmllog");
+			contentTypeUTI = CFSTR(kAdiumYBundleIdentifierPrefixC ".htmllog");
 		}
 	}
 	return contentTypeUTI;
@@ -96,9 +97,9 @@ NS_RETURNS_RETAINED NSData *CopyDataForURL(CFStringRef contentTypeUTI, NSURL *ur
 		NSData *content = nil;
 		contentTypeUTI = ResolveUTI(contentTypeUTI, urlToFile);
 
-		if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.htmllog"))) {
+		if (CFEqual(contentTypeUTI, CFSTR(kAdiumYBundleIdentifierPrefixC ".htmllog"))) {
 			content = [[NSData alloc] initWithContentsOfURL:urlToFile options:NSDataReadingUncached error:NULL];
-		} else if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.xmllog"))) {
+		} else if (CFEqual(contentTypeUTI, CFSTR(kAdiumYBundleIdentifierPrefixC ".xmllog"))) {
 			BOOL isDir;
 			NSString *path = [urlToFile path];
 			if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir]) {
@@ -140,9 +141,9 @@ CFStringRef CopyTextContentForFileData(CFStringRef contentTypeUTI, NSURL *urlToF
 
 	NSString *result = nil;
 
-	if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.htmllog"))) {
+	if (CFEqual(contentTypeUTI, CFSTR(kAdiumYBundleIdentifierPrefixC ".htmllog"))) {
 		result = CopyTextContentForHTMLLogData(fileData);
-	} else if (CFEqual(contentTypeUTI, CFSTR("com.github.phaedrus1992.adiumy.xmllog"))) {
+	} else if (CFEqual(contentTypeUTI, CFSTR(kAdiumYBundleIdentifierPrefixC ".xmllog"))) {
 		result = CopyTextContentForXMLLogData(fileData);
 	}
 	return (__bridge_retained CFStringRef)result;

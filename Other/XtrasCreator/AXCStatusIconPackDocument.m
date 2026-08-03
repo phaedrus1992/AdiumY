@@ -21,7 +21,7 @@
 }
 - (NSString *)uniformTypeIdentifier
 {
-	return @"com.github.phaedrus1992.adiumy.statusicons";
+	return kAdiumYBundleIdentifierPrefix ".statusicons";
 }
 
 - (NSArray *)categoryNames

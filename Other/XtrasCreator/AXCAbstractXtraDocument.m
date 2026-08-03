@@ -459,7 +459,7 @@
 }
 - (NSString *)uniformTypeIdentifier
 {
-	return @"com.github.phaedrus1992.adiumy.xtra";
+	return kAdiumYBundleIdentifierPrefix ".xtra";
 }
 
 - (NSArray *)validResourceTypes

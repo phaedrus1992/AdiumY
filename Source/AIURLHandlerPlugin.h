@@ -14,12 +14,14 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import <AIUtilities/AIBundleIdentifier.h>
+
 #define AIURLHandleNotification @"AIURLHandleNotification"
 
 #define PREF_KEY_ENFORCE_DEFAULT @"Enforce Adium as Default"
 #define PREF_KEY_SET_DEFAULT_FIRST_TIME                                                                                \
 	@"AdiumURLHandling:CompletedFirstLaunch" // The old variable value, so we don't do this again.
-#define ADIUM_BUNDLE_ID @"com.github.phaedrus1992.adiumy"
+#define ADIUM_BUNDLE_ID kAdiumYBundleIdentifierPrefix
 #define GROUP_URL_HANDLING @"URL Handling Group"
 
 @class AIURLHandlerAdvancedPreferences;

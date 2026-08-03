@@ -17,7 +17,7 @@
          <TestableReference skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "F7C4C413E7EA48DAAAD7778C"
+               BlueprintIdentifier = "0D830FB50E1B5B8F886C3F48"
                BuildableName = "CoverageHostTests.xctest"
                BlueprintName = "CoverageHostTests"
                ReferencedContainer = "container:CoverageHost.xcodeproj"/>
@@ -26,7 +26,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "75B9CD8D29C545CBBD1B5E82"
+            BlueprintIdentifier = "103CDD957BC6524CB5501453"
             BuildableName = "CoverageHost.app"
             BlueprintName = "CoverageHost"
             ReferencedContainer = "container:CoverageHost.xcodeproj"/>
@@ -45,7 +45,7 @@
       <BuildableProductRunnable runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "75B9CD8D29C545CBBD1B5E82"
+            BlueprintIdentifier = "103CDD957BC6524CB5501453"
             BuildableName = "CoverageHost.app"
             BlueprintName = "CoverageHost"
             ReferencedContainer = "container:CoverageHost.xcodeproj"/>
@@ -59,7 +59,7 @@
       <BuildableProductRunnable runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "75B9CD8D29C545CBBD1B5E82"
+            BlueprintIdentifier = "103CDD957BC6524CB5501453"
             BuildableName = "CoverageHost.app"
             BlueprintName = "CoverageHost"
             ReferencedContainer = "container:CoverageHost.xcodeproj"/>

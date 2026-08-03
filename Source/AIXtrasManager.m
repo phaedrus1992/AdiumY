@@ -22,6 +22,7 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIImageTextCell.h>
 #import <AIUtilities/AIToolbarUtilities.h>
+#import <AIUtilities/AIXtraBundleIdentifier.h>
 #import <AdiumY/AIDockControllerProtocol.h>
 #import <AdiumY/AIPathUtilities.h>
 #import <AdiumY/KNShelfSplitView.h>
@@ -374,10 +375,10 @@ NSInteger categorySort(id categoryA, id categoryB, void *context)
 		// Info.plist
 		[[NSDictionary dictionaryWithObjectsAndKeys:@"English", kCFBundleDevelopmentRegionKey, name, kCFBundleNameKey,
 													@"AdIM", @"CFBundlePackageType",
-													[@"com.github.phaedrus1992.adiumy." stringByAppendingString:name],
-													kCFBundleIdentifierKey, [NSNumber numberWithInteger:1],
-													@"XtraBundleVersion", @"1.0", kCFBundleInfoDictionaryVersionKey,
-													nil] writeToFile:infoPlistPath atomically:YES];
+													AIXtraBundleIdentifierForName(name), kCFBundleIdentifierKey,
+													[NSNumber numberWithInteger:1], @"XtraBundleVersion", @"1.0",
+													kCFBundleInfoDictionaryVersionKey, nil] writeToFile:infoPlistPath
+																							 atomically:YES];
 
 		// Resources
 		[fileManager createDirectoryAtPath:resourcesPath withIntermediateDirectories:YES attributes:nil error:NULL];

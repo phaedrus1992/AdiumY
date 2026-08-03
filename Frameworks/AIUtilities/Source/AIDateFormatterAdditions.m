@@ -136,7 +136,7 @@ static AIDateFormatterCache *sharedFormatterCache = nil;
 	static dispatch_queue_t localizedFormatterQueue;
 	dispatch_once(&onceToken, ^{
 		localizedFormatterQueue =
-			dispatch_queue_create("com.github.phaedrus1992.adiumy.LocalizedDateFormatterQueue", NULL);
+			dispatch_queue_create(kAdiumYBundleIdentifierPrefixC ".LocalizedDateFormatterQueue", NULL);
 		dispatch_queue_set_specific(localizedFormatterQueue, kLocalizedFormatterQueueSpecificKey, (void *)1, NULL);
 	});
 

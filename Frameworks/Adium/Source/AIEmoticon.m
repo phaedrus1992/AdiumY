@@ -14,6 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import <AIUtilities/AIBundleIdentifier.h>
 #import <AdiumY/AIEmoticon.h>
 #import <AdiumY/AIEmoticonPack.h>
 #import <AdiumY/AITextAttachmentExtension.h>
@@ -169,7 +170,7 @@
 	static dispatch_queue_t cacheQueue;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
-		cacheQueue = dispatch_queue_create("com.github.phaedrus1992.adiumy.AIEmoticon.cachedAttributedStringQueue", 0);
+		cacheQueue = dispatch_queue_create(kAdiumYBundleIdentifierPrefixC ".AIEmoticon.cachedAttributedStringQueue", 0);
 	});
 	__block NSMutableAttributedString *attributedString;
 	dispatch_sync(cacheQueue, ^{

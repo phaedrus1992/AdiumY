@@ -10,26 +10,26 @@
 	<string>56</string>
 	<key>objects</key>
 	<dict>
-		<key>5D9D3893CEC5495EA60083AC</key>
+		<key>666DC85E32125F7A949C91B1</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXProject</string>
 			<key>buildConfigurationList</key>
-			<string>B5959798158A4534B61D7810</string>
+			<string>3E3C167E10D55DA091CA21CA</string>
 			<key>compatibilityVersion</key>
 			<string>Xcode 14.0</string>
 			<key>mainGroup</key>
-			<string>E02916AFC4984C628191A084</string>
+			<string>FD095138E9A15603B179797D</string>
 			<key>productRefGroup</key>
-			<string>649E9A0AEE7A4CE697E0E764</string>
+			<string>40D1F8D6554C512CB0813345</string>
 			<key>projectDirPath</key>
 			<string></string>
 			<key>projectRoot</key>
 			<string></string>
 			<key>targets</key>
 			<array>
-				<string>75B9CD8D29C545CBBD1B5E82</string>
-				<string>F7C4C413E7EA48DAAAD7778C</string>
+				<string>103CDD957BC6524CB5501453</string>
+				<string>0D830FB50E1B5B8F886C3F48</string>
 			</array>
 			<key>developmentRegion</key>
 			<string>en</string>
@@ -41,63 +41,71 @@
 				<string>Base</string>
 			</array>
 		</dict>
-		<key>E02916AFC4984C628191A084</key>
+		<key>FD095138E9A15603B179797D</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXGroup</string>
 			<key>children</key>
 			<array>
-				<string>86F6E14100B0498DA1F60F69</string>
-				<string>98E1FCA5E2D24F9C92D7EC16</string>
-				<string>649E9A0AEE7A4CE697E0E764</string>
+				<string>F7E1A5028CC650EDB0CB4A45</string>
+				<string>41BDD23B2AE95E40B74A63A7</string>
+				<string>40D1F8D6554C512CB0813345</string>
 			</array>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>86F6E14100B0498DA1F60F69</key>
+		<key>F7E1A5028CC650EDB0CB4A45</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXGroup</string>
 			<key>children</key>
 			<array>
-				<string>55DC4FA5F8F4485594FF3DB9</string>
-				<string>D52D68997A1640A5AE591153</string>
-				<string>93901C6F69D74A1D9CE87CB4</string>
-				<string>80693C2D2CE14EB4A2FF4A06</string>
+				<string>EBBA7C4B1F555AF6977D4565</string>
+				<string>58FEAA8A4CBB558DA1A61F0B</string>
+				<string>13B01A69A6A0549FA7B43273</string>
+				<string>2D77E76425BD5C16B1B059A0</string>
+				<string>0C7FEECB9D1254CF99DA83CE</string>
+				<string>11E84536F930580380214005</string>
+				<string>F09A95CC0FCF5A08A87719ED</string>
+				<string>DF9DD999E70A542A82B68DFA</string>
+				<string>A82194F603F151638876A670</string>
+				<string>5B331FBE75715D1887061614</string>
+				<string>DC8EAB51A8C456858F484733</string>
+				<string>2CC8655C35C851E6A3497633</string>
 			</array>
 			<key>name</key>
 			<string>Sources</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>98E1FCA5E2D24F9C92D7EC16</key>
+		<key>41BDD23B2AE95E40B74A63A7</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXGroup</string>
 			<key>children</key>
 			<array>
-				<string>38990609891946E085984EB7</string>
+				<string>1041C5FC221D577F8FF36681</string>
 			</array>
 			<key>name</key>
 			<string>Frameworks</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>649E9A0AEE7A4CE697E0E764</key>
+		<key>40D1F8D6554C512CB0813345</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXGroup</string>
 			<key>children</key>
 			<array>
-				<string>10345211B25840C1B2CED382</string>
-				<string>1486ED61E01F459EB8CF4DB9</string>
+				<string>C956822F692E5D30BD8A5864</string>
+				<string>FD6F812AD75D5F948BA25091</string>
 			</array>
 			<key>name</key>
 			<string>Products</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>55DC4FA5F8F4485594FF3DB9</key>
+		<key>EBBA7C4B1F555AF6977D4565</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFileReference</string>
@@ -108,7 +116,7 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>D52D68997A1640A5AE591153</key>
+		<key>58FEAA8A4CBB558DA1A61F0B</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFileReference</string>
@@ -119,7 +127,7 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>10345211B25840C1B2CED382</key>
+		<key>C956822F692E5D30BD8A5864</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFileReference</string>
@@ -132,7 +140,7 @@
 			<key>sourceTree</key>
 			<string>BUILT_PRODUCTS_DIR</string>
 		</dict>
-		<key>93901C6F69D74A1D9CE87CB4</key>
+		<key>13B01A69A6A0549FA7B43273</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFileReference</string>
@@ -143,7 +151,7 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>80693C2D2CE14EB4A2FF4A06</key>
+		<key>2D77E76425BD5C16B1B059A0</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFileReference</string>
@@ -154,7 +162,7 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>1486ED61E01F459EB8CF4DB9</key>
+		<key>FD6F812AD75D5F948BA25091</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFileReference</string>
@@ -167,7 +175,95 @@
 			<key>sourceTree</key>
 			<string>BUILT_PRODUCTS_DIR</string>
 		</dict>
-		<key>38990609891946E085984EB7</key>
+		<key>0C7FEECB9D1254CF99DA83CE</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/AIPropertyTestUtilities.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>11E84536F930580380214005</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../UnitTests/AIPropertyTestUtilities.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F09A95CC0FCF5A08A87719ED</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Frameworks/AIUtilities/Source/AIXtraBundleIdentifier.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>DF9DD999E70A542A82B68DFA</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Frameworks/AIUtilities/Source/AIXtraBundleIdentifier.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>A82194F603F151638876A670</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/AIXtraBundleIdentifierTest.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>5B331FBE75715D1887061614</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/WebKit Message View/AIWebkitMessageStylePreferenceMigration.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>DC8EAB51A8C456858F484733</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Plugins/WebKit Message View/AIWebkitMessageStylePreferenceMigration.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>2CC8655C35C851E6A3497633</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/MessageStylePreferenceMigrationTest.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>1041C5FC221D577F8FF36681</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFileReference</string>
@@ -180,7 +276,7 @@
 			<key>sourceTree</key>
 			<string>&lt;absolute&gt;</string>
 		</dict>
-		<key>7E3D80D576294D7A972AA798</key>
+		<key>6714AF95175950268DD17885</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFileReference</string>
@@ -193,7 +289,7 @@
 			<key>sourceTree</key>
 			<string>SOURCE_ROOT</string>
 		</dict>
-		<key>A6872B71DC274099924A990C</key>
+		<key>256F31F2013B57CEA89550BA</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFileReference</string>
@@ -206,7 +302,7 @@
 			<key>sourceTree</key>
 			<string>&lt;absolute&gt;</string>
 		</dict>
-		<key>2B9FE7D2B98E43B9BD10CBA9</key>
+		<key>36C974F6CF2E5C95AA7FEF24</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXSourcesBuildPhase</string>
@@ -214,12 +310,12 @@
 			<integer>2147483647</integer>
 			<key>files</key>
 			<array>
-				<string>5762002DD4954075A00D66F7</string>
+				<string>87B9F2EE25D65D329B8C3C85</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
 		</dict>
-		<key>454A40238D114983A16DB8CF</key>
+		<key>76278B5CD86B535C8931142E</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFrameworksBuildPhase</string>
@@ -227,12 +323,12 @@
 			<integer>2147483647</integer>
 			<key>files</key>
 			<array>
-				<string>EA0FC32A9A954A2C81856CC7</string>
+				<string>0ACE8C60D1405A44AF7C994F</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
 		</dict>
-		<key>33F5B6FAA26043899D77A0ED</key>
+		<key>98E1047B4CA85AF8BB523D02</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXCopyFilesBuildPhase</string>
@@ -244,14 +340,14 @@
 			<integer>10</integer>
 			<key>files</key>
 			<array>
-				<string>09A8DC33D36D4BEE8E808E68</string>
+				<string>8794B57CAEE253EDA6868A10</string>
 			</array>
 			<key>name</key>
 			<string>Copy Frameworks</string>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
 		</dict>
-		<key>3E54837FD1FC4EA29B021B3F</key>
+		<key>E923CA57E5C65ED3B0EBC697</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXSourcesBuildPhase</string>
@@ -259,12 +355,17 @@
 			<integer>2147483647</integer>
 			<key>files</key>
 			<array>
-				<string>4894935ED79E4CD1B9F9139D</string>
+				<string>083800CF183D50E7918FC738</string>
+				<string>5445D09F3AE5506694DC96B9</string>
+				<string>7744FE2BBB9D5DCD965BB0ED</string>
+				<string>9A1F2C63AE565070B78B37F8</string>
+				<string>FB8D35F4B8075066B9F6B599</string>
+				<string>F495B4A27597595EB3861B1A</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
 		</dict>
-		<key>FB04AD6D82404C7FAA736458</key>
+		<key>BE76EAEA41AB5BCC9FF1254F</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXFrameworksBuildPhase</string>
@@ -272,64 +373,100 @@
 			<integer>2147483647</integer>
 			<key>files</key>
 			<array>
-				<string>253844241C60489DA72505DE</string>
-				<string>FBE4FCBCF68D4CDDA65EB5BD</string>
+				<string>63735AA1A02E5BA7AA214D5B</string>
+				<string>A069B7FA0A2C5A61BE53C9C3</string>
+				<string>0ACE8C60D1405A44AF7C994F</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
 		</dict>
-		<key>5762002DD4954075A00D66F7</key>
+		<key>87B9F2EE25D65D329B8C3C85</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
-			<string>55DC4FA5F8F4485594FF3DB9</string>
+			<string>EBBA7C4B1F555AF6977D4565</string>
 		</dict>
-		<key>4894935ED79E4CD1B9F9139D</key>
+		<key>083800CF183D50E7918FC738</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
-			<string>93901C6F69D74A1D9CE87CB4</string>
+			<string>13B01A69A6A0549FA7B43273</string>
 		</dict>
-		<key>253844241C60489DA72505DE</key>
+		<key>63735AA1A02E5BA7AA214D5B</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
-			<string>38990609891946E085984EB7</string>
+			<string>1041C5FC221D577F8FF36681</string>
 		</dict>
-		<key>FBE4FCBCF68D4CDDA65EB5BD</key>
+		<key>A069B7FA0A2C5A61BE53C9C3</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
-			<string>7E3D80D576294D7A972AA798</string>
+			<string>6714AF95175950268DD17885</string>
 		</dict>
-		<key>EA0FC32A9A954A2C81856CC7</key>
+		<key>0ACE8C60D1405A44AF7C994F</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
-			<string>A6872B71DC274099924A990C</string>
+			<string>256F31F2013B57CEA89550BA</string>
 		</dict>
-		<key>815C3390C7CE482DBC8BAE16</key>
+		<key>5445D09F3AE5506694DC96B9</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>0C7FEECB9D1254CF99DA83CE</string>
+		</dict>
+		<key>9A1F2C63AE565070B78B37F8</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>F09A95CC0FCF5A08A87719ED</string>
+		</dict>
+		<key>7744FE2BBB9D5DCD965BB0ED</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>A82194F603F151638876A670</string>
+		</dict>
+		<key>F495B4A27597595EB3861B1A</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>5B331FBE75715D1887061614</string>
+		</dict>
+		<key>FB8D35F4B8075066B9F6B599</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>2CC8655C35C851E6A3497633</string>
+		</dict>
+		<key>DE7B656C24B85237B361EB6C</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXTargetDependency</string>
 			<key>target</key>
-			<string>75B9CD8D29C545CBBD1B5E82</string>
+			<string>103CDD957BC6524CB5501453</string>
 		</dict>
-		<key>75B9CD8D29C545CBBD1B5E82</key>
+		<key>103CDD957BC6524CB5501453</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXNativeTarget</string>
 			<key>buildConfigurationList</key>
-			<string>97314C7C475145B895EBBA54</string>
+			<string>843CB377E0C45732AB5B58FA</string>
 			<key>buildPhases</key>
 			<array>
-				<string>2B9FE7D2B98E43B9BD10CBA9</string>
-				<string>454A40238D114983A16DB8CF</string>
+				<string>36C974F6CF2E5C95AA7FEF24</string>
+				<string>76278B5CD86B535C8931142E</string>
 			</array>
 			<key>buildRules</key>
 			<array/>
@@ -340,37 +477,37 @@
 			<key>productName</key>
 			<string>CoverageHost</string>
 			<key>productReference</key>
-			<string>10345211B25840C1B2CED382</string>
+			<string>C956822F692E5D30BD8A5864</string>
 			<key>productType</key>
 			<string>com.apple.product-type.application</string>
 		</dict>
-		<key>F7C4C413E7EA48DAAAD7778C</key>
+		<key>0D830FB50E1B5B8F886C3F48</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXNativeTarget</string>
 			<key>buildConfigurationList</key>
-			<string>F21D24FE74D44330A4BC1A2C</string>
+			<string>09E0B927F4425E508629864F</string>
 			<key>buildPhases</key>
 			<array>
-				<string>3E54837FD1FC4EA29B021B3F</string>
-				<string>FB04AD6D82404C7FAA736458</string>
+				<string>E923CA57E5C65ED3B0EBC697</string>
+				<string>BE76EAEA41AB5BCC9FF1254F</string>
 			</array>
 			<key>buildRules</key>
 			<array/>
 			<key>dependencies</key>
 			<array>
-				<string>815C3390C7CE482DBC8BAE16</string>
+				<string>DE7B656C24B85237B361EB6C</string>
 			</array>
 			<key>name</key>
 			<string>CoverageHostTests</string>
 			<key>productName</key>
 			<string>CoverageHostTests</string>
 			<key>productReference</key>
-			<string>1486ED61E01F459EB8CF4DB9</string>
+			<string>FD6F812AD75D5F948BA25091</string>
 			<key>productType</key>
 			<string>com.apple.product-type.bundle.unit-test</string>
 		</dict>
-		<key>23754E4BEE3448F2AD9FC447</key>
+		<key>8D7C7C6CEFFD5035867E731C</key>
 		<dict>
 			<key>isa</key>
 			<string>XCBuildConfiguration</string>
@@ -406,7 +543,7 @@
 			<key>name</key>
 			<string>Debug</string>
 		</dict>
-		<key>D803CD2E4CF3450FB7334120</key>
+		<key>62D72284E93A52F7A55CF5B5</key>
 		<dict>
 			<key>isa</key>
 			<string>XCBuildConfiguration</string>
@@ -440,7 +577,7 @@
 			<key>name</key>
 			<string>Release</string>
 		</dict>
-		<key>475391BD7F724F2099009BA8</key>
+		<key>8649FE611A7A55D4857F09CF</key>
 		<dict>
 			<key>isa</key>
 			<string>XCBuildConfiguration</string>
@@ -476,7 +613,7 @@
 			<key>name</key>
 			<string>Debug</string>
 		</dict>
-		<key>ABC5FCBF481E48F4BFD182A1</key>
+		<key>3CBF9D19703957F3BE607D84</key>
 		<dict>
 			<key>isa</key>
 			<string>XCBuildConfiguration</string>
@@ -512,7 +649,7 @@
 			<key>name</key>
 			<string>Release</string>
 		</dict>
-		<key>ADAD0A8BE6604C6580765A88</key>
+		<key>86ACBA5E593E5C55936CF41A</key>
 		<dict>
 			<key>isa</key>
 			<string>XCBuildConfiguration</string>
@@ -532,6 +669,13 @@
 				<array>
 					<string>$(inherited)</string>
 					<string>$(SRCROOT)/../../build/DerivedData/Build/Products/Debug</string>
+				</array>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>$(inherited)</string>
+					<string>$(SRCROOT)/../../Source</string>
+					<string>$(SRCROOT)/../../UnitTests</string>
+					<string>$(SRCROOT)/../../Plugins/WebKit Message View</string>
 				</array>
 				<key>GCC_PREFIX_HEADER</key>
 				<string></string>
@@ -558,7 +702,7 @@
 			<key>name</key>
 			<string>Debug</string>
 		</dict>
-		<key>677B4CECCAB3442097106611</key>
+		<key>AA41298E54D5577093DC5035</key>
 		<dict>
 			<key>isa</key>
 			<string>XCBuildConfiguration</string>
@@ -578,6 +722,13 @@
 				<array>
 					<string>$(inherited)</string>
 					<string>$(SRCROOT)/../../build/DerivedData/Build/Products/Debug</string>
+				</array>
+				<key>HEADER_SEARCH_PATHS</key>
+				<array>
+					<string>$(inherited)</string>
+					<string>$(SRCROOT)/../../Source</string>
+					<string>$(SRCROOT)/../../UnitTests</string>
+					<string>$(SRCROOT)/../../Plugins/WebKit Message View</string>
 				</array>
 				<key>GCC_PREFIX_HEADER</key>
 				<string></string>
@@ -604,42 +755,42 @@
 			<key>name</key>
 			<string>Release</string>
 		</dict>
-		<key>B5959798158A4534B61D7810</key>
+		<key>3E3C167E10D55DA091CA21CA</key>
 		<dict>
 			<key>isa</key>
 			<string>XCConfigurationList</string>
 			<key>buildConfigurations</key>
 			<array>
-				<string>23754E4BEE3448F2AD9FC447</string>
-				<string>D803CD2E4CF3450FB7334120</string>
+				<string>8D7C7C6CEFFD5035867E731C</string>
+				<string>62D72284E93A52F7A55CF5B5</string>
 			</array>
 			<key>defaultConfigurationIsVisible</key>
 			<false/>
 			<key>defaultConfigurationName</key>
 			<string>Debug</string>
 		</dict>
-		<key>97314C7C475145B895EBBA54</key>
+		<key>843CB377E0C45732AB5B58FA</key>
 		<dict>
 			<key>isa</key>
 			<string>XCConfigurationList</string>
 			<key>buildConfigurations</key>
 			<array>
-				<string>475391BD7F724F2099009BA8</string>
-				<string>ABC5FCBF481E48F4BFD182A1</string>
+				<string>8649FE611A7A55D4857F09CF</string>
+				<string>3CBF9D19703957F3BE607D84</string>
 			</array>
 			<key>defaultConfigurationIsVisible</key>
 			<false/>
 			<key>defaultConfigurationName</key>
 			<string>Debug</string>
 		</dict>
-		<key>F21D24FE74D44330A4BC1A2C</key>
+		<key>09E0B927F4425E508629864F</key>
 		<dict>
 			<key>isa</key>
 			<string>XCConfigurationList</string>
 			<key>buildConfigurations</key>
 			<array>
-				<string>ADAD0A8BE6604C6580765A88</string>
-				<string>677B4CECCAB3442097106611</string>
+				<string>86ACBA5E593E5C55936CF41A</string>
+				<string>AA41298E54D5577093DC5035</string>
 			</array>
 			<key>defaultConfigurationIsVisible</key>
 			<false/>
@@ -648,6 +799,6 @@
 		</dict>
 	</dict>
 	<key>rootObject</key>
-	<string>5D9D3893CEC5495EA60083AC</string>
+	<string>666DC85E32125F7A949C91B1</string>
 </dict>
 </plist>

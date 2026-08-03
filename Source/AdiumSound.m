@@ -16,6 +16,7 @@
 
 #import "AdiumSound.h"
 #import "AISoundController.h"
+#import <AIUtilities/AIBundleIdentifier.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AISleepNotification.h>
 #import <CoreAudio/AudioHardware.h>
@@ -56,7 +57,7 @@ static OSStatus systemOutputDeviceDidChange(AudioObjectID inObjectID, UInt32 inN
 		soundCacheCleanupTimer = nil;
 		soundsAreMuted = NO;
 
-		soundPlayingQueue = dispatch_queue_create("com.github.phaedrus1992.adiumy.AdiumSound.soundPlayingQueue", 0);
+		soundPlayingQueue = dispatch_queue_create(kAdiumYBundleIdentifierPrefixC ".AdiumSound.soundPlayingQueue", 0);
 
 		// Observe workspace activity changes so we can mute sounds as necessary
 		NSNotificationCenter *workspaceCenter = [[NSWorkspace sharedWorkspace] notificationCenter];
