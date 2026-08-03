@@ -7,5 +7,5 @@
 #ifdef __OBJC__
 	#import <Cocoa/Cocoa.h>
 
-	#define AIUTILITIES_BUNDLE_ID @"com.github.phaedrus1992.adiumY.AIUtilities"
+	#define AIUTILITIES_BUNDLE_ID @"com.github.phaedrus1992.adiumy.aiutilities"
 #endif
