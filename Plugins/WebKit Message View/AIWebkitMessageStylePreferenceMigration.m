@@ -59,7 +59,7 @@ NSDictionary *AIWebkitMessageStylePreferenceMigration(NSDictionary *prefs)
 
 	// Upgrade the displayed style itself (an exact match on the stored value).
 	NSString *currentStyle = [prefs objectForKey:kStylePreferenceKey];
-	if (currentStyle != nil) {
+	if (currentStyle != nil && [currentStyle isKindOfClass:[NSString class]]) {
 		for (NSUInteger i = 0; i < mappingCount; i++) {
 			if ([currentStyle isEqualToString:legacyToShipped[i].legacyBundleID]) {
 				NSString *newStyle =

@@ -62,6 +62,13 @@
 	XCTAssertNil(AIWebkitMessageStylePreferenceMigration(prefs));
 }
 
+// A non-string "Message Style" value (e.g. NSNull) is ignored, never sent isEqualToString:.
+- (void)testNonStringMessageStyleIsIgnored
+{
+	NSDictionary *prefs = @{@"Message Style" : [NSNull null]};
+	XCTAssertNil(AIWebkitMessageStylePreferenceMigration(prefs));
+}
+
 /// Property: A preference key prefixed by a legacy bundle ID is remapped to the fork bundle ID,
 /// and the obsolete key is marked for deletion.
 - (void)testRemapsPrefixedPreferenceKeys
