@@ -22,5 +22,5 @@ NSString *AIXtraBundleIdentifierForName(NSString *name)
 	if (name == nil)
 		return nil;
 
-	return [kAdiumYBundleIdentifierPrefix stringByAppendingFormat:@".%@", name];
+	return [kAdiumYBundleIdentifierPrefixDot stringByAppendingString:name];
 }
