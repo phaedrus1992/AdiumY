@@ -351,6 +351,9 @@ static NSString *const AIWKContextMenuScript =
 
 	NSDictionary *body = (NSDictionary *)message.body;
 	NSString *type = [body objectForKey:@"type"];
+	if (![type isKindOfClass:[NSString class]]) {
+		return;
+	}
 
 	if ([type isEqualToString:@"ready"]) {
 		// Don't re-process gate if already ready
@@ -366,7 +369,8 @@ static NSString *const AIWKContextMenuScript =
 	} else if ([type isEqualToString:@"contextMenu"]) {
 		NSNumber *clientX = [body objectForKey:@"x"];
 		NSNumber *clientY = [body objectForKey:@"y"];
-		if (clientX == nil || clientY == nil) {
+		if (![clientX isKindOfClass:[NSNumber class]] || ![clientY isKindOfClass:[NSNumber class]]) {
+			AILogWithSignature(@"Ignoring contextMenu message with non-numeric coordinates: %@", body);
 			return;
 		}
 
