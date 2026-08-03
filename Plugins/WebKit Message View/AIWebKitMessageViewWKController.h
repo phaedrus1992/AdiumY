@@ -34,6 +34,8 @@
 	NSMutableArray *_storedContentObjects;
 	NSString *_cachedChatContentSource;
 	AIContentObject *_previousContent;
+	NSMutableDictionary *_objectIconPathDict;
+	NSMutableArray *_objectsWithUserIconsArray;
 
 	NSUInteger _variantRetryCount;
 
