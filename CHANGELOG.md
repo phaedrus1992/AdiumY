@@ -12,17 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - XEP-0048: Bookmarks for XMPP (Jabber) — sync MUC bookmarks via Private XML Storage
 - XEP-0402: PubSub Bookmarks for XMPP (Jabber) — PEP-based bookmarks with automatic sync on connect
 - XEP-0393: Message Styling for XMPP (Jabber) — bold/italic/strikethrough/monospace/blockquote/preformatted text
-
-### Removed
-- Dead protocol services: AIM/ICQ/OSCAR, MobileMe/.Mac, GTalk, LiveJournal,
-  Gadu-Gadu, Novell/GroupWise, Sametime/Meanwhile, Zephyr
-- Twitter Plugin (targets long-dead REST API v1.0, bundled STTwitter abandoned)
-- Image Uploading Plugin (ImageShack/Imgur anonymous APIs, targets dead services)
-- Video Chat Interface + Purple Service video/webcam glue (GStreamer/farstream
-  scaffolding that never worked on macOS)
-- libmeanwhile.framework and json-glib dependencies from build
-
-### Added
 - XEP-0184: Message Delivery Receipts for XMPP (Jabber) — received receipts with `<request/>`/`<received/>` stanzas
 - XEP-0333: Chat Markers for XMPP (Jabber) — displayed/acknowledged/received/active message markers
 - XEP-0280: Message Carbons for XMPP (Jabber) — synchronize messages across multiple devices for the same account
@@ -41,6 +30,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   Sparkle 2.x — version comparison handled by Sparkle delegate API)
 
 ### Removed
+- Dead protocol services: AIM/ICQ/OSCAR, MobileMe/.Mac, GTalk, LiveJournal,
+  Gadu-Gadu, Novell/GroupWise, Sametime/Meanwhile, Zephyr
+- Twitter Plugin (targets long-dead REST API v1.0, bundled STTwitter abandoned)
+- Image Uploading Plugin (ImageShack/Imgur anonymous APIs, targets dead services)
+- Video Chat Interface + Purple Service video/webcam glue (GStreamer/farstream
+  scaffolding that never worked on macOS)
+- libmeanwhile.framework and json-glib dependencies from build
 - `Utilities/AppcastReplaceItem.py` (Python 2, md5Sum-based signing, dead
   signing URLs — replaced by Sparkle 2 EdDSA CLI tools)
 
@@ -52,3 +48,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   prior day again get a separator when a chat is opened on history
 - Message view: topic changes render through the message style's topic template
   instead of injected raw HTML
+- Message view: right-click context menu restored in the WKWebView renderer —
+  the contact/group-chat menu (Open/Save Image, Clear Display) returns and pops
+  at the cursor; Save Image As is offered for local image files
+- Message view: topic text and content messages now render through the same
+  filter, so styled topic text matches message rendering
+- About window: auto-scrolling credits no longer jump to the top when the text
+  has no enclosing scroll view
