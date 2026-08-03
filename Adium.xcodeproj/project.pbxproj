@@ -978,6 +978,7 @@
 		6318DBA50F8D93F200C5E584 /* terminator.png in Resources */ = {isa = PBXBuildFile; fileRef = 34C2DF01063498ED0018E5D2 /* terminator.png */; };
 		6318DBA60F8D93F200C5E584 /* Template.html in Resources */ = {isa = PBXBuildFile; fileRef = 4B03711506595A70008F5981 /* Template.html */; };
 		6318DBB50F8D940A00C5E584 /* AIWebKitMessageViewPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B539C4C05EFD6CD00E5921A /* AIWebKitMessageViewPlugin.m */; };
+		1D0DB4D0A46D4171BD872B7F /* AIWebkitMessageStylePreferenceMigration.m in Sources */ = {isa = PBXBuildFile; fileRef = AC51A0B63C194454B9C2FDA6 /* AIWebkitMessageStylePreferenceMigration.m */; };
 		6318DBB70F8D940A00C5E584 /* ESWebKitMessageViewPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 34C2D70406338E2E0018E5D2 /* ESWebKitMessageViewPreferences.m */; };
 		6318DBB80F8D940A00C5E584 /* AIWebkitMessageViewStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BD62D7F07CE8F240099EBA2 /* AIWebkitMessageViewStyle.m */; };
 		6318DBB90F8D940A00C5E584 /* AIPreviewChat.m in Sources */ = {isa = PBXBuildFile; fileRef = 34182F490AC2CA3C0067DEF3 /* AIPreviewChat.m */; };
@@ -2646,6 +2647,8 @@
 		34C2CF86063340540018E5D2 /* PurpleSinglelineRequestWindow.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = PurpleSinglelineRequestWindow.nib; path = "Plugins/Purple Service/PurpleSinglelineRequestWindow.nib"; sourceTree = "<group>"; };
 		34C2D70306338E2E0018E5D2 /* ESWebKitMessageViewPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ESWebKitMessageViewPreferences.h; path = "Plugins/WebKit Message View/ESWebKitMessageViewPreferences.h"; sourceTree = "<group>"; };
 		34C2D70406338E2E0018E5D2 /* ESWebKitMessageViewPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ESWebKitMessageViewPreferences.m; path = "Plugins/WebKit Message View/ESWebKitMessageViewPreferences.m"; sourceTree = "<group>"; };
+		ED1EAA1C9B7C485297710014 /* AIWebkitMessageStylePreferenceMigration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIWebkitMessageStylePreferenceMigration.h; path = "Plugins/WebKit Message View/AIWebkitMessageStylePreferenceMigration.h"; sourceTree = "<group>"; };
+		AC51A0B63C194454B9C2FDA6 /* AIWebkitMessageStylePreferenceMigration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AIWebkitMessageStylePreferenceMigration.m; path = "Plugins/WebKit Message View/AIWebkitMessageStylePreferenceMigration.m"; sourceTree = "<group>"; };
 		34C2D8C00633BBA80018E5D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = "Plugins/WebKit Message View/Resources/en.lproj/WebKitPreferencesView.nib"; sourceTree = "<group>"; };
 		34C2DBE5063449AF0018E5D2 /* Preview.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = Preview.plist; path = "Plugins/WebKit Message View/Preview.plist"; sourceTree = "<group>"; };
 		34C2DF00063498ED0018E5D2 /* SoulEdge.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SoulEdge.png; path = "Plugins/WebKit Message View/SoulEdge.png"; sourceTree = "<group>"; };
@@ -6278,6 +6281,8 @@
 				4BD62D7E07CE8F240099EBA2 /* AIWebkitMessageViewStyle.h */,
 				4BD62D7F07CE8F240099EBA2 /* AIWebkitMessageViewStyle.m */,
 				34C2D70306338E2E0018E5D2 /* ESWebKitMessageViewPreferences.h */,
+				ED1EAA1C9B7C485297710014 /* AIWebkitMessageStylePreferenceMigration.h */,
+				AC51A0B63C194454B9C2FDA6 /* AIWebkitMessageStylePreferenceMigration.m */,
 				34C2D70406338E2E0018E5D2 /* ESWebKitMessageViewPreferences.m */,
 				34C2DBE5063449AF0018E5D2 /* Preview.plist */,
 				34C2DF00063498ED0018E5D2 /* SoulEdge.png */,
@@ -7830,6 +7835,7 @@
 				1112561A0F8DA2BF00E76177 /* EKEzvIncomingFileTransfer.m in Sources */,
 				1112561B0F8DA2BF00E76177 /* EKEzvOutgoingFileTransfer.m in Sources */,
 				6318DBB50F8D940A00C5E584 /* AIWebKitMessageViewPlugin.m in Sources */,
+				1D0DB4D0A46D4171BD872B7F /* AIWebkitMessageStylePreferenceMigration.m in Sources */,
 				6318DBB70F8D940A00C5E584 /* ESWebKitMessageViewPreferences.m in Sources */,
 				AAE6CF0324C52A10008C5A03 /* AIAdiumURLSchemeHandler.m in Sources */,
 				AAE6CF0724C52A10008C5A07 /* AIWebKitMessageViewWKController.m in Sources */,

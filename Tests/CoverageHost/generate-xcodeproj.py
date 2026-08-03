@@ -16,8 +16,10 @@ SCHEME_DIR = os.path.join(XCODE_PROJ, "xcshareddata", "xcschemes")
 AIUTILITIES_PATH = "../../build/DerivedData/Build/Products/Debug"
 
 
-def uid() -> str:
-    return uuid.uuid4().hex.upper()[:24]
+def uid(key: str) -> str:
+    # Deterministic: the same key always yields the same 24-hex-char ID, so
+    # regenerating the project does not churn every UUID.
+    return uuid.uuid5(uuid.NAMESPACE_URL, "coveragehost:" + key).hex.upper()[:24]
 
 
 H = {}  # ids
@@ -37,12 +39,19 @@ for k in [
     "testProductRef", "testFileRef", "testBuildFile", "testInfoPlistRef",
     "testSourcesPhase", "testFrameworksPhase", "testTargetDep",
 
+    # CoverageHostTests extra sources (PBT util, AIXtraBundleIdentifier, migration)
+    "pbtUtilFileRef", "pbtUtilHeaderRef", "pbtUtilBuildFile",
+    "xtraIdentFileRef", "xtraIdentHeaderRef", "xtraIdentBuildFile",
+    "xtraIdentTestFileRef", "xtraIdentTestBuildFile",
+    "migrFileRef", "migrHeaderRef", "migrBuildFile",
+    "migrTestFileRef", "migrTestBuildFile",
+
     # Frameworks
     "xctestFwkRef", "xctestFwkBuildFile",
     "aiutilitiesFwkRef", "aiutilitiesFwkBuildFile",
     "cocoaFwkRef", "cocoaFwkBuildFile",
 ]:
-    H[k] = uid()
+    H[k] = uid(k)
 
 
 objects = {
@@ -70,7 +79,12 @@ objects = {
     H["sourcesGroup"]: {
         "isa": "PBXGroup",
         "children": [H["hostMainFileRef"], H["hostInfoPlistRef"],
-                     H["testFileRef"], H["testInfoPlistRef"]],
+                     H["testFileRef"], H["testInfoPlistRef"],
+                     H["pbtUtilFileRef"], H["pbtUtilHeaderRef"],
+                     H["xtraIdentFileRef"], H["xtraIdentHeaderRef"],
+                     H["xtraIdentTestFileRef"],
+                     H["migrFileRef"], H["migrHeaderRef"],
+                     H["migrTestFileRef"]],
         "name": "Sources",
         "sourceTree": "<group>",
     },
@@ -128,6 +142,57 @@ objects = {
         "sourceTree": "BUILT_PRODUCTS_DIR",
     },
 
+    # Property-testing utilities + the pure functions under test, pulled in from
+    # the repo tree via group-relative paths (group = project dir).
+    H["pbtUtilFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/AIPropertyTestUtilities.m",
+        "sourceTree": "<group>",
+    },
+    H["pbtUtilHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../UnitTests/AIPropertyTestUtilities.h",
+        "sourceTree": "<group>",
+    },
+    H["xtraIdentFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Frameworks/AIUtilities/Source/AIXtraBundleIdentifier.m",
+        "sourceTree": "<group>",
+    },
+    H["xtraIdentHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Frameworks/AIUtilities/Source/AIXtraBundleIdentifier.h",
+        "sourceTree": "<group>",
+    },
+    H["xtraIdentTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/AIXtraBundleIdentifierTest.m",
+        "sourceTree": "<group>",
+    },
+    H["migrFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/WebKit Message View/AIWebkitMessageStylePreferenceMigration.m",
+        "sourceTree": "<group>",
+    },
+    H["migrHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Plugins/WebKit Message View/AIWebkitMessageStylePreferenceMigration.h",
+        "sourceTree": "<group>",
+    },
+    H["migrTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/MessageStylePreferenceMigrationTest.m",
+        "sourceTree": "<group>",
+    },
+
     H["xctestFwkRef"]: {
         "isa": "PBXFileReference",
         "lastKnownFileType": "wrapper.framework",
@@ -181,13 +246,15 @@ objects = {
     H["testSourcesPhase"]: {
         "isa": "PBXSourcesBuildPhase",
         "buildActionMask": 2147483647,
-        "files": [H["testBuildFile"]],
+        "files": [H["testBuildFile"], H["pbtUtilBuildFile"],
+                  H["xtraIdentTestBuildFile"], H["xtraIdentBuildFile"],
+                  H["migrTestBuildFile"], H["migrBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
     H["testFrameworksPhase"]: {
         "isa": "PBXFrameworksBuildPhase",
         "buildActionMask": 2147483647,
-        "files": [H["xctestFwkBuildFile"], H["aiutilitiesFwkBuildFile"]],
+        "files": [H["xctestFwkBuildFile"], H["aiutilitiesFwkBuildFile"], H["cocoaFwkBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
 
@@ -197,6 +264,12 @@ objects = {
     H["xctestFwkBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["xctestFwkRef"]},
     H["aiutilitiesFwkBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["aiutilitiesFwkRef"]},
     H["cocoaFwkBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["cocoaFwkRef"]},
+
+    H["pbtUtilBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["pbtUtilFileRef"]},
+    H["xtraIdentBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["xtraIdentFileRef"]},
+    H["xtraIdentTestBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["xtraIdentTestFileRef"]},
+    H["migrBuildFile"]:           {"isa": "PBXBuildFile", "fileRef": H["migrFileRef"]},
+    H["migrTestBuildFile"]:       {"isa": "PBXBuildFile", "fileRef": H["migrTestFileRef"]},
 
     # ── Target Dependency ───────────────────────────────────────
     H["testTargetDep"]: {
@@ -328,6 +401,12 @@ objects = {
                 "$(inherited)",
                 "$(SRCROOT)/../../build/DerivedData/Build/Products/Debug",
             ),
+            "HEADER_SEARCH_PATHS": (
+                "$(inherited)",
+                "$(SRCROOT)/../../Source",
+                "$(SRCROOT)/../../UnitTests",
+                "$(SRCROOT)/../../Plugins/WebKit Message View",
+            ),
             "GCC_PREFIX_HEADER": "",
             "INFOPLIST_FILE": "CoverageHostTests-Info.plist",
             "INSTALL_PATH": "$(LOCAL_LIBRARY_DIR)/Bundles",
@@ -354,6 +433,12 @@ objects = {
             "FRAMEWORK_SEARCH_PATHS": (
                 "$(inherited)",
                 "$(SRCROOT)/../../build/DerivedData/Build/Products/Debug",
+            ),
+            "HEADER_SEARCH_PATHS": (
+                "$(inherited)",
+                "$(SRCROOT)/../../Source",
+                "$(SRCROOT)/../../UnitTests",
+                "$(SRCROOT)/../../Plugins/WebKit Message View",
             ),
             "GCC_PREFIX_HEADER": "",
             "INFOPLIST_FILE": "CoverageHostTests-Info.plist",

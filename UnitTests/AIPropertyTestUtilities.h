@@ -36,7 +36,7 @@ void PBTLogSeed(int64_t seed);
 // MARK: - Property check macros
 
 /// Run `block` for `count` iterations. Each iteration gets a unique seed derived from
-/// the base seed + iteration index. If any iteration fails (STFail/STAssert failure),
+/// the base seed + iteration index. If any iteration fails (XCTFail assertion),
 /// the seed is logged and remaining iterations are skipped.
 #define PBTCheck(block, count)                                                                                         \
 	do {                                                                                                               \
@@ -50,7 +50,7 @@ void PBTLogSeed(int64_t seed);
 				block;                                                                                                 \
 			} @catch (NSException * _pbtE) {                                                                           \
 				PBTLogSeed(PBTCurrentSeed);                                                                            \
-				STFail(@"Property failed at iteration %u: %@", _pbtIter, [_pbtE reason]);                              \
+				XCTFail(@"Property failed at iteration %u: %@", _pbtIter, [_pbtE reason]);                             \
 				_pbtFailed = YES;                                                                                      \
 				break;                                                                                                 \
 			}                                                                                                          \

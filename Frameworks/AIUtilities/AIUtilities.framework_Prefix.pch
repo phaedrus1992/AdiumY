@@ -6,6 +6,7 @@
 
 #ifdef __OBJC__
 	#import <Cocoa/Cocoa.h>
+	#import "AIBundleIdentifier.h"
 
-	#define AIUTILITIES_BUNDLE_ID @"com.github.phaedrus1992.adiumy.aiutilities"
+	#define AIUTILITIES_BUNDLE_ID kAdiumYBundleIdentifierPrefix ".aiutilities"
 #endif

@@ -22,6 +22,7 @@
 #import "AIListLayoutWindowController.h"
 #import "AIListThemeWindowController.h"
 #import "AIMenuBarIcons.h"
+#import <AIUtilities/AIBundleIdentifier.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIImageDrawingAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
@@ -123,34 +124,34 @@ typedef enum { AIEmoticonMenuNone = 1, AIEmoticonMenuMultiple } AIEmoticonMenuTa
 	// this is.
 	UTType *type = [UTType typeWithFilenameExtension:filenameExtension];
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.emoticonset"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:kAdiumYBundleIdentifierPrefix ".emoticonset"]]) {
 		[self _rebuildEmoticonMenuAndSelectActivePack];
 	}
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.dockicon"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:kAdiumYBundleIdentifierPrefix ".dockicon"]]) {
 		[self configureDockIconMenu];
 	}
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.serviceicons"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:kAdiumYBundleIdentifierPrefix ".serviceicons"]]) {
 		[self configureServiceIconsMenu];
 	}
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.statusicons"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:kAdiumYBundleIdentifierPrefix ".statusicons"]]) {
 		[self configureStatusIconsMenu];
 	}
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.menubaricons"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:kAdiumYBundleIdentifierPrefix ".menubaricons"]]) {
 		[self configureMenuBarIconsMenu];
 	}
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.contactlisttheme"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:kAdiumYBundleIdentifierPrefix ".contactlisttheme"]]) {
 		[popUp_colorTheme setMenu:[self _colorThemeMenu]];
 		[popUp_colorTheme
 			selectItemWithRepresentedObject:[adium.preferenceController preferenceForKey:KEY_LIST_THEME_NAME
 																				   group:PREF_GROUP_APPEARANCE]];
 	}
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.contactlistlayout"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:kAdiumYBundleIdentifierPrefix ".contactlistlayout"]]) {
 		[popUp_listLayout setMenu:[self _listLayoutMenu]];
 		[popUp_listLayout
 			selectItemWithRepresentedObject:[adium.preferenceController preferenceForKey:KEY_LIST_LAYOUT_NAME

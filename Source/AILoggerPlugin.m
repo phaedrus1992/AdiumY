@@ -21,6 +21,7 @@
 #import "AILogViewerWindowController.h"
 #import "AIXMLAppender.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
+#import <AIUtilities/AIBundleIdentifier.h>
 #import <AIUtilities/AIDateFormatterAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIFileManagerAdditions.h>
@@ -209,20 +210,20 @@ static dispatch_semaphore_t logLoadingPrefetchSemaphore; // limit prefetching lo
 	defaultDispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0);
 
 	dirtyLogSetMutationQueue =
-		dispatch_queue_create("com.github.phaedrus1992.adiumy.AILoggerPlugin.dirtyLogSetMutationQueue", 0);
+		dispatch_queue_create(kAdiumYBundleIdentifierPrefixC ".AILoggerPlugin.dirtyLogSetMutationQueue", 0);
 	searchIndexQueue =
-		dispatch_queue_create("com.github.phaedrus1992.adiumy.AILoggerPlugin.searchIndexFlushingQueue", 0);
+		dispatch_queue_create(kAdiumYBundleIdentifierPrefixC ".AILoggerPlugin.searchIndexFlushingQueue", 0);
 	activeAppendersMutationQueue =
-		dispatch_queue_create("com.github.phaedrus1992.adiumy.AILoggerPlugin.activeAppendersMutationQueue", 0);
+		dispatch_queue_create(kAdiumYBundleIdentifierPrefixC ".AILoggerPlugin.activeAppendersMutationQueue", 0);
 	addToSearchKitQueue =
-		dispatch_queue_create("com.github.phaedrus1992.adiumy.AILoggerPlugin.searchIndexAddingQueue", 0);
+		dispatch_queue_create(kAdiumYBundleIdentifierPrefixC ".AILoggerPlugin.searchIndexAddingQueue", 0);
 
 	logIndexingGroup = dispatch_group_create();
 	closingIndexGroup = dispatch_group_create();
 	logAppendingGroup = dispatch_group_create();
 	loggerPluginGroup = dispatch_group_create();
 
-	ioQueue = dispatch_queue_create("com.github.phaedrus1992.adiumy.AILoggerPlugin.ioQueue", 0);
+	ioQueue = dispatch_queue_create(kAdiumYBundleIdentifierPrefixC ".AILoggerPlugin.ioQueue", 0);
 
 	NSUInteger cpuCount = [[NSProcessInfo processInfo] activeProcessorCount];
 	jobSemaphore = dispatch_semaphore_create(3 * cpuCount);
@@ -1523,10 +1524,11 @@ NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context)
 															static dispatch_queue_t skQueue = nil;
 															static dispatch_once_t onceToken;
 															dispatch_once(&onceToken, ^{
-																skQueue = dispatch_queue_create(
-																	"com.github.phaedrus1992.adiumy.AILoggerPlugin._"
-																	"cleanDirtyLogs.skQueue",
-																	0);
+																skQueue =
+																	dispatch_queue_create(kAdiumYBundleIdentifierPrefixC
+																						  ".AILoggerPlugin._"
+																						  "cleanDirtyLogs.skQueue",
+																						  0);
 															});
 
 															CFRetain(searchIndex);

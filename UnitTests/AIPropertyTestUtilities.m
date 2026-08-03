@@ -15,7 +15,8 @@
  */
 
 #import "AIPropertyTestUtilities.h"
-#import <SenTestingKit/SenTestingKit.h>
+#import <AppKit/AppKit.h>
+#import <XCTest/XCTest.h>
 
 int64_t PBTFixedSeed = 0;
 int64_t PBTCurrentSeed = 0;
@@ -75,8 +76,8 @@ NSString *PBTRandomUnicodeString(uint32_t maxLen)
 		if (r < 0x80) {
 			buf[i] = (unichar)r;
 		} else if (r < 0x10000) {
-			unichar candidates[] = {0x00A9, 0x00AE, 0x2026, 0x2603, 0x2764, 0x1F600, 0x00E9,
-									0x00F1, 0x4E2D, 0x0416, 0x03B1, 0x0300, 0x0301,  0x0302};
+			unichar candidates[] = {0x00A9, 0x00AE, 0x2026, 0x2603, 0x2764, 0x263A, 0x00E9,
+									0x00F1, 0x4E2D, 0x0416, 0x03B1, 0x0300, 0x0301, 0x0302};
 			buf[i] = candidates[_pbt_range(sizeof(candidates) / sizeof(candidates[0]))];
 		} else {
 			buf[i] = 0x2603;

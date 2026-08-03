@@ -16,6 +16,7 @@
 
 #import "AIWebKitMessageViewPlugin.h"
 #import "AIWebKitMessageViewWKController.h"
+#import "AIWebkitMessageStylePreferenceMigration.h"
 #import "AIWebkitMessageViewStyle.h"
 #import "ESWebKitMessageViewPreferences.h"
 #import <AIUtilities/AIBundleAdditions.h>
@@ -307,52 +308,24 @@
 
 - (void)performAdium14PreferenceUpdates
 {
-	if (![[adium.preferenceController preferenceForKey:@"Adium 1.4:Updated Preferences"
+	if (![[adium.preferenceController preferenceForKey:@"AdiumY 1.4:Updated Preferences"
 												 group:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY] boolValue]) {
 		NSDictionary *dict = [adium.preferenceController preferencesForGroup:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY];
 		NSMutableDictionary *newDict = [dict mutableCopy];
 		NSMutableSet *keysToRemove = [NSMutableSet set];
 
-		NSDictionary *conversionDict = [NSDictionary
-			dictionaryWithObjectsAndKeys:
-				/* complete style changes */
-				@"im.adium.Gone Dark.style", @"com.github.phaedrus1992.adiumy.eclipse.style",
-				@"im.adium.Stockholm.style", @"com.github.phaedrus1992.adiumy.plastic.style",
-				@"im.adium.minimal_mod.style", @"com.github.phaedrus1992.adiumy.minimal_2.0.style",
-				@"im.adium.Renkoo.style", @"com.github.phaedrus1992.adiumy.renkooNaked.style",
-				@"im.adium.minimal_mod.style", @"com.github.phaedrus1992.adiumy.minimal.style",
+		NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(dict);
 
-				/* bundle identifier changes */
-				@"im.adium.Gone Dark.style", @"com.github.phaedrus1992.adiumy.gonedark.style",
-				@"im.adium.minimal_mod.style", @"com.github.phaedrus1992.adiumy.minimal_mod.style",
-				@"im.adium.Mockie.style", @"com.github.phaedrus1992.adiumy.mockie.style", @"im.adium.Renkoo.style",
-				@"com.github.phaedrus1992.adiumy.renkoo.style", @"im.adium.Smooth Operator.style",
-				@"com.github.phaedrus1992.adiumy.smooth.operator.style", @"im.adium.Stockholm.style",
-				@"com.github.phaedrus1992.adiumy.stockholm.style", @"im.adium.yMous.style",
-				@"mathuaerknedam.yMous.style", nil];
-
-		/* Upgrade the style ID itself (that is, the style that Adium will be displaying) if it changed */
-		NSString *upgradedStyleID = [conversionDict objectForKey:[dict objectForKey:KEY_WEBKIT_STYLE]];
-		if (upgradedStyleID)
-			[newDict setObject:upgradedStyleID forKey:KEY_WEBKIT_STYLE];
-
-		/* Now update style-specific preferences, whose keys are prefixed with style names, as needed */
-		for (NSString *key in [dict keyEnumerator]) {
-			/* For each changed bundle, check each key */
-			for (NSString *oldBundleID in [conversionDict keyEnumerator]) {
-				if ([key hasPrefix:oldBundleID]) {
-					NSString *newBundleID = [conversionDict objectForKey:oldBundleID];
-					NSString *newKey =
-						[newBundleID stringByAppendingString:[key substringFromIndex:oldBundleID.length]];
-
-					/* Store with the new bundle ID in the key */
-					[newDict setObject:[dict objectForKey:key] forKey:newKey];
-
-					/* Remove the obsolete preference; we'll want it not in the newDict but also need to manually
-					 * remove it when we're done, since AIPreferenceController's setPreferences:inGroup: is
-					 * nondestructive. */
+		if (delta != nil) {
+			for (NSString *key in delta) {
+				id value = [delta objectForKey:key];
+				if (value == [NSNull null]) {
+					/* Deletion marker: drop it from the in-memory dict and queue a manual removal below, since
+					 * AIPreferenceController's setPreferences:inGroup: is nondestructive. */
 					[newDict removeObjectForKey:key];
 					[keysToRemove addObject:key];
+				} else {
+					[newDict setObject:value forKey:key];
 				}
 			}
 		}
@@ -363,7 +336,7 @@
 		}
 
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:YES]
-										   forKey:@"Adium 1.4:Updated Preferences"
+										   forKey:@"AdiumY 1.4:Updated Preferences"
 											group:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY];
 	}
 }

@@ -6860,6 +6860,41 @@
 				</array>
 			</dict>
 		</dict>
+		<key>CF4146C0D86A5263BCDEBE20</key>
+		<dict>
+			<key>fileRef</key>
+			<string>414ECC2F14685A268C986C2D</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
+		<key>B68008D89D8E5635BB9CC644</key>
+		<dict>
+			<key>fileRef</key>
+			<string>29F5FFE6736A56B1B7B48A6D</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>901A065D45315E048286353C</key>
+		<dict>
+			<key>fileRef</key>
+			<string>7F90614025C1583FB5300DDB</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>Public</string>
+				</array>
+			</dict>
+		</dict>
 		<key>633400800F9C14C2003C77A9</key>
 		<dict>
 			<key>fileRef</key>
@@ -7840,6 +7875,8 @@
 				<string>6334007B0F9C14C2003C77A9</string>
 				<string>6334007D0F9C14C2003C77A9</string>
 				<string>6334007F0F9C14C2003C77A9</string>
+				<string>CF4146C0D86A5263BCDEBE20</string>
+				<string>901A065D45315E048286353C</string>
 				<string>633400810F9C14C2003C77A9</string>
 				<string>633400830F9C14C2003C77A9</string>
 				<string>633400850F9C14C2003C77A9</string>
@@ -7995,6 +8032,7 @@
 				<string>11AA10140FCE0969003908B6</string>
 				<string>5A5F601D12962EC0007A2232</string>
 				<string>9718DF46136A2C5200013760</string>
+				<string>B68008D89D8E5635BB9CC644</string>
 			</array>
 			<key>isa</key>
 			<string>PBXSourcesBuildPhase</string>
@@ -10200,6 +10238,9 @@
 				<string>6334FFB20F9C14C1003C77A9</string>
 				<string>6334FFB30F9C14C1003C77A9</string>
 				<string>6334FFB40F9C14C1003C77A9</string>
+				<string>414ECC2F14685A268C986C2D</string>
+				<string>7F90614025C1583FB5300DDB</string>
+				<string>29F5FFE6736A56B1B7B48A6D</string>
 				<string>6334FFB50F9C14C1003C77A9</string>
 				<string>6334FFB60F9C14C1003C77A9</string>
 				<string>6334FFB70F9C14C1003C77A9</string>
@@ -10407,6 +10448,51 @@
 			<string>AIBundleAdditions.h</string>
 			<key>path</key>
 			<string>Source/AIBundleAdditions.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>414ECC2F14685A268C986C2D</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>AIBundleIdentifier.h</string>
+			<key>path</key>
+			<string>Source/AIBundleIdentifier.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>7F90614025C1583FB5300DDB</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>AIXtraBundleIdentifier.h</string>
+			<key>path</key>
+			<string>Source/AIXtraBundleIdentifier.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>29F5FFE6736A56B1B7B48A6D</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>name</key>
+			<string>AIXtraBundleIdentifier.m</string>
+			<key>path</key>
+			<string>Source/AIXtraBundleIdentifier.m</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>

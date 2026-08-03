@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### Added
-- New entries go here
+### Fixed
+- Fix message-style preferences left over from the pre-rename AdiumY fork
+  (`im.adium.*` style IDs) being ignored during preference migration — they now
+  remap to the AdiumY bundle-ID namespace on next launch
 
 ## [2.0.0] - 2026-08-03
 
