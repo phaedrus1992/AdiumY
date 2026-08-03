@@ -67,6 +67,33 @@
 
 static NSArray *draggedTypes = nil;
 
+/* JavaScript installed into every loaded message view. WKWebView exposes no public context-menu
+ * hook on macOS, so we intercept right-clicks here and forward the hit-test result to the "adium"
+ * script message handler (see docs/design/webkit-to-wkwebview-transition.md §4).
+ */
+static NSString *const AIWKContextMenuScript =
+	@""
+	@"(function() {\n"
+	@"    document.addEventListener('contextmenu', function(event) {\n"
+	@"        event.preventDefault();\n"
+	@"        var imageURL = null;\n"
+	@"        var node = event.target;\n"
+	@"        while (node && node !== document.body) {\n"
+	@"            if (node.tagName === 'IMG') {\n"
+	@"                imageURL = node.currentSrc || node.getAttribute('src') || null;\n"
+	@"                break;\n"
+	@"            }\n"
+	@"            node = node.parentNode;\n"
+	@"        }\n"
+	@"        window.webkit.messageHandlers.adium.postMessage({\n"
+	@"            type: 'contextMenu',\n"
+	@"            x: event.clientX,\n"
+	@"            y: event.clientY,\n"
+	@"            imageURL: imageURL\n"
+	@"        });\n"
+	@"    }, false);\n"
+	@"})();\n";
+
 #pragma mark - Weak Script Message Handler Proxy
 
 /// Weak proxy that forwards WKScriptMessageHandler messages without retaining the target.
@@ -105,6 +132,10 @@ static NSArray *draggedTypes = nil;
 - (void)_appendContentWithScript:(NSString *)js shouldScroll:(BOOL)shouldScroll;
 - (void)_drainStoredContentObjects;
 - (void)_handleFileTransferAction:(NSString *)action fileTransferID:(NSString *)fileTransferID;
+- (void)_presentContextMenuAtClientPoint:(NSPoint)clientPoint imageURLString:(NSString *)imageURLString;
+- (NSMenu *)_contextMenuForImageURLString:(NSString *)imageURLString;
+- (void)openImage:(id)sender;
+- (void)saveImageAs:(id)sender;
 - (void)_appendCorrectedMessageFallback:(NSString *)html fromSenderJID:(NSString *)senderJID;
 - (NSString *)_jsStringLiteral:(NSString *)string;
 - (NSString *)_webKitBackgroundImagePathForUniqueID:(NSInteger)uniqueID;
@@ -227,6 +258,12 @@ static NSArray *draggedTypes = nil;
 	WKUserContentController *userContentController = [[WKUserContentController alloc] init];
 	_AIWKScriptMessageHandlerWeakProxy *proxy = [[_AIWKScriptMessageHandlerWeakProxy alloc] initWithTarget:self];
 	[userContentController addScriptMessageHandler:proxy name:@"adium"];
+
+	// Intercept right-clicks; WKWebView has no public context-menu hook on macOS (#119).
+	[userContentController addUserScript:[[WKUserScript alloc] initWithSource:AIWKContextMenuScript
+																injectionTime:WKUserScriptInjectionTimeAtDocumentEnd
+															 forMainFrameOnly:YES]];
+
 	config.userContentController = userContentController;
 
 	// Register adium:// scheme handler (10.13+)
@@ -326,7 +363,140 @@ static NSArray *draggedTypes = nil;
 		NSString *action = [body objectForKey:@"action"];
 		NSString *fileTransferID = [body objectForKey:@"fileTransferID"];
 		[self _handleFileTransferAction:action fileTransferID:fileTransferID];
+	} else if ([type isEqualToString:@"contextMenu"]) {
+		NSNumber *clientX = [body objectForKey:@"x"];
+		NSNumber *clientY = [body objectForKey:@"y"];
+		if (clientX == nil || clientY == nil) {
+			return;
+		}
+
+		NSString *imageURLString = [body objectForKey:@"imageURL"];
+		if (![imageURLString isKindOfClass:[NSString class]] || [imageURLString length] == 0) {
+			imageURLString = nil;
+		}
+
+		[self _presentContextMenuAtClientPoint:NSMakePoint([clientX doubleValue], [clientY doubleValue])
+								imageURLString:imageURLString];
 	}
+}
+
+#pragma mark - Context Menu
+
+- (void)_presentContextMenuAtClientPoint:(NSPoint)clientPoint imageURLString:(NSString *)imageURLString
+{
+	NSWindow *window = [_webView window];
+	if (window == nil) {
+		return;
+	}
+
+	// clientPoint arrives in viewport coordinates (origin top-left); flip it into the web view's
+	// coordinate space, then convert into the window's content view so the menu pops at the click.
+	CGFloat flippedY = [_webView isFlipped] ? clientPoint.y : [_webView bounds].size.height - clientPoint.y;
+	NSView *contentView = [window contentView];
+	NSPoint location = [_webView convertPoint:NSMakePoint(clientPoint.x, flippedY) toView:contentView];
+
+	NSMenu *menu = [self _contextMenuForImageURLString:imageURLString];
+	[menu popUpMenuPositioningItem:nil atLocation:location inView:contentView];
+}
+
+- (NSMenu *)_contextMenuForImageURLString:(NSString *)imageURLString
+{
+	NSMenu *menu = [[NSMenu alloc] init];
+	NSMenuItem *menuItem;
+
+	NSURL *imageURL = nil;
+	if (imageURLString != nil) {
+		imageURL = [NSURL URLWithString:imageURLString];
+	}
+
+	if (imageURL != nil) {
+		menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Open Image", nil)
+											  action:@selector(openImage:)
+									   keyEquivalent:@""];
+		[menuItem setTarget:self];
+		[menuItem setRepresentedObject:imageURL];
+		[menu addItem:menuItem];
+
+		menuItem =
+			[[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"Save Image As", nil) stringByAppendingEllipsis]
+									   action:@selector(saveImageAs:)
+								keyEquivalent:@""];
+		[menuItem setTarget:self];
+		[menuItem setRepresentedObject:imageURL];
+		[menu addItem:menuItem];
+
+		[menu addItem:[NSMenuItem separatorItem]];
+	}
+
+	AIListContact *chatListObject = _chat.listObject.parentContact;
+	NSMenu *originalMenu = nil;
+	if (chatListObject != nil) {
+		NSArray *locations;
+		if ([chatListObject isIntentionallyNotAStranger]) {
+			locations = [NSArray arrayWithObjects:[NSNumber numberWithInteger:Context_Contact_Manage],
+												  [NSNumber numberWithInteger:Context_Contact_Action],
+												  [NSNumber numberWithInteger:Context_Contact_NegativeAction],
+												  [NSNumber numberWithInteger:Context_Contact_ChatAction],
+												  [NSNumber numberWithInteger:Context_Contact_Additions], nil];
+		} else {
+			locations = [NSArray arrayWithObjects:[NSNumber numberWithInteger:Context_Contact_Manage],
+												  [NSNumber numberWithInteger:Context_Contact_Action],
+												  [NSNumber numberWithInteger:Context_Contact_NegativeAction],
+												  [NSNumber numberWithInteger:Context_Contact_ChatAction],
+												  [NSNumber numberWithInteger:Context_Contact_Stranger_ChatAction],
+												  [NSNumber numberWithInteger:Context_Contact_Additions], nil];
+		}
+		originalMenu = [adium.menuController contextualMenuWithLocations:locations
+														   forListObject:chatListObject
+																  inChat:_chat];
+	} else if (_chat.isGroupChat) {
+		originalMenu = [adium.menuController
+			contextualMenuWithLocations:[NSArray arrayWithObjects:[NSNumber numberWithInteger:Context_GroupChat_Manage],
+																  [NSNumber numberWithInteger:Context_GroupChat_Action],
+																  nil]
+								forChat:_chat];
+	}
+
+	if (originalMenu != nil) {
+		for (menuItem in [originalMenu itemArray]) {
+			[menu addItem:menuItem];
+		}
+	}
+
+	if ([menu numberOfItems] > 0 && ![[menu itemAtIndex:[menu numberOfItems] - 1] isSeparatorItem]) {
+		[menu addItem:[NSMenuItem separatorItem]];
+	}
+
+	menuItem = [[NSMenuItem alloc]
+		initWithTitle:AILocalizedString(@"Clear Display",
+										"Clears the display window for the currently open message window")
+			   action:@selector(clearView)
+		keyEquivalent:@""];
+	[menuItem setTarget:self];
+	[menu addItem:menuItem];
+
+	return menu;
+}
+
+- (void)openImage:(id)sender
+{
+	NSURL *imageURL = [sender representedObject];
+	[[NSWorkspace sharedWorkspace] openURL:imageURL];
+}
+
+- (void)saveImageAs:(id)sender
+{
+	NSURL *imageURL = [sender representedObject];
+	NSString *path = [imageURL path];
+
+	NSSavePanel *savePanel = [NSSavePanel savePanel];
+	savePanel.nameFieldStringValue = [path lastPathComponent];
+	[savePanel beginSheetModalForWindow:[_webView window]
+					  completionHandler:^(NSInteger result) {
+						  if (result == NSModalResponseOK) {
+							  [[NSFileManager defaultManager] copyItemAtURL:imageURL toURL:savePanel.URL error:nil];
+						  }
+					  }];
 }
 
 #pragma mark - AIMessageDisplayController
@@ -961,9 +1131,10 @@ static NSArray *draggedTypes = nil;
 													   message:topic];
 
 	// Route the topic through the style's topicHTML template via the content pipeline, matching
-	// live topic updates (which arrive as AIContentTopic content objects) (#126).
+	// live topic updates (which arrive as AIContentTopic content objects filtered with
+	// AIFilterContent by receiveContentObject:) (#126, #147).
 	contentTopic.message = [adium.contentController filterAttributedString:topic
-														   usingFilterType:AIFilterDisplay
+														   usingFilterType:AIFilterContent
 																 direction:AIFilterIncoming
 																   context:contentTopic];
 

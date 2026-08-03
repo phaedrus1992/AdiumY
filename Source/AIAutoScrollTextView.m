@@ -70,15 +70,22 @@
 
 - (void)startScrolling
 {
-	[[self enclosingScrollView] setHasVerticalScroller:NO];
-	[[self enclosingScrollView] setLineScroll:0.0f];
-	[[self enclosingScrollView] setPageScroll:0.0f];
+	// Without an enclosing scroll view there is no geometry to read off and no
+	// scrollable container; don't start a timer that would jump to the top (#129).
+	NSScrollView *enclosingScrollView = [self enclosingScrollView];
+	if (enclosingScrollView == nil) {
+		return;
+	}
+
+	[enclosingScrollView setHasVerticalScroller:NO];
+	[enclosingScrollView setLineScroll:0.0f];
+	[enclosingScrollView setPageScroll:0.0f];
 
 	/*
 	 * Xxx Somehow there are 7 pixels missing after re-starting to scroll - add
 	 * them by hand until we find the cause.
 	 */
-	scrollLocation = [[[self enclosingScrollView] contentView] bounds].origin.y + 7;
+	scrollLocation = [[enclosingScrollView contentView] bounds].origin.y + 7;
 	maxScroll = [[self textStorage] size].height;
 
 	scrollTimer = [NSTimer scheduledTimerWithTimeInterval:(1.0f / ABOUT_SCROLL_FPS)
