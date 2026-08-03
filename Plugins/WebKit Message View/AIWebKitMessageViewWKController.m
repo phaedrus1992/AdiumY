@@ -1090,20 +1090,10 @@ static NSArray *draggedTypes = nil;
 - (void)userIconForObjectDidChange:(AIListObject *)inObject
 {
 	AIListObject *iconSourceObject = [self _iconSourceObjectForObject:inObject];
-	NSString *currentIconPath = [_objectIconPathDict objectForKey:iconSourceObject.internalObjectID];
-	if (currentIconPath) {
-		NSString *objectsKnownIconPath = [iconSourceObject valueForProperty:KEY_WEBKIT_USER_ICON];
-		if (objectsKnownIconPath && [currentIconPath isEqualToString:objectsKnownIconPath]) {
-			// We're the first one to get to this object!  We get to delete the old path and remove the reference to it
-			[[NSFileManager defaultManager] removeItemAtPath:currentIconPath error:NULL];
-			[iconSourceObject setValue:nil forProperty:KEY_WEBKIT_USER_ICON notify:NotifyNever];
-		} else {
-			/* Some other instance beat us to the punch. The object's KEY_WEBKIT_USER_ICON is right, since it doesn't
-			 * match our internally tracked path.
-			 */
-		}
-	}
 
+	// updateUserIconForObject: writes a fresh cached file for the new icon and removes the old one
+	// only after the replacement has been written, so a failed write never leaves the page's <img>
+	// src pointing at a deleted file.
 	[self updateUserIconForObject:iconSourceObject];
 }
 
@@ -1148,22 +1138,17 @@ static NSArray *draggedTypes = nil;
 		}
 
 		oldWebKitUserIconPath = [_objectIconPathDict objectForKey:iconSourceObject.internalObjectID];
-		webKitUserIconPath = [iconSourceObject valueForProperty:KEY_WEBKIT_USER_ICON];
-		if (!webKitUserIconPath) {
-			/*
-			 * If the image doesn't know a path to use, write it out and set it.
-			 *
-			 * Writing the icon out is necessary for webkit to be able to use it; it also guarantees that there won't
-			 * be any animation, which is good since animation in the message view is slow and annoying.
-			 *
-			 * Only write out the icon if the object doesn't already have one
-			 */
-			webKitUserIconPath = [self _cachedUserIconFilePathForObject:iconSourceObject];
-			if ([[webKitUserIcon PNGRepresentation] writeToFile:webKitUserIconPath atomically:YES]) {
-				[iconSourceObject setValue:webKitUserIconPath forProperty:KEY_WEBKIT_USER_ICON notify:NotifyNever];
-			} else {
-				AILogWithSignature(@"Warning: Could not write out icon to %@", webKitUserIconPath);
-			}
+		NSString *oldSharedIconPath = [iconSourceObject valueForProperty:KEY_WEBKIT_USER_ICON];
+
+		// Write out the icon fresh every time the icon may have changed. Writing it out is necessary
+		// for webkit to be able to use it; it also guarantees there won't be any animation, which is
+		// good since animation in the message view is slow and annoying.
+		webKitUserIconPath = [self _cachedUserIconFilePathForObject:iconSourceObject];
+		if ([[webKitUserIcon PNGRepresentation] writeToFile:webKitUserIconPath atomically:YES]) {
+			[iconSourceObject setValue:webKitUserIconPath forProperty:KEY_WEBKIT_USER_ICON notify:NotifyNever];
+		} else {
+			AILogWithSignature(@"Warning: Could not write out icon to %@", webKitUserIconPath);
+			webKitUserIconPath = nil;
 		}
 
 		// Make sure it's known that this user has been handled
@@ -1178,6 +1163,15 @@ static NSArray *draggedTypes = nil;
 												   1)]
 				forProperty:KEY_WEBKIT_CHATS_USING_CACHED_ICON
 					 notify:NotifyNever];
+		}
+
+		// Remove the old cached file only after the replacement is written. This view is the last
+		// reference to the old file when its tracked path still matches the shared KEY value it saw
+		// before the write; if another view already swapped in a different icon, that file stays.
+		if (oldWebKitUserIconPath && oldSharedIconPath && webKitUserIconPath &&
+			[oldWebKitUserIconPath isEqualToString:oldSharedIconPath] &&
+			![oldWebKitUserIconPath isEqualToString:webKitUserIconPath]) {
+			[[NSFileManager defaultManager] removeItemAtPath:oldWebKitUserIconPath error:NULL];
 		}
 
 		if (!webKitUserIconPath) {
