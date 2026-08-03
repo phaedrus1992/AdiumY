@@ -5,7 +5,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Bookmarks Importer</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.github.phaedrus1992.adiumY.bookmarksImporter</string>
+	<string>com.github.phaedrus1992.adiumy.bookmarksImporter</string>
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleSignature</key>
