@@ -51,12 +51,19 @@
 #import <Adium/AIListObject.h>
 #import <Adium/AIMenuControllerProtocol.h>
 #import <Adium/AIMetaContact.h>
+#import <Adium/AIUserIcons.h>
 #import <Adium/ESFileTransfer.h>
 
 #import <Adium/AIPreferenceControllerProtocol.h>
 
 #undef NEW_CONTENT_RETRY_DELAY
 #define NEW_CONTENT_RETRY_DELAY 0.25
+
+/* Per-message-view reference count of a cached user icon (the icon is shared across
+ * message views; the file is deleted when the last view using it goes away).
+ * Defined here because it lives only in the pre-migration controller, not a shared header.
+ */
+#define KEY_WEBKIT_CHATS_USING_CACHED_ICON @"WebKit:Chats Using Cached Icon"
 
 static NSArray *draggedTypes = nil;
 
@@ -101,6 +108,22 @@ static NSArray *draggedTypes = nil;
 - (void)_appendCorrectedMessageFallback:(NSString *)html fromSenderJID:(NSString *)senderJID;
 - (NSString *)_jsStringLiteral:(NSString *)string;
 - (NSString *)_webKitBackgroundImagePathForUniqueID:(NSInteger)uniqueID;
+- (BOOL)_shouldInsertDateSeparatorBeforeContent:(AIContentObject *)content;
+- (void)_insertDateSeparatorBeforeContent:(AIContentObject *)content
+				willAddMoreContentObjects:(BOOL)willAddMoreContentObjects;
+- (void)_trackUserIconForContent:(AIContentObject *)content;
+- (void)_trackUserIconForObject:(AIListObject *)inObject;
+- (AIListObject *)_iconSourceForContent:(AIContentObject *)content;
+- (NSString *)_cachedUserIconForObject:(AIListObject *)inObject;
+- (NSString *)_cachedUserIconFilePathForObject:(AIListObject *)inObject;
+- (void)updateUserIconForObject:(AIListObject *)inObject;
+- (void)userIconForObjectDidChange:(AIListObject *)inObject;
+- (void)_swapUserIconOnPageForObject:(AIListObject *)inObject fromPath:(NSString *)oldPath toPath:(NSString *)newPath;
+- (void)releaseCurrentWebKitUserIconForObject:(AIListObject *)inObject;
+- (void)releaseAllCachedIcons;
+- (void)participatingListObjectsChanged:(NSNotification *)notification;
+- (void)sourceOrDestinationChanged:(NSNotification *)notification;
+- (void)listObjectAttributesChanged:(NSNotification *)notification;
 @end
 
 @implementation AIWebKitMessageViewWKController
@@ -122,6 +145,8 @@ static NSArray *draggedTypes = nil;
 		_plugin = inPlugin;
 		_contentQueue = [[NSMutableArray alloc] init];
 		_storedContentObjects = [[NSMutableArray alloc] init];
+		_objectIconPathDict = [[NSMutableDictionary alloc] init];
+		_objectsWithUserIconsArray = [[NSMutableArray alloc] init];
 		_shouldReflectPreferenceChanges = NO;
 		_nextMessageFocus = YES;
 		_nextMessageRegainedFocus = YES;
@@ -157,6 +182,20 @@ static NSArray *draggedTypes = nil;
 												 selector:@selector(stanzaWasTracked:)
 													 name:@"AIMessageStanzaTracked"
 												   object:nil];
+
+		// Observe chat/participant changes so user icons can be refreshed on the page (#124)
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(participatingListObjectsChanged:)
+													 name:Chat_ParticipatingListObjectsChanged
+												   object:inChat];
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(sourceOrDestinationChanged:)
+													 name:Chat_SourceChanged
+												   object:inChat];
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(sourceOrDestinationChanged:)
+													 name:Chat_DestinationChanged
+												   object:inChat];
 	}
 
 	return self;
@@ -169,6 +208,7 @@ static NSArray *draggedTypes = nil;
 
 - (void)dealloc
 {
+	[self releaseAllCachedIcons];
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
 
@@ -343,6 +383,7 @@ static NSArray *draggedTypes = nil;
 	// Cancel any pending performRequests
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];
 
+	[self releaseAllCachedIcons];
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
 }
@@ -383,7 +424,10 @@ static NSArray *draggedTypes = nil;
 			[_contentQueue addObjectsFromArray:currentContentQueue];
 		}
 	} else {
+		// clearView: drop anything parked while the previous view was loading (including a
+		// topic queued by updateTopic) so the cleared view starts empty.
 		[_contentQueue removeAllObjects];
+		[_storedContentObjects removeAllObjects];
 	}
 }
 
@@ -409,6 +453,16 @@ static NSArray *draggedTypes = nil;
 		if (willAddMoreContentObjects && content == [_contentQueue lastObject]) {
 			willAddMoreContentObjects = NO;
 		}
+
+		// Insert a date separator before content from a new day, matching the pre-migration
+		// controller's history behavior (#125).
+		if ([self _shouldInsertDateSeparatorBeforeContent:content]) {
+			[self _insertDateSeparatorBeforeContent:content willAddMoreContentObjects:willAddMoreContentObjects];
+		}
+
+		// Cache the sender's user icon so the style renders a stable path that can be swapped
+		// in place when the contact changes their icon (#124).
+		[self _trackUserIconForContent:content];
 
 		BOOL contentIsSimilar = [content isSimilarToContent:_previousContent];
 		BOOL replaceLastContent = NO;
@@ -458,6 +512,58 @@ static NSArray *draggedTypes = nil;
 
 	[_contentQueue addObjectsFromArray:_storedContentObjects];
 	[_storedContentObjects removeAllObjects];
+}
+
+/*!
+ * @brief Whether a date separator must be inserted before the given content.
+ *
+ * Ported from the pre-migration controller (93d7c267^): no separator at the very start of a
+ * view unless the first content is a history context; otherwise a separator whenever the
+ * content's day differs from the previously rendered content.
+ */
+- (BOOL)_shouldInsertDateSeparatorBeforeContent:(AIContentObject *)content
+{
+	if (_previousContent == nil) {
+		return [content isKindOfClass:[AIContentContext class]];
+	}
+
+	return ![content isFromSameDayAsContent:_previousContent];
+}
+
+/*!
+ * @brief Append a date_separator content event before content from a different day (#125).
+ */
+- (void)_insertDateSeparatorBeforeContent:(AIContentObject *)content
+				willAddMoreContentObjects:(BOOL)willAddMoreContentObjects
+{
+	__block NSString *dateMessage;
+	[NSDateFormatter withLocalizedDateFormatterPerform:^(NSDateFormatter *dateFormatter) {
+		dateMessage = [dateFormatter stringFromDate:content.date];
+	}];
+
+	AIContentEvent *dateSeparator = [AIContentEvent
+		statusInChat:content.chat
+		  withSource:content.chat.listObject
+		 destination:content.chat.account
+				date:content.date
+			 message:[[NSAttributedString alloc] initWithString:dateMessage
+													 attributes:[adium.contentController defaultFormattingAttributes]]
+			withType:@"date_separator"];
+
+	if ([content isKindOfClass:[AIContentContext class]]) {
+		[dateSeparator addDisplayClass:@"history"];
+	}
+
+	// Append without scrolling and without marking a new location; the separator is part of
+	// the history being loaded, not new incoming content.
+	NSString *js = [_messageStyle scriptForAppendingContent:dateSeparator
+													similar:NO
+								  willAddMoreContentObjects:willAddMoreContentObjects
+										 replaceLastContent:NO];
+	[self _appendContentWithScript:js shouldScroll:NO];
+
+	// The separator becomes the reference point for the next day comparison.
+	_previousContent = dateSeparator;
 }
 
 /*!
@@ -851,19 +957,407 @@ static NSArray *draggedTypes = nil;
 		return;
 	}
 
-	NSString *topicValue = [_chat valueForProperty:KEY_TOPIC] ?: @"";
-	NSString *escaped = [self _jsStringLiteral:topicValue];
+	NSAttributedString *topic = [NSAttributedString stringWithString:([_chat valueForProperty:KEY_TOPIC] ?: @"")];
+
+	AIContentTopic *contentTopic = [AIContentTopic topicInChat:_chat
+													withSource:[_chat valueForProperty:KEY_TOPIC_SETTER]
+												   destination:nil
+														  date:[NSDate date]
+													   message:topic];
+
+	// Route the topic through the style's topicHTML template via the content pipeline, matching
+	// live topic updates (which arrive as AIContentTopic content objects) (#126).
+	contentTopic.message = [adium.contentController filterAttributedString:topic
+														   usingFilterType:AIFilterDisplay
+																 direction:AIFilterIncoming
+																   context:contentTopic];
+
+	if (_webViewIsReady) {
+		[_contentQueue addObject:contentTopic];
+		[self _processContentQueue];
+	} else {
+		if (!_storedContentObjects) {
+			_storedContentObjects = [[NSMutableArray alloc] init];
+		}
+		[_storedContentObjects addObject:contentTopic];
+	}
+}
+
+#pragma mark User icon updates
+
+/*!
+ * @brief Update icon masks when participating list objects change
+ *
+ * We want to observe attributesChanged: notifications for all objects which are participating in our chat.
+ * When the list changes, remove the observers we had in place before and add observers for each object in the list
+ * so we never observe for contacts not in the chat.
+ */
+- (void)participatingListObjectsChanged:(NSNotification *)notification
+{
+	NSArray *participatingListObjects = [_chat containedObjects];
+
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:ListObject_AttributesChanged object:nil];
+
+	for (AIListObject *listObject in participatingListObjects) {
+		// Update the mask for any user which just entered the chat
+		if (![_objectsWithUserIconsArray containsObjectIdenticalTo:listObject]) {
+			[self updateUserIconForObject:listObject];
+		}
+
+		// In the future, watch for changes on the parent object, since that's the icon we display
+		if ([listObject isKindOfClass:[AIListContact class]]) {
+			[[NSNotificationCenter defaultCenter] addObserver:self
+													 selector:@selector(listObjectAttributesChanged:)
+														 name:ListObject_AttributesChanged
+													   object:[(AIListContact *)listObject parentContact]];
+		}
+	}
+
+	// Also observe our account
+	if (_chat.account) {
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(listObjectAttributesChanged:)
+													 name:ListObject_AttributesChanged
+												   object:_chat.account];
+	}
+
+	// Remove the cache for any object no longer in the chat
+	for (AIListObject *listObject in [_objectsWithUserIconsArray copy]) {
+		if ((![listObject isKindOfClass:[AIMetaContact class]] ||
+			 (![participatingListObjects firstObjectCommonWithArray:[(AIMetaContact *)listObject containedObjects]])) &&
+			(![listObject isKindOfClass:[AIListContact class]] ||
+			 ![participatingListObjects containsObjectIdenticalTo:(AIListContact *)listObject]) &&
+			!(listObject == _chat.account)) {
+			[self releaseCurrentWebKitUserIconForObject:listObject];
+		}
+	}
+}
+
+/*!
+ * @brief Update icon masks when source or destination changes
+ */
+- (void)sourceOrDestinationChanged:(NSNotification *)notification
+{
+	// Update the participating contacts
+	[self participatingListObjectsChanged:nil];
+
+	// And update the source account
+	[self updateUserIconForObject:_chat.account];
+}
+
+/*!
+ * @brief Update the icon when a list object's icon attributes change
+ */
+- (void)listObjectAttributesChanged:(NSNotification *)notification
+{
+	AIListObject *inObject = [notification object];
+	NSSet *keys = [[notification userInfo] objectForKey:@"Keys"];
+
+	if ([keys containsObject:KEY_USER_ICON]) {
+		if (inObject) {
+			AIListObject *actualObject = nil;
+			if (_chat.account == inObject) {
+				// The account is the object actually in the chat
+				actualObject = inObject;
+			} else {
+				/*
+				 * We are notified of a change to the metacontact's icon. Find the contact inside the chat which we
+				 * will be displaying as changed.
+				 */
+				for (AIListContact *participatingListObject in _chat) {
+					if ([participatingListObject parentContact] == inObject) {
+						actualObject = participatingListObject;
+						break;
+					}
+				}
+			}
+
+			if (actualObject) {
+				[self userIconForObjectDidChange:actualObject];
+			}
+		} else {
+			AILogWithSignature(@"nil object's icon changed");
+			// We don't know what changed, if anything, that is relevant to our chat. Update source and destination
+			// icons.
+			[self sourceOrDestinationChanged:nil];
+		}
+	}
+}
+
+/*!
+ * @brief Update the icon when a list object's icon changes
+ */
+- (void)userIconForObjectDidChange:(AIListObject *)inObject
+{
+	AIListObject *iconSourceObject =
+		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
+	NSString *currentIconPath = [_objectIconPathDict objectForKey:iconSourceObject.internalObjectID];
+	if (currentIconPath) {
+		NSString *objectsKnownIconPath = [iconSourceObject valueForProperty:KEY_WEBKIT_USER_ICON];
+		if (objectsKnownIconPath && [currentIconPath isEqualToString:objectsKnownIconPath]) {
+			// We're the first one to get to this object!  We get to delete the old path and remove the reference to it
+			[[NSFileManager defaultManager] removeItemAtPath:currentIconPath error:NULL];
+			[iconSourceObject setValue:nil forProperty:KEY_WEBKIT_USER_ICON notify:NotifyNever];
+		} else {
+			/* Some other instance beat us to the punch. The object's KEY_WEBKIT_USER_ICON is right, since it doesn't
+			 * match our internally tracked path.
+			 */
+		}
+	}
+
+	[self updateUserIconForObject:iconSourceObject];
+}
+
+/*!
+ * @brief Generate and cache a user icon for an object, pushing it to already-rendered images.
+ *
+ * @param inObject The object
+ */
+- (void)updateUserIconForObject:(AIListObject *)inObject
+{
+	AIListObject *iconSourceObject =
+		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
+	NSImage *userIcon;
+	NSString *oldWebKitUserIconPath = nil;
+	NSString *webKitUserIconPath = nil;
+	NSImage *webKitUserIcon;
+
+	/*
+	 * We probably already have a userIcon waiting for us, the active display icon; use that
+	 * rather than loading one from disk.
+	 */
+	if (!(userIcon = [iconSourceObject userIcon])) {
+		// If that's not the case, try using the UserIconPath
+		NSString *userIconPath = [iconSourceObject valueForProperty:@"UserIconPath"];
+		if (userIconPath) {
+			userIcon = [[NSImage alloc] initWithContentsOfFile:userIconPath];
+		}
+	}
+
+	if (userIcon) {
+		if ([_messageStyle userIconMask]) {
+			// Apply the mask if the style has one
+			webKitUserIcon = [[_messageStyle userIconMask] copy];
+			[webKitUserIcon lockFocus];
+			[userIcon drawInRect:NSMakeRect(0, 0, [webKitUserIcon size].width, [webKitUserIcon size].height)
+						fromRect:NSMakeRect(0, 0, [userIcon size].width, [userIcon size].height)
+					   operation:NSCompositingOperationSourceIn
+						fraction:1.0f];
+			[webKitUserIcon unlockFocus];
+		} else {
+			// Otherwise, just use the icon as-is
+			webKitUserIcon = userIcon;
+		}
+
+		oldWebKitUserIconPath = [_objectIconPathDict objectForKey:iconSourceObject.internalObjectID];
+		webKitUserIconPath = [iconSourceObject valueForProperty:KEY_WEBKIT_USER_ICON];
+		if (!webKitUserIconPath) {
+			/*
+			 * If the image doesn't know a path to use, write it out and set it.
+			 *
+			 * Writing the icon out is necessary for webkit to be able to use it; it also guarantees that there won't
+			 * be any animation, which is good since animation in the message view is slow and annoying.
+			 *
+			 * Only write out the icon if the object doesn't already have one
+			 */
+			webKitUserIconPath = [self _cachedUserIconFilePathForObject:iconSourceObject];
+			if ([[webKitUserIcon PNGRepresentation] writeToFile:webKitUserIconPath atomically:YES]) {
+				[iconSourceObject setValue:webKitUserIconPath forProperty:KEY_WEBKIT_USER_ICON notify:NotifyNever];
+			} else {
+				AILogWithSignature(@"Warning: Could not write out icon to %@", webKitUserIconPath);
+			}
+		}
+
+		// Make sure it's known that this user has been handled
+		if (![_objectsWithUserIconsArray containsObjectIdenticalTo:iconSourceObject]) {
+			[_objectsWithUserIconsArray addObject:iconSourceObject];
+
+			// Keep track of this chat using the icon
+			[iconSourceObject
+				   setValue:[NSNumber
+								numberWithInteger:([iconSourceObject
+													   integerValueForProperty:KEY_WEBKIT_CHATS_USING_CACHED_ICON] +
+												   1)]
+				forProperty:KEY_WEBKIT_CHATS_USING_CACHED_ICON
+					 notify:NotifyNever];
+		}
+
+		if (!webKitUserIconPath) {
+			webKitUserIconPath = @"";
+		}
+
+		// Push the new path to any already-rendered <img> elements that used the old path
+		[self _swapUserIconOnPageForObject:iconSourceObject fromPath:oldWebKitUserIconPath toPath:webKitUserIconPath];
+
+		[_objectIconPathDict setObject:webKitUserIconPath forKey:iconSourceObject.internalObjectID];
+	}
+}
+
+/*!
+ * @brief Swap rendered avatar <img> src attributes from the old cached path to the new one.
+ *
+ * The style emits %userIconPath% as "file://<path>", so match every <img> whose src contains the old
+ * cached path and swap in the new path. There is no per-content DOM id in the WKWebView renderer, so
+ * matching on the file path is the only reliable hook.
+ *
+ * @param inObject The object whose icon changed
+ * @param oldPath The previously rendered cached path (nil if never rendered)
+ * @param newPath The new cached path ("" if none could be written)
+ */
+- (void)_swapUserIconOnPageForObject:(AIListObject *)inObject fromPath:(NSString *)oldPath toPath:(NSString *)newPath
+{
+	if (!_webViewIsReady || [oldPath length] == 0 || [newPath length] == 0 || [oldPath isEqualToString:newPath]) {
+		return;
+	}
+
+	NSString *escapedOldPath = [self _jsStringLiteral:oldPath];
+	NSString *escapedNewPath = [self _jsStringLiteral:[@"file://" stringByAppendingString:newPath]];
+
 	NSString *js = [NSString stringWithFormat:@"(function(){"
-											  @" var e=document.getElementById('topic');"
-											  @" if(e){e.innerHTML=%@;}"
+											  @"var imgs = document.querySelectorAll('img');"
+											  @"for (var i = 0; i < imgs.length; i++) {"
+											  @"if (imgs[i].src.indexOf(%@) !== -1) {"
+											  @"imgs[i].src = %@;"
+											  @"}"
+											  @"}"
 											  @"})()",
-											  escaped];
+											  escapedOldPath, escapedNewPath];
+
 	[_webView evaluateJavaScript:js
 			   completionHandler:^(id result, NSError *error) {
 				   if (error) {
 					   AILogWithSignature(@"evaluateJavaScript failed: %@", error);
 				   }
 			   }];
+}
+
+/*!
+ * @brief Return the current cached icon path for an object, generating and caching it if absent.
+ *
+ * @param inObject The object
+ * @return The cached icon file path, or nil if icons are disabled or none could be produced.
+ */
+- (NSString *)_cachedUserIconForObject:(AIListObject *)inObject
+{
+	if (![_messageStyle showUserIcons]) {
+		return nil;
+	}
+
+	AIListObject *iconSourceObject =
+		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
+
+	NSString *webKitUserIconPath = [iconSourceObject valueForProperty:KEY_WEBKIT_USER_ICON];
+	if (!webKitUserIconPath) {
+		[self updateUserIconForObject:iconSourceObject];
+		webKitUserIconPath = [iconSourceObject valueForProperty:KEY_WEBKIT_USER_ICON];
+	}
+
+	return webKitUserIconPath;
+}
+
+/*!
+ * @brief Generate a cache path for a user icon.
+ *
+ * @param inObject The object
+ * @return A file path under the shared cache directory.
+ */
+- (NSString *)_cachedUserIconFilePathForObject:(AIListObject *)inObject
+{
+	NSString *filename = [NSString
+		stringWithFormat:@"WebKitUserIcon-%@-%@.png", inObject.internalObjectID, [NSString randomStringOfLength:5]];
+	return [[adium cachesPath] stringByAppendingPathComponent:filename];
+}
+
+/*!
+ * @brief Remove all references to *this* chat using cached icons for an object
+ *
+ * If this is the last chat utilizing the cached icon, it will be deleted.
+ *
+ * @param inObject The object
+ */
+- (void)releaseCurrentWebKitUserIconForObject:(AIListObject *)inObject
+{
+	AIListObject *iconSourceObject =
+		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
+	NSString *path;
+
+	NSInteger chatsUsingCachedIcon = [iconSourceObject integerValueForProperty:KEY_WEBKIT_CHATS_USING_CACHED_ICON];
+	chatsUsingCachedIcon--;
+	[iconSourceObject setValue:[NSNumber numberWithInteger:chatsUsingCachedIcon]
+				   forProperty:KEY_WEBKIT_CHATS_USING_CACHED_ICON
+						notify:NotifyNever];
+	[_objectsWithUserIconsArray removeObjectIdenticalTo:iconSourceObject];
+
+	if ((chatsUsingCachedIcon <= 0) && (path = [iconSourceObject valueForProperty:KEY_WEBKIT_USER_ICON])) {
+		[[NSFileManager defaultManager] removeItemAtPath:path error:NULL];
+		[iconSourceObject setValue:nil forProperty:KEY_WEBKIT_USER_ICON notify:NotifyNever];
+	}
+
+	[_objectIconPathDict removeObjectForKey:iconSourceObject.internalObjectID];
+}
+
+/*!
+ * @brief Remove all references to *this* chat using cached icons for all involved objects
+ */
+- (void)releaseAllCachedIcons
+{
+	for (AIListObject *listObject in [_objectsWithUserIconsArray copy]) {
+		[self releaseCurrentWebKitUserIconForObject:listObject];
+	}
+}
+
+/*!
+ * @brief Ensure the icon for a content object's source is cached before it is rendered.
+ *
+ * Called from the content pipeline before each append so the style's %userIconPath% resolves to a
+ * real cached file at render time.
+ *
+ * @param content The content about to be appended
+ */
+- (void)_trackUserIconForContent:(AIContentObject *)content
+{
+	if (![_messageStyle showUserIcons]) {
+		return;
+	}
+
+	AIListObject *iconSource = [self _iconSourceForContent:content];
+	if (iconSource) {
+		[self _trackUserIconForObject:iconSource];
+	}
+}
+
+/*!
+ * @brief Ensure a cached icon exists for an object, mirroring the style's icon-source resolution.
+ *
+ * @param inObject The object
+ */
+- (void)_trackUserIconForObject:(AIListObject *)inObject
+{
+	if (![_messageStyle showUserIcons]) {
+		return;
+	}
+
+	AIListObject *iconSourceObject =
+		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
+
+	[self _cachedUserIconForObject:iconSourceObject];
+}
+
+/*!
+ * @brief The object the style reads the cached user icon from for a content object.
+ *
+ * Mirrors AIWebkitMessageViewStyle's resolution (style.m:770-773): for AIListContact sources use the
+ * parentContact, otherwise use the source itself, so the icon lands on the same object the style reads
+ * KEY_WEBKIT_USER_ICON from.
+ *
+ * @param content The content object
+ * @return The icon source object, or nil if the content has no source.
+ */
+- (AIListObject *)_iconSourceForContent:(AIContentObject *)content
+{
+	AIListObject *contentSource = [content source];
+	return ([contentSource isKindOfClass:[AIListContact class]] ? [(AIListContact *)contentSource parentContact]
+																: contentSource);
 }
 
 #pragma mark - Marked Scroller
