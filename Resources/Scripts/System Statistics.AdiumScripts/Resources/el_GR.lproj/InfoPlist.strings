@@ -9,11 +9,11 @@
 /* Trigger for active application substitution. Must begin with %_ */
 "%_activeApp" = "%_activeApp";
 
-"Adium Version" = "Έκδοση Adium";
+"Adium Version" = "Έκδοση AdiumY";
 /* Trigger for adium version substitution. Must begin with %_ */
 "%_adiumversion" = "%_adiumversion";
 
-"Adium Build" = "Adium Build";
+"Adium Build" = "AdiumY Build";
 /* Trigger for adium build number substitution. Must begin with %_ */
 "%_adiumbuild" = "%_adiumbuild";
 
