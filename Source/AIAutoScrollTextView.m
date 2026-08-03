@@ -100,16 +100,21 @@
 	[scrollTimer invalidate];
 	scrollTimer = nil;
 
+	NSScrollView *enclosingScrollView = [self enclosingScrollView];
+	if (enclosingScrollView == nil) {
+		return;
+	}
+
 	// Enable scrolling
-	[[self enclosingScrollView] setHasVerticalScroller:YES];
-	[[self enclosingScrollView] setLineScroll:10.0f];
-	[[self enclosingScrollView] setPageScroll:10.0f];
+	[enclosingScrollView setHasVerticalScroller:YES];
+	[enclosingScrollView setLineScroll:10.0f];
+	[enclosingScrollView setPageScroll:10.0f];
 
 	/*
 	 * Scroll to correct location, otherwise scrolling will start
 	 * at the end of the last manual scroll
 	 */
-	[[[self enclosingScrollView] contentView] scrollPoint:NSMakePoint(0, scrollLocation)];
+	[[enclosingScrollView contentView] scrollPoint:NSMakePoint(0, scrollLocation)];
 }
 
 // Scroll the credits
