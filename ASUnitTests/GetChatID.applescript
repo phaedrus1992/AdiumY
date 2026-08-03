@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set newChat to HandyAdiumScripts's makeNewChat()
 		set n to (HandyAdiumScripts's defaultService & "." & HandyAdiumScripts's defaultParticipant)
 		if (get id of newChat) is not n then

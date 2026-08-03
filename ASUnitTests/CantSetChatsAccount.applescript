@@ -1,6 +1,6 @@
 global HandyAdiumScripts
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set newChat to HandyAdiumScripts's makeNewChat()
 		try
 			set account of newChat to account 1

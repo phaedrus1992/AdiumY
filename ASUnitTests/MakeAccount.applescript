@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set c to count accounts
 		tell service "AIM"
 			set newAccount to make new account with properties {name:"test"}

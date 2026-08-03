@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set c to (get closeable of window 1)
 		try
 			set closeable of window 1 to (not c)

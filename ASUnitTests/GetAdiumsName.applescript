@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
-		if (get name) is not "Adium" then error
+	tell application "AdiumY"
+		if (get name) is not "AdiumY" then error
 	end tell
 end run

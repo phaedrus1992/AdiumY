@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set newChat to HandyAdiumScripts's makeNewChat()
 		if (get account of newChat) is not account (HandyAdiumScripts's defaultAccount) then
 			-- this tests both account's objectSpecifier and chat's account

@@ -1,1 +1,1 @@
-tell application "Adium" to version
+tell application "AdiumY" to version

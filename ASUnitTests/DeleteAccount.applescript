@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set newAccount to HandyAdiumScripts's makeTemporaryAccount()
 		set c to count accounts
 		delete newAccount

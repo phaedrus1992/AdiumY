@@ -1,6 +1,6 @@
 (*
 Requirements:
-* Adium 1.3 or later
+* AdiumY 2.0 or later
 * An AIM account
 
 Installation:
@@ -14,7 +14,7 @@ Once it knows your username, it will send a message to that username from that u
 
 property aim_name : missing value
 
-tell application "Adium"
+tell application "AdiumY"
 	if aim_name = missing value then
 		activate
 		

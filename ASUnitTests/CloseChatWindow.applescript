@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set newChat to HandyAdiumScripts's makeNewChatWindow()
 		set cw to (count chat windows)
 		close newChat
