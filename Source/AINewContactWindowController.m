@@ -20,18 +20,18 @@
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIPopUpButtonAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIAddressBookController.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListContact.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIAddressBookController.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
 
-#import <Adium/AIListGroup.h>
-#import <Adium/AILocalizationTextField.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIServiceMenu.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AILocalizationTextField.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIServiceMenu.h>
 
 #define ADD_CONTACT_PROMPT_NIB @"AddContact"
 #define DEFAULT_GROUP_NAME AILocalizedString(@"Contacts", nil)

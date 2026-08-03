@@ -16,7 +16,7 @@
 #import "TestFBAdditions.h"
 #import "AIUnitTestUtilities.h"
 
-#import <Adium/NSString-FBAdditions.h>
+#import <AdiumY/NSString-FBAdditions.h>
 
 @implementation TestFBAdditions
 

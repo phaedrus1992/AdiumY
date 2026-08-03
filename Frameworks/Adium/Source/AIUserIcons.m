@@ -14,15 +14,15 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactObserverManager.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactObserverManager.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIUserIcons.h>
 
 #import <AIUtilities/AIImageDrawingAdditions.h>
-#import <Adium/AIServiceIcons.h>
+#import <AdiumY/AIServiceIcons.h>
 
 #import "AICachedUserIconSource.h"
 #import "AIManuallySetUserIconSource.h"

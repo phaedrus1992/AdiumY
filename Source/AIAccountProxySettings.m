@@ -17,8 +17,8 @@
 #import "AIAccountProxySettings.h"
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIPopUpButtonAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
 
 @interface AIAccountProxySettings () <NSControlTextEditingDelegate>
 - (void)configureControlDimming;

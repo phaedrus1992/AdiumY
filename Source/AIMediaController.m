@@ -16,8 +16,8 @@
 
 #import "AIMediaController.h"
 
-#import <Adium/AIMedia.h>
-#import <Adium/AIMediaControllerProtocol.h>
+#import <AdiumY/AIMedia.h>
+#import <AdiumY/AIMediaControllerProtocol.h>
 
 #import "AIMediaWindowController.h"
 

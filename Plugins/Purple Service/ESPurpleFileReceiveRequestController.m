@@ -17,8 +17,8 @@
 #import "ESPurpleFileReceiveRequestController.h"
 #import "CBPurpleAccount.h"
 #import "adiumPurpleRequest.h"
-#import <Adium/AIWindowController.h>
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/AIWindowController.h>
+#import <AdiumY/ESFileTransfer.h>
 
 @interface ESPurpleFileReceiveRequestController ()
 - (id)initWithDict:(NSDictionary *)inDict;

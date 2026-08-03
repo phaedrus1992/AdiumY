@@ -15,12 +15,12 @@
  */
 
 #import "AIStatusChangedMessagesPlugin.h"
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentStatus.h>
-#import <Adium/AIListContact.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentStatus.h>
+#import <AdiumY/AIListContact.h>
 
 #define CONTACT_STATUS_UPDATE_COALESCING_KEY @"Contact Status Update"
 

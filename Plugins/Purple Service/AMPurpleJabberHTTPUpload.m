@@ -16,9 +16,9 @@
 
 #import "AMPurpleJabberHTTPUpload.h"
 #import "ESPurpleJabberAccount.h"
-#import <Adium/AIAccount.h>
-#import <Adium/AIListContact.h>
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/ESFileTransfer.h>
 #import <libpurple/jabber.h>
 
 #define NS_HTTP_UPLOAD @"urn:xmpp:http:upload:0"

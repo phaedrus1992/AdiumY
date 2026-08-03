@@ -16,9 +16,9 @@
 
 #import "CBContactLastSeenPlugin.h"
 #import <AIUtilities/AIDateFormatterAdditions.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMetaContact.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMetaContact.h>
 
 #define PREF_GROUP_LAST_SEEN @"Last Seen"
 #define KEY_LAST_SEEN_STATUS @"Last Seen Status"

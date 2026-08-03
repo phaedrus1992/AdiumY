@@ -18,22 +18,22 @@
 #import "CBPurpleServicePlugin.h"
 #import "adiumPurpleCore.h"
 #import "adiumPurpleEventloop.h"
-#import <AdiumLibpurple/SLPurpleCocoaAdapter.h>
+#import <AdiumYLibpurple/SLPurpleCocoaAdapter.h>
 
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIObjectAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContactObserverManager.h>
-#import <Adium/AIContentTyping.h>
-#import <Adium/AICorePluginLoader.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AILoginControllerProtocol.h>
-#import <Adium/AIService.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContactObserverManager.h>
+#import <AdiumY/AIContentTyping.h>
+#import <AdiumY/AICorePluginLoader.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AILoginControllerProtocol.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIUserIcons.h>
 
 #import <CoreFoundation/CoreFoundation.h>
 #import <glib.h>

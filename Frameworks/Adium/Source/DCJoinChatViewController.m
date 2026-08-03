@@ -15,14 +15,14 @@
  */
 
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIService.h>
-#import <Adium/DCJoinChatViewController.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/DCJoinChatViewController.h>
 
 @interface DCJoinChatViewController ()
 - (NSString *)impliedCompletion:(NSString *)aString;

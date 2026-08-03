@@ -15,14 +15,14 @@
  */
 
 #import "AIAutomaticStatus.h"
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIStatusGroup.h>
-#import <Adium/ESTextAndButtonsWindowController.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
+#import <AdiumY/AIStatusGroup.h>
+#import <AdiumY/ESTextAndButtonsWindowController.h>
 
 typedef enum {
 	AIAwayIdle = (1 << 1),

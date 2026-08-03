@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIWindowController.h>
+#import <AdiumY/AIWindowController.h>
 
 #define AUTHORIZATION_REQUESTS AILocalizedString(@"Authorization Requests", nil)
 #define GET_INFO AILocalizedString(@"Get Info", nil)

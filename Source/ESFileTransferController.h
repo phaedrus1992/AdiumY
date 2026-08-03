@@ -14,9 +14,9 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIControllerProtocol.h>
-#import <Adium/AIFileTransferControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIControllerProtocol.h>
+#import <AdiumY/AIFileTransferControllerProtocol.h>
 
 // File transfers
 @interface ESFileTransferController : NSObject <AIFileTransferController, AIEventHandler> {

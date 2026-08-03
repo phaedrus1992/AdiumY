@@ -22,8 +22,8 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
 #import <AIUtilities/AIWindowAdditions.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
 
 #define ADD_LINK_TITLE [AILocalizedString(@"Add Link", nil) stringByAppendingEllipsis]
 #define EDIT_LINK_TITLE [AILocalizedString(@"Edit Link", nil) stringByAppendingEllipsis]

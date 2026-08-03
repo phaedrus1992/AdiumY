@@ -19,12 +19,12 @@
 #import <AIUtilities/AIStringFormatter.h>
 #import <AIUtilities/AITextAttributes.h>
 #import <AIUtilities/AIWindowAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIEditStateWindowController.h>
-#import <Adium/AIMessageEntryTextView.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIEditStateWindowController.h>
+#import <AdiumY/AIMessageEntryTextView.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
 
 #define CONTROL_SPACING 8
 #define WINDOW_HEIGHT_PADDING 30

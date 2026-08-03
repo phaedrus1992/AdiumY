@@ -19,9 +19,9 @@
 #import "AIServiceMenu.h"
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIStringFormatter.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIService.h>
 
 @interface AIGuestAccountWindowController ()
 - (IBAction)selectServiceType:(id)sender;

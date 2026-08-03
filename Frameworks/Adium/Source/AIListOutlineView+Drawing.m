@@ -17,8 +17,8 @@
 #import "AIListOutlineView+Drawing.h"
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIGradientAdditions.h>
-#import <Adium/AIListCell.h>
-#import <Adium/AIListGroup.h>
+#import <AdiumY/AIListCell.h>
+#import <AdiumY/AIListGroup.h>
 
 @interface AIListOutlineView (AIListOutlineView_Drawing_Private)
 - (void)windowBecameMain:(NSNotification *)notification;

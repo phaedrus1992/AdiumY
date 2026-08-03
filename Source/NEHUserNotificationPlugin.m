@@ -17,17 +17,17 @@
 #import "NEHUserNotificationPlugin.h"
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIStringUtilities.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
+#import <AdiumY/ESFileTransfer.h>
 
 // UserNotifications requires macOS 10.14+. Runtime guards are in place below.
 #pragma clang diagnostic push
@@ -238,7 +238,7 @@
 	}
 
 	if (title == nil) {
-		title = @"Adium";
+		title = @"AdiumY";
 	}
 	if (body == nil) {
 		body = AILocalizedString(@"You have a new event", nil);

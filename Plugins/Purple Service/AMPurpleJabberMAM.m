@@ -17,14 +17,14 @@
 #import "AMPurpleJabberMAM.h"
 #import "ESPurpleJabberAccount.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentContext.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AISharedAdium.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentContext.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AISharedAdium.h>
 #import <libpurple/jabber.h>
 
 #define NS_MAM @"urn:xmpp:mam:2"

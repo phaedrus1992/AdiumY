@@ -15,8 +15,8 @@
  */
 
 #import <AIUtilities/AITextAttributes.h>
-#import <Adium/AIContextMenuTextView.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIContextMenuTextView.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 @implementation AIContextMenuTextView
 

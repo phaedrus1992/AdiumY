@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIControllerProtocol.h>
+#import <AdiumY/AIControllerProtocol.h>
 
 #define Content_ContentObjectAdded @"Content_ContentObjectAdded"
 #define Content_ChatDidFinishAddingUntrackedContent @"Content_ChatDidFinishAddingUntrackedContent"

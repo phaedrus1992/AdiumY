@@ -19,9 +19,9 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <AddressBook/ABPeoplePickerView.h>
 #import <AddressBook/ABPerson.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
 
 #define ADDRESS_BOOK_NIB_NAME (@"AIAddressBookInspectorPane")
 

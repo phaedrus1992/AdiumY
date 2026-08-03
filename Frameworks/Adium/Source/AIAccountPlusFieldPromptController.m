@@ -15,14 +15,14 @@
  */
 
 #import <AIUtilities/AICompletingTextField.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIAccountPlusFieldPromptController.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIAccountPlusFieldPromptController.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIService.h>
 
 @interface AIAccountPlusFieldPromptController () <NSControlTextEditingDelegate>
 

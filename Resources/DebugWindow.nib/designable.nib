@@ -221,7 +221,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<object class="NSButtonCell" key="NSCell" id="737839941">
 								<int key="NSCellFlags">67239424</int>
 								<int key="NSCellFlags2">0</int>
-								<string key="NSContents">Log to ~/Library/Logs/Adium Debug</string>
+								<string key="NSContents">Log to ~/Library/Logs/AdiumY Debug</string>
 								<object class="NSFont" key="NSSupport" id="516728646">
 									<string key="NSName">LucidaGrande</string>
 									<double key="NSSize">13</double>
@@ -471,7 +471,7 @@ AAEAAQAAAT0AAwAAAAEAAgAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<reference ref="370597509"/>
 						</array>
 						<reference key="parent" ref="0"/>
-						<string key="objectName">Adium Debug Log</string>
+						<string key="objectName">AdiumY Debug Log</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">32</int>

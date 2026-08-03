@@ -20,7 +20,7 @@
 #import "AISCLViewPlugin.h"
 #import "SMContactListShowDetailsPane.h"
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
 
 #define SHOW_CONTACT_LIST_BEHAVIOR_ALERT_SHORT AILocalizedString(@"Show the contact list window", nil)
 #define SHOW_CONTACT_LIST_BEHAVIOR_ALERT_LONG AILocalizedString(@"Show the contact list window for %.1f seconds", nil)

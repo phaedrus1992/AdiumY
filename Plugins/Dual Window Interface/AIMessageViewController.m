@@ -22,13 +22,13 @@
 #import "AIMessageWindowOutgoingScrollView.h"
 #import "ESGeneralPreferencesPlugin.h"
 
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIListOutlineView.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIServiceIcons.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIListOutlineView.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIServiceIcons.h>
 
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>

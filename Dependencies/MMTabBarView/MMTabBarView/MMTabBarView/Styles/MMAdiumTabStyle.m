@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (NSString *)name {
-    return @"Adium";
+    return @"AdiumY";
 }
 
 - (NSString *)name {

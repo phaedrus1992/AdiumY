@@ -21,9 +21,9 @@
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
 #import <AIUtilities/MVMenuButton.h>
-#import <Adium/AIEmoticon.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIEmoticon.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
 
 @interface BGEmoticonMenuPlugin () <NSMenuItemValidation>
 - (void)registerToolbarItem;

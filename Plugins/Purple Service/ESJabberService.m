@@ -20,7 +20,7 @@
 #import "ESPurpleJabberAccount.h"
 #import "ESPurpleJabberAccountViewController.h"
 #import <AIUtilities/AICharacterSetAdditions.h>
-#import <Adium/AIStatusControllerProtocol.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
 #import <libpurple/jabber.h>
 
 @interface ESJabberService ()

@@ -16,10 +16,10 @@
 
 #import "AMPurpleJabberCorrection.h"
 #import "ESPurpleJabberAccount.h"
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AISharedAdium.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AISharedAdium.h>
 #import <libpurple/jabber.h>
 
 #define NS_MESSAGE_CORRECT @"urn:xmpp:message-correct:0"

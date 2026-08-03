@@ -14,11 +14,11 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/ESFileTransfer.h>
 
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIBezierPathAdditions.h>

@@ -15,10 +15,10 @@
  */
 
 #import "AIServersideUserIconSource.h"
-#import <Adium/AICachedUserIconSource.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AICachedUserIconSource.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIUserIcons.h>
 
 @implementation AIServersideUserIconSource
 

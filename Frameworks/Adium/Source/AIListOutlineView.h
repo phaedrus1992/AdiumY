@@ -15,9 +15,9 @@
  */
 
 #import <AIUtilities/AIMultiCellOutlineView.h>
-#import <Adium/AIAbstractListController.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListOutlineView+Drawing.h>
+#import <AdiumY/AIAbstractListController.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListOutlineView+Drawing.h>
 
 @class AIListObject;
 

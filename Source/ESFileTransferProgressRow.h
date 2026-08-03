@@ -15,7 +15,7 @@
  */
 
 #import "ESFileTransferController.h"
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/ESFileTransfer.h>
 
 @class ESFileTransfer, ESFileTransferProgressView;
 

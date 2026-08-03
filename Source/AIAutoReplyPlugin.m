@@ -17,13 +17,13 @@
 #import "AIAutoReplyPlugin.h"
 #import "AIStatusController.h"
 #import <AIUtilities/AIArrayAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIStatus.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIStatus.h>
 
 @interface AIAutoReplyPlugin ()
 - (void)didReceiveContent:(NSNotification *)notification;

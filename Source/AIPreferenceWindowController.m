@@ -16,7 +16,7 @@
 
 #import "AIPreferenceWindowController.h"
 #import "AIPreferencePane.h"
-#import <Adium/SS_PrefsController.h>
+#import <AdiumY/SS_PrefsController.h>
 
 #import <AIUtilities/AIAutoScrollView.h>
 #import <AIUtilities/AIImageAdditions.h>
@@ -24,8 +24,8 @@
 #import <AIUtilities/AIViewAdditions.h>
 #import <AIUtilities/AIWindowAdditions.h>
 #import <AIUtilities/AIWindowControllerAdditions.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIModularPaneCategoryView.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIModularPaneCategoryView.h>
 
 // Preferences
 #define KEY_PREFERENCE_SELECTED_CATEGORY @"Preference Selected Category Name"

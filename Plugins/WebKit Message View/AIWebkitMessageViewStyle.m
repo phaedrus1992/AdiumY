@@ -19,22 +19,22 @@
 #import <AIUtilities/AIDateFormatterAdditions.h>
 #import <AIUtilities/AIMutableStringAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContentContext.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentNotification.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIContentStatus.h>
-#import <Adium/AIContentTopic.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIStatusIcons.h>
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContentContext.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentNotification.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIContentStatus.h>
+#import <AdiumY/AIContentTopic.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIStatusIcons.h>
+#import <AdiumY/ESFileTransfer.h>
 
 //
 #define LEGACY_VERSION_THRESHOLD 3 // Styles older than this version are considered legacy

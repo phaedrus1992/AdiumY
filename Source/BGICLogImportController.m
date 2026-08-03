@@ -22,9 +22,9 @@
 #import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/ISO8601DateFormatter.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AILoginControllerProtocol.h>
-#import <Adium/AIXMLElement.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AILoginControllerProtocol.h>
+#import <AdiumY/AIXMLElement.h>
 
 // InstantMessage and other iChat transcript classes are from Spiny Software's Logorrhea, used with permission.
 #import "InstantMessage.h"

@@ -14,8 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIModularPane.h>
-#import <Adium/SS_PreferencePaneProtocol.h>
+#import <AdiumY/AIModularPane.h>
+#import <AdiumY/SS_PreferencePaneProtocol.h>
 
 @interface AIPreferencePane : AIModularPane <SS_PreferencePaneProtocol> {
 }

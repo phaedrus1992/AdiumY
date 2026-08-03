@@ -19,11 +19,11 @@
 #import <AIUtilities/AIDateFormatterAdditions.h>
 #import <AIUtilities/AIMutableOwnerArray.h>
 #import <AIUtilities/AIMutableStringAdditions.h>
-#import <Adium/AIAbstractListController.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIAbstractListController.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
 
 #define STATUS_MAX_LENGTH 100
 

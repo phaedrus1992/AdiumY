@@ -22,9 +22,9 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIImageTextCell.h>
 #import <AIUtilities/AIToolbarUtilities.h>
-#import <Adium/AIDockControllerProtocol.h>
-#import <Adium/AIPathUtilities.h>
-#import <Adium/KNShelfSplitView.h>
+#import <AdiumY/AIDockControllerProtocol.h>
+#import <AdiumY/AIPathUtilities.h>
+#import <AdiumY/KNShelfSplitView.h>
 
 #define ADIUM_XTRAS_PAGE                                                                                               \
 	AILocalizedString(@"https://github.com/phaedrus1992/adiumy",                                                       \
@@ -372,12 +372,12 @@ NSInteger categorySort(id categoryA, id categoryB, void *context)
 		[fileManager createDirectoryAtPath:contentsPath withIntermediateDirectories:YES attributes:nil error:NULL];
 
 		// Info.plist
-		[[NSDictionary
-			dictionaryWithObjectsAndKeys:@"English", kCFBundleDevelopmentRegionKey, name, kCFBundleNameKey, @"AdIM",
-										 @"CFBundlePackageType", [@"com.adiumx." stringByAppendingString:name],
-										 kCFBundleIdentifierKey, [NSNumber numberWithInteger:1], @"XtraBundleVersion",
-										 @"1.0", kCFBundleInfoDictionaryVersionKey, nil] writeToFile:infoPlistPath
-																						  atomically:YES];
+		[[NSDictionary dictionaryWithObjectsAndKeys:@"English", kCFBundleDevelopmentRegionKey, name, kCFBundleNameKey,
+													@"AdIM", @"CFBundlePackageType",
+													[@"com.github.phaedrus1992.adiumy." stringByAppendingString:name],
+													kCFBundleIdentifierKey, [NSNumber numberWithInteger:1],
+													@"XtraBundleVersion", @"1.0", kCFBundleInfoDictionaryVersionKey,
+													nil] writeToFile:infoPlistPath atomically:YES];
 
 		// Resources
 		[fileManager createDirectoryAtPath:resourcesPath withIntermediateDirectories:YES attributes:nil error:NULL];

@@ -16,14 +16,14 @@
 
 #import "AIAnnoyingIRCMessagesHiderPlugin.h"
 #import "ESIRCAccount.h"
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentObject.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentObject.h>
 
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIListObject.h>
 
 @interface AIAnnoyingIRCMessagesHiderPlugin ()
 - (void)willReceiveContent:(NSNotification *)notification;

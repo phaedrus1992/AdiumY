@@ -17,8 +17,8 @@
 #import "AIAddressBookUserIconSource.h"
 #import "AIAddressBookController.h"
 #import <AIUtilities/AIImageDrawingAdditions.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIUserIcons.h>
 #import <Contacts/Contacts.h>
 
 #define KEY_AB_IMAGE_SYNC @"AB Image Sync"

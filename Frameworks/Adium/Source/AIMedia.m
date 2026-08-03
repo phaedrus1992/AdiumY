@@ -15,8 +15,8 @@
  */
 
 #import "AIMedia.h"
-#import <Adium/AIAccount.h>
-#import <Adium/AIListContact.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIListContact.h>
 
 @interface AIMedia ()
 - (id)initWithContact:(AIListContact *)inListContact onAccount:(AIAccount<AIAccount_Media> *)inAccount;

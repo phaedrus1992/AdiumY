@@ -20,9 +20,9 @@
 #import "AIMessageWindowController.h"
 #import "ESDualWindowMessageAdvancedPreferences.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
 
 #define ADIUM_UNIQUE_CONTAINER @"ADIUM_UNIQUE_CONTAINER"
 

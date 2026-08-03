@@ -17,12 +17,12 @@
 #import "AIMessageAliasPlugin.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIDateFormatterAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIListContact.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIListContact.h>
 
 @interface AIMessageAliasPlugin ()
 - (NSMutableAttributedString *)replaceKeywordsInString:(NSAttributedString *)original context:(id)context;

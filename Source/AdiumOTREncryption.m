@@ -16,20 +16,20 @@
 
 #import "AdiumOTREncryption.h"
 #import "AIHTMLDecoder.h"
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AILoginControllerProtocol.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AILoginControllerProtocol.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
 
 #import <AIUtilities/AIStringAdditions.h>
 

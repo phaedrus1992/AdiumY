@@ -22,12 +22,12 @@
 #import <AIUtilities/AIScaledImageCell.h>
 #import <AIUtilities/AIVariableHeightFlexibleColumnsOutlineView.h>
 #import <AIUtilities/AIVerticallyCenteredTextCell.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/CSNewContactAlertWindowController.h>
-#import <Adium/ESContactAlertsViewController.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/CSNewContactAlertWindowController.h>
+#import <AdiumY/ESContactAlertsViewController.h>
 
 #define VERTICAL_ROW_PADDING 6
 #define MINIMUM_IMAGE_HEIGHT 20.0f

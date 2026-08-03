@@ -18,7 +18,7 @@
 #import "AIDoNothingContactAlertPlugin.h"
 #import <AIUtilities/AIImageDrawingAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIListObject.h>
 
 @interface ESContactAlertsController ()
 - (NSArray *)arrayOfMenuItemsForEventsWithTarget:(id)target forGlobalMenu:(BOOL)global;

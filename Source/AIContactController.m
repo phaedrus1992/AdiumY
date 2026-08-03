@@ -17,14 +17,14 @@
 #import "AIContactController.h"
 
 #import "AISCLViewPlugin.h"
-#import <Adium/AIContactHidingController.h>
+#import <AdiumY/AIContactHidingController.h>
 
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AILoginControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AILoginControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
 
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIDataAdditions.h>
@@ -34,19 +34,19 @@
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContactList.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AISortController.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContactList.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AISortController.h>
+#import <AdiumY/AIUserIcons.h>
 
 #define KEY_FLAT_GROUPS @"FlatGroups"             // Group storage
 #define KEY_FLAT_CONTACTS @"FlatContacts"         // Contact storage

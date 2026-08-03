@@ -15,7 +15,7 @@
  */
 
 #import <AIUtilities/AISmoothTooltipTracker.h>
-#import <Adium/AIWindowController.h>
+#import <AdiumY/AIWindowController.h>
 
 @class AIAutoScrollView, AIContactList, AIListOutlineView, AIListContactCell, AIListGroupCell, ESObjectWithProperties,
 	AIListObject, AIListContact, AIChat;

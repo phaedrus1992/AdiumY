@@ -15,8 +15,8 @@
  */
 
 #import "ESChatUserListController.h"
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIMessageEntryTextView.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIMessageEntryTextView.h>
 
 @class AIAccount, AIListContact, AIListObject, AIAccountSelectionView, AIMessageTabSplitView;
 @class AIMessageWindowController, AIMessageWindowOutgoingScrollView;

@@ -22,15 +22,15 @@
 #import <AIUtilities/AIOutlineViewAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AITabViewAdditions.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIListOutlineView.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIModularPaneCategoryView.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIListOutlineView.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIModularPaneCategoryView.h>
+#import <AdiumY/AIService.h>
 #import <QuartzCore/QuartzCore.h>
 
 #define CONTACT_INFO_NIB @"ContactInfoInspector"              // Filename of the contact info nib

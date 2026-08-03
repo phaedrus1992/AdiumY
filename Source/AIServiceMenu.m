@@ -15,10 +15,10 @@
  */
 
 #import <AIUtilities/AIMenuAdditions.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIServiceMenu.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIServiceMenu.h>
 
 /*!
  * @class AIServiceMenu

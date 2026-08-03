@@ -16,7 +16,7 @@
 
 #import "AIListWindowController.h"
 #import <AIUtilities/AIRolloverButton.h>
-#import <Adium/AIStatusMenu.h>
+#import <AdiumY/AIStatusMenu.h>
 
 #define ALL_OTHER_ACCOUNTS AILocalizedString(@"All Other Accounts", nil)
 

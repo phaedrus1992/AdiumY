@@ -17,12 +17,12 @@
 #import "AIMenuController.h"
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMetaContact.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMetaContact.h>
 
 @interface AIMenuController ()
 - (void)localizeMenuTitles;
@@ -422,17 +422,17 @@
 	[[menuItem_help submenu] setTitle:AILocalizedString(@"Help", "Title of the Help menu")];
 
 	// Adium menu
-	[menuItem_aboutAdium setTitle:AILocalizedString(@"About Adium", nil)];
+	[menuItem_aboutAdium setTitle:AILocalizedString(@"About AdiumY", nil)];
 	[menuItem_adiumYExtras setTitle:[AILocalizedString(@"Xtras Manager", nil) stringByAppendingEllipsis]];
 	[menuItem_preferences setTitle:[AILocalizedString(@"Preferences", nil) stringByAppendingEllipsis]];
 	[menuItem_donate setTitle:[AILocalizedString(@"Donate", nil) stringByAppendingEllipsis]];
-	[menuItem_helpOut setTitle:[AILocalizedString(@"Contributing to Adium", nil) stringByAppendingEllipsis]];
+	[menuItem_helpOut setTitle:[AILocalizedString(@"Contributing to AdiumY", nil) stringByAppendingEllipsis]];
 
 	[menuItem_services setTitle:AILocalizedString(@"Services", "Services menu item in the Adium menu")];
-	[menuItem_hideAdium setTitle:AILocalizedString(@"Hide Adium", nil)];
+	[menuItem_hideAdium setTitle:AILocalizedString(@"Hide AdiumY", nil)];
 	[menuItem_hideOthers setTitle:AILocalizedString(@"Hide Others", nil)];
 	[menuItem_showAll setTitle:AILocalizedString(@"Show All", nil)];
-	[menuItem_quitAdium setTitle:AILocalizedString(@"Quit Adium", nil)];
+	[menuItem_quitAdium setTitle:AILocalizedString(@"Quit AdiumY", nil)];
 
 	// File menu
 	[menuItem_reopenTab setTitle:AILocalizedString(@"Reopen Closed Tab", "Title for the reopen closed tab menu item")];
@@ -496,12 +496,12 @@
 	[menuItem_bringAllToFront setTitle:AILocalizedString(@"Bring All to Front", nil)];
 
 	// Help menu
-	[menuItem_adiumHelp setTitle:AILocalizedString(@"Adium Help", nil)];
+	[menuItem_adiumHelp setTitle:AILocalizedString(@"AdiumY Help", nil)];
 	[menuItem_releaseNotes setTitle:AILocalizedString(@"View Release Notes", nil)];
 	[menuItem_contribute setTitle:AILocalizedString(@"Contribute", nil)];
 	[menuItem_reportABug setTitle:AILocalizedString(@"Report a Bug", nil)];
 	[menuItem_sendFeedback setTitle:AILocalizedString(@"Send Feedback", nil)];
-	[menuItem_adiumForums setTitle:AILocalizedString(@"Adium Forums", nil)];
+	[menuItem_adiumForums setTitle:AILocalizedString(@"AdiumY Forums", nil)];
 }
 
 #pragma mark Menu delegate (contextual menu)

@@ -17,7 +17,7 @@
 #import "GBQuestionHandlerPlugin.h"
 #import "ESTextAndButtonsWindowController.h"
 #import <AIUtilities/AIObjectAdditions.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
 
 typedef enum { ALERT_TYPE_ERROR, ALERT_TYPE_QUESTION } AlertType;
 

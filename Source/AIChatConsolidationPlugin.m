@@ -17,9 +17,9 @@
 #import "AIChatConsolidationPlugin.h"
 
 #import "AIMessageWindowController.h"
-#import <Adium/AIChat.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 #import <AIUtilities/AIMenuAdditions.h>
 

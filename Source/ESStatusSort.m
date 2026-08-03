@@ -16,10 +16,10 @@
 
 #import "ESStatusSort.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactList.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AILocalizationTextField.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactList.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AILocalizationTextField.h>
 
 #define STATUS_SORT_DEFAULT_PREFS @"StatusSortDefaults"
 

@@ -15,7 +15,7 @@
  */
 
 #import "ESPurpleRequestAbstractWindowController.h"
-#import <AdiumLibpurple/PurpleCommon.h>
+#import <AdiumYLibpurple/PurpleCommon.h>
 
 @interface AMPurpleSearchResultsController : ESPurpleRequestAbstractWindowController <NSTableViewDelegate> {
 	IBOutlet NSTextField *textfield_primary;

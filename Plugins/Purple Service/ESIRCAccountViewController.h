@@ -15,7 +15,7 @@
  */
 
 #import "PurpleAccountViewController.h"
-#import <Adium/AIAccountViewController.h>
+#import <AdiumY/AIAccountViewController.h>
 
 @interface ESIRCAccountViewController : PurpleAccountViewController {
 	IBOutlet NSButton *checkbox_useSSL;

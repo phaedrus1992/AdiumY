@@ -16,7 +16,7 @@
 
 #import "AIMenuBarIcons.h"
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIXtraInfo.h>
+#import <AdiumY/AIXtraInfo.h>
 #import <QuartzCore/CoreImage.h>
 
 #define KEY_ICONS_DICT @"Icons"

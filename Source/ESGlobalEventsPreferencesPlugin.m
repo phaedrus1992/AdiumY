@@ -20,8 +20,8 @@
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AISoundSet.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AISoundSet.h>
 
 #define NEW_PRESET_NAME AILocalizedString(@"New Event Set", nil)
 

@@ -28,16 +28,16 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AITableViewAdditions.h>
 #import <AIUtilities/AIVerticallyCenteredTextCell.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIServiceMenu.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusIcons.h>
-#import <Adium/AIStatusMenu.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIServiceMenu.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusIcons.h>
+#import <AdiumY/AIStatusMenu.h>
 
 #define MINIMUM_ROW_HEIGHT 34
 #define MINIMUM_CELL_SPACING 4

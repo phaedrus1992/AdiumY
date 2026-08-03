@@ -15,8 +15,8 @@
  */
 
 #import "AIProxyListObject.h"
-#import <Adium/AIListObject.h>
-#import <Adium/ESObjectWithProperties.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/ESObjectWithProperties.h>
 
 @interface NSObject (PublicAPIMissingFromHeadersAndDocsButInTheReleaseNotesGoshDarnit)
 - (id)forwardingTargetForSelector:(SEL)aSelector;

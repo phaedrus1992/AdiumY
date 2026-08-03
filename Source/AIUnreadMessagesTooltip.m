@@ -16,10 +16,10 @@
 
 #import "AIUnreadMessagesTooltip.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIGroupChatStatusIcons.h>
-#import <Adium/AIListBookmark.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIGroupChatStatusIcons.h>
+#import <AdiumY/AIListBookmark.h>
 
 @implementation AIUnreadMessagesTooltip
 

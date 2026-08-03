@@ -15,7 +15,7 @@
  */
 
 #import "AIManualSort.h"
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIListObject.h>
 
 /*!
  * @class AIManualSort

@@ -20,9 +20,9 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
 #import <AIUtilities/AIWindowAdditions.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
 
 #define SAFARI_LINK_IDENTIFER @"SafariLink"
 #define SAFARI_LINK_SCRIPT_PATH [[NSBundle bundleForClass:[self class]] pathForResource:@"Safari.scpt" ofType:nil]

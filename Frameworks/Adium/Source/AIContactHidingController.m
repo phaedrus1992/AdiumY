@@ -16,11 +16,11 @@
 #import "AIContactHidingController.h"
 
 #import "AIContactController.h"
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIService.h>
 
 @interface AIContactHidingController ()
 - (BOOL)evaluatePredicateOnListObject:(AIListObject *)listObject withSearchString:(NSString *)inSearchString;

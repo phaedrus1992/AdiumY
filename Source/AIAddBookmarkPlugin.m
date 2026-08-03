@@ -20,13 +20,13 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
 
 #define ADD_BOOKMARKTOOLBAR_ITEM_IDENTIFIER @"AddBookmark"
 #define ADD_BOOKMARK AILocalizedString(@"Add Group Chat Bookmark", "Add a chat bookmark")

@@ -16,14 +16,14 @@
 
 #import "AIContactObserverManager.h"
 #import "AIContactController.h"
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AISortController.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AISortController.h>
 
 /*
  #ifdef DEBUG_BUILD

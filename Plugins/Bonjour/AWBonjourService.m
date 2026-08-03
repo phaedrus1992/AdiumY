@@ -17,8 +17,8 @@
 #import "AWBonjourService.h"
 #import "AWBonjourAccount.h"
 #import "ESBonjourAccountViewController.h"
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/DCJoinChatViewController.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
+#import <AdiumY/DCJoinChatViewController.h>
 
 @implementation AWBonjourService
 

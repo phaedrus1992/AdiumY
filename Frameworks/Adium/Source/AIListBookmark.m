@@ -16,16 +16,16 @@
 
 #import "AIListBookmark.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactList.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIService.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactList.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIUserIcons.h>
 
 #define KEY_CONTAINING_OBJECT_UID @"ContainingObjectUID"
 

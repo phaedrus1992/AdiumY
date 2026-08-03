@@ -29,24 +29,24 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
 #import <AIUtilities/ISO8601DateFormatter.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContentContext.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentEvent.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentNotification.h>
-#import <Adium/AIContentStatus.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AILoginControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIService.h>
-#import <Adium/AIToolbarControllerProtocol.h>
-#import <Adium/AIXMLElement.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContentContext.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentEvent.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentNotification.h>
+#import <AdiumY/AIContentStatus.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AILoginControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIXMLElement.h>
 
 #import <QuartzCore/QuartzCore.h>
 
@@ -208,17 +208,21 @@ static dispatch_semaphore_t logLoadingPrefetchSemaphore; // limit prefetching lo
 
 	defaultDispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0);
 
-	dirtyLogSetMutationQueue = dispatch_queue_create("im.adium.AILoggerPlugin.dirtyLogSetMutationQueue", 0);
-	searchIndexQueue = dispatch_queue_create("im.adium.AILoggerPlugin.searchIndexFlushingQueue", 0);
-	activeAppendersMutationQueue = dispatch_queue_create("im.adium.AILoggerPlugin.activeAppendersMutationQueue", 0);
-	addToSearchKitQueue = dispatch_queue_create("im.adium.AILoggerPlugin.searchIndexAddingQueue", 0);
+	dirtyLogSetMutationQueue =
+		dispatch_queue_create("com.github.phaedrus1992.adiumy.AILoggerPlugin.dirtyLogSetMutationQueue", 0);
+	searchIndexQueue =
+		dispatch_queue_create("com.github.phaedrus1992.adiumy.AILoggerPlugin.searchIndexFlushingQueue", 0);
+	activeAppendersMutationQueue =
+		dispatch_queue_create("com.github.phaedrus1992.adiumy.AILoggerPlugin.activeAppendersMutationQueue", 0);
+	addToSearchKitQueue =
+		dispatch_queue_create("com.github.phaedrus1992.adiumy.AILoggerPlugin.searchIndexAddingQueue", 0);
 
 	logIndexingGroup = dispatch_group_create();
 	closingIndexGroup = dispatch_group_create();
 	logAppendingGroup = dispatch_group_create();
 	loggerPluginGroup = dispatch_group_create();
 
-	ioQueue = dispatch_queue_create("im.adium.AILoggerPlugin.ioQueue", 0);
+	ioQueue = dispatch_queue_create("com.github.phaedrus1992.adiumy.AILoggerPlugin.ioQueue", 0);
 
 	NSUInteger cpuCount = [[NSProcessInfo processInfo] activeProcessorCount];
 	jobSemaphore = dispatch_semaphore_create(3 * cpuCount);
@@ -1520,7 +1524,8 @@ NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context)
 															static dispatch_once_t onceToken;
 															dispatch_once(&onceToken, ^{
 																skQueue = dispatch_queue_create(
-																	"im.adium.AILoggerPlugin._cleanDirtyLogs.skQueue",
+																	"com.github.phaedrus1992.adiumy.AILoggerPlugin._"
+																	"cleanDirtyLogs.skQueue",
 																	0);
 															});
 

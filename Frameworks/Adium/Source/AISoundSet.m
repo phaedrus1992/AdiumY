@@ -16,7 +16,7 @@
 
 #import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AISoundSet.h>
+#import <AdiumY/AISoundSet.h>
 
 #define SOUNDSET_TEMP_EXTENSION @"AdiumSoundSetOld"
 #define SOUNDSET_PLIST_FILENAME @"Sounds.plist"

@@ -15,7 +15,7 @@
  */
 
 #import "AIContactObserverManager.h"
-#import <Adium/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
 
 @class AISortController, AIContactHidingController, AIContactObserverManager;
 

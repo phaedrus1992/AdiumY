@@ -14,10 +14,10 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContentNotification.h>
-#import <Adium/AIContentTyping.h>
-#import <AdiumLibpurple/CBPurpleAccount.h>
-#import <AdiumLibpurple/PurpleCommon.h>
+#import <AdiumY/AIContentNotification.h>
+#import <AdiumY/AIContentTyping.h>
+#import <AdiumYLibpurple/CBPurpleAccount.h>
+#import <AdiumYLibpurple/PurpleCommon.h>
 #import <libpurple/libpurple.h>
 
 @class AIChat, AIListContact, CBPurpleAccount;

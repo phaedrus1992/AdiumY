@@ -20,14 +20,14 @@
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIMutableOwnerArray.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentTyping.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMetaContact.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentTyping.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMetaContact.h>
 
 @interface AIContactStatusColoringPlugin ()
 - (void)addToFlashSet:(AIListObject *)inObject;

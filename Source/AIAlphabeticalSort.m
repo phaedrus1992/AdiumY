@@ -16,8 +16,8 @@
 
 #import "AIAlphabeticalSort.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListObject.h>
 
 #define KEY_SORT_BY_LAST_NAME @"ABC:Sort by Last Name"
 #define KEY_SORT_GROUPS @"ABC:Sort Groups"

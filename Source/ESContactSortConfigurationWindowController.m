@@ -15,7 +15,7 @@
  */
 
 #import "ESContactSortConfigurationWindowController.h"
-#import <Adium/AISortController.h>
+#import <AdiumY/AISortController.h>
 
 /*!
  * @class ESContactSortConfigurationWindowController

@@ -30,27 +30,27 @@
 #import <AIUtilities/AITooltipUtilities.h>
 #import <AIUtilities/AIWindowAdditions.h>
 #import <AIUtilities/AIWindowControllerAdditions.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIAuthorizationRequestsWindowController.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactList.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIMessageTabViewItem.h>
-#import <Adium/AIMessageWindowController.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AISortController.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIAuthorizationRequestsWindowController.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactList.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIMessageTabViewItem.h>
+#import <AdiumY/AIMessageWindowController.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AISortController.h>
 
 #import "AIMessageViewController.h"
 
-#define ERROR_MESSAGE_WINDOW_TITLE AILocalizedString(@"Adium : Error", "Error message window title")
+#define ERROR_MESSAGE_WINDOW_TITLE AILocalizedString(@"AdiumY : Error", "Error message window title")
 #define LABEL_ENTRY_SPACING 4.0f
 #define DISPLAY_IMAGE_ON_RIGHT NO
 

@@ -21,11 +21,11 @@
 #import "ESPurpleJabberAccount.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIObjectAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentTyping.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIListContact.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentTyping.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIListContact.h>
 
 #pragma mark Purple Images
 

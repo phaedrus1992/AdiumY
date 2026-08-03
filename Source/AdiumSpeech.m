@@ -16,7 +16,7 @@
 
 #import "AdiumSpeech.h"
 #import "AISoundController.h"
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIListObject.h>
 
 #define TEXT_TO_SPEAK @"Text"
 #define VOICE @"Voice"

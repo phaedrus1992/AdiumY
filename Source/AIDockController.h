@@ -14,9 +14,9 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIDockControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIDockControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
 
 @interface AIDockController : NSObject <AIDockController, AIFlashObserver, AIChatObserver> {
   @private

@@ -19,21 +19,21 @@
 #import <AIUtilities/AIMutableOwnerArray.h>
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AISystemNetworkDefaults.h>
-#import <Adium/AIAbstractAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactObserverManager.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentEvent.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIPasswordPromptController.h>
-#import <Adium/AIService.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIAbstractAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactObserverManager.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentEvent.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIPasswordPromptController.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
+#import <AdiumY/AIUserIcons.h>
 
 #define FILTERED_STRING_REFRESH 30.0 // delay in seconds between refresh of our attributed string statuses when needed
 

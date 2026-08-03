@@ -16,7 +16,7 @@
 
 #import "TestPropertyBasedAIStatusIcons.h"
 #import "AIPropertyTestUtilities.h"
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIStatusIcons.h>
 
 /// Helper: minimal AIListObject-like class for icon lookup testing.
 @interface _PBTTestListObject : NSObject

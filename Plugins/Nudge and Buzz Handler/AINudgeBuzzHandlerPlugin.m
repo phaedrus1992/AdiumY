@@ -14,19 +14,19 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
 
-#import <Adium/AIChat.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentNotification.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentNotification.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIService.h>
 
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>

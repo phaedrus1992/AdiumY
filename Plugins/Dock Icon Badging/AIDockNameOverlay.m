@@ -5,9 +5,9 @@
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIParagraphStyleAdditions.h>
-#import <Adium/AIAbstractListController.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
+#import <AdiumY/AIAbstractListController.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
 
 #define DOCK_OVERLAY_ALERT_SHORT AILocalizedString(@"Display name in the dock icon", nil)
 #define DOCK_OVERLAY_ALERT_LONG DOCK_OVERLAY_ALERT_SHORT

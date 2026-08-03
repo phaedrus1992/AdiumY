@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIControllerProtocol.h>
+#import <AdiumY/AIControllerProtocol.h>
 
 #define LOGIN_PREFERENCES_FILE_NAME @"Login Preferences" // Login preferences file name
 #define LOGIN_SHOW_WINDOW @"Show Login Window"           // Should hide the login window

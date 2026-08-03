@@ -97,8 +97,8 @@ update_language()
 		
 	silent_pushd Frameworks
 		echo "Adium Framework"
-		if [ -e  "Adium.framework/Versions/A/Resources/$LANG" ] ; then
-			silent_pushd Adium.framework/Versions/A/Resources/$LANG
+		if [ -e  "AdiumY.framework/Versions/A/Resources/$LANG" ] ; then
+			silent_pushd AdiumY.framework/Versions/A/Resources/$LANG
 				loc_copy "$REPO/Frameworks/Adium Framework/Resources/$DEST_LANG"
 			silent_popd
 		fi
@@ -110,9 +110,9 @@ update_language()
 		  silent_popd
         fi
 
-		echo "AdiumLibpurple.framework"
-		if [ -e  "AdiumLibpurple.framework/Versions/A/Resources/$LANG" ] ; then
-		  silent_pushd AdiumLibpurple.framework/Versions/A/Resources/$LANG
+		echo "AdiumYLibpurple.framework"
+		if [ -e  "AdiumYLibpurple.framework/Versions/A/Resources/$LANG" ] ; then
+		  silent_pushd AdiumYLibpurple.framework/Versions/A/Resources/$LANG
 			loc_copy "$REPO/Plugins/Purple Service/Resources/$DEST_LANG"
 		  silent_popd
 		fi

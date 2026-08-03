@@ -19,9 +19,9 @@
 #import "ErrorMessageWindowController.h"
 #import <AIUtilities/AIDateFormatterAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListObject.h>
 
 #define ERROR_MESSAGE_ALERT_SHORT AILocalizedString(@"Display an alert", nil)
 #define ERROR_MESSAGE_ALERT_LONG AILocalizedString(@"Display the alert \"%@\"", nil)

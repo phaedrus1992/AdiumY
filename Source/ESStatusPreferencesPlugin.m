@@ -21,7 +21,7 @@
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 #define STATUS_DEFAULT_PREFS @"StatusDefaults"
 

@@ -27,18 +27,18 @@
 #import <AIUtilities/AIObjectAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIToolbarControllerProtocol.h>
-#import <Adium/AIWindowController.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIWindowController.h>
 
 #define SEND_FILE AILocalizedString(@"Send File", nil)
 #define SEND_FILE_WITH_ELLIPSIS [SEND_FILE stringByAppendingEllipsis]

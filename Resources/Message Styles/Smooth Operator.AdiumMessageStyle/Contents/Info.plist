@@ -11,7 +11,7 @@
 	<key>MessageViewVersion</key>
 	<integer>4</integer>
 	<key>CFBundleIdentifier</key>
-	<string>im.adium.Smooth Operator.style</string>
+	<string>com.github.phaedrus1992.adiumy.smooth.operator.style</string>
 	<key>CFBundleName</key>
 	<string>Smooth Operator</string>
 	<key>DefaultFontFamily</key>

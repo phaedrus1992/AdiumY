@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccount.h>
+#import <AdiumY/AIAccount.h>
 #import <Security/SecTrust.h>
 #import <libpurple/libpurple.h>
 

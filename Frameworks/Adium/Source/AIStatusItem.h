@@ -14,8 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIStatusDefines.h>
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIStatusDefines.h>
+#import <AdiumY/AIStatusIcons.h>
 
 @class AIStatusGroup;
 

@@ -21,9 +21,9 @@
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIOSCompatibility.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
 
 #import <AIUtilities/IKRecentPicture.h> //10.5+, private
 

@@ -15,15 +15,15 @@
  */
 
 #import "OWABSearchWindowController.h"
-#import <Adium/AIAccountControllerProtocol.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
 
 #import "AIAddressBookController.h"
 #import <AIUtilities/AIImageViewWithImagePicker.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIPopUpButtonAdditions.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIServiceMenu.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIServiceMenu.h>
 #import <Contacts/Contacts.h>
 #import <ContactsUI/ContactsUI.h>
 

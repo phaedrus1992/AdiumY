@@ -20,10 +20,10 @@
 #import "AWBonjourService.h"
 #import "ESJabberService.h"
 
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIStatusGroup.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
+#import <AdiumY/AIStatusGroup.h>
 
 #import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
@@ -483,7 +483,7 @@
 	warningBeforehand.messageText =
 		AILocalizedString(@"Are you sure you want to delete all of your iChat Transcripts?", nil);
 	warningBeforehand.informativeText = AILocalizedString(
-		@"All of the iChat transcripts that were imported into Adium will be moved to the Trash.", nil);
+		@"All of the iChat transcripts that were imported into AdiumY will be moved to the Trash.", nil);
 	[warningBeforehand addButtonWithTitle:AILocalizedStringFromTable(@"Delete", @"Buttons", nil)];
 	[warningBeforehand addButtonWithTitle:AILocalizedStringFromTable(@"Cancel", @"Buttons", nil)];
 	[warningBeforehand beginSheetModalForWindow:[self window]

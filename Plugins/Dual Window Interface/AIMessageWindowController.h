@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIWindowController.h>
+#import <AdiumY/AIWindowController.h>
 
 #define AIMessageWindow_ControllersChanged @"AIMessageWindow_ControllersChanged"
 #define AIMessageWindow_ControllerOrderChanged @"AIMessageWindow_ControllerOrderChanged"

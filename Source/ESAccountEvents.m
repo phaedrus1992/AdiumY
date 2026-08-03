@@ -16,9 +16,9 @@
 
 #import "ESAccountEvents.h"
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
 
 #define ACCOUNT_CONNECTION_STATUS_GROUPING 4.0
 

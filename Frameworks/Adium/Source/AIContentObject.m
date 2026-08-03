@@ -15,12 +15,12 @@
  */
 
 #import <AIUtilities/AIDateAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIListObject.h>
 
 @implementation AIContentObject
 

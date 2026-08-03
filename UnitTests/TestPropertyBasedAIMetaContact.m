@@ -16,7 +16,7 @@
 
 #import "TestPropertyBasedAIMetaContact.h"
 #import "AIPropertyTestUtilities.h"
-#import <Adium/AIMetaContact.h>
+#import <AdiumY/AIMetaContact.h>
 
 @implementation TestPropertyBasedAIMetaContact
 

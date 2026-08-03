@@ -14,8 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIPasswordPromptController.h>
-#import <AdiumLibpurple/SLPurpleCocoaAdapter.h>
+#import <AdiumY/AIPasswordPromptController.h>
+#import <AdiumYLibpurple/SLPurpleCocoaAdapter.h>
 
 PurpleRequestUiOps *adium_purple_request_get_ui_ops(void);
 

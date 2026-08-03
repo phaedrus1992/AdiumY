@@ -16,12 +16,12 @@
 
 #import "AITabStatusIconsPlugin.h"
 #import <AIUtilities/AIMutableOwnerArray.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIStatusIcons.h>
 
 @interface AITabStatusIconsPlugin ()
 - (void)statusIconSetDidChange:(NSNotification *)aNotification;

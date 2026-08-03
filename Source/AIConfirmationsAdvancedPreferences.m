@@ -17,8 +17,8 @@
 #import "AIConfirmationsAdvancedPreferences.h"
 #import "AIPreferenceWindowController.h"
 
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIPreferenceControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
@@ -49,7 +49,7 @@
 {
 	[label_quitConfirmation setLocalizedString:AILocalizedString(@"Quit Confirmation", "Preference")];
 	[checkBox_confirmBeforeQuitting
-		setLocalizedString:AILocalizedString(@"Confirm before quitting Adium", "Quit Confirmation preference")];
+		setLocalizedString:AILocalizedString(@"Confirm before quitting AdiumY", "Quit Confirmation preference")];
 	[checkBox_quitConfirmFT
 		setLocalizedString:AILocalizedString(@"File transfers are in progress", "Quit Confirmation preference")];
 	[checkBox_quitConfirmUnread

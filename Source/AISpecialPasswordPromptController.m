@@ -15,9 +15,9 @@
  */
 
 #import "AISpecialPasswordPromptController.h"
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIServiceIcons.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIServiceIcons.h>
 
 #define TITLE_IRC_SERVICE_PASSWORD AILocalizedString(@"%@ Password", "%@ is the name of the authentication service.")
 

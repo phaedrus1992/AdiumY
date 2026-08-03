@@ -18,19 +18,19 @@
 #import "AIStatus.h"
 #import "AIStatusItem.h"
 #import "AdiumAccounts.h"
-#import <Adium/AIAbstractAccount.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentNotification.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIService.h>
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/AIAbstractAccount.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentNotification.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/ESFileTransfer.h>
 
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
 
 #import "AIChatControllerProtocol.h"
 #import "AIInterfaceControllerProtocol.h"

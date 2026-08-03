@@ -15,10 +15,10 @@
  */
 
 #import "CBActionSupportPlugin.h"
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIListObject.h>
 
 #define AIActionMessageAttributeName @"AIActionMessage"
 

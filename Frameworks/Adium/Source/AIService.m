@@ -15,10 +15,10 @@
  */
 
 #import "AICreateCommand.h"
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIAccountViewController.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIAccountViewController.h>
+#import <AdiumY/AIService.h>
 
 /*!
  * @class AIService

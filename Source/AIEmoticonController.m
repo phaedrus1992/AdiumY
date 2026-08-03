@@ -20,16 +20,16 @@
 #import "AIEmoticonPreferences.h"
 #import <AIUtilities/AICharacterSetAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentEvent.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentEvent.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIService.h>
 
 #define EMOTICON_DEFAULT_PREFS @"EmoticonDefaults"
 #define EMOTICONS_PATH_NAME @"Emoticons"

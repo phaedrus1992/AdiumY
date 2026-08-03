@@ -22,9 +22,9 @@
 #import <AIUtilities/AIImageDrawingAdditions.h>
 #import <AIUtilities/AIImageTextCell.h>
 #import <AIUtilities/AIMenuAdditions.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
 
 @interface AIURLHandlerAdvancedPreferences ()
 - (void)configureTableView;
@@ -64,7 +64,7 @@
 	[self initializeServiceInformationForSchemes:servicesList];
 
 	[button_setDefault setLocalizedString:AILocalizedString(@"Set Default for All", nil)];
-	[checkBox_enforceDefault setLocalizedString:AILocalizedString(@"Always set Adium as the default", nil)];
+	[checkBox_enforceDefault setLocalizedString:AILocalizedString(@"Always set AdiumY as the default", nil)];
 
 	[checkBox_enforceDefault setState:[[adium.preferenceController preferenceForKey:PREF_KEY_ENFORCE_DEFAULT
 																			  group:GROUP_URL_HANDLING] boolValue]];

@@ -21,8 +21,8 @@
 #import <AIUtilities/AIBundleAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
 
 #define NEW_CONTENT_RETRY_DELAY 0.01
 #define MESSAGE_STYLES_SUBFOLDER_OF_APP_SUPPORT @"Message Styles"

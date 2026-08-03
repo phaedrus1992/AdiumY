@@ -20,8 +20,8 @@
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIPopUpButtonAdditions.h>
-#import <Adium/AIAbstractListController.h>
-#import <Adium/AIListOutlineView.h>
+#import <AdiumY/AIAbstractListController.h>
+#import <AdiumY/AIListOutlineView.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 @interface AIListThemeWindowController ()

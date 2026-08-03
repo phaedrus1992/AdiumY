@@ -15,7 +15,7 @@
  */
 
 #import "SMContactListShowBehaviorPlugin.h"
-#import <Adium/AIActionDetailsPane.h>
+#import <AdiumY/AIActionDetailsPane.h>
 
 @interface SMContactListShowDetailsPane : AIActionDetailsPane {
 	IBOutlet NSSlider *slider_secondsToShow;

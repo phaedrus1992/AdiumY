@@ -18,12 +18,12 @@
 #import "AICustomSocialNetworkingStatusWindowController.h"
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIService.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
 
 @interface AISocialNetworkingStatusMenu ()
 + (void)setToCurrentAdiumStatus:(NSMenuItem *)sender;

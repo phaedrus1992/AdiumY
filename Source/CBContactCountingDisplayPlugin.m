@@ -18,12 +18,12 @@
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIMutableOwnerArray.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 #define CONTACT_COUNTING_DISPLAY_DEFAULT_PREFS @"ContactCountingDisplayDefaults"
 

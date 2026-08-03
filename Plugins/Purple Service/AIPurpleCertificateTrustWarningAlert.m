@@ -16,7 +16,7 @@
 
 #import "AIPurpleCertificateTrustWarningAlert.h"
 #import "ESPurpleJabberAccount.h"
-#import <Adium/AIAccountControllerProtocol.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
 #import <Security/SecPolicy.h>
 #import <SecurityInterface/SFCertificateTrustPanel.h>
 

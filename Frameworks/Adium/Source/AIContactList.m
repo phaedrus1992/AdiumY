@@ -14,11 +14,11 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactList.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AISortController.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactList.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AISortController.h>
 
 @interface AIListGroup ()
 - (void)removeObject:(AIListObject *)inObject;

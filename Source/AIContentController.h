@@ -14,9 +14,9 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
 
 @class AdiumMessageEvents, AdiumTyping, AdiumFormatting, AdiumContentFiltering;
 

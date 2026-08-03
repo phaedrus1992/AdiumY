@@ -18,7 +18,7 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIImageDrawingAdditions.h>
 #import <AIUtilities/AITextAttachmentAdditions.h>
-#import <Adium/AITextAttachmentExtension.h>
+#import <AdiumY/AITextAttachmentExtension.h>
 
 #define ICON_WIDTH 64
 #define ICON_HEIGHT 64

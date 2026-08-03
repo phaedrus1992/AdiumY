@@ -19,8 +19,8 @@
 #import "ESEventSoundAlertDetailPane.h"
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIListObject.h>
 
 #define EVENT_SOUNDS_ALERT_SHORT AILocalizedString(@"Play a sound", nil)
 #define EVENT_SOUNDS_ALERT_LONG AILocalizedString(@"Play the sound \"%@\"", nil)

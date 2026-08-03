@@ -17,11 +17,11 @@
 #import <Cocoa/Cocoa.h>
 
 #import "AIMenuBarIcons.h"
-#import <Adium/AIAccountMenu.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactMenu.h>
-#import <Adium/AIContactObserverManager.h>
-#import <Adium/AIStatusMenu.h>
+#import <AdiumY/AIAccountMenu.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactMenu.h>
+#import <AdiumY/AIContactObserverManager.h>
+#import <AdiumY/AIStatusMenu.h>
 
 @protocol AIListObjectObserver;
 

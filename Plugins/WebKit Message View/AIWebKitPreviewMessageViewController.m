@@ -16,7 +16,7 @@
 
 #import "AIWebKitPreviewMessageViewController.h"
 #import "AIWebKitMessageViewPlugin.h"
-#import <Adium/AIChat.h>
+#import <AdiumY/AIChat.h>
 
 @implementation AIWebKitPreviewMessageViewController
 

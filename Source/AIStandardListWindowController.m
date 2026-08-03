@@ -23,17 +23,17 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
 
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusIcons.h>
-#import <Adium/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusIcons.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
 
 #import "AIStandardListWindowController.h"
 #import "AIStatusController.h"
@@ -677,7 +677,7 @@
 		alias = [[[adium.preferenceController preferenceForKey:KEY_ACCOUNT_DISPLAY_NAME
 														 group:GROUP_ACCOUNT_STATUS] attributedString] string];
 		if (!alias || ![alias length]) {
-			alias = @"Adium";
+			alias = @"AdiumY";
 		}
 	}
 

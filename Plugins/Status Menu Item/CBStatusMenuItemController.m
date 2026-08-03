@@ -23,19 +23,19 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactHidingController.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactHidingController.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
+#import <AdiumY/AIStatusIcons.h>
 // For the KEY_SHOW_OFFLINE_CONTACTS and PREF_GROUP_CONTACT_LIST_DISPLAY
 #import "AIContactController.h"
 #import "AIInterfaceController.h"
@@ -748,7 +748,7 @@
 	} else if (menu == mainOptionsMenu && optionsMenuNeedsUpdate) {
 		[menu removeAllItems];
 
-		[menu addItemWithTitle:[AILocalizedString(@"Adium Preferences", nil) stringByAppendingEllipsis]
+		[menu addItemWithTitle:[AILocalizedString(@"AdiumY Preferences", nil) stringByAppendingEllipsis]
 						target:self
 						action:@selector(showPreferenceWindow:)
 				 keyEquivalent:@""];
@@ -765,7 +765,7 @@
 						action:@selector(disableStatusItem:)
 				 keyEquivalent:@""];
 
-		[menu addItemWithTitle:AILocalizedString(@"Quit Adium", nil)
+		[menu addItemWithTitle:AILocalizedString(@"Quit AdiumY", nil)
 						target:NSApp
 						action:@selector(terminate:)
 				 keyEquivalent:@""];

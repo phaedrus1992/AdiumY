@@ -16,10 +16,10 @@
 
 #import "AMPurpleTuneTooltip.h"
 #import "CBPurpleAccount.h"
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMetaContact.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMetaContact.h>
 #import <libpurple/blist.h>
 
 @interface AMPurpleTuneTooltip ()

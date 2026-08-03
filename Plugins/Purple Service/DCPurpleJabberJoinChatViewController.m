@@ -19,9 +19,9 @@
 #import "DCJoinChatWindowController.h"
 #import "adiumPurpleRoomlist.h"
 #import <AIUtilities/AICompletingTextField.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIWindowController.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIWindowController.h>
 
 #define ROOM_LIST_NIB @"roomlistbrowser.nib"
 

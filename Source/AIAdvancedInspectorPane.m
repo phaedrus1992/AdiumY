@@ -22,21 +22,21 @@
 #import <AIUtilities/AIPopUpButtonAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIStringFormatter.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AILocalizationTextField.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AILocalizationTextField.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIService.h>
 
-#import <Adium/AIAccountMenu.h>
-#import <Adium/AIContactMenu.h>
+#import <AdiumY/AIAccountMenu.h>
+#import <AdiumY/AIContactMenu.h>
 
 #define ADVANCED_NIB_NAME (@"AIAdvancedInspectorPane")
 

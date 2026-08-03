@@ -22,9 +22,9 @@
 #import <AIUtilities/AIDateFormatterAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIListObject.h>
 
 #define CONTACT_ANNOUNCER_NIB @"ContactAnnouncer" // Filename of the announcer info view
 #define ANNOUNCER_ALERT_SHORT AILocalizedString(@"Speak Specific Text", nil)

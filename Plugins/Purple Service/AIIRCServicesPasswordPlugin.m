@@ -17,14 +17,14 @@
 #import "AIIRCServicesPasswordPlugin.h"
 #import "ESIRCAccount.h"
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIPasswordPromptController.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIPasswordPromptController.h>
 
 @interface AIIRCServicesPasswordPlugin ()
 - (BOOL)message:(NSString *)message containsFragments:(NSArray *)fragments;

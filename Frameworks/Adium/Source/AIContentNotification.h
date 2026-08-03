@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContentEvent.h>
+#import <AdiumY/AIContentEvent.h>
 
 #define CONTENT_NOTIFICATION_TYPE @"Notification" // Type ID for this content
 

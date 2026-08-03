@@ -15,8 +15,8 @@
  */
 
 #import <AIUtilities/AISendingTextView.h>
-#import <Adium/AIContactObserverManager.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIContactObserverManager.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
 
 @class AIListContact, AIAccount, AIChat;
 

@@ -19,12 +19,12 @@
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIImageTextCell.h>
 #import <AIUtilities/AITableViewAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
+#import <AdiumY/AIStatusIcons.h>
 
 #define AWAY_STATUS_WINDOW_NIB @"AwayStatusWindow"
 #define KEY_AWAY_STATUS_WINDOW_FRAME @"Away Status Window Frame"

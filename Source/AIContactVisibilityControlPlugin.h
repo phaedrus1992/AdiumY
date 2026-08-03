@@ -14,8 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccountMenu.h>
-#import <Adium/AIContactControllerProtocol.h>
+#import <AdiumY/AIAccountMenu.h>
+#import <AdiumY/AIContactControllerProtocol.h>
 
 @interface AIContactVisibilityControlPlugin : AIPlugin <AIAccountMenuDelegate, NSMenuDelegate> {
 	NSMenuItem *menuItem_hideContacts;

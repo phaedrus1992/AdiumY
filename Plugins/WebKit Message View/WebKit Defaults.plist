@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Message Style</key>
-	<string>im.adium.Smooth Operator.style</string>
+	<string>com.github.phaedrus1992.adiumy.smooth.operator.style</string>
 	<key>Show User Icons</key>
 	<true/>
 	<key>DefaultFontFamily</key>

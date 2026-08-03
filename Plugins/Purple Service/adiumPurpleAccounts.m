@@ -15,8 +15,8 @@
  */
 
 #import "adiumPurpleAccounts.h"
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AdiumAuthorization.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AdiumAuthorization.h>
 
 /* A buddy we already have added us to their buddy list. */
 static void adiumPurpleAccountNotifyAdded(PurpleAccount *account, const char *remote_user, const char *identifier,

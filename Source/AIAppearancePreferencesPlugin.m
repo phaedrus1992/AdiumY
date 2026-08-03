@@ -22,10 +22,10 @@
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAbstractListController.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIAbstractListController.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIStatusIcons.h>
 
 #define APPEARANCE_DEFAULT_PREFS @"AppearanceDefaults"
 

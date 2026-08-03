@@ -15,14 +15,14 @@
  */
 
 #import <AIUtilities/AIPopUpButtonAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AILocalizationButton.h>
-#import <Adium/AIService.h>
-#import <Adium/DCJoinChatViewController.h>
-#import <Adium/DCJoinChatWindowController.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AILocalizationButton.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/DCJoinChatViewController.h>
+#import <AdiumY/DCJoinChatWindowController.h>
 
 #define JOIN_CHAT_NIB @"JoinChatWindow"
 

@@ -15,10 +15,10 @@
  */
 
 #import "ESAccountPasswordPromptController.h"
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
 
 #define ACCOUNT_PASSWORD_PROMPT_NIB @"PasswordPrompt"
 #define ACCOUNT_PASSWORD_REQUIRED AILocalizedString(@"Connecting Account", "Password prompt window title")

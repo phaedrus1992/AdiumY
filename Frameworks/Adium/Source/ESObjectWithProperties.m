@@ -15,8 +15,8 @@
  */
 
 #import <AIUtilities/AIMutableOwnerArray.h>
-#import <Adium/AIProxyListObject.h>
-#import <Adium/ESObjectWithProperties.h>
+#import <AdiumY/AIProxyListObject.h>
+#import <AdiumY/ESObjectWithProperties.h>
 
 #import <objc/runtime.h>
 

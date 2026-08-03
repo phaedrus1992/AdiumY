@@ -555,7 +555,7 @@
 					"-framework",
 					AppKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "im.adium.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.github.phaedrus1992.adiumy.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = AdiumFauxSpotlightImporter;
 				ZERO_LINK = NO;
 			};
@@ -578,7 +578,7 @@
 					"-framework",
 					AppKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "im.adium.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.github.phaedrus1992.adiumy.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = AdiumFauxSpotlightImporter;
 			};
 			name = "Release-Debug";
@@ -603,7 +603,7 @@
 					"-framework",
 					AppKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "im.adium.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.github.phaedrus1992.adiumy.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = AdiumFauxSpotlightImporter;
 			};
 			name = Debug;

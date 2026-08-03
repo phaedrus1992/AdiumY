@@ -14,10 +14,10 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContentTyping.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListObject.h>
-#import <Adium/ESObjectWithProperties.h>
+#import <AdiumY/AIContentTyping.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/ESObjectWithProperties.h>
 
 @class AIAccount, AIListObject, AIListContact, AIContentObject, AIEmoticon;
 

@@ -16,7 +16,7 @@
 
 #import "ESSourceListBackgroundView.h"
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/KNShelfSplitView.h>
+#import <AdiumY/KNShelfSplitView.h>
 
 @implementation ESSourceListBackgroundView
 

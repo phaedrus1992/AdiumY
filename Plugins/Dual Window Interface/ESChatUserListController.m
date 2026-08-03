@@ -17,11 +17,11 @@
 #import "ESChatUserListController.h"
 #import "AIListBookmark.h"
 #import "AIMessageTabViewItem.h"
-#import <Adium/AIListContactGroupChatCell.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIProxyListObject.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIListContactGroupChatCell.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIProxyListObject.h>
+#import <AdiumY/AIService.h>
 
 @implementation ESChatUserListController
 

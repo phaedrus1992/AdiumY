@@ -16,17 +16,17 @@
 
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIMutableOwnerArray.h>
-#import <Adium/AIAbstractListController.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactHidingController.h>
-#import <Adium/AIContactList.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIService.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIAbstractListController.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactHidingController.h>
+#import <AdiumY/AIContactList.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIUserIcons.h>
 
 /* If META_TYPE_DEBUG is defined, metaContacts and uniqueMetaContacts are given an
  * identifying suffix to their formattedUID in the contact list */

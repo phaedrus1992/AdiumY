@@ -18,8 +18,8 @@
 #import "ESGeneralPreferencesPlugin.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 #define PREVIOUS_MESSAGE_MENU_TITLE AILocalizedString(@"Previous Chat", nil)
 #define NEXT_MESSAGE_MENU_TITLE AILocalizedString(@"Next Chat", nil)

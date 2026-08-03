@@ -15,8 +15,8 @@
  */
 
 #import "SetupWizardBackgroundView.h"
-#import <Adium/AIAccount.h>
-#import <Adium/AIWindowController.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIWindowController.h>
 
 @class BGICLogImportController, AWBonjourService;
 

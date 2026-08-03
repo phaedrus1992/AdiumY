@@ -14,14 +14,14 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusIcons.h>
 
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIStatusControllerProtocol.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
 
 @implementation AIStatus
 

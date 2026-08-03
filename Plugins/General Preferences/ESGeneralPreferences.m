@@ -26,10 +26,10 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIPopUpButtonAdditions.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIStatusIcons.h>
 
 #define PREF_GROUP_DUAL_WINDOW_INTERFACE @"Dual Window Interface"
 #define KEY_TABBAR_POSITION @"Tab Bar Position"

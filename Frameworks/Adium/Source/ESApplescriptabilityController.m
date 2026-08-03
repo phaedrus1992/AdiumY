@@ -19,14 +19,14 @@
 #import "AIStatusController.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AdiumApplescriptRunner.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIStatus.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIStatus.h>
 
 @implementation ESApplescriptabilityController
 

@@ -17,13 +17,13 @@
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIParagraphStyleAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactList.h>
-#import <Adium/AIContactMenu.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AISortController.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactList.h>
+#import <AdiumY/AIContactMenu.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AISortController.h>
 
 @interface AIContactMenu ()
 - (id)initWithDelegate:(id<AIContactMenuDelegate>)inDelegate forContactsInObject:(AIListObject *)inContainingObject;

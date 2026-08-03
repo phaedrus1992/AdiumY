@@ -17,10 +17,10 @@
 #import "AIContactIdlePlugin.h"
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIDateFormatterAdditions.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMetaContact.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMetaContact.h>
 
 #define IDLE_UPDATE_INTERVAL 60.0
 

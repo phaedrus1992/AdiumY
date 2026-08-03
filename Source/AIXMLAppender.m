@@ -43,7 +43,7 @@ some kind to indicate success or failure.
 
 #import "AIXMLAppender.h"
 #import <AIUtilities/AISharedWriterQueue.h>
-#import <Adium/AIXMLElement.h>
+#import <AdiumY/AIXMLElement.h>
 #define BSD_LICENSE_ONLY 1
 #import <AIUtilities/AIStringAdditions.h>
 #import <sys/stat.h>

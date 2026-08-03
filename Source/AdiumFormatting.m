@@ -20,8 +20,8 @@
 #import <AIUtilities/AIFontAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AITextAttributes.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 #define DEFAULT_FORMATTING_DEFAULT_PREFS @"FormattingDefaults"
 

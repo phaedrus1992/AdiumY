@@ -15,9 +15,9 @@
  */
 
 #import <AIUtilities/AISegmentedControl.h>
-#import <Adium/AIAccountMenu.h>
-#import <Adium/AIContactObserverManager.h>
-#import <Adium/AIPreferencePane.h>
+#import <AdiumY/AIAccountMenu.h>
+#import <AdiumY/AIContactObserverManager.h>
+#import <AdiumY/AIPreferencePane.h>
 
 @class AIAccountController, AIAccount, AIAutoScrollView, AIImageViewWithImagePicker;
 

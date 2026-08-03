@@ -18,9 +18,9 @@
 #import "AIDockController.h"
 #import "ESDockAlertDetailPane.h"
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
 
 #define AIDockBehavior_ALERT_SHORT AILocalizedString(@"Bounce the dock icon", nil)
 #define AIDockBehavior_ALERT_LONG                                                                                      \

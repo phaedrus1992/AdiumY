@@ -17,10 +17,10 @@
 #import "adiumPurpleSignals.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIObjectAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/ESFileTransfer.h>
 #import <libpurple/jabber.h>
 
 static void buddy_status_changed_cb(PurpleBuddy *buddy, PurpleStatus *oldstatus, PurpleStatus *status,

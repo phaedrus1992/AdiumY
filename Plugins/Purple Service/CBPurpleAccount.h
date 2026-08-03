@@ -14,8 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccount.h>
-#import <AdiumLibpurple/PurpleCommon.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumYLibpurple/PurpleCommon.h>
 
 #define KEY_DISPLAY_CUSTOM_EMOTICONS @"Display Custom Emoticons"
 #define KEY_BROADCAST_MUSIC_INFO @"Broadcast Music Information"

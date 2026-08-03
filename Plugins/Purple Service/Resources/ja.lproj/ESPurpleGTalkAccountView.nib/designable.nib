@@ -2504,7 +2504,7 @@
 					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBFrameworkSource</string>
-						<string key="minorKey">Adium.framework/Headers/AIAccountViewController.h</string>
+						<string key="minorKey">AdiumY.framework/Headers/AIAccountViewController.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -2536,7 +2536,7 @@
 					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBFrameworkSource</string>
-						<string key="minorKey">Adium.framework/Headers/AILocalizationButton.h</string>
+						<string key="minorKey">AdiumY.framework/Headers/AILocalizationButton.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -2568,7 +2568,7 @@
 					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBFrameworkSource</string>
-						<string key="minorKey">Adium.framework/Headers/AILocalizationTextField.h</string>
+						<string key="minorKey">AdiumY.framework/Headers/AILocalizationTextField.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -2606,7 +2606,7 @@
 					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBFrameworkSource</string>
-						<string key="minorKey">AdiumLibpurple.framework/Headers/AIPurpleGTalkAccountViewController.h</string>
+						<string key="minorKey">AdiumYLibpurple.framework/Headers/AIPurpleGTalkAccountViewController.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -2752,7 +2752,7 @@
 					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBFrameworkSource</string>
-						<string key="minorKey">AdiumLibpurple.framework/Headers/ESPurpleJabberAccountViewController.h</string>
+						<string key="minorKey">AdiumYLibpurple.framework/Headers/ESPurpleJabberAccountViewController.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -2866,7 +2866,7 @@
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBFrameworkSource</string>
-						<string key="minorKey">Adium.framework/Headers/AIServiceMenu.h</string>
+						<string key="minorKey">AdiumY.framework/Headers/AIServiceMenu.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -2992,7 +2992,7 @@
 					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBFrameworkSource</string>
-						<string key="minorKey">AdiumLibpurple.framework/Headers/PurpleAccountViewController.h</string>
+						<string key="minorKey">AdiumYLibpurple.framework/Headers/PurpleAccountViewController.h</string>
 					</object>
 				</object>
 			</array>

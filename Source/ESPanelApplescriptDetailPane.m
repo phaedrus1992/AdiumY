@@ -17,8 +17,8 @@
 #import "ESPanelApplescriptDetailPane.h"
 #import "ESApplescriptContactAlertPlugin.h"
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AILocalizationButton.h>
-#import <Adium/AILocalizationTextField.h>
+#import <AdiumY/AILocalizationButton.h>
+#import <AdiumY/AILocalizationTextField.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 @interface ESPanelApplescriptDetailPane ()

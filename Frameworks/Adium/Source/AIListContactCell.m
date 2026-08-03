@@ -18,10 +18,10 @@
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIParagraphStyleAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListContactCell.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListContactCell.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIUserIcons.h>
 
 #define NAME_STATUS_PAD 6
 

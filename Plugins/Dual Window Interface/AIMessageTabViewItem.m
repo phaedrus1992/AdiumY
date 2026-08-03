@@ -20,11 +20,11 @@
 #import "AIMessageViewController.h"
 #import "AIMessageWindowController.h"
 #import <AIUtilities/AIImageDrawingAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIStatusIcons.h>
 
 #define BACK_CELL_LEFT_INDENT -1
 #define BACK_CELL_RIGHT_INDENT 3

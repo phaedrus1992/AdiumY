@@ -18,9 +18,9 @@
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
-#import <Adium/AIAddressBookController.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AILocalizationTextField.h>
+#import <AdiumY/AIAddressBookController.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AILocalizationTextField.h>
 
 @interface NSTokenField (NSTokenFieldAdditions)
 - (void)updateDisplay;

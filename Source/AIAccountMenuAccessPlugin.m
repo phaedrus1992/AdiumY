@@ -17,9 +17,9 @@
 #import "AIAccountMenuAccessPlugin.h"
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 #import "AIGuestAccountWindowController.h"
 

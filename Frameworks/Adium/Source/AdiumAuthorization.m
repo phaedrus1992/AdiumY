@@ -16,12 +16,12 @@
 
 #import "AdiumAuthorization.h"
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAuthorizationRequestsWindowController.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAuthorizationRequestsWindowController.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
 
 #define CONTACT_REQUESTED_AUTHORIZATION @"Contact Requested Authorization"
 

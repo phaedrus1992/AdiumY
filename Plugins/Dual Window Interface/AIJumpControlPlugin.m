@@ -20,9 +20,9 @@
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIWindowAdditions.h>
 #import <AIUtilities/JVMarkedScroller.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 #define PREF_KEY_FOCUS_LINE @"Draw Focus Lines"
 
