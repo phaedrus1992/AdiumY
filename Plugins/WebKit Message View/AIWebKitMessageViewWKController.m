@@ -112,8 +112,8 @@ static NSArray *draggedTypes = nil;
 - (void)_insertDateSeparatorBeforeContent:(AIContentObject *)content
 				willAddMoreContentObjects:(BOOL)willAddMoreContentObjects;
 - (void)_trackUserIconForContent:(AIContentObject *)content;
-- (void)_trackUserIconForObject:(AIListObject *)inObject;
 - (AIListObject *)_iconSourceForContent:(AIContentObject *)content;
+- (AIListObject *)_iconSourceObjectForObject:(AIListObject *)inObject;
 - (NSString *)_cachedUserIconForObject:(AIListObject *)inObject;
 - (NSString *)_cachedUserIconFilePathForObject:(AIListObject *)inObject;
 - (void)updateUserIconForObject:(AIListObject *)inObject;
@@ -1089,8 +1089,7 @@ static NSArray *draggedTypes = nil;
  */
 - (void)userIconForObjectDidChange:(AIListObject *)inObject
 {
-	AIListObject *iconSourceObject =
-		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
+	AIListObject *iconSourceObject = [self _iconSourceObjectForObject:inObject];
 	NSString *currentIconPath = [_objectIconPathDict objectForKey:iconSourceObject.internalObjectID];
 	if (currentIconPath) {
 		NSString *objectsKnownIconPath = [iconSourceObject valueForProperty:KEY_WEBKIT_USER_ICON];
@@ -1115,8 +1114,7 @@ static NSArray *draggedTypes = nil;
  */
 - (void)updateUserIconForObject:(AIListObject *)inObject
 {
-	AIListObject *iconSourceObject =
-		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
+	AIListObject *iconSourceObject = [self _iconSourceObjectForObject:inObject];
 	NSImage *userIcon;
 	NSString *oldWebKitUserIconPath = nil;
 	NSString *webKitUserIconPath = nil;
@@ -1249,8 +1247,7 @@ static NSArray *draggedTypes = nil;
 		return nil;
 	}
 
-	AIListObject *iconSourceObject =
-		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
+	AIListObject *iconSourceObject = [self _iconSourceObjectForObject:inObject];
 
 	NSString *webKitUserIconPath = [iconSourceObject valueForProperty:KEY_WEBKIT_USER_ICON];
 	if (!webKitUserIconPath) {
@@ -1283,8 +1280,7 @@ static NSArray *draggedTypes = nil;
  */
 - (void)releaseCurrentWebKitUserIconForObject:(AIListObject *)inObject
 {
-	AIListObject *iconSourceObject =
-		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
+	AIListObject *iconSourceObject = [self _iconSourceObjectForObject:inObject];
 	NSString *path;
 
 	NSInteger chatsUsingCachedIcon = [iconSourceObject integerValueForProperty:KEY_WEBKIT_CHATS_USING_CACHED_ICON];
@@ -1328,25 +1324,8 @@ static NSArray *draggedTypes = nil;
 
 	AIListObject *iconSource = [self _iconSourceForContent:content];
 	if (iconSource) {
-		[self _trackUserIconForObject:iconSource];
+		[self _cachedUserIconForObject:iconSource];
 	}
-}
-
-/*!
- * @brief Ensure a cached icon exists for an object, mirroring the style's icon-source resolution.
- *
- * @param inObject The object
- */
-- (void)_trackUserIconForObject:(AIListObject *)inObject
-{
-	if (![_messageStyle showUserIcons]) {
-		return;
-	}
-
-	AIListObject *iconSourceObject =
-		([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
-
-	[self _cachedUserIconForObject:iconSourceObject];
 }
 
 /*!
@@ -1364,6 +1343,21 @@ static NSArray *draggedTypes = nil;
 	AIListObject *contentSource = [content source];
 	return ([contentSource isKindOfClass:[AIListContact class]] ? [(AIListContact *)contentSource parentContact]
 																: contentSource);
+}
+
+/*!
+ * @brief Resolve the object the message view reads and caches user icons for.
+ *
+ * Mirrors AIWebkitMessageViewStyle's resolution (style.m:770-773): for AIListContact objects use the
+ * parentContact, otherwise the object itself, so the icon lands on the same object the style reads
+ * KEY_WEBKIT_USER_ICON from.
+ *
+ * @param inObject The object whose icon is being handled
+ * @return The icon source object
+ */
+- (AIListObject *)_iconSourceObjectForObject:(AIListObject *)inObject
+{
+	return ([inObject isKindOfClass:[AIListContact class]] ? [(AIListContact *)inObject parentContact] : inObject);
 }
 
 #pragma mark - Marked Scroller
