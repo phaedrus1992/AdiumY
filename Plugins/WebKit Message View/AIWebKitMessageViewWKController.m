@@ -1213,15 +1213,21 @@ static NSArray *draggedTypes = nil;
 	NSString *escapedOldPath = [self _jsStringLiteral:oldPath];
 	NSString *escapedNewPath = [self _jsStringLiteral:[@"file://" stringByAppendingString:newPath]];
 
+	// imgs[i].src is the browser-resolved, percent-encoded URL, so match the encoded form of
+	// the cache path too - cachesPath can contain spaces ("Application Support") or non-ASCII.
+	NSString *encodedOldPath =
+		[oldPath stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]];
+	NSString *escapedEncodedOldPath = [self _jsStringLiteral:encodedOldPath];
+
 	NSString *js = [NSString stringWithFormat:@"(function(){"
 											  @"var imgs = document.querySelectorAll('img');"
 											  @"for (var i = 0; i < imgs.length; i++) {"
-											  @"if (imgs[i].src.indexOf(%@) !== -1) {"
+											  @"if (imgs[i].src.indexOf(%@) !== -1 || imgs[i].src.indexOf(%@) !== -1) {"
 											  @"imgs[i].src = %@;"
 											  @"}"
 											  @"}"
 											  @"})()",
-											  escapedOldPath, escapedNewPath];
+											  escapedOldPath, escapedEncodedOldPath, escapedNewPath];
 
 	[_webView evaluateJavaScript:js
 			   completionHandler:^(id result, NSError *error) {
