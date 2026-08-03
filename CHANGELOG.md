@@ -43,3 +43,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 - `Utilities/AppcastReplaceItem.py` (Python 2, md5Sum-based signing, dead
   signing URLs — replaced by Sparkle 2 EdDSA CLI tools)
+
+### Fixed
+- Message view: live user-icon updates restored in the WKWebView renderer —
+  setting or changing a contact's icon now updates already-rendered messages
+  without reopening the chat
+- Message view: date separators restored in chat history — messages from a
+  prior day again get a separator when a chat is opened on history
+- Message view: topic changes render through the message style's topic template
+  instead of injected raw HTML
