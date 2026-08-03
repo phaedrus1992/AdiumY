@@ -308,7 +308,7 @@
 
 - (void)performAdium14PreferenceUpdates
 {
-	if (![[adium.preferenceController preferenceForKey:@"Adium 1.4:Updated Preferences"
+	if (![[adium.preferenceController preferenceForKey:@"AdiumY 1.4:Updated Preferences"
 												 group:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY] boolValue]) {
 		NSDictionary *dict = [adium.preferenceController preferencesForGroup:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY];
 		NSMutableDictionary *newDict = [dict mutableCopy];
@@ -336,7 +336,7 @@
 		}
 
 		[adium.preferenceController setPreference:[NSNumber numberWithBool:YES]
-										   forKey:@"Adium 1.4:Updated Preferences"
+										   forKey:@"AdiumY 1.4:Updated Preferences"
 											group:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY];
 	}
 }

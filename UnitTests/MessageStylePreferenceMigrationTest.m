@@ -140,4 +140,59 @@
 	});
 }
 
+// A style ID from the pre-rename AdiumY fork (im.adium.*) is upgraded to the fork's shipped ID.
+- (void)testUpgradesImAdiumStylePreference
+{
+	NSDictionary *prefs = @{@"Message Style" : @"im.adium.Gone Dark.style"};
+	NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(prefs);
+	XCTAssertNotNil(delta);
+	XCTAssertEqualObjects(delta[@"Message Style"], @"com.github.phaedrus1992.adiumy.gonedark.style");
+}
+
+/// Property: Keys prefixed by an im.adium.* legacy bundle ID are remapped with their suffix preserved.
+- (void)testRemapsImAdiumPrefixedKeys
+{
+	PBTCheckDefault({
+		NSString *suffix = PBTRandomASCIIString(12);
+		NSString *oldKey = [@"im.adium.Renkoo.style." stringByAppendingString:suffix];
+		NSString *value = PBTRandomASCIIString(16);
+		NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(@{oldKey : value});
+		XCTAssertNotNil(delta, @"oldKey = %@", oldKey);
+		NSString *newKey = [@"com.github.phaedrus1992.adiumy.renkoo.style." stringByAppendingString:suffix];
+		XCTAssertEqualObjects(delta[newKey], value, @"oldKey = %@", oldKey);
+		XCTAssertEqual((id)delta[oldKey], (id)NSNull.null, @"oldKey = %@", oldKey);
+	});
+}
+
+// A stale legacy prefixed key is retired, not clobbered, when the migrated key already exists.
+- (void)testRemapRetiresStaleLegacyKeyWithoutClobberingMigrated
+{
+	NSString *migratedKey = @"com.github.phaedrus1992.adiumy.gonedark.style.FontColor";
+	NSDictionary *prefs = @{
+		@"com.adiumx.gonedark.style.FontColor" : @"#333",
+		migratedKey : @"#fff",
+	};
+	NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(prefs);
+	XCTAssertNotNil(delta);
+	XCTAssertNil(delta[migratedKey], @"existing migrated key must be untouched");
+	XCTAssertEqual((id)delta[@"com.adiumx.gonedark.style.FontColor"], (id)NSNull.null);
+	XCTAssertEqual((NSUInteger)[delta count], (NSUInteger)1);
+}
+
+// Colliding legacy IDs that map to the same shipped style resolve to the canonical
+// (last-in-table) entry, deterministically, regardless of dict enumeration order.
+- (void)testCollidingLegacyKeysResolveToCanonicalEntry
+{
+	NSDictionary *prefs = @{
+		@"com.adiumx.eclipse.style.FontColor" : @"#111",
+		@"com.adiumx.gonedark.style.FontColor" : @"#222",
+	};
+	NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(prefs);
+	XCTAssertNotNil(delta);
+	XCTAssertEqualObjects(delta[@"com.github.phaedrus1992.adiumy.gonedark.style.FontColor"], @"#222",
+						  @"canonical (last-in-table) entry wins");
+	XCTAssertEqual((id)delta[@"com.adiumx.eclipse.style.FontColor"], (id)NSNull.null);
+	XCTAssertEqual((id)delta[@"com.adiumx.gonedark.style.FontColor"], (id)NSNull.null);
+}
+
 @end

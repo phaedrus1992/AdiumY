@@ -22,14 +22,18 @@
 ///
 /// Two kinds of change are recognized, in this order:
 ///  1. The displayed style itself (key "Message Style") whose value is a
-///     legacy pre-fork bundle ID is upgraded to the fork's shipped bundle ID.
+///     legacy pre-fork bundle ID (com.adiumx.*, im.adium.*, or a third-party
+///     ID) is upgraded to the fork's shipped bundle ID.
 ///  2. Any other key prefixed by a legacy bundle ID (style-specific prefs like
 ///     <bundleID>.FontColor) is remapped to the fork bundle ID; the obsolete
-///     key is marked for deletion.
+///     key is marked for deletion. A key already present under the fork bundle
+///     ID is authoritative and is never overwritten — the stale legacy key is
+///     retired instead. When several legacy IDs map to the same shipped style,
+///     the later (canonical) table entry wins.
 ///
 /// @param prefs The style-preference dict to migrate. nil yields nil.
 /// @return A delta dict of changed keys, or nil when nothing changes. Values
 ///         are the new value; NSNull marks a key to delete. Iteration over the
-///         legacy ID table is in fixed order, first match wins, so the result
-///         is deterministic for a given input.
+///         legacy ID table is in fixed order, so the result is deterministic
+///         for a given input.
 NSDictionary *AIWebkitMessageStylePreferenceMigration(NSDictionary *prefs);

@@ -24,25 +24,34 @@ NSDictionary *AIWebkitMessageStylePreferenceMigration(NSDictionary *prefs)
 	if (prefs == nil || [prefs count] == 0)
 		return nil;
 
-	// Legacy pre-fork bundle IDs mapped to the style name each ships under the
-	// AdiumY prefix. Iterated in fixed order; first match wins, so the result
-	// is deterministic.
+	// Legacy bundle IDs — from pre-rename Adium (im.adium.*), the earlier AdiumX
+	// iteration (com.adiumx.*), and a third-party style — mapped to the style
+	// name each ships under the AdiumY prefix. Iterated in fixed order; when
+	// several legacy IDs map to the same shipped style, the later (canonical)
+	// entry wins, so the result is deterministic for a given input.
 	static const struct {
-		const char *legacyBundleID;
-		const char *styleName;
+		NSString *legacyBundleID;
+		NSString *styleName;
 	} legacyToShipped[] = {
-		{"com.adiumx.eclipse.style", "gonedark.style"},
-		{"com.adiumx.plastic.style", "stockholm.style"},
-		{"com.adiumx.minimal_2.0.style", "minimal_mod.style"},
-		{"com.adiumx.renkooNaked.style", "renkoo.style"},
-		{"com.adiumx.minimal.style", "minimal_mod.style"},
-		{"com.adiumx.gonedark.style", "gonedark.style"},
-		{"com.adiumx.minimal_mod.style", "minimal_mod.style"},
-		{"com.adiumx.mockie.style", "mockie.style"},
-		{"com.adiumx.renkoo.style", "renkoo.style"},
-		{"com.adiumx.smooth.operator.style", "smooth.operator.style"},
-		{"com.adiumx.stockholm.style", "stockholm.style"},
-		{"mathuaerknedam.yMous.style", "yMous.style"},
+		{@"com.adiumx.eclipse.style", @"gonedark.style"},
+		{@"com.adiumx.plastic.style", @"stockholm.style"},
+		{@"com.adiumx.minimal_2.0.style", @"minimal_mod.style"},
+		{@"com.adiumx.renkooNaked.style", @"renkoo.style"},
+		{@"com.adiumx.minimal.style", @"minimal_mod.style"},
+		{@"com.adiumx.gonedark.style", @"gonedark.style"},
+		{@"com.adiumx.minimal_mod.style", @"minimal_mod.style"},
+		{@"com.adiumx.mockie.style", @"mockie.style"},
+		{@"com.adiumx.renkoo.style", @"renkoo.style"},
+		{@"com.adiumx.smooth.operator.style", @"smooth.operator.style"},
+		{@"com.adiumx.stockholm.style", @"stockholm.style"},
+		{@"mathuaerknedam.yMous.style", @"yMous.style"},
+		{@"im.adium.Gone Dark.style", @"gonedark.style"},
+		{@"im.adium.Stockholm.style", @"stockholm.style"},
+		{@"im.adium.minimal_mod.style", @"minimal_mod.style"},
+		{@"im.adium.Renkoo.style", @"renkoo.style"},
+		{@"im.adium.Mockie.style", @"mockie.style"},
+		{@"im.adium.Smooth Operator.style", @"smooth.operator.style"},
+		{@"im.adium.yMous.style", @"yMous.style"},
 	};
 	NSUInteger const mappingCount = sizeof(legacyToShipped) / sizeof(legacyToShipped[0]);
 
@@ -52,9 +61,9 @@ NSDictionary *AIWebkitMessageStylePreferenceMigration(NSDictionary *prefs)
 	NSString *currentStyle = [prefs objectForKey:kStylePreferenceKey];
 	if (currentStyle != nil) {
 		for (NSUInteger i = 0; i < mappingCount; i++) {
-			if ([currentStyle isEqualToString:@(legacyToShipped[i].legacyBundleID)]) {
+			if ([currentStyle isEqualToString:legacyToShipped[i].legacyBundleID]) {
 				NSString *newStyle =
-					[kAdiumYBundleIdentifierPrefix stringByAppendingFormat:@".%@", @(legacyToShipped[i].styleName)];
+					[kAdiumYBundleIdentifierPrefix stringByAppendingFormat:@".%@", legacyToShipped[i].styleName];
 				if (![newStyle isEqualToString:currentStyle]) {
 					if (delta == nil)
 						delta = [NSMutableDictionary dictionary];
@@ -66,23 +75,33 @@ NSDictionary *AIWebkitMessageStylePreferenceMigration(NSDictionary *prefs)
 	}
 
 	// Remap style-specific preference keys prefixed by a legacy bundle ID.
-	for (NSString *key in prefs) {
-		if ([key isEqualToString:kStylePreferenceKey])
-			continue;
+	// Iterate the table outer so colliding legacy IDs resolve to a fixed table
+	// entry instead of depending on dict enumeration order.
+	for (NSUInteger i = 0; i < mappingCount; i++) {
+		NSString *legacyBundleID = legacyToShipped[i].legacyBundleID;
+		for (NSString *key in prefs) {
+			if ([key isEqualToString:kStylePreferenceKey])
+				continue;
+			if (![key hasPrefix:legacyBundleID])
+				continue;
 
-		for (NSUInteger i = 0; i < mappingCount; i++) {
-			NSString *legacyBundleID = @(legacyToShipped[i].legacyBundleID);
-			if ([key hasPrefix:legacyBundleID]) {
-				NSString *newKey =
-					[[kAdiumYBundleIdentifierPrefix stringByAppendingFormat:@".%@", @(legacyToShipped[i].styleName)]
-						stringByAppendingString:[key substringFromIndex:[legacyBundleID length]]];
+			NSString *newKey =
+				[[kAdiumYBundleIdentifierPrefix stringByAppendingFormat:@".%@", legacyToShipped[i].styleName]
+					stringByAppendingString:[key substringFromIndex:[legacyBundleID length]]];
 
+			// A key already under the fork bundle ID is authoritative; retire
+			// the stale legacy key rather than overwriting it.
+			if ([prefs objectForKey:newKey] != nil) {
 				if (delta == nil)
 					delta = [NSMutableDictionary dictionary];
-				[delta setObject:[prefs objectForKey:key] forKey:newKey];
 				[delta setObject:[NSNull null] forKey:key];
-				break;
+				continue;
 			}
+
+			if (delta == nil)
+				delta = [NSMutableDictionary dictionary];
+			[delta setObject:[prefs objectForKey:key] forKey:newKey];
+			[delta setObject:[NSNull null] forKey:key];
 		}
 	}
 
