@@ -14,6 +14,6 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <AdiumLibpurple/SLPurpleCocoaAdapter.h>
+#import <AdiumYLibpurple/SLPurpleCocoaAdapter.h>
 
 PurpleConnectionUiOps *adium_purple_connection_get_ui_ops(void);

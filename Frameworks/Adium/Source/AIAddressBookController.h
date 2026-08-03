@@ -14,9 +14,9 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactObserverManager.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactObserverManager.h>
+#import <AdiumY/AIUserIcons.h>
 #import <Contacts/Contacts.h>
 
 #define PREF_GROUP_ADDRESSBOOK @"Address Book"

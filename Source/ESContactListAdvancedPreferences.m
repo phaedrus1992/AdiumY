@@ -20,7 +20,7 @@
 #import "AISCLViewPlugin.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
 
 @interface ESContactListAdvancedPreferences ()
 - (void)configureControlDimming;
@@ -71,7 +71,7 @@
 	}
 
 #define WHILE_ADIUM_IS_IN_BACKGROUND                                                                                   \
-	AILocalizedString(@"While Adium is in the background",                                                             \
+	AILocalizedString(@"While AdiumY is in the background",                                                            \
 					  "Checkbox to indicate that something should occur while Adium is not the active application")
 
 	[[matrix_hiding cellWithTag:AIContactListWindowHidingStyleNone] setTitle:AILocalizedString(@"Never", nil)];
@@ -81,7 +81,7 @@
 								   "Advanced contact list: hide the contact list: On screen edges")];
 	[checkBox_hideOnScreenEdgesOnlyInBackground
 		setLocalizedString:AILocalizedString(
-							   @"...only while Adium is in the background",
+							   @"...only while AdiumY is in the background",
 							   "Checkbox under 'on screen edges' in the advanced contact list preferences")];
 
 	[checkBox_flash setLocalizedString:AILocalizedString(@"Flash names with unviewed messages", nil)];

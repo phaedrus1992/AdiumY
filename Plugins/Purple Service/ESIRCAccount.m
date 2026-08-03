@@ -19,11 +19,11 @@
 #import "SLPurpleCocoaAdapter.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 #import <libpurple/cmds.h>
 #import <libpurple/irc.h>
 
@@ -142,7 +142,7 @@ static PurpleConversation *fakeConversation(PurpleAccount *account);
 	g_free(conv);
 
 	// Set a fake display name preference since we differ from global always.
-	[self setPreference:[[NSAttributedString stringWithString:@"Adium"] dataRepresentation]
+	[self setPreference:[[NSAttributedString stringWithString:@"AdiumY"] dataRepresentation]
 				 forKey:KEY_ACCOUNT_DISPLAY_NAME
 				  group:GROUP_ACCOUNT_STATUS];
 }

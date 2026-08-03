@@ -17,7 +17,7 @@
 #import "AILoginWindowController.h"
 #import "AILoginController.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
-#import <Adium/AILoginControllerProtocol.h>
+#import <AdiumY/AILoginControllerProtocol.h>
 
 // Preference Keys
 #define NEW_USER_NAME @"New User"       // Default name of a new user

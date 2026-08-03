@@ -14,8 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContentObject.h>
-#import <Adium/AIContentTyping.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIContentTyping.h>
 
 @interface AIContentTyping ()
 - (id)initWithChat:(AIChat *)inChat source:(id)inSource destination:(id)inDest typingState:(AITypingState)inTyping;

@@ -18,7 +18,7 @@
 #import "ESApplescriptabilityController.h"
 #import "ESPanelApplescriptDetailPane.h"
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
 
 #define APPLESCRIPT_ALERT_SHORT AILocalizedString(@"Run an AppleScript", nil)
 #define APPLESCRIPT_ALERT_LONG                                                                                         \

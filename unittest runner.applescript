@@ -7,7 +7,7 @@ piped to
 
 For some reason, Script Editor doesn't like the pipe character...
 
-Anyway, this will compile and run the AppleScripts in ASUnitTests and report the results. The tr translates the old Mac CR to Unix LF. You should see Adium leap about while this is happening. Every unit test should clean up after itself, so that no windows are left lying around, extra accounts existing, etc.
+Anyway, this will compile and run the AppleScripts in ASUnitTests and report the results. The tr translates the old Mac CR to Unix LF. You should see AdiumY leap about while this is happening. Every unit test should clean up after itself, so that no windows are left lying around, extra accounts existing, etc.
 
 The runner will report if any tests failed and the error number and message. It will also summarize with a number succeeded out of the total number.
 *)
@@ -20,20 +20,20 @@ script HandyAdiumScripts
 	property defaultParticipant : "applmak"
 	property otherParticipant : "boredzo"
 	on makeTemporaryAccount()
-		tell application "Adium"
+		tell application "AdiumY"
 			tell service defaultService
 				return make new account with properties {title:"test"}
 			end tell
 		end tell
 	end makeTemporaryAccount
 	on makeNewChatWindow()
-		tell application "Adium"
+		tell application "AdiumY"
 			set newChat to my makeNewChat()
 			return (get window of newChat)
 		end tell
 	end makeNewChatWindow
 	on makeNewChat()
-		tell application "Adium"
+		tell application "AdiumY"
 			tell account defaultAccount
 				set newChat to make new chat with contacts {my findSomeParticipant()} with new chat window
 			end tell
@@ -41,7 +41,7 @@ script HandyAdiumScripts
 		end tell
 	end makeNewChat
 	on findSomeParticipant()
-		tell application "Adium"
+		tell application "AdiumY"
 			tell account defaultAccount
 				if exists contact defaultParticipant then
 					return contact defaultParticipant
@@ -58,7 +58,7 @@ script HandyAdiumScripts
 		end tell
 	end findSomeParticipant
 	on cleanup()
-		tell application "Adium"
+		tell application "AdiumY"
 			repeat while exists chat window 1
 				close chat window 1
 			end repeat

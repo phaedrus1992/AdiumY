@@ -14,8 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIModularPaneCategoryView.h>
-#import <Adium/AIPreferencePane.h>
+#import <AdiumY/AIModularPaneCategoryView.h>
+#import <AdiumY/AIPreferencePane.h>
 
 #define FRAME_PADDING_OFFSET 2
 #define TAB_PADDING_OFFSET 65

@@ -19,12 +19,12 @@
 #import "AIManualSort.h"
 #import "ESContactSortConfigurationWindowController.h"
 #import "ESStatusSort.h"
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AISortController.h>
+#import <AdiumY/AISortController.h>
 
 #define CONTACT_SORTING_DEFAULT_PREFS @"SortingDefaults"
 #define CONFIGURE_SORT_MENU_TITLE [AILocalizedString(@"Configure Sorting", nil) stringByAppendingEllipsis]

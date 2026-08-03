@@ -309,7 +309,7 @@ build_framework() {
     <key>CFBundleExecutable</key>
     <string>$binary_name</string>
     <key>CFBundleIdentifier</key>
-    <string>im.adium.$name</string>
+    <string>com.github.phaedrus1992.adiumy.$name</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>

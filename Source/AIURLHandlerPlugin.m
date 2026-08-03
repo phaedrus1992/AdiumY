@@ -26,13 +26,13 @@
 #import <AIUtilities/AIURLAdditions.h>
 #import <AIUtilities/AIWindowAdditions.h>
 
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIService.h>
 
 @interface AIURLHandlerPlugin ()
 - (void)checkHandledSchemes;

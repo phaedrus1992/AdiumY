@@ -17,7 +17,7 @@
 #import "ESPersonalPreferencesPlugin.h"
 #import "ESPersonalPreferences.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
-#import <Adium/AIAccount.h>
+#import <AdiumY/AIAccount.h>
 
 @implementation ESPersonalPreferencesPlugin
 

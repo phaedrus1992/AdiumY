@@ -16,7 +16,7 @@
 
 #import "TestPropertyBasedAIListContact.h"
 #import "AIPropertyTestUtilities.h"
-#import <Adium/AIListContact.h>
+#import <AdiumY/AIListContact.h>
 
 /// Helper: minimal NSObject subclass for testing AIListContact-init methods that ask for AIService.
 /// AIService is an abstract class with a handful of required overrides.

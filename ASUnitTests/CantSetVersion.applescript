@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set v to (get version)
 		try
 			set version to "dummy"

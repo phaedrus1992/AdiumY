@@ -15,7 +15,7 @@
  */
 
 #import "AIURLHandlerPlugin.h"
-#import <Adium/AIAdvancedPreferencePane.h>
+#import <AdiumY/AIAdvancedPreferencePane.h>
 
 @interface AIURLHandlerAdvancedPreferences : AIAdvancedPreferencePane {
 	IBOutlet NSTableView *tableView;

@@ -15,7 +15,7 @@
  */
 
 #import "ESPurpleRequestAbstractWindowController.h"
-#import <AdiumLibpurple/PurpleCommon.h>
+#import <AdiumYLibpurple/PurpleCommon.h>
 #import <WebKit/WebKit.h>
 
 @class CBPurpleAccount;

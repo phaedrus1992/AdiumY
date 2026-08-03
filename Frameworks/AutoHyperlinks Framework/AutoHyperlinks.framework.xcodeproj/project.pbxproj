@@ -663,7 +663,7 @@
 				<key>MARKETING_VERSION</key>
 				<string>1</string>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
-				<string>com.github.phaedrus1992.adiumY.AutoHyperlinks</string>
+				<string>com.github.phaedrus1992.adiumy.autohyperlinks</string>
 				<key>PRODUCT_NAME</key>
 				<string>AutoHyperlinks</string>
 				<key>SKIP_INSTALL</key>
@@ -2246,7 +2246,7 @@
 				<key>MARKETING_VERSION</key>
 				<string>1</string>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
-				<string>com.github.phaedrus1992.adiumY.AutoHyperlinks</string>
+				<string>com.github.phaedrus1992.adiumy.autohyperlinks</string>
 				<key>PRODUCT_NAME</key>
 				<string>AutoHyperlinks</string>
 				<key>SKIP_INSTALL</key>
@@ -2288,7 +2288,7 @@
 				<key>MARKETING_VERSION</key>
 				<string>1</string>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
-				<string>com.github.phaedrus1992.adiumY.AutoHyperlinks</string>
+				<string>com.github.phaedrus1992.adiumy.autohyperlinks</string>
 				<key>PRODUCT_NAME</key>
 				<string>AutoHyperlinks</string>
 				<key>SKIP_INSTALL</key>

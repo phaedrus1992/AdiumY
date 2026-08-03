@@ -15,11 +15,11 @@
  */
 
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContentTyping.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContentTyping.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
+#import <AdiumY/AIStatusIcons.h>
 
 @implementation AIStatusIcons
 

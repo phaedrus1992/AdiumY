@@ -15,11 +15,11 @@
  */
 
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIStatusGroup.h>
-#import <Adium/AIStatusIcons.h>
-#import <Adium/AIStatusItem.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
+#import <AdiumY/AIStatusGroup.h>
+#import <AdiumY/AIStatusIcons.h>
+#import <AdiumY/AIStatusItem.h>
 
 /*!
  * @class AIStatusItem

@@ -17,9 +17,9 @@
 #import "AdiumAccounts.h"
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIService.h>
 
 // Preference keys
 #define TOP_ACCOUNT_ID @"TopAccountID" // Highest account object ID

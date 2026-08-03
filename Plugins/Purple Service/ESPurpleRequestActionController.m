@@ -18,9 +18,9 @@
 #import "ESTextAndButtonsWindowController.h"
 #import "adiumPurpleRequest.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <AdiumLibpurple/PurpleCommon.h>
-#import <AdiumLibpurple/SLPurpleCocoaAdapter.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumYLibpurple/PurpleCommon.h>
+#import <AdiumYLibpurple/SLPurpleCocoaAdapter.h>
 
 @interface ESPurpleRequestActionController ()
 - (id)initWithDict:(NSDictionary *)infoDict;

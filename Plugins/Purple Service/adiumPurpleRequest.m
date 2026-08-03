@@ -22,12 +22,12 @@
 #import "ESPurpleRequestWindowController.h"
 
 #import <AIUtilities/AIObjectAdditions.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/ESFileTransfer.h>
 
-#import <AdiumLibpurple/SLPurpleCocoaAdapter.h>
+#import <AdiumYLibpurple/SLPurpleCocoaAdapter.h>
 
 #import <libintl/libintl.h>
 

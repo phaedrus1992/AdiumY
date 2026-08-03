@@ -338,7 +338,7 @@ DQ
                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" preferredMaxLayoutWidth="424" id="143" customClass="AILocalizationTextField">
                         <rect key="frame" x="163" y="369" width="428" height="22"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Welcome to Adium!" id="183">
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Welcome to AdiumY!" id="183">
                             <font key="font" metaFont="system" size="18"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

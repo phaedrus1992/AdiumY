@@ -20,12 +20,12 @@
 #import <AIUtilities/AIEventAdditions.h>
 #import <AIUtilities/AIOutlineViewAdditions.h>
 #import <AIUtilities/AIWindowAdditions.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListCell.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListOutlineView.h>
-#import <Adium/AIProxyListObject.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListCell.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListOutlineView.h>
+#import <AdiumY/AIProxyListObject.h>
 
 @interface AIListOutlineView ()
 

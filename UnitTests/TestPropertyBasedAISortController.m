@@ -16,7 +16,7 @@
 
 #import "TestPropertyBasedAISortController.h"
 #import "AIPropertyTestUtilities.h"
-#import <Adium/AISortController.h>
+#import <AdiumY/AISortController.h>
 
 @implementation TestPropertyBasedAISortController
 

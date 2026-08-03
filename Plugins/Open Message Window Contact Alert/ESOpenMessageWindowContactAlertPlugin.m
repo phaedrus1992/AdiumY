@@ -16,11 +16,11 @@
 
 #import "ESOpenMessageWindowContactAlertPlugin.h"
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
 
 #define OPEN_MESSAGE_ALERT_SHORT AILocalizedString(@"Open a message window", nil)
 #define OPEN_MESSAGE_ALERT_LONG OPEN_MESSAGE_ALERT_SHORT

@@ -16,11 +16,11 @@
 
 #import "AIContactStatusEventsPlugin.h"
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIMetaContact.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIMetaContact.h>
 
 @interface AIContactStatusEventsPlugin ()
 - (BOOL)updateCache:(NSMutableDictionary *)cache

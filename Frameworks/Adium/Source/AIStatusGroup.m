@@ -15,10 +15,10 @@
  */
 
 #import <AIUtilities/AIMenuAdditions.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIStatusGroup.h>
-#import <Adium/AIStatusMenu.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
+#import <AdiumY/AIStatusGroup.h>
+#import <AdiumY/AIStatusMenu.h>
 
 @implementation AIStatusGroup
 

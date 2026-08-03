@@ -19,8 +19,8 @@
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIWindowAdditions.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 #import <AutoHyperlinks/AHHyperlinkScanner.h>
 
 #define SHORTEN_LINK_TITLE AILocalizedString(@"Replace with Shortened URL", nil)

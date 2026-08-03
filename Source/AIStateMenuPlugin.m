@@ -16,13 +16,13 @@
 
 #import "AIStateMenuPlugin.h"
 #import <AIUtilities/AIMenuAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIEditStateWindowController.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIService.h>
-#import <Adium/AISocialNetworkingStatusMenu.h>
-#import <Adium/AIStatusControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIEditStateWindowController.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AISocialNetworkingStatusMenu.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
 
 @interface AIStateMenuPlugin ()
 - (void)updateKeyEquivalents;

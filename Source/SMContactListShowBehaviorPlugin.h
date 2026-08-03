@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
 
 #define SHOW_CONTACT_LIST_BEHAVIOR_ALERT_IDENTIFIER @"Open Message"
 #define KEY_SECONDS_TO_SHOW_LIST @"BehaviorType"

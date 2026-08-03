@@ -18,10 +18,10 @@
 #import <AIUtilities/AIKeychain.h>
 #import <AIUtilities/AIObjectAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AILoginControllerProtocol.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AILoginControllerProtocol.h>
+#import <AdiumY/AIService.h>
 #import <objc/objc-runtime.h>
 
 #import "AISpecialPasswordPromptController.h"

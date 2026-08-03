@@ -24,7 +24,7 @@
 
 #import "AIDockController.h"
 #import "AIPreferenceWindowController.h"
-#import <Adium/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
 
 @interface ESDualWindowMessageAdvancedPreferences ()
 - (NSMenu *)_fontSizeMenu;

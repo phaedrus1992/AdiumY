@@ -15,10 +15,10 @@
  */
 
 #import "ESPurpleJabberAccountViewController.h"
-#import <Adium/AIAccount.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactList.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactList.h>
+#import <AdiumY/AIService.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 #include <tgmath.h>
 

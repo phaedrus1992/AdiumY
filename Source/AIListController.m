@@ -28,23 +28,23 @@
 #import <AIUtilities/AIOutlineViewAdditions.h>
 #import <AIUtilities/AIPasteboardAdditions.h>
 #import <AIUtilities/AIWindowAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactList.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIListOutlineView.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIProxyListObject.h>
-#import <Adium/AISortController.h>
-#import <Adium/AITextAttachmentExtension.h>
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactList.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIListOutlineView.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIProxyListObject.h>
+#import <AdiumY/AISortController.h>
+#import <AdiumY/AITextAttachmentExtension.h>
+#import <AdiumY/ESFileTransfer.h>
 
 #define EDGE_CATCH_X 40.0f
 #define EDGE_CATCH_Y 40.0f
@@ -967,7 +967,8 @@
 		NSAlert *alert = [[NSAlert alloc] init];
 		alert.messageText = promptTitle;
 		alert.informativeText = AILocalizedString(
-			@"Once combined, Adium will treat these contacts as a single individual both on your contact list and when "
+			@"Once combined, AdiumY will treat these contacts as a single individual both on your contact list and "
+			@"when "
 			@"sending messages.\n\nYou may un-combine these contacts by getting info on the combined contact.",
 			"Explanation of metacontact creation");
 		NSButton *combineButton =

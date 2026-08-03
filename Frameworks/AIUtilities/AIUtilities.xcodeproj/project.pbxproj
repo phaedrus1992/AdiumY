@@ -8087,7 +8087,7 @@
 				<key>MARKETING_VERSION</key>
 				<string>1</string>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
-				<string>com.github.phaedrus1992.adiumY.AIUtilities</string>
+				<string>com.github.phaedrus1992.adiumy.aiutilities</string>
 				<key>PROVISIONING_PROFILE_SPECIFIER</key>
 				<string></string>
 			</dict>
@@ -8119,7 +8119,7 @@
 				<key>MARKETING_VERSION</key>
 				<string>1</string>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
-				<string>com.github.phaedrus1992.adiumY.AIUtilities</string>
+				<string>com.github.phaedrus1992.adiumy.aiutilities</string>
 				<key>PROVISIONING_PROFILE_SPECIFIER</key>
 				<string></string>
 			</dict>
@@ -8151,7 +8151,7 @@
 				<key>MARKETING_VERSION</key>
 				<string>1</string>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
-				<string>com.github.phaedrus1992.adiumY.AIUtilities</string>
+				<string>com.github.phaedrus1992.adiumy.aiutilities</string>
 				<key>PROVISIONING_PROFILE_SPECIFIER</key>
 				<string></string>
 			</dict>
@@ -11500,7 +11500,7 @@
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
-				<string>com.github.phaedrus1992.adiumY.adiumX.spotlightImpoter</string>
+				<string>com.github.phaedrus1992.adiumy.spotlightimporter</string>
 			</dict>
 			<key>isa</key>
 			<string>XCBuildConfiguration</string>
@@ -11518,7 +11518,7 @@
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
-				<string>com.github.phaedrus1992.adiumY.adiumX.spotlightImpoter</string>
+				<string>com.github.phaedrus1992.adiumy.spotlightimporter</string>
 			</dict>
 			<key>isa</key>
 			<string>XCBuildConfiguration</string>
@@ -11536,7 +11536,7 @@
 				<key>CLANG_ENABLE_OBJC_WEAK</key>
 				<string>YES</string>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
-				<string>com.github.phaedrus1992.adiumY.adiumX.spotlightImpoter</string>
+				<string>com.github.phaedrus1992.adiumy.spotlightimporter</string>
 			</dict>
 			<key>isa</key>
 			<string>XCBuildConfiguration</string>
@@ -11761,7 +11761,7 @@
 			<key>lastKnownFileType</key>
 			<string>text.xcconfig</string>
 			<key>path</key>
-			<string>Adium.xcconfig</string>
+			<string>AdiumY.xcconfig</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
@@ -11787,7 +11787,7 @@
 			<key>lastKnownFileType</key>
 			<string>text.xcconfig</string>
 			<key>path</key>
-			<string>AdiumLibpurple.xcconfig</string>
+			<string>AdiumYLibpurple.xcconfig</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
@@ -11800,7 +11800,7 @@
 			<key>lastKnownFileType</key>
 			<string>text.xcconfig</string>
 			<key>path</key>
-			<string>Adium.framework.xcconfig</string>
+			<string>AdiumY.framework.xcconfig</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>

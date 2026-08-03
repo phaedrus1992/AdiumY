@@ -21,8 +21,8 @@
 #import <AIUtilities/AIFontAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIPopUpButtonAdditions.h>
-#import <Adium/AIAbstractListController.h>
-#import <Adium/JVFontPreviewField.h>
+#import <AdiumY/AIAbstractListController.h>
+#import <AdiumY/JVFontPreviewField.h>
 
 #define MAX_ALIGNMENT_CHOICES 10
 

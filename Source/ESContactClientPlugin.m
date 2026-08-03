@@ -15,8 +15,8 @@
  */
 
 #import "ESContactClientPlugin.h"
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListObject.h>
 
 /*!
  * @class ESContactClientPlugin

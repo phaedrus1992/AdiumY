@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set m to (get minimizable of window 1)
 		try
 			set minimizable of window 1 to false

@@ -15,11 +15,11 @@
  */
 
 #import <AIUtilities/AIImageDrawingAdditions.h>
-#import <Adium/AIAbstractListObjectMenu.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIStatusIcons.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIAbstractListObjectMenu.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIStatusIcons.h>
+#import <AdiumY/AIUserIcons.h>
 
 @interface AIAbstractListObjectMenu ()
 - (void)_destroyMenuItems;

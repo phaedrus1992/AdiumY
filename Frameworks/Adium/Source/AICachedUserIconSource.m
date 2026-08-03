@@ -15,9 +15,9 @@
  */
 
 #import "AICachedUserIconSource.h"
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIUserIcons.h>
 
 static AICachedUserIconSource *sharedCachedUserIconSourceInstance = nil;
 

@@ -14,8 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIPasswordPromptController.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIPasswordPromptController.h>
 
 @interface AISpecialPasswordPromptController : AIPasswordPromptController {
 	IBOutlet NSTextField *label_server;

@@ -15,7 +15,7 @@
  */
 
 #import "AIWebKitMessageViewPlugin.h"
-#import <Adium/AIAdvancedPreferencePane.h>
+#import <AdiumY/AIAdvancedPreferencePane.h>
 
 @interface ESDualWindowMessageAdvancedPreferences : AIAdvancedPreferencePane {
 	IBOutlet NSTabView *tabView_messageType;

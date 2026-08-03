@@ -14,8 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AILocalizationButton.h>
-#import <Adium/AIWindowController.h>
+#import <AdiumY/AILocalizationButton.h>
+#import <AdiumY/AIWindowController.h>
 
 @interface ESPresetManagementController : AIWindowController {
 	IBOutlet NSTableView *tableView_presets;

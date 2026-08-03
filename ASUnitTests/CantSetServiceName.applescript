@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set n to (get name of service "AIM")
 		set s to (get service "AIM")
 		try

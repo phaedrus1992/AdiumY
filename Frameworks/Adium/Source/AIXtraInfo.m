@@ -16,7 +16,7 @@
 
 #import "AIXtraInfo.h"
 #import "AIIconState.h"
-#import <Adium/AIDockControllerProtocol.h>
+#import <AdiumY/AIDockControllerProtocol.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 @implementation AIXtraInfo

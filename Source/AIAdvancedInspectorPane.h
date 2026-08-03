@@ -17,8 +17,8 @@
 #import "AIContactInfoContentController.h"
 
 #import <AIUtilities/AISegmentedControl.h>
-#import <Adium/AIAccountMenu.h>
-#import <Adium/AIContactMenu.h>
+#import <AdiumY/AIAccountMenu.h>
+#import <AdiumY/AIContactMenu.h>
 
 @class AIAccountMenu, AIContactMenu, AIAccount, AIListContact;
 

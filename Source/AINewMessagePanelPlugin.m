@@ -18,12 +18,12 @@
 #import "AINewMessagePromptController.h"
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 @interface AINewMessagePanelPlugin () <NSMenuItemValidation>
 - (void)contextualOpenChat:(id)sender;

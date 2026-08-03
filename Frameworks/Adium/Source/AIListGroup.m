@@ -15,14 +15,14 @@
  */
 
 #import <AIUtilities/AIArrayAdditions.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactHidingController.h>
-#import <Adium/AIContactList.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIProxyListObject.h>
-#import <Adium/AISortController.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactHidingController.h>
+#import <AdiumY/AIContactList.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIProxyListObject.h>
+#import <AdiumY/AISortController.h>
+#import <AdiumY/AIUserIcons.h>
 
 #define PREF_GROUP_CONTACT_LIST_DISPLAY @"Contact List Display"
 

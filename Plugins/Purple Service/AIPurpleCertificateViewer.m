@@ -15,7 +15,7 @@
  */
 
 #import "AIPurpleCertificateViewer.h"
-#import <Adium/AIAccountControllerProtocol.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
 #import <SecurityInterface/SFCertificatePanel.h>
 
 @interface AIPurpleCertificateViewer (privateMethods)

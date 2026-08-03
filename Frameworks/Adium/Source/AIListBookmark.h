@@ -16,7 +16,7 @@
 
 #import "AIListContact.h"
 
-#import <Adium/AIChatControllerProtocol.h>
+#import <AdiumY/AIChatControllerProtocol.h>
 
 #define KEY_AUTO_JOIN @"Automatically Join"
 #define KEY_UNREAD_STATUS @"Unread Status"

@@ -16,11 +16,11 @@
 
 #import "AIStatusController.h"
 
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AISoundControllerProtocol.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AISoundControllerProtocol.h>
 
 #import "AdiumIdleManager.h"
-#import <Adium/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
 
 #import "AIStatusGroup.h"
 #import <AIUtilities/AIArrayAdditions.h>
@@ -30,10 +30,10 @@
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIObjectAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIService.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusIcons.h>
 
 // State menu
 #define STATUS_TITLE_OFFLINE AILocalizedStringFromTable(@"Offline", @"Statuses", "Name of a status")

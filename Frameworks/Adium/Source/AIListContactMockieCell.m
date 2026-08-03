@@ -17,9 +17,9 @@
 #import <AIUtilities/AIBezierPathAdditions.h>
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIGradientAdditions.h>
-#import <Adium/AIListContactMockieCell.h>
-#import <Adium/AIListGroupMockieCell.h>
-#import <Adium/AIListOutlineView.h>
+#import <AdiumY/AIListContactMockieCell.h>
+#import <AdiumY/AIListGroupMockieCell.h>
+#import <AdiumY/AIListOutlineView.h>
 
 @implementation AIListContactMockieCell
 

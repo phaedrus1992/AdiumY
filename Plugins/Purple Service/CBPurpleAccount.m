@@ -28,34 +28,34 @@
 #import <AIUtilities/AIObjectAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AISystemNetworkDefaults.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactObserverManager.h>
-#import <Adium/AIContentContext.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentEvent.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentNotification.h>
-#import <Adium/AIContentTopic.h>
-#import <Adium/AIEmoticon.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMediaControllerProtocol.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIWindowController.h>
-#import <Adium/AdiumAuthorization.h>
-#import <Adium/ESFileTransfer.h>
-#import <AdiumLibpurple/SLPurpleCocoaAdapter.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactObserverManager.h>
+#import <AdiumY/AIContentContext.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentEvent.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentNotification.h>
+#import <AdiumY/AIContentTopic.h>
+#import <AdiumY/AIEmoticon.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMediaControllerProtocol.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
+#import <AdiumY/AIWindowController.h>
+#import <AdiumY/AdiumAuthorization.h>
+#import <AdiumY/ESFileTransfer.h>
+#import <AdiumYLibpurple/SLPurpleCocoaAdapter.h>
 #import <libpurple/cmds.h>
 #import <libpurple/notify.h>
 
@@ -1900,7 +1900,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host)
 		statusState = [adium.statusController defaultInitialStatusState];
 	}
 
-	AILog(@"Adium: Connect: %@ initiating connection using status state %@ (%@).", self.UID, statusState,
+	AILog(@"AdiumY: Connect: %@ initiating connection using status state %@ (%@).", self.UID, statusState,
 		  [statusState statusMessageString]);
 
 	[self autoRefreshingOutgoingContentForStatusKey:@"accountStatus"
@@ -2299,7 +2299,7 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host)
 	// Set password and connect
 	purple_account_set_password(account, [password UTF8String]);
 
-	AILog(@"Adium: Register: %@ initiating connection.", self.UID);
+	AILog(@"AdiumY: Register: %@ initiating connection.", self.UID);
 
 	[purpleAdapter registerAccount:self];
 }

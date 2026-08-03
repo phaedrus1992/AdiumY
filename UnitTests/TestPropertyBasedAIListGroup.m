@@ -16,7 +16,7 @@
 
 #import "TestPropertyBasedAIListGroup.h"
 #import "AIPropertyTestUtilities.h"
-#import <Adium/AIListGroup.h>
+#import <AdiumY/AIListGroup.h>
 
 @implementation TestPropertyBasedAIListGroup
 

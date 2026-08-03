@@ -624,7 +624,7 @@
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				MACH_O_TYPE = mh_dylib;
 				MARKETING_VERSION = 1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.phaedrus1992.adiumY.AutoHyperlinks;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.phaedrus1992.adiumy.autohyperlinks;
 				PRODUCT_NAME = AutoHyperlinks;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -894,7 +894,7 @@
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				MACH_O_TYPE = mh_dylib;
 				MARKETING_VERSION = 1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.phaedrus1992.adiumY.AutoHyperlinks;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.phaedrus1992.adiumy.autohyperlinks;
 				PRODUCT_NAME = AutoHyperlinks;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -918,7 +918,7 @@
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				MACH_O_TYPE = mh_dylib;
 				MARKETING_VERSION = 1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.phaedrus1992.adiumY.AutoHyperlinks;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.phaedrus1992.adiumy.autohyperlinks;
 				PRODUCT_NAME = AutoHyperlinks;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;

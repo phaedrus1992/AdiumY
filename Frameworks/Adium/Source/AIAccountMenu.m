@@ -18,14 +18,14 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIParagraphStyleAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIAccountMenu.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceMenu.h>
-#import <Adium/AISocialNetworkingStatusMenu.h>
-#import <Adium/AIStatusControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIAccountMenu.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceMenu.h>
+#import <AdiumY/AISocialNetworkingStatusMenu.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
 
 // Menu titles
 #define ACCOUNT_CONNECT_ACTION_MENU_TITLE AILocalizedString(@"Connect: %@", "Connect account prefix")

@@ -17,13 +17,13 @@
 #import <AIUtilities/AIBezierPathAdditions.h>
 #import <AIUtilities/AIMutableOwnerArray.h>
 #import <AIUtilities/AIParagraphStyleAdditions.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListCell.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIListOutlineView.h>
-#import <Adium/AIProxyListObject.h>
-#import <Adium/AIStatusControllerProtocol.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListCell.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIListOutlineView.h>
+#import <AdiumY/AIProxyListObject.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
 // #define	ORDERING_DEBUG
 @implementation AIListCell
 static NSMutableParagraphStyle *leftParagraphStyleWithTruncatingTail = nil;

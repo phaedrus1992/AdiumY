@@ -17,7 +17,7 @@
 #import "ESDebugWindowController.h"
 
 #import <AIUtilities/AIMenuAdditions.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 #import <errno.h>  //errno
 #import <fcntl.h>  //open(2)
@@ -191,7 +191,7 @@ void AIExplodeOnEnumerationMutation(id dummy)
 		folder = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, /*expandTilde*/ YES)
 			objectAtIndex:0];
 		folder = [folder stringByAppendingPathComponent:@"Logs"];
-		folder = [folder stringByAppendingPathComponent:@"Adium Debug"];
+		folder = [folder stringByAppendingPathComponent:@"AdiumY Debug"];
 		BOOL success = [mgr createDirectoryAtPath:folder withIntermediateDirectories:YES attributes:nil error:NULL];
 		if ((!success) && (errno != EEXIST)) {
 			/*raise an exception if the folder could not be created,

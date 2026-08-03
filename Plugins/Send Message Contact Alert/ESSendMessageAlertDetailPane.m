@@ -18,14 +18,14 @@
 #import "ESSendMessageContactAlertPlugin.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIPopUpButtonAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIService.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIUserIcons.h>
 
 @interface ESSendMessageAlertDetailPane ()
 - (void)setDestinationContact:(AIListContact *)inContact;

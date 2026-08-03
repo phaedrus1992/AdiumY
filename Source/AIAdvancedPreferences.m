@@ -17,9 +17,9 @@
 #import "AIAdvancedPreferences.h"
 #import <AIUtilities/AIImageTextCell.h>
 #import <AIUtilities/AIViewAdditions.h>
-#import <Adium/AIAdvancedPreferencePane.h>
-#import <Adium/AIModularPaneCategoryView.h>
-#import <Adium/KNShelfSplitView.h>
+#import <AdiumY/AIAdvancedPreferencePane.h>
+#import <AdiumY/AIModularPaneCategoryView.h>
+#import <AdiumY/KNShelfSplitView.h>
 
 #define KEY_ADVANCED_PREFERENCE_SELECTED_ROW @"Preference Advanced Selected Row"
 #define KEY_ADVANCED_PREFERENCE_SHELF_WIDTH @"AdvancedPrefs:ShelfWidth"

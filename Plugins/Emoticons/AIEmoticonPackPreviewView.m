@@ -17,7 +17,7 @@
 #import "AIEmoticonPackPreviewView.h"
 #import "AIEmoticonPack.h"
 #import <AIUtilities/AIParagraphStyleAdditions.h>
-#import <Adium/AIEmoticon.h>
+#import <AdiumY/AIEmoticon.h>
 
 // Max size + bottom margin should equal previewView's height
 #define EMOTICON_MAX_SIZE 20

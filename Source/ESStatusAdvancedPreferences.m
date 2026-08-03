@@ -53,7 +53,7 @@
 {
 	[label_statusWindow setLocalizedString:AILocalizedString(@"Away Status Window", nil)];
 	[checkBox_statusWindowHideInBackground
-		setLocalizedString:AILocalizedString(@"Hide the status window when Adium is not active", nil)];
+		setLocalizedString:AILocalizedString(@"Hide the status window when AdiumY is not active", nil)];
 	[checkBox_statusWindowAlwaysOnTop
 		setLocalizedString:AILocalizedString(@"Show the status window above other windows", nil)];
 

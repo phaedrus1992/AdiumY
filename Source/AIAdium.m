@@ -46,11 +46,11 @@
 #import "LNAboutBoxController.h"
 #import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AISharedWriterQueue.h>
-#import <Adium/AIContactHidingController.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIPathUtilities.h>
-#import <Adium/AIService.h>
-#import <Adium/AdiumAuthorization.h>
+#import <AdiumY/AIContactHidingController.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIPathUtilities.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AdiumAuthorization.h>
 #import <sys/sysctl.h>
 
 #define ADIUM_TRAC_PAGE @"http://trac.adium.im/"
@@ -897,7 +897,7 @@ static NSString *prefsCategory;
 /*!
  * @brief Return zero or more resource pathnames to an filename
  *
- * Searches in the Application Support folders and the Resources/ folder of the Adium.app bundle.
+ * Searches in the Application Support folders and the Resources/ folder of the AdiumY.app bundle.
  * Only those pathnames that exist are returned.  The Adium bundle's resource path will be the last item in the array,
  * so precedence is given to the user and system Application Support folders.
  *
@@ -1007,7 +1007,7 @@ static NSString *prefsCategory;
 		NSFileManager *defaultManager = NSFileManager.defaultManager;
 
 		generalAdiumCachesPath = [[[NSHomeDirectory() stringByAppendingPathComponent:@"Library"]
-			stringByAppendingPathComponent:@"Caches"] stringByAppendingPathComponent:@"Adium"];
+			stringByAppendingPathComponent:@"Caches"] stringByAppendingPathComponent:@"AdiumY"];
 		cachesPath = [generalAdiumCachesPath stringByAppendingPathComponent:self.loginController.currentUser];
 
 		// Ensure our cache path exists

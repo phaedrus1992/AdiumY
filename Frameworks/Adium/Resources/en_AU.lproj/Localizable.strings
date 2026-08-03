@@ -80,7 +80,7 @@
 "Add To Address Book" = "Add To Address Book";
 
 /* No comment provided by engineer. */
-"Adium provides encryption, authentication, deniability, and perfect forward secrecy over %@ via Off-the-Record Messaging (OTR). If your contact is not using an OTR-compatible messaging system, your contact will be sent a link to the OTR web site when you attempt to connect. For more information on OTR, visit https://otr.cypherpunks.ca/." = "Adium provides encryption, authentication, deniability, and perfect forward secrecy over %@ via Off-the-Record Messaging (OTR). If your contact is not using an OTR-compatible messaging system, your contact will be sent a link to the OTR web site when you attempt to connect. For more information on OTR, visit https://otr.cypherpunks.ca/.";
+"Adium provides encryption, authentication, deniability, and perfect forward secrecy over %@ via Off-the-Record Messaging (OTR). If your contact is not using an OTR-compatible messaging system, your contact will be sent a link to the OTR web site when you attempt to connect. For more information on OTR, visit https://otr.cypherpunks.ca/." = "AdiumY provides encryption, authentication, deniability, and perfect forward secrecy over %@ via Off-the-Record Messaging (OTR). If your contact is not using an OTR-compatible messaging system, your contact will be sent a link to the OTR web site when you attempt to connect. For more information on OTR, visit https://otr.cypherpunks.ca/.";
 
 /* No comment provided by engineer. */
 "Alias:" = "Alias:";
@@ -221,7 +221,7 @@
 "Events" = "Events";
 
 /* No comment provided by engineer. */
-"External plugins may cause crashes and odd behavior after updating Adium.  Disable this plugin if you experience any issues." = "External plugins may cause crashes and odd behaviour after updating Adium.  Disable this plugin if you experience any issues.";
+"External plugins may cause crashes and odd behavior after updating Adium.  Disable this plugin if you experience any issues." = "External plugins may cause crashes and odd behaviour after updating AdiumY.  Disable this plugin if you experience any issues.";
 
 /* No comment provided by engineer. */
 "Get Info" = "Get Info";
@@ -296,7 +296,7 @@
 "Requests authorization" = "Requests authorisation";
 
 /* No comment provided by engineer. */
-"Set to Current Adium Status" = "Set to Current Adium Status";
+"Set to Current Adium Status" = "Set to Current AdiumY Status";
 
 /* Show In Address Book Contextual Menu */
 "Show In Address Book" = "Show In Address Book";
@@ -326,13 +326,13 @@
 "The characters you're entering are not valid for an account name on this service." = "The characters you're entering are not valid for an account name on this service.";
 
 /* No comment provided by engineer. */
-"The sound set %@ is version %i, and this version of Adium does not know how to handle that; perhaps try a later version of Adium." = "The sound set %1$@ is version %2$i, and this version of Adium does not know how to handle that; perhaps try a later version of Adium.";
+"The sound set %@ is version %i, and this version of Adium does not know how to handle that; perhaps try a later version of Adium." = "The sound set %1$@ is version %2$i, and this version of AdiumY does not know how to handle that; perhaps try a later version of AdiumY.";
 
 /* No comment provided by engineer. */
 "This plugin does not support your native architecture." = "This plugin does not support your native architecture.";
 
 /* No comment provided by engineer. */
-"This version of Adium uses a new format for sound sets. Adium was not able to update the sound set %@ located at %@. It has been disabled." = "This version of Adium uses a new format for sound sets. Adium was not able to update the sound set %1$@ located at %2$@. It has been disabled.";
+"This version of Adium uses a new format for sound sets. Adium was not able to update the sound set %@ located at %@. It has been disabled." = "This version of AdiumY uses a new format for sound sets. AdiumY was not able to update the sound set %1$@ located at %2$@. It has been disabled.";
 
 /* Label in front of the title for a preset */
 "Title:" = "Title:";

@@ -16,15 +16,15 @@
 
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMutableOwnerArray.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactHidingController.h>
-#import <Adium/AIContactObserverManager.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIService.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactHidingController.h>
+#import <AdiumY/AIContactObserverManager.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIUserIcons.h>
 
 #define DisplayName @"Display Name"
 #define LongDisplayName @"Long Display Name"

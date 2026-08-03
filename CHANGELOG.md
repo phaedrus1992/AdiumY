@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- New entries go here
+
+## [2.0.0] - 2026-08-03
+
+### Added
 - XEP-0352: Client State Indication for XMPP (Jabber) — send `<active/>`/`<inactive/>` on app foreground/background
 - XEP-0048: Bookmarks for XMPP (Jabber) — sync MUC bookmarks via Private XML Storage
 - XEP-0402: PubSub Bookmarks for XMPP (Jabber) — PEP-based bookmarks with automatic sync on connect
@@ -18,9 +23,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - EdDSA (Ed25519) appcast signing tooling: `generate_appcast`, `generate_keys`,
   `sign_update` CLI tools extracted from Sparkle 2.9.4 distribution
 - `Utilities/README-appcast.md` documenting the release signing workflow
+- Register 15 AdiumY file-type identifiers (UTIs) in the app Info.plist so
+  AdiumY owns the `com.github.phaedrus1992.adiumy.*` document types (message
+  styles, soundsets, emoticonsets, icons, plugins, logs, and more)
+- Set an app category (social networking) in the app Info.plist
 
 ### Changed
-- Renamed user-visible product name from "Adium" to "AdiumY" — affects app menu, About box, Dock, Finder, UI strings, README
+- First release under the AdiumY identity at version 2.0 — the app menu,
+  About box, Dock, Finder, UI strings, and documentation all use the new
+  product name
+- Lowercased the bundle identifiers into the `com.github.phaedrus1992.adiumy`
+  namespace: the app is now `com.github.phaedrus1992.adiumy`, the framework
+  `com.github.phaedrus1992.adiumy.framework`, and libpurple
+  `com.github.phaedrus1992.adiumy.libpurple` (previously the mixed-case
+  `...adiumY.Adium` / `.AdiumFramework` / `.AdiumPurple`)
+- Renamed the framework from Adium.framework to AdiumY.framework and the
+  libpurple framework product from AdiumLibpurple to AdiumYLibpurple
+- Moved internal identifiers (dispatch queues, Spotlight importer) onto the
+  AdiumY namespace; legacy `im.adium.*` message-style identifiers remain only
+  as migration-map keys so existing styles resolve correctly
+- Fixed the Spotlight importer's bundle identifier typo ("spotlightImpoter")
+- Kept "The Adium Team, 2005-2008" upstream copyright attribution, noted as an
+  AdiumY fork
+- Moved the app cache directory to `~/Library/Caches/AdiumY`
+- Renamed the debug log directory to `~/Library/Logs/AdiumY Debug`
 - Purple Service now only supports XMPP (Jabber), IRC, and SIMPLE protocols
 - Build system: removed reference to libmeanwhile and json-glib in Xcode project
 - Vendored Sparkle framework updated from 1.17.0 to 2.9.4
@@ -55,3 +81,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   filter, so styled topic text matches message rendering
 - About window: auto-scrolling credits no longer jump to the top when the text
   has no enclosing scroll view
+
+[Unreleased]: https://github.com/phaedrus1992/AdiumY/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/phaedrus1992/AdiumY/releases/tag/v2.0.0

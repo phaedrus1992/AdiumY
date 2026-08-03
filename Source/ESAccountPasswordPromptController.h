@@ -15,7 +15,7 @@
  */
 
 #import "AIPasswordPromptController.h"
-#import <Adium/AIAccount.h>
+#import <AdiumY/AIAccount.h>
 
 @interface ESAccountPasswordPromptController : AIPasswordPromptController {
 	IBOutlet NSTextField *textField_account;

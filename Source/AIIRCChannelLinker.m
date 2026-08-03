@@ -16,12 +16,12 @@
 
 #import "AIIRCChannelLinker.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIService.h>
 
 @implementation AIIRCChannelLinker
 

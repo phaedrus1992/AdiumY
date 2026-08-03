@@ -16,11 +16,11 @@
 
 #import "AdiumChatEvents.h"
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
 
 @implementation AdiumChatEvents
 

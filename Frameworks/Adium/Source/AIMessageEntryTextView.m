@@ -14,17 +14,17 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMessageEntryTextView.h>
-#import <Adium/AITextAttachmentExtension.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMessageEntryTextView.h>
+#import <AdiumY/AITextAttachmentExtension.h>
 
-#import <Adium/AIContentContext.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIContentContext.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIBezierPathAdditions.h>
@@ -33,7 +33,7 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIPasteboardAdditions.h>
 #import <AIUtilities/AITextAttributes.h>
-#import <Adium/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
 
 #import "NSString-FBAdditions.h"
 

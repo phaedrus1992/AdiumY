@@ -18,10 +18,10 @@
 #import "DCJoinChatWindowController.h"
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIService.h>
 
 #define JOIN_CHAT_MENU_ITEM [AILocalizedString(@"Join Group Chat", nil) stringByAppendingEllipsis]
 

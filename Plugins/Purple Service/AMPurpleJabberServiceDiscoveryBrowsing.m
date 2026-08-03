@@ -18,7 +18,7 @@
 #import "AMPurpleJabberNode.h"
 #import "AMPurpleJabberServiceDiscoveryBrowserController.h"
 
-#import <Adium/AIAccount.h>
+#import <AdiumY/AIAccount.h>
 #import <libpurple/jabber.h>
 
 #import "AIAdium.h"

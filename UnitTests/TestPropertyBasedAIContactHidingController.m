@@ -16,7 +16,7 @@
 
 #import "TestPropertyBasedAIContactHidingController.h"
 #import "AIPropertyTestUtilities.h"
-#import <Adium/AIContactHidingController.h>
+#import <AdiumY/AIContactHidingController.h>
 
 @implementation TestPropertyBasedAIContactHidingController
 

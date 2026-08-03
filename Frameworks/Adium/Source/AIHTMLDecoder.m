@@ -18,7 +18,7 @@
 	A quick and simple HTML to Attributed string converter (ha! --jmelloy)
 */
 
-#import <Adium/AIHTMLDecoder.h>
+#import <AdiumY/AIHTMLDecoder.h>
 
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIColorAdditions.h>
@@ -28,8 +28,8 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AITextAttributes.h>
 
-#import <Adium/AITextAttachmentExtension.h>
-#import <Adium/AIXMLElement.h>
+#import <AdiumY/AITextAttachmentExtension.h>
+#import <AdiumY/AIXMLElement.h>
 
 #import "NSString-FBAdditions.h"
 

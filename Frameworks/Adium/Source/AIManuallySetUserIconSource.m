@@ -15,8 +15,8 @@
  */
 
 #import "AIManuallySetUserIconSource.h"
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListObject.h>
 
 @implementation AIManuallySetUserIconSource
 - (void)setManuallySetUserIconData:(NSData *)inData forObject:(AIListObject *)inObject

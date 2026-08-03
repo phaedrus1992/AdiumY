@@ -27,19 +27,19 @@
 #import <AIUtilities/AIOutlineViewAdditions.h>
 #import <AIUtilities/AIWindowAdditions.h>
 #import <AIUtilities/AIWindowControllerAdditions.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactHidingController.h>
-#import <Adium/AIContactList.h>
-#import <Adium/AIDockControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIListOutlineView.h>
-#import <Adium/AIProxyListObject.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactHidingController.h>
+#import <AdiumY/AIContactList.h>
+#import <AdiumY/AIDockControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIListOutlineView.h>
+#import <AdiumY/AIProxyListObject.h>
+#import <AdiumY/AIUserIcons.h>
 
 #import "AISearchFieldCell.h"
 

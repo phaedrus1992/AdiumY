@@ -22,10 +22,10 @@
 #import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIStringFormatter.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIService.h>
 
 #define ACCOUNT_SETUP_IDENTIFIER @"account_setup"
 #define WELCOME_IDENTIFIER @"welcome"
@@ -88,7 +88,7 @@ enum { WIZARD_TAB_WELCOME = 0, WIZARD_TAB_ADD_ACCOUNTS = 1, WIZARD_TAB_DONE = 2 
  */
 - (void)windowDidLoad
 {
-	[[self window] setTitle:AILocalizedString(@"Adium Setup Assistant", nil)];
+	[[self window] setTitle:AILocalizedString(@"AdiumY Setup Assistant", nil)];
 
 	// Ensure the first tab view item is selected
 	[tabView selectTabViewItemAtIndex:WIZARD_TAB_WELCOME];
@@ -117,7 +117,7 @@ enum { WIZARD_TAB_WELCOME = 0, WIZARD_TAB_ADD_ACCOUNTS = 1, WIZARD_TAB_DONE = 2 
 	multipleImportPrompt.messageText = AILocalizedString(@"Have you used other chat clients?",
 														 "Title which introduces import assistants during setup");
 	multipleImportPrompt.informativeText =
-		AILocalizedString(@"Adium includes assistants to import your accounts, settings, and transcripts from other "
+		AILocalizedString(@"AdiumY includes assistants to import your accounts, settings, and transcripts from other "
 						  @"clients. Choose a client below to open its assistant, or press Continue to skip importing.",
 						  nil);
 	[multipleImportPrompt addButtonWithTitle:AILocalizedStringFromTable(@"Continue", @"Buttons", nil)];
@@ -294,8 +294,8 @@ enum { WIZARD_TAB_WELCOME = 0, WIZARD_TAB_ADD_ACCOUNTS = 1, WIZARD_TAB_DONE = 2 
 								   @"password below; if you don't have an account yet, click <A "
 								   @"HREF=\"https://github.com/phaedrus1992/adiumy/"
 								   @"Accounts-CreatingAccounts.html#signing_up_for_an_account\">here</A> for more "
-								   @"information.\n\nAdium supports as many accounts as you want to add; you can "
-								   @"always add more in the &#34;Accounts&#34; pane of the Adium Preferences.</HTML>",
+								   @"information.\n\nAdiumY supports as many accounts as you want to add; you can "
+								   @"always add more in the &#34;Accounts&#34; pane of the AdiumY Preferences.</HTML>",
 								   nil)
 				withDefaultAttributes:[[textView_addAccountMessage textStorage] attributesAtIndex:0
 																				   effectiveRange:NULL]];
@@ -322,15 +322,16 @@ enum { WIZARD_TAB_WELCOME = 0, WIZARD_TAB_ADD_ACCOUNTS = 1, WIZARD_TAB_DONE = 2 
 		[textView_welcomeMessage setDrawsBackground:NO];
 		[[textView_welcomeMessage enclosingScrollView] setDrawsBackground:NO];
 		NSAttributedString *welcomeMessage = [AIHTMLDecoder
-					   decodeHTML:AILocalizedString(
-									  @"<HTML>Adium is <i>your</i> instant messaging solution.<br><br>Chat with "
-									  @"whomever you want, whenever you want, however you want.  Multiple messaging "
-									  @"services or accounts? Just one account? Work? Play? Both? No problem; Adium "
-									  @"has you covered.<br><br>Adium is fast, free, and fun, with an interface you'll "
-									  @"love to use day in and day out. :)<br><br>This assistant will help you set up "
-									  @"your instant messaging accounts and get started chatting.<br><br>Click "
-									  @"<b>Continue</b> and the duck will take it from here.</HTML>",
-									  nil)
+					   decodeHTML:
+						   AILocalizedString(
+							   @"<HTML>AdiumY is <i>your</i> instant messaging solution.<br><br>Chat with "
+							   @"whomever you want, whenever you want, however you want.  Multiple messaging "
+							   @"services or accounts? Just one account? Work? Play? Both? No problem; AdiumY "
+							   @"has you covered.<br><br>AdiumY is fast, free, and fun, with an interface you'll "
+							   @"love to use day in and day out. :)<br><br>This assistant will help you set up "
+							   @"your instant messaging accounts and get started chatting.<br><br>Click "
+							   @"<b>Continue</b> and the duck will take it from here.</HTML>",
+							   nil)
 			withDefaultAttributes:[[textView_addAccountMessage textStorage] attributesAtIndex:0 effectiveRange:NULL]];
 		// Turn that smiley into an emoticon :)
 		welcomeMessage = [adium.contentController filterAttributedString:welcomeMessage
@@ -339,7 +340,7 @@ enum { WIZARD_TAB_WELCOME = 0, WIZARD_TAB_ADD_ACCOUNTS = 1, WIZARD_TAB_DONE = 2 
 																 context:nil];
 		[[textView_welcomeMessage textStorage] setAttributedString:welcomeMessage];
 
-		[textField_welcome setStringValue:AILocalizedString(@"Welcome to Adium!", nil)];
+		[textField_welcome setStringValue:AILocalizedString(@"Welcome to AdiumY!", nil)];
 
 	} else if ([identifier isEqualToString:DONE_IDENTIFIER]) {
 		[textView_doneMessage setDrawsBackground:NO];
@@ -347,16 +348,16 @@ enum { WIZARD_TAB_WELCOME = 0, WIZARD_TAB_ADD_ACCOUNTS = 1, WIZARD_TAB_DONE = 2 
 		[textView_doneMessage
 			setString:
 				AILocalizedString(
-					@"Adium is now ready for you. \n\nThe Status indicator at the top of your Contact List and in the "
+					@"AdiumY is now ready for you. \n\nThe Status indicator at the top of your Contact List and in the "
 					@"Status menu lets you determine whether others see you as Available or Away or, alternately, if "
 					@"you are Offline. Select Custom to type your own status message.\n\nDouble-click a name in your "
 					@"Contact List to begin a conversation.  You can add contacts to your Contact List via the Contact "
-					@"menu.\n\nWant to customize your Adium experience? Check out the Adium Preferences and Xtras "
-					@"Manager via the Adium menu.\n\nEnjoy! Click Done to begin using Adium.",
+					@"menu.\n\nWant to customize your AdiumY experience? Check out the AdiumY Preferences and Xtras "
+					@"Manager via the AdiumY menu.\n\nEnjoy! Click Done to begin using AdiumY.",
 					nil)];
 
 		[textField_done setStringValue:AILocalizedString(@"Congratulations!",
-														 "Header line in the last pane of the Adium setup wizard")];
+														 "Header line in the last pane of the AdiumY setup wizard")];
 	}
 
 	// Hide go back on the first tab

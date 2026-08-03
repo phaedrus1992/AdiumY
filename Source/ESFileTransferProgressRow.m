@@ -20,8 +20,8 @@
 #import "ESFileTransferProgressWindowController.h"
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIUserIcons.h>
 #import <time.h>
 
 #define BYTES_RECEIVED                                                                                                 \

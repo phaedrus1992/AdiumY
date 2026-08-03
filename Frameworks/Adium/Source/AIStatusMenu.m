@@ -19,16 +19,16 @@
 #import <AIUtilities/AIEventAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIEditStateWindowController.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AISocialNetworkingStatusMenu.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
-#import <Adium/AIStatusGroup.h>
-#import <Adium/AIStatusIcons.h>
-#import <Adium/AIStatusMenu.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIEditStateWindowController.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AISocialNetworkingStatusMenu.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
+#import <AdiumY/AIStatusGroup.h>
+#import <AdiumY/AIStatusIcons.h>
+#import <AdiumY/AIStatusMenu.h>
 
 #define STATUS_TITLE_CUSTOM [AILocalizedString(@"Custom", nil) stringByAppendingEllipsis]
 #define STATE_TITLE_MENU_LENGTH 30

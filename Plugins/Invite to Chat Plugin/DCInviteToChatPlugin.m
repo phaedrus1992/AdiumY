@@ -18,16 +18,16 @@
 #import "AIListBookmark.h"
 #import "DCInviteToChatWindowController.h"
 #import <AIUtilities/AIMenuAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIService.h>
 
 #define INVITE_CONTACT AILocalizedString(@"Invite to Chat", nil)
 

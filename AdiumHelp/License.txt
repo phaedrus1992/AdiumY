@@ -1,6 +1,6 @@
-This documentation is distributed under the terms of the GPLv2, which may be found in their entirety in the parent Adium distribution.
+This documentation is distributed under the terms of the GPLv2, which may be found in their entirety in the parent AdiumY distribution.
 
-This AdiumHelp bundle is built around the Apple Help framework distributed by Andy Matuschak under the following license:
+This AdiumYHelp bundle is built around the Apple Help framework distributed by Andy Matuschak under the following license:
 
 Copyright (c) 2005 Andy Matuschak
 

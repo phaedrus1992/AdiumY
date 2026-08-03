@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set n to (get name of window 1)
 		try
 			set name of window 1 to "dummy"

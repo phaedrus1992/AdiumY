@@ -16,10 +16,10 @@
 
 #import "AIRealNameTooltip.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIGroupChatStatusIcons.h>
-#import <Adium/AIListContact.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIGroupChatStatusIcons.h>
+#import <AdiumY/AIListContact.h>
 
 @implementation AIRealNameTooltip
 - (void)installPlugin

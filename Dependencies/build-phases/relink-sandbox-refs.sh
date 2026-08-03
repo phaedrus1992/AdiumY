@@ -1,7 +1,7 @@
 #!/bin/bash
 # relink-sandbox-refs.sh — Post-link fixup for the AdiumY app bundle.
 #
-# The app and AdiumLibpurple link the vendored dylibs directly from
+# The app and AdiumYLibpurple link the vendored dylibs directly from
 # Dependencies/build/lib (legacy upstream layout). Those dylibs carry per-arch
 # staging paths (Dependencies/sandbox-*/lib/*.dylib) as their install names,
 # which are dead after the universal-deps build merges them into frameworks.

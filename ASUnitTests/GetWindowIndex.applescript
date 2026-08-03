@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		if (get index of window 1) is not 1 then
 			--this is also indicative of a much larger problem
 			--check the sdef for an error with window's 'pidx' property

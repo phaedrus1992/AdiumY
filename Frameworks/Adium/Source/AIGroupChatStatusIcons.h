@@ -28,8 +28,8 @@
 #define VOICE @"Voice"
 #define NONE @"None"
 
-#import <Adium/AIListObject.h>
-#import <Adium/AIXtraInfo.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIXtraInfo.h>
 
 @interface AIGroupChatStatusIcons : AIXtraInfo {
 	NSMutableDictionary *icons;

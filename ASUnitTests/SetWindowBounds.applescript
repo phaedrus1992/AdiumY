@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set b to (get bounds of window 1) -- for later restoration
 		set bounds of window 1 to {0, 0, 40, 40}
 		if (get bounds of window 1) is not {0, 0, 40, 40} then

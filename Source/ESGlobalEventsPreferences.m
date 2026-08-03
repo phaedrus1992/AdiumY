@@ -16,7 +16,6 @@
 
 #import "ESGlobalEventsPreferences.h"
 #import "AISoundController.h"
-#import "Adium/ESContactAlertsViewController.h"
 #import "ESGlobalEventsPreferencesPlugin.h"
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
@@ -27,10 +26,11 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIVariableHeightOutlineView.h>
 #import <AIUtilities/AIVerticallyCenteredTextCell.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AISoundSet.h>
-#import <Adium/ESPresetManagementController.h>
-#import <Adium/ESPresetNameSheetController.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AISoundSet.h>
+#import <AdiumY/ESContactAlertsViewController.h>
+#import <AdiumY/ESPresetManagementController.h>
+#import <AdiumY/ESPresetNameSheetController.h>
 
 #define PREF_GROUP_EVENT_PRESETS @"Event Presets"
 #define CUSTOM_TITLE AILocalizedString(@"Custom", nil)

@@ -385,7 +385,7 @@
 "...in %@" = "...in %@";
 
 /* Checkbox under 'on screen edges' in the advanced contact list preferences */
-"...only while Adium is in the background" = "...only while Adium is in the background";
+"...only while Adium is in the background" = "...only while AdiumY is in the background";
 
 /* Command which will clear the message area of a chat. Please include the '/' at the front of your translation. */
 "/clear" = "/clear";
@@ -418,10 +418,10 @@
 ":" = ":";
 
 /* No comment provided by engineer. */
-"<HTML>Adium is <i>your</i> instant messaging solution.<br><br>Chat with whomever you want, whenever you want, however you want.  Multiple messaging services or accounts? Just one account? Work? Play? Both? No problem; Adium has you covered.<br><br>Adium is fast, free, and fun, with an interface you'll love to use day in and day out. :)<br><br>This assistant will help you set up your instant messaging accounts and get started chatting.<br><br>Click <b>Continue</b> and the duck will take it from here.</HTML>" = "<HTML>Adium is <i>your</i> instant messaging solution.<br><br>Chat with whomever you want, whenever you want, however you want.  Multiple messaging services or accounts? Just one account? Work? Play? Both? No problem; Adium has you covered.<br><br>Adium is fast, free, and fun, with an interface you'll love to use day in and day out. :)<br><br>This assistant will help you set up your instant messaging accounts and get started chatting.<br><br>Click <b>Continue</b> and the duck will take it from here.</HTML>";
+"<HTML>Adium is <i>your</i> instant messaging solution.<br><br>Chat with whomever you want, whenever you want, however you want.  Multiple messaging services or accounts? Just one account? Work? Play? Both? No problem; Adium has you covered.<br><br>Adium is fast, free, and fun, with an interface you'll love to use day in and day out. :)<br><br>This assistant will help you set up your instant messaging accounts and get started chatting.<br><br>Click <b>Continue</b> and the duck will take it from here.</HTML>" = "<HTML>AdiumY is <i>your</i> instant messaging solution.<br><br>Chat with whomever you want, whenever you want, however you want.  Multiple messaging services or accounts? Just one account? Work? Play? Both? No problem; AdiumY has you covered.<br><br>AdiumY is fast, free, and fun, with an interface you'll love to use day in and day out. :)<br><br>This assistant will help you set up your instant messaging accounts and get started chatting.<br><br>Click <b>Continue</b> and the duck will take it from here.</HTML>";
 
 /* No comment provided by engineer. */
-"<HTML>To chat with your friends, family, and coworkers, you must have an instant messaging account on the same service they do. Choose a service, name, and password below; if you don't have an account yet, click <A HREF=\"https://github.com/phaedrus1992/adiumy/wiki/CreatingAnAccount#Sigingupforanaccount\">here</A> for more information.\n\nAdium supports as many accounts as you want to add; you can always add more in the Accounts pane of the Adium Preferences.</HTML>" = "<HTML>To chat with your friends, family, and coworkers, you must have an instant messaging account on the same service they do. Choose a service, name, and password below; if you don't have an account yet, click <A HREF=\"https://github.com/phaedrus1992/adiumy/wiki/CreatingAnAccount#Sigingupforanaccount\">here</A> for more information.\n\nAdium supports as many accounts as you want to add; you can always add more in the Accounts pane of the Adium Preferences.</HTML>";
+"<HTML>To chat with your friends, family, and coworkers, you must have an instant messaging account on the same service they do. Choose a service, name, and password below; if you don't have an account yet, click <A HREF=\"https://github.com/phaedrus1992/adiumy/wiki/CreatingAnAccount#Sigingupforanaccount\">here</A> for more information.\n\nAdium supports as many accounts as you want to add; you can always add more in the Accounts pane of the Adium Preferences.</HTML>" = "<HTML>To chat with your friends, family, and coworkers, you must have an instant messaging account on the same service they do. Choose a service, name, and password below; if you don't have an account yet, click <A HREF=\"https://github.com/phaedrus1992/adiumy/wiki/CreatingAnAccount#Sigingupforanaccount\">here</A> for more information.\n\nAdium supports as many accounts as you want to add; you can always add more in the Accounts pane of the AdiumY Preferences.</HTML>";
 
 /* Placeholder displayed as the name of a new account */
 "<New Account>" = "<New Account>";
@@ -448,7 +448,7 @@
 "A message may not have been sent; a timeout occurred." = "A message may not have been sent; a timeout occurred.";
 
 /* No comment provided by engineer. */
-"About Adium" = "About Adium";
+"About Adium" = "About AdiumY";
 
 /* No comment provided by engineer. */
 "About Encryption" = "About Encryption";
@@ -532,49 +532,49 @@
 "Address Book Information (optional):" = "Address Book Information (optional):";
 
 /* Error message window title */
-"Adium : Error" = "Adium : Error";
+"Adium : Error" = "AdiumY : Error";
 
 /* No comment provided by engineer. */
-"Adium currently has access to your account." = "Adium currently has access to your account.";
+"Adium currently has access to your account." = "AdiumY currently has access to your account.";
 
 /* Debug window title */
-"Adium Debug Log" = "Adium Debug Log";
+"Adium Debug Log" = "AdiumY Debug Log";
 
 /* No comment provided by engineer. */
-"Adium Forums" = "Adium Forums";
+"Adium Forums" = "AdiumY Forums";
 
 /* No comment provided by engineer. */
-"Adium Help" = "Adium Help";
+"Adium Help" = "AdiumY Help";
 
 /* No comment provided by engineer. */
-"Adium Homepage" = "Adium Homepage";
+"Adium Homepage" = "AdiumY Homepage";
 
 /* No comment provided by engineer. */
-"Adium Icon" = "Adium Icon";
+"Adium Icon" = "AdiumY Icon";
 
 /* No comment provided by engineer. */
-"Adium includes assistants to import your accounts, settings, and transcripts from other clients. Choose a client below to open its assistant, or press Continue to skip importing." = "Adium includes assistants to import your accounts, settings, and logs from other clients. Choose a client below to open its assistant, or press Continue to skip importing.";
+"Adium includes assistants to import your accounts, settings, and transcripts from other clients. Choose a client below to open its assistant, or press Continue to skip importing." = "AdiumY includes assistants to import your accounts, settings, and logs from other clients. Choose a client below to open its assistant, or press Continue to skip importing.";
 
 /* No comment provided by engineer. */
-"Adium is now ready for you. \n\nThe Status indicator at the top of your Contact List and in the Status menu lets you determine whether others see you as Available or Away or, alternately, if you are Offline. Select Custom to type your own status message.\n\nDouble-click a name in your Contact List to begin a conversation.  You can add contacts to your Contact List via the Contact menu.\n\nWant to customize your Adium experience? Check out the Adium Preferences and Xtras Manager via the Adium menu.\n\nEnjoy! Click Done to begin using Adium." = "Adium is now ready for you. \n\nThe Status indicator at the top of your Contact List and in the Status menu lets you determine whether others see you as Available or Away or, alternately, if you are Offline. Select Custom to type your own status message.\n\nDouble-click a name in your Contact List to begin a conversation.  You can add contacts to your Contact List via the Contact menu.\n\nWant to customise your Adium experience? Check out the Adium Preferences and Xtras Manager via the Adium menu.\n\nEnjoy! Click Done to begin using Adium.";
+"Adium is now ready for you. \n\nThe Status indicator at the top of your Contact List and in the Status menu lets you determine whether others see you as Available or Away or, alternately, if you are Offline. Select Custom to type your own status message.\n\nDouble-click a name in your Contact List to begin a conversation.  You can add contacts to your Contact List via the Contact menu.\n\nWant to customize your Adium experience? Check out the Adium Preferences and Xtras Manager via the Adium menu.\n\nEnjoy! Click Done to begin using Adium." = "AdiumY is now ready for you. \n\nThe Status indicator at the top of your Contact List and in the Status menu lets you determine whether others see you as Available or Away or, alternately, if you are Offline. Select Custom to type your own status message.\n\nDouble-click a name in your Contact List to begin a conversation.  You can add contacts to your Contact List via the Contact menu.\n\nWant to customise your AdiumY experience? Check out the AdiumY Preferences and Xtras Manager via the AdiumY menu.\n\nEnjoy! Click Done to begin using AdiumY.";
 
 /* Error message displayed when the server reports that our access has been revoked or invalid. */
-"Adium isn't allowed access to your account." = "Adium isn't allowed access to your account.";
+"Adium isn't allowed access to your account." = "AdiumY isn't allowed access to your account.";
 
 /* No comment provided by engineer. */
-"Adium plugin" = "Adium plugin";
+"Adium plugin" = "AdiumY plugin";
 
 /* No comment provided by engineer. */
-"Adium Preferences" = "Adium Preferences";
+"Adium Preferences" = "AdiumY Preferences";
 
 /* No comment provided by engineer. */
-"Adium Setup Assistant" = "Adium Setup Assistant";
+"Adium Setup Assistant" = "AdiumY Setup Assistant";
 
 /* Growl installation explanation */
-"Adium uses the Growl notification system to provide a configurable interface to display status changes, incoming messages and more.\n\nIt is strongly recommended that you allow Adium to automatically install Growl; no download is required." = "Adium uses the Growl notification system to provide a configurable interface to display status changes, incoming messages and more.\n\nIt is strongly recommended that you allow Adium to automatically install Growl; no download is required.";
+"Adium uses the Growl notification system to provide a configurable interface to display status changes, incoming messages and more.\n\nIt is strongly recommended that you allow Adium to automatically install Growl; no download is required." = "AdiumY uses the Growl notification system to provide a configurable interface to display status changes, incoming messages and more.\n\nIt is strongly recommended that you allow AdiumY to automatically install Growl; no download is required.";
 
 /* Growl update explanation */
-"Adium uses the Growl notification system to provide a configurable interface to display status changes, incoming messages and more.\n\nThis release of Adium includes an updated version of Growl. It is strongly recommended that you allow Adium to automatically update Growl; no download is required." = "Adium uses the Growl notification system to provide a configurable interface to display status changes, incoming messages and more.\n\nThis release of Adium includes an updated version of Growl. It is strongly recommended that you allow Adium to automatically update Growl; no download is required.";
+"Adium uses the Growl notification system to provide a configurable interface to display status changes, incoming messages and more.\n\nThis release of Adium includes an updated version of Growl. It is strongly recommended that you allow Adium to automatically update Growl; no download is required." = "AdiumY uses the Growl notification system to provide a configurable interface to display status changes, incoming messages and more.\n\nThis release of AdiumY includes an updated version of Growl. It is strongly recommended that you allow AdiumY to automatically update Growl; no download is required.";
 
 /* Title of the messages preferences */
 "Advanced" = "Advanced";
@@ -610,13 +610,13 @@
 "All (%@)" = "All (%@)";
 
 /* No comment provided by engineer. */
-"All of the iChat transcripts that were imported into Adium will be moved to the Trash." = "All of the iChat logs that were imported into Adium will be moved to the Bin.";
+"All of the iChat transcripts that were imported into Adium will be moved to the Trash." = "All of the iChat logs that were imported into AdiumY will be moved to the Bin.";
 
 /* No comment provided by engineer. */
 "All Other Accounts" = "All Other Accounts";
 
 /* No comment provided by engineer. */
-"Allow Adium access" = "Allow Adium access";
+"Allow Adium access" = "Allow AdiumY access";
 
 /* No comment provided by engineer. */
 "Allow anyone" = "Allow anyone";
@@ -631,7 +631,7 @@
 "Always" = "Always";
 
 /* No comment provided by engineer. */
-"Always set Adium as the default" = "Always set Adium as the default";
+"Always set Adium as the default" = "Always set AdiumY as the default";
 
 /* No comment provided by engineer. */
 "An encrypted message from %@ could not be decrypted." = "An encrypted message from %@ could not be decrypted.";
@@ -697,7 +697,7 @@
 "Are you sure you want to delete the tweet:\n\n\"%@\"\n\nThis action cannot be undone." = "Are you sure you want to delete the tweet:\n\n\"%@\"\n\nThis action cannot be undone.";
 
 /* Quit Confirmation */
-"Are you sure you want to quit Adium?" = "Are you sure you want to quit Adium?";
+"Are you sure you want to quit Adium?" = "Are you sure you want to quit AdiumY?";
 
 /* No comment provided by engineer. */
 "Are you sure you want to send %lu logs to the Trash?" = "Are you sure you want to send %lu logs to the Bin?";
@@ -991,7 +991,7 @@
 "Confirm before closing multiple chat windows" = "Confirm before closing multiple chat windows";
 
 /* Quit Confirmation preference */
-"Confirm before quitting Adium" = "Confirm before quitting Adium";
+"Confirm before quitting Adium" = "Confirm before quitting AdiumY";
 
 /* No comment provided by engineer. */
 "Confirm Quit" = "Confirm Quit";
@@ -1018,7 +1018,7 @@
 "Connect Temporary IRC Account" = "Connect Temporary IRC Account";
 
 /* Account preferences checkbox for automatically conencting the account when Adium opens */
-"Connect when Adium opens" = "Connect when Adium opens";
+"Connect when Adium opens" = "Connect when AdiumY opens";
 
 /* Event: connected (follows a contact's name displayed as a header) */
 "connected" = "connected";
@@ -1137,7 +1137,7 @@
 "Contribute" = "Contribute";
 
 /* No comment provided by engineer. */
-"Contributing to Adium" = "Contributing to Adium";
+"Contributing to Adium" = "Contributing to AdiumY";
 
 /* No comment provided by engineer. */
 "Copy" = "Copy";
@@ -1723,7 +1723,7 @@
 "Help" = "Help";
 
 /* No comment provided by engineer. */
-"Hide Adium" = "Hide Adium";
+"Hide Adium" = "Hide AdiumY";
 
 /* No comment provided by engineer. */
 "Hide Away Contacts" = "Hide Away Contacts";
@@ -1759,7 +1759,7 @@
 "Hide Status Item" = "Hide Status Item";
 
 /* No comment provided by engineer. */
-"Hide the status window when Adium is not active" = "Hide the status window when Adium is not active";
+"Hide the status window when Adium is not active" = "Hide the status window when AdiumY is not active";
 
 /* No comment provided by engineer. */
 "Hide Timestamps" = "Hide Timestamps";
@@ -1786,7 +1786,7 @@
 "https://github.com/phaedrus1992/adiumy/" = "https://github.com/phaedrus1992/adiumy/";
 
 /* No comment provided by engineer. */
-"I've allowed Adium access" = "I've allowed Adium access";
+"I've allowed Adium access" = "I've allowed AdiumY access";
 
 /* Menu item title under the 'Import' submenu. iChat is another OS X instant messaging client. */
 "iChat Accounts, Statuses, and Transcripts" = "iChat Accounts, Statuses, and Logs";
@@ -2029,7 +2029,7 @@
 "Location" = "Location";
 
 /* Logging checkbox in the Adium Debug Window */
-"Log to ~/Library/Logs/Adium Debug" = "Log to ~/Library/Logs/Adium Debug";
+"Log to ~/Library/Logs/Adium Debug" = "Log to ~/Library/Logs/AdiumY Debug";
 
 /* Option in the 'Attach to Window' for the main contact list window */
 "Main Window" = "Main Window";
@@ -2266,7 +2266,7 @@
 "Once" = "Once";
 
 /* Explanation of metacontact creation */
-"Once combined, Adium will treat these contacts as a single individual both on your contact list and when sending messages.\n\nYou may un-combine these contacts by getting info on the combined contact." = "Once combined, Adium will treat these contacts as a single individual both on your contact list and when sending messages.\n\nYou may un-combine these contacts by getting info on the combined contact.";
+"Once combined, Adium will treat these contacts as a single individual both on your contact list and when sending messages.\n\nYou may un-combine these contacts by getting info on the combined contact." = "Once combined, AdiumY will treat these contacts as a single individual both on your contact list and when sending messages.\n\nYou may un-combine these contacts by getting info on the combined contact.";
 
 /* No comment provided by engineer. */
 "Online" = "Online";
@@ -2446,7 +2446,7 @@
 "Quit" = "Quit";
 
 /* No comment provided by engineer. */
-"Quit Adium" = "Quit Adium";
+"Quit Adium" = "Quit AdiumY";
 
 /* Preference */
 "Quit Confirmation" = "Quit Confirmation";
@@ -2482,7 +2482,7 @@
 "Regular Window" = "Regular Window";
 
 /* Menu item titel under the 'Import' submenu. This causes existing Adium logs to be reindexed. */
-"Reindex Adium Logs" = "Reindex Adium Logs";
+"Reindex Adium Logs" = "Reindex AdiumY Logs";
 
 /* No comment provided by engineer. */
 "Remember this account" = "Remember this account";
@@ -2713,7 +2713,7 @@
 "Send Now" = "Send Now";
 
 /* Send Later dialogue explanation text for accounts supporting offline messaging support. */
-"Send Now will deliver your message to the server immediately. %@ will receive the message the next time he or she signs on, even if you are no longer online.\n\nSend When Both Online will send the message the next time both you and %@ are known to be online and you are connected using Adium on this computer." = "Send Now will deliver your message to the server immediately. %1$@ will receive the message the next time he or she signs on, even if you are no longer online.\n\nSend When Both Online will send the message the next time both you and %2$@ are known to be online and you are connected using Adium on this computer.";
+"Send Now will deliver your message to the server immediately. %@ will receive the message the next time he or she signs on, even if you are no longer online.\n\nSend When Both Online will send the message the next time both you and %@ are known to be online and you are connected using Adium on this computer." = "Send Now will deliver your message to the server immediately. %1$@ will receive the message the next time he or she signs on, even if you are no longer online.\n\nSend When Both Online will send the message the next time both you and %2$@ are known to be online and you are connected using AdiumY on this computer.";
 
 /* No comment provided by engineer. */
 "Send When Both Online" = "Send When Both Online";
@@ -2986,7 +2986,7 @@
 "Substitutions:" = "Substitutions:";
 
 /* No comment provided by engineer. */
-"Success! Adium now has access to your account. Click OK below." = "Success! Adium now has access to your account. Click OK below.";
+"Success! Adium now has access to your account. Click OK below." = "Success! AdiumY now has access to your account. Click OK below.";
 
 /* No comment provided by engineer. */
 "Successfully received %@" = "Successfully received %@";
@@ -3361,7 +3361,7 @@
 "weeks" = "weeks";
 
 /* No comment provided by engineer. */
-"Welcome to Adium!" = "Welcome to Adium!";
+"Welcome to Adium!" = "Welcome to AdiumY!";
 
 /* Event: went away (follows a contact's name displayed as a header) */
 "went away" = "went away";
@@ -3472,7 +3472,7 @@
 "When an error occurs" = "When an error occurs";
 
 /* No comment provided by engineer. */
-"When pressed, this key combination will bring Adium to the front" = "When pressed, this key combination will bring Adium to the front";
+"When pressed, this key combination will bring Adium to the front" = "When pressed, this key combination will bring AdiumY to the front";
 
 /* No comment provided by engineer. */
 "When there are unread messages:" = "When there are unread messages:";
@@ -3529,7 +3529,7 @@
 "When you send a message in a group chat" = "When you send a message in a group chat";
 
 /* Checkbox to indicate that something should occur while Adium is not the active application */
-"While Adium is in the background" = "While Adium is in the background";
+"While Adium is in the background" = "While AdiumY is in the background";
 
 /* No comment provided by engineer. */
 "Width:" = "Width:";
@@ -3586,7 +3586,7 @@
 "You are mentioned (Group Chat)" = "You are mentioned (Group Chat)";
 
 /* No comment provided by engineer. */
-"You are using an old-style (rsrc) keyboard layout which Adium does not support." = "You are using an old-style (rsrc) keyboard layout which Adium does not support.";
+"You are using an old-style (rsrc) keyboard layout which Adium does not support." = "You are using an old-style (rsrc) keyboard layout which AdiumY does not support.";
 
 /* No comment provided by engineer. */
 "You connect" = "You connect";
@@ -3616,7 +3616,7 @@
 "You have an unread message." = "You have an unread message.";
 
 /* No comment provided by engineer. */
-"You must allow Adium access to your account in the browser window which just opened. When you have done so, enter the PIN code in the field above." = "You must allow Adium access to your account in the browser window which just opened. When you have done so, enter the PIN code in the field above.";
+"You must allow Adium access to your account in the browser window which just opened. When you have done so, enter the PIN code in the field above." = "You must allow AdiumY access to your account in the browser window which just opened. When you have done so, enter the PIN code in the field above.";
 
 /* No comment provided by engineer. */
 "You need to create a new IRC account to connect to irc://%@%@/%@:" = "You need to create a new IRC account to connect to irc://%1$@%2$@/%3$@:";

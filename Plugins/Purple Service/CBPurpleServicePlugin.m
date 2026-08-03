@@ -21,8 +21,8 @@
 #import "PurpleServices.h"
 #import "SLPurpleCocoaAdapter.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
-#import <Adium/AIAccount.h>
-#import <AdiumLibpurple/SLPurpleCocoaAdapter.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumYLibpurple/SLPurpleCocoaAdapter.h>
 
 @implementation CBPurpleServicePlugin
 

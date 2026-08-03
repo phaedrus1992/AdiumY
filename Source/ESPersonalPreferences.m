@@ -20,9 +20,9 @@
 #import <AIUtilities/AIDelayedTextField.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIImageViewWithImagePicker.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIMessageEntryTextView.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIMessageEntryTextView.h>
 
 @interface ESPersonalPreferences ()
 - (void)fireProfileChangesImmediately;
@@ -226,7 +226,7 @@
 
 - (NSString *)fileNameForImageInImagePicker:(AIImageViewWithImagePicker *)picker
 {
-	return AILocalizedString(@"Adium Icon", nil);
+	return AILocalizedString(@"AdiumY Icon", nil);
 }
 
 - (void)configureImageView

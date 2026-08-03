@@ -17,9 +17,9 @@
 #import "AIContactAwayPlugin.h"
 #import "AIStatusController.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListObject.h>
 
 #define AWAY AILocalizedString(@"Away", nil)
 #define AWAY_MESSAGE_LABEL AILocalizedString(@"Away Message", nil)

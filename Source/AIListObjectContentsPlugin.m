@@ -17,18 +17,18 @@
 #import "AIListObjectContentsPlugin.h"
 #import <AIUtilities/AIImageDrawingAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
-#import <Adium/AIAbstractListController.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContactHidingController.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListBookmark.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIAbstractListController.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContactHidingController.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListBookmark.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIStatusIcons.h>
 
 #define META_TOOLTIP_ICON_SIZE NSMakeSize(11, 11)
 

@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string></string>
 	<key>CFBundleIdentifier</key>
-	<string>com.github.phaedrus1992.adiumY.WebKit-Message-View</string>
+	<string>com.github.phaedrus1992.adiumy.WebKit-Message-View</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>

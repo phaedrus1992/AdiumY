@@ -14,10 +14,10 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
 
 static NSMutableDictionary *serviceIcons[NUMBER_OF_SERVICE_ICON_TYPES][NUMBER_OF_ICON_DIRECTIONS];
 

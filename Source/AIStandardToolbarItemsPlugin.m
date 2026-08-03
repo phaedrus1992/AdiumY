@@ -17,12 +17,12 @@
 #import "AIStandardToolbarItemsPlugin.h"
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
 
 #define MESSAGE AILocalizedString(@"Message", nil)
 

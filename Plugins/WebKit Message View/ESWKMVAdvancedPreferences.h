@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIPreferencePane.h>
+#import <AdiumY/AIPreferencePane.h>
 #import <WebKit/WebKit.h>
 
 @interface ESWKMVAdvancedPreferences : AIPreferencePane {

@@ -15,8 +15,8 @@
  */
 
 #import "AINewGroupWindowController.h"
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListGroup.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListGroup.h>
 
 #define ADD_GROUP_PROMPT_NIB @"AddGroup"
 

@@ -18,7 +18,7 @@
 #import "AILoggerPlugin.h"
 #import "BGICImportController.h"
 #import <AIUtilities/AIMenuAdditions.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 @interface GBImportPlugin ()
 - (void)importIChat:(id)sender;
@@ -49,7 +49,7 @@
 
 	[subMenu addItemWithTitle:
 				 AILocalizedString(
-					 @"Reindex Adium Logs",
+					 @"Reindex AdiumY Logs",
 					 "Menu item titel under the 'Import' submenu. This causes existing Adium logs to be reindexed.")
 					   target:self
 					   action:@selector(reindexAdiumLogs:)

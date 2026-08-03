@@ -16,13 +16,13 @@
 
 #import "AIDockAccountStatusPlugin.h"
 
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIDockControllerProtocol.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIDockControllerProtocol.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
 
 @interface AIDockAccountStatusPlugin ()
 - (BOOL)_accountsWithBoolProperty:(NSString *)inKey;

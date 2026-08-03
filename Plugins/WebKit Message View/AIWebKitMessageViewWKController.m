@@ -34,27 +34,27 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/JVMarkedScroller.h>
 
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentContext.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentEvent.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIContentStatus.h>
-#import <Adium/AIContentTopic.h>
-#import <Adium/AIEmoticon.h>
-#import <Adium/AIFileTransferControllerProtocol.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIUserIcons.h>
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentContext.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentEvent.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIContentStatus.h>
+#import <AdiumY/AIContentTopic.h>
+#import <AdiumY/AIEmoticon.h>
+#import <AdiumY/AIFileTransferControllerProtocol.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIUserIcons.h>
+#import <AdiumY/ESFileTransfer.h>
 
-#import <Adium/AIPreferenceControllerProtocol.h>
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 
 #undef NEW_CONTENT_RETRY_DELAY
 #define NEW_CONTENT_RETRY_DELAY 0.25

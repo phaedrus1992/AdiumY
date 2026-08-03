@@ -24,11 +24,11 @@
 #import <AIUtilities/AIImageTextCell.h>
 #import <AIUtilities/AIOutlineViewAdditions.h>
 #import <AIUtilities/AIVerticallyCenteredTextCell.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIEditStateWindowController.h>
-#import <Adium/AIStatusGroup.h>
-#import <Adium/AIStatusMenu.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIEditStateWindowController.h>
+#import <AdiumY/AIStatusGroup.h>
+#import <AdiumY/AIStatusMenu.h>
 
 #define STATE_DRAG_TYPE @"AIState"
 

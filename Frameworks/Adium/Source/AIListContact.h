@@ -14,9 +14,9 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccount.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIListObject.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIListObject.h>
 
 #define KEY_AB_UNIQUE_ID @"ABUniqueID"
 

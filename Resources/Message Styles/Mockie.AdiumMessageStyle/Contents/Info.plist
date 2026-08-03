@@ -13,7 +13,7 @@
 	<key>OriginalAuthor</key>
 	<string>Adam Iser?</string>
 	<key>CFBundleIdentifier</key>
-	<string>im.adium.Mockie.style</string>
+	<string>com.github.phaedrus1992.adiumy.mockie.style</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>CFBundleName</key>

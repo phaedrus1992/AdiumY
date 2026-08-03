@@ -14,9 +14,9 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccountMenu.h>
-#import <Adium/AIActionDetailsPane.h>
-#import <Adium/AIContactMenu.h>
+#import <AdiumY/AIAccountMenu.h>
+#import <AdiumY/AIActionDetailsPane.h>
+#import <AdiumY/AIContactMenu.h>
 
 @class AIListContact;
 

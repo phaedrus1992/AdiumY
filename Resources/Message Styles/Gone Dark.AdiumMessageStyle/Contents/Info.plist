@@ -13,7 +13,7 @@
 	<key>OriginalAuthor</key>
 	<string>mr_misanthropy</string>
 	<key>CFBundleIdentifier</key>
-	<string>im.adium.Gone Dark.style</string>
+	<string>com.github.phaedrus1992.adiumy.gonedark.style</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>CFBundleName</key>

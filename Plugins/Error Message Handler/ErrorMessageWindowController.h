@@ -15,7 +15,7 @@
  */
 
 #import "ErrorMessageHandlerPlugin.h"
-#import <Adium/AIWindowController.h>
+#import <AdiumY/AIWindowController.h>
 
 @class AIInterfaceController;
 

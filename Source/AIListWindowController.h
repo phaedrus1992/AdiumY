@@ -26,8 +26,8 @@
 #import "AIListController.h"
 #import <AIUtilities/AIFunctions.h>
 #import <AIUtilities/AIRolloverButton.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIWindowController.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIWindowController.h>
 
 typedef enum {
 	AIContactListWindowHidingStyleNone = 0,

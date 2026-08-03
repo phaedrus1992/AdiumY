@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "34BD9CD1053146CC000AB133"
                BuildableName = "AdiumY.app"
-               BlueprintName = "Adium"
+               BlueprintName = "AdiumY"
                ReferencedContainer = "container:Adium.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,7 +46,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "34BD9CD1053146CC000AB133"
             BuildableName = "AdiumY.app"
-            BlueprintName = "Adium"
+            BlueprintName = "AdiumY"
             ReferencedContainer = "container:Adium.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -63,7 +63,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "34BD9CD1053146CC000AB133"
             BuildableName = "AdiumY.app"
-            BlueprintName = "Adium"
+            BlueprintName = "AdiumY"
             ReferencedContainer = "container:Adium.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

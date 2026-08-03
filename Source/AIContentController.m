@@ -31,26 +31,26 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AITextAttachmentAdditions.h>
 #import <AIUtilities/AITextAttributes.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentEvent.h>
-#import <Adium/AIContentMessage.h>
-#import <Adium/AIContentNotification.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIFileTransferControllerProtocol.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AITextAttachmentExtension.h>
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentEvent.h>
+#import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIContentNotification.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIFileTransferControllerProtocol.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AITextAttachmentExtension.h>
+#import <AdiumY/ESFileTransfer.h>
 
 @interface AIContentController ()
 - (void)finishReceiveContentObject:(AIContentObject *)inObject;

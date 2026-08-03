@@ -16,8 +16,8 @@
 
 #import "AIContentNotification.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIContentEvent.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIContentEvent.h>
 
 @interface AIContentNotification ()
 - (id)initWithChat:(AIChat *)inChat

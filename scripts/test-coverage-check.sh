@@ -16,23 +16,23 @@ mkdir -p "$MOCK_PROFILE"
 touch "$MOCK_PROFILE/test.profdata"
 
 # Create mock xccov by capturing the test scenario in a JSON fixture
-# Simulates a report with Adium at 45%, AdiumLibpurple at 62%
+# Simulates a report with AdiumY at 45%, AdiumYLibpurple at 62%
 cat > "$TEMPDIR/mock-report.json" << 'EOF'
 {
   "targets": [
-    {"name": "Adium", "lineCoverage": 0.45},
-    {"name": "AdiumLibpurple", "lineCoverage": 0.62},
+    {"name": "AdiumY", "lineCoverage": 0.45},
+    {"name": "AdiumYLibpurple", "lineCoverage": 0.62},
     {"name": "AdiumTests", "lineCoverage": 0.80},
     {"name": "AIUtilities", "lineCoverage": 0.30}
   ]
 }
 EOF
 
-# Create thresholds file with Adium at 50, AdiumLibpurple at 50, AIUtilities at 0
+# Create thresholds file with AdiumY at 50, AdiumYLibpurple at 50, AIUtilities at 0
 cat > "$TEMPDIR/coverage-thresholds.txt" << 'EOF'
 # Per-target thresholds
-Adium 50
-AdiumLibpurple 50
+AdiumY 50
+AdiumYLibpurple 50
 Purple Service 0
 EOF
 
@@ -72,11 +72,11 @@ resolve_threshold() {
   echo "$DEFAULT_THRESHOLD"
 }
 
-RESULT=$(resolve_threshold "Adium")
-if [ "$RESULT" = "50" ]; then pass "Adium → 50"; else fail "Adium: expected 50, got $RESULT"; fi
+RESULT=$(resolve_threshold "AdiumY")
+if [ "$RESULT" = "50" ]; then pass "AdiumY → 50"; else fail "AdiumY: expected 50, got $RESULT"; fi
 
-RESULT=$(resolve_threshold "AdiumLibpurple")
-if [ "$RESULT" = "50" ]; then pass "AdiumLibpurple → 50"; else fail "AdiumLibpurple: expected 50, got $RESULT"; fi
+RESULT=$(resolve_threshold "AdiumYLibpurple")
+if [ "$RESULT" = "50" ]; then pass "AdiumYLibpurple → 50"; else fail "AdiumYLibpurple: expected 50, got $RESULT"; fi
 
 RESULT=$(resolve_threshold "Purple Service")
 if [ "$RESULT" = "0" ]; then pass "Purple Service → 0"; else fail "Purple Service: expected 0, got $RESULT"; fi
@@ -94,12 +94,12 @@ echo "=== Test: Threshold comparison ==="
 # In the real script, this is: jq -r '.targets[] | [.name, (.lineCoverage * 100 | floor)] | @tsv'
 FAKE_REPORT=$(
   echo '{"targets":[
-    {"name":"Adium","lineCoverage":0.45},
-    {"name":"AdiumLibpurple","lineCoverage":0.62}
+    {"name":"AdiumY","lineCoverage":0.45},
+    {"name":"AdiumYLibpurple","lineCoverage":0.62}
   ]}' | jq -r '.targets[] | [.name, (.lineCoverage * 100 | floor)] | @tsv'
 )
 
-# Expected: Adium at 45 < threshold 50 → below-threshold, AdiumLibpurple at 62 >= 50 → OK
+# Expected: AdiumY at 45 < threshold 50 → below-threshold, AdiumYLibpurple at 62 >= 50 → OK
 BELOW_THRESHOLD=0
 while IFS=$'\t' read -r TARGET PCT_INT; do
   THRESHOLD=$(resolve_threshold "$TARGET")
@@ -110,7 +110,7 @@ while IFS=$'\t' read -r TARGET PCT_INT; do
     echo "CHECK: $TARGET at ${PCT_INT}% >= ${THRESHOLD}% (at or above threshold)"
   fi
 done < <(echo "$FAKE_REPORT")
-# Adium at 45 < 50 → below threshold; AdiumLibpurple at 62 >= 50 → OK
+# AdiumY at 45 < 50 → below threshold; AdiumYLibpurple at 62 >= 50 → OK
 if [ "$BELOW_THRESHOLD" -eq 1 ]; then
   pass "Target below threshold correctly detected"
 else
@@ -123,13 +123,13 @@ echo "=== Test: Edge cases ==="
 
 # Empty thresholds file → all fall back to DEFAULT_THRESHOLD
 echo -n > "$TEMPDIR/coverage-thresholds.txt"
-RESULT=$(resolve_threshold "Adium")
-if [ "$RESULT" = "50" ]; then pass "Empty file → Adium falls back to 50"; else fail "Empty file: expected 50, got $RESULT"; fi
+RESULT=$(resolve_threshold "AdiumY")
+if [ "$RESULT" = "50" ]; then pass "Empty file → AdiumY falls back to 50"; else fail "Empty file: expected 50, got $RESULT"; fi
 
 # Missing thresholds file → all fall back
 rm -f "$TEMPDIR/coverage-thresholds.txt"
-RESULT=$(resolve_threshold "Adium")
-if [ "$RESULT" = "50" ]; then pass "Missing file → Adium falls back to 50"; else fail "Missing file: expected 50, got $RESULT"; fi
+RESULT=$(resolve_threshold "AdiumY")
+if [ "$RESULT" = "50" ]; then pass "Missing file → AdiumY falls back to 50"; else fail "Missing file: expected 50, got $RESULT"; fi
 
 # --- Summary ---
 echo ""

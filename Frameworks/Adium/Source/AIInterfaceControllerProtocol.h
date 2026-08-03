@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIControllerProtocol.h>
+#import <AdiumY/AIControllerProtocol.h>
 
 #define Interface_ContactSelectionChanged @"Interface_ContactSelectionChanged"
 
@@ -88,7 +88,7 @@ typedef enum {
  *
  *	@par	The reopen handler should respond by making sure that at least one of Adium's windows is visible.
  *
- *	@par	Adium.app's implementation handles this event this way:
+ *	@par	AdiumY.app's implementation handles this event this way:
  *
  *	@li	If there are no chat windows, shows the Contact List.
  *	@li	Else, if the foremost chat window and chat tab has unviewed content, make sure it stays foremost (bringing it

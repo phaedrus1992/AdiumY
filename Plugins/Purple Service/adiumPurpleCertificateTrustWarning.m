@@ -18,8 +18,8 @@
 #import "AIPurpleCertificateTrustWarningAlert.h"
 
 #import "ESPurpleJabberAccount.h"
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
 
 void adium_query_cert_chain(PurpleSslConnection *gsc, const char *hostname, CFArrayRef certs,
 							void (*query_cert_cb)(gboolean trusted, void *userdata), void *userdata)

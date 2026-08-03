@@ -17,7 +17,7 @@
 #import "AMPurpleJabberCSI.h"
 #import "CBPurpleAccount.h"
 #import "ESPurpleJabberAccount.h"
-#import <Adium/AIAdiumProtocol.h>
+#import <AdiumY/AIAdiumProtocol.h>
 #import <libpurple/jabber.h>
 
 #define NS_CSI @"urn:xmpp:csi:0"

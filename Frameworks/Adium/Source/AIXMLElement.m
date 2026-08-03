@@ -29,7 +29,7 @@
  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <Adium/AIXMLElement.h>
+#import <AdiumY/AIXMLElement.h>
 
 #import <AIUtilities/AIStringAdditions.h>
 

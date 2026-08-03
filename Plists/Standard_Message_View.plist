@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string></string>
 	<key>CFBundleIdentifier</key>
-	<string>com.github.phaedrus1992.adiumY.Standard-Message-View</string>
+	<string>com.github.phaedrus1992.adiumy.Standard-Message-View</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

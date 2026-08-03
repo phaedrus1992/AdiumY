@@ -19,7 +19,7 @@
  * @mainpage Adium
  *
  * Adium is a multi-protocol instant messenger written in Objective-C and licensed under the GPL.
- * You can find more about Adium at <https://github.com/phaedrus1992/adiumy/about/>.
+ * You can find more about AdiumY at <https://github.com/phaedrus1992/adiumy/about/>.
  */
 
 @class AICorePluginLoader, AICoreComponentLoader;

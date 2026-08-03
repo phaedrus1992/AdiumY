@@ -16,7 +16,7 @@
 
 #import "TestPropertyBasedAIHTMLDecoder.h"
 #import "AIPropertyTestUtilities.h"
-#import <Adium/AIHTMLDecoder.h>
+#import <AdiumY/AIHTMLDecoder.h>
 
 @implementation TestPropertyBasedAIHTMLDecoder
 

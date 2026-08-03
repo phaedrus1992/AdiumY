@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIWindowController.h>
+#import <AdiumY/AIWindowController.h>
 
 #define LINK_MANAGEMENT_DEFAULTS @"LinkManagementDefaults"
 #define PREF_GROUP_LINK_FAVORITES @"URL Favorites"

@@ -14,9 +14,9 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIAccountMenu.h>
-#import <Adium/AIContactObserverManager.h>
-#import <Adium/AIStatusMenu.h>
+#import <AdiumY/AIAccountMenu.h>
+#import <AdiumY/AIContactObserverManager.h>
+#import <AdiumY/AIStatusMenu.h>
 
 @interface AIStateMenuPlugin : AIPlugin <AIListObjectObserver, AIAccountMenuDelegate, AIStatusMenuDelegate> {
 	NSMenuItem *dockStatusMenuRoot;

@@ -49,6 +49,6 @@ typedef enum { AILOCALIZATION_MOVE_SELF = 0, AILOCALIZATION_MOVE_ANCHOR } AILoca
 - (NSControl *)viewForSizing;
 @end
 
-#import <Adium/AILocalizationButton.h>
-#import <Adium/AILocalizationButtonCell.h>
-#import <Adium/AILocalizationTextField.h>
+#import <AdiumY/AILocalizationButton.h>
+#import <AdiumY/AILocalizationButtonCell.h>
+#import <AdiumY/AILocalizationTextField.h>

@@ -15,7 +15,7 @@
  */
 
 #import "RAFBlockEditorWindowController.h"
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
 @interface RAFBlockEditorPlugin : AIPlugin {
 	NSMenuItem *blockEditorMenuItem;

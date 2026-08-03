@@ -1,6 +1,6 @@
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContactObserverManager.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactObserverManager.h>
 
 #define DOCK_OVERLAY_ALERT_IDENTIFIER @"DockOverlay"
 

@@ -30,16 +30,16 @@
 
 #import <QuartzCore/QuartzCore.h>
 
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIMenuControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
 
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIMetaContact.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIUserIcons.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIUserIcons.h>
 
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
@@ -142,8 +142,9 @@ static NSInteger toArraySort(id itemA, id itemB, void *context);
 		logViewerQueue = [[NSOperationQueue alloc] init];
 		[logViewerQueue setMaxConcurrentOperationCount:1];
 		if ([logViewerQueue respondsToSelector:@selector(setName:)])
-			[logViewerQueue performSelector:@selector(setName:)
-								 withObject:@"im.adium.AILogViewerWindowController.logViewerQueue"];
+			[logViewerQueue
+				performSelector:@selector(setName:)
+					 withObject:@"com.github.phaedrus1992.adiumy.AILogViewerWindowController.logViewerQueue"];
 	});
 
 	return logViewerQueue;

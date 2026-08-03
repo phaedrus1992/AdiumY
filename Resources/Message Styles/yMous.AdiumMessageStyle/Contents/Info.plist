@@ -11,7 +11,7 @@
 	<key>OriginalAuthor</key>
 	<string>mathuaerknedam</string>
 	<key>CFBundleIdentifier</key>
-	<string>im.adium.yMous.style</string>
+	<string>com.github.phaedrus1992.adiumy.yMous.style</string>
 	<key>CFBundleName</key>
 	<string>yMous</string>
 	<key>MessageViewVersion</key>

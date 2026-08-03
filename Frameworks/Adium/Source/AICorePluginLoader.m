@@ -24,7 +24,7 @@
 
 #import <AIUtilities/AIApplicationAdditions.h>
 #import <AIUtilities/AIFileManagerAdditions.h>
-#import <Adium/AICorePluginLoader.h>
+#import <AdiumY/AICorePluginLoader.h>
 
 #define DIRECTORY_INTERNAL_PLUGINS                                                                                     \
 	[@"Contents" stringByAppendingPathComponent:@"PlugIns"]   // Path to the internal plugins

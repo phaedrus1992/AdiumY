@@ -15,7 +15,7 @@
  */
 
 #import "AIWebKitMessageViewPlugin.h"
-#import <Adium/AIPreferencePane.h>
+#import <AdiumY/AIPreferencePane.h>
 
 @class AIContentObject, AIAutoScrollView, AIWebKitPreviewMessageViewController;
 @class JVFontPreviewField, AIImageViewWithImagePicker;

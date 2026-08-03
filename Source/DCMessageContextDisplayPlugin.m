@@ -16,16 +16,16 @@
 
 #import "DCMessageContextDisplayPlugin.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIContentContext.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentStatus.h>
-#import <Adium/AIService.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIContentContext.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentStatus.h>
+#import <AdiumY/AIService.h>
 
 // Old school
 #import <AIUtilities/AIAttributedStringAdditions.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIListContact.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
 
 // omg crawsslinkz
 #import "AILoggerPlugin.h"
@@ -34,9 +34,9 @@
 #import "unistd.h"
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/ISO8601DateFormatter.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIXMLElement.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIXMLElement.h>
 #import <LMX/LMXParser.h>
 
 #define RESTORED_CHAT_CONTEXT_LINE_NUMBER 50

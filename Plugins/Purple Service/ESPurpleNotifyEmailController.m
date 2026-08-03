@@ -16,11 +16,11 @@
 
 #import "ESPurpleNotifyEmailController.h"
 #import <AIUtilities/AIObjectAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/ESTextAndButtonsWindowController.h>
-#import <AdiumLibpurple/PurpleCommon.h>
-#import <AdiumLibpurple/SLPurpleCocoaAdapter.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/ESTextAndButtonsWindowController.h>
+#import <AdiumYLibpurple/PurpleCommon.h>
+#import <AdiumYLibpurple/SLPurpleCocoaAdapter.h>
 
 @interface ESPurpleNotifyEmailController ()
 + (void)openURLString:(NSString *)urlString;

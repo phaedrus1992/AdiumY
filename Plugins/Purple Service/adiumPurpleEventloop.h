@@ -14,6 +14,6 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <AdiumLibpurple/SLPurpleCocoaAdapter.h>
+#import <AdiumYLibpurple/SLPurpleCocoaAdapter.h>
 
 PurpleEventLoopUiOps *adium_purple_eventloop_get_ui_ops(void);

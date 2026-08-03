@@ -25,9 +25,9 @@
 #import "AIStatusGroup.h"
 #import "AIURLHandlerPlugin.h"
 #import "AIUtilities/AIArrayAdditions.h"
-#import <Adium/AIDockControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
+#import <AdiumY/AIDockControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
 
 @implementation AIApplication
 /*!

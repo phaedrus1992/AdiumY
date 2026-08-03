@@ -15,10 +15,10 @@
  */
 
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIListGroup.h>
-#import <Adium/AISortController.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIListGroup.h>
+#import <AdiumY/AISortController.h>
 
 #define KEY_RESOLVE_ALPHABETICALLY @"Status:Resolve Alphabetically"
 

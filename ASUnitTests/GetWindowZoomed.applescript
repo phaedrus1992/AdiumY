@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set c to (get zoomed of window 1)
 		set zoomed of window 1 to not c
 		delay 2 --give the command time to finish, as it doesn't block.

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
-<dictionary title="Adium Terminology">
-	<suite name="Adium Suite" code="Adum" description="AppleScript support for Adium">
+<dictionary title="AdiumY Terminology">
+	<suite name="AdiumY Suite" code="Adum" description="AppleScript support for AdiumY">
 		<value-type name="TIFF picture" code="TIFF">
 			<cocoa class="NSData"/>
 		</value-type>
-		<class name="application" code="capp" description="Adium's application class">
+		<class name="application" code="capp" description="AdiumY's application class">
 			<cocoa class="AIApplication" />
 			<property name="name" code="pnam" type="text" access="r" description="The name of the application."/>
 			<property name="frontmost" code="pisf" type="boolean" access="r" description="Is this the frontmost (active) application?">
@@ -48,7 +48,7 @@
 				<cocoa method="scriptingGetURL:"/>
 			</responds-to>
 		</class>
-		<class name="service" code="Csrv" description="An Adium service (a.k.a. chat protocol)">
+		<class name="service" code="Csrv" description="An AdiumY service (a.k.a. chat protocol)">
 			<cocoa class="AIService" />
 			<property name="name" code="pnam" type="text" access="r" description="The name of the service.">
 				<cocoa key="serviceID" />
@@ -56,7 +56,7 @@
 			<property name="image" code="Pimg" type="TIFF picture" access="r" description="The image associated with this service." />
 			<element type="account" />
 		</class>
-		<class name="window" code="cwin" description="A window in Adium">
+		<class name="window" code="cwin" description="A window in AdiumY">
 			<cocoa class="NSWindow" />
 			<property name="name" code="pnam" type="text" access="r" description="The title of this window">
 				<cocoa key="scriptingTitle" />
@@ -99,7 +99,7 @@
 				<cocoa method="handleCloseScriptCommand:"/>
 			</responds-to>
 		</class>
-		<class name="chat" code="Chat" description="A chat in Adium">
+		<class name="chat" code="Chat" description="A chat in AdiumY">
 			<cocoa class="AIChat" />
 			<property name="name" code="pnam" type="text" access="r" description="The name of the chat">
 				<cocoa key="scriptingName" />
@@ -148,7 +148,7 @@
 			<enumerator name="default SOCKS5 proxy" code="DSK5" description="The system-wide SOCKS5 proxy."/>
 			<enumerator name="no proxy" code="NONE" description="No proxy configured."/>
 		</enumeration>
-		<class name="account" code="Cact" description="An account in Adium">
+		<class name="account" code="Cact" description="An account in AdiumY">
 			<cocoa class="AIAccount" />
 			<property name="id" code="ID  " type="integer" access="r" description="The unique ID associated with this account">
 				<cocoa key="scriptingInternalObjectID" />
@@ -240,7 +240,7 @@
 				<cocoa key="scriptingBlocked" />
 			</property>
 		</class>
-		<class name="status" plural="statuses" code="Csts" description="A saved status in Adium">
+		<class name="status" plural="statuses" code="Csts" description="A saved status in AdiumY">
 			<cocoa class="AIStatus" />
 			<property name="title" code="Pttl" type="text" access="rw" description="The title of the status.">
 				<cocoa key="scriptingTitle" />
@@ -301,7 +301,7 @@
 				<cocoa key="WithMessage"/>
 			</parameter>
 		</command>
-		<command name="GetURL" code="GURLGURL" description="Tells Adium to open the specified chat, in URL form">
+		<command name="GetURL" code="GURLGURL" description="Tells AdiumY to open the specified chat, in URL form">
 			<cocoa class="NSScriptCommand" />
 			<direct-parameter description="The URL of the chat" type="text"/>
 		</command>

@@ -26,12 +26,12 @@
 #import <AIUtilities/AIToolbarUtilities.h>
 #import <AIUtilities/AIWindowAdditions.h>
 #import <AIUtilities/MVMenuButton.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
 #import <WebKit/WebKit.h>
 
 #define STRING_TRIGGERS_MENU                                                                                           \

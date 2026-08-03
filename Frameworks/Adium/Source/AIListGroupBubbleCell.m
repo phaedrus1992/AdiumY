@@ -17,8 +17,8 @@
 #import <AIUtilities/AIBezierPathAdditions.h>
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIGradientAdditions.h>
-#import <Adium/AIListGroupBubbleCell.h>
-#import <Adium/AIListOutlineView.h>
+#import <AdiumY/AIListGroupBubbleCell.h>
+#import <AdiumY/AIListOutlineView.h>
 
 #define EDGE_INDENT 4
 

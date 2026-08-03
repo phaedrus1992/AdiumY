@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
 
 @interface AIToolbarController : NSObject <AIToolbarController> {
 	NSMutableDictionary *toolbarItems;

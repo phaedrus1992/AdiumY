@@ -15,12 +15,12 @@
  */
 
 #import "ESFileTransferMessagesPlugin.h"
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentEvent.h>
-#import <Adium/AIListContact.h>
-#import <Adium/ESFileTransfer.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentEvent.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/ESFileTransfer.h>
 
 @interface ESFileTransferMessagesPlugin ()
 - (void)statusMessage:(NSString *)message forContact:(AIListContact *)contact withType:(NSString *)type;

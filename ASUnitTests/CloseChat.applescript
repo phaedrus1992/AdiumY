@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set newChat to HandyAdiumScripts's makeNewChat()
 		tell account (HandyAdiumScripts's defaultAccount)
 			set newChat2 to make new chat with contacts {contact (HandyAdiumScripts's otherParticipant)} at end of chats of (get window of newChat)

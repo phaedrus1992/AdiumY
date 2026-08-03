@@ -20,8 +20,8 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AILocalizationTextField.h>
-#import <Adium/AISoundSet.h>
+#import <AdiumY/AILocalizationTextField.h>
+#import <AdiumY/AISoundSet.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 #define PLAY_A_SOUND AILocalizedString(@"Play a sound", nil)

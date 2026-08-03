@@ -17,10 +17,10 @@
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIGradientAdditions.h>
 #import <AIUtilities/AIParagraphStyleAdditions.h>
-#import <Adium/AIListGroupCell.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AIListOutlineView.h>
-#import <Adium/ESObjectWithProperties.h>
+#import <AdiumY/AIListGroupCell.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AIListOutlineView.h>
+#import <AdiumY/ESObjectWithProperties.h>
 
 #define FLIPPY_TEXT_PADDING 4
 #define GROUP_COUNT_PADDING 4

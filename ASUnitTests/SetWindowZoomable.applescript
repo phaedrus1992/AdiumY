@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set z to (get zoomable of window 1) --for later restoration
 		try
 			set zoomable of window 1 to (not z)

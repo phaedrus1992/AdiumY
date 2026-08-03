@@ -18,9 +18,9 @@
 #import "AIPreferenceController.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIListObject.h>
-#import <Adium/AILoginControllerProtocol.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIListObject.h>
+#import <AdiumY/AILoginControllerProtocol.h>
 
 @interface AIPreferenceContainer ()
 - (id)initForGroup:(NSString *)inGroup object:(AIListObject *)inObject;

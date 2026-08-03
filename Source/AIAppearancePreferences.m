@@ -27,14 +27,14 @@
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIPopUpButtonAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
-#import <Adium/AIAbstractListController.h>
-#import <Adium/AIDockControllerProtocol.h>
-#import <Adium/AIEmoticonControllerProtocol.h>
-#import <Adium/AIIconState.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIStatusIcons.h>
-#import <Adium/ESPresetManagementController.h>
-#import <Adium/ESPresetNameSheetController.h>
+#import <AdiumY/AIAbstractListController.h>
+#import <AdiumY/AIDockControllerProtocol.h>
+#import <AdiumY/AIEmoticonControllerProtocol.h>
+#import <AdiumY/AIIconState.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIStatusIcons.h>
+#import <AdiumY/ESPresetManagementController.h>
+#import <AdiumY/ESPresetNameSheetController.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 typedef enum { AIEmoticonMenuNone = 1, AIEmoticonMenuMultiple } AIEmoticonMenuTag;
@@ -123,34 +123,34 @@ typedef enum { AIEmoticonMenuNone = 1, AIEmoticonMenuMultiple } AIEmoticonMenuTa
 	// this is.
 	UTType *type = [UTType typeWithFilenameExtension:filenameExtension];
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.adiumx.emoticonset"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.emoticonset"]]) {
 		[self _rebuildEmoticonMenuAndSelectActivePack];
 	}
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.adiumx.dockicon"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.dockicon"]]) {
 		[self configureDockIconMenu];
 	}
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.adiumx.serviceicons"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.serviceicons"]]) {
 		[self configureServiceIconsMenu];
 	}
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.adiumx.statusicons"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.statusicons"]]) {
 		[self configureStatusIconsMenu];
 	}
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.adiumx.menubaricons"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.menubaricons"]]) {
 		[self configureMenuBarIconsMenu];
 	}
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.adiumx.contactlisttheme"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.contactlisttheme"]]) {
 		[popUp_colorTheme setMenu:[self _colorThemeMenu]];
 		[popUp_colorTheme
 			selectItemWithRepresentedObject:[adium.preferenceController preferenceForKey:KEY_LIST_THEME_NAME
 																				   group:PREF_GROUP_APPEARANCE]];
 	}
 
-	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.adiumx.contactlistlayout"]]) {
+	if (!type || [type isEqual:[UTType typeWithIdentifier:@"com.github.phaedrus1992.adiumy.contactlistlayout"]]) {
 		[popUp_listLayout setMenu:[self _listLayoutMenu]];
 		[popUp_listLayout
 			selectItemWithRepresentedObject:[adium.preferenceController preferenceForKey:KEY_LIST_LAYOUT_NAME

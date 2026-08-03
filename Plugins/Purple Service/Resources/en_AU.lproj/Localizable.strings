@@ -29,22 +29,22 @@
 "Add" = "Add";
 
 /* No comment provided by engineer. */
-"Adium : Notice" = "Adium : Notice";
+"Adium : Notice" = "AdiumY : Notice";
 
 /* No comment provided by engineer. */
-"Adium can't verify the identity of \"%@\"." = "Adium can't verify the identity of \"%@\".";
+"Adium can't verify the identity of \"%@\"." = "AdiumY can't verify the identity of \"%@\".";
 
 /* Message shown when a contact's profile can't be found */
-"Adium could not find any information in the user's profile. This may not be a registered name." = "Adium could not find any information in the user's profile. This may not be a registered name.";
+"Adium could not find any information in the user's profile. This may not be a registered name." = "AdiumY could not find any information in the user's profile. This may not be a registered name.";
 
 /* No comment provided by engineer. */
-"Adium is authorized for Facebook Chat." = "Adium is authorised for Facebook Chat.";
+"Adium is authorized for Facebook Chat." = "AdiumY is authorised for Facebook Chat.";
 
 /* No comment provided by engineer. */
-"Adium Notice: %@" = "Adium Notice: %@";
+"Adium Notice: %@" = "AdiumY Notice: %@";
 
 /* No comment provided by engineer. */
-"Adium User" = "Adium User";
+"Adium User" = "AdiumY User";
 
 /* Button title to allow an action */
 "Allow" = "Allow";

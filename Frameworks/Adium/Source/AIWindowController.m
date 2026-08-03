@@ -16,7 +16,7 @@
 
 #import <AIUtilities/AIWindowAdditions.h>
 #import <AIUtilities/AIWindowControllerAdditions.h>
-#import <Adium/AIWindowController.h>
+#import <AdiumY/AIWindowController.h>
 
 @interface AIWindowController ()
 + (void)updateScreenBoundariesRect:(id)sender;

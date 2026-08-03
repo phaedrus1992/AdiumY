@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIStatusItem.h>
+#import <AdiumY/AIStatusItem.h>
 
 // Keys used for storage and retrieval
 #define STATUS_STATUS_MESSAGE @"Status Message NSAttributedString"

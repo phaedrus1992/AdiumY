@@ -17,7 +17,7 @@
 #import "AMPurpleJabberServiceDiscoveryBrowserController.h"
 #import "AMPurpleJabberNode.h"
 #import "DCPurpleJabberJoinChatViewController.h"
-#import <Adium/DCJoinChatWindowController.h>
+#import <AdiumY/DCJoinChatWindowController.h>
 #import <libpurple/jabber.h>
 
 @implementation AMPurpleJabberServiceDiscoveryBrowserController

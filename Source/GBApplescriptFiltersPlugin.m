@@ -20,11 +20,11 @@
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIToolbarUtilities.h>
 #import <AIUtilities/MVMenuButton.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIContentObject.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIMenuControllerProtocol.h>
-#import <Adium/AIToolbarControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentObject.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIToolbarControllerProtocol.h>
 
 #import <string.h>
 #import <sys/errno.h>

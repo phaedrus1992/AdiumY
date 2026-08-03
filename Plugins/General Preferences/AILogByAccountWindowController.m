@@ -19,7 +19,7 @@
 #import "AIAccount.h"
 #import "AIAccountControllerProtocol.h"
 #import "AILoggerPlugin.h"
-#import <Adium/AIServiceIcons.h>
+#import <AdiumY/AIServiceIcons.h>
 
 @implementation AILogByAccountWindowController
 

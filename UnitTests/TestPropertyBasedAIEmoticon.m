@@ -16,8 +16,8 @@
 
 #import "TestPropertyBasedAIEmoticon.h"
 #import "AIPropertyTestUtilities.h"
-#import <Adium/AIEmoticon.h>
-#import <Adium/AIEmoticonPack.h>
+#import <AdiumY/AIEmoticon.h>
+#import <AdiumY/AIEmoticonPack.h>
 
 @implementation TestPropertyBasedAIEmoticon
 

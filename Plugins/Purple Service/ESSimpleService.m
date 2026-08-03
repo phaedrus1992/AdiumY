@@ -18,7 +18,7 @@
 #import "ESPurpleSimpleAccount.h"
 #import "ESPurpleSimpleAccountViewController.h"
 #import <AIUtilities/AIImageAdditions.h>
-#import <Adium/AIStatusControllerProtocol.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
 
 @implementation ESSimpleService
 // Account Creation

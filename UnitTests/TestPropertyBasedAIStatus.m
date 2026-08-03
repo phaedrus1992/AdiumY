@@ -16,7 +16,7 @@
 
 #import "TestPropertyBasedAIStatus.h"
 #import "AIPropertyTestUtilities.h"
-#import <Adium/AIStatus.h>
+#import <AdiumY/AIStatus.h>
 
 @implementation TestPropertyBasedAIStatus
 

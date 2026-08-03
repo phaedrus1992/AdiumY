@@ -14,7 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
 
 #define APPLESCRIPT_CONTACT_ALERT_IDENTIFIER @"RunApplescript"
 #define KEY_APPLESCRIPT_TO_RUN @"Applescript To Run"

@@ -19,13 +19,13 @@
 #import <AIUtilities/AIDateFormatterAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/ISO8601DateFormatter.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIHTMLDecoder.h>
-#import <Adium/AIListContact.h>
-#import <Adium/AIService.h>
-#import <Adium/AIStatusControllerProtocol.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIListContact.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
 
 #define PREF_GROUP_WEBKIT_MESSAGE_DISPLAY @"WebKit Message Display"
 #define KEY_WEBKIT_USE_NAME_FORMAT @"Use Custom Name Format"

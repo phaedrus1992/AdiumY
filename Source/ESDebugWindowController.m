@@ -112,8 +112,8 @@ static ESDebugWindowController *sharedDebugWindowInstance = nil;
 		[fullDebugLogArray addObject:aDebugString];
 	}
 
-	[[self window] setTitle:AILocalizedString(@"Adium Debug Log", "Debug window title")];
-	[checkBox_logWriting setLocalizedString:AILocalizedString(@"Log to ~/Library/Logs/Adium Debug",
+	[[self window] setTitle:AILocalizedString(@"AdiumY Debug Log", "Debug window title")];
+	[checkBox_logWriting setLocalizedString:AILocalizedString(@"Log to ~/Library/Logs/AdiumY Debug",
 															  "Logging checkbox in the Adium Debug Window")];
 	[button_clear setLocalizedString:AILocalizedString(@"Clear", nil)];
 

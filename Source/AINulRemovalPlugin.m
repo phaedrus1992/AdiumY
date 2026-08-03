@@ -16,7 +16,7 @@
 
 #import "AINulRemovalPlugin.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
-#import <Adium/AIContentControllerProtocol.h>
+#import <AdiumY/AIContentControllerProtocol.h>
 
 @implementation AINulRemovalPlugin
 

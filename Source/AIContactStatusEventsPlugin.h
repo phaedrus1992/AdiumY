@@ -14,8 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIContactObserverManager.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIContactObserverManager.h>
 
 @interface AIContactStatusEventsPlugin : AIPlugin <AIListObjectObserver, AIEventHandler> {
 	NSMutableDictionary *onlineCache;

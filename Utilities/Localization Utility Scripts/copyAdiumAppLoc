@@ -20,7 +20,7 @@ nibCopy ~/adium/Resources/$1.lproj
 popd
 
 pushd Frameworks
-pushd Adium.framework/Resources/$1.lproj
+pushd AdiumY.framework/Resources/$1.lproj
 nibCopy ~/adium/Frameworks/Adium\ Framework/Resources/$1.lproj
 popd
 pushd AIUtilities.framework/Resources/$1.lproj

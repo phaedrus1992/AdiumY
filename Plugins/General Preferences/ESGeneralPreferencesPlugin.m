@@ -32,10 +32,10 @@
 #import "ESGeneralPreferences.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AISendingTextView.h>
-#import <Adium/AIContentControllerProtocol.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIServiceIcons.h>
-#import <Adium/AIStatusIcons.h>
+#import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIServiceIcons.h>
+#import <AdiumY/AIStatusIcons.h>
 
 #import "AIHotKey.h"
 #import "AIHotKeyCenter.h"

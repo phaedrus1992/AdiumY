@@ -14,8 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <Adium/AIContactAlertsControllerProtocol.h>
-#import <Adium/AIPlugin.h>
+#import <AdiumY/AIContactAlertsControllerProtocol.h>
+#import <AdiumY/AIPlugin.h>
 #import <UserNotifications/UserNotifications.h>
 
 #define USER_NOTIFICATION_ALERT_IDENTIFIER @"Growl"

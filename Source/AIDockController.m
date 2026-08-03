@@ -18,12 +18,12 @@
 #import <AIUtilities/AIApplicationAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIFileManagerAdditions.h>
-#import <Adium/AIChat.h>
-#import <Adium/AIChatControllerProtocol.h>
-#import <Adium/AIIconState.h>
-#import <Adium/AIInterfaceControllerProtocol.h>
-#import <Adium/AIStatus.h>
-#import <Adium/AIStatusControllerProtocol.h>
+#import <AdiumY/AIChat.h>
+#import <AdiumY/AIChatControllerProtocol.h>
+#import <AdiumY/AIIconState.h>
+#import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIStatus.h>
+#import <AdiumY/AIStatusControllerProtocol.h>
 
 #define DOCK_DEFAULT_PREFS @"DockPrefs"
 #define ICON_DISPLAY_DELAY 0.1

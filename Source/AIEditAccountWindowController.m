@@ -21,12 +21,12 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AITabViewAdditions.h>
 #import <AIUtilities/AIViewAdditions.h>
-#import <Adium/AIAccount.h>
-#import <Adium/AIAccountControllerProtocol.h>
-#import <Adium/AIAccountViewController.h>
-#import <Adium/AIContactControllerProtocol.h>
-#import <Adium/AIService.h>
-#import <Adium/AIServiceIcons.h>
+#import <AdiumY/AIAccount.h>
+#import <AdiumY/AIAccountControllerProtocol.h>
+#import <AdiumY/AIAccountViewController.h>
+#import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIService.h>
+#import <AdiumY/AIServiceIcons.h>
 
 @interface AIEditAccountWindowController ()
 - (void)_addCustomViewAndTabsForAccount:(AIAccount *)inAccount;
@@ -105,7 +105,7 @@
 	[checkbox_autoconnect
 		setLocalizedString:
 			AILocalizedString(
-				@"Connect when Adium opens",
+				@"Connect when AdiumY opens",
 				"Account preferences checkbox for automatically conencting the account when Adium opens")];
 
 	[[matrix_userIcon cellWithTag:0]

@@ -1,7 +1,7 @@
 global HandyAdiumScripts
 
 on run
-	tell application "Adium"
+	tell application "AdiumY"
 		set r to (get resizable of window 1) --for later restoration
 		try
 			set resizable of window 1 to (not r)
