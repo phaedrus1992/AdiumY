@@ -14,8 +14,9 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import "AIXtraBundleIdentifier.h"
 #import "AIPropertyTestUtilities.h"
+#import "AIXtraBundleIdentifier.h"
+#import <AIUtilities/AIBundleIdentifier.h>
 #import <XCTest/XCTest.h>
 
 @interface AIXtraBundleIdentifierTest : XCTestCase
@@ -28,7 +29,7 @@
 {
 	PBTCheckDefault({
 		NSString *name = PBTRandomASCIIString(24);
-		NSString *expected = [@"com.github.phaedrus1992.adiumy." stringByAppendingString:name];
+		NSString *expected = [kAdiumYBundleIdentifierPrefixDot stringByAppendingString:name];
 		XCTAssertEqualObjects(AIXtraBundleIdentifierForName(name), expected, @"name = %@", name);
 	});
 }
@@ -38,7 +39,7 @@
 {
 	PBTCheckDefault({
 		NSString *name = PBTRandomUnicodeString(16);
-		NSString *expected = [@"com.github.phaedrus1992.adiumy." stringByAppendingString:name];
+		NSString *expected = [kAdiumYBundleIdentifierPrefixDot stringByAppendingString:name];
 		XCTAssertEqualObjects(AIXtraBundleIdentifierForName(name), expected, @"name = %@", name);
 	});
 }
@@ -58,7 +59,7 @@
 {
 	PBTCheckDefault({
 		NSString *name = PBTRandomASCIIString(24);
-		XCTAssertTrue([AIXtraBundleIdentifierForName(name) hasPrefix:@"com.github.phaedrus1992.adiumy."], @"name = %@",
+		XCTAssertTrue([AIXtraBundleIdentifierForName(name) hasPrefix:kAdiumYBundleIdentifierPrefixDot], @"name = %@",
 					  name);
 	});
 }
@@ -66,7 +67,7 @@
 // Edge: an empty name yields the bare prefix.
 - (void)testEmptyNameYieldsBarePrefix
 {
-	XCTAssertEqualObjects(AIXtraBundleIdentifierForName(@""), @"com.github.phaedrus1992.adiumy.");
+	XCTAssertEqualObjects(AIXtraBundleIdentifierForName(@""), kAdiumYBundleIdentifierPrefixDot);
 }
 
 // Edge: a nil name yields nil.

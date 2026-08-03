@@ -16,6 +16,7 @@
 
 #import "AIPropertyTestUtilities.h"
 #import "AIWebkitMessageStylePreferenceMigration.h"
+#import <AIUtilities/AIBundleIdentifier.h>
 #import <XCTest/XCTest.h>
 
 @interface MessageStylePreferenceMigrationTest : XCTestCase
@@ -29,7 +30,8 @@
 	NSDictionary *prefs = @{@"Message Style" : @"com.adiumx.gonedark.style"};
 	NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(prefs);
 	XCTAssertNotNil(delta);
-	XCTAssertEqualObjects(delta[@"Message Style"], @"com.github.phaedrus1992.adiumy.gonedark.style");
+	XCTAssertEqualObjects(delta[@"Message Style"],
+						  [kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"gonedark.style"]);
 }
 
 // The third-party yMous style ID is upgraded, preserving its camelCase suffix.
@@ -38,7 +40,8 @@
 	NSDictionary *prefs = @{@"Message Style" : @"mathuaerknedam.yMous.style"};
 	NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(prefs);
 	XCTAssertNotNil(delta);
-	XCTAssertEqualObjects(delta[@"Message Style"], @"com.github.phaedrus1992.adiumy.yMous.style");
+	XCTAssertEqualObjects(delta[@"Message Style"],
+						  [kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"yMous.style"]);
 }
 
 // A complete style change ("eclipse" was renamed to Gone Dark) is upgraded.
@@ -47,13 +50,15 @@
 	NSDictionary *prefs = @{@"Message Style" : @"com.adiumx.eclipse.style"};
 	NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(prefs);
 	XCTAssertNotNil(delta);
-	XCTAssertEqualObjects(delta[@"Message Style"], @"com.github.phaedrus1992.adiumy.gonedark.style");
+	XCTAssertEqualObjects(delta[@"Message Style"],
+						  [kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"gonedark.style"]);
 }
 
 // The current style ID is never downgraded: a fork-style ID is not a conversion key.
 - (void)testCurrentStyleIdIsNotDowngraded
 {
-	NSDictionary *prefs = @{@"Message Style" : @"com.github.phaedrus1992.adiumy.gonedark.style"};
+	NSDictionary *prefs = @{@"Message Style" :
+								[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"gonedark.style"]};
 	XCTAssertNil(AIWebkitMessageStylePreferenceMigration(prefs));
 }
 
@@ -67,7 +72,8 @@
 		NSString *value = PBTRandomASCIIString(16);
 		NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(@{oldKey : value});
 		XCTAssertNotNil(delta, @"oldKey = %@", oldKey);
-		NSString *newKey = [@"com.github.phaedrus1992.adiumy.renkoo.style." stringByAppendingString:suffix];
+		NSString *newKey = [[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"renkoo.style."]
+			stringByAppendingString:suffix];
 		XCTAssertEqualObjects(delta[newKey], value, @"oldKey = %@", oldKey);
 		XCTAssertEqual((id)delta[oldKey], (id)NSNull.null, @"oldKey = %@", oldKey);
 	});
@@ -82,7 +88,8 @@
 		NSString *value = PBTRandomASCIIString(16);
 		NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(@{oldKey : value});
 		XCTAssertNotNil(delta, @"oldKey = %@", oldKey);
-		NSString *newKey = [@"com.github.phaedrus1992.adiumy.yMous.style." stringByAppendingString:suffix];
+		NSString *newKey = [[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"yMous.style."]
+			stringByAppendingString:suffix];
 		XCTAssertEqualObjects(delta[newKey], value, @"oldKey = %@", oldKey);
 		XCTAssertEqual((id)delta[oldKey], (id)NSNull.null, @"oldKey = %@", oldKey);
 	});
@@ -97,7 +104,8 @@
 	};
 	NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(prefs);
 	XCTAssertNotNil(delta);
-	XCTAssertEqualObjects(delta[@"com.github.phaedrus1992.adiumy.minimal_mod.style.FontColor"], @"#fff");
+	XCTAssertEqualObjects(delta[[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"minimal_mod.style.FontColor"]],
+						  @"#fff");
 	XCTAssertEqual((id)delta[@"com.adiumx.minimal.style.FontColor"], (id)NSNull.null);
 	XCTAssertNil(delta[@"Unrelated Key"]);
 	XCTAssertEqual((NSUInteger)[delta count], (NSUInteger)2);
@@ -116,8 +124,8 @@
 - (void)testAlreadyMigratedPrefsYieldNil
 {
 	NSDictionary *prefs = @{
-		@"Message Style" : @"com.github.phaedrus1992.adiumy.gonedark.style",
-		@"com.github.phaedrus1992.adiumy.gonedark.style.HeaderPref" : @"x",
+		@"Message Style" : [kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"gonedark.style"],
+		[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"gonedark.style.HeaderPref"] : @"x",
 	};
 	XCTAssertNil(AIWebkitMessageStylePreferenceMigration(prefs));
 }
@@ -146,7 +154,8 @@
 	NSDictionary *prefs = @{@"Message Style" : @"im.adium.Gone Dark.style"};
 	NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(prefs);
 	XCTAssertNotNil(delta);
-	XCTAssertEqualObjects(delta[@"Message Style"], @"com.github.phaedrus1992.adiumy.gonedark.style");
+	XCTAssertEqualObjects(delta[@"Message Style"],
+						  [kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"gonedark.style"]);
 }
 
 /// Property: Keys prefixed by an im.adium.* legacy bundle ID are remapped with their suffix preserved.
@@ -158,7 +167,8 @@
 		NSString *value = PBTRandomASCIIString(16);
 		NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(@{oldKey : value});
 		XCTAssertNotNil(delta, @"oldKey = %@", oldKey);
-		NSString *newKey = [@"com.github.phaedrus1992.adiumy.renkoo.style." stringByAppendingString:suffix];
+		NSString *newKey = [[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"renkoo.style."]
+			stringByAppendingString:suffix];
 		XCTAssertEqualObjects(delta[newKey], value, @"oldKey = %@", oldKey);
 		XCTAssertEqual((id)delta[oldKey], (id)NSNull.null, @"oldKey = %@", oldKey);
 	});
@@ -167,7 +177,7 @@
 // A stale legacy prefixed key is retired, not clobbered, when the migrated key already exists.
 - (void)testRemapRetiresStaleLegacyKeyWithoutClobberingMigrated
 {
-	NSString *migratedKey = @"com.github.phaedrus1992.adiumy.gonedark.style.FontColor";
+	NSString *migratedKey = [kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"gonedark.style.FontColor"];
 	NSDictionary *prefs = @{
 		@"com.adiumx.gonedark.style.FontColor" : @"#333",
 		migratedKey : @"#fff",
@@ -189,7 +199,8 @@
 	};
 	NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(prefs);
 	XCTAssertNotNil(delta);
-	XCTAssertEqualObjects(delta[@"com.github.phaedrus1992.adiumy.gonedark.style.FontColor"], @"#222",
+	XCTAssertEqualObjects(delta[[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"gonedark.style.FontColor"]],
+						  @"#222",
 						  @"canonical (last-in-table) entry wins");
 	XCTAssertEqual((id)delta[@"com.adiumx.eclipse.style.FontColor"], (id)NSNull.null);
 	XCTAssertEqual((id)delta[@"com.adiumx.gonedark.style.FontColor"], (id)NSNull.null);

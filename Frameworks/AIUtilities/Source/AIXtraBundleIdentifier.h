@@ -18,7 +18,8 @@
 
 /// Returns the bundle identifier assigned to an Xtra bundle created by
 /// +[AIXtrasManager createXtraBundleAtPath:]: the AdiumY bundle-ID prefix
-/// followed by the Xtra's name.
+/// followed by the Xtra's name. The name is embedded verbatim — this helper
+/// does not sanitize it, so callers must not pass untrusted input.
 ///
 /// @param name The Xtra name (its basename without the path extension). May be nil.
 /// @return The full bundle identifier, or nil when name is nil. An empty name
