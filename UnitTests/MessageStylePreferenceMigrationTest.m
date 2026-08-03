@@ -57,8 +57,8 @@
 // The current style ID is never downgraded: a fork-style ID is not a conversion key.
 - (void)testCurrentStyleIdIsNotDowngraded
 {
-	NSDictionary *prefs = @{@"Message Style" :
-								[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"gonedark.style"]};
+	NSDictionary *prefs =
+		@{@"Message Style" : [kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"gonedark.style"]};
 	XCTAssertNil(AIWebkitMessageStylePreferenceMigration(prefs));
 }
 
@@ -88,8 +88,8 @@
 		NSString *value = PBTRandomASCIIString(16);
 		NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(@{oldKey : value});
 		XCTAssertNotNil(delta, @"oldKey = %@", oldKey);
-		NSString *newKey = [[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"yMous.style."]
-			stringByAppendingString:suffix];
+		NSString *newKey =
+			[[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"yMous.style."] stringByAppendingString:suffix];
 		XCTAssertEqualObjects(delta[newKey], value, @"oldKey = %@", oldKey);
 		XCTAssertEqual((id)delta[oldKey], (id)NSNull.null, @"oldKey = %@", oldKey);
 	});
@@ -104,8 +104,8 @@
 	};
 	NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(prefs);
 	XCTAssertNotNil(delta);
-	XCTAssertEqualObjects(delta[[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"minimal_mod.style.FontColor"]],
-						  @"#fff");
+	XCTAssertEqualObjects(
+		delta[[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"minimal_mod.style.FontColor"]], @"#fff");
 	XCTAssertEqual((id)delta[@"com.adiumx.minimal.style.FontColor"], (id)NSNull.null);
 	XCTAssertNil(delta[@"Unrelated Key"]);
 	XCTAssertEqual((NSUInteger)[delta count], (NSUInteger)2);
@@ -200,8 +200,7 @@
 	NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(prefs);
 	XCTAssertNotNil(delta);
 	XCTAssertEqualObjects(delta[[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:@"gonedark.style.FontColor"]],
-						  @"#222",
-						  @"canonical (last-in-table) entry wins");
+						  @"#222", @"canonical (last-in-table) entry wins");
 	XCTAssertEqual((id)delta[@"com.adiumx.eclipse.style.FontColor"], (id)NSNull.null);
 	XCTAssertEqual((id)delta[@"com.adiumx.gonedark.style.FontColor"], (id)NSNull.null);
 }
