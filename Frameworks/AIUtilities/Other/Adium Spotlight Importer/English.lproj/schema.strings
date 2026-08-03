@@ -2,16 +2,16 @@
 	/* The form is:  "myMetadataKey" = "My Metadata Key";    */
 	/* The name on the left is the name defined in schema.xml */
 	/* The name on the right is what the user will see */
-"com_github_phaedrus1992_adiumY_chatSource" = "From";
+"com_github_phaedrus1992_adiumy_chatSource" = "From";
 	/* Localized Description of you custom metadata attributes */
 	/* The form is: "myMetadataKey.Description" = "stuff";
 	/* com_Foo_YourAttrName should be definded in the schema.xml file  */
 	 /* The value on the right will be displayed by the Finder etc.. */
-"com_github_phaedrus1992_adiumY_chatSource.Description" = "Your account name";
+"com_github_phaedrus1992_adiumy_chatSource.Description" = "Your account name";
 
-"com_github_phaedrus1992_adiumY_chatDestinations" = "To";
-"com_github_phaedrus1992_adiumY_chatDestinations.Description" = "The contact's name";
+"com_github_phaedrus1992_adiumy_chatDestinations" = "To";
+"com_github_phaedrus1992_adiumy_chatDestinations.Description" = "The contact's name";
 
 
-"com_github_phaedrus1992_adiumY_service" = "Service";
-"com_github_phaedrus1992_adiumY_service.Description" = "The service on which the chat took place";
+"com_github_phaedrus1992_adiumy_service" = "Service";
+"com_github_phaedrus1992_adiumy_service.Description" = "The service on which the chat took place";

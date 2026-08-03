@@ -9,10 +9,10 @@
 	are CFNumber, CFDate, CFBoolean and CFData.		      
     </note>
     <attributes>
-        <attribute name="com_github_phaedrus1992_adiumY_chatSource" multivalued="false" type="CFString"/>
-        <attribute name="com_github_phaedrus1992_adiumY_chatDestination" multivalued="false" type="CFString"/>
-        <attribute name="com_github_phaedrus1992_adiumY_chatDestinations" multivalued="true" type="CFString"/>		
-        <attribute name="com_github_phaedrus1992_adiumY_service" multivalued="false" type="CFString"/>
+        <attribute name="com_github_phaedrus1992_adiumy_chatSource" multivalued="false" type="CFString"/>
+        <attribute name="com_github_phaedrus1992_adiumy_chatDestination" multivalued="false" type="CFString"/>
+        <attribute name="com_github_phaedrus1992_adiumy_chatDestinations" multivalued="true" type="CFString"/>		
+        <attribute name="com_github_phaedrus1992_adiumy_service" multivalued="false" type="CFString"/>
     </attributes>
 
     <types>
@@ -21,14 +21,14 @@
 		The keys that this metadata importer handles.
             </note>
             <allattrs>
-	    com_github_phaedrus1992_adiumY_chatSource
-		com_github_phaedrus1992_adiumY_chatDestinations
-		com_github_phaedrus1992_adiumY_service
+	    com_github_phaedrus1992_adiumy_chatSource
+		com_github_phaedrus1992_adiumy_chatDestinations
+		com_github_phaedrus1992_adiumy_service
             </allattrs>
             <displayattrs>
-	    com_github_phaedrus1992_adiumY_chatSource
-		com_github_phaedrus1992_adiumY_chatDestinations
-		com_github_phaedrus1992_adiumY_service
+	    com_github_phaedrus1992_adiumy_chatSource
+		com_github_phaedrus1992_adiumy_chatDestinations
+		com_github_phaedrus1992_adiumy_service
             </displayattrs>
         </type>
 		
@@ -37,14 +37,14 @@
 		The keys that this metadata importer handles.
             </note>
             <allattrs>
-			com_github_phaedrus1992_adiumY_chatSource
-			com_github_phaedrus1992_adiumY_chatDestination
-			com_github_phaedrus1992_adiumY_service
+			com_github_phaedrus1992_adiumy_chatSource
+			com_github_phaedrus1992_adiumy_chatDestination
+			com_github_phaedrus1992_adiumy_service
             </allattrs>
             <displayattrs>
-			com_github_phaedrus1992_adiumY_chatSource
-			com_github_phaedrus1992_adiumY_chatDestination
-			com_github_phaedrus1992_adiumY_service
+			com_github_phaedrus1992_adiumy_chatSource
+			com_github_phaedrus1992_adiumy_chatDestination
+			com_github_phaedrus1992_adiumy_service
             </displayattrs>
         </type>
 

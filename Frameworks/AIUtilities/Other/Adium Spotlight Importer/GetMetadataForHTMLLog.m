@@ -106,13 +106,13 @@ Boolean GetMetadataForHTMLLog(NSMutableDictionary *attributes, NSString *pathToF
 		[attributes setObject:textContent forKey:(NSString *)kMDItemTextContent];
 	}
 
-	[attributes setObject:serviceClass forKey:@"com_github_phaedrus1992_adiumY_service"];
+	[attributes setObject:serviceClass forKey:@"com_github_phaedrus1992_adiumy_service"];
 	if (fromUID) {
-		[attributes setObject:fromUID forKey:@"com_github_phaedrus1992_adiumY_chatSource"];
+		[attributes setObject:fromUID forKey:@"com_github_phaedrus1992_adiumy_chatSource"];
 	}
 
 	if (toUID) {
-		[attributes setObject:toUID forKey:@"com_github_phaedrus1992_adiumY_chatDestination"];
+		[attributes setObject:toUID forKey:@"com_github_phaedrus1992_adiumy_chatDestination"];
 		[attributes setObject:[NSString stringWithFormat:@"%@ on %@", toUID, [dateFormatter stringFromDate:date]]
 					   forKey:(NSString *)kMDItemDisplayName];
 	}

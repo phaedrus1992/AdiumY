@@ -211,7 +211,7 @@ Boolean GetMetadataForXMLLog(NSMutableDictionary *attributes, NSString *pathToFi
 
 		NSString *serviceString = [[[xmlDoc rootElement] attributeForName:@"service"] objectValue];
 		if (serviceString != nil)
-			[attributes setObject:serviceString forKey:@"com_github_phaedrus1992_adiumY_service"];
+			[attributes setObject:serviceString forKey:@"com_github_phaedrus1992_adiumy_service"];
 
 		NSArray *children = [[xmlDoc rootElement] children];
 		NSDate *startDate = nil, *endDate = nil;
@@ -234,10 +234,10 @@ Boolean GetMetadataForXMLLog(NSMutableDictionary *attributes, NSString *pathToFi
 
 		NSString *accountString = [[[xmlDoc rootElement] attributeForName:@"account"] objectValue];
 		if (accountString) {
-			[attributes setObject:accountString forKey:@"com_github_phaedrus1992_adiumY_chatSource"];
+			[attributes setObject:accountString forKey:@"com_github_phaedrus1992_adiumy_chatSource"];
 			NSMutableArray *otherAuthors = [authorsArray mutableCopy];
 			[otherAuthors removeObject:accountString];
-			[attributes setObject:otherAuthors forKey:@"com_github_phaedrus1992_adiumY_chatDestinations"];
+			[attributes setObject:otherAuthors forKey:@"com_github_phaedrus1992_adiumy_chatDestinations"];
 			// pick the first author for this.  likely a bad idea
 			if (startDate && [otherAuthors count]) {
 				NSString *toUID = [otherAuthors objectAtIndex:0];
