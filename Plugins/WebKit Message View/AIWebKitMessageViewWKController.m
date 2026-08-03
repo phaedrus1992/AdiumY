@@ -517,17 +517,15 @@ static NSArray *draggedTypes = nil;
 /*!
  * @brief Whether a date separator must be inserted before the given content.
  *
- * Ported from the pre-migration controller (93d7c267^): no separator at the very start of a
- * view unless the first content is a history context; otherwise a separator whenever the
- * content's day differs from the previously rendered content.
+ * Ported from the pre-migration controller (93d7c267^): a separator whenever the content's day
+ * differs from the previously rendered content. At the very start of a view a separator is only
+ * inserted for a history context; a first content object from a prior day still gets one because
+ * isFromSameDayAsContent: substitutes today when there is no reference content.
  */
 - (BOOL)_shouldInsertDateSeparatorBeforeContent:(AIContentObject *)content
 {
-	if (_previousContent == nil) {
-		return [content isKindOfClass:[AIContentContext class]];
-	}
-
-	return ![content isFromSameDayAsContent:_previousContent];
+	return ((!_previousContent && [content isKindOfClass:[AIContentContext class]]) ||
+			![content isFromSameDayAsContent:_previousContent]);
 }
 
 /*!
@@ -561,9 +559,6 @@ static NSArray *draggedTypes = nil;
 								  willAddMoreContentObjects:willAddMoreContentObjects
 										 replaceLastContent:NO];
 	[self _appendContentWithScript:js shouldScroll:NO];
-
-	// The separator becomes the reference point for the next day comparison.
-	_previousContent = dateSeparator;
 }
 
 /*!
