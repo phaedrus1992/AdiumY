@@ -53,8 +53,9 @@ static BOOL _pbt_bool(void)
 NSString *PBTRandomASCIIString(uint32_t maxLen)
 {
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0)
+	if (len == 0) {
 		return @"";
+	}
 	unichar *buf = calloc(len, sizeof(unichar));
 	for (uint32_t i = 0; i < len; i++) {
 		// Printable ASCII range 32..126
@@ -68,8 +69,9 @@ NSString *PBTRandomASCIIString(uint32_t maxLen)
 NSString *PBTRandomUnicodeString(uint32_t maxLen)
 {
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0)
+	if (len == 0) {
 		return @"";
+	}
 	unichar *buf = calloc(len, sizeof(unichar));
 	for (uint32_t i = 0; i < len; i++) {
 		uint32_t r = _pbt_range(0x110000);
@@ -91,8 +93,9 @@ NSString *PBTRandomUnicodeString(uint32_t maxLen)
 NSString *PBTRandomWhitespaceString(uint32_t maxLen)
 {
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0)
+	if (len == 0) {
 		return @"";
+	}
 	unichar chars[] = {' ', '\t', '\n', '\r', 0x00A0};
 	unichar *buf = calloc(len, sizeof(unichar));
 	NSUInteger nChars = sizeof(chars) / sizeof(chars[0]);
@@ -108,8 +111,9 @@ NSString *PBTRandomHTMLFragment(uint32_t maxLen)
 {
 	NSArray *tags = @[ @"b", @"i", @"u", @"span", @"font", @"br", @"a" ];
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0)
+	if (len == 0) {
 		return @"";
+	}
 	NSMutableString *html = [NSMutableString string];
 	for (uint32_t i = 0; i < len; i++) {
 		uint32_t choice = _pbt_range(5);
@@ -125,6 +129,114 @@ NSString *PBTRandomHTMLFragment(uint32_t maxLen)
 			[html appendString:@"&amp;"];
 		} else {
 			[html appendString:@" "];
+		}
+	}
+	return html;
+}
+
+/// Returns a random ASCII string safe as HTML text: printable ASCII minus `<`, `>`, `"`, and `=`.
+/// Keeps generated markup unambiguous — a stray `<` or `>` can't merge into a tag name, and a
+/// stray `"` or `=` can't open an attribute value the attribute-scoped property would misread.
+static NSString *_pbt_htmlText(uint32_t maxLen)
+{
+	uint32_t len = _pbt_range(maxLen + 1);
+	if (len == 0) {
+		return @"";
+	}
+	unichar *buf = calloc(len, sizeof(unichar));
+	for (uint32_t i = 0; i < len; i++) {
+		unichar c;
+		do {
+			c = (unichar)(32 + _pbt_range(95));
+		} while (c == '<' || c == '>' || c == '"' || c == '=');
+		buf[i] = c;
+	}
+	NSString *s = [NSString stringWithCharacters:buf length:len];
+	free(buf);
+	return s;
+}
+
+NSString *PBTRandomHTMLString(uint32_t maxLen)
+{
+	static NSArray *resourceAttributes;
+	static NSArray *remoteValues;
+	static NSArray *localValues;
+	static NSArray *tags;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		resourceAttributes =
+			@[ @"src", @"srcset", @"data", @"poster", @"background", @"codebase", @"archive", @"longdesc" ];
+		remoteValues = @[
+			@"http://example.com/a.png",
+			@"https://example.com/a.png",
+			@"//cdn.example.com/a.png",
+			@"HTTP://EXAMPLE.COM/A.PNG",
+			@"https://x.test/path/file.png",
+			@"&#104;ttp://example.com/a.png",
+			@"http&#58;//example.com/a.png",
+			@"&#47;&#47;cdn.example.com/a.png",
+			@"file:///tmp/a.png",
+			@"ftp://example.com/a.png",
+		];
+		localValues = @[
+			@"/local/a.png",
+			@"a.png",
+			@"../a.png",
+			@"data:image/png;base64,AAAA",
+			@"#fragment",
+			@"",
+		];
+		tags = @[ @"img", @"link", @"base", @"a", @"script", @"div", @"p", @"span", @"br" ];
+	});
+
+	NSMutableString *html = [NSMutableString string];
+	uint32_t length = _pbt_range(maxLen + 1);
+	for (uint32_t i = 0; i < length; i++) {
+		uint32_t choice = _pbt_range(10);
+		if (choice == 0) {
+			[html appendString:_pbt_htmlText(8)];
+		} else if (choice == 1) {
+			[html appendString:@"<!-- a comment -->"];
+		} else if (choice == 2) {
+			NSString *tag = tags[_pbt_range((uint32_t)[tags count])];
+			NSString *attr;
+			BOOL remote = _pbt_bool();
+			if ([tag isEqualToString:@"link"] || [tag isEqualToString:@"base"]) {
+				attr = @"href";
+			} else if ([tag isEqualToString:@"a"]) {
+				attr = @"title";
+				remote = NO; // <a> never carries remote values in generated HTML
+			} else {
+				attr = resourceAttributes[_pbt_range((uint32_t)[resourceAttributes count])];
+			}
+			NSString *value = remote ? remoteValues[_pbt_range((uint32_t)[remoteValues count])]
+									 : localValues[_pbt_range((uint32_t)[localValues count])];
+			[html appendFormat:@"<%@ %@=\"%@\">", tag, attr, value];
+		} else if (choice == 3) {
+			// <a> only ever carries local hrefs so sanitized output is http(s)-free.
+			NSString *value = localValues[_pbt_range((uint32_t)[localValues count])];
+			[html appendFormat:@"<a href=\"%@\">", value];
+		} else if (choice == 4) {
+			[html appendFormat:@"</%@>", tags[_pbt_range((uint32_t)[tags count])]];
+		} else if (choice == 5) {
+			NSString *value = _pbt_bool() ? remoteValues[_pbt_range((uint32_t)[remoteValues count])]
+										  : localValues[_pbt_range((uint32_t)[localValues count])];
+			[html appendFormat:@"<div style=\"background:url(%@)\">", value];
+		} else if (choice == 6) {
+			NSString *value = _pbt_bool() ? remoteValues[_pbt_range((uint32_t)[remoteValues count])]
+										  : localValues[_pbt_range((uint32_t)[localValues count])];
+			[html appendFormat:@"<style>@import \"%@\";</style>", value];
+		} else if (choice == 7) {
+			[html appendString:PBTRandomWhitespaceString(4)];
+		} else if (choice == 8) {
+			// A `>` inside a quoted attribute value must not end the tag early; the remote src is
+			// still blanked.
+			NSString *value = remoteValues[_pbt_range((uint32_t)[remoteValues count])];
+			[html appendFormat:@"<img title=\"a > b\" src=\"%@\">", value];
+		} else {
+			// A srcset with a remote second entry blanks the whole attribute.
+			NSString *value = remoteValues[_pbt_range((uint32_t)[remoteValues count])];
+			[html appendFormat:@"<img srcset=\"a.png 1x, %@ 2x\">", value];
 		}
 	}
 	return html;
@@ -190,8 +302,9 @@ BOOL PBTRandomBool(void)
 NSDictionary *PBTRandomStringDictionary(uint32_t maxPairs)
 {
 	uint32_t count = _pbt_range(maxPairs + 1);
-	if (count == 0)
+	if (count == 0) {
 		return @{};
+	}
 	NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 	for (uint32_t i = 0; i < count; i++) {
 		NSString *key = PBTRandomASCIIString(16);
@@ -226,6 +339,60 @@ NSDictionary *PBTRandomStatusDictionary(void)
 		}
 	}
 	return dict;
+}
+
+static void _pbt_putRandomCoordinate(NSMutableDictionary *body, NSString *key)
+{
+	uint32_t choice = _pbt_range(4);
+	if (choice == 1) {
+		body[key] = PBTRandomASCIIString(6); // string, not NSNumber
+	} else if (choice == 2) {
+		body[key] = [NSNull null];
+	} else if (choice == 3) {
+		double d = ((double)_pbt_range(1000000)) / 1000.0 - 500.0; // -500.0..500.0
+		body[key] = @(d);
+	}
+	// choice == 0: key absent
+}
+
+id PBTRandomJSBodyDictionary(void)
+{
+	// Roughly one time in ten the body is not a dictionary at all.
+	if (_pbt_range(10) == 0) {
+		uint32_t kind = _pbt_range(3);
+		if (kind == 0)
+			return PBTRandomASCIIString(16);
+		if (kind == 1)
+			return @[ PBTRandomASCIIString(8), @(_pbt_range(100)) ];
+		return @(_pbt_range(1000));
+	}
+
+	NSMutableDictionary *body = [NSMutableDictionary dictionary];
+
+	uint32_t typeChoice = _pbt_range(4);
+	if (typeChoice == 1) {
+		body[@"type"] = PBTRandomASCIIString(12); // wrong string
+	} else if (typeChoice == 2) {
+		body[@"type"] = @(_pbt_range(4)); // wrong type
+	} else if (typeChoice == 3) {
+		body[@"type"] = @"contextMenu";
+	}
+	// typeChoice == 0: type key absent
+
+	_pbt_putRandomCoordinate(body, @"x");
+	_pbt_putRandomCoordinate(body, @"y");
+
+	uint32_t urlChoice = _pbt_range(4);
+	if (urlChoice == 1) {
+		body[@"imageURL"] = @"";
+	} else if (urlChoice == 2) {
+		body[@"imageURL"] = @(_pbt_range(100)); // wrong type
+	} else if (urlChoice == 3) {
+		body[@"imageURL"] = PBTRandomASCIIString(48);
+	}
+	// urlChoice == 0: imageURL key absent
+
+	return body;
 }
 
 // MARK: - Shrinking
