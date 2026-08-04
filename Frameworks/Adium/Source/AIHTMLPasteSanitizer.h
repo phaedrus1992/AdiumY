@@ -22,13 +22,14 @@
 /// The following are removed:
 /// - Values of resource attributes (`src`, `srcset`, `data`, `poster`, `background`, `codebase`,
 ///   `archive`, `longdesc`, and `href` on `<link>`/`<base>`) whose value starts with `http://`,
-///   `https://`, or a protocol-relative `//`.
-/// - `srcset` values that contain any `http://` or `https://` URL.
-/// - CSS `url(http(s)://…)` references and `@import "http(s)://…"` statements.
+///   `https://`, `file://`, `ftp://`, or a protocol-relative `//` — including values written
+///   with character references (e.g. `&#104;ttp://`).
+/// - `srcset` values that contain any remote URL.
+/// - CSS `url(remote)` references and `@import` statements that resolve to a remote URL.
 ///
 /// Local and relative references, hyperlink (`<a href>`) targets, comments, and malformed markup
-/// are preserved verbatim. The result is idempotent: sanitizing twice yields the same output as
-/// sanitizing once.
+/// are preserved verbatim; an unterminated tag has its resource values neutralized like any other.
+/// The result is idempotent: sanitizing twice yields the same output as sanitizing once.
 ///
 /// @param html The HTML text to neutralize, or nil.
 /// @return The neutralized HTML, or nil if `html` was nil.
