@@ -502,17 +502,17 @@ static NSString *const AIWKContextMenuScript =
 	if ([defaultName length] == 0 || [defaultName isEqualToString:@"/"]) {
 		defaultName = AILocalizedString(@"image", "Default file name when the image URL has no path component");
 	}
-	savePanel.nameFieldStringValue = defaultName;
+	[savePanel setNameFieldStringValue:defaultName];
 	[savePanel beginSheetModalForWindow:window
 					  completionHandler:^(NSInteger result) {
-						  if (result != NSModalResponseOK || savePanel.URL == nil) {
+						  if (result != NSModalResponseOK || [savePanel URL] == nil) {
 							  return;
 						  }
 
 						  if ([imageURL isFileURL]) {
-							  [self _saveImageAtURL:imageURL toURL:savePanel.URL window:window];
+							  [self _saveImageAtURL:imageURL toURL:[savePanel URL] window:window];
 						  } else {
-							  [self _downloadRemoteImageAtURL:imageURL toURL:savePanel.URL window:window];
+							  [self _downloadRemoteImageAtURL:imageURL toURL:[savePanel URL] window:window];
 						  }
 					  }];
 }
