@@ -510,25 +510,38 @@
 		} else if ([type isEqualToString:NSPasteboardTypeHTML]) {
 			NSData *htmlData = [generalPasteboard dataForType:NSPasteboardTypeHTML];
 			NSString *html = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
+			NSAttributedString *insertion;
 			if (html != nil) {
 				// Neutralize remote image references (src, srcset, CSS url(), …) so pasting rich
 				// text never triggers network loads for those images. See #120.
 				htmlData = [AIHTMLStringByNeutralizingRemoteResources(html) dataUsingEncoding:NSUTF8StringEncoding];
+				insertion =
+					[[NSAttributedString alloc] initWithData:htmlData
+													 options:@{
+														 NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
+														 NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding)
+													 }
+										  documentAttributes:NULL
+													   error:NULL];
+				if (insertion == nil) {
+					// The HTML importer rejected even the sanitized data — paste without markup.
+					insertion = [[NSAttributedString alloc] initWithString:html];
+				}
+			} else {
+				// Non-UTF-8 HTML — importing it as HTML would let the importer fire loads we could
+				// not sanitize, so paste it as plain text (Latin-1 decode never fails). See #120.
+				NSString *text = (htmlData != nil)
+									 ? [[NSString alloc] initWithData:htmlData encoding:NSISOLatin1StringEncoding]
+									 : @"";
+				insertion = [[NSAttributedString alloc] initWithString:text];
 			}
-			[self insertText:[[NSAttributedString alloc]
-									   initWithData:htmlData
-											options:@{
-												NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
-												NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding)
-											}
-								 documentAttributes:NULL
-											  error:NULL]
-				replacementRange:NSMakeRange(NSNotFound, 0)];
+			[self insertText:insertion replacementRange:NSMakeRange(NSNotFound, 0)];
 			handledPaste = YES;
 		}
 
-		if (handledPaste)
+		if (handledPaste) {
 			break;
+		}
 	}
 
 	return handledPaste;
