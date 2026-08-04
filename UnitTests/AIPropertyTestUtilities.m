@@ -53,8 +53,9 @@ static BOOL _pbt_bool(void)
 NSString *PBTRandomASCIIString(uint32_t maxLen)
 {
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0)
+	if (len == 0) {
 		return @"";
+	}
 	unichar *buf = calloc(len, sizeof(unichar));
 	for (uint32_t i = 0; i < len; i++) {
 		// Printable ASCII range 32..126
@@ -68,8 +69,9 @@ NSString *PBTRandomASCIIString(uint32_t maxLen)
 NSString *PBTRandomUnicodeString(uint32_t maxLen)
 {
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0)
+	if (len == 0) {
 		return @"";
+	}
 	unichar *buf = calloc(len, sizeof(unichar));
 	for (uint32_t i = 0; i < len; i++) {
 		uint32_t r = _pbt_range(0x110000);
@@ -91,8 +93,9 @@ NSString *PBTRandomUnicodeString(uint32_t maxLen)
 NSString *PBTRandomWhitespaceString(uint32_t maxLen)
 {
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0)
+	if (len == 0) {
 		return @"";
+	}
 	unichar chars[] = {' ', '\t', '\n', '\r', 0x00A0};
 	unichar *buf = calloc(len, sizeof(unichar));
 	NSUInteger nChars = sizeof(chars) / sizeof(chars[0]);
@@ -108,8 +111,9 @@ NSString *PBTRandomHTMLFragment(uint32_t maxLen)
 {
 	NSArray *tags = @[ @"b", @"i", @"u", @"span", @"font", @"br", @"a" ];
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0)
+	if (len == 0) {
 		return @"";
+	}
 	NSMutableString *html = [NSMutableString string];
 	for (uint32_t i = 0; i < len; i++) {
 		uint32_t choice = _pbt_range(5);
@@ -130,20 +134,21 @@ NSString *PBTRandomHTMLFragment(uint32_t maxLen)
 	return html;
 }
 
-/// Returns a random ASCII string safe as HTML text: printable ASCII minus `<` and `>`. Keeps
-/// generated markup unambiguous — tags only ever begin with a real `<`, so a stray angle bracket
-/// in "text" can't merge into a tag name and change how it is parsed.
+/// Returns a random ASCII string safe as HTML text: printable ASCII minus `<`, `>`, `"`, and `=`.
+/// Keeps generated markup unambiguous — a stray `<` or `>` can't merge into a tag name, and a
+/// stray `"` or `=` can't open an attribute value the attribute-scoped property would misread.
 static NSString *_pbt_htmlText(uint32_t maxLen)
 {
 	uint32_t len = _pbt_range(maxLen + 1);
-	if (len == 0)
+	if (len == 0) {
 		return @"";
+	}
 	unichar *buf = calloc(len, sizeof(unichar));
 	for (uint32_t i = 0; i < len; i++) {
 		unichar c;
 		do {
 			c = (unichar)(32 + _pbt_range(95));
-		} while (c == '<' || c == '>');
+		} while (c == '<' || c == '>' || c == '"' || c == '=');
 		buf[i] = c;
 	}
 	NSString *s = [NSString stringWithCharacters:buf length:len];
@@ -159,13 +164,19 @@ NSString *PBTRandomHTMLString(uint32_t maxLen)
 	static NSArray *tags;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
-		resourceAttributes = @[ @"src", @"srcset", @"data", @"poster", @"background" ];
+		resourceAttributes =
+			@[ @"src", @"srcset", @"data", @"poster", @"background", @"codebase", @"archive", @"longdesc" ];
 		remoteValues = @[
 			@"http://example.com/a.png",
 			@"https://example.com/a.png",
 			@"//cdn.example.com/a.png",
 			@"HTTP://EXAMPLE.COM/A.PNG",
 			@"https://x.test/path/file.png",
+			@"&#104;ttp://example.com/a.png",
+			@"http&#58;//example.com/a.png",
+			@"&#47;&#47;cdn.example.com/a.png",
+			@"file:///tmp/a.png",
+			@"ftp://example.com/a.png",
 		];
 		localValues = @[
 			@"/local/a.png",
@@ -181,7 +192,7 @@ NSString *PBTRandomHTMLString(uint32_t maxLen)
 	NSMutableString *html = [NSMutableString string];
 	uint32_t length = _pbt_range(maxLen + 1);
 	for (uint32_t i = 0; i < length; i++) {
-		uint32_t choice = _pbt_range(8);
+		uint32_t choice = _pbt_range(10);
 		if (choice == 0) {
 			[html appendString:_pbt_htmlText(8)];
 		} else if (choice == 1) {
@@ -215,8 +226,17 @@ NSString *PBTRandomHTMLString(uint32_t maxLen)
 			NSString *value = _pbt_bool() ? remoteValues[_pbt_range((uint32_t)[remoteValues count])]
 										  : localValues[_pbt_range((uint32_t)[localValues count])];
 			[html appendFormat:@"<style>@import \"%@\";</style>", value];
-		} else {
+		} else if (choice == 7) {
 			[html appendString:PBTRandomWhitespaceString(4)];
+		} else if (choice == 8) {
+			// A `>` inside a quoted attribute value must not end the tag early; the remote src is
+			// still blanked.
+			NSString *value = remoteValues[_pbt_range((uint32_t)[remoteValues count])];
+			[html appendFormat:@"<img title=\"a > b\" src=\"%@\">", value];
+		} else {
+			// A srcset with a remote second entry blanks the whole attribute.
+			NSString *value = remoteValues[_pbt_range((uint32_t)[remoteValues count])];
+			[html appendFormat:@"<img srcset=\"a.png 1x, %@ 2x\">", value];
 		}
 	}
 	return html;
@@ -282,8 +302,9 @@ BOOL PBTRandomBool(void)
 NSDictionary *PBTRandomStringDictionary(uint32_t maxPairs)
 {
 	uint32_t count = _pbt_range(maxPairs + 1);
-	if (count == 0)
+	if (count == 0) {
 		return @{};
+	}
 	NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 	for (uint32_t i = 0; i < count; i++) {
 		NSString *key = PBTRandomASCIIString(16);

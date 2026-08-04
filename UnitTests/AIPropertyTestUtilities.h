@@ -42,7 +42,6 @@ void PBTLogSeed(int64_t seed);
 	do {                                                                                                               \
 		int64_t _pbtBaseSeed =                                                                                         \
 			(PBTFixedSeed != 0) ? PBTFixedSeed : (int64_t)[[NSDate date] timeIntervalSinceReferenceDate];              \
-		BOOL _pbtFailed = NO;                                                                                          \
 		for (uint32_t _pbtIter = 0; _pbtIter < (uint32_t)(count); _pbtIter++) {                                        \
 			PBTCurrentSeed = _pbtBaseSeed + _pbtIter;                                                                  \
 			srandom((unsigned int)(PBTCurrentSeed ^ (PBTCurrentSeed >> 32)));                                          \
@@ -51,11 +50,8 @@ void PBTLogSeed(int64_t seed);
 			} @catch (NSException * _pbtE) {                                                                           \
 				PBTLogSeed(PBTCurrentSeed);                                                                            \
 				XCTFail(@"Property failed at iteration %u: %@", _pbtIter, [_pbtE reason]);                             \
-				_pbtFailed = YES;                                                                                      \
 				break;                                                                                                 \
 			}                                                                                                          \
-			if (_pbtFailed)                                                                                            \
-				break;                                                                                                 \
 		}                                                                                                              \
 	} while (0)
 
