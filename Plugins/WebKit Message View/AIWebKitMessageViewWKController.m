@@ -17,6 +17,7 @@
 #import "AIWebKitMessageViewWKController.h"
 #import "AIAdiumURLSchemeHandler.h"
 #import "AIWebKitMessageViewPlugin.h"
+#import "AIWebKitMessageViewWKContextMenu.h"
 #import "AIWebkitMessageViewStyle.h"
 #import "ESFileTransferRequestPromptController.h"
 #import "ESWebKitMessageViewPreferences.h"
@@ -136,6 +137,9 @@ static NSString *const AIWKContextMenuScript =
 - (NSMenu *)_contextMenuForImageURLString:(NSString *)imageURLString;
 - (void)openImage:(id)sender;
 - (void)saveImageAs:(id)sender;
+- (void)_saveImageAtURL:(NSURL *)sourceURL toURL:(NSURL *)destinationURL window:(NSWindow *)window;
+- (void)_downloadRemoteImageAtURL:(NSURL *)sourceURL toURL:(NSURL *)destinationURL window:(NSWindow *)window;
+- (void)_presentImageSaveError:(NSError *)error imageURL:(NSURL *)imageURL window:(NSWindow *)window;
 - (void)_appendCorrectedMessageFallback:(NSString *)html fromSenderJID:(NSString *)senderJID;
 - (NSString *)_jsStringLiteral:(NSString *)string;
 - (NSString *)_webKitBackgroundImagePathForUniqueID:(NSInteger)uniqueID;
@@ -367,20 +371,14 @@ static NSString *const AIWKContextMenuScript =
 		NSString *fileTransferID = [body objectForKey:@"fileTransferID"];
 		[self _handleFileTransferAction:action fileTransferID:fileTransferID];
 	} else if ([type isEqualToString:@"contextMenu"]) {
-		NSNumber *clientX = [body objectForKey:@"x"];
-		NSNumber *clientY = [body objectForKey:@"y"];
-		if (![clientX isKindOfClass:[NSNumber class]] || ![clientY isKindOfClass:[NSNumber class]]) {
+		AIWKContextMenuMessage contextMenuMessage = AIWKContextMenuMessageFromBody(body);
+		if (!contextMenuMessage.valid) {
 			AILogWithSignature(@"Ignoring contextMenu message with non-numeric coordinates: %@", body);
 			return;
 		}
 
-		NSString *imageURLString = [body objectForKey:@"imageURL"];
-		if (![imageURLString isKindOfClass:[NSString class]] || [imageURLString length] == 0) {
-			imageURLString = nil;
-		}
-
-		[self _presentContextMenuAtClientPoint:NSMakePoint([clientX doubleValue], [clientY doubleValue])
-								imageURLString:imageURLString];
+		[self _presentContextMenuAtClientPoint:NSMakePoint(contextMenuMessage.x, contextMenuMessage.y)
+								imageURLString:contextMenuMessage.imageURLString];
 	}
 }
 
@@ -408,10 +406,7 @@ static NSString *const AIWKContextMenuScript =
 	NSMenu *menu = [[NSMenu alloc] init];
 	NSMenuItem *menuItem;
 
-	NSURL *imageURL;
-	if (imageURLString != nil) {
-		imageURL = [NSURL URLWithString:imageURLString];
-	}
+	NSURL *imageURL = AIWKImageURLFromString(imageURLString);
 
 	if (imageURL != nil) {
 		menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Open Image", nil)
@@ -421,7 +416,7 @@ static NSString *const AIWKContextMenuScript =
 		[menuItem setRepresentedObject:imageURL];
 		[menu addItem:menuItem];
 
-		if ([imageURL isFileURL]) {
+		if (AIWKCanSaveImageURL(imageURL)) {
 			menuItem =
 				[[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"Save Image As", nil) stringByAppendingEllipsis]
 										   action:@selector(saveImageAs:)
@@ -499,26 +494,80 @@ static NSString *const AIWKContextMenuScript =
 - (void)saveImageAs:(id)sender
 {
 	NSURL *imageURL = [sender representedObject];
-	if (![imageURL isKindOfClass:[NSURL class]] || ![imageURL isFileURL]) {
+	if (![imageURL isKindOfClass:[NSURL class]] || !AIWKCanSaveImageURL(imageURL)) {
 		return;
 	}
 
 	NSWindow *window = [_webView window];
 	NSSavePanel *savePanel = [NSSavePanel savePanel];
-	savePanel.nameFieldStringValue = [[imageURL path] lastPathComponent];
-	[savePanel
-		beginSheetModalForWindow:window
-			   completionHandler:^(NSInteger result) {
-				   if (result != NSModalResponseOK || savePanel.URL == nil) {
-					   return;
-				   }
+	NSString *defaultName = [imageURL lastPathComponent];
+	if ([defaultName length] == 0 || [defaultName isEqualToString:@"/"]) {
+		defaultName = AILocalizedString(@"image", "Default file name when the image URL has no path component");
+	}
+	savePanel.nameFieldStringValue = defaultName;
+	[savePanel beginSheetModalForWindow:window
+					  completionHandler:^(NSInteger result) {
+						  if (result != NSModalResponseOK || savePanel.URL == nil) {
+							  return;
+						  }
 
-				   NSError *copyError = nil;
-				   if (![[NSFileManager defaultManager] copyItemAtURL:imageURL toURL:savePanel.URL error:&copyError]) {
-					   AILogWithSignature(@"Failed to save image to %@: %@", savePanel.URL, copyError);
-					   [[NSAlert alertWithError:copyError] beginSheetModalForWindow:window completionHandler:nil];
-				   }
-			   }];
+						  if ([imageURL isFileURL]) {
+							  [self _saveImageAtURL:imageURL toURL:savePanel.URL window:window];
+						  } else {
+							  [self _downloadRemoteImageAtURL:imageURL toURL:savePanel.URL window:window];
+						  }
+					  }];
+}
+
+- (void)_saveImageAtURL:(NSURL *)sourceURL toURL:(NSURL *)destinationURL window:(NSWindow *)window
+{
+	NSError *copyError = nil;
+	if (![[NSFileManager defaultManager] copyItemAtURL:sourceURL toURL:destinationURL error:&copyError]) {
+		AILogWithSignature(@"Failed to save image to %@: %@", destinationURL, copyError);
+		[self _presentImageSaveError:copyError imageURL:sourceURL window:window];
+	}
+}
+
+- (void)_downloadRemoteImageAtURL:(NSURL *)sourceURL toURL:(NSURL *)destinationURL window:(NSWindow *)window
+{
+	NSURLSessionDownloadTask *task = [[NSURLSession sharedSession]
+		downloadTaskWithURL:sourceURL
+		  completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
+			  if (error != nil) {
+				  AILogWithSignature(@"Failed to download image from %@: %@", sourceURL, error);
+				  dispatch_async(dispatch_get_main_queue(), ^{
+					  [self _presentImageSaveError:error imageURL:sourceURL window:window];
+				  });
+				  return;
+			  }
+
+			  NSError *moveError = nil;
+			  if (![[NSFileManager defaultManager] moveItemAtURL:location toURL:destinationURL error:&moveError]) {
+				  AILogWithSignature(@"Failed to save downloaded image to %@: %@", destinationURL, moveError);
+				  dispatch_async(dispatch_get_main_queue(), ^{
+					  [self _presentImageSaveError:moveError imageURL:sourceURL window:window];
+				  });
+			  }
+		  }];
+	[task resume];
+}
+
+- (void)_presentImageSaveError:(NSError *)error imageURL:(NSURL *)imageURL window:(NSWindow *)window
+{
+	if (window == nil) {
+		return;
+	}
+
+	NSAlert *alert = [NSAlert alertWithError:error];
+	alert.messageText =
+		AILocalizedString(@"Save Image Failed", "Title shown when an image could not be saved from the message view");
+	if (imageURL != nil) {
+		alert.informativeText = [NSString
+			stringWithFormat:AILocalizedString(@"Could not save the image at %@.",
+											   "Details shown when an image fails to save from the message view"),
+							 [imageURL absoluteString]];
+	}
+	[alert beginSheetModalForWindow:window completionHandler:nil];
 }
 
 #pragma mark - AIMessageDisplayController

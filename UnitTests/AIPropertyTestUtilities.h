@@ -77,6 +77,11 @@ NSString *PBTRandomWhitespaceString(uint32_t maxLen);
 /// Returns a random HTML fragment (opening/closing tags, plain text, entities).
 NSString *PBTRandomHTMLFragment(uint32_t maxLen);
 
+/// Returns a random HTML string mixing text, comments, and tags carrying remote and local
+/// resource-attribute values. Remote `<a href>` values are never generated, so callers can
+/// assert that sanitized output contains no http(s) URLs.
+NSString *PBTRandomHTMLString(uint32_t maxLen);
+
 // MARK: - Attributed string generators
 
 /// Returns an NSAttributedString with random text and random attributes applied to each
@@ -103,6 +108,14 @@ NSDictionary *PBTRandomStringDictionary(uint32_t maxPairs);
 /// Returns a dictionary with random keys from `keyPool` and random values (strings or
 /// numbers, matching the key). Simulates the kind of dictionary AIStatus uses.
 NSDictionary *PBTRandomStatusDictionary(void);
+
+/// Returns a value simulating the body of a WKScriptMessage `contextMenu` message (see
+/// AIWebKitMessageViewWKContextMenu.h). Mostly a dictionary; roughly one time in ten a
+/// non-dictionary (string, array, number). When a dictionary, `type` is usually the string
+/// "contextMenu" but sometimes wrong-typed, a different string, or missing; `x`/`y` are
+/// usually NSNumber but sometimes strings, NSNull, or missing; `imageURL` is variously a
+/// non-empty string, an empty string, an NSNumber, or absent.
+id PBTRandomJSBodyDictionary(void);
 
 // MARK: - Shrinking helper
 

@@ -45,6 +45,10 @@ for k in [
     "xtraIdentTestFileRef", "xtraIdentTestBuildFile",
     "migrFileRef", "migrHeaderRef", "migrBuildFile",
     "migrTestFileRef", "migrTestBuildFile",
+    "ctxMenuFileRef", "ctxMenuHeaderRef", "ctxMenuBuildFile",
+    "ctxMenuTestFileRef", "ctxMenuTestBuildFile",
+    "sanitizerFileRef", "sanitizerHeaderRef", "sanitizerBuildFile",
+    "sanitizerTestFileRef", "sanitizerTestBuildFile",
 
     # Frameworks
     "xctestFwkRef", "xctestFwkBuildFile",
@@ -84,7 +88,11 @@ objects = {
                      H["xtraIdentFileRef"], H["xtraIdentHeaderRef"],
                      H["xtraIdentTestFileRef"],
                      H["migrFileRef"], H["migrHeaderRef"],
-                     H["migrTestFileRef"]],
+                     H["migrTestFileRef"],
+                     H["ctxMenuFileRef"], H["ctxMenuHeaderRef"],
+                     H["ctxMenuTestFileRef"],
+                     H["sanitizerFileRef"], H["sanitizerHeaderRef"],
+                     H["sanitizerTestFileRef"]],
         "name": "Sources",
         "sourceTree": "<group>",
     },
@@ -192,6 +200,42 @@ objects = {
         "path": "../../UnitTests/MessageStylePreferenceMigrationTest.m",
         "sourceTree": "<group>",
     },
+    H["ctxMenuFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/WebKit Message View/AIWebKitMessageViewWKContextMenu.m",
+        "sourceTree": "<group>",
+    },
+    H["ctxMenuHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Plugins/WebKit Message View/AIWebKitMessageViewWKContextMenu.h",
+        "sourceTree": "<group>",
+    },
+    H["ctxMenuTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestPropertyBasedAIWebKitMessageViewWKContextMenu.m",
+        "sourceTree": "<group>",
+    },
+    H["sanitizerFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Frameworks/Adium/Source/AIHTMLPasteSanitizer.m",
+        "sourceTree": "<group>",
+    },
+    H["sanitizerHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Frameworks/Adium/Source/AIHTMLPasteSanitizer.h",
+        "sourceTree": "<group>",
+    },
+    H["sanitizerTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestPropertyBasedAIHTMLPasteSanitizer.m",
+        "sourceTree": "<group>",
+    },
 
     H["xctestFwkRef"]: {
         "isa": "PBXFileReference",
@@ -248,7 +292,9 @@ objects = {
         "buildActionMask": 2147483647,
         "files": [H["testBuildFile"], H["pbtUtilBuildFile"],
                   H["xtraIdentTestBuildFile"], H["xtraIdentBuildFile"],
-                  H["migrTestBuildFile"], H["migrBuildFile"]],
+                  H["migrTestBuildFile"], H["migrBuildFile"],
+                  H["ctxMenuBuildFile"], H["ctxMenuTestBuildFile"],
+                  H["sanitizerBuildFile"], H["sanitizerTestBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
     H["testFrameworksPhase"]: {
@@ -270,6 +316,10 @@ objects = {
     H["xtraIdentTestBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["xtraIdentTestFileRef"]},
     H["migrBuildFile"]:           {"isa": "PBXBuildFile", "fileRef": H["migrFileRef"]},
     H["migrTestBuildFile"]:       {"isa": "PBXBuildFile", "fileRef": H["migrTestFileRef"]},
+    H["ctxMenuBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["ctxMenuFileRef"]},
+    H["ctxMenuTestBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["ctxMenuTestFileRef"]},
+    H["sanitizerBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["sanitizerFileRef"]},
+    H["sanitizerTestBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["sanitizerTestFileRef"]},
 
     # ── Target Dependency ───────────────────────────────────────
     H["testTargetDep"]: {
@@ -406,6 +456,7 @@ objects = {
                 "$(SRCROOT)/../../Source",
                 "$(SRCROOT)/../../UnitTests",
                 "$(SRCROOT)/../../Plugins/WebKit Message View",
+                "$(SRCROOT)/../../Frameworks/Adium/Source",
             ),
             "GCC_PREFIX_HEADER": "",
             "INFOPLIST_FILE": "CoverageHostTests-Info.plist",
@@ -439,6 +490,7 @@ objects = {
                 "$(SRCROOT)/../../Source",
                 "$(SRCROOT)/../../UnitTests",
                 "$(SRCROOT)/../../Plugins/WebKit Message View",
+                "$(SRCROOT)/../../Frameworks/Adium/Source",
             ),
             "GCC_PREFIX_HEADER": "",
             "INFOPLIST_FILE": "CoverageHostTests-Info.plist",

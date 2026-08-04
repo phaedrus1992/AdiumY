@@ -754,6 +754,7 @@
 		34DC8ADD0A7EEEF7003E1636 /* AIContextMenuTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E1E8177063A3EEC00EB00F7 /* AIContextMenuTextView.m */; };
 		34DC8AE00A7EEEF7003E1636 /* AIMessageEntryTextView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B5827E80613CE9D0004BD25 /* AIMessageEntryTextView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		34DC8AE10A7EEEF7003E1636 /* AIMessageEntryTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B5827E90613CE9D0004BD25 /* AIMessageEntryTextView.m */; };
+		D4E6A1C70B3F4A8E9C2D7E16 /* AIHTMLPasteSanitizer.m in Sources */ = {isa = PBXBuildFile; fileRef = D4E6A1C60B3F4A8E9C2D7E15 /* AIHTMLPasteSanitizer.m */; };
 		34DC8AE40A7EEEF7003E1636 /* stackImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 349DDD5206406A7D00542726 /* stackImage.png */; };
 		34DC8AE50A7EEEF7003E1636 /* AILocalizationAssistance.h in Headers */ = {isa = PBXBuildFile; fileRef = 34D189B1076131850075A380 /* AILocalizationAssistance.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		34DC8AE70A7EEEF7003E1636 /* AILocalizationButtonCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 078C5CD0079EFF87004C75A4 /* AILocalizationButtonCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -979,6 +980,7 @@
 		6318DBA60F8D93F200C5E584 /* Template.html in Resources */ = {isa = PBXBuildFile; fileRef = 4B03711506595A70008F5981 /* Template.html */; };
 		6318DBB50F8D940A00C5E584 /* AIWebKitMessageViewPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B539C4C05EFD6CD00E5921A /* AIWebKitMessageViewPlugin.m */; };
 		1D0DB4D0A46D4171BD872B7F /* AIWebkitMessageStylePreferenceMigration.m in Sources */ = {isa = PBXBuildFile; fileRef = AC51A0B63C194454B9C2FDA6 /* AIWebkitMessageStylePreferenceMigration.m */; };
+		D4E6A1C40B3F4A8E9C2D7E13 /* AIWebKitMessageViewWKContextMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = D4E6A1C30B3F4A8E9C2D7E12 /* AIWebKitMessageViewWKContextMenu.m */; };
 		6318DBB70F8D940A00C5E584 /* ESWebKitMessageViewPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 34C2D70406338E2E0018E5D2 /* ESWebKitMessageViewPreferences.m */; };
 		6318DBB80F8D940A00C5E584 /* AIWebkitMessageViewStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BD62D7F07CE8F240099EBA2 /* AIWebkitMessageViewStyle.m */; };
 		6318DBB90F8D940A00C5E584 /* AIPreviewChat.m in Sources */ = {isa = PBXBuildFile; fileRef = 34182F490AC2CA3C0067DEF3 /* AIPreviewChat.m */; };
@@ -2649,6 +2651,8 @@
 		34C2D70406338E2E0018E5D2 /* ESWebKitMessageViewPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ESWebKitMessageViewPreferences.m; path = "Plugins/WebKit Message View/ESWebKitMessageViewPreferences.m"; sourceTree = "<group>"; };
 		ED1EAA1C9B7C485297710014 /* AIWebkitMessageStylePreferenceMigration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIWebkitMessageStylePreferenceMigration.h; path = "Plugins/WebKit Message View/AIWebkitMessageStylePreferenceMigration.h"; sourceTree = "<group>"; };
 		AC51A0B63C194454B9C2FDA6 /* AIWebkitMessageStylePreferenceMigration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AIWebkitMessageStylePreferenceMigration.m; path = "Plugins/WebKit Message View/AIWebkitMessageStylePreferenceMigration.m"; sourceTree = "<group>"; };
+		D4E6A1C20B3F4A8E9C2D7E11 /* AIWebKitMessageViewWKContextMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIWebKitMessageViewWKContextMenu.h; path = "Plugins/WebKit Message View/AIWebKitMessageViewWKContextMenu.h"; sourceTree = "<group>"; };
+		D4E6A1C30B3F4A8E9C2D7E12 /* AIWebKitMessageViewWKContextMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AIWebKitMessageViewWKContextMenu.m; path = "Plugins/WebKit Message View/AIWebKitMessageViewWKContextMenu.m"; sourceTree = "<group>"; };
 		34C2D8C00633BBA80018E5D2 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = "Plugins/WebKit Message View/Resources/en.lproj/WebKitPreferencesView.nib"; sourceTree = "<group>"; };
 		34C2DBE5063449AF0018E5D2 /* Preview.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = Preview.plist; path = "Plugins/WebKit Message View/Preview.plist"; sourceTree = "<group>"; };
 		34C2DF00063498ED0018E5D2 /* SoulEdge.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SoulEdge.png; path = "Plugins/WebKit Message View/SoulEdge.png"; sourceTree = "<group>"; };
@@ -2968,6 +2972,8 @@
 		4B539C4C05EFD6CD00E5921A /* AIWebKitMessageViewPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AIWebKitMessageViewPlugin.m; path = "Plugins/WebKit Message View/AIWebKitMessageViewPlugin.m"; sourceTree = "<group>"; };
 		4B5827E80613CE9D0004BD25 /* AIMessageEntryTextView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIMessageEntryTextView.h; path = Frameworks/Adium/Source/AIMessageEntryTextView.h; sourceTree = "<group>"; };
 		4B5827E90613CE9D0004BD25 /* AIMessageEntryTextView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIMessageEntryTextView.m; path = Frameworks/Adium/Source/AIMessageEntryTextView.m; sourceTree = "<group>"; };
+		D4E6A1C50B3F4A8E9C2D7E14 /* AIHTMLPasteSanitizer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIHTMLPasteSanitizer.h; path = Frameworks/Adium/Source/AIHTMLPasteSanitizer.h; sourceTree = "<group>"; };
+		D4E6A1C60B3F4A8E9C2D7E15 /* AIHTMLPasteSanitizer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIHTMLPasteSanitizer.m; path = Frameworks/Adium/Source/AIHTMLPasteSanitizer.m; sourceTree = "<group>"; };
 		4B588C9807AC23A9001832A9 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = Frameworks/Adium/Resources/en.lproj/EditStateSheet.nib; sourceTree = "<group>"; };
 		4B588C9B07AC23B2001832A9 /* AIEditStateWindowController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIEditStateWindowController.h; path = Frameworks/Adium/Source/AIEditStateWindowController.h; sourceTree = "<group>"; };
 		4B588C9C07AC23B2001832A9 /* AIEditStateWindowController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIEditStateWindowController.m; path = Frameworks/Adium/Source/AIEditStateWindowController.m; sourceTree = "<group>"; };
@@ -5298,6 +5304,8 @@
 				7E1E8177063A3EEC00EB00F7 /* AIContextMenuTextView.m */,
 				4B5827E80613CE9D0004BD25 /* AIMessageEntryTextView.h */,
 				4B5827E90613CE9D0004BD25 /* AIMessageEntryTextView.m */,
+				D4E6A1C50B3F4A8E9C2D7E14 /* AIHTMLPasteSanitizer.h */,
+				D4E6A1C60B3F4A8E9C2D7E15 /* AIHTMLPasteSanitizer.m */,
 				F55B416E03AB8C3201A8010A /* AIPasswordPromptController.h */,
 				F55B416603AB8BFC01A8010A /* AIPasswordPromptController.m */,
 				349DDD5206406A7D00542726 /* stackImage.png */,
@@ -6283,6 +6291,8 @@
 				34C2D70306338E2E0018E5D2 /* ESWebKitMessageViewPreferences.h */,
 				ED1EAA1C9B7C485297710014 /* AIWebkitMessageStylePreferenceMigration.h */,
 				AC51A0B63C194454B9C2FDA6 /* AIWebkitMessageStylePreferenceMigration.m */,
+				D4E6A1C20B3F4A8E9C2D7E11 /* AIWebKitMessageViewWKContextMenu.h */,
+				D4E6A1C30B3F4A8E9C2D7E12 /* AIWebKitMessageViewWKContextMenu.m */,
 				34C2D70406338E2E0018E5D2 /* ESWebKitMessageViewPreferences.m */,
 				34C2DBE5063449AF0018E5D2 /* Preview.plist */,
 				34C2DF00063498ED0018E5D2 /* SoulEdge.png */,
@@ -7836,6 +7846,7 @@
 				1112561B0F8DA2BF00E76177 /* EKEzvOutgoingFileTransfer.m in Sources */,
 				6318DBB50F8D940A00C5E584 /* AIWebKitMessageViewPlugin.m in Sources */,
 				1D0DB4D0A46D4171BD872B7F /* AIWebkitMessageStylePreferenceMigration.m in Sources */,
+				D4E6A1C40B3F4A8E9C2D7E13 /* AIWebKitMessageViewWKContextMenu.m in Sources */,
 				6318DBB70F8D940A00C5E584 /* ESWebKitMessageViewPreferences.m in Sources */,
 				AAE6CF0324C52A10008C5A03 /* AIAdiumURLSchemeHandler.m in Sources */,
 				AAE6CF0724C52A10008C5A07 /* AIWebKitMessageViewWKController.m in Sources */,
@@ -8184,6 +8195,7 @@
 				34DC8ADB0A7EEEF7003E1636 /* AIAccountPlusFieldPromptController.m in Sources */,
 				34DC8ADD0A7EEEF7003E1636 /* AIContextMenuTextView.m in Sources */,
 				34DC8AE10A7EEEF7003E1636 /* AIMessageEntryTextView.m in Sources */,
+				D4E6A1C70B3F4A8E9C2D7E16 /* AIHTMLPasteSanitizer.m in Sources */,
 				34DC8AE80A7EEEF7003E1636 /* AILocalizationButtonCell.m in Sources */,
 				34DC8AEA0A7EEEF7003E1636 /* AILocalizationTextField.m in Sources */,
 				34DC8AEC0A7EEEF7003E1636 /* AILocalizationButton.m in Sources */,

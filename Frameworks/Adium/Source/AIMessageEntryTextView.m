@@ -35,6 +35,7 @@
 #import <AIUtilities/AITextAttributes.h>
 #import <AdiumY/AIContactControllerProtocol.h>
 
+#import "AIHTMLPasteSanitizer.h"
 #import "NSString-FBAdditions.h"
 
 #define MAX_HISTORY 25           // Number of messages to remember in history
@@ -485,19 +486,6 @@
 
 #pragma mark Pasting
 
-// Forbid loading the images embedded in a string when pasting.
-// They are very unlikely to work and a privacy issue.
-// Parameter types are id: the real types (WebView/WebDataSource) are deprecated, but the
-// selector must stay intact for NSAttributedString's HTML importer (NSWebResourceLoadDelegateDocumentOption).
-- (NSURLRequest *)webView:(id)sender
-				 resource:(id)identifier
-		  willSendRequest:(NSURLRequest *)request
-		 redirectResponse:(NSURLResponse *)redirectResponse
-		   fromDataSource:(id)dataSource
-{
-	return nil;
-}
-
 - (BOOL)handlePasteAsRichText
 {
 	NSPasteboard *generalPasteboard = [NSPasteboard generalPasteboard];
@@ -521,12 +509,17 @@
 			handledPaste = YES;
 		} else if ([type isEqualToString:NSPasteboardTypeHTML]) {
 			NSData *htmlData = [generalPasteboard dataForType:NSPasteboardTypeHTML];
+			NSString *html = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
+			if (html != nil) {
+				// Neutralize remote image references (src, srcset, CSS url(), …) so pasting rich
+				// text never triggers network loads for those images. See #120.
+				htmlData = [AIHTMLStringByNeutralizingRemoteResources(html) dataUsingEncoding:NSUTF8StringEncoding];
+			}
 			[self insertText:[[NSAttributedString alloc]
 									   initWithData:htmlData
 											options:@{
 												NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
-												NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding),
-												NSWebResourceLoadDelegateDocumentOption : self
+												NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding)
 											}
 								 documentAttributes:NULL
 											  error:NULL]
