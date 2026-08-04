@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- Add "Save Image As" to the message-view context menu for remote images
+
 ### Fixed
+- Stop HTML paste from loading remote images embedded in pasted rich text — it
+  no longer triggers a network request for those images
 - Fix message-style preferences left over from the pre-rename AdiumY fork
   (`im.adium.*` style IDs) being ignored during preference migration — they now
   remap to the AdiumY bundle-ID namespace on next launch
