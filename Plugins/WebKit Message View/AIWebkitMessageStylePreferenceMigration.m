@@ -59,11 +59,11 @@ NSDictionary *AIWebkitMessageStylePreferenceMigration(NSDictionary *prefs)
 
 	// Upgrade the displayed style itself (an exact match on the stored value).
 	NSString *currentStyle = [prefs objectForKey:kStylePreferenceKey];
-	if (currentStyle != nil) {
+	if (currentStyle != nil && [currentStyle isKindOfClass:[NSString class]]) {
 		for (NSUInteger i = 0; i < mappingCount; i++) {
 			if ([currentStyle isEqualToString:legacyToShipped[i].legacyBundleID]) {
 				NSString *newStyle =
-					[kAdiumYBundleIdentifierPrefix stringByAppendingFormat:@".%@", legacyToShipped[i].styleName];
+					[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:legacyToShipped[i].styleName];
 				if (![newStyle isEqualToString:currentStyle]) {
 					if (delta == nil)
 						delta = [NSMutableDictionary dictionary];
@@ -85,9 +85,8 @@ NSDictionary *AIWebkitMessageStylePreferenceMigration(NSDictionary *prefs)
 			if (![key hasPrefix:legacyBundleID])
 				continue;
 
-			NSString *newKey =
-				[[kAdiumYBundleIdentifierPrefix stringByAppendingFormat:@".%@", legacyToShipped[i].styleName]
-					stringByAppendingString:[key substringFromIndex:[legacyBundleID length]]];
+			NSString *newKey = [[kAdiumYBundleIdentifierPrefixDot stringByAppendingString:legacyToShipped[i].styleName]
+				stringByAppendingString:[key substringFromIndex:[legacyBundleID length]]];
 
 			// A key already under the fork bundle ID is authoritative; retire
 			// the stale legacy key rather than overwriting it.
