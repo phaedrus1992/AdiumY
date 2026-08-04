@@ -67,6 +67,6 @@ BOOL AIWKCanSaveImageURL(NSURL *imageURL)
 		return YES;
 	}
 
-	NSString *scheme = [[imageURL scheme] lowercaseString];
+	NSString *scheme = [imageURL scheme];
 	return [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"];
 }

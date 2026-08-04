@@ -408,7 +408,7 @@ static NSString *const AIWKContextMenuScript =
 
 	NSURL *imageURL = AIWKImageURLFromString(imageURLString);
 
-	if (imageURL != nil) {
+	if (AIWKCanSaveImageURL(imageURL)) {
 		menuItem = [[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Open Image", nil)
 											  action:@selector(openImage:)
 									   keyEquivalent:@""];
@@ -416,15 +416,13 @@ static NSString *const AIWKContextMenuScript =
 		[menuItem setRepresentedObject:imageURL];
 		[menu addItem:menuItem];
 
-		if (AIWKCanSaveImageURL(imageURL)) {
-			menuItem =
-				[[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"Save Image As", nil) stringByAppendingEllipsis]
-										   action:@selector(saveImageAs:)
-									keyEquivalent:@""];
-			[menuItem setTarget:self];
-			[menuItem setRepresentedObject:imageURL];
-			[menu addItem:menuItem];
-		}
+		menuItem =
+			[[NSMenuItem alloc] initWithTitle:[AILocalizedString(@"Save Image As", nil) stringByAppendingEllipsis]
+									   action:@selector(saveImageAs:)
+								keyEquivalent:@""];
+		[menuItem setTarget:self];
+		[menuItem setRepresentedObject:imageURL];
+		[menu addItem:menuItem];
 
 		[menu addItem:[NSMenuItem separatorItem]];
 	}
@@ -482,7 +480,7 @@ static NSString *const AIWKContextMenuScript =
 - (void)openImage:(id)sender
 {
 	NSURL *imageURL = [sender representedObject];
-	if (![imageURL isKindOfClass:[NSURL class]]) {
+	if (![imageURL isKindOfClass:[NSURL class]] || !AIWKCanSaveImageURL(imageURL)) {
 		return;
 	}
 
