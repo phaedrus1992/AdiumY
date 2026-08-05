@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   remap to the AdiumY bundle-ID namespace on next launch
 - Reject non-image or oversized responses when saving a remote image from the
   message-view context menu, instead of writing the response body to disk
+- Use only the remote file's leaf name as the default save name for incoming
+  file transfers, falling back to "Untitled" for empty, `.`, `..`, `/`, or
+  whitespace-only names
+- Reject non-2xx HTTP responses before any bytes are written to disk for file
+  downloads — a failed Xtra download is no longer auto-installed, and a failed
+  Bonjour file transfer is no longer decoded or unpacked
 
 ## [2.0.0] - 2026-08-03
 

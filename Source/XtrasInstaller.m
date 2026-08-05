@@ -17,6 +17,7 @@
 #import "XtrasInstaller.h"
 #import <AIUtilities/AIBundleAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+#import <AdiumY/AIHTTPDownloadValidation.h>
 
 // Should only be YES for testing
 #define ALLOW_UNTRUSTED_XTRAS NO
@@ -24,6 +25,7 @@
 @interface XtrasInstaller ()
 - (void)closeInstaller __attribute__((ns_consumes_self));
 - (void)updateInfoText;
+- (void)presentDownloadError:(NSError *)error;
 @end
 
 /*!
@@ -131,6 +133,15 @@
 	didReceiveResponse:(NSURLResponse *)response
 	 completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler
 {
+	// Reject non-HTTP responses and non-2xx HTTP statuses before creating the destination file
+	// or auto-installing anything (issue #176).
+	NSError *validationError = AIHTTPDownloadValidationErrorForResponse(response);
+	if (validationError != nil) {
+		completionHandler(NSURLSessionResponseCancel);
+		[self presentDownloadError:validationError];
+		return;
+	}
+
 	NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
 	self.xtraName = [[httpResponse allHeaderFields] objectForKey:@"X-Xtraname"];
 	amountDownloaded = 0;
@@ -175,26 +186,27 @@
 
 	if (error != nil) {
 		if ([error code] != NSURLErrorCancelled) {
-			NSString *errorMsg;
-
-			errorMsg = [NSString
-				stringWithFormat:AILocalizedString(@"An error occurred while downloading this Xtra: %@.", nil),
-								 [error localizedDescription]];
-
-			NSAlert *xtraDownloadErrorAlert = [[NSAlert alloc] init];
-			xtraDownloadErrorAlert.messageText = AILocalizedString(@"Xtra Downloading Error", nil);
-			xtraDownloadErrorAlert.informativeText = [NSString stringWithFormat:@"%@", errorMsg];
-			[xtraDownloadErrorAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
-			[xtraDownloadErrorAlert beginSheetModalForWindow:window
-										   completionHandler:^(NSModalResponse returnCode) {
-											   [self sheetDidDismiss:xtraDownloadErrorAlert.window
-														  returnCode:returnCode
-														 contextInfo:nil];
-										   }];
+			[self presentDownloadError:error];
 		}
 	} else {
 		[self downloadDidFinish];
 	}
+}
+
+- (void)presentDownloadError:(NSError *)error
+{
+	NSAlert *xtraDownloadErrorAlert = [[NSAlert alloc] init];
+	xtraDownloadErrorAlert.messageText = AILocalizedString(@"Xtra Downloading Error", nil);
+	xtraDownloadErrorAlert.informativeText =
+		[NSString stringWithFormat:AILocalizedString(@"An error occurred while downloading this Xtra: %@.", nil),
+								   [error localizedDescription]];
+	[xtraDownloadErrorAlert addButtonWithTitle:AILocalizedString(@"Cancel", nil)];
+	[xtraDownloadErrorAlert beginSheetModalForWindow:window
+								   completionHandler:^(NSModalResponse returnCode) {
+									   [self sheetDidDismiss:xtraDownloadErrorAlert.window
+												  returnCode:returnCode
+												 contextInfo:nil];
+								   }];
 }
 
 - (void)setQuarantineProperties:(NSDictionary *)dict forDirectory:(NSURL *)dir

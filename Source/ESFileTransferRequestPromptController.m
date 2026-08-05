@@ -19,7 +19,9 @@
 #import "ESFileTransferController.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIHTTPDownloadValidation.h>
 #import <AdiumY/AIListContact.h>
 
 @interface ESFileTransferRequestPromptController ()
@@ -66,9 +68,13 @@
  */
 - (void)handleFileTransferAction:(AIFileTransferAction)action
 {
-	NSString *localFilename = [[adium.preferenceController userPreferredDownloadFolder]
-		stringByAppendingPathComponent:[fileTransfer remoteFilename]];
-	;
+	// Use only the remote file's leaf name; collapsing any embedded path components
+	// ("a/../b", "/etc/passwd", "%2F" after decoding) keeps the quick-save destination and the
+	// save panel's directory URL inside the download folder (issues #175, #179).
+	NSString *remoteFilename =
+		AIHTTPDownloadSafeSaveName([fileTransfer remoteFilename], AILocalizedString(@"Untitled", nil));
+	NSString *localFilename =
+		[[adium.preferenceController userPreferredDownloadFolder] stringByAppendingPathComponent:remoteFilename];
 	BOOL finished = NO;
 
 	switch (action) {
@@ -87,7 +93,8 @@
 		// Prompt for a location to save
 		NSSavePanel *savePanel = [NSSavePanel savePanel];
 		savePanel.directoryURL = [NSURL fileURLWithPath:localFilename];
-		savePanel.nameFieldStringValue = [localFilename lastPathComponent];
+		// remoteFilename is already the sanitized leaf name (issue #175).
+		savePanel.nameFieldStringValue = remoteFilename;
 		NSInteger returnCode = [savePanel runModal];
 		// Only need to take action if the user pressed OK; if she pressed cancel, just return to our window.
 		if (returnCode == NSModalResponseOK) {

@@ -78,6 +78,9 @@
 				<string>F11E4875E42F52059DE10368</string>
 				<string>2C4CDDB4C4A45BD6B0E2ECA1</string>
 				<string>83B9A2D6B3F8593AA7E2005E</string>
+				<string>4F60F1619C48579CBC55A54C</string>
+				<string>9B2A343C7A4C5899834BB986</string>
+				<string>BFD854DF38F65E7C9A72C2AA</string>
 			</array>
 			<key>name</key>
 			<string>Sources</string>
@@ -335,6 +338,39 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
+		<key>4F60F1619C48579CBC55A54C</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Frameworks/Adium/Source/AIHTTPDownloadValidation.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>9B2A343C7A4C5899834BB986</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Frameworks/Adium/Source/AIHTTPDownloadValidation.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>BFD854DF38F65E7C9A72C2AA</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAIHTTPDownloadValidation.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
 		<key>1041C5FC221D577F8FF36681</key>
 		<dict>
 			<key>isa</key>
@@ -437,6 +473,8 @@
 				<string>63CF7101459454DC9B17A792</string>
 				<string>C34C5C77AA045BB187A0D5D2</string>
 				<string>BBDF3D2AF8E251B295829A34</string>
+				<string>C6C212D7BB2A5FDD9FED923E</string>
+				<string>67E8FA945479508B9105C940</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
@@ -553,6 +591,20 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>83B9A2D6B3F8593AA7E2005E</string>
+		</dict>
+		<key>C6C212D7BB2A5FDD9FED923E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>4F60F1619C48579CBC55A54C</string>
+		</dict>
+		<key>67E8FA945479508B9105C940</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>BFD854DF38F65E7C9A72C2AA</string>
 		</dict>
 		<key>DE7B656C24B85237B361EB6C</key>
 		<dict>

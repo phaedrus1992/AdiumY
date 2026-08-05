@@ -755,6 +755,8 @@
 		34DC8AE00A7EEEF7003E1636 /* AIMessageEntryTextView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B5827E80613CE9D0004BD25 /* AIMessageEntryTextView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		34DC8AE10A7EEEF7003E1636 /* AIMessageEntryTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B5827E90613CE9D0004BD25 /* AIMessageEntryTextView.m */; };
 		D4E6A1C70B3F4A8E9C2D7E16 /* AIHTMLPasteSanitizer.m in Sources */ = {isa = PBXBuildFile; fileRef = D4E6A1C60B3F4A8E9C2D7E15 /* AIHTMLPasteSanitizer.m */; };
+		D4E6A1CA0B3F4A8E9C2D7E19 /* AIHTTPDownloadValidation.m in Sources */ = {isa = PBXBuildFile; fileRef = D4E6A1C90B3F4A8E9C2D7E18 /* AIHTTPDownloadValidation.m */; };
+		D4E6A1CB0B3F4A8E9C2D7E1A /* AIHTTPDownloadValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = D4E6A1C80B3F4A8E9C2D7E17 /* AIHTTPDownloadValidation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		34DC8AE40A7EEEF7003E1636 /* stackImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 349DDD5206406A7D00542726 /* stackImage.png */; };
 		34DC8AE50A7EEEF7003E1636 /* AILocalizationAssistance.h in Headers */ = {isa = PBXBuildFile; fileRef = 34D189B1076131850075A380 /* AILocalizationAssistance.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		34DC8AE70A7EEEF7003E1636 /* AILocalizationButtonCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 078C5CD0079EFF87004C75A4 /* AILocalizationButtonCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -2974,6 +2976,8 @@
 		4B5827E90613CE9D0004BD25 /* AIMessageEntryTextView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIMessageEntryTextView.m; path = Frameworks/Adium/Source/AIMessageEntryTextView.m; sourceTree = "<group>"; };
 		D4E6A1C50B3F4A8E9C2D7E14 /* AIHTMLPasteSanitizer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIHTMLPasteSanitizer.h; path = Frameworks/Adium/Source/AIHTMLPasteSanitizer.h; sourceTree = "<group>"; };
 		D4E6A1C60B3F4A8E9C2D7E15 /* AIHTMLPasteSanitizer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIHTMLPasteSanitizer.m; path = Frameworks/Adium/Source/AIHTMLPasteSanitizer.m; sourceTree = "<group>"; };
+		D4E6A1C80B3F4A8E9C2D7E17 /* AIHTTPDownloadValidation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIHTTPDownloadValidation.h; path = Frameworks/Adium/Source/AIHTTPDownloadValidation.h; sourceTree = "<group>"; };
+		D4E6A1C90B3F4A8E9C2D7E18 /* AIHTTPDownloadValidation.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIHTTPDownloadValidation.m; path = Frameworks/Adium/Source/AIHTTPDownloadValidation.m; sourceTree = "<group>"; };
 		4B588C9807AC23A9001832A9 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = Frameworks/Adium/Resources/en.lproj/EditStateSheet.nib; sourceTree = "<group>"; };
 		4B588C9B07AC23B2001832A9 /* AIEditStateWindowController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIEditStateWindowController.h; path = Frameworks/Adium/Source/AIEditStateWindowController.h; sourceTree = "<group>"; };
 		4B588C9C07AC23B2001832A9 /* AIEditStateWindowController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIEditStateWindowController.m; path = Frameworks/Adium/Source/AIEditStateWindowController.m; sourceTree = "<group>"; };
@@ -5306,6 +5310,8 @@
 				4B5827E90613CE9D0004BD25 /* AIMessageEntryTextView.m */,
 				D4E6A1C50B3F4A8E9C2D7E14 /* AIHTMLPasteSanitizer.h */,
 				D4E6A1C60B3F4A8E9C2D7E15 /* AIHTMLPasteSanitizer.m */,
+				D4E6A1C80B3F4A8E9C2D7E17 /* AIHTTPDownloadValidation.h */,
+				D4E6A1C90B3F4A8E9C2D7E18 /* AIHTTPDownloadValidation.m */,
 				F55B416E03AB8C3201A8010A /* AIPasswordPromptController.h */,
 				F55B416603AB8BFC01A8010A /* AIPasswordPromptController.m */,
 				349DDD5206406A7D00542726 /* stackImage.png */,
@@ -6923,6 +6929,7 @@
 				1164A90D0F7AD4AB00110AE4 /* AIContentTopic.h in Headers */,
 				34DC8A5A0A7EEEF7003E1636 /* ESPresetNameSheetController.h in Headers */,
 				11FC23C20F768C1600C1C906 /* AIXMLElement.h in Headers */,
+				D4E6A1CB0B3F4A8E9C2D7E1A /* AIHTTPDownloadValidation.h in Headers */,
 				34DC8AB90A7EEEF7003E1636 /* AIListContactCell.h in Headers */,
 				4D4A20B32577553E008BB8E3 /* AIMessageWindowController.h in Headers */,
 				4D4A23AE25776FDB008BB8E3 /* AIMessageWindow.h in Headers */,
@@ -8196,6 +8203,7 @@
 				34DC8ADD0A7EEEF7003E1636 /* AIContextMenuTextView.m in Sources */,
 				34DC8AE10A7EEEF7003E1636 /* AIMessageEntryTextView.m in Sources */,
 				D4E6A1C70B3F4A8E9C2D7E16 /* AIHTMLPasteSanitizer.m in Sources */,
+				D4E6A1CA0B3F4A8E9C2D7E19 /* AIHTTPDownloadValidation.m in Sources */,
 				34DC8AE80A7EEEF7003E1636 /* AILocalizationButtonCell.m in Sources */,
 				34DC8AEA0A7EEEF7003E1636 /* AILocalizationTextField.m in Sources */,
 				34DC8AEC0A7EEEF7003E1636 /* AILocalizationButton.m in Sources */,
