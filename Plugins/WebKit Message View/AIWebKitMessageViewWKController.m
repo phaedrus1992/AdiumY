@@ -537,15 +537,32 @@ static NSString *const AIWKContextMenuScript =
 				  return;
 			  }
 
-			  NSError *validationError = AIWKImageDownloadValidationErrorForResponse(response);
-			  if (validationError != nil) {
-				  AILogWithSignature(@"Refusing to save image from %@: %@", sourceURL, validationError);
+			  NSError *rejectionError = AIWKImageDownloadValidationErrorForResponse(response);
+			  if (rejectionError == nil) {
+				  // The response check only sees the declared Content-Length; NSURLSessionDownloadTask
+				  // does not enforce it against the body. Re-check the actual bytes on disk before
+				  // committing so a missing or misstated Content-Length cannot bypass the cap (#168).
+				  NSError *attributesError = nil;
+				  NSDictionary *attributes = [[NSFileManager defaultManager]
+					  attributesOfItemAtPath:[location path] error:&attributesError];
+				  if (attributesError != nil) {
+					  AILogWithSignature(@"Failed to stat downloaded image at %@: %@", location, attributesError);
+				  } else {
+					  int64_t actualBytes = [attributes[NSFileSize] longLongValue];
+					  if (actualBytes > AIWKMaxRemoteImageDownloadBytes) {
+						  rejectionError = AIWKImageDownloadValidationErrorForByteCount(actualBytes);
+					  }
+				  }
+			  }
+
+			  if (rejectionError != nil) {
+				  AILogWithSignature(@"Refusing to save image from %@: %@", sourceURL, rejectionError);
 				  NSError *cleanupError = nil;
 				  if (![[NSFileManager defaultManager] removeItemAtURL:location error:&cleanupError]) {
 					  AILogWithSignature(@"Failed to delete rejected download at %@: %@", location, cleanupError);
 				  }
 				  dispatch_async(dispatch_get_main_queue(), ^{
-					  [self _presentImageSaveError:validationError imageURL:sourceURL window:window];
+					  [self _presentImageSaveError:rejectionError imageURL:sourceURL window:window];
 				  });
 				  return;
 			  }

@@ -137,12 +137,16 @@ NSError *AIWKImageDownloadValidationErrorForResponse(NSURLResponse *response)
 
 	int64_t contentLength = [httpResponse expectedContentLength];
 	if (contentLength > AIWKMaxRemoteImageDownloadBytes) {
-		return AIWKImageDownloadValidationError(
-			AIWKImageDownloadErrorTooLarge,
-			[NSString
-				stringWithFormat:@"Remote image download: %lld bytes exceeds the %lld byte cap; refusing to save.",
-								 contentLength, AIWKMaxRemoteImageDownloadBytes]);
+		return AIWKImageDownloadValidationErrorForByteCount(contentLength);
 	}
 
 	return nil;
+}
+
+NSError *AIWKImageDownloadValidationErrorForByteCount(int64_t byteCount)
+{
+	return AIWKImageDownloadValidationError(
+		AIWKImageDownloadErrorTooLarge,
+		[NSString stringWithFormat:@"Remote image download: %lld bytes exceeds the %lld byte cap; refusing to save.",
+								   byteCount, AIWKMaxRemoteImageDownloadBytes]);
 }

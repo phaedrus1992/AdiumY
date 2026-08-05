@@ -84,13 +84,14 @@ typedef NS_ENUM(NSInteger, AIWKImageDownloadErrorCode) {
 	AIWKImageDownloadErrorBadStatus,
 	/// The Content-Type was absent or not an image/*.
 	AIWKImageDownloadErrorWrongContentType,
-	/// expectedContentLength exceeded AIWKMaxRemoteImageDownloadBytes.
+	/// The declared or measured byte count exceeded AIWKMaxRemoteImageDownloadBytes.
 	AIWKImageDownloadErrorTooLarge,
 };
 
 /// The cap for a remote image download, in bytes, before the user-picked destination is
-/// committed. Unknown lengths (Content-Length absent) pass validation — the cap guards the
-/// known-length case (issue #168).
+/// committed. Checked against the declared Content-Length when the response arrives and
+/// against the actual downloaded bytes just before the destination is committed, so a server
+/// that omits or misstates Content-Length cannot bypass it (issue #168).
 extern const int64_t AIWKMaxRemoteImageDownloadBytes;
 
 /// Validates an NSURLSession response before committing a downloaded image to the user-picked
@@ -101,3 +102,12 @@ extern const int64_t AIWKMaxRemoteImageDownloadBytes;
 /// @param response The NSURLSession response, possibly nil.
 /// @return nil when acceptable; an error describing the violated check otherwise.
 NSError *AIWKImageDownloadValidationErrorForResponse(NSURLResponse *response);
+
+/// The TooLarge rejection for a download whose byte count exceeds
+/// AIWKMaxRemoteImageDownloadBytes. Shared by the response-time check (declared
+/// Content-Length) and the post-download check (actual bytes on disk), so the error the
+/// user sees is identical whichever check fires (issue #168).
+///
+/// @param byteCount The offending byte count, declared or measured.
+/// @return An NSError in AIWKImageDownloadErrorDomain with code AIWKImageDownloadErrorTooLarge.
+NSError *AIWKImageDownloadValidationErrorForByteCount(int64_t byteCount);
