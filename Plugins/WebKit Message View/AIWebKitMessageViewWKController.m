@@ -373,7 +373,7 @@ static NSString *const AIWKContextMenuScript =
 	} else if ([type isEqualToString:@"contextMenu"]) {
 		AIWKContextMenuMessage contextMenuMessage = AIWKContextMenuMessageFromBody(body);
 		if (!contextMenuMessage.valid) {
-			AILogWithSignature(@"Ignoring contextMenu message with non-numeric coordinates: %@", body);
+			AILogWithSignature(@"Ignoring contextMenu message with invalid coordinates: %@", body);
 			return;
 		}
 
@@ -498,10 +498,8 @@ static NSString *const AIWKContextMenuScript =
 
 	NSWindow *window = [_webView window];
 	NSSavePanel *savePanel = [NSSavePanel savePanel];
-	NSString *defaultName = [imageURL lastPathComponent];
-	if ([defaultName length] == 0 || [defaultName isEqualToString:@"/"]) {
-		defaultName = AILocalizedString(@"image", "Default file name when the image URL has no path component");
-	}
+	NSString *defaultName = AIWKDefaultSaveNameForURL(
+		imageURL, AILocalizedString(@"image", "Default file name when the image URL has no path component"));
 	[savePanel setNameFieldStringValue:defaultName];
 	[savePanel beginSheetModalForWindow:window
 					  completionHandler:^(NSInteger result) {
@@ -539,6 +537,36 @@ static NSString *const AIWKContextMenuScript =
 				  return;
 			  }
 
+			  NSError *rejectionError = AIWKImageDownloadValidationErrorForResponse(response);
+			  if (rejectionError == nil) {
+				  // The response check only sees the declared Content-Length; NSURLSessionDownloadTask
+				  // does not enforce it against the body. Re-check the actual bytes on disk before
+				  // committing so a missing or misstated Content-Length cannot bypass the cap (#168).
+				  NSError *attributesError = nil;
+				  NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:[location path]
+																							  error:&attributesError];
+				  if (attributesError != nil) {
+					  AILogWithSignature(@"Failed to stat downloaded image at %@: %@", location, attributesError);
+				  } else {
+					  int64_t actualBytes = [attributes[NSFileSize] longLongValue];
+					  if (actualBytes > AIWKMaxRemoteImageDownloadBytes) {
+						  rejectionError = AIWKImageDownloadValidationErrorForByteCount(actualBytes);
+					  }
+				  }
+			  }
+
+			  if (rejectionError != nil) {
+				  AILogWithSignature(@"Refusing to save image from %@: %@", sourceURL, rejectionError);
+				  NSError *cleanupError = nil;
+				  if (![[NSFileManager defaultManager] removeItemAtURL:location error:&cleanupError]) {
+					  AILogWithSignature(@"Failed to delete rejected download at %@: %@", location, cleanupError);
+				  }
+				  dispatch_async(dispatch_get_main_queue(), ^{
+					  [self _presentImageSaveError:rejectionError imageURL:sourceURL window:window];
+				  });
+				  return;
+			  }
+
 			  NSError *moveError = nil;
 			  if (![[NSFileManager defaultManager] moveItemAtURL:location toURL:destinationURL error:&moveError]) {
 				  AILogWithSignature(@"Failed to save downloaded image to %@: %@", destinationURL, moveError);
@@ -559,11 +587,17 @@ static NSString *const AIWKContextMenuScript =
 	NSAlert *alert = [NSAlert alertWithError:error];
 	alert.messageText =
 		AILocalizedString(@"Save Image Failed", "Title shown when an image could not be saved from the message view");
+	NSString *reason = [error localizedDescription];
+	if (reason == nil) {
+		reason = @"";
+	}
 	if (imageURL != nil) {
 		alert.informativeText = [NSString
-			stringWithFormat:AILocalizedString(@"Could not save the image at %@.",
+			stringWithFormat:AILocalizedString(@"Could not save the image at %@.\n\n%@",
 											   "Details shown when an image fails to save from the message view"),
-							 [imageURL absoluteString]];
+							 [imageURL absoluteString], reason];
+	} else {
+		alert.informativeText = reason;
 	}
 	[alert beginSheetModalForWindow:window completionHandler:nil];
 }
@@ -865,8 +899,14 @@ static NSString *const AIWKContextMenuScript =
 	// Capture scroll height before append
 	[_webView evaluateJavaScript:@"document.body.scrollHeight"
 			   completionHandler:^(id result, NSError *error) {
+				   if (error != nil) {
+					   AILogWithSignature(@"Failed to evaluate scrollHeight in _markCurrentLocation: %@", error);
+					   return;
+				   }
+
 				   NSInteger h = [result integerValue];
-				   if (error || h == 0) {
+				   if (h == 0) {
+					   AILogWithSignature(@"scrollHeight evaluated to 0 in _markCurrentLocation; no scroll mark added");
 					   return;
 				   }
 
