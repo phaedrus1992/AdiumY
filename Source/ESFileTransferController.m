@@ -32,6 +32,7 @@
 #import <AdiumY/AIChatControllerProtocol.h>
 #import <AdiumY/AIContactAlertsControllerProtocol.h>
 #import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIHTTPDownloadValidation.h>
 #import <AdiumY/AIInterfaceControllerProtocol.h>
 #import <AdiumY/AIListContact.h>
 #import <AdiumY/AIListGroup.h>
@@ -226,6 +227,11 @@ static ESFileTransferPreferences *preferences;
 		((autoAcceptType == AutoAccept_FromContactList) && [listContact isIntentionallyNotAStranger])) {
 		NSString *preferredDownloadFolder = [adium.preferenceController userPreferredDownloadFolder];
 		NSString *remoteFilename = [fileTransfer remoteFilename];
+
+		// Use only the remote file's leaf name, collapsing any path components the sender
+		// embedded ("a/../b", "/etc/passwd", "%2F" after decoding) into a plain name so the
+		// download cannot escape the download folder (issues #175, #179).
+		remoteFilename = AIHTTPDownloadSafeSaveName(remoteFilename, AILocalizedString(@"Untitled", nil));
 
 		// If the incoming file would become hidden, prefix it with an underscore so it is visible.
 		if ([remoteFilename hasPrefix:@"."])
