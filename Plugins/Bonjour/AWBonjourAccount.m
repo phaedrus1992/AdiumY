@@ -477,9 +477,15 @@
 {
 	ESFileTransfer *transfer = [ESFileTransfer existingFileTransferWithID:[fileTransfer uniqueID]];
 	[libezv transferCancelled:fileTransfer];
-	if (!transfer.isStopped) {
-		[transfer setStatus:Cancelled_Remote_FileTransfer];
+	if (transfer == nil) {
+		AILogWithSignature(@"No ESFileTransfer wrapper for %@; cancel not recorded", [fileTransfer uniqueID]);
+		return;
 	}
+	if ([transfer isStopped]) {
+		AILogWithSignature(@"Transfer %@ already stopped; leaving status unchanged", [fileTransfer uniqueID]);
+		return;
+	}
+	[transfer setStatus:Cancelled_Remote_FileTransfer];
 }
 
 // Instructs the account to cancel a file ransfer in progress
@@ -502,9 +508,15 @@
 {
 	ESFileTransfer *transfer = [ESFileTransfer existingFileTransferWithID:[fileTransfer uniqueID]];
 	[libezv transferCancelled:fileTransfer];
-	if (!transfer.isStopped) {
-		[transfer setStatus:Failed_FileTransfer];
+	if (transfer == nil) {
+		AILogWithSignature(@"No ESFileTransfer wrapper for %@; failure not recorded", [fileTransfer uniqueID]);
+		return;
 	}
+	if ([transfer isStopped]) {
+		AILogWithSignature(@"Transfer %@ already stopped; leaving status unchanged", [fileTransfer uniqueID]);
+		return;
+	}
+	[transfer setStatus:Failed_FileTransfer];
 }
 #pragma mark Incoming File Transfer
 
