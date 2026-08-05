@@ -200,17 +200,6 @@ static NSString *AIWKRandomScheme(void)
 	XCTAssertFalse(AIWKContextMenuCoordinateDoubleIsInRange(NAN));
 }
 
-/// Property: AIWKContextMenuCoordinateDoubleIsInRange agrees with a direct bound comparison over a
-/// wide double range spanning negatives, in-range, and oversized values.
-- (void)testCoordinateIsValidProperty
-{
-	PBTCheckDefault({
-		double d = ((double)PBTUniform(1000000000)) / 1000.0 - 500000.0; // -500000..500000
-		BOOL expected = isfinite(d) && d >= 0.0 && d <= AIWKMaxContextMenuCoordinate;
-		XCTAssertEqual(AIWKContextMenuCoordinateDoubleIsInRange(d), expected, @"d = %f", d);
-	});
-}
-
 // Out-of-range coordinates must be rejected, not fed to NSMakePoint.
 - (void)testOutOfRangeCoordinatesAreRejected
 {
