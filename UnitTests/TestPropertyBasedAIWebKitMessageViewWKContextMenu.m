@@ -286,6 +286,45 @@ static NSHTTPURLResponse *AIWKTestHTTPResponse(NSInteger statusCode, NSString *m
 									 headerFields:headers];
 }
 
+// Random MIME type spanning nil, image types, non-image types, and a bare "image/" prefix (the
+// no-subtype edge that hasPrefix alone would wrongly accept).
+static NSString *AIWKRandomMIMEType(void)
+{
+	NSString *const candidates[] = {
+		nil,           @"image/png",     @"image/jpeg",
+		@"image/gif",  @"image/svg+xml", @"image/x-icon",
+		@"image/webp", @"text/html",     @"application/octet-stream",
+		@"text/plain", @"image/",        @"IMAGE/PNG",
+	};
+	return candidates[PBTUniform(sizeof(candidates) / sizeof(candidates[0]))];
+}
+
+// Random byte count: usually 0..AIWKMaxRemoteImageDownloadBytes (cap included), but oversized
+// ~1/4 of the time so the TooLarge branch is exercised rather than astronomically rarely.
+static int64_t AIWKRandomContentLength(void)
+{
+	if (PBTUniform(4) == 0) {
+		return AIWKMaxRemoteImageDownloadBytes + 1 + (int64_t)PBTUniform(1000000);
+	}
+	return (int64_t)PBTUniform(AIWKMaxRemoteImageDownloadBytes + 1);
+}
+
+// Random NSURLSession response: an NSHTTPURLResponse with random status (0..599), MIME type, and
+// length, or occasionally (1 in 10) a non-HTTP response or nil to exercise the NotHTTP path.
+static NSURLResponse *AIWKRandomDownloadResponse(void)
+{
+	if (PBTUniform(10) == 0) {
+		if (PBTUniform(2) == 0) {
+			return nil;
+		}
+		return [[NSURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://example.com/pic.png"]
+										 MIMEType:AIWKRandomMIMEType()
+							expectedContentLength:0
+								 textEncodingName:nil];
+	}
+	return AIWKTestHTTPResponse((NSInteger)PBTUniform(600), AIWKRandomMIMEType(), AIWKRandomContentLength());
+}
+
 // A plain image response is acceptable.
 - (void)testDownloadValidationAcceptsImageResponse
 {
@@ -330,6 +369,55 @@ static NSHTTPURLResponse *AIWKTestHTTPResponse(NSInteger statusCode, NSString *m
 											 textEncodingName:nil];
 	XCTAssertNotNil(AIWKImageDownloadValidationErrorForResponse(plain));
 	XCTAssertNotNil(AIWKImageDownloadValidationErrorForResponse(nil));
+}
+
+/// Property: AIWKImageDownloadValidationErrorForResponse returns nil exactly when the response is
+/// HTTP 2xx with an image/<subtype> Content-Type at or under the byte cap, and otherwise an NSError
+/// in AIWKImageDownloadErrorDomain whose code is the first violated check, in this order: NotHTTP,
+/// BadStatus, WrongContentType, TooLarge. The oracle reads the same response values the
+/// implementation does, so it locks in the precedence, not a re-derivation of each check.
+- (void)testDownloadValidationErrorCodeProperty
+{
+	PBTCheckDefault({
+		NSURLResponse *response = AIWKRandomDownloadResponse();
+		NSError *error = AIWKImageDownloadValidationErrorForResponse(response);
+
+		if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+			XCTAssertNotNil(error, @"response = %@", response);
+			XCTAssertEqualObjects([error domain], AIWKImageDownloadErrorDomain, @"response = %@", response);
+			XCTAssertEqual([error code], AIWKImageDownloadErrorNotHTTP, @"response = %@", response);
+		} else {
+			NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+			NSInteger statusCode = [httpResponse statusCode];
+			NSString *contentType = [[httpResponse MIMEType] lowercaseString];
+			int64_t contentLength = [httpResponse expectedContentLength];
+
+			if (statusCode < 200 || statusCode > 299) {
+				XCTAssertNotNil(error, @"status=%ld mime=%@", (long)statusCode, [httpResponse MIMEType]);
+				XCTAssertEqualObjects([error domain], AIWKImageDownloadErrorDomain, @"status=%ld mime=%@",
+									  (long)statusCode, [httpResponse MIMEType]);
+				XCTAssertEqual([error code], AIWKImageDownloadErrorBadStatus, @"status=%ld mime=%@", (long)statusCode,
+							   [httpResponse MIMEType]);
+			} else if (contentType == nil || [contentType length] <= sizeof("image/") - 1 ||
+					   ![contentType hasPrefix:@"image/"]) {
+				XCTAssertNotNil(error, @"status=%ld mime=%@", (long)statusCode, [httpResponse MIMEType]);
+				XCTAssertEqualObjects([error domain], AIWKImageDownloadErrorDomain, @"status=%ld mime=%@",
+									  (long)statusCode, [httpResponse MIMEType]);
+				XCTAssertEqual([error code], AIWKImageDownloadErrorWrongContentType, @"status=%ld mime=%@",
+							   (long)statusCode, [httpResponse MIMEType]);
+			} else if (contentLength > AIWKMaxRemoteImageDownloadBytes) {
+				XCTAssertNotNil(error, @"status=%ld mime=%@ length=%lld", (long)statusCode, [httpResponse MIMEType],
+								contentLength);
+				XCTAssertEqualObjects([error domain], AIWKImageDownloadErrorDomain, @"status=%ld mime=%@ length=%lld",
+									  (long)statusCode, [httpResponse MIMEType], contentLength);
+				XCTAssertEqual([error code], AIWKImageDownloadErrorTooLarge, @"status=%ld mime=%@ length=%lld",
+							   (long)statusCode, [httpResponse MIMEType], contentLength);
+			} else {
+				XCTAssertNil(error, @"status=%ld mime=%@ length=%lld", (long)statusCode, [httpResponse MIMEType],
+							 contentLength);
+			}
+		}
+	});
 }
 
 @end
