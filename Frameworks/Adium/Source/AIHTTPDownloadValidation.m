@@ -50,10 +50,9 @@ NSError *AIHTTPDownloadValidationErrorForResponse(NSURLResponse *response)
 static NSString *AIHTTPSafeLeafForName(NSString *name)
 {
 	NSString *leaf = [name lastPathComponent];
-	if (leaf == nil || [leaf length] == 0 || [leaf isEqualToString:@"."] ||
-		[leaf isEqualToString:@".."] || [leaf isEqualToString:@"/"] ||
-		([[leaf stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]
-			 length] == 0)) {
+	if (leaf == nil || [leaf length] == 0 || [leaf isEqualToString:@"."] || [leaf isEqualToString:@".."] ||
+		[leaf isEqualToString:@"/"] ||
+		([[leaf stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] length] == 0)) {
 		return nil;
 	}
 	return leaf;
