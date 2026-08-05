@@ -229,6 +229,44 @@ static NSString *AIWKRandomScheme(void)
 	XCTAssertFalse(AIWKContextMenuMessageFromBody(@{@"type" : @"contextMenu", @"x" : @NO, @"y" : @YES}).valid);
 }
 
+// PBTRandomJSBodyDictionary never emits CFBoolean coordinates or values outside
+// [0, AIWKMaxContextMenuCoordinate] — exactly the two shapes the parser must reject — so this
+// generator builds coordinates by hand. PBTUniform max 100000 keeps the values single-digit-ok.
+static NSNumber *AIWKRandomCoordinateNumber(void)
+{
+	switch (PBTUniform(5)) {
+	case 0:
+		return @(-(double)PBTUniform(100000)); // negative, out of range
+	case 1:
+		return @(AIWKMaxContextMenuCoordinate + 1 + (double)PBTUniform(100000)); // over the cap
+	case 2:
+		return @((double)PBTUniform((uint32_t)AIWKMaxContextMenuCoordinate + 1)); // in range
+	case 3:
+		return @YES; // JSON true
+	default:
+		return @NO; // JSON false
+	}
+}
+
+/// Property: The contextMenu parser accepts exactly the coordinate shapes that are numbers in
+/// [0, AIWKMaxContextMenuCoordinate] — CFBoolean values (JSON true/false) and out-of-range
+/// numbers are rejected (issue #170).
+- (void)testCoordinateParsingProperty
+{
+	PBTCheckDefault({
+		NSNumber *x = AIWKRandomCoordinateNumber();
+		NSNumber *y = AIWKRandomCoordinateNumber();
+		BOOL xIsBoolean = CFGetTypeID((__bridge CFTypeRef)x) == CFBooleanGetTypeID();
+		BOOL yIsBoolean = CFGetTypeID((__bridge CFTypeRef)y) == CFBooleanGetTypeID();
+		BOOL expected = !xIsBoolean && !yIsBoolean && AIWKContextMenuCoordinateDoubleIsInRange([x doubleValue]) &&
+						AIWKContextMenuCoordinateDoubleIsInRange([y doubleValue]);
+		// The dictionary literal is parenthesized so its commas don't split the PBTCheckDefault macro argument.
+		AIWKContextMenuMessage message =
+			AIWKContextMenuMessageFromBody((@{@"type" : @"contextMenu", @"x" : x, @"y" : y}));
+		XCTAssertEqual(message.valid, expected, @"x = %@, y = %@", x, y);
+	});
+}
+
 // MARK: - #169: default save-name computation
 
 /// Property: The default save name is never empty and never "/" for any generated URL.
