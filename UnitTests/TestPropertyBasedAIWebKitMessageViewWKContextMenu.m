@@ -314,6 +314,40 @@ static NSNumber *AIWKRandomCoordinateNumber(void)
 	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL(nil, @"fallback"), @"fallback");
 }
 
+// Random image URL: sometimes a real path component (so lastPathComponent wins), sometimes a bare
+// origin or root path (so the fallback must win).
+static NSURL *AIWKRandomImageURL(void)
+{
+	NSString *const paths[] = {
+		@"/pic.png",
+		@"/a/b/c.png",
+		@"/",
+		@"",
+	};
+	return [NSURL URLWithString:[@"https://example.com" stringByAppendingString:paths[PBTUniform(4)]]];
+}
+
+// Non-empty fallback name, as the function contract requires.
+static NSString *AIWKRandomSaveFallbackName(void)
+{
+	return [NSString stringWithFormat:@"img-%@.png", PBTRandomASCIIString(6)];
+}
+
+/// Property: The default save name is the URL's last path component exactly when that is a real
+/// component (non-empty and not "/"); otherwise it is exactly the fallback name (issue #169).
+- (void)testDefaultSaveNameProperty
+{
+	PBTCheckDefault({
+		NSURL *url = AIWKRandomImageURL();
+		NSString *fallbackName = AIWKRandomSaveFallbackName();
+		NSString *component = [url lastPathComponent];
+		BOOL hasRealComponent = component != nil && [component length] > 0 && ![component isEqualToString:@"/"];
+		NSString *expected = hasRealComponent ? component : fallbackName;
+		XCTAssertEqualObjects(AIWKDefaultSaveNameForURL(url, fallbackName), expected, @"url = %@, fallback = %@", url,
+							  fallbackName);
+	});
+}
+
 // MARK: - #168: remote-image download validation
 
 // Builds an NSHTTPURLResponse with the given status, Content-Type, and Content-Length.
