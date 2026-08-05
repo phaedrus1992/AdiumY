@@ -132,10 +132,13 @@ NSError *AIWKImageDownloadValidationErrorForResponse(NSURLResponse *response)
 	// sending just "image/") is not an image content type. sizeof("image/") - 1 is the prefix
 	// length, so anything at or under it has no subtype after the slash.
 	if (contentType == nil || ![contentType hasPrefix:@"image/"] || [contentType length] <= sizeof("image/") - 1) {
+		// The server's Content-Type may be absent entirely; show "<none>" rather than Foundation's
+		// "(null)" so the alert reads cleanly.
+		NSString *displayContentType = (contentType != nil) ? contentType : @"<none>";
 		return AIWKImageDownloadValidationError(
 			AIWKImageDownloadErrorWrongContentType,
 			[NSString stringWithFormat:@"Remote image download: content type \"%@\" is not an image; refusing to save.",
-									   [httpResponse MIMEType]]);
+									   displayContentType]);
 	}
 
 	int64_t contentLength = [httpResponse expectedContentLength];
