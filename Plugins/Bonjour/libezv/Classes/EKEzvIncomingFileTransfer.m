@@ -179,7 +179,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		//	NSString *size = [[root attributeForName:@"size"] objectValue];
 
 		NSArray *nameChildren = [root elementsForName:@"name"];
-		if (!nameChildren) {
+		if ([nameChildren count] == 0) {
 			[[[[self manager] client] client] reportError:@"Could not download file because there is no name"
 												  ofLevel:AWEzvError];
 			return NO;
@@ -187,7 +187,8 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		NSString *name = [[nameChildren objectAtIndex:0] stringValue];
 		// A peer-supplied name must not escape the transfer directory: reduce it to a single leaf
 		// and reject degenerate names (empty, ".", "..", whitespace) by failing the transfer
-		// (issue #181).
+		// (issue #181). The @"" fallback doubles as a rejection sentinel: keep it empty so unsafe
+		// names fail the length check below instead of receiving a default name.
 		NSString *safeName = AIHTTPDownloadSafeSaveName(name, @"");
 		if ([safeName length] == 0) {
 			[[[[self manager] client] client] reportError:@"Could not download file because its name is invalid."
@@ -210,7 +211,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 		/*Find the name of the directory*/
 		NSArray *nameChildren = [root elementsForName:@"name"];
-		if (!nameChildren) {
+		if ([nameChildren count] == 0) {
 			[[[[self manager] client] client] reportError:@"Could not download directory because there was no name."
 												  ofLevel:AWEzvError];
 			return NO;
@@ -218,7 +219,8 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		NSString *name = [[nameChildren objectAtIndex:0] stringValue];
 		// A peer-supplied name must not escape the transfer directory: reduce it to a single leaf
 		// and reject degenerate names (empty, ".", "..", whitespace) by failing the transfer
-		// (issue #181).
+		// (issue #181). The @"" fallback doubles as a rejection sentinel: keep it empty so unsafe
+		// names fail the length check below instead of receiving a default name.
 		NSString *safeName = AIHTTPDownloadSafeSaveName(name, @"");
 		if ([safeName length] == 0) {
 			[[[[self manager] client] client] reportError:@"Could not download directory because its name is invalid."
