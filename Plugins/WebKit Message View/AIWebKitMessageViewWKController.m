@@ -570,11 +570,17 @@ static NSString *const AIWKContextMenuScript =
 	NSAlert *alert = [NSAlert alertWithError:error];
 	alert.messageText =
 		AILocalizedString(@"Save Image Failed", "Title shown when an image could not be saved from the message view");
+	NSString *reason = [error localizedDescription];
+	if (reason == nil) {
+		reason = @"";
+	}
 	if (imageURL != nil) {
 		alert.informativeText = [NSString
-			stringWithFormat:AILocalizedString(@"Could not save the image at %@.",
+			stringWithFormat:AILocalizedString(@"Could not save the image at %@.\n\n%@",
 											   "Details shown when an image fails to save from the message view"),
-							 [imageURL absoluteString]];
+							 [imageURL absoluteString], reason];
+	} else {
+		alert.informativeText = reason;
 	}
 	[alert beginSheetModalForWindow:window completionHandler:nil];
 }
