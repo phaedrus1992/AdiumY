@@ -49,6 +49,8 @@ for k in [
     "ctxMenuTestFileRef", "ctxMenuTestBuildFile",
     "sanitizerFileRef", "sanitizerHeaderRef", "sanitizerBuildFile",
     "sanitizerTestFileRef", "sanitizerTestBuildFile",
+    "dlValidFileRef", "dlValidHeaderRef", "dlValidBuildFile",
+    "dlValidTestFileRef", "dlValidTestBuildFile",
 
     # Frameworks
     "xctestFwkRef", "xctestFwkBuildFile",
@@ -92,7 +94,9 @@ objects = {
                      H["ctxMenuFileRef"], H["ctxMenuHeaderRef"],
                      H["ctxMenuTestFileRef"],
                      H["sanitizerFileRef"], H["sanitizerHeaderRef"],
-                     H["sanitizerTestFileRef"]],
+                     H["sanitizerTestFileRef"],
+                     H["dlValidFileRef"], H["dlValidHeaderRef"],
+                     H["dlValidTestFileRef"]],
         "name": "Sources",
         "sourceTree": "<group>",
     },
@@ -236,6 +240,24 @@ objects = {
         "path": "../../UnitTests/TestPropertyBasedAIHTMLPasteSanitizer.m",
         "sourceTree": "<group>",
     },
+    H["dlValidFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Frameworks/Adium/Source/AIHTTPDownloadValidation.m",
+        "sourceTree": "<group>",
+    },
+    H["dlValidHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Frameworks/Adium/Source/AIHTTPDownloadValidation.h",
+        "sourceTree": "<group>",
+    },
+    H["dlValidTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestAIHTTPDownloadValidation.m",
+        "sourceTree": "<group>",
+    },
 
     H["xctestFwkRef"]: {
         "isa": "PBXFileReference",
@@ -294,7 +316,8 @@ objects = {
                   H["xtraIdentTestBuildFile"], H["xtraIdentBuildFile"],
                   H["migrTestBuildFile"], H["migrBuildFile"],
                   H["ctxMenuBuildFile"], H["ctxMenuTestBuildFile"],
-                  H["sanitizerBuildFile"], H["sanitizerTestBuildFile"]],
+                  H["sanitizerBuildFile"], H["sanitizerTestBuildFile"],
+                  H["dlValidBuildFile"], H["dlValidTestBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
     H["testFrameworksPhase"]: {
@@ -320,6 +343,8 @@ objects = {
     H["ctxMenuTestBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["ctxMenuTestFileRef"]},
     H["sanitizerBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["sanitizerFileRef"]},
     H["sanitizerTestBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["sanitizerTestFileRef"]},
+    H["dlValidBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["dlValidFileRef"]},
+    H["dlValidTestBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["dlValidTestFileRef"]},
 
     # ── Target Dependency ───────────────────────────────────────
     H["testTargetDep"]: {

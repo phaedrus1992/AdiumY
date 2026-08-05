@@ -19,7 +19,9 @@
 #import "ESFileTransferController.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIHTTPDownloadValidation.h>
 #import <AdiumY/AIListContact.h>
 
 @interface ESFileTransferRequestPromptController ()
@@ -87,7 +89,10 @@
 		// Prompt for a location to save
 		NSSavePanel *savePanel = [NSSavePanel savePanel];
 		savePanel.directoryURL = [NSURL fileURLWithPath:localFilename];
-		savePanel.nameFieldStringValue = [localFilename lastPathComponent];
+		// Guard against a remote filename whose last path component is empty, ".", "..", or "/"
+		// becoming the save-panel default (issue #175).
+		savePanel.nameFieldStringValue =
+			AIHTTPDownloadSafeSaveName([fileTransfer remoteFilename], AILocalizedString(@"Untitled", nil));
 		NSInteger returnCode = [savePanel runModal];
 		// Only need to take action if the user pressed OK; if she pressed cancel, just return to our window.
 		if (returnCode == NSModalResponseOK) {

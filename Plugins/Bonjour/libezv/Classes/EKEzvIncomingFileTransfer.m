@@ -10,6 +10,7 @@
 #import "AWEzvContactManager.h"
 #import <errno.h>
 #import <sys/xattr.h>
+#import <AdiumY/AIHTTPDownloadValidation.h>
 
 #define APPLE_SINGLE_HEADER_LENGTH 26
 #define APPLE_SINGLE_MAGIC_NUMBER 0x00051600
@@ -335,6 +336,16 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	didReceiveResponse:(NSURLResponse *)response
 	 completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler
 {
+	// Reject non-HTTP responses and non-2xx HTTP statuses before creating the destination file,
+	// so AppleSingle-decode and applyPermissions only ever run on an accepted body (issue #177).
+	NSError *validationError = AIHTTPDownloadValidationErrorForResponse(response);
+	if (validationError != nil) {
+		completionHandler(NSURLSessionResponseCancel);
+		[[[manager client] client] remoteCanceledFileTransfer:self];
+		[[[manager client] client] reportError:[validationError localizedDescription] ofLevel:AWEzvError];
+		return;
+	}
+
 	NSDictionary *headers = [(NSHTTPURLResponse *)response allHeaderFields];
 	if ([(NSString *)[headers objectForKey:@"Content-Encoding"] isEqualToString:@"AppleSingle"]) {
 		[encodedDownloads addObject:[[dataTask originalRequest] URL]];
