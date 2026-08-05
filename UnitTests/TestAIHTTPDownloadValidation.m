@@ -141,6 +141,16 @@ static BOOL AIHTTPIsRealLeaf(NSString *name)
 	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"dir/file.txt", @"Untitled"), @"file.txt");
 }
 
+// Unicode leaves — the most common non-ASCII filename case — pass through unchanged; the
+// degenerate checks are ASCII-only sentinels and lastPathComponent is fully Unicode-aware.
+- (void)testUnicodeLeafPassesThrough
+{
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"照片.jpg", @"Untitled"), @"照片.jpg");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"café.png", @"Untitled"), @"café.png");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"目录/照片.jpg", @"Untitled"), @"照片.jpg");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"照片.jpg", @""), @"照片.jpg");
+}
+
 // Peer-supplied traversal names (issue #181) reduce to a single leaf that never escapes the
 // transfer directory; the degenerate ones (".", "..", whitespace) are rejected as empty so the
 // EKEzv caller can fail the transfer rather than write somewhere unexpected.
