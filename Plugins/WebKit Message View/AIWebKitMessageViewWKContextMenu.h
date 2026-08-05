@@ -104,6 +104,10 @@ extern const int64_t AIWKMaxRemoteImageDownloadBytes;
 /// size at or under AIWKMaxRemoteImageDownloadBytes), or an NSError in
 /// AIWKImageDownloadErrorDomain describing the rejection (issue #168).
 ///
+/// A response with an unknown Content-Length (expectedContentLength == -1) passes the size check
+/// here — there is no declared length to compare — and is enforced instead against the actual
+/// downloaded bytes by the post-download check before the destination is committed.
+///
 /// @param response The NSURLSession response, possibly nil.
 /// @return nil when acceptable; an error describing the violated check otherwise.
 NSError *AIWKImageDownloadValidationErrorForResponse(NSURLResponse *response);
