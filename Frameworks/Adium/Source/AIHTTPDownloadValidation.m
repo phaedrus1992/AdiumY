@@ -44,21 +44,32 @@ NSError *AIHTTPDownloadValidationErrorForResponse(NSURLResponse *response)
 	return nil;
 }
 
+// YES iff name's last path component is a real, non-degenerate leaf: non-empty, not ".", "..",
+// "/", and not whitespace-only (a name of only whitespace is empty once the OS trims it when
+// writing, so the save panel would get no usable default — issue #175).
+static NSString *AIHTTPSafeLeafForName(NSString *name)
+{
+	NSString *leaf = [name lastPathComponent];
+	if (leaf == nil || [leaf length] == 0 || [leaf isEqualToString:@"."] ||
+		[leaf isEqualToString:@".."] || [leaf isEqualToString:@"/"] ||
+		([[leaf stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]
+			 length] == 0)) {
+		return nil;
+	}
+	return leaf;
+}
+
 NSString *AIHTTPDownloadSafeSaveName(NSString *remotePath, NSString *fallbackName)
 {
-	if (remotePath == nil) {
-		return fallbackName;
+	NSString *safeName = AIHTTPSafeLeafForName(remotePath);
+	if (safeName != nil) {
+		return safeName;
 	}
 
-	NSString *lastPathComponent = [remotePath lastPathComponent];
-	if (lastPathComponent == nil || [lastPathComponent length] == 0 || [lastPathComponent isEqualToString:@"."] ||
-		[lastPathComponent isEqualToString:@".."] || [lastPathComponent isEqualToString:@"/"] ||
-		// A name of only whitespace is empty once the OS trims it when writing; treat it as
-		// degenerate too so the save panel gets a usable default (issue #175).
-		([[lastPathComponent stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]
-			 length] == 0)) {
-		return fallbackName;
-	}
-
-	return lastPathComponent;
+	// The fallback must satisfy the same leaf-safety contract, not pass through verbatim: a
+	// degenerate fallback (empty, ".", "..", whitespace, or a path with separators) yields @""
+	// — the rejection sentinel the file-transfer callers rely on to fail the transfer — rather
+	// than a name that could escape the download folder (issues #175, #181).
+	safeName = AIHTTPSafeLeafForName(fallbackName);
+	return (safeName != nil) ? safeName : @"";
 }

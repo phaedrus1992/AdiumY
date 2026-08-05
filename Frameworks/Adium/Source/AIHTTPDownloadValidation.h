@@ -40,12 +40,14 @@ NSError *_Nullable AIHTTPDownloadValidationErrorForResponse(NSURLResponse *_Null
 
 /// Returns a safe default name for a network-provided filename or path: the path's last path
 /// component, unless that is empty, ".", "..", "/", or whitespace-only (a degenerate name that
-/// would point a save panel at a directory or be silently discarded), in which case
-/// `fallbackName`.
+/// would point a save panel at a directory or be silently discarded). `fallbackName` is then
+/// used subject to the same leaf-safety rule; a degenerate `fallbackName` yields @"" (the
+/// rejection sentinel callers use to fail the transfer) rather than passing through verbatim.
 ///
 /// @param remotePath The remote filename or path, possibly nil.
 /// @param fallbackName The name to use when `remotePath` has no usable last component.
-/// @return `remotePath`'s last path component, or `fallbackName`.
+/// @return A single non-degenerate leaf name: `remotePath`'s last path component, else
+///         `fallbackName`'s last path component, else @"".
 NSString *AIHTTPDownloadSafeSaveName(NSString *_Nullable remotePath, NSString *fallbackName);
 
 NS_ASSUME_NONNULL_END
