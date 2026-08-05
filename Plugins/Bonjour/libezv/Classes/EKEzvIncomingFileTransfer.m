@@ -198,7 +198,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		}
 		NSString *newPath = [rootPath stringByAppendingPathComponent:safeName];
 		NSString *newURL = [rootURL
-			stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+			stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]];
 
 		/*Download file to newPath from newURL*/
 		[itemsToDownload setValue:[NSURL URLWithString:newURL] forKey:newPath];
@@ -247,7 +247,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		bool fileSuccess = YES;
 		/* Now call downloadFolder for dir and file children */
 		NSString *newURL = [rootURL
-			stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+			stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]];
 
 		for (NSXMLElement *nextElement in [root elementsForName:@"dir"]) {
 			folderSuccess = [self downloadFolder:nextElement path:newPath url:newURL] && folderSuccess;
