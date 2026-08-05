@@ -519,7 +519,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 - (void)userFailedDownload
 {
-	[[[[self manager] client] client] remoteCanceledFileTransfer:self];
+	[[[[self manager] client] client] transferFailed:self];
 }
 - (void)userBeganDownload
 {
