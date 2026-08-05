@@ -96,6 +96,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	NSXMLDocument *documentRoot = [[NSXMLDocument alloc] initWithContentsOfURL:URL options:0
 																		  error:&error];
 	if (error) {
+		[[[[self manager] client] client] reportError:[error localizedDescription] ofLevel:AWEzvError];
 		[[[[self manager] client] client] transferFailed:self];
 		return;
 	}
