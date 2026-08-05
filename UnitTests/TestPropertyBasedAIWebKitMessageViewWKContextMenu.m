@@ -152,15 +152,34 @@
 	XCTAssertFalse(AIWKCanSaveImageURL(nil));
 }
 
-/// Property: A random non-file/non-http(s) scheme is never savable.
-- (void)testRandomSchemeNotSavable
+// Random scheme: one of the savable set {file, http, https}, or random garbage plus an "x" so the
+// scheme can never accidentally equal a savable one (none of the savable set ends in "x"). NSURL
+// lowercases schemes, so generating lowercase keeps the oracle's string comparison faithful.
+static NSString *AIWKRandomScheme(void)
+{
+	switch (PBTUniform(4)) {
+	case 0:
+		return @"file";
+	case 1:
+		return @"http";
+	case 2:
+		return @"https";
+	default:
+		return [[PBTRandomASCIIString(8) lowercaseString] stringByAppendingString:@"x"];
+	}
+}
+
+/// Property: AIWKCanSaveImageURL accepts exactly the file:, http:, and https: schemes and rejects
+/// every other scheme — asserted in both directions over generated schemes (issue #151).
+- (void)testCanSaveImageURLProperty
 {
 	PBTCheckDefault({
-		// Appending "x" guarantees the scheme never collides with file/http/https.
-		NSString *scheme = [[PBTRandomASCIIString(8) lowercaseString] stringByAppendingString:@"x"];
+		NSString *scheme = AIWKRandomScheme();
 		NSURL *url = [NSURL URLWithString:[scheme stringByAppendingString:@"://host/pic.png"]];
 		if (url != nil) {
-			XCTAssertFalse(AIWKCanSaveImageURL(url), @"scheme = %@", scheme);
+			BOOL expected = [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"http"] ||
+							[scheme isEqualToString:@"https"];
+			XCTAssertEqual(AIWKCanSaveImageURL(url), expected, @"scheme = %@", scheme);
 		}
 	});
 }
