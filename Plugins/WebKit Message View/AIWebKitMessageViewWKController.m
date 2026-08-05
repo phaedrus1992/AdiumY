@@ -373,7 +373,7 @@ static NSString *const AIWKContextMenuScript =
 	} else if ([type isEqualToString:@"contextMenu"]) {
 		AIWKContextMenuMessage contextMenuMessage = AIWKContextMenuMessageFromBody(body);
 		if (!contextMenuMessage.valid) {
-			AILogWithSignature(@"Ignoring contextMenu message with non-numeric coordinates: %@", body);
+			AILogWithSignature(@"Ignoring contextMenu message with invalid coordinates: %@", body);
 			return;
 		}
 
