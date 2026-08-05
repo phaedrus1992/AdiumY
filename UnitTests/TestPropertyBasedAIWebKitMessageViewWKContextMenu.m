@@ -105,8 +105,8 @@
 			expectedValid = [[dict objectForKey:@"type"] isKindOfClass:[NSString class]] &&
 							[[dict objectForKey:@"type"] isEqualToString:@"contextMenu"] &&
 							[x isKindOfClass:[NSNumber class]] && [y isKindOfClass:[NSNumber class]] &&
-							AIWKContextMenuCoordinateIsValid([x doubleValue]) &&
-							AIWKContextMenuCoordinateIsValid([y doubleValue]);
+							AIWKContextMenuCoordinateDoubleIsInRange([x doubleValue]) &&
+							AIWKContextMenuCoordinateDoubleIsInRange([y doubleValue]);
 		}
 
 		XCTAssertEqual(message.valid, expectedValid, @"body = %@", body);
@@ -171,24 +171,24 @@
 // non-finite values (they would misposition the pop-up via NSMakePoint).
 - (void)testCoordinateIsValidBoundaries
 {
-	XCTAssertTrue(AIWKContextMenuCoordinateIsValid(0.0));
-	XCTAssertTrue(AIWKContextMenuCoordinateIsValid(AIWKMaxContextMenuCoordinate));
-	XCTAssertTrue(AIWKContextMenuCoordinateIsValid(500.25));
-	XCTAssertFalse(AIWKContextMenuCoordinateIsValid(-0.0001));
-	XCTAssertFalse(AIWKContextMenuCoordinateIsValid(AIWKMaxContextMenuCoordinate + 0.0001));
-	XCTAssertFalse(AIWKContextMenuCoordinateIsValid(INFINITY));
-	XCTAssertFalse(AIWKContextMenuCoordinateIsValid(-INFINITY));
-	XCTAssertFalse(AIWKContextMenuCoordinateIsValid(NAN));
+	XCTAssertTrue(AIWKContextMenuCoordinateDoubleIsInRange(0.0));
+	XCTAssertTrue(AIWKContextMenuCoordinateDoubleIsInRange(AIWKMaxContextMenuCoordinate));
+	XCTAssertTrue(AIWKContextMenuCoordinateDoubleIsInRange(500.25));
+	XCTAssertFalse(AIWKContextMenuCoordinateDoubleIsInRange(-0.0001));
+	XCTAssertFalse(AIWKContextMenuCoordinateDoubleIsInRange(AIWKMaxContextMenuCoordinate + 0.0001));
+	XCTAssertFalse(AIWKContextMenuCoordinateDoubleIsInRange(INFINITY));
+	XCTAssertFalse(AIWKContextMenuCoordinateDoubleIsInRange(-INFINITY));
+	XCTAssertFalse(AIWKContextMenuCoordinateDoubleIsInRange(NAN));
 }
 
-/// Property: AIWKContextMenuCoordinateIsValid agrees with a direct bound comparison over a
+/// Property: AIWKContextMenuCoordinateDoubleIsInRange agrees with a direct bound comparison over a
 /// wide double range spanning negatives, in-range, and oversized values.
 - (void)testCoordinateIsValidProperty
 {
 	PBTCheckDefault({
 		double d = ((double)PBTUniform(1000000000)) / 1000.0 - 500000.0; // -500000..500000
 		BOOL expected = isfinite(d) && d >= 0.0 && d <= AIWKMaxContextMenuCoordinate;
-		XCTAssertEqual(AIWKContextMenuCoordinateIsValid(d), expected, @"d = %f", d);
+		XCTAssertEqual(AIWKContextMenuCoordinateDoubleIsInRange(d), expected, @"d = %f", d);
 	});
 }
 

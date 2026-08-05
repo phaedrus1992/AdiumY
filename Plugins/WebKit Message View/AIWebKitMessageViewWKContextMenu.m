@@ -32,7 +32,7 @@ static BOOL AIWKContextMenuCoordinateNumberIsValid(NSNumber *coordinate)
 	if (CFGetTypeID((__bridge CFNumberRef)coordinate) == CFBooleanGetTypeID()) {
 		return NO;
 	}
-	return AIWKContextMenuCoordinateIsValid([coordinate doubleValue]);
+	return AIWKContextMenuCoordinateDoubleIsInRange([coordinate doubleValue]);
 }
 
 AIWKContextMenuMessage AIWKContextMenuMessageFromBody(id body)
@@ -91,7 +91,7 @@ BOOL AIWKCanSaveImageURL(NSURL *imageURL)
 	return [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"];
 }
 
-BOOL AIWKContextMenuCoordinateIsValid(double coordinate)
+BOOL AIWKContextMenuCoordinateDoubleIsInRange(double coordinate)
 {
 	return isfinite(coordinate) && coordinate >= 0.0 && coordinate <= AIWKMaxContextMenuCoordinate;
 }

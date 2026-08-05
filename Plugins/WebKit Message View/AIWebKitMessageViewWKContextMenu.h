@@ -48,10 +48,15 @@ AIWKContextMenuMessage AIWKContextMenuMessageFromBody(id body);
 /// AIWKContextMenuMessageFromBody (issue #170).
 extern const double AIWKMaxContextMenuCoordinate;
 
-/// Whether a context-menu coordinate is usable to position the pop-up: finite and within
+/// Whether a raw double is usable as a context-menu coordinate: finite and within
 /// [0, AIWKMaxContextMenuCoordinate]. Non-finite values (INFINITY, NAN) would misposition
-/// NSMakePoint and are rejected. The BOOL check happens at the NSNumber layer (issue #170).
-BOOL AIWKContextMenuCoordinateIsValid(double coordinate);
+/// NSMakePoint and are rejected.
+///
+/// This is the numeric-range half only. It takes a raw double, so it cannot express the
+/// boolean-vs-number distinction: JSON true/false parse to CFBoolean-backed NSNumbers whose
+/// doubleValue (1.0/0.0) passes this range check. Reject booleans at the NSNumber layer
+/// before calling this, as AIWKContextMenuMessageFromBody does (issue #170).
+BOOL AIWKContextMenuCoordinateDoubleIsInRange(double coordinate);
 
 /// Returns the image URL for a context-menu `imageURL` string, or nil when the
 /// string does not form a usable URL. Thin wrapper around +[NSURL URLWithString:]
