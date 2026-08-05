@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Fix message-style preferences left over from the pre-rename AdiumY fork
   (`im.adium.*` style IDs) being ignored during preference migration — they now
   remap to the AdiumY bundle-ID namespace on next launch
+- Reject non-image or oversized responses when saving a remote image from the
+  message-view context menu, instead of writing the response body to disk
 
 ## [2.0.0] - 2026-08-03
 
