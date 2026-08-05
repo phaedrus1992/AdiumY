@@ -300,13 +300,14 @@ static NSHTTPURLResponse *AIWKTestHTTPResponse(NSInteger statusCode, NSString *m
 	XCTAssertNotNil(AIWKImageDownloadValidationErrorForResponse(AIWKTestHTTPResponse(301, @"image/png", 1024)));
 }
 
-// Non-image content types, and an absent content type, are rejected.
+// Non-image content types, an absent content type, and a bare "image/" with no subtype are rejected.
 - (void)testDownloadValidationRejectsWrongContentType
 {
 	XCTAssertNotNil(AIWKImageDownloadValidationErrorForResponse(AIWKTestHTTPResponse(200, @"text/html", 1024)));
 	XCTAssertNotNil(
 		AIWKImageDownloadValidationErrorForResponse(AIWKTestHTTPResponse(200, @"application/octet-stream", 1024)));
 	XCTAssertNotNil(AIWKImageDownloadValidationErrorForResponse(AIWKTestHTTPResponse(200, nil, 1024)));
+	XCTAssertNotNil(AIWKImageDownloadValidationErrorForResponse(AIWKTestHTTPResponse(200, @"image/", 1024)));
 }
 
 // Oversized responses are rejected; at-cap, zero, and unknown (-1) lengths are accepted.
