@@ -66,6 +66,16 @@ static NSString *AIHTTPRandomSaveFallbackName(void)
 	return [NSString stringWithFormat:@"save-%u", (unsigned)PBTUniform(1000000)];
 }
 
+// YES iff name is a real, non-degenerate leaf: non-empty, not "." or "..", not "/", and not
+// whitespace-only. Mirrors the sanitizer's degenerate rules exactly, so the properties below
+// share one oracle.
+static BOOL AIHTTPIsRealLeaf(NSString *name)
+{
+	return name != nil && [name length] > 0 && ![name isEqualToString:@"."] && ![name isEqualToString:@".."] &&
+		   ![name isEqualToString:@"/"] &&
+		   ([[name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] length] > 0);
+}
+
 @implementation AIHTTPDownloadValidationTest
 
 #pragma mark - Response validation
@@ -146,6 +156,24 @@ static NSString *AIHTTPRandomSaveFallbackName(void)
 	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"   ", @""), @"");
 }
 
+// Property: with an empty fallback, the sanitizer returns non-empty exactly when the path's last
+// component is a real, non-degenerate leaf — the reject/pass boundary the EKEzv folder-transfer
+// sink relies on to fail the transfer on unsafe peer-supplied names (issue #181). Any non-empty
+// result, appended to an arbitrary transfer root, stays inside that root.
+- (void)testEmptyFallbackRejectsExactlyDegenerateLeaf
+{
+	PBTCheckDefault({
+		NSString *path = AIHTTPRandomSavePath();
+		NSString *safeName = AIHTTPDownloadSafeSaveName(path, @"");
+		BOOL isRealLeaf = AIHTTPIsRealLeaf([path lastPathComponent]);
+		XCTAssertTrue(([safeName length] > 0) == isRealLeaf, @"path = %@", path);
+		if ([safeName length] > 0) {
+			NSString *root = @"/tmp/transfer-root";
+			XCTAssertTrue([[root stringByAppendingPathComponent:safeName] hasPrefix:root], @"path = %@", path);
+		}
+	});
+}
+
 // Property: whatever a peer-supplied name looks like, the sanitizer either rejects it (returns
 // @"") or yields a single non-degenerate leaf — no path separator, not "." or "..". This is the
 // contract the EKEzv folder-transfer sink relies on when appending to a transfer directory
@@ -217,12 +245,7 @@ static NSString *AIHTTPRandomSaveFallbackName(void)
 		NSString *path = AIHTTPRandomSavePath();
 		NSString *fallbackName = AIHTTPRandomSaveFallbackName();
 		NSString *component = [path lastPathComponent];
-		BOOL hasRealComponent =
-			component != nil && [component length] > 0 && ![component isEqualToString:@"."] &&
-			![component isEqualToString:@".."] && ![component isEqualToString:@"/"] &&
-			([[component stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] length] >
-			 0);
-		NSString *expected = hasRealComponent ? component : fallbackName;
+		NSString *expected = AIHTTPIsRealLeaf(component) ? component : fallbackName;
 
 		NSString *once = AIHTTPDownloadSafeSaveName(path, fallbackName);
 		XCTAssertEqualObjects(once, expected, @"path = %@, fallback = %@", path, fallbackName);
