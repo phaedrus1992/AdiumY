@@ -136,12 +136,12 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 	/*Call downloadFolder:path:url: for dir children */
 	for (NSXMLElement *nextElement in [root elementsForName:@"dir"]) {
-		folderSuccess = [self downloadFolder:nextElement path:localFilename url:[self url]];
+		folderSuccess = [self downloadFolder:nextElement path:localFilename url:[self url]] && folderSuccess;
 	}
 
 	/*Call downloadFolder:path:url: for file children */
 	for (NSXMLElement *nextElement in [root elementsForName:@"file"]) {
-		fileSuccess = [self downloadFolder:nextElement path:localFilename url:[self url]];
+		fileSuccess = [self downloadFolder:nextElement path:localFilename url:[self url]] && fileSuccess;
 	}
 
 	if (folderSuccess && fileSuccess) {
@@ -247,10 +247,10 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
 
 		for (NSXMLElement *nextElement in [root elementsForName:@"dir"]) {
-			folderSuccess = [self downloadFolder:nextElement path:newPath url:newURL];
+			folderSuccess = [self downloadFolder:nextElement path:newPath url:newURL] && folderSuccess;
 		}
 		for (NSXMLElement *nextElement in [root elementsForName:@"file"]) {
-			fileSuccess = [self downloadFolder:nextElement path:newPath url:newURL];
+			fileSuccess = [self downloadFolder:nextElement path:newPath url:newURL] && fileSuccess;
 		}
 		return fileSuccess && folderSuccess;
 	} else {
