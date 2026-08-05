@@ -543,8 +543,8 @@ static NSString *const AIWKContextMenuScript =
 				  // does not enforce it against the body. Re-check the actual bytes on disk before
 				  // committing so a missing or misstated Content-Length cannot bypass the cap (#168).
 				  NSError *attributesError = nil;
-				  NSDictionary *attributes = [[NSFileManager defaultManager]
-					  attributesOfItemAtPath:[location path] error:&attributesError];
+				  NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:[location path]
+																							  error:&attributesError];
 				  if (attributesError != nil) {
 					  AILogWithSignature(@"Failed to stat downloaded image at %@: %@", location, attributesError);
 				  } else {
