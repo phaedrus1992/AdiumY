@@ -49,7 +49,11 @@ NSString *AIHTTPDownloadSafeSaveName(NSString *remotePath, NSString *fallbackNam
 
 	NSString *lastPathComponent = [remotePath lastPathComponent];
 	if (lastPathComponent == nil || [lastPathComponent length] == 0 || [lastPathComponent isEqualToString:@"."] ||
-		[lastPathComponent isEqualToString:@".."] || [lastPathComponent isEqualToString:@"/"]) {
+		[lastPathComponent isEqualToString:@".."] || [lastPathComponent isEqualToString:@"/"] ||
+		// A name of only whitespace is empty once the OS trims it when writing; treat it as
+		// degenerate too so the save panel gets a usable default (issue #175).
+		([[lastPathComponent stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]
+			 length] == 0)) {
 		return fallbackName;
 	}
 

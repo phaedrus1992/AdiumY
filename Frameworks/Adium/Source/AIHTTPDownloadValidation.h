@@ -39,8 +39,9 @@ typedef NS_ENUM(NSInteger, AIHTTPDownloadErrorCode) {
 NSError *_Nullable AIHTTPDownloadValidationErrorForResponse(NSURLResponse *_Nullable response);
 
 /// Returns a safe default name for a network-provided filename or path: the path's last path
-/// component, unless that is empty, ".", "..", or "/" (a degenerate name that would point a
-/// save panel at a directory or be silently discarded), in which case `fallbackName`.
+/// component, unless that is empty, ".", "..", "/", or whitespace-only (a degenerate name that
+/// would point a save panel at a directory or be silently discarded), in which case
+/// `fallbackName`.
 ///
 /// @param remotePath The remote filename or path, possibly nil.
 /// @param fallbackName The name to use when `remotePath` has no usable last component.
