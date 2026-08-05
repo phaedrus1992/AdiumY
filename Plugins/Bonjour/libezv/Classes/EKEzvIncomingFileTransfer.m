@@ -275,19 +275,18 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 /*Download helpers*/
 - (NSDictionary *)posixAttributesFromString:(NSString *)posixFlags
 {
-	NSDictionary *attributes = NULL;
-	if (posixFlags) {
-		NSScanner *scanner;
-		unsigned tempInt;
-
-		scanner = [NSScanner scannerWithString:posixFlags];
-		[scanner scanHexInt:&tempInt];
-		NSNumber *number = [NSNumber numberWithUnsignedInt:tempInt];
-
-		attributes = [NSMutableDictionary dictionary];
-		[attributes setValue:number forKey:@"NSFilePosixPermissions"];
+	if (posixFlags == nil) {
+		return nil;
 	}
-	return attributes;
+	NSScanner *scanner = [NSScanner scannerWithString:posixFlags];
+	unsigned tempInt;
+	if (![scanner scanHexInt:&tempInt]) {
+		/* A peer-supplied flag that is not hex yields no usable permissions: leave the file's
+		 * default permissions rather than applying an uninitialized value (issue #186).
+		 */
+		return nil;
+	}
+	return @{ @"NSFilePosixPermissions" : [NSNumber numberWithUnsignedInt:tempInt] };
 }
 - (BOOL)applyPermissions
 {
