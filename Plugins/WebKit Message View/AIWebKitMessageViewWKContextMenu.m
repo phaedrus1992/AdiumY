@@ -16,6 +16,25 @@
 
 #import "AIWebKitMessageViewWKContextMenu.h"
 
+#import <math.h>
+
+const double AIWKMaxContextMenuCoordinate = 100000.0;
+
+NSString *const AIWKImageDownloadErrorDomain = @"AIWKImageDownloadErrorDomain";
+
+const int64_t AIWKMaxRemoteImageDownloadBytes = 50 * 1024 * 1024;
+
+// JSON true/false parse to CFBoolean-backed NSNumbers whose doubleValue is 1.0/0.0 — numerically
+// in range, but a boolean is not a coordinate. Reject them at the object layer, since the
+// exposed double predicate cannot express the distinction (issue #170).
+static BOOL AIWKContextMenuCoordinateNumberIsValid(NSNumber *coordinate)
+{
+	if (CFGetTypeID((__bridge CFNumberRef)coordinate) == CFBooleanGetTypeID()) {
+		return NO;
+	}
+	return AIWKContextMenuCoordinateIsValid([coordinate doubleValue]);
+}
+
 AIWKContextMenuMessage AIWKContextMenuMessageFromBody(id body)
 {
 	AIWKContextMenuMessage message = {0};
@@ -32,7 +51,8 @@ AIWKContextMenuMessage AIWKContextMenuMessageFromBody(id body)
 
 	NSNumber *clientX = [dict objectForKey:@"x"];
 	NSNumber *clientY = [dict objectForKey:@"y"];
-	if (![clientX isKindOfClass:[NSNumber class]] || ![clientY isKindOfClass:[NSNumber class]]) {
+	if (![clientX isKindOfClass:[NSNumber class]] || ![clientY isKindOfClass:[NSNumber class]] ||
+		!AIWKContextMenuCoordinateNumberIsValid(clientX) || !AIWKContextMenuCoordinateNumberIsValid(clientY)) {
 		return message;
 	}
 
@@ -69,4 +89,60 @@ BOOL AIWKCanSaveImageURL(NSURL *imageURL)
 
 	NSString *scheme = [imageURL scheme];
 	return [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"];
+}
+
+BOOL AIWKContextMenuCoordinateIsValid(double coordinate)
+{
+	return isfinite(coordinate) && coordinate >= 0.0 && coordinate <= AIWKMaxContextMenuCoordinate;
+}
+
+NSString *AIWKDefaultSaveNameForURL(NSURL *imageURL, NSString *fallbackName)
+{
+	NSString *lastPathComponent = [imageURL lastPathComponent];
+	if (lastPathComponent == nil || [lastPathComponent length] == 0 || [lastPathComponent isEqualToString:@"/"]) {
+		return fallbackName;
+	}
+	return lastPathComponent;
+}
+
+static NSError *AIWKImageDownloadValidationError(AIWKImageDownloadErrorCode code, NSString *reason)
+{
+	return [NSError errorWithDomain:AIWKImageDownloadErrorDomain
+							   code:code
+						   userInfo:@{NSLocalizedDescriptionKey : reason}];
+}
+
+NSError *AIWKImageDownloadValidationErrorForResponse(NSURLResponse *response)
+{
+	if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+		return AIWKImageDownloadValidationError(AIWKImageDownloadErrorNotHTTP,
+												@"Remote image download: response is not HTTP; refusing to save.");
+	}
+
+	NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+	NSInteger statusCode = [httpResponse statusCode];
+	if (statusCode < 200 || statusCode > 299) {
+		return AIWKImageDownloadValidationError(
+			AIWKImageDownloadErrorBadStatus,
+			[NSString stringWithFormat:@"Remote image download: HTTP status %ld; refusing to save.", (long)statusCode]);
+	}
+
+	NSString *contentType = [[httpResponse MIMEType] lowercaseString];
+	if (contentType == nil || ![contentType hasPrefix:@"image/"]) {
+		return AIWKImageDownloadValidationError(
+			AIWKImageDownloadErrorWrongContentType,
+			[NSString stringWithFormat:@"Remote image download: content type \"%@\" is not an image; refusing to save.",
+									   [httpResponse MIMEType]]);
+	}
+
+	int64_t contentLength = [httpResponse expectedContentLength];
+	if (contentLength > AIWKMaxRemoteImageDownloadBytes) {
+		return AIWKImageDownloadValidationError(
+			AIWKImageDownloadErrorTooLarge,
+			[NSString
+				stringWithFormat:@"Remote image download: %lld bytes exceeds the %lld byte cap; refusing to save.",
+								 contentLength, AIWKMaxRemoteImageDownloadBytes]);
+	}
+
+	return nil;
 }

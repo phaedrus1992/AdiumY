@@ -33,13 +33,25 @@ typedef struct {
 /// Parses and validates a script-message body for the `contextMenu` handler.
 ///
 /// A body is valid when it is a dictionary whose `type` is the string "contextMenu"
-/// and whose `x`/`y` are NSNumber. `imageURL`, when present, must be a non-empty
-/// string; it is normalized to nil otherwise. Any other shape yields `valid == NO`
-/// with undefined x/y/imageURLString.
+/// and whose `x`/`y` are NSNumber coordinates within [0, AIWKMaxContextMenuCoordinate].
+/// JSON booleans (which parse to CFBoolean-backed NSNumbers) are not coordinates and are
+/// rejected (issue #170). `imageURL`, when present, must be a non-empty string; it is
+/// normalized to nil otherwise. Any other shape yields `valid == NO` with undefined
+/// x/y/imageURLString.
 ///
 /// @param body The WKScriptMessage body (nil, a non-dictionary, or a dictionary).
 /// @return The parsed message; `valid` indicates whether the fields are meaningful.
 AIWKContextMenuMessage AIWKContextMenuMessageFromBody(id body);
+
+/// The inclusive upper bound for context-menu x/y coordinates, in viewport points.
+/// Coordinates outside [0, AIWKMaxContextMenuCoordinate] are rejected by
+/// AIWKContextMenuMessageFromBody (issue #170).
+extern const double AIWKMaxContextMenuCoordinate;
+
+/// Whether a context-menu coordinate is usable to position the pop-up: finite and within
+/// [0, AIWKMaxContextMenuCoordinate]. Non-finite values (INFINITY, NAN) would misposition
+/// NSMakePoint and are rejected. The BOOL check happens at the NSNumber layer (issue #170).
+BOOL AIWKContextMenuCoordinateIsValid(double coordinate);
 
 /// Returns the image URL for a context-menu `imageURL` string, or nil when the
 /// string does not form a usable URL. Thin wrapper around +[NSURL URLWithString:]
@@ -50,3 +62,42 @@ NSURL *AIWKImageURLFromString(NSString *imageURLString);
 /// copied directly, http(s) URLs are downloaded first (issue #151). Any other
 /// scheme — or nil — is not savable.
 BOOL AIWKCanSaveImageURL(NSURL *imageURL);
+
+/// The default file name for saving an image from `imageURL`: its last path component when
+/// that is a real component (non-empty and not "/"), else `fallbackName`. Extracted from
+/// `saveImageAs:` so it can be property-tested (issue #169). Pure and side-effect-free.
+///
+/// @param imageURL The image URL, or nil.
+/// @param fallbackName Used when the URL has no usable path component; must be non-nil.
+/// @return A non-empty name that is never "/".
+NSString *AIWKDefaultSaveNameForURL(NSURL *imageURL, NSString *fallbackName);
+
+/// The domain for errors returned by AIWKImageDownloadValidationErrorForResponse.
+FOUNDATION_EXPORT NSString *const AIWKImageDownloadErrorDomain;
+
+/// Reasons a remote image download was rejected before touching the user-picked destination
+/// (issue #168).
+typedef NS_ENUM(NSInteger, AIWKImageDownloadErrorCode) {
+	/// The response was not an NSHTTPURLResponse at all.
+	AIWKImageDownloadErrorNotHTTP = 1,
+	/// The HTTP status was outside 2xx.
+	AIWKImageDownloadErrorBadStatus,
+	/// The Content-Type was absent or not an image/*.
+	AIWKImageDownloadErrorWrongContentType,
+	/// expectedContentLength exceeded AIWKMaxRemoteImageDownloadBytes.
+	AIWKImageDownloadErrorTooLarge,
+};
+
+/// The cap for a remote image download, in bytes, before the user-picked destination is
+/// committed. Unknown lengths (Content-Length absent) pass validation — the cap guards the
+/// known-length case (issue #168).
+extern const int64_t AIWKMaxRemoteImageDownloadBytes;
+
+/// Validates an NSURLSession response before committing a downloaded image to the user-picked
+/// destination. Returns nil when the response is acceptable (HTTP 2xx, image/* Content-Type,
+/// size at or under AIWKMaxRemoteImageDownloadBytes), or an NSError in
+/// AIWKImageDownloadErrorDomain describing the rejection (issue #168).
+///
+/// @param response The NSURLSession response, possibly nil.
+/// @return nil when acceptable; an error describing the violated check otherwise.
+NSError *AIWKImageDownloadValidationErrorForResponse(NSURLResponse *response);

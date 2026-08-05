@@ -498,10 +498,8 @@ static NSString *const AIWKContextMenuScript =
 
 	NSWindow *window = [_webView window];
 	NSSavePanel *savePanel = [NSSavePanel savePanel];
-	NSString *defaultName = [imageURL lastPathComponent];
-	if ([defaultName length] == 0 || [defaultName isEqualToString:@"/"]) {
-		defaultName = AILocalizedString(@"image", "Default file name when the image URL has no path component");
-	}
+	NSString *defaultName = AIWKDefaultSaveNameForURL(
+		imageURL, AILocalizedString(@"image", "Default file name when the image URL has no path component"));
 	[savePanel setNameFieldStringValue:defaultName];
 	[savePanel beginSheetModalForWindow:window
 					  completionHandler:^(NSInteger result) {
@@ -535,6 +533,19 @@ static NSString *const AIWKContextMenuScript =
 				  AILogWithSignature(@"Failed to download image from %@: %@", sourceURL, error);
 				  dispatch_async(dispatch_get_main_queue(), ^{
 					  [self _presentImageSaveError:error imageURL:sourceURL window:window];
+				  });
+				  return;
+			  }
+
+			  NSError *validationError = AIWKImageDownloadValidationErrorForResponse(response);
+			  if (validationError != nil) {
+				  AILogWithSignature(@"Refusing to save image from %@: %@", sourceURL, validationError);
+				  NSError *cleanupError = nil;
+				  if (![[NSFileManager defaultManager] removeItemAtURL:location error:&cleanupError]) {
+					  AILogWithSignature(@"Failed to delete rejected download at %@: %@", location, cleanupError);
+				  }
+				  dispatch_async(dispatch_get_main_queue(), ^{
+					  [self _presentImageSaveError:validationError imageURL:sourceURL window:window];
 				  });
 				  return;
 			  }
@@ -865,8 +876,14 @@ static NSString *const AIWKContextMenuScript =
 	// Capture scroll height before append
 	[_webView evaluateJavaScript:@"document.body.scrollHeight"
 			   completionHandler:^(id result, NSError *error) {
+				   if (error != nil) {
+					   AILogWithSignature(@"Failed to evaluate scrollHeight in _markCurrentLocation: %@", error);
+					   return;
+				   }
+
 				   NSInteger h = [result integerValue];
-				   if (error || h == 0) {
+				   if (h == 0) {
+					   AILogWithSignature(@"scrollHeight evaluated to 0 in _markCurrentLocation; no scroll mark added");
 					   return;
 				   }
 
