@@ -29,7 +29,7 @@ const int64_t AIWKMaxRemoteImageDownloadBytes = 50 * 1024 * 1024;
 // exposed double predicate cannot express the distinction (issue #170).
 static BOOL AIWKContextMenuCoordinateNumberIsValid(NSNumber *coordinate)
 {
-	if (CFGetTypeID((__bridge CFNumberRef)coordinate) == CFBooleanGetTypeID()) {
+	if (CFGetTypeID((__bridge CFTypeRef)coordinate) == CFBooleanGetTypeID()) {
 		return NO;
 	}
 	return AIWKContextMenuCoordinateDoubleIsInRange([coordinate doubleValue]);
