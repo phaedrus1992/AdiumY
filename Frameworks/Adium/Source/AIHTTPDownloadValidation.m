@@ -15,6 +15,7 @@
  */
 
 #import "AIHTTPDownloadValidation.h"
+#import <AIUtilities/AIStringUtilities.h>
 
 NSString *const AIHTTPDownloadErrorDomain = @"AIHTTPDownloadErrorDomain";
 
@@ -26,8 +27,9 @@ static NSError *AIHTTPDownloadValidationError(AIHTTPDownloadErrorCode code, NSSt
 NSError *AIHTTPDownloadValidationErrorForResponse(NSURLResponse *response)
 {
 	if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
-		return AIHTTPDownloadValidationError(AIHTTPDownloadErrorNotHTTP,
-											 @"File download: response is not HTTP; refusing to save.");
+		return AIHTTPDownloadValidationError(
+			AIHTTPDownloadErrorNotHTTP,
+			AILocalizedStringFromTable(@"Response is not HTTP; refusing to save.", nil, nil));
 	}
 
 	NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
@@ -35,7 +37,8 @@ NSError *AIHTTPDownloadValidationErrorForResponse(NSURLResponse *response)
 	if (statusCode < 200 || statusCode > 299) {
 		return AIHTTPDownloadValidationError(
 			AIHTTPDownloadErrorBadStatus,
-			[NSString stringWithFormat:@"File download: HTTP status %ld; refusing to save.", (long)statusCode]);
+			[NSString stringWithFormat:AILocalizedStringFromTable(@"HTTP status %ld; refusing to save.", nil, nil),
+									   (long)statusCode]);
 	}
 
 	return nil;
