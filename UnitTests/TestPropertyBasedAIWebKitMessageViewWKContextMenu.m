@@ -285,8 +285,9 @@ static NSNumber *AIWKRandomCoordinateNumber(void)
 	});
 }
 
-/// Property: A URL whose last path component is a real component (non-empty, not "/") uses it
-/// as the default name.
+/// Property: A URL whose last path component is a real component (non-empty, not "/", not "." or
+/// "..") uses it as the default name. Dot-directory components are excluded here — they fall back
+/// per issue #182 and are covered by testDefaultSaveNameFallsBackForDotPathComponents.
 - (void)testDefaultSaveNameUsesLastPathComponent
 {
 	PBTCheckDefault({
@@ -295,7 +296,7 @@ static NSNumber *AIWKRandomCoordinateNumber(void)
 																"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"];
 		NSString *clean = [[PBTRandomASCIIString(16) componentsSeparatedByCharactersInSet:[allowed invertedSet]]
 			componentsJoinedByString:@""];
-		if ([clean length] == 0) {
+		if ([clean length] == 0 || [clean isEqualToString:@"."] || [clean isEqualToString:@".."]) {
 			clean = @"image.png";
 		}
 		NSURL *url = [NSURL URLWithString:([NSString stringWithFormat:@"https://example.com/%@", clean])];
@@ -314,17 +315,29 @@ static NSNumber *AIWKRandomCoordinateNumber(void)
 	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL(nil, @"fallback"), @"fallback");
 }
 
+// A URL whose last path component is "." or ".." points at a directory, not a file; the save
+// panel must fall back rather than offer a directory as the default name (issue #182).
+- (void)testDefaultSaveNameFallsBackForDotPathComponents
+{
+	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL([NSURL URLWithString:@"https://example.com/."], @"fallback"),
+						  @"fallback");
+	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL([NSURL URLWithString:@"https://example.com/.."], @"fallback"),
+						  @"fallback");
+	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL([NSURL URLWithString:@"https://example.com/a/../"], @"fallback"),
+						  @"fallback");
+	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL([NSURL fileURLWithPath:@"/tmp/."], @"fallback"), @"fallback");
+	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL([NSURL fileURLWithPath:@"/tmp/.."], @"fallback"), @"fallback");
+}
+
 // Random image URL: sometimes a real path component (so lastPathComponent wins), sometimes a bare
-// origin or root path (so the fallback must win).
+// origin or root path (so the fallback must win). Includes "/.", "/..", and "/a/../" — URLs whose
+// last path component is a dot directory reference, which must also fall back (issue #182).
 static NSURL *AIWKRandomImageURL(void)
 {
 	NSString *const paths[] = {
-		@"/pic.png",
-		@"/a/b/c.png",
-		@"/",
-		@"",
+		@"/pic.png", @"/a/b/c.png", @"/", @"", @"/.", @"/..", @"/a/../",
 	};
-	return [NSURL URLWithString:[@"https://example.com" stringByAppendingString:paths[PBTUniform(4)]]];
+	return [NSURL URLWithString:[@"https://example.com" stringByAppendingString:paths[PBTUniform(7)]]];
 }
 
 // Non-empty fallback name, as the function contract requires.
@@ -334,14 +347,17 @@ static NSString *AIWKRandomSaveFallbackName(void)
 }
 
 /// Property: The default save name is the URL's last path component exactly when that is a real
-/// component (non-empty and not "/"); otherwise it is exactly the fallback name (issue #169).
+/// component (non-empty, not "/", not "." or ".."); otherwise it is exactly the fallback name
+/// (issues #169, #182).
 - (void)testDefaultSaveNameProperty
 {
 	PBTCheckDefault({
 		NSURL *url = AIWKRandomImageURL();
 		NSString *fallbackName = AIWKRandomSaveFallbackName();
 		NSString *component = [url lastPathComponent];
-		BOOL hasRealComponent = component != nil && [component length] > 0 && ![component isEqualToString:@"/"];
+		// "." and ".." are directory-relative components, not real filenames (issue #182).
+		BOOL hasRealComponent = component != nil && [component length] > 0 && ![component isEqualToString:@"/"] &&
+								![component isEqualToString:@"."] && ![component isEqualToString:@".."];
 		NSString *expected = hasRealComponent ? component : fallbackName;
 		XCTAssertEqualObjects(AIWKDefaultSaveNameForURL(url, fallbackName), expected, @"url = %@, fallback = %@", url,
 							  fallbackName);

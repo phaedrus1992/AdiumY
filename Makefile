@@ -44,7 +44,8 @@ localizable-strings:
 	genstrings -o Resources/en.lproj -s AILocalizedString Source/*.m Source/*.h Plugins/*/*.h Plugins/*/*.m Plugins/*/*/*.h Plugins/*/*/*.m
 	genstrings -o tmp/Purple\ Service/Resources/en.lproj -s AILocalizedString tmp/Purple\ Service/*.h tmp/Purple\ Service/*.m
 	genstrings -o Frameworks/AIUtilities\ Framework/Resources/en.lproj -s AILocalizedString Frameworks/AIUtilities\ Framework/Source/*.h Frameworks/AIUtilities\ Framework/Source/*.m
-	genstrings -o Frameworks/Adium\ Framework/Resources/en.lproj -s AILocalizedString Frameworks/Adium\ Framework/Source/*.m Frameworks/Adium\ Framework/Source/*.h
+	mkdir -p Frameworks/Adium/Resources/en.lproj
+	genstrings -o Frameworks/Adium/Resources/en.lproj -s AILocalizedString Frameworks/Adium/Source/*.m Frameworks/Adium/Source/*.h
 	mv "tmp/Purple Service" Plugins
 	rmdir tmp || true
 

@@ -71,7 +71,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		[self downloadFolder];
 	} else {
 		[[[manager client] client] reportError:@"Don't know what type of item we are downloading" ofLevel:AWEzvError];
-		[[[manager client] client] remoteCanceledFileTransfer:self];
+		[[[manager client] client] transferFailed:self];
 	}
 }
 
@@ -96,7 +96,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	NSXMLDocument *documentRoot = [[NSXMLDocument alloc] initWithContentsOfURL:URL options:0
 																		  error:&error];
 	if (error) {
-		[[[[self manager] client] client] remoteCanceledFileTransfer:self];
+		[[[[self manager] client] client] transferFailed:self];
 		return;
 	}
 	/*NO error so we have the xml */
@@ -112,7 +112,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		/*We need to remove this file*/
 		if (![fileManager removeItemAtPath:localFilename error:NULL]) {
 			[[[[self manager] client] client] reportError:@"Could not replace old file at path" ofLevel:AWEzvError];
-			[[[[self manager] client] client] remoteCanceledFileTransfer:self];
+			[[[[self manager] client] client] transferFailed:self];
 			return;
 		}
 	}
@@ -124,7 +124,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		[[[[self manager] client] client]
 			reportError:@"There was an error creating the root directory for the file tranfer"
 				ofLevel:AWEzvError];
-		[[[[self manager] client] client] remoteCanceledFileTransfer:self];
+		[[[[self manager] client] client] transferFailed:self];
 		return;
 	}
 
@@ -158,12 +158,12 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 				[[[[self manager] client] client]
 					reportError:[NSString stringWithFormat:@"Error downloading file from %@ to %@", downloadURL, path]
 						ofLevel:AWEzvError];
-				[[[[self manager] client] client] remoteCanceledFileTransfer:self];
+				[[[[self manager] client] client] transferFailed:self];
 			}
 		}
 
 	} else {
-		[[[[self manager] client] client] remoteCanceledFileTransfer:self];
+		[[[[self manager] client] client] transferFailed:self];
 	}
 }
 - (bool)downloadFolder:(NSXMLElement *)root path:(NSString *)rootPath url:(NSString *)rootURL
@@ -185,9 +185,18 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			return NO;
 		}
 		NSString *name = [[nameChildren objectAtIndex:0] stringValue];
-		NSString *newPath = [rootPath stringByAppendingPathComponent:name];
+		// A peer-supplied name must not escape the transfer directory: reduce it to a single leaf
+		// and reject degenerate names (empty, ".", "..", whitespace) by failing the transfer
+		// (issue #181).
+		NSString *safeName = AIHTTPDownloadSafeSaveName(name, @"");
+		if ([safeName length] == 0) {
+			[[[[self manager] client] client] reportError:@"Could not download file because its name is invalid."
+												  ofLevel:AWEzvError];
+			return NO;
+		}
+		NSString *newPath = [rootPath stringByAppendingPathComponent:safeName];
 		NSString *newURL = [rootURL
-			stringByAppendingPathComponent:[name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+			stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
 
 		/*Download file to newPath from newURL*/
 		[itemsToDownload setValue:[NSURL URLWithString:newURL] forKey:newPath];
@@ -207,10 +216,19 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			return NO;
 		}
 		NSString *name = [[nameChildren objectAtIndex:0] stringValue];
+		// A peer-supplied name must not escape the transfer directory: reduce it to a single leaf
+		// and reject degenerate names (empty, ".", "..", whitespace) by failing the transfer
+		// (issue #181).
+		NSString *safeName = AIHTTPDownloadSafeSaveName(name, @"");
+		if ([safeName length] == 0) {
+			[[[[self manager] client] client] reportError:@"Could not download directory because its name is invalid."
+												  ofLevel:AWEzvError];
+			return NO;
+		}
 
 		/* Create the directory */
 		NSFileManager *defaultManager = [NSFileManager defaultManager];
-		NSString *newPath = [rootPath stringByAppendingPathComponent:name];
+		NSString *newPath = [rootPath stringByAppendingPathComponent:safeName];
 
 		if (![defaultManager createDirectoryAtPath:newPath
 					   withIntermediateDirectories:YES
@@ -226,7 +244,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		bool fileSuccess = YES;
 		/* Now call downloadFolder for dir and file children */
 		NSString *newURL = [rootURL
-			stringByAppendingPathComponent:[name stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+			stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
 
 		for (NSXMLElement *nextElement in [root elementsForName:@"dir"]) {
 			folderSuccess = [self downloadFolder:nextElement path:newPath url:newURL];
@@ -290,7 +308,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 				reportError:[NSString
 								stringWithFormat:@"Error applying permissions of %@ to file at %@", attributes, path]
 					ofLevel:AWEzvError];
-			[[[manager client] client] remoteCanceledFileTransfer:self];
+			[[[manager client] client] transferFailed:self];
 			permissionsToApply = nil;
 			return NO;
 		}
@@ -326,7 +344,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	} else {
 		// inform the user that the download could not be made
 		[[[manager client] client] reportError:@"Error starting download of file transfer." ofLevel:AWEzvError];
-		[[[manager client] client] remoteCanceledFileTransfer:self];
+		[[[manager client] client] transferFailed:self];
 	}
 }
 
@@ -341,7 +359,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	NSError *validationError = AIHTTPDownloadValidationErrorForResponse(response);
 	if (validationError != nil) {
 		completionHandler(NSURLSessionResponseCancel);
-		[[[manager client] client] remoteCanceledFileTransfer:self];
+		[[[manager client] client] transferFailed:self];
 		[[[manager client] client] reportError:[validationError localizedDescription] ofLevel:AWEzvError];
 		return;
 	}
@@ -394,7 +412,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			/* A cancelled download is intentional; nothing to report. */
 			return;
 		}
-		[[[manager client] client] remoteCanceledFileTransfer:self];
+		[[[manager client] client] transferFailed:self];
 		// inform the user
 		[[[manager client] client]
 			reportError:[NSString stringWithFormat:@"Download failed! Error - %@ %@", [error localizedDescription],
@@ -409,7 +427,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		NSString *itemPath = [self urlToPath:itemURL];
 		BOOL decoded = [self decodeAppleSingleAtPath:itemPath];
 		if (!decoded) {
-			[[[manager client] client] remoteCanceledFileTransfer:self];
+			[[[manager client] client] transferFailed:self];
 		}
 	}
 	percentComplete = ((float)bytesReceived / (float)size);

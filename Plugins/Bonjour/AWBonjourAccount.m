@@ -495,13 +495,15 @@
 	}
 }
 
-// Instructs the account to cancel a file ransfer in progress
+// A transport failure is not a local cancel: stop the underlying EKEzv transfer the same way
+// cancelFileTransfer: does, but record the failure on the ESFileTransfer wrapper so the UI shows
+// "Failed" rather than "Cancelled" (issue #180).
 - (void)transferFailed:(EKEzvFileTransfer *)fileTransfer
 {
 	ESFileTransfer *transfer = [ESFileTransfer existingFileTransferWithID:[fileTransfer uniqueID]];
-	[transfer cancel];
+	[libezv transferCancelled:fileTransfer];
 	if (!transfer.isStopped) {
-		[fileTransfer setStatus:Failed_FileTransfer];
+		[transfer setStatus:Failed_FileTransfer];
 	}
 }
 #pragma mark Incoming File Transfer

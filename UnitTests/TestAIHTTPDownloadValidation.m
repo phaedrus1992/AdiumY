@@ -131,6 +131,40 @@ static NSString *AIHTTPRandomSaveFallbackName(void)
 	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"dir/file.txt", @"Untitled"), @"file.txt");
 }
 
+// Peer-supplied traversal names (issue #181) reduce to a single leaf that never escapes the
+// transfer directory; the degenerate ones (".", "..", whitespace) are rejected as empty so the
+// EKEzv caller can fail the transfer rather than write somewhere unexpected.
+- (void)testTraversalInputsReduceToLeaf
+{
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"a/../../evil.txt", @""), @"evil.txt");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"/etc/passwd", @""), @"passwd");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"dir/sub/file.txt", @""), @"file.txt");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@".", @""), @"");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"..", @""), @"");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"/", @""), @"");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"", @""), @"");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"   ", @""), @"");
+}
+
+// Property: whatever a peer-supplied name looks like, the sanitizer either rejects it (returns
+// @"") or yields a single non-degenerate leaf — no path separator, not "." or "..". This is the
+// contract the EKEzv folder-transfer sink relies on when appending to a transfer directory
+// (issue #181).
+- (void)testSafeSaveNameIsEitherEmptyOrASingleSafeLeaf
+{
+	PBTCheckDefault({
+		NSString *name = PBTRandomASCIIString((uint32_t)PBTUniform(40));
+		NSString *safeName = AIHTTPDownloadSafeSaveName(name, @"");
+		XCTAssertNotNil(safeName);
+		if ([safeName length] > 0) {
+			XCTAssertFalse([safeName isEqualToString:@"."] || [safeName isEqualToString:@".."],
+						   @"name = %@, safeName = %@", name, safeName);
+			NSRange slashRange = [safeName rangeOfString:@"/"];
+			XCTAssertEqual(slashRange.location, (NSUInteger)NSNotFound, @"name = %@, safeName = %@", name, safeName);
+		}
+	});
+}
+
 // Property: no input — empty, whitespace, or arbitrary printable ASCII (which can include
 // "/" and dots) — yields an empty or dot-degenerate default save name.
 - (void)testSaveNameIsNeverDegenerate
