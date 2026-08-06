@@ -18,6 +18,13 @@
 
 #import <math.h>
 
+// AIHTTPDownloadSafeSaveName is declared in Frameworks/Adium/Source/AIHTTPDownloadValidation.h.
+// Forward-declared rather than imported because this file compiles both in the WebKit plugin (where
+// the AdiumY framework module provides the header) and in the standalone CoverageHostTests bundle,
+// which compiles the framework sources directly and has no AdiumY module — only a declaration is
+// common to both build contexts (issue #182).
+NSString *_Nonnull AIHTTPDownloadSafeSaveName(NSString *_Nullable remotePath, NSString *_Nonnull fallbackName);
+
 const double AIWKMaxContextMenuCoordinate = 100000.0;
 
 NSString *const AIWKImageDownloadErrorDomain = @"AIWKImageDownloadErrorDomain";
@@ -98,11 +105,12 @@ BOOL AIWKContextMenuCoordinateDoubleIsInRange(double coordinate)
 
 NSString *AIWKDefaultSaveNameForURL(NSURL *imageURL, NSString *fallbackName)
 {
-	NSString *lastPathComponent = [imageURL lastPathComponent];
-	if (lastPathComponent == nil || [lastPathComponent length] == 0 || [lastPathComponent isEqualToString:@"/"]) {
+	if (imageURL == nil) {
 		return fallbackName;
 	}
-	return lastPathComponent;
+	// Delegate the degenerate-component guard (nil, empty, "/", ".", "..", whitespace) to the
+	// shared download-path sanitizer (issue #182).
+	return AIHTTPDownloadSafeSaveName([imageURL lastPathComponent], fallbackName);
 }
 
 static NSError *AIWKImageDownloadValidationError(AIWKImageDownloadErrorCode code, NSString *reason)

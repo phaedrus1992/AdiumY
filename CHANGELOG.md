@@ -24,6 +24,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Reject non-2xx HTTP responses before any bytes are written to disk for file
   downloads — a failed Xtra download is no longer auto-installed, and a failed
   Bonjour file transfer is no longer decoded or unpacked
+- Report Bonjour file-transfer failures as "Failed" instead of "Cancelled by
+  remote user" when the download errors on the receiver or sender side
+- Reduce Bonjour file-transfer peer-supplied filenames to a single safe leaf —
+  degenerate names (empty, ".", "..", whitespace) now fail the transfer instead
+  of resolving to an unexpected path
+- Ignore malformed (non-hex) permission flags from Bonjour file-transfer peers
+  instead of applying garbage file permissions
+- Use only a safe leaf name as the default when saving remote images from the
+  message-view context menu, never a raw remote path
 
 ## [2.0.0] - 2026-08-03
 

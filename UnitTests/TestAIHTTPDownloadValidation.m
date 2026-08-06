@@ -66,6 +66,16 @@ static NSString *AIHTTPRandomSaveFallbackName(void)
 	return [NSString stringWithFormat:@"save-%u", (unsigned)PBTUniform(1000000)];
 }
 
+// YES iff name is a real, non-degenerate leaf: non-empty, not "." or "..", not "/", and not
+// whitespace-only. Mirrors the sanitizer's degenerate rules exactly, so the properties below
+// share one oracle.
+static BOOL AIHTTPIsRealLeaf(NSString *name)
+{
+	return name != nil && [name length] > 0 && ![name isEqualToString:@"."] && ![name isEqualToString:@".."] &&
+		   ![name isEqualToString:@"/"] &&
+		   ([[name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] length] > 0);
+}
+
 @implementation AIHTTPDownloadValidationTest
 
 #pragma mark - Response validation
@@ -131,6 +141,68 @@ static NSString *AIHTTPRandomSaveFallbackName(void)
 	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"dir/file.txt", @"Untitled"), @"file.txt");
 }
 
+// Unicode leaves — the most common non-ASCII filename case — pass through unchanged; the
+// degenerate checks are ASCII-only sentinels and lastPathComponent is fully Unicode-aware.
+- (void)testUnicodeLeafPassesThrough
+{
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"照片.jpg", @"Untitled"), @"照片.jpg");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"café.png", @"Untitled"), @"café.png");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"目录/照片.jpg", @"Untitled"), @"照片.jpg");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"照片.jpg", @""), @"照片.jpg");
+}
+
+// Peer-supplied traversal names (issue #181) reduce to a single leaf that never escapes the
+// transfer directory; the degenerate ones (".", "..", whitespace) are rejected as empty so the
+// EKEzv caller can fail the transfer rather than write somewhere unexpected.
+- (void)testTraversalInputsReduceToLeaf
+{
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"a/../../evil.txt", @""), @"evil.txt");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"/etc/passwd", @""), @"passwd");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"dir/sub/file.txt", @""), @"file.txt");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@".", @""), @"");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"..", @""), @"");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"/", @""), @"");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"", @""), @"");
+	XCTAssertEqualObjects(AIHTTPDownloadSafeSaveName(@"   ", @""), @"");
+}
+
+// Property: with an empty fallback, the sanitizer returns non-empty exactly when the path's last
+// component is a real, non-degenerate leaf — the reject/pass boundary the EKEzv folder-transfer
+// sink relies on to fail the transfer on unsafe peer-supplied names (issue #181). Any non-empty
+// result, appended to an arbitrary transfer root, stays inside that root.
+- (void)testEmptyFallbackRejectsExactlyDegenerateLeaf
+{
+	PBTCheckDefault({
+		NSString *path = AIHTTPRandomSavePath();
+		NSString *safeName = AIHTTPDownloadSafeSaveName(path, @"");
+		BOOL isRealLeaf = AIHTTPIsRealLeaf([path lastPathComponent]);
+		XCTAssertTrue(([safeName length] > 0) == isRealLeaf, @"path = %@", path);
+		if ([safeName length] > 0) {
+			NSString *root = @"/tmp/transfer-root";
+			XCTAssertTrue([[root stringByAppendingPathComponent:safeName] hasPrefix:root], @"path = %@", path);
+		}
+	});
+}
+
+// Property: whatever a peer-supplied name looks like, the sanitizer either rejects it (returns
+// @"") or yields a single non-degenerate leaf — no path separator, not "." or "..". This is the
+// contract the EKEzv folder-transfer sink relies on when appending to a transfer directory
+// (issue #181).
+- (void)testSafeSaveNameIsEitherEmptyOrASingleSafeLeaf
+{
+	PBTCheckDefault({
+		NSString *name = PBTRandomASCIIString((uint32_t)PBTUniform(40));
+		NSString *safeName = AIHTTPDownloadSafeSaveName(name, @"");
+		XCTAssertNotNil(safeName);
+		if ([safeName length] > 0) {
+			XCTAssertFalse([safeName isEqualToString:@"."] || [safeName isEqualToString:@".."],
+						   @"name = %@, safeName = %@", name, safeName);
+			NSRange slashRange = [safeName rangeOfString:@"/"];
+			XCTAssertEqual(slashRange.location, (NSUInteger)NSNotFound, @"name = %@, safeName = %@", name, safeName);
+		}
+	});
+}
+
 // Property: no input — empty, whitespace, or arbitrary printable ASCII (which can include
 // "/" and dots) — yields an empty or dot-degenerate default save name.
 - (void)testSaveNameIsNeverDegenerate
@@ -183,12 +255,7 @@ static NSString *AIHTTPRandomSaveFallbackName(void)
 		NSString *path = AIHTTPRandomSavePath();
 		NSString *fallbackName = AIHTTPRandomSaveFallbackName();
 		NSString *component = [path lastPathComponent];
-		BOOL hasRealComponent =
-			component != nil && [component length] > 0 && ![component isEqualToString:@"."] &&
-			![component isEqualToString:@".."] && ![component isEqualToString:@"/"] &&
-			([[component stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] length] >
-			 0);
-		NSString *expected = hasRealComponent ? component : fallbackName;
+		NSString *expected = AIHTTPIsRealLeaf(component) ? component : fallbackName;
 
 		NSString *once = AIHTTPDownloadSafeSaveName(path, fallbackName);
 		XCTAssertEqualObjects(once, expected, @"path = %@, fallback = %@", path, fallbackName);

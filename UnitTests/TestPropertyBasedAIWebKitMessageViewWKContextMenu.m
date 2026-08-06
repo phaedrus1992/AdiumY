@@ -14,6 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import "AIHTTPDownloadValidation.h"
 #import "AIPropertyTestUtilities.h"
 #import "AIWebKitMessageViewWKContextMenu.h"
 #import <XCTest/XCTest.h>
@@ -285,8 +286,9 @@ static NSNumber *AIWKRandomCoordinateNumber(void)
 	});
 }
 
-/// Property: A URL whose last path component is a real component (non-empty, not "/") uses it
-/// as the default name.
+/// Property: A URL whose last path component is a real component (non-empty, not "/", not "." or
+/// "..") uses it as the default name. Dot-directory components are excluded here — they fall back
+/// per issue #182 and are covered by testDefaultSaveNameFallsBackForDotPathComponents.
 - (void)testDefaultSaveNameUsesLastPathComponent
 {
 	PBTCheckDefault({
@@ -295,7 +297,7 @@ static NSNumber *AIWKRandomCoordinateNumber(void)
 																"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"];
 		NSString *clean = [[PBTRandomASCIIString(16) componentsSeparatedByCharactersInSet:[allowed invertedSet]]
 			componentsJoinedByString:@""];
-		if ([clean length] == 0) {
+		if ([clean length] == 0 || [clean isEqualToString:@"."] || [clean isEqualToString:@".."]) {
 			clean = @"image.png";
 		}
 		NSURL *url = [NSURL URLWithString:([NSString stringWithFormat:@"https://example.com/%@", clean])];
@@ -314,17 +316,30 @@ static NSNumber *AIWKRandomCoordinateNumber(void)
 	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL(nil, @"fallback"), @"fallback");
 }
 
+// A URL whose last path component is "." or ".." points at a directory, not a file; the save
+// panel must fall back rather than offer a directory as the default name (issue #182).
+- (void)testDefaultSaveNameFallsBackForDotPathComponents
+{
+	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL([NSURL URLWithString:@"https://example.com/."], @"fallback"),
+						  @"fallback");
+	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL([NSURL URLWithString:@"https://example.com/.."], @"fallback"),
+						  @"fallback");
+	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL([NSURL URLWithString:@"https://example.com/a/../"], @"fallback"),
+						  @"fallback");
+	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL([NSURL fileURLWithPath:@"/tmp/."], @"fallback"), @"fallback");
+	XCTAssertEqualObjects(AIWKDefaultSaveNameForURL([NSURL fileURLWithPath:@"/tmp/.."], @"fallback"), @"fallback");
+}
+
 // Random image URL: sometimes a real path component (so lastPathComponent wins), sometimes a bare
-// origin or root path (so the fallback must win).
+// origin or root path (so the fallback must win). Includes "/.", "/..", and "/a/../" — URLs whose
+// last path component is a dot directory reference, which must also fall back (issue #182) — and
+// "/%20", whose last path component decodes to a whitespace-only name, also a fallback case.
 static NSURL *AIWKRandomImageURL(void)
 {
 	NSString *const paths[] = {
-		@"/pic.png",
-		@"/a/b/c.png",
-		@"/",
-		@"",
+		@"/pic.png", @"/a/b/c.png", @"/", @"", @"/.", @"/..", @"/a/../", @"/%20",
 	};
-	return [NSURL URLWithString:[@"https://example.com" stringByAppendingString:paths[PBTUniform(4)]]];
+	return [NSURL URLWithString:[@"https://example.com" stringByAppendingString:paths[PBTUniform(8)]]];
 }
 
 // Non-empty fallback name, as the function contract requires.
@@ -333,16 +348,17 @@ static NSString *AIWKRandomSaveFallbackName(void)
 	return [NSString stringWithFormat:@"img-%@.png", PBTRandomASCIIString(6)];
 }
 
-/// Property: The default save name is the URL's last path component exactly when that is a real
-/// component (non-empty and not "/"); otherwise it is exactly the fallback name (issue #169).
+/// Property: The default save name is exactly what the shared sanitizer returns for the URL's last
+/// path component — the wrapper delegates to AIHTTPDownloadSafeSaveName rather than re-deriving the
+/// degenerate-name rules by hand (issues #169, #182). Locking the delegation: a wrapper that stops
+/// delegating (e.g. re-implements the rules and omits the whitespace case) diverges from the
+/// sanitizer and fails this property.
 - (void)testDefaultSaveNameProperty
 {
 	PBTCheckDefault({
 		NSURL *url = AIWKRandomImageURL();
 		NSString *fallbackName = AIWKRandomSaveFallbackName();
-		NSString *component = [url lastPathComponent];
-		BOOL hasRealComponent = component != nil && [component length] > 0 && ![component isEqualToString:@"/"];
-		NSString *expected = hasRealComponent ? component : fallbackName;
+		NSString *expected = AIHTTPDownloadSafeSaveName([url lastPathComponent], fallbackName);
 		XCTAssertEqualObjects(AIWKDefaultSaveNameForURL(url, fallbackName), expected, @"url = %@, fallback = %@", url,
 							  fallbackName);
 	});

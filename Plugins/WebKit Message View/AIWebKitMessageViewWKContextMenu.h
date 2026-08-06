@@ -69,8 +69,10 @@ NSURL *AIWKImageURLFromString(NSString *imageURLString);
 BOOL AIWKCanSaveImageURL(NSURL *imageURL);
 
 /// The default file name for saving an image from `imageURL`: its last path component when
-/// that is a real component (non-empty and not "/"), else `fallbackName`. Extracted from
-/// `saveImageAs:` so it can be property-tested (issue #169). Pure and side-effect-free.
+/// that is a real component (non-empty, not "/", not "." or ".."), else `fallbackName`. The
+/// degenerate-component guard is delegated to AIHTTPDownloadSafeSaveName (issue #182).
+/// Extracted from `saveImageAs:` so it can be property-tested (issue #169). Pure and
+/// side-effect-free.
 ///
 /// @param imageURL The image URL, or nil.
 /// @param fallbackName Used when the URL has no usable path component; must be non-nil.

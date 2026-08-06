@@ -333,7 +333,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	randomString = [URI stringByAppendingString:@"/"];
 
 	URI = [URI stringByAppendingPathComponent:[[[self localFilename] lastPathComponent]
-												  stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+												  stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]];
 	if (isDirectory)
 		URI = [URI stringByAppendingString:@"/"];
 
@@ -370,8 +370,15 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	NSNumber *singleSize = nil;
 	if ([URI hasPrefix:randomString] && ([URI length] > [randomString length])) {
 		NSString *path = [URI substringFromIndex:[randomString length]];
-		filePath = [[[self localFilename] stringByDeletingLastPathComponent] stringByAppendingPathComponent:path];
+		/*Only serve metadata for paths that were registered in getData: a traversal
+		 * attempt in the URI remainder resolves to nil here instead of a filesystem
+		 * path, so it can never reach getxattr below (issue #181).
+		 */
+		filePath = [urlData valueForKey:path];
 		singleSize = [urlSizes valueForKey:path];
+	}
+	if (filePath == nil) {
+		return nil;
 	}
 
 	/*Include the three entries that iChat includes */
@@ -512,7 +519,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 - (void)userFailedDownload
 {
-	[[[[self manager] client] client] remoteCanceledFileTransfer:self];
+	[[[[self manager] client] client] transferFailed:self];
 }
 - (void)userBeganDownload
 {

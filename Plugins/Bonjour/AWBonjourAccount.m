@@ -477,9 +477,15 @@
 {
 	ESFileTransfer *transfer = [ESFileTransfer existingFileTransferWithID:[fileTransfer uniqueID]];
 	[libezv transferCancelled:fileTransfer];
-	if (!transfer.isStopped) {
-		[transfer setStatus:Cancelled_Remote_FileTransfer];
+	if (transfer == nil) {
+		AILogWithSignature(@"No ESFileTransfer wrapper for %@; cancel not recorded", [fileTransfer uniqueID]);
+		return;
 	}
+	if ([transfer isStopped]) {
+		AILogWithSignature(@"Transfer %@ already stopped; leaving status unchanged", [fileTransfer uniqueID]);
+		return;
+	}
+	[transfer setStatus:Cancelled_Remote_FileTransfer];
 }
 
 // Instructs the account to cancel a file ransfer in progress
@@ -495,14 +501,22 @@
 	}
 }
 
-// Instructs the account to cancel a file ransfer in progress
+// A transport failure is not a local cancel: stop the underlying EKEzv transfer the same way
+// cancelFileTransfer: does, but record the failure on the ESFileTransfer wrapper so the UI shows
+// "Failed" rather than "Cancelled" (issue #180).
 - (void)transferFailed:(EKEzvFileTransfer *)fileTransfer
 {
 	ESFileTransfer *transfer = [ESFileTransfer existingFileTransferWithID:[fileTransfer uniqueID]];
-	[transfer cancel];
-	if (!transfer.isStopped) {
-		[fileTransfer setStatus:Failed_FileTransfer];
+	[libezv transferCancelled:fileTransfer];
+	if (transfer == nil) {
+		AILogWithSignature(@"No ESFileTransfer wrapper for %@; failure not recorded", [fileTransfer uniqueID]);
+		return;
 	}
+	if ([transfer isStopped]) {
+		AILogWithSignature(@"Transfer %@ already stopped; leaving status unchanged", [fileTransfer uniqueID]);
+		return;
+	}
+	[transfer setStatus:Failed_FileTransfer];
 }
 #pragma mark Incoming File Transfer
 
