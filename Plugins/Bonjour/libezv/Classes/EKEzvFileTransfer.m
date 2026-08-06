@@ -1,3 +1,4 @@
+#import <Cocoa/Cocoa.h>
 #import "EKEzvFileTransfer.h"
 #import "EKEzvIncomingFileTransfer.h"
 #import "EKEzvOutgoingFileTransfer.h"

@@ -84,6 +84,11 @@
 				<string>93F002D72B045A7EA005441E</string>
 				<string>250897690CE3501AB1D10F68</string>
 				<string>345954E83E955237A7D1A2F1</string>
+				<string>E6D1820D31A5581E890433D6</string>
+				<string>49DF2425868E5EF4BA08ECC6</string>
+				<string>21E41A7E8E7450C6997FB2DD</string>
+				<string>EC87B07EF81F586A873A96FD</string>
+				<string>19CB2B45B4DD586482D53023</string>
 			</array>
 			<key>name</key>
 			<string>Sources</string>
@@ -407,6 +412,61 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
+		<key>E6D1820D31A5581E890433D6</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Classes/EKEzvIncomingFileTransfer.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>49DF2425868E5EF4BA08ECC6</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Classes/EKEzvIncomingFileTransfer.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>21E41A7E8E7450C6997FB2DD</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Classes/EKEzvFileTransfer.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EC87B07EF81F586A873A96FD</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Classes/EKEzvFileTransfer.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>19CB2B45B4DD586482D53023</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestEKEzvIncomingFileTransferDepthCap.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
 		<key>1041C5FC221D577F8FF36681</key>
 		<dict>
 			<key>isa</key>
@@ -513,6 +573,9 @@
 				<string>67E8FA945479508B9105C940</string>
 				<string>EB163F766ED0504593AD037E</string>
 				<string>343A9DA2869958E1932D4AD8</string>
+				<string>DB575F80636F5301BADAB37F</string>
+				<string>6393ED63D97A5091BA577D0F</string>
+				<string>ABF5B93723D45B538879C9F5</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
@@ -657,6 +720,27 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>345954E83E955237A7D1A2F1</string>
+		</dict>
+		<key>DB575F80636F5301BADAB37F</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>E6D1820D31A5581E890433D6</string>
+		</dict>
+		<key>6393ED63D97A5091BA577D0F</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>21E41A7E8E7450C6997FB2DD</string>
+		</dict>
+		<key>ABF5B93723D45B538879C9F5</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>19CB2B45B4DD586482D53023</string>
 		</dict>
 		<key>DE7B656C24B85237B361EB6C</key>
 		<dict>
@@ -884,8 +968,12 @@
 					<string>$(inherited)</string>
 					<string>$(SRCROOT)/../../Source</string>
 					<string>$(SRCROOT)/../../UnitTests</string>
-					<string>$(SRCROOT)/../../Plugins/WebKit Message View</string>
+					<string>"$(SRCROOT)/../../Plugins/WebKit Message View"</string>
 					<string>$(SRCROOT)/../../Frameworks/Adium/Source</string>
+					<string>$(SRCROOT)/../../Plugins/Bonjour/libezv/Classes</string>
+					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"</string>
+					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Private Classes"</string>
+					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Simple HTTP Server"</string>
 				</array>
 				<key>GCC_PREFIX_HEADER</key>
 				<string></string>
@@ -939,8 +1027,12 @@
 					<string>$(inherited)</string>
 					<string>$(SRCROOT)/../../Source</string>
 					<string>$(SRCROOT)/../../UnitTests</string>
-					<string>$(SRCROOT)/../../Plugins/WebKit Message View</string>
+					<string>"$(SRCROOT)/../../Plugins/WebKit Message View"</string>
 					<string>$(SRCROOT)/../../Frameworks/Adium/Source</string>
+					<string>$(SRCROOT)/../../Plugins/Bonjour/libezv/Classes</string>
+					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"</string>
+					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Private Classes"</string>
+					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Simple HTTP Server"</string>
 				</array>
 				<key>GCC_PREFIX_HEADER</key>
 				<string></string>
