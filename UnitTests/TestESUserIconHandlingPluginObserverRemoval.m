@@ -117,10 +117,16 @@ id<AIAdium> adium = nil;
 {
 	UserIconObserverCountingPlugin *plugin = [[UserIconObserverCountingPlugin alloc] init];
 	[plugin installPlugin];
-	[plugin uninstallPlugin];
 
+	// Positive control: the observer must fire while installed, or this test cannot tell
+	// "removed by uninstallPlugin" from "never registered at all".
 	[self postListObjectAttributesChanged];
-	XCTAssertEqual([plugin listObjectAttributesChangedCount], (NSUInteger)0,
+	XCTAssertEqual([plugin listObjectAttributesChangedCount], (NSUInteger)1,
+				   @"sanity: ListObject_AttributesChanged observer fired while installed");
+
+	[plugin uninstallPlugin];
+	[self postListObjectAttributesChanged];
+	XCTAssertEqual([plugin listObjectAttributesChangedCount], (NSUInteger)1,
 				   @"observer still registered after uninstallPlugin");
 }
 
@@ -130,14 +136,25 @@ id<AIAdium> adium = nil;
 {
 	UserIconObserverCountingPlugin *plugin = [[UserIconObserverCountingPlugin alloc] init];
 	[plugin installPlugin];
+
+	// Positive control: both observers must fire while installed, or this test cannot tell
+	// "removed by uninstallPlugin" from "never registered at all".
+	[self postToolbarNotification:NSToolbarWillAddItemNotification withItem:nil];
+	XCTAssertEqual([plugin toolbarWillAddItemCount], (NSUInteger)1,
+				   @"sanity: NSToolbarWillAddItemNotification observer fired while installed");
+
+	[self postToolbarNotification:NSToolbarDidRemoveItemNotification withItem:nil];
+	XCTAssertEqual([plugin toolbarDidRemoveItemCount], (NSUInteger)1,
+				   @"sanity: NSToolbarDidRemoveItemNotification observer fired while installed");
+
 	[plugin uninstallPlugin];
 
 	[self postToolbarNotification:NSToolbarWillAddItemNotification withItem:nil];
-	XCTAssertEqual([plugin toolbarWillAddItemCount], (NSUInteger)0,
+	XCTAssertEqual([plugin toolbarWillAddItemCount], (NSUInteger)1,
 				   @"NSToolbarWillAddItemNotification observer still registered after uninstallPlugin");
 
 	[self postToolbarNotification:NSToolbarDidRemoveItemNotification withItem:nil];
-	XCTAssertEqual([plugin toolbarDidRemoveItemCount], (NSUInteger)0,
+	XCTAssertEqual([plugin toolbarDidRemoveItemCount], (NSUInteger)1,
 				   @"NSToolbarDidRemoveItemNotification observer still registered after uninstallPlugin");
 }
 
