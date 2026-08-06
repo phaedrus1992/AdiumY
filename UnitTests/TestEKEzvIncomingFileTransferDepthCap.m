@@ -38,37 +38,57 @@
 	return dir;
 }
 
-- (void)testFolderDownloadFailsPastDepthCap
+/* Nested tree whose innermost <dir> sits at the given depth (the outermost element is depth 1). */
+- (NSXMLElement *)treeWithDepth:(NSUInteger)depth
 {
-	/* Innermost leaf, then wrap it in 40 parent <dir>s: the outermost element is the
-	 * depth-1 root, so the innermost <dir> sits at depth 41 — safely past the cap of 32. */
-	NSXMLElement *node = [self dirElementNamed:@"level-40"];
-	for (NSUInteger i = 0; i < 40; i++) {
+	NSXMLElement *node = [self dirElementNamed:[NSString stringWithFormat:@"level-%lu", (unsigned long)depth]];
+	for (NSUInteger i = 1; i < depth; i++) {
 		NSXMLElement *parent = [self dirElementNamed:[NSString stringWithFormat:@"level-%lu", (unsigned long)i]];
 		[parent addChild:node];
 		node = parent;
 	}
+	return node;
+}
 
+- (BOOL)downloadTree:(NSXMLElement *)tree
+{
 	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvDepthCapTest"];
 	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
-	BOOL result = [transfer downloadFolder:node path:tempRoot url:@"http://example.com/base"];
+	BOOL result = [transfer downloadFolder:tree path:tempRoot url:@"http://example.com/base"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+	return result;
+}
+
+- (void)testFolderDownloadFailsPastDepthCap
+{
+	/* Innermost leaf at depth 41 — safely past the cap of 32. */
+	BOOL result = [self downloadTree:[self treeWithDepth:41]];
 
 	XCTAssertFalse(result, @"folder tree nested past the depth cap must fail the transfer");
-	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
+- (void)testFolderDownloadSucceedsAtCapBoundary
+{
+	/* Innermost <dir> exactly at the cap (depth 32) must still download. */
+	BOOL result = [self downloadTree:[self treeWithDepth:32]];
+
+	XCTAssertTrue(result, @"folder tree exactly at the depth cap must download successfully");
+}
+
+- (void)testFolderDownloadFailsOnePastCapBoundary
+{
+	/* One past the cap (depth 33) must fail — pins the off-by-one of the depth comparison. */
+	BOOL result = [self downloadTree:[self treeWithDepth:33]];
+
+	XCTAssertFalse(result, @"folder tree one past the depth cap must fail the transfer");
 }
 
 - (void)testFolderDownloadSucceedsShallowTree
 {
 	/* A shallow tree well under the cap still downloads normally. */
-	NSXMLElement *dir = [self dirElementNamed:@"level-0"];
-	[dir addChild:[self dirElementNamed:@"level-1"]];
-
-	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvDepthCapShallowTest"];
-	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
-	BOOL result = [transfer downloadFolder:dir path:tempRoot url:@"http://example.com/base"];
+	BOOL result = [self downloadTree:[self treeWithDepth:2]];
 
 	XCTAssertTrue(result, @"shallow folder tree must download successfully");
-	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
 }
 
 @end
