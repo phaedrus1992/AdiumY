@@ -21,6 +21,8 @@
 	NSMenuItem *quickContextualMenuItem;
 
 	NSMutableSet *toolbarItems;
+
+	NSToolbarItem *registeredToolbarItem;
 }
 
 - (NSMenu *)flatEmoticonMenuForPack:(AIEmoticonPack *)incomingPack;

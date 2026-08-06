@@ -69,7 +69,9 @@
 }
 
 - (void)uninstallPlugin
-{}
+{
+	[adium.preferenceController unregisterPreferenceObserver:self];
+}
 
 - (void)hitHotKey:(AIHotKey *)hotKey
 {

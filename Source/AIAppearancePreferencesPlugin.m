@@ -14,7 +14,14 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// Cocoa and AIPlugin must precede AIAppearancePreferencesPlugin.h, whose interface
+// references both.
+#import <Cocoa/Cocoa.h>
+#import <AdiumY/AIPlugin.h>
 #import "AIAppearancePreferencesPlugin.h"
+// clang-format on
 #import "AIAppearancePreferences.h"
 #import "AIDockController.h"
 #import "AIMenuBarIcons.h"
@@ -22,8 +29,10 @@
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIAbstractListController.h>
 #import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 #import <AdiumY/AIServiceIcons.h>
 #import <AdiumY/AIStatusIcons.h>
 

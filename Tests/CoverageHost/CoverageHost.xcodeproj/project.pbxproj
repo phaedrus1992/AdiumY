@@ -86,6 +86,10 @@
 				<string>345954E83E955237A7D1A2F1</string>
 				<string>E8960DF283435EF18A3E45F8</string>
 				<string>FBB6675CC21D5B5EB568A833</string>
+				<string>CD9B78FA08B05AC99DFBFFF3</string>
+				<string>AF31580B05F1587DBB83AE9D</string>
+				<string>AC783376C5A7503A9FEC3B26</string>
+				<string>C24A489BCE0859E6BD4FFC58</string>
 				<string>E6D1820D31A5581E890433D6</string>
 				<string>49DF2425868E5EF4BA08ECC6</string>
 				<string>21E41A7E8E7450C6997FB2DD</string>
@@ -436,6 +440,50 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
+		<key>CD9B78FA08B05AC99DFBFFF3</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/ESiTunesPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>AF31580B05F1587DBB83AE9D</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestESiTunesPluginObserverRemoval.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>AC783376C5A7503A9FEC3B26</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/AIAppearancePreferencesPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>C24A489BCE0859E6BD4FFC58</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAIAppearancePreferencesPluginObserverRemoval.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
 		<key>E6D1820D31A5581E890433D6</key>
 		<dict>
 			<key>isa</key>
@@ -599,6 +647,10 @@
 				<string>343A9DA2869958E1932D4AD8</string>
 				<string>D150D7A3FED1528195100F1D</string>
 				<string>E3D07C8FF2C65821AE33CEFF</string>
+				<string>E4073532B7C757BFAC09D4F8</string>
+				<string>DA3683750CBB58CD9F0F58A8</string>
+				<string>006A34CB7F085F53B63D5E20</string>
+				<string>F9B5DA598FA550739EEA9095</string>
 				<string>DB575F80636F5301BADAB37F</string>
 				<string>6393ED63D97A5091BA577D0F</string>
 				<string>ABF5B93723D45B538879C9F5</string>
@@ -760,6 +812,34 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>FBB6675CC21D5B5EB568A833</string>
+		</dict>
+		<key>E4073532B7C757BFAC09D4F8</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>CD9B78FA08B05AC99DFBFFF3</string>
+		</dict>
+		<key>DA3683750CBB58CD9F0F58A8</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>AF31580B05F1587DBB83AE9D</string>
+		</dict>
+		<key>006A34CB7F085F53B63D5E20</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>AC783376C5A7503A9FEC3B26</string>
+		</dict>
+		<key>F9B5DA598FA550739EEA9095</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>C24A489BCE0859E6BD4FFC58</string>
 		</dict>
 		<key>DB575F80636F5301BADAB37F</key>
 		<dict>

@@ -37,6 +37,8 @@ typedef enum {
 	NSMenu *_secureMessagingMenu;
 	NSMenuItem *menuItem_encryption;
 	NSMenuItem *menuItem_encryptionContext;
+
+	NSToolbarItem *registeredToolbarItem;
 }
 
 @end

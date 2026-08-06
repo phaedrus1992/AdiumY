@@ -48,6 +48,19 @@
 }
 
 /*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Remove the preference observer installPlugin registered so an uninstalled plugin stops observing.
+	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// The list object observer is only registered while the status window is visible; unregistering is a no-op
+	// when it was never registered.
+	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
+}
+
+/*!
  * @brief Preferences changed
  *
  * Note whether we are supposed to should show the status window, and toggle it if necessary

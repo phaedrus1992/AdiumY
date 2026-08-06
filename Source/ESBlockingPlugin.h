@@ -22,6 +22,8 @@
 
 	NSMutableSet *chatToolbarItems;
 	NSDictionary *blockedToolbarIcons;
+
+	NSToolbarItem *registeredToolbarItem;
 }
 
 - (IBAction)blockContact:(id)sender;

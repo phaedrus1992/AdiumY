@@ -71,6 +71,17 @@
 }
 
 /*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Remove the observer installPlugin registered so an uninstalled plugin stops receiving notifications.
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:AIContactInfoInspectorDidChangeInspectedObject
+												  object:nil];
+}
+
+/*!
  * @brief Tooltip label
  *
  * @result A label, or nil if no tooltip entry should be shown

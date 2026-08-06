@@ -135,6 +135,7 @@
 														 action:@selector(addContact:)
 														   menu:nil];
 	[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"ListObject"];
+	registeredToolbarItem = toolbarItem;
 }
 
 /*!
@@ -143,6 +144,12 @@
 - (void)uninstallPlugin
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+
+	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
+	if (registeredToolbarItem != nil) {
+		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"ListObject"];
+		registeredToolbarItem = nil;
+	}
 }
 
 /*!

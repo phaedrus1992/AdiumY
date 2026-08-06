@@ -76,6 +76,19 @@
 }
 
 /*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Remove every observer installPlugin registered so an uninstalled plugin stops receiving notifications.
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CONTENT_MESSAGE_RECEIVED object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CONTENT_MESSAGE_SENT object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CONTENT_MESSAGE_SENT_GROUP object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:Chat_WillClose object:nil];
+	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
+}
+
+/*!
  * Deallocate
  */
 

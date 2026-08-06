@@ -116,6 +116,7 @@
 							 menu:nil];
 
 	[adium.toolbarController registerToolbarItem:chatItem forToolbarType:@"MessageWindow"];
+	registeredToolbarItem = chatItem;
 
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(toolbarWillAddItem:)
@@ -132,6 +133,12 @@
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
+
+	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
+	if (registeredToolbarItem != nil) {
+		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"MessageWindow"];
+		registeredToolbarItem = nil;
+	}
 }
 
 /*!

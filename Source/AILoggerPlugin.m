@@ -294,6 +294,7 @@ static dispatch_semaphore_t logLoadingPrefetchSemaphore; // limit prefetching lo
 						   action:@selector(showLogViewerForActiveChat:)
 							 menu:nil];
 	[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"ListObject"];
+	registeredToolbarItem = toolbarItem;
 
 	// Init index searching
 	[self _initLogIndexing];
@@ -321,6 +322,12 @@ static dispatch_semaphore_t logLoadingPrefetchSemaphore; // limit prefetching lo
 	dispatch_group_wait(closingIndexGroup, DISPATCH_TIME_FOREVER);
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[adium.preferenceController removeObserver:self forKeyPath:PREF_KEYPATH_LOGGER_ENABLE];
+
+	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
+	if (registeredToolbarItem != nil) {
+		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"ListObject"];
+		registeredToolbarItem = nil;
+	}
 }
 
 #pragma mark AILoggerPlugin Plubic Methods

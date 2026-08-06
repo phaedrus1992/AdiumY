@@ -113,6 +113,18 @@ NSInteger _scriptKeywordLengthSort(id scriptA, id scriptB, void *context);
 }
 
 /*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Unregister the toolbar item registerToolbarItem registered, so an uninstalled plugin leaves no dead item behind.
+	if (toolbarItem != nil) {
+		[adium.toolbarController unregisterToolbarItem:toolbarItem forToolbarType:@"TextEntry"];
+		toolbarItem = nil;
+	}
+}
+
+/*!
  * @brief Deallocate
  */
 

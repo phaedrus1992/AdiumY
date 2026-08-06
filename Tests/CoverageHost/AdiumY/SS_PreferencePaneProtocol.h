@@ -1,0 +1,1 @@
+../../../Frameworks/Adium/Source/SS_PreferencePaneProtocol.h

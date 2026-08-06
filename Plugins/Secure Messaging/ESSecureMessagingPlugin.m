@@ -79,6 +79,12 @@
 {
 	[adium.chatController unregisterChatObserver:self];
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+
+	// Unregister the toolbar item registerToolbarItem registered, so an uninstalled plugin leaves no dead item behind.
+	if (registeredToolbarItem != nil) {
+		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"MessageWindow"];
+		registeredToolbarItem = nil;
+	}
 }
 
 - (void)configureMenuItems
@@ -136,6 +142,7 @@
 
 	// Register our toolbar item
 	[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"MessageWindow"];
+	registeredToolbarItem = toolbarItem;
 }
 
 // After the toolbar has added the item we can set up the submenus
