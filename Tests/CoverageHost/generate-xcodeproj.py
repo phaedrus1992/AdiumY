@@ -51,6 +51,8 @@ for k in [
     "sanitizerTestFileRef", "sanitizerTestBuildFile",
     "dlValidFileRef", "dlValidHeaderRef", "dlValidBuildFile",
     "dlValidTestFileRef", "dlValidTestBuildFile",
+    "iconPluginFileRef", "iconPluginHeaderRef", "iconPluginBuildFile",
+    "iconPluginTestFileRef", "iconPluginTestBuildFile",
 
     # Frameworks
     "xctestFwkRef", "xctestFwkBuildFile",
@@ -96,7 +98,9 @@ objects = {
                      H["sanitizerFileRef"], H["sanitizerHeaderRef"],
                      H["sanitizerTestFileRef"],
                      H["dlValidFileRef"], H["dlValidHeaderRef"],
-                     H["dlValidTestFileRef"]],
+                     H["dlValidTestFileRef"],
+                     H["iconPluginFileRef"], H["iconPluginHeaderRef"],
+                     H["iconPluginTestFileRef"]],
         "name": "Sources",
         "sourceTree": "<group>",
     },
@@ -258,6 +262,24 @@ objects = {
         "path": "../../UnitTests/TestAIHTTPDownloadValidation.m",
         "sourceTree": "<group>",
     },
+    H["iconPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/ESUserIconHandlingPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["iconPluginHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Source/ESUserIconHandlingPlugin.h",
+        "sourceTree": "<group>",
+    },
+    H["iconPluginTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestESUserIconHandlingPluginObserverRemoval.m",
+        "sourceTree": "<group>",
+    },
 
     H["xctestFwkRef"]: {
         "isa": "PBXFileReference",
@@ -317,7 +339,8 @@ objects = {
                   H["migrTestBuildFile"], H["migrBuildFile"],
                   H["ctxMenuBuildFile"], H["ctxMenuTestBuildFile"],
                   H["sanitizerBuildFile"], H["sanitizerTestBuildFile"],
-                  H["dlValidBuildFile"], H["dlValidTestBuildFile"]],
+                  H["dlValidBuildFile"], H["dlValidTestBuildFile"],
+                  H["iconPluginBuildFile"], H["iconPluginTestBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
     H["testFrameworksPhase"]: {
@@ -345,6 +368,8 @@ objects = {
     H["sanitizerTestBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["sanitizerTestFileRef"]},
     H["dlValidBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["dlValidFileRef"]},
     H["dlValidTestBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["dlValidTestFileRef"]},
+    H["iconPluginBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["iconPluginFileRef"]},
+    H["iconPluginTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["iconPluginTestFileRef"]},
 
     # ── Target Dependency ───────────────────────────────────────
     H["testTargetDep"]: {
@@ -475,6 +500,7 @@ objects = {
             "FRAMEWORK_SEARCH_PATHS": (
                 "$(inherited)",
                 "$(SRCROOT)/../../build/DerivedData/Build/Products/Debug",
+                "$(SRCROOT)/../../build/DerivedData/Build/Products/Release-Debug",
             ),
             "HEADER_SEARCH_PATHS": (
                 "$(inherited)",
@@ -509,6 +535,7 @@ objects = {
             "FRAMEWORK_SEARCH_PATHS": (
                 "$(inherited)",
                 "$(SRCROOT)/../../build/DerivedData/Build/Products/Debug",
+                "$(SRCROOT)/../../build/DerivedData/Build/Products/Release-Debug",
             ),
             "HEADER_SEARCH_PATHS": (
                 "$(inherited)",

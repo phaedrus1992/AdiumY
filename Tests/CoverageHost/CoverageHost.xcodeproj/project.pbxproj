@@ -81,6 +81,9 @@
 				<string>4F60F1619C48579CBC55A54C</string>
 				<string>9B2A343C7A4C5899834BB986</string>
 				<string>BFD854DF38F65E7C9A72C2AA</string>
+				<string>93F002D72B045A7EA005441E</string>
+				<string>250897690CE3501AB1D10F68</string>
+				<string>345954E83E955237A7D1A2F1</string>
 			</array>
 			<key>name</key>
 			<string>Sources</string>
@@ -371,6 +374,39 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
+		<key>93F002D72B045A7EA005441E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/ESUserIconHandlingPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>250897690CE3501AB1D10F68</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Source/ESUserIconHandlingPlugin.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>345954E83E955237A7D1A2F1</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestESUserIconHandlingPluginObserverRemoval.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
 		<key>1041C5FC221D577F8FF36681</key>
 		<dict>
 			<key>isa</key>
@@ -475,6 +511,8 @@
 				<string>BBDF3D2AF8E251B295829A34</string>
 				<string>C6C212D7BB2A5FDD9FED923E</string>
 				<string>67E8FA945479508B9105C940</string>
+				<string>EB163F766ED0504593AD037E</string>
+				<string>343A9DA2869958E1932D4AD8</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
@@ -605,6 +643,20 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>BFD854DF38F65E7C9A72C2AA</string>
+		</dict>
+		<key>EB163F766ED0504593AD037E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>93F002D72B045A7EA005441E</string>
+		</dict>
+		<key>343A9DA2869958E1932D4AD8</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>345954E83E955237A7D1A2F1</string>
 		</dict>
 		<key>DE7B656C24B85237B361EB6C</key>
 		<dict>
@@ -825,6 +877,7 @@
 				<array>
 					<string>$(inherited)</string>
 					<string>$(SRCROOT)/../../build/DerivedData/Build/Products/Debug</string>
+					<string>$(SRCROOT)/../../build/DerivedData/Build/Products/Release-Debug</string>
 				</array>
 				<key>HEADER_SEARCH_PATHS</key>
 				<array>
@@ -879,6 +932,7 @@
 				<array>
 					<string>$(inherited)</string>
 					<string>$(SRCROOT)/../../build/DerivedData/Build/Products/Debug</string>
+					<string>$(SRCROOT)/../../build/DerivedData/Build/Products/Release-Debug</string>
 				</array>
 				<key>HEADER_SEARCH_PATHS</key>
 				<array>
