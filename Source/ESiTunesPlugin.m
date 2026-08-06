@@ -274,6 +274,23 @@
 		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"TextEntry"];
 		registeredToolbarItem = nil;
 	}
+
+	// Remove the status state and menu items createiTunesCurrentTrackStatusState: and insertTriggerMenu
+	// registered, so an uninstalled plugin leaves no dead "Now Playing" status and no dangling-target
+	// menu items behind. Guarded like the toolbar item because those registrations only run when iTunes
+	// is present at install.
+	if (registeredStatusState != nil) {
+		[adium.statusController removeStatusState:registeredStatusState];
+		registeredStatusState = nil;
+	}
+	if (registeredMenuItem != nil) {
+		[adium.menuController removeMenuItem:registeredMenuItem];
+		registeredMenuItem = nil;
+	}
+	if (registeredContextualMenuItem != nil) {
+		[adium.menuController removeContextualMenuItem:registeredContextualMenuItem];
+		registeredContextualMenuItem = nil;
+	}
 }
 
 #pragma mark -
@@ -362,6 +379,9 @@
 
 	// give it to the AIStatusController
 	[adium.statusController addStatusState:currentiTunesStatusState];
+
+	// Retain the state so uninstallPlugin can remove it (the status controller only holds it while installed).
+	registeredStatusState = currentiTunesStatusState;
 }
 
 - (void)updateiTunesCurrentTrackFormat
@@ -947,9 +967,17 @@
 	[menuItem setSubmenu:menuOfTriggers];
 	[adium.menuController addMenuItem:menuItem toLocation:LOC_Edit_Additions];
 
-	menuItem = [[NSMenuItem alloc] initWithTitle:STRING_TRIGGERS_MENU target:self action:NULL keyEquivalent:@""];
-	[menuItem setSubmenu:[menuOfTriggers copy]];
-	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_TextView_Edit];
+	// Retain the items so uninstallPlugin can remove them (the menu controller only holds them while installed).
+	registeredMenuItem = menuItem;
+
+	NSMenuItem *contextualMenuItem = [[NSMenuItem alloc] initWithTitle:STRING_TRIGGERS_MENU
+																target:self
+																action:NULL
+														 keyEquivalent:@""];
+	[contextualMenuItem setSubmenu:[menuOfTriggers copy]];
+	[adium.menuController addContextualMenuItem:contextualMenuItem toLocation:Context_TextView_Edit];
+
+	registeredContextualMenuItem = contextualMenuItem;
 }
 
 /*!

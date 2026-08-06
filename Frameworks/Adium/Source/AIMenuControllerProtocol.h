@@ -101,6 +101,7 @@ typedef enum {
 
 // Contextual menu items
 - (void)addContextualMenuItem:(NSMenuItem *)newItem toLocation:(AIContextMenuLocation)location;
+- (void)removeContextualMenuItem:(NSMenuItem *)targetItem;
 - (NSMenu *)contextualMenuWithLocations:(NSArray *)inLocationArray forListObject:(AIListObject *)inObject;
 - (NSMenu *)contextualMenuWithLocations:(NSArray *)inLocationArray forChat:(AIChat *)inObject;
 - (NSMenu *)contextualMenuWithLocations:(NSArray *)inLocationArray
