@@ -31,7 +31,8 @@
  */
 
 #define XMLCALL
-#import <expat.h> 
+#import <Foundation/Foundation.h>
+#import <expat.h>
 
 @class AWEzvStack, AWEzvXMLNode, AWEzvContactManager;
 @protocol AWEzvXMLStreamProtocol;

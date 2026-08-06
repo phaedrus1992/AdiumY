@@ -14,6 +14,10 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// Cocoa and AIPlugin must precede ESUserIconHandlingPlugin.h, whose interface
+// references both. clang-format would sort the quoted own-header first.
 #import <Cocoa/Cocoa.h>
 #import <AdiumY/AIPlugin.h>
 #import "ESUserIconHandlingPlugin.h"
@@ -35,6 +39,7 @@
 #import <AdiumY/AIPreferenceControllerProtocol.h>
 #import <AdiumY/AIServiceIcons.h>
 #import <AdiumY/AIToolbarControllerProtocol.h>
+// clang-format on
 
 #define TOOLBAR_ITEM_TAG -999
 

@@ -5,6 +5,7 @@
 //  Created by Erich Kreutzer on 8/14/07.
 //
 
+#import <Foundation/Foundation.h>
 #import "EKEzvFileTransfer.h"
 #import <AIUtilities/AIOSCompatibility.h>
 

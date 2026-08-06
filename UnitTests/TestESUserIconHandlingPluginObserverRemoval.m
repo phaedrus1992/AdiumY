@@ -58,9 +58,9 @@ id<AIAdium> adium = nil;
  * of by side effect; installPlugin/uninstallPlugin/registerToolbarItem run their real bodies.
  */
 @interface UserIconObserverCountingPlugin : ESUserIconHandlingPlugin
-@property (nonatomic, assign) NSUInteger listObjectAttributesChangedCount;
-@property (nonatomic, assign) NSUInteger toolbarWillAddItemCount;
-@property (nonatomic, assign) NSUInteger toolbarDidRemoveItemCount;
+@property(nonatomic, assign) NSUInteger listObjectAttributesChangedCount;
+@property(nonatomic, assign) NSUInteger toolbarWillAddItemCount;
+@property(nonatomic, assign) NSUInteger toolbarDidRemoveItemCount;
 @end
 
 @implementation UserIconObserverCountingPlugin
@@ -87,7 +87,7 @@ id<AIAdium> adium = nil;
  * post-add callback) is a no-op to neutralize the performSelector:afterDelay:0 scheduling.
  */
 @interface ChatObserverTrackingPlugin : ESUserIconHandlingPlugin
-@property (nonatomic, assign) NSUInteger chatDidBecomeVisibleCount;
+@property(nonatomic, assign) NSUInteger chatDidBecomeVisibleCount;
 @end
 
 @implementation ChatObserverTrackingPlugin
@@ -97,8 +97,7 @@ id<AIAdium> adium = nil;
 }
 
 - (void)toolbarDidAddItem:(NSToolbarItem *)item
-{
-}
+{}
 @end
 
 @interface ESUserIconHandlingPluginObserverRemovalTest : XCTestCase
@@ -169,8 +168,7 @@ id<AIAdium> adium = nil;
 	NSToolbarItem *item = [[NSToolbarItem alloc] initWithItemIdentifier:@"UserIcon"];
 	[self postToolbarNotification:NSToolbarWillAddItemNotification withItem:item];
 	[self postChatDidBecomeVisible];
-	XCTAssertEqual([plugin chatDidBecomeVisibleCount], (NSUInteger)1,
-				   @"sanity: chat observer fired while installed");
+	XCTAssertEqual([plugin chatDidBecomeVisibleCount], (NSUInteger)1, @"sanity: chat observer fired while installed");
 
 	[plugin uninstallPlugin];
 	[self postChatDidBecomeVisible];
@@ -184,12 +182,12 @@ id<AIAdium> adium = nil;
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:ListObject_AttributesChanged
 														object:nil
-													  userInfo:@{ @"Keys": @[ KEY_USER_ICON ] }];
+													  userInfo:@{@"Keys" : @[ KEY_USER_ICON ]}];
 }
 
 - (void)postToolbarNotification:(NSNotificationName)name withItem:(NSToolbarItem *)item
 {
-	NSDictionary *userInfo = item ? @{ @"item": item } : @{};
+	NSDictionary *userInfo = item ? @{@"item" : item} : @{};
 	[[NSNotificationCenter defaultCenter] postNotificationName:name object:nil userInfo:userInfo];
 }
 
@@ -197,7 +195,7 @@ id<AIAdium> adium = nil;
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:@"AIChatDidBecomeVisible"
 														object:nil
-													  userInfo:@{ @"NSWindow": [NSNull null] }];
+													  userInfo:@{@"NSWindow" : [NSNull null]}];
 }
 
 @end
