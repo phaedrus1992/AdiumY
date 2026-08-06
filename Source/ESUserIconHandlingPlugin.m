@@ -92,6 +92,15 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSToolbarWillAddItemNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSToolbarDidRemoveItemNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:@"AIChatDidBecomeVisible" object:nil];
+
+	// Unregister the toolbar item registerToolbarItem registered and release the item sets, so an
+	// uninstalled plugin leaves no dead toolbar item behind.
+	if (registeredToolbarItem != nil) {
+		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"MessageWindow"];
+		registeredToolbarItem = nil;
+	}
+	toolbarItems = nil;
+	validatedItems = nil;
 }
 
 /*!
@@ -159,6 +168,9 @@
 
 	// Register our toolbar item
 	[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"MessageWindow"];
+
+	// Retain the item so uninstallPlugin can unregister it (the toolbar controller only holds it while installed).
+	registeredToolbarItem = toolbarItem;
 }
 
 /*!

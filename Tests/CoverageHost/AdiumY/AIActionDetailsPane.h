@@ -14,12 +14,17 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import <AdiumY/AIContactControllerProtocol.h>
+/*
+ * Stub for the standalone CoverageHost test target. The real AIActionDetailsPane subclasses
+ * AIModularPane (a heavy AppKit panel hierarchy); a plain NSObject exposing the factory the plugin
+ * calls is enough for ErrorMessageHandlerPlugin.m and ESPanelAlertDetailPane.h to compile. Cocoa is
+ * imported here so ESPanelAlertDetailPane.h (whose ivars reference NSTextField/NSTextView) compiles
+ * before any AIUtilities header in the plugin TU pulls in AppKit.
+ */
+#import <Cocoa/Cocoa.h>
 
-@interface ESUserIconHandlingPlugin : AIPlugin <NSMenuDelegate> {
-	NSMutableSet *toolbarItems;
-	NSMutableSet *validatedItems;
-	NSToolbarItem *registeredToolbarItem;
-}
+@interface AIActionDetailsPane : NSObject
+
++ (AIActionDetailsPane *)actionDetailsPane;
 
 @end

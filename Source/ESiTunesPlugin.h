@@ -57,6 +57,7 @@ typedef enum {
 	NSDictionary *phraseSubstitutionDict;
 	BOOL iTunesIsStopped;
 	BOOL iTunesIsPaused;
+	NSToolbarItem *registeredToolbarItem;
 }
 
 @end

@@ -19,6 +19,7 @@
 #import "ErrorMessageWindowController.h"
 #import <AIUtilities/AIDateFormatterAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIContactAlertsControllerProtocol.h>
 #import <AdiumY/AIInterfaceControllerProtocol.h>
 #import <AdiumY/AIListObject.h>
@@ -48,6 +49,9 @@
 - (void)uninstallPlugin
 {
 	[ErrorMessageWindowController closeSharedInstance]; // Close the error window
+
+	// Remove the observer installPlugin registered so an uninstalled plugin stops handling error notifications.
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:Interface_ShouldDisplayErrorMessage object:nil];
 }
 
 - (void)handleError:(NSNotification *)notification

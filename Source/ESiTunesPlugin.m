@@ -256,6 +256,24 @@
 - (void)uninstallPlugin
 {
 	[adium.contentController unregisterContentFilter:self];
+
+	// Remove every observer installPlugin registered so an uninstalled plugin stops receiving iTunes
+	// notifications. Removal is unconditional: removeObserver is a no-op when the observers were never
+	// added (iTunes absent or too old at install), whereas guarding on the iTunes version would leak
+	// the observers if iTunes is uninstalled after this plugin installs.
+	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self
+															   name:@"com.apple.iTunes.playerInfo"
+															 object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:Adium_CurrentTrackFormatChangedNotification
+												  object:nil];
+
+	// Unregister the toolbar item createiTunesToolbarItemWithPath: registered, so an uninstalled plugin
+	// leaves no dead "Current iTunes Track" item behind in the TextEntry toolbar.
+	if (registeredToolbarItem != nil) {
+		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"TextEntry"];
+		registeredToolbarItem = nil;
+	}
 }
 
 #pragma mark -
@@ -600,6 +618,9 @@
 
 	// give it to adium to use
 	[adium.toolbarController registerToolbarItem:iTunesItem forToolbarType:@"TextEntry"];
+
+	// Retain the item so uninstallPlugin can unregister it (the toolbar controller only holds it while installed).
+	registeredToolbarItem = iTunesItem;
 }
 
 /*!
