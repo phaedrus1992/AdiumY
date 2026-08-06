@@ -86,8 +86,9 @@
 {
 	[adium.preferenceController unregisterPreferenceObserver:self];
 
-	// Remove every observer installPlugin / registerToolbarItem registered (including the lazily
-	// registered chat observer) so an uninstalled plugin stops receiving notifications.
+	// Remove every observer installPlugin, registerToolbarItem, and toolbarWillAddItem: registered
+	// (toolbarWillAddItem: lazily registers the chat observer on the first item add) so an uninstalled
+	// plugin stops receiving notifications.
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:ListObject_AttributesChanged object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSToolbarWillAddItemNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSToolbarDidRemoveItemNotification object:nil];
