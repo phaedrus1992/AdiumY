@@ -8,7 +8,9 @@ Creates two targets:
 Both are in a standalone project so we don't touch AIUtilities.xcodeproj.
 """
 
-import uuid, plistlib, os
+import uuid
+import plistlib
+import os
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 XCODE_PROJ = os.path.join(PROJECT_DIR, "CoverageHost.xcodeproj")
@@ -541,10 +543,11 @@ objects = {
             "FRAMEWORK_SEARCH_PATHS": (
                 "$(inherited)",
                 "$(SRCROOT)/../../build/DerivedData/Build/Products/Debug",
-                "$(SRCROOT)/../../build/DerivedData/Build/Products/Release-Debug",
             ),
             "HEADER_SEARCH_PATHS": (
                 "$(inherited)",
+                # Resolve <AdiumY/...> via Tests/CoverageHost/AdiumY symlinks (CI builds no AdiumY.framework).
+                "$(SRCROOT)",
                 "$(SRCROOT)/../../Source",
                 "$(SRCROOT)/../../UnitTests",
                 '"$(SRCROOT)/../../Plugins/WebKit Message View"',
@@ -580,10 +583,11 @@ objects = {
             "FRAMEWORK_SEARCH_PATHS": (
                 "$(inherited)",
                 "$(SRCROOT)/../../build/DerivedData/Build/Products/Debug",
-                "$(SRCROOT)/../../build/DerivedData/Build/Products/Release-Debug",
             ),
             "HEADER_SEARCH_PATHS": (
                 "$(inherited)",
+                # Resolve <AdiumY/...> via Tests/CoverageHost/AdiumY symlinks (CI builds no AdiumY.framework).
+                "$(SRCROOT)",
                 "$(SRCROOT)/../../Source",
                 "$(SRCROOT)/../../UnitTests",
                 '"$(SRCROOT)/../../Plugins/WebKit Message View"',
@@ -753,5 +757,5 @@ print("  Target: CoverageHostTests (XCTest bundle)")
 print("  Scheme: CoverageHost (Test action with code coverage)")
 print()
 print("Next steps:")
-print(f"  1. Build AIUtilities: xcodebuild -project Frameworks/AIUtilities/AIUtilities.xcodeproj -configuration Debug -derivedDataPath build/DerivedData")
+print("  1. Build AIUtilities: xcodebuild -project Frameworks/AIUtilities/AIUtilities.xcodeproj -configuration Debug -derivedDataPath build/DerivedData")
 print("  2. Run tests:         xcodebuild test -project Tests/CoverageHost/CoverageHost.xcodeproj -scheme CoverageHost -configuration Debug -derivedDataPath build/DerivedData -enableCodeCoverage YES")

@@ -961,11 +961,11 @@
 				<array>
 					<string>$(inherited)</string>
 					<string>$(SRCROOT)/../../build/DerivedData/Build/Products/Debug</string>
-					<string>$(SRCROOT)/../../build/DerivedData/Build/Products/Release-Debug</string>
 				</array>
 				<key>HEADER_SEARCH_PATHS</key>
 				<array>
 					<string>$(inherited)</string>
+					<string>$(SRCROOT)</string>
 					<string>$(SRCROOT)/../../Source</string>
 					<string>$(SRCROOT)/../../UnitTests</string>
 					<string>"$(SRCROOT)/../../Plugins/WebKit Message View"</string>
@@ -1020,11 +1020,11 @@
 				<array>
 					<string>$(inherited)</string>
 					<string>$(SRCROOT)/../../build/DerivedData/Build/Products/Debug</string>
-					<string>$(SRCROOT)/../../build/DerivedData/Build/Products/Release-Debug</string>
 				</array>
 				<key>HEADER_SEARCH_PATHS</key>
 				<array>
 					<string>$(inherited)</string>
+					<string>$(SRCROOT)</string>
 					<string>$(SRCROOT)/../../Source</string>
 					<string>$(SRCROOT)/../../UnitTests</string>
 					<string>"$(SRCROOT)/../../Plugins/WebKit Message View"</string>

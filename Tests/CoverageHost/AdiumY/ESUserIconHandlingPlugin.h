@@ -1,0 +1,1 @@
+../../../Source/ESUserIconHandlingPlugin.h
