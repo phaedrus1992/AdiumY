@@ -5,6 +5,7 @@
 //  Created by Erich Kreutzer on 8/14/07.
 //
 
+#import <Cocoa/Cocoa.h>
 #import "EKEzvIncomingFileTransfer.h"
 #import "AWEzv.h"
 #import "AWEzvContactManager.h"
@@ -15,6 +16,10 @@
 #define APPLE_SINGLE_HEADER_LENGTH 26
 #define APPLE_SINGLE_MAGIC_NUMBER 0x00051600
 #define APPLE_SINGLE_VERSION_NUMBER 0x00020000
+
+/* Maximum nesting depth for a peer-supplied folder tree in downloadFolder:path:url:depth:.
+ * Past this the <dir> recursion would be unbounded, so the transfer fails instead (issue #187). */
+#define EKEZVFOLDER_MAX_DEPTH 32
 
 #define AS_ENTRY_DATA_FORK 1
 #define AS_ENTRY_RESOURCE_FORK 2
@@ -51,6 +56,11 @@ struct AppleSingleFinderInfo {
 	struct FXInfo extendedFinderInfo;
 };
 typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
+
+@interface EKEzvIncomingFileTransfer ()
+- (bool)downloadFolder:(NSXMLElement *)root path:(NSString *)rootPath url:(NSString *)rootURL depth:(NSUInteger)depth;
+- (bool)downloadChildElements:(NSXMLElement *)dir path:(NSString *)path url:(NSString *)url depth:(NSUInteger)depth;
+@end
 
 @implementation EKEzvIncomingFileTransfer
 #pragma mark Downloading
@@ -169,9 +179,21 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 }
 - (bool)downloadFolder:(NSXMLElement *)root path:(NSString *)rootPath url:(NSString *)rootURL
 {
+	return [self downloadFolder:root path:rootPath url:rootURL depth:1];
+}
+- (bool)downloadFolder:(NSXMLElement *)root path:(NSString *)rootPath url:(NSString *)rootURL depth:(NSUInteger)depth
+{
 	/*Helper method to recursively download a folder using the xml*/
 	/*root will be the current folder or file to download */
 	/*rootPath will be the path -without- root's name appended */
+	/*A peer-supplied tree must not nest deeper than EKEZVFOLDER_MAX_DEPTH; past the cap the <dir>
+	 * recursion would be unbounded, so fail the whole transfer rather than descending (issue #187).*/
+	if (depth > EKEZVFOLDER_MAX_DEPTH) {
+		[[[[self manager] client] client]
+			reportError:@"Could not download transfer because it is nested too deeply."
+				ofLevel:AWEzvError];
+		return NO;
+	}
 	if ([[root name] isEqualToString:@"file"]) {
 		/*We have a file so get it's info and then download it*/
 		//	NSString *mimeType = [[root attributeForName:@"mimetype"] objectValue];
@@ -243,19 +265,11 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			return NO;
 		}
 
-		bool folderSuccess = YES;
-		bool fileSuccess = YES;
 		/* Now call downloadFolder for dir and file children */
 		NSString *newURL = [rootURL
 			stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]];
 
-		for (NSXMLElement *nextElement in [root elementsForName:@"dir"]) {
-			folderSuccess = [self downloadFolder:nextElement path:newPath url:newURL] && folderSuccess;
-		}
-		for (NSXMLElement *nextElement in [root elementsForName:@"file"]) {
-			fileSuccess = [self downloadFolder:nextElement path:newPath url:newURL] && fileSuccess;
-		}
-		return fileSuccess && folderSuccess;
+		return [self downloadChildElements:root path:newPath url:newURL depth:depth];
 	} else {
 		[[[[self manager] client] client]
 			reportError:@"Error, attempting to download something which is not a directory or a file."
@@ -263,7 +277,19 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 		return NO;
 	}
-	return NO;
+}
+- (bool)downloadChildElements:(NSXMLElement *)dir path:(NSString *)path url:(NSString *)url depth:(NSUInteger)depth
+{
+	bool folderSuccess = YES;
+	bool fileSuccess = YES;
+
+	for (NSXMLElement *nextElement in [dir elementsForName:@"dir"]) {
+		folderSuccess = [self downloadFolder:nextElement path:path url:url depth:depth + 1] && folderSuccess;
+	}
+	for (NSXMLElement *nextElement in [dir elementsForName:@"file"]) {
+		fileSuccess = [self downloadFolder:nextElement path:path url:url depth:depth + 1] && fileSuccess;
+	}
+	return fileSuccess && folderSuccess;
 }
 - (void)downloadFile
 {

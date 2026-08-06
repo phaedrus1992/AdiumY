@@ -14,12 +14,19 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// Cocoa and AIPlugin must precede ESUserIconHandlingPlugin.h, whose interface
+// references both. clang-format would sort the quoted own-header first.
+#import <Cocoa/Cocoa.h>
+#import <AdiumY/AIPlugin.h>
 #import "ESUserIconHandlingPlugin.h"
 #import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIImageButton.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIMutableOwnerArray.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AIUtilities/AIToolbarUtilities.h>
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIChat.h>
@@ -29,8 +36,10 @@
 #import <AdiumY/AIInterfaceControllerProtocol.h>
 #import <AdiumY/AIListContact.h>
 #import <AdiumY/AIListObject.h>
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 #import <AdiumY/AIServiceIcons.h>
 #import <AdiumY/AIToolbarControllerProtocol.h>
+// clang-format on
 
 #define TOOLBAR_ITEM_TAG -999
 
@@ -76,6 +85,13 @@
 - (void)uninstallPlugin
 {
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// Remove every observer installPlugin / registerToolbarItem registered (including the lazily
+	// registered chat observer) so an uninstalled plugin stops receiving notifications.
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:ListObject_AttributesChanged object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSToolbarWillAddItemNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSToolbarDidRemoveItemNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:@"AIChatDidBecomeVisible" object:nil];
 }
 
 /*!

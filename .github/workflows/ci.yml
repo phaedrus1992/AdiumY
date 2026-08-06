@@ -135,7 +135,15 @@ jobs:
                      -derivedDataPath build/DerivedData \
                      -enableCodeCoverage YES \
                      CODE_SIGNING_ALLOWED=NO \
-                     2>&1 | xcpretty
+                     2>&1 | tee build/smoke-raw.log
+
+      - name: Upload smoke test raw log (on failure)
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: smoke-raw-log
+          path: build/smoke-raw.log
+          if-no-files-found: warn
 
       - name: Check code coverage threshold
         env:

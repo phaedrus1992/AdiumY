@@ -30,6 +30,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <Foundation/Foundation.h>
 #import "AWEzvDefines.h"
 #import "AWEzvXMLStream.h"
 

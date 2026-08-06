@@ -33,6 +33,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   instead of applying garbage file permissions
 - Use only a safe leaf name as the default when saving remote images from the
   message-view context menu, never a raw remote path
+- Cap Bonjour file-transfer folder downloads at 32 nesting levels — a
+  peer-supplied folder tree deeper than that is rejected instead of recursing
+  without bound
+- Unregister every notification observer the user-icon plugin registers when it
+  uninstalls, instead of leaving them registered
 
 ## [2.0.0] - 2026-08-03
 

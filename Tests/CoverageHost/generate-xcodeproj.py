@@ -8,7 +8,9 @@ Creates two targets:
 Both are in a standalone project so we don't touch AIUtilities.xcodeproj.
 """
 
-import uuid, plistlib, os
+import uuid
+import plistlib
+import os
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 XCODE_PROJ = os.path.join(PROJECT_DIR, "CoverageHost.xcodeproj")
@@ -51,6 +53,11 @@ for k in [
     "sanitizerTestFileRef", "sanitizerTestBuildFile",
     "dlValidFileRef", "dlValidHeaderRef", "dlValidBuildFile",
     "dlValidTestFileRef", "dlValidTestBuildFile",
+    "iconPluginFileRef", "iconPluginHeaderRef", "iconPluginBuildFile",
+    "iconPluginTestFileRef", "iconPluginTestBuildFile",
+    "ezvIncomingFileRef", "ezvIncomingHeaderRef", "ezvIncomingBuildFile",
+    "ezvTransferFileRef", "ezvTransferHeaderRef", "ezvTransferBuildFile",
+    "ezvTestFileRef", "ezvTestBuildFile",
 
     # Frameworks
     "xctestFwkRef", "xctestFwkBuildFile",
@@ -96,7 +103,12 @@ objects = {
                      H["sanitizerFileRef"], H["sanitizerHeaderRef"],
                      H["sanitizerTestFileRef"],
                      H["dlValidFileRef"], H["dlValidHeaderRef"],
-                     H["dlValidTestFileRef"]],
+                     H["dlValidTestFileRef"],
+                     H["iconPluginFileRef"], H["iconPluginHeaderRef"],
+                     H["iconPluginTestFileRef"],
+                     H["ezvIncomingFileRef"], H["ezvIncomingHeaderRef"],
+                     H["ezvTransferFileRef"], H["ezvTransferHeaderRef"],
+                     H["ezvTestFileRef"]],
         "name": "Sources",
         "sourceTree": "<group>",
     },
@@ -258,6 +270,54 @@ objects = {
         "path": "../../UnitTests/TestAIHTTPDownloadValidation.m",
         "sourceTree": "<group>",
     },
+    H["iconPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/ESUserIconHandlingPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["iconPluginHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Source/ESUserIconHandlingPlugin.h",
+        "sourceTree": "<group>",
+    },
+    H["iconPluginTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestESUserIconHandlingPluginObserverRemoval.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvIncomingFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Bonjour/libezv/Classes/EKEzvIncomingFileTransfer.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvIncomingHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Plugins/Bonjour/libezv/Classes/EKEzvIncomingFileTransfer.h",
+        "sourceTree": "<group>",
+    },
+    H["ezvTransferFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Bonjour/libezv/Classes/EKEzvFileTransfer.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvTransferHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Plugins/Bonjour/libezv/Classes/EKEzvFileTransfer.h",
+        "sourceTree": "<group>",
+    },
+    H["ezvTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestEKEzvIncomingFileTransferDepthCap.m",
+        "sourceTree": "<group>",
+    },
 
     H["xctestFwkRef"]: {
         "isa": "PBXFileReference",
@@ -317,7 +377,10 @@ objects = {
                   H["migrTestBuildFile"], H["migrBuildFile"],
                   H["ctxMenuBuildFile"], H["ctxMenuTestBuildFile"],
                   H["sanitizerBuildFile"], H["sanitizerTestBuildFile"],
-                  H["dlValidBuildFile"], H["dlValidTestBuildFile"]],
+                  H["dlValidBuildFile"], H["dlValidTestBuildFile"],
+                  H["iconPluginBuildFile"], H["iconPluginTestBuildFile"],
+                  H["ezvIncomingBuildFile"], H["ezvTransferBuildFile"],
+                  H["ezvTestBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
     H["testFrameworksPhase"]: {
@@ -345,6 +408,11 @@ objects = {
     H["sanitizerTestBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["sanitizerTestFileRef"]},
     H["dlValidBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["dlValidFileRef"]},
     H["dlValidTestBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["dlValidTestFileRef"]},
+    H["iconPluginBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["iconPluginFileRef"]},
+    H["iconPluginTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["iconPluginTestFileRef"]},
+    H["ezvIncomingBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["ezvIncomingFileRef"]},
+    H["ezvTransferBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["ezvTransferFileRef"]},
+    H["ezvTestBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["ezvTestFileRef"]},
 
     # ── Target Dependency ───────────────────────────────────────
     H["testTargetDep"]: {
@@ -478,10 +546,16 @@ objects = {
             ),
             "HEADER_SEARCH_PATHS": (
                 "$(inherited)",
+                # Resolve <AdiumY/...> via Tests/CoverageHost/AdiumY symlinks (CI builds no AdiumY.framework).
+                "$(SRCROOT)",
                 "$(SRCROOT)/../../Source",
                 "$(SRCROOT)/../../UnitTests",
-                "$(SRCROOT)/../../Plugins/WebKit Message View",
+                '"$(SRCROOT)/../../Plugins/WebKit Message View"',
                 "$(SRCROOT)/../../Frameworks/Adium/Source",
+                "$(SRCROOT)/../../Plugins/Bonjour/libezv/Classes",
+                '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"',
+                '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Private Classes"',
+                '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Simple HTTP Server"',
             ),
             "GCC_PREFIX_HEADER": "",
             "INFOPLIST_FILE": "CoverageHostTests-Info.plist",
@@ -512,10 +586,16 @@ objects = {
             ),
             "HEADER_SEARCH_PATHS": (
                 "$(inherited)",
+                # Resolve <AdiumY/...> via Tests/CoverageHost/AdiumY symlinks (CI builds no AdiumY.framework).
+                "$(SRCROOT)",
                 "$(SRCROOT)/../../Source",
                 "$(SRCROOT)/../../UnitTests",
-                "$(SRCROOT)/../../Plugins/WebKit Message View",
+                '"$(SRCROOT)/../../Plugins/WebKit Message View"',
                 "$(SRCROOT)/../../Frameworks/Adium/Source",
+                "$(SRCROOT)/../../Plugins/Bonjour/libezv/Classes",
+                '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"',
+                '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Private Classes"',
+                '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Simple HTTP Server"',
             ),
             "GCC_PREFIX_HEADER": "",
             "INFOPLIST_FILE": "CoverageHostTests-Info.plist",
@@ -677,5 +757,5 @@ print("  Target: CoverageHostTests (XCTest bundle)")
 print("  Scheme: CoverageHost (Test action with code coverage)")
 print()
 print("Next steps:")
-print(f"  1. Build AIUtilities: xcodebuild -project Frameworks/AIUtilities/AIUtilities.xcodeproj -configuration Debug -derivedDataPath build/DerivedData")
+print("  1. Build AIUtilities: xcodebuild -project Frameworks/AIUtilities/AIUtilities.xcodeproj -configuration Debug -derivedDataPath build/DerivedData")
 print("  2. Run tests:         xcodebuild test -project Tests/CoverageHost/CoverageHost.xcodeproj -scheme CoverageHost -configuration Debug -derivedDataPath build/DerivedData -enableCodeCoverage YES")
