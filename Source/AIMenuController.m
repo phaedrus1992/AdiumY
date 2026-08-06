@@ -217,6 +217,21 @@
 }
 
 /*!
+ * @brief Unregister a menu item from contextual menus
+ *
+ * @param targetItem The NSMenuItem to remove
+ *
+ * Contextual menus are rebuilt from contextualMenuItemDict on demand, so removing the item from the
+ * per-location arrays is sufficient — no live menu holds a stale copy of the item.
+ */
+- (void)removeContextualMenuItem:(NSMenuItem *)targetItem
+{
+	for (NSMutableArray *itemArray in [contextualMenuItemDict allValues]) {
+		[itemArray removeObject:targetItem];
+	}
+}
+
+/*!
  * @brief Obtain an NSMenu of contextual menu items for a list object
  *
  * @param inLocationArray An NSArray of NSNumbers whose intValues are AIContextMenuLocation. The menu will be returned

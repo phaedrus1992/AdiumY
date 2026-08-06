@@ -256,6 +256,41 @@
 - (void)uninstallPlugin
 {
 	[adium.contentController unregisterContentFilter:self];
+
+	// Remove every observer installPlugin registered so an uninstalled plugin stops receiving iTunes
+	// notifications. Removal is unconditional: removeObserver is a no-op when the observers were never
+	// added (iTunes absent or too old at install), whereas guarding on the iTunes version would leak
+	// the observers if iTunes is uninstalled after this plugin installs.
+	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self
+															   name:@"com.apple.iTunes.playerInfo"
+															 object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:Adium_CurrentTrackFormatChangedNotification
+												  object:nil];
+
+	// Unregister the toolbar item createiTunesToolbarItemWithPath: registered, so an uninstalled plugin
+	// leaves no dead "Current iTunes Track" item behind in the TextEntry toolbar.
+	if (registeredToolbarItem != nil) {
+		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"TextEntry"];
+		registeredToolbarItem = nil;
+	}
+
+	// Remove the status state and menu items createiTunesCurrentTrackStatusState: and insertTriggerMenu
+	// registered, so an uninstalled plugin leaves no dead "Now Playing" status and no dangling-target
+	// menu items behind. Guarded like the toolbar item because those registrations only run when iTunes
+	// is present at install.
+	if (registeredStatusState != nil) {
+		[adium.statusController removeStatusState:registeredStatusState];
+		registeredStatusState = nil;
+	}
+	if (registeredMenuItem != nil) {
+		[adium.menuController removeMenuItem:registeredMenuItem];
+		registeredMenuItem = nil;
+	}
+	if (registeredContextualMenuItem != nil) {
+		[adium.menuController removeContextualMenuItem:registeredContextualMenuItem];
+		registeredContextualMenuItem = nil;
+	}
 }
 
 #pragma mark -
@@ -344,6 +379,9 @@
 
 	// give it to the AIStatusController
 	[adium.statusController addStatusState:currentiTunesStatusState];
+
+	// Retain the state so uninstallPlugin can remove it (the status controller only holds it while installed).
+	registeredStatusState = currentiTunesStatusState;
 }
 
 - (void)updateiTunesCurrentTrackFormat
@@ -600,6 +638,9 @@
 
 	// give it to adium to use
 	[adium.toolbarController registerToolbarItem:iTunesItem forToolbarType:@"TextEntry"];
+
+	// Retain the item so uninstallPlugin can unregister it (the toolbar controller only holds it while installed).
+	registeredToolbarItem = iTunesItem;
 }
 
 /*!
@@ -926,9 +967,17 @@
 	[menuItem setSubmenu:menuOfTriggers];
 	[adium.menuController addMenuItem:menuItem toLocation:LOC_Edit_Additions];
 
-	menuItem = [[NSMenuItem alloc] initWithTitle:STRING_TRIGGERS_MENU target:self action:NULL keyEquivalent:@""];
-	[menuItem setSubmenu:[menuOfTriggers copy]];
-	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_TextView_Edit];
+	// Retain the items so uninstallPlugin can remove them (the menu controller only holds them while installed).
+	registeredMenuItem = menuItem;
+
+	NSMenuItem *contextualMenuItem = [[NSMenuItem alloc] initWithTitle:STRING_TRIGGERS_MENU
+																target:self
+																action:NULL
+														 keyEquivalent:@""];
+	[contextualMenuItem setSubmenu:[menuOfTriggers copy]];
+	[adium.menuController addContextualMenuItem:contextualMenuItem toLocation:Context_TextView_Edit];
+
+	registeredContextualMenuItem = contextualMenuItem;
 }
 
 /*!

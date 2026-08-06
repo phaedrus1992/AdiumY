@@ -38,6 +38,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   without bound
 - Unregister every notification observer the user-icon plugin registers when it
   uninstalls, instead of leaving them registered
+- Unregister the user-icon plugin's toolbar item when it uninstalls, so no dead
+  "Contact Icon" item is left in the chat window toolbar
+- Remove the iTunes plugin's distributed and current-track observers, "Now
+  Playing" status state, "Current iTunes Track" toolbar item, and trigger menu
+  items when it uninstalls, so it leaves nothing behind
+- Remove the error-message handler plugin's notification observer when it
+  uninstalls, so it stops displaying error messages after removal
+- Remove the appearance preferences plugin's status-icon-set notification
+  observer when it uninstalls, so it stops reacting to icon-set changes after
+  removal
 
 ## [2.0.0] - 2026-08-03
 

@@ -16,6 +16,8 @@
 
 #import <AdiumY/AIContentControllerProtocol.h>
 
+@class AIStatus;
+
 typedef enum {
 	AUTODISABLES = 0,
 	ALWAYS_ENABLED = 1,
@@ -57,6 +59,10 @@ typedef enum {
 	NSDictionary *phraseSubstitutionDict;
 	BOOL iTunesIsStopped;
 	BOOL iTunesIsPaused;
+	NSToolbarItem *registeredToolbarItem;
+	AIStatus *registeredStatusState;
+	NSMenuItem *registeredMenuItem;
+	NSMenuItem *registeredContextualMenuItem;
 }
 
 @end

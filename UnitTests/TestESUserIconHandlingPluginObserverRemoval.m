@@ -50,6 +50,52 @@ id<AIAdium> adium = nil;
 }
 @end
 
+/*
+ * Fakes for the toolbar-item test. MockToolbarController stands in for the real
+ * AIToolbarController and records the register/unregister calls the plugin makes, so the test can
+ * assert uninstallPlugin unregisters exactly the item registerToolbarItem registered. MockAdium is
+ * a plain NSObject (never formally conforming to <AIAdium>) that provides the controllers the
+ * plugin reads; it is installed via `adium = (id<AIAdium>)mockAdium`.
+ */
+@interface MockToolbarController : NSObject
+@property(nonatomic, strong) NSToolbarItem *registeredItem;
+@property(nonatomic, strong) NSToolbarItem *unregisteredItem;
+@property(nonatomic, copy) NSString *registeredToolbarType;
+@property(nonatomic, copy) NSString *unregisteredToolbarType;
+@property(nonatomic, assign) NSUInteger registerCount;
+@property(nonatomic, assign) NSUInteger unregisterCount;
+
+- (void)registerToolbarItem:(NSToolbarItem *)item forToolbarType:(NSString *)toolbarType;
+- (void)unregisterToolbarItem:(NSToolbarItem *)item forToolbarType:(NSString *)toolbarType;
+@end
+
+@implementation MockToolbarController
+- (void)registerToolbarItem:(NSToolbarItem *)item forToolbarType:(NSString *)toolbarType
+{
+	_registeredItem = item;
+	_registeredToolbarType = toolbarType;
+	_registerCount++;
+}
+
+- (void)unregisterToolbarItem:(NSToolbarItem *)item forToolbarType:(NSString *)toolbarType
+{
+	_unregisteredItem = item;
+	_unregisteredToolbarType = toolbarType;
+	_unregisterCount++;
+}
+@end
+
+@interface MockAdium : NSObject
+@property(nonatomic, strong) MockToolbarController *toolbarController;
+@end
+
+@implementation MockAdium
+- (id)preferenceController
+{
+	return nil;
+}
+@end
+
 #import "ESUserIconHandlingPlugin.h"
 
 /*
@@ -174,6 +220,67 @@ id<AIAdium> adium = nil;
 	[self postChatDidBecomeVisible];
 	XCTAssertEqual([plugin chatDidBecomeVisibleCount], (NSUInteger)1,
 				   @"chat observer still registered after uninstallPlugin");
+}
+
+#pragma mark - Toolbar item registration
+
+// registerToolbarItem registers a toolbar item with adium.toolbarController at install; uninstallPlugin
+// must unregister that same item, or it is left dead in the toolbar registry after the plugin uninstalls.
+- (void)testUninstallUnregistersToolbarItem
+{
+	MockToolbarController *mockToolbarController = [[MockToolbarController alloc] init];
+	MockAdium *mockAdium = [[MockAdium alloc] init];
+	[mockAdium setToolbarController:mockToolbarController];
+
+	id<AIAdium> savedAdium = adium;
+	adium = (id<AIAdium>)mockAdium;
+	@try {
+		ESUserIconHandlingPlugin *plugin = [[ESUserIconHandlingPlugin alloc] init];
+		[plugin installPlugin];
+
+		XCTAssertEqual([mockToolbarController registerCount], (NSUInteger)1,
+					   @"sanity: registerToolbarItem:forToolbarType: called once at install");
+		XCTAssertNotNil([mockToolbarController registeredItem],
+						@"sanity: toolbar item captured by the toolbar controller at install");
+		XCTAssertEqualObjects([mockToolbarController registeredToolbarType], @"MessageWindow",
+							  @"sanity: registerToolbarItem:forToolbarType: used the MessageWindow toolbar");
+
+		[plugin uninstallPlugin];
+
+		XCTAssertEqual([mockToolbarController unregisterCount], (NSUInteger)1,
+					   @"uninstallPlugin did not unregister the toolbar item");
+		XCTAssertTrue([mockToolbarController unregisteredItem] == [mockToolbarController registeredItem],
+					  @"uninstallPlugin unregistered a different item than registerToolbarItem registered");
+		XCTAssertEqualObjects(
+			[mockToolbarController unregisteredToolbarType], [mockToolbarController registeredToolbarType],
+			@"uninstallPlugin unregistered under a different toolbar type than installPlugin registered");
+	} @finally {
+		adium = savedAdium;
+	}
+}
+
+// The unregister call is guarded on registeredToolbarItem != nil: uninstalling a plugin whose
+// registerToolbarItem never ran must not call unregisterToolbarItem:forToolbarType:, since the real
+// controller's nil-keyed dictionary removal would raise an exception.
+- (void)testUninstallWithoutRegisterSkipsToolbarUnregister
+{
+	MockToolbarController *mockToolbarController = [[MockToolbarController alloc] init];
+	MockAdium *mockAdium = [[MockAdium alloc] init];
+	[mockAdium setToolbarController:mockToolbarController];
+
+	id<AIAdium> savedAdium = adium;
+	adium = (id<AIAdium>)mockAdium;
+	@try {
+		ESUserIconHandlingPlugin *plugin = [[ESUserIconHandlingPlugin alloc] init];
+		[plugin uninstallPlugin];
+
+		XCTAssertEqual([mockToolbarController registerCount], (NSUInteger)0,
+					   @"sanity: no toolbar registration without installPlugin");
+		XCTAssertEqual([mockToolbarController unregisterCount], (NSUInteger)0,
+					   @"uninstallPlugin unregistered a toolbar item that was never registered");
+	} @finally {
+		adium = savedAdium;
+	}
 }
 
 #pragma mark - Notification posting helpers
