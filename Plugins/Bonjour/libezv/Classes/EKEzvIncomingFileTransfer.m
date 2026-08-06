@@ -277,7 +277,6 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 		return NO;
 	}
-	return NO;
 }
 - (bool)downloadChildElements:(NSXMLElement *)dir path:(NSString *)path url:(NSString *)url depth:(NSUInteger)depth
 {
