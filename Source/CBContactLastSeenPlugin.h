@@ -16,6 +16,7 @@
 
 #import <AdiumY/AIContactObserverManager.h>
 #import <AdiumY/AIInterfaceControllerProtocol.h>
+#import <AdiumY/AIPlugin.h>
 
 @interface CBContactLastSeenPlugin : AIPlugin <AIContactListTooltipEntry, AIListObjectObserver> {
 }
