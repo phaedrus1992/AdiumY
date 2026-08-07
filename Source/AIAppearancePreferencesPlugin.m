@@ -71,6 +71,12 @@
 
 	// Remove the observer installPlugin registered so an uninstalled plugin stops reacting to status icon set changes.
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:AIStatusIconSetInvalidSetNotification object:nil];
+
+	// Remove the preference pane installPlugin registered (removal is nil-safe).
+	if (preferences != nil) {
+		[adium.preferenceController removePreferencePane:preferences];
+		preferences = nil;
+	}
 }
 
 /*!

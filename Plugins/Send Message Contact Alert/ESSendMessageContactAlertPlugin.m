@@ -18,6 +18,7 @@
 #import "ESSendMessageAlertDetailPane.h"
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIAccountControllerProtocol.h>
 #import <AdiumY/AIChat.h>
@@ -29,6 +30,7 @@
 #import <AdiumY/AIInterfaceControllerProtocol.h>
 #import <AdiumY/AIListContact.h>
 #import <AdiumY/AIMetaContact.h>
+#import <AdiumY/ESDebugAILog.h>
 
 #define SEND_MESSAGE_ALERT_SHORT AILocalizedString(@"Send a message", nil)
 #define SEND_MESSAGE_ALERT_LONG AILocalizedString(@"Send %@ the message \"%@\"", nil)
@@ -43,7 +45,10 @@
 }
 
 - (void)uninstallPlugin
-{}
+{
+	[adium.contactAlertsController unregisterActionID:@"SendMessage"];
+	attributes = nil;
+}
 
 // Send Message Alert
 // -----------------------------------------------------------------------------------------------------

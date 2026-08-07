@@ -19,6 +19,7 @@
 #import "ESEventSoundAlertDetailPane.h"
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIContactAlertsControllerProtocol.h>
 #import <AdiumY/AIListObject.h>
 
@@ -41,6 +42,11 @@
 {
 	// Install our contact alert
 	[adium.contactAlertsController registerActionID:SOUND_ALERT_IDENTIFIER withHandler:self];
+}
+
+- (void)uninstallPlugin
+{
+	[adium.contactAlertsController unregisterActionID:SOUND_ALERT_IDENTIFIER];
 }
 
 /*!

@@ -20,6 +20,7 @@
 #import "AISCLViewPlugin.h"
 #import "SMContactListShowDetailsPane.h"
 #import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIContactAlertsControllerProtocol.h>
 
 #define SHOW_CONTACT_LIST_BEHAVIOR_ALERT_SHORT AILocalizedString(@"Show the contact list window", nil)
@@ -42,6 +43,14 @@
 {
 	// Install our contact alert
 	[adium.contactAlertsController registerActionID:SHOW_CONTACT_LIST_BEHAVIOR_ALERT_IDENTIFIER withHandler:self];
+}
+
+- (void)uninstallPlugin
+{
+	[adium.contactAlertsController unregisterActionID:SHOW_CONTACT_LIST_BEHAVIOR_ALERT_IDENTIFIER];
+
+	// Cancel any pending list-hide so an uninstalled plugin leaves no scheduled work behind.
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hideContactList:) object:nil];
 }
 
 /*!

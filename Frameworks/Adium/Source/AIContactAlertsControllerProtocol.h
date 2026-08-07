@@ -209,6 +209,17 @@ typedef enum {
 - (void)registerActionID:(NSString *)actionID withHandler:(id<AIActionHandler>)handler;
 
 /*!
+ * @brief Unregister an action handler
+ *
+ * Removes the handler previously registered for the given action ID. A plugin calls this from its
+ * uninstallPlugin: so its handlers are not left in the controller's actionHandlers dictionary after
+ * the plugin uninstalls.
+ *
+ * @param actionID The actionID
+ */
+- (void)unregisterActionID:(NSString *)actionID;
+
+/*!
  * @brief Return a dictionary whose keys are action IDs and whose objects are objects conforming to AIActionHandler
  */
 - (NSDictionary *)actionHandlers;

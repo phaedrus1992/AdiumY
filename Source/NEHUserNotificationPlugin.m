@@ -70,6 +70,7 @@
 - (void)uninstallPlugin
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[adium.contactAlertsController unregisterActionID:USER_NOTIFICATION_ALERT_IDENTIFIER];
 }
 
 /*!

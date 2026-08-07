@@ -30,6 +30,7 @@
 
 @class AIListObject, AIChat, AIActionDetailsPane;
 
+#define KEY_ACTION_DETAILS @"ActionDetails"
 #define INTERFACE_ERROR_MESSAGE @"Interface_ErrorMessageReceived"
 
 typedef enum {
@@ -47,7 +48,13 @@ typedef enum {
 @end
 
 @protocol AIContactAlertsController <AIController>
+- (BOOL)isMessageEvent:(NSString *)eventID;
+- (NSString *)naturalLanguageDescriptionForEventID:(NSString *)eventID
+										listObject:(AIListObject *)listObject
+										  userInfo:(id)userInfo
+									includeSubject:(BOOL)includeSubject;
 - (void)registerActionID:(NSString *)actionID withHandler:(id<AIActionHandler>)handler;
+- (void)unregisterActionID:(NSString *)actionID;
 - (void)registerEventID:(NSString *)eventID
 			withHandler:(id<AIEventHandler>)handler
 				inGroup:(AIEventHandlerGroupType)inGroup

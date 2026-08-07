@@ -58,6 +58,49 @@
 }
 @end
 
+/*
+ * Fakes for the contact-alert action unregistration test. ErrorMessageAlertMockContactAlertsController
+ * records the register/unregister calls installPlugin and uninstallPlugin make; the registerEventID:
+ * handler must exist so installPlugin's registration send resolves (its unregistration stays out of
+ * scope — #200). ErrorMessageAlertMockAdium supplies the contactAlertsController installPlugin reads
+ * off adium.
+ */
+@interface ErrorMessageAlertMockContactAlertsController : NSObject
+@property(nonatomic, assign) NSUInteger registerActionIDCount;
+@property(nonatomic, assign) NSUInteger registerEventIDCount;
+@property(nonatomic, assign) NSUInteger unregisterActionIDCount;
+@property(nonatomic, copy) NSString *lastUnregisteredActionID;
+
+- (void)registerActionID:(NSString *)actionID withHandler:(id)handler;
+- (void)registerEventID:(NSString *)eventID withHandler:(id)handler inGroup:(NSInteger)group globalOnly:(BOOL)global;
+- (void)unregisterActionID:(NSString *)actionID;
+@end
+
+@implementation ErrorMessageAlertMockContactAlertsController
+- (void)registerActionID:(NSString *)actionID withHandler:(id)handler
+{
+	_registerActionIDCount++;
+}
+
+- (void)registerEventID:(NSString *)eventID withHandler:(id)handler inGroup:(NSInteger)group globalOnly:(BOOL)global
+{
+	_registerEventIDCount++;
+}
+
+- (void)unregisterActionID:(NSString *)actionID
+{
+	_unregisterActionIDCount++;
+	_lastUnregisteredActionID = actionID;
+}
+@end
+
+@interface ErrorMessageAlertMockAdium : NSObject
+@property(nonatomic, strong) ErrorMessageAlertMockContactAlertsController *contactAlertsController;
+@end
+
+@implementation ErrorMessageAlertMockAdium
+@end
+
 #import "ErrorMessageHandlerPlugin.h"
 #import <AdiumY/AIInterfaceControllerProtocol.h>
 
@@ -102,6 +145,36 @@
 													  userInfo:@{@"Title" : @"t", @"Description" : @"d"}];
 	XCTAssertEqual([plugin handleErrorCount], (NSUInteger)1,
 				   @"Interface_ShouldDisplayErrorMessage observer still registered after uninstallPlugin");
+}
+
+// installPlugin registers ERROR_MESSAGE_CONTACT_ALERT_IDENTIFIER's action handler; uninstallPlugin must
+// unregister it, or the handler stays registered on an uninstalled plugin (#219). The registerEventID:
+// registration is not asserted — its unregistration is out of scope (#200).
+- (void)testUninstallUnregistersContactAlertActionHandler
+{
+	ErrorMessageAlertMockContactAlertsController *mockController =
+		[[ErrorMessageAlertMockContactAlertsController alloc] init];
+	ErrorMessageAlertMockAdium *mockAdium = [[ErrorMessageAlertMockAdium alloc] init];
+	[mockAdium setContactAlertsController:mockController];
+
+	id<AIAdium> savedAdium = adium;
+	adium = (id<AIAdium>)mockAdium;
+	@try {
+		ErrorMessageHandlerObserverCountingPlugin *plugin = [[ErrorMessageHandlerObserverCountingPlugin alloc] init];
+		[plugin installPlugin];
+
+		XCTAssertEqual([mockController registerActionIDCount], (NSUInteger)1,
+					   @"sanity: installPlugin registered the contact alert action handler");
+
+		[plugin uninstallPlugin];
+
+		XCTAssertEqual([mockController unregisterActionIDCount], (NSUInteger)1,
+					   @"uninstallPlugin did not unregister the contact alert action handler");
+		XCTAssertEqualObjects([mockController lastUnregisteredActionID], ERROR_MESSAGE_CONTACT_ALERT_IDENTIFIER,
+							  @"uninstallPlugin must unregister the action ID it registered");
+	} @finally {
+		adium = savedAdium;
+	}
 }
 
 @end

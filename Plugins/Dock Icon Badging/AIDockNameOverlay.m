@@ -5,9 +5,11 @@
 #import <AIUtilities/AIColorAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIParagraphStyleAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIAbstractListController.h>
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIChat.h>
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 
 #define DOCK_OVERLAY_ALERT_SHORT AILocalizedString(@"Display name in the dock icon", nil)
 #define DOCK_OVERLAY_ALERT_LONG DOCK_OVERLAY_ALERT_SHORT
@@ -71,6 +73,9 @@
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
 	[adium.chatController unregisterChatObserver:self];
+
+	// Unregister the dock overlay action installPlugin registered.
+	[adium.contactAlertsController unregisterActionID:DOCK_OVERLAY_ALERT_IDENTIFIER];
 }
 
 /*!

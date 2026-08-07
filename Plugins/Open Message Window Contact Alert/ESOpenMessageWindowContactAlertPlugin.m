@@ -16,6 +16,7 @@
 
 #import "ESOpenMessageWindowContactAlertPlugin.h"
 #import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIChatControllerProtocol.h>
 #import <AdiumY/AIContactAlertsControllerProtocol.h>
 #import <AdiumY/AIInterfaceControllerProtocol.h>
@@ -30,6 +31,11 @@
 - (void)installPlugin
 {
 	[adium.contactAlertsController registerActionID:@"OpenMessageWindow" withHandler:self];
+}
+
+- (void)uninstallPlugin
+{
+	[adium.contactAlertsController unregisterActionID:@"OpenMessageWindow"];
 }
 
 // Open Message Alert

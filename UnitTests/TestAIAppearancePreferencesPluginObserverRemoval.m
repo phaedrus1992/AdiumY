@@ -24,13 +24,13 @@
 
 /*
  * Link shims for the standalone test target. The plugin TU references AIAppearancePreferences
- * (preferencePaneForPlugin:), AIStatusIcons (setActiveStatusIconsFromPath:) and AIXtrasManager
- * (createXtraBundleAtPath:) by class name, which emit _OBJC_CLASS_$ symbols no linked framework
- * provides, so each gets a minimal implementation here. The plugin's own TU imports the real
- * headers; the relaxed declarations here keep the heavy headers (and AIAppearancePreferences's
- * AIPreferencePane superclass) out of this TU. AIServiceIcons and the shared `adium` global and
- * AIPlugin class are provided by TestESUserIconHandlingPluginObserverRemoval.m in the same bundle —
- * not redefined here.
+ * (preferencePaneForPlugin:) and AIStatusIcons (setActiveStatusIconsFromPath:) by class name, which
+ * emit _OBJC_CLASS_$ symbols no linked framework provides, so each gets a minimal implementation here.
+ * (AIXtrasManager, also class-sent by the plugin TU, comes from its own real TU wired into this bundle.)
+ * The plugin's own TU imports the real headers; the relaxed declarations here keep the heavy headers
+ * (and AIAppearancePreferences's AIPreferencePane superclass) out of this TU. AIServiceIcons and the
+ * shared `adium` global and AIPlugin class are provided by TestESUserIconHandlingPluginObserverRemoval.m
+ * in the same bundle — not redefined here.
  */
 @interface AIAppearancePreferences : NSObject
 + (instancetype)preferencePaneForPlugin:(id)plugin;
@@ -39,7 +39,9 @@
 @implementation AIAppearancePreferences
 + (instancetype)preferencePaneForPlugin:(id)plugin
 {
-	return nil;
+	// Return a live pane so installPlugin stores a non-nil `preferences` and uninstallPlugin must
+	// removePreferencePane: it — the exact path #220 fixes.
+	return [[self alloc] init];
 }
 @end
 
@@ -49,29 +51,26 @@
 @implementation AIStatusIcons
 @end
 
-@interface AIXtrasManager : NSObject
-@end
-
-@implementation AIXtrasManager
-@end
-
 #import "AIAppearancePreferencesPlugin.h"
 #import <AdiumY/AIPlugin.h>
 
 /*
  * Fakes for the teardown test. AppearanceMockPreferenceController records the register/unregister
- * calls installPlugin and uninstallPlugin make; AppearanceMockAdium provides the preference
- * controller (which installPlugin asserts on, unlike ESiTunes's nil preferenceController) and
- * implements createResourcePathForName:, which installPlugin calls directly on adium.
+ * calls installPlugin and uninstallPlugin make, including removePreferencePane:; AppearanceMockAdium
+ * provides the preference controller (which installPlugin asserts on, unlike ESiTunes's nil
+ * preferenceController) and implements createResourcePathForName:, which installPlugin calls directly
+ * on adium.
  */
 @interface AppearanceMockPreferenceController : NSObject
 @property(nonatomic, assign) NSUInteger registerDefaultsCount;
 @property(nonatomic, assign) NSUInteger registerObserverCount;
 @property(nonatomic, assign) NSUInteger unregisterObserverCount;
+@property(nonatomic, assign) NSUInteger removePreferencePaneCount;
 
 - (void)registerDefaults:(NSDictionary *)defaults forGroup:(NSString *)group;
 - (void)registerPreferenceObserver:(id)observer forGroup:(NSString *)group;
 - (void)unregisterPreferenceObserver:(id)observer;
+- (void)removePreferencePane:(id)inPane;
 @end
 
 @implementation AppearanceMockPreferenceController
@@ -88,6 +87,11 @@
 - (void)unregisterPreferenceObserver:(id)observer
 {
 	_unregisterObserverCount++;
+}
+
+- (void)removePreferencePane:(id)inPane
+{
+	_removePreferencePaneCount++;
 }
 @end
 
@@ -155,6 +159,8 @@
 
 		XCTAssertEqual([mockPreferenceController unregisterObserverCount], (NSUInteger)1,
 					   @"uninstallPlugin did not unregister the preference observer");
+		XCTAssertEqual([mockPreferenceController removePreferencePaneCount], (NSUInteger)1,
+					   @"uninstallPlugin did not remove the preference pane it registered");
 		[[NSNotificationCenter defaultCenter] postNotificationName:AIStatusIconSetInvalidSetNotification object:nil];
 		XCTAssertEqual([plugin invalidStatusSetCount], (NSUInteger)1,
 					   @"AIStatusIconSetInvalidSetNotification observer still registered after uninstallPlugin");

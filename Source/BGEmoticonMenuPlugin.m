@@ -19,10 +19,12 @@
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIImageDrawingAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AIUtilities/AIToolbarUtilities.h>
 #import <AIUtilities/MVMenuButton.h>
 #import <AdiumY/AIEmoticon.h>
 #import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 #import <AdiumY/AIToolbarControllerProtocol.h>
 
 @interface BGEmoticonMenuPlugin () <NSMenuItemValidation>
@@ -96,6 +98,10 @@
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// Nil the submenu delegates so an uninstalled plugin leaves no dangling delegate.
+	[quickMenuItem.submenu setDelegate:nil];
+	[quickContextualMenuItem.submenu setDelegate:nil];
 
 	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
 	[adium.menuController removeContextualMenuItem:quickContextualMenuItem];

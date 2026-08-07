@@ -16,6 +16,7 @@
 
 #import "AIDoNothingContactAlertPlugin.h"
 #import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 
 #define DO_NOTHING_ALERT_SHORT AILocalizedString(@"Do Nothing", nil)
 #define DO_NOTHING_ALERT_LONG AILocalizedString(@"Do Not perform any further actions", nil)
@@ -25,6 +26,11 @@
 - (void)installPlugin
 {
 	[adium.contactAlertsController registerActionID:DO_NOTHING_ALERT_IDENTIFIER withHandler:self];
+}
+
+- (void)uninstallPlugin
+{
+	[adium.contactAlertsController unregisterActionID:DO_NOTHING_ALERT_IDENTIFIER];
 }
 
 - (NSString *)shortDescriptionForActionID:(NSString *)actionID

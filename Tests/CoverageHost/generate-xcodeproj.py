@@ -83,10 +83,32 @@ for k in [
     "idlePluginTestFileRef", "idlePluginTestBuildFile",
     "visibilityPluginTestFileRef", "visibilityPluginTestBuildFile",
 
+    # Plugin-uninstall teardown batch 3 (#218-#222): contact-alert plugins + per-plugin tests
+    "eventSoundsPluginFileRef", "eventSoundsPluginBuildFile",
+    "dockBehaviorPluginFileRef", "dockBehaviorPluginBuildFile",
+    "announcerPluginFileRef", "announcerPluginBuildFile",
+    "applescriptAlertPluginFileRef", "applescriptAlertPluginBuildFile",
+    "smclsbPluginFileRef", "smclsbPluginBuildFile",
+    "nehPluginFileRef", "nehPluginBuildFile",
+    "doNothingPluginFileRef", "doNothingPluginBuildFile",
+    "openMsgWindowPluginFileRef", "openMsgWindowPluginBuildFile",
+    "sendMessagePluginFileRef", "sendMessagePluginBuildFile",
+    "dockNameOverlayPluginFileRef", "dockNameOverlayPluginBuildFile",
+    "contactAlertsUnregisterTestFileRef", "contactAlertsUnregisterTestBuildFile",
+
+    # Plugin-uninstall teardown batch 3 (#218/#221/#222): per-plugin TU + test
+    "accountMenuAccessPluginFileRef", "accountMenuAccessPluginBuildFile",
+    "xtrasManagerPluginFileRef", "xtrasManagerPluginBuildFile",
+    "emoticonMenuPluginFileRef", "emoticonMenuPluginBuildFile",
+    "accountMenuAccessUninstallTestFileRef", "accountMenuAccessUninstallTestBuildFile",
+    "xtrasManagerUninstallTestFileRef", "xtrasManagerUninstallTestBuildFile",
+    "emoticonMenuUninstallTestFileRef", "emoticonMenuUninstallTestBuildFile",
+
     # Frameworks
     "xctestFwkRef", "xctestFwkBuildFile",
     "aiutilitiesFwkRef", "aiutilitiesFwkBuildFile",
     "cocoaFwkRef", "cocoaFwkBuildFile",
+    "userNotificationsFwkRef", "userNotificationsFwkBuildFile",
 ]:
     H[k] = uid(k)
 
@@ -138,13 +160,24 @@ objects = {
                      H["appearancePluginTestFileRef"],
                      H["ezvIncomingFileRef"], H["ezvIncomingHeaderRef"],
                      H["ezvTransferFileRef"], H["ezvTransferHeaderRef"],
-                     H["ezvTestFileRef"]],
+                     H["ezvTestFileRef"],
+                     H["eventSoundsPluginFileRef"], H["dockBehaviorPluginFileRef"],
+                     H["announcerPluginFileRef"], H["applescriptAlertPluginFileRef"],
+                     H["smclsbPluginFileRef"], H["nehPluginFileRef"],
+                     H["doNothingPluginFileRef"], H["openMsgWindowPluginFileRef"],
+                     H["sendMessagePluginFileRef"], H["dockNameOverlayPluginFileRef"],
+                     H["contactAlertsUnregisterTestFileRef"],
+                     H["accountMenuAccessPluginFileRef"], H["xtrasManagerPluginFileRef"],
+                     H["emoticonMenuPluginFileRef"],
+                     H["accountMenuAccessUninstallTestFileRef"],
+                     H["xtrasManagerUninstallTestFileRef"],
+                     H["emoticonMenuUninstallTestFileRef"]],
         "name": "Sources",
         "sourceTree": "<group>",
     },
     H["frameworksGroup"]: {
         "isa": "PBXGroup",
-        "children": [H["xctestFwkRef"]],
+        "children": [H["xctestFwkRef"], H["userNotificationsFwkRef"]],
         "name": "Frameworks",
         "sourceTree": "<group>",
     },
@@ -496,6 +529,114 @@ objects = {
         "sourceTree": "<group>",
     },
 
+    # Plugin-uninstall teardown batch 3 (#218-#222): contact-alert plugin TUs + their unregister test.
+    # The ten plugins share unregisterActionID: (or the NSNotificationCenter/action-table path) that
+    # #219 added; the batch-2 state-menu/etc. tests above cover the other #212-#215 plugins.
+    H["eventSoundsPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIEventSoundsPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["dockBehaviorPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIDockBehaviorPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["announcerPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/ESAnnouncerPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["applescriptAlertPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/ESApplescriptContactAlertPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["smclsbPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/SMContactListShowBehaviorPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["nehPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/NEHUserNotificationPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["doNothingPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Do Nothing Contact Alert/AIDoNothingContactAlertPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["openMsgWindowPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Open Message Window Contact Alert/ESOpenMessageWindowContactAlertPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["sendMessagePluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Send Message Contact Alert/ESSendMessageContactAlertPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["dockNameOverlayPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Dock Icon Badging/AIDockNameOverlay.m",
+        "sourceTree": "<group>",
+    },
+    H["contactAlertsUnregisterTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestContactAlertPluginsUnregister.m",
+        "sourceTree": "<group>",
+    },
+
+    # Plugin-uninstall teardown batch 3 (#218/#221/#222): per-plugin TU + test.
+    H["accountMenuAccessPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIAccountMenuAccessPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["xtrasManagerPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIXtrasManager.m",
+        "sourceTree": "<group>",
+    },
+    H["emoticonMenuPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/BGEmoticonMenuPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["accountMenuAccessUninstallTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestAccountMenuAccessPluginUninstall.m",
+        "sourceTree": "<group>",
+    },
+    H["xtrasManagerUninstallTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestXtrasManagerUninstall.m",
+        "sourceTree": "<group>",
+    },
+    H["emoticonMenuUninstallTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestEmoticonMenuPluginUninstall.m",
+        "sourceTree": "<group>",
+    },
+
     H["xctestFwkRef"]: {
         "isa": "PBXFileReference",
         "lastKnownFileType": "wrapper.framework",
@@ -519,6 +660,16 @@ objects = {
         "lastKnownFileType": "wrapper.framework",
         "name": "Cocoa.framework",
         "path": "/System/Library/Frameworks/Cocoa.framework",
+        "sourceTree": "<absolute>",
+    },
+
+    # UserNotifications.framework — NEHUserNotificationPlugin.m sends to UNUserNotificationCenter
+    # and UNNotificationAction (class sends), which need the framework linked into the test bundle.
+    H["userNotificationsFwkRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "wrapper.framework",
+        "name": "UserNotifications.framework",
+        "path": "/System/Library/Frameworks/UserNotifications.framework",
         "sourceTree": "<absolute>",
     },
 
@@ -568,13 +719,25 @@ objects = {
                   H["statusPrefsPluginBuildFile"], H["stateMenuPluginBuildFile"],
                   H["idlePluginBuildFile"], H["visibilityPluginBuildFile"],
                   H["menuPluginTestBuildFile"], H["stateMenuPluginTestBuildFile"],
-                  H["idlePluginTestBuildFile"], H["visibilityPluginTestBuildFile"]],
+                  H["idlePluginTestBuildFile"], H["visibilityPluginTestBuildFile"],
+                  H["eventSoundsPluginBuildFile"], H["dockBehaviorPluginBuildFile"],
+                  H["announcerPluginBuildFile"], H["applescriptAlertPluginBuildFile"],
+                  H["smclsbPluginBuildFile"], H["nehPluginBuildFile"],
+                  H["doNothingPluginBuildFile"], H["openMsgWindowPluginBuildFile"],
+                  H["sendMessagePluginBuildFile"], H["dockNameOverlayPluginBuildFile"],
+                  H["contactAlertsUnregisterTestBuildFile"],
+                  H["accountMenuAccessPluginBuildFile"], H["xtrasManagerPluginBuildFile"],
+                  H["emoticonMenuPluginBuildFile"],
+                  H["accountMenuAccessUninstallTestBuildFile"],
+                  H["xtrasManagerUninstallTestBuildFile"],
+                  H["emoticonMenuUninstallTestBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
     H["testFrameworksPhase"]: {
         "isa": "PBXFrameworksBuildPhase",
         "buildActionMask": 2147483647,
-        "files": [H["xctestFwkBuildFile"], H["aiutilitiesFwkBuildFile"], H["cocoaFwkBuildFile"]],
+        "files": [H["xctestFwkBuildFile"], H["aiutilitiesFwkBuildFile"],
+                  H["cocoaFwkBuildFile"], H["userNotificationsFwkBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
 
@@ -623,6 +786,24 @@ objects = {
     H["stateMenuPluginTestBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["stateMenuPluginTestFileRef"]},
     H["idlePluginTestBuildFile"]:       {"isa": "PBXBuildFile", "fileRef": H["idlePluginTestFileRef"]},
     H["visibilityPluginTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["visibilityPluginTestFileRef"]},
+    H["eventSoundsPluginBuildFile"]:         {"isa": "PBXBuildFile", "fileRef": H["eventSoundsPluginFileRef"]},
+    H["dockBehaviorPluginBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["dockBehaviorPluginFileRef"]},
+    H["announcerPluginBuildFile"]:           {"isa": "PBXBuildFile", "fileRef": H["announcerPluginFileRef"]},
+    H["applescriptAlertPluginBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["applescriptAlertPluginFileRef"]},
+    H["smclsbPluginBuildFile"]:              {"isa": "PBXBuildFile", "fileRef": H["smclsbPluginFileRef"]},
+    H["nehPluginBuildFile"]:                 {"isa": "PBXBuildFile", "fileRef": H["nehPluginFileRef"]},
+    H["doNothingPluginBuildFile"]:           {"isa": "PBXBuildFile", "fileRef": H["doNothingPluginFileRef"]},
+    H["openMsgWindowPluginBuildFile"]:       {"isa": "PBXBuildFile", "fileRef": H["openMsgWindowPluginFileRef"]},
+    H["sendMessagePluginBuildFile"]:         {"isa": "PBXBuildFile", "fileRef": H["sendMessagePluginFileRef"]},
+    H["dockNameOverlayPluginBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["dockNameOverlayPluginFileRef"]},
+    H["contactAlertsUnregisterTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["contactAlertsUnregisterTestFileRef"]},
+    H["accountMenuAccessPluginBuildFile"]:   {"isa": "PBXBuildFile", "fileRef": H["accountMenuAccessPluginFileRef"]},
+    H["xtrasManagerPluginBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["xtrasManagerPluginFileRef"]},
+    H["emoticonMenuPluginBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["emoticonMenuPluginFileRef"]},
+    H["accountMenuAccessUninstallTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["accountMenuAccessUninstallTestFileRef"]},
+    H["xtrasManagerUninstallTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["xtrasManagerUninstallTestFileRef"]},
+    H["emoticonMenuUninstallTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["emoticonMenuUninstallTestFileRef"]},
+    H["userNotificationsFwkBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["userNotificationsFwkRef"]},
 
     # ── Target Dependency ───────────────────────────────────────
     H["testTargetDep"]: {
@@ -769,6 +950,10 @@ objects = {
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"',
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Private Classes"',
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Simple HTTP Server"',
+                '"$(SRCROOT)/../../Plugins/Do Nothing Contact Alert"',
+                '"$(SRCROOT)/../../Plugins/Open Message Window Contact Alert"',
+                '"$(SRCROOT)/../../Plugins/Send Message Contact Alert"',
+                '"$(SRCROOT)/../../Plugins/Dock Icon Badging"',
             ),
             # Real Adium headers rely on Adium.pch for Cocoa/Foundation; restore that
             # invariant for the harness (clang-format orders <AdiumY/...> before <Cocoa/...>).
@@ -814,6 +999,10 @@ objects = {
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"',
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Private Classes"',
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Simple HTTP Server"',
+                '"$(SRCROOT)/../../Plugins/Do Nothing Contact Alert"',
+                '"$(SRCROOT)/../../Plugins/Open Message Window Contact Alert"',
+                '"$(SRCROOT)/../../Plugins/Send Message Contact Alert"',
+                '"$(SRCROOT)/../../Plugins/Dock Icon Badging"',
             ),
             # Real Adium headers rely on Adium.pch for Cocoa/Foundation; restore that
             # invariant for the harness (clang-format orders <AdiumY/...> before <Cocoa/...>).
