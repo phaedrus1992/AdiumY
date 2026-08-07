@@ -137,3 +137,9 @@ Dependencies/sandbox-*/
 
 # XEP-0393 test binary
 Tests/MessageStylingTest
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/test_output/
+fastlane/README.md

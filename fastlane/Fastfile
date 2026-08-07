@@ -1,0 +1,252 @@
+# frozen_string_literal: true
+
+# Release pipeline for AdiumY. See docs/releasing.md for credentials setup.
+#
+# Signing is applied to the finished bundle rather than baked into the Xcode
+# project, so contributors without the Developer ID certificate can still
+# build and PR builds stay unsigned. Hardened runtime and entitlements are
+# codesign flags, applied by Release/sign-bundle.sh.
+
+require "base64"
+require "json"
+require "shellwords"
+require "tmpdir"
+
+default_platform(:mac)
+
+ROOT = File.expand_path("..", __dir__)
+
+APP_NAME      = "AdiumY"
+TEAM_ID       = "K75Y6WZDVX"
+CONFIGURATION = "Release"
+ENTITLEMENTS  = File.join(ROOT, "Adium.entitlements")
+BUILD_DIR     = File.join(ROOT, "build")
+DIST_DIR      = File.join(BUILD_DIR, "dist")
+SPARKLE_TOOLS = File.join(ROOT, "Dependencies", "build", "sparkle-tools")
+APPCAST       = File.join(ROOT, "appcast.xml")
+GITHUB_REPO   = "phaedrus1992/AdiumY"
+DOWNLOAD_URL  = "https://github.com/#{GITHUB_REPO}/releases/download"
+
+def app_path
+  File.join(BUILD_DIR, CONFIGURATION, "#{APP_NAME}.app")
+end
+
+def dmg_path(version)
+  File.join(DIST_DIR, "#{APP_NAME}-#{version}.dmg")
+end
+
+# Resolves the Developer ID Application identity for this team, so the
+# certificate's common name never has to be hardcoded or passed by hand.
+def signing_identity
+  return ENV["DEVELOPER_ID_IDENTITY"] unless ENV["DEVELOPER_ID_IDENTITY"].to_s.empty?
+
+  identities = sh("security find-identity -v -p codesigning", log: false)
+  found = identities[/"(Developer ID Application:[^"]*\(#{TEAM_ID}\))"/, 1]
+  UI.user_error!(<<~ERROR) unless found
+    No "Developer ID Application" certificate for team #{TEAM_ID} in the keychain.
+    Create one in Xcode > Settings > Accounts, or set DEVELOPER_ID_IDENTITY.
+    See docs/releasing.md.
+  ERROR
+  found
+end
+
+def asc_api_key
+  key_id = ENV["ASC_KEY_ID"].to_s
+  issuer = ENV["ASC_ISSUER_ID"].to_s
+  UI.user_error!("ASC_KEY_ID and ASC_ISSUER_ID must be set. See docs/releasing.md.") if key_id.empty? || issuer.empty?
+
+  path = ENV["ASC_KEY_PATH"]
+  path = File.expand_path("~/.appstoreconnect/private_keys/AuthKey_#{key_id}.p8") if path.to_s.empty?
+  UI.user_error!("App Store Connect API key not found at #{path}. See docs/releasing.md.") unless File.exist?(path)
+
+  { id: key_id, issuer: issuer, path: path }
+end
+
+def release_version
+  from_env = ENV["VERSION"].to_s
+  return from_env unless from_env.empty?
+
+  tag = sh("git -C #{ROOT.shellescape} describe --tags --exact-match 2>/dev/null || true", log: false).strip
+  UI.user_error!("HEAD is not on a version tag. Pass VERSION=x.y.z or tag the commit.") if tag.empty?
+  tag.delete_prefix("v")
+end
+
+# notarytool exits non-zero on submission errors but the per-file reasons only
+# appear in the log, so fetch it whenever the ticket is not Accepted.
+def notarize_and_staple(path)
+  key = asc_api_key
+  submitted = path.end_with?(".app") ? zip_for_notarization(path) : path
+
+  result = sh(
+    "xcrun", "notarytool", "submit", submitted,
+    "--key", key[:path], "--key-id", key[:id], "--issuer", key[:issuer],
+    "--wait", "--timeout", "30m", "--output-format", "json",
+    log: false, error_callback: ->(_) {}
+  )
+  ticket = JSON.parse(result[/\{.*\}/m].to_s) rescue {}
+
+  unless ticket["status"] == "Accepted"
+    log = sh("xcrun", "notarytool", "log", ticket["id"].to_s,
+             "--key", key[:path], "--key-id", key[:id], "--issuer", key[:issuer],
+             log: false, error_callback: ->(_) {}) if ticket["id"]
+    UI.user_error!("Notarization failed for #{File.basename(path)} (#{ticket['status'] || 'no ticket'}):\n#{log}")
+  end
+
+  File.delete(submitted) if submitted != path && File.exist?(submitted)
+  sh("xcrun", "stapler", "staple", path)
+  sh("xcrun", "stapler", "validate", path)
+end
+
+# A .zip cannot be stapled, so it is only ever a transport for submission.
+# ditto --keepParent preserves symlinks and the code signature.
+def zip_for_notarization(app)
+  zip = "#{app}.zip"
+  File.delete(zip) if File.exist?(zip)
+  sh("ditto", "-c", "-k", "--keepParent", app, zip)
+  zip
+end
+
+# The Sparkle feed is served from main, so the appcast has to land there as
+# well as on the release. On CI the token is passed in the remote URL rather
+# than persisted into .git/config by the checkout step.
+def commit_appcast(version)
+  sh("git", "-C", ROOT, "add", APPCAST)
+  sh("git", "-C", ROOT, "commit", "-m", "chore(release): update appcast for #{version}")
+
+  token = ENV["GITHUB_TOKEN"].to_s
+  if token.empty?
+    sh("git", "-C", ROOT, "push", "origin", "HEAD:main")
+  else
+    sh("git", "-C", ROOT, "push",
+       "https://x-access-token:#{token}@github.com/#{GITHUB_REPO}.git", "HEAD:main",
+       log: false)
+  end
+end
+
+def sparkle_key_file
+  from_env = ENV["SPARKLE_PRIVATE_KEY"].to_s
+  return nil if from_env.empty?
+
+  file = File.join(Dir.mktmpdir, "sparkle_ed25519")
+  File.write(file, from_env)
+  File.chmod(0o600, file)
+  file
+end
+
+platform :mac do
+  desc "Build the universal Release app. Unsigned beyond the ad-hoc link signature."
+  lane :build do
+    UI.message("Building vendored universal dependencies")
+    sh("bash", File.join(ROOT, "Dependencies", "build-universal-deps.sh"))
+
+    UI.message("Building MMTabBarView.framework")
+    sh("xcodebuild",
+       "-project", File.join(ROOT, "Dependencies/MMTabBarView/MMTabBarView/MMTabBarView.xcodeproj"),
+       "-scheme", "MMTabBarView", "-configuration", "Release", "-sdk", "macosx",
+       "SYMROOT=#{BUILD_DIR}", "CODE_SIGNING_ALLOWED=NO", "build")
+    sh("rm", "-rf", File.join(ROOT, "Frameworks/MMTabBarView.framework"))
+    sh("cp", "-R", File.join(BUILD_DIR, "Release/MMTabBarView.framework"),
+       File.join(ROOT, "Frameworks/MMTabBarView.framework"))
+
+    UI.message("Building #{APP_NAME}.app")
+    sh("xcodebuild", "-project", File.join(ROOT, "Adium.xcodeproj"),
+       "-target", APP_NAME, "-configuration", CONFIGURATION, "-sdk", "macosx",
+       "SYMROOT=#{BUILD_DIR}", "build")
+
+    UI.success("Built #{app_path}")
+  end
+
+  desc "Check every credential and setting a release needs, before spending an hour building."
+  lane :preflight do
+    signing_identity
+    asc_api_key
+
+    key = sh("/usr/libexec/PlistBuddy -c 'Print :SUPublicEDKey' #{File.join(ROOT, 'Resources/Info.plist').shellescape}",
+             log: false).strip
+    UI.user_error!(<<~ERROR) if key.empty?
+      SUPublicEDKey is empty in Resources/Info.plist. Sparkle cannot verify updates
+      without it, and it cannot be changed after the first release ships.
+      Run Dependencies/build/sparkle-tools/generate_keys and paste the public key in.
+    ERROR
+
+    UI.success("Preflight passed for AdiumY #{release_version}")
+  end
+
+  desc "Sign the built app inside-out with the Developer ID identity."
+  lane :sign do
+    UI.user_error!("#{app_path} not found. Run `fastlane build` first.") unless Dir.exist?(app_path)
+    sh("bash", File.join(ROOT, "Release", "sign-bundle.sh"), app_path, signing_identity, ENTITLEMENTS)
+  end
+
+  desc "Notarize and staple the signed app, then confirm Gatekeeper accepts it."
+  lane :notarize_app do
+    notarize_and_staple(app_path)
+    sh("spctl", "--assess", "--type", "execute", "--verbose=2", app_path)
+    UI.success("Notarized and stapled #{app_path}")
+  end
+
+  desc "Build the disk image, then sign, notarize and staple it."
+  lane :package do
+    version = release_version
+    dmg = dmg_path(version)
+    sh("bash", File.join(ROOT, "Release", "make-dmg.sh"), app_path, version, dmg)
+    sh("codesign", "--force", "--timestamp", "--sign", signing_identity, dmg)
+    notarize_and_staple(dmg)
+    UI.success("Packaged #{dmg}")
+  end
+
+  desc "Regenerate appcast.xml with an EdDSA signature for the current DMG."
+  lane :appcast do
+    version = release_version
+    generate = File.join(SPARKLE_TOOLS, "generate_appcast")
+    UI.user_error!("#{generate} missing. Run Dependencies/build-phases/get-sparkle.sh.") unless File.executable?(generate)
+
+    args = [generate, "--download-url-prefix", "#{DOWNLOAD_URL}/v#{version}/", "-o", APPCAST]
+    key_file = sparkle_key_file
+    args += ["--ed-key-file", key_file] if key_file
+    args << DIST_DIR
+
+    sh(*args)
+    File.delete(key_file) if key_file
+    UI.success("Wrote #{APPCAST}")
+  end
+
+  desc "Create the GitHub Release and commit the updated appcast."
+  lane :publish do
+    version = release_version
+    dmg = dmg_path(version)
+    UI.user_error!("#{dmg} not found. Run `fastlane package` first.") unless File.exist?(dmg)
+
+    sh("gh", "release", "create", "v#{version}", dmg, APPCAST,
+       "--repo", GITHUB_REPO, "--title", "AdiumY #{version}", "--generate-notes")
+    commit_appcast(version)
+    UI.success("Published AdiumY #{version}")
+  end
+
+  desc "Full release: build, sign, notarize, package, appcast, publish."
+  lane :release do
+    version = release_version
+    preflight
+    UI.important("Releasing AdiumY #{version}")
+    build
+    sign
+    notarize_app
+    package
+    appcast
+    publish
+  end
+
+  desc "CI only: import the Developer ID certificate into a temporary keychain."
+  lane :setup_signing do
+    setup_ci(provider: "travis")
+    p12 = File.join(Dir.mktmpdir, "developer_id.p12")
+    File.binwrite(p12, Base64.decode64(ENV.fetch("DEVELOPER_ID_P12")))
+    import_certificate(
+      certificate_path: p12,
+      certificate_password: ENV.fetch("DEVELOPER_ID_P12_PASSWORD"),
+      keychain_name: "fastlane_tmp_keychain",
+      keychain_password: ""
+    )
+    File.delete(p12)
+  end
+end
