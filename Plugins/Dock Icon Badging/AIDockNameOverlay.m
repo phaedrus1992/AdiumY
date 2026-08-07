@@ -67,6 +67,8 @@
 
 - (void)uninstallPlugin
 {
+	// Remove the list-object observer installPlugin registered, so an uninstalled plugin stops receiving updates.
+	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
 	[adium.chatController unregisterChatObserver:self];
 }

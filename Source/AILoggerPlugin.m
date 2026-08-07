@@ -323,6 +323,19 @@ static dispatch_semaphore_t logLoadingPrefetchSemaphore; // limit prefetching lo
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[adium.preferenceController removeObserver:self forKeyPath:PREF_KEYPATH_LOGGER_ENABLE];
 
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:logViewerMenuItem];
+	logViewerMenuItem = nil;
+
+	[adium.menuController removeMenuItem:viewContactLogsMenuItem];
+	viewContactLogsMenuItem = nil;
+
+	[adium.menuController removeContextualMenuItem:viewContactLogsContextMenuItem];
+	viewContactLogsContextMenuItem = nil;
+
+	[adium.menuController removeContextualMenuItem:viewGroupLogsContextMenuItem];
+	viewGroupLogsContextMenuItem = nil;
+
 	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
 	if (registeredToolbarItem != nil) {
 		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"ListObject"];

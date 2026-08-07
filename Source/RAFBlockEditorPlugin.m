@@ -36,6 +36,8 @@
 
 - (void)uninstallPlugin
 {
+	// Remove the menu item installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:blockEditorMenuItem];
 	blockEditorMenuItem = nil;
 }
 

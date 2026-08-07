@@ -134,6 +134,13 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:blockContactMenuItem];
+	blockContactMenuItem = nil;
+
+	[adium.menuController removeContextualMenuItem:blockContactContextualMenuItem];
+	blockContactContextualMenuItem = nil;
+
 	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
 	if (registeredToolbarItem != nil) {
 		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"MessageWindow"];

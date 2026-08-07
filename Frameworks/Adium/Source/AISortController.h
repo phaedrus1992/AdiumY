@@ -14,6 +14,11 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// The no-prefix-header test harness compiles this header standalone, so it must import its own
+// Foundation/AppKit types (NSSortDescriptor, NSSet, NSView, NSComparisonResult) rather than
+// relying on Adium's prefix header.
+#import <Cocoa/Cocoa.h>
+
 @class AIListObject, AIAdium;
 @protocol AIContainingObject;
 
@@ -40,6 +45,15 @@ typedef struct {
 + (void)setActiveSortController:(AISortController *)newSortController;
 + (AISortController *)activeSortController;
 + (void)registerSortController:(AISortController *)newSortController;
+
+/// Unregisters a sort controller previously registered with registerSortController:.
+///
+/// If the unregistered controller is the active one and other controllers remain registered,
+/// one of them is promoted to active so sorting continues; if none remain, the active slot
+/// clears so nothing later messages a deallocated controller.
+///
+/// @param oldSortController The sort controller to unregister; nil is a no-op.
++ (void)unregisterSortController:(AISortController *)oldSortController;
 + (NSArray *)availableSortControllers;
 
 - (BOOL)shouldSortForModifiedStatusKeys:(NSSet *)inModifiedKeys;

@@ -484,6 +484,72 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
+		<key>8700BBBF50765A71A3DAE0B5</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Frameworks/Adium/Source/AISortController.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F7DB2951EE3659EF9A8E9AFA</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Frameworks/Adium/Source/AISortController.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>30BDECB223FB5F2297526C2E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAISortControllerUnregister.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>0FBFDE469E62509E8B60415F</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/CBContactLastSeenPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>DB039848AC185025913EEBC3</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Source/CBContactLastSeenPlugin.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>5996D4204BD2583A957724EF</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestCBContactLastSeenPluginObserverRemoval.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
 		<key>E6D1820D31A5581E890433D6</key>
 		<dict>
 			<key>isa</key>
@@ -651,6 +717,10 @@
 				<string>DA3683750CBB58CD9F0F58A8</string>
 				<string>006A34CB7F085F53B63D5E20</string>
 				<string>F9B5DA598FA550739EEA9095</string>
+				<string>DCF75E3C87485F388A4FEC1D</string>
+				<string>ADCFFAB9010550669CDA5811</string>
+				<string>ACDA2E4E2329542EA43492FB</string>
+				<string>963D436ED1CE566D8994E162</string>
 				<string>DB575F80636F5301BADAB37F</string>
 				<string>6393ED63D97A5091BA577D0F</string>
 				<string>ABF5B93723D45B538879C9F5</string>
@@ -840,6 +910,34 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>C24A489BCE0859E6BD4FFC58</string>
+		</dict>
+		<key>DCF75E3C87485F388A4FEC1D</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>8700BBBF50765A71A3DAE0B5</string>
+		</dict>
+		<key>ADCFFAB9010550669CDA5811</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>30BDECB223FB5F2297526C2E</string>
+		</dict>
+		<key>ACDA2E4E2329542EA43492FB</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>0FBFDE469E62509E8B60415F</string>
+		</dict>
+		<key>963D436ED1CE566D8994E162</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>5996D4204BD2583A957724EF</string>
 		</dict>
 		<key>DB575F80636F5301BADAB37F</key>
 		<dict>

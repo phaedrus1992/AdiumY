@@ -16,12 +16,17 @@
 
 #define KEY_CURRENT_SORT_MODE_IDENTIFIER @"Sort Mode"
 
-@class AIContactSortPreferences;
+@class AIContactSortPreferences, AISortController;
 
 @interface AIContactSortSelectionPlugin : AIPlugin {
 	AIContactSortPreferences *preferences;
 	NSMenuItem *menuItem_configureSort;
 	BOOL enableConfigureSort;
+
+	NSMutableArray *sortSelectionMenuItems;
+	AISortController *sortController_alphabetical;
+	AISortController *sortController_status;
+	AISortController *sortController_manual;
 }
 
 @end

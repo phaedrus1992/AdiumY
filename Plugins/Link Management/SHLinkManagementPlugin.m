@@ -40,26 +40,31 @@
 
 - (void)installPlugin
 {
-	NSMenuItem *menuItem;
-
 	// Add/Edit Link... menu item (edit menu)
-	menuItem = [[NSMenuItem alloc] initWithTitle:EDIT_LINK_TITLE
-										  target:self
-										  action:@selector(editFormattedLink:)
-								   keyEquivalent:@"k"];
-	[adium.menuController addMenuItem:menuItem toLocation:LOC_Edit_Links];
+	menuItem_editLink = [[NSMenuItem alloc] initWithTitle:EDIT_LINK_TITLE
+												   target:self
+												   action:@selector(editFormattedLink:)
+											keyEquivalent:@"k"];
+	[adium.menuController addMenuItem:menuItem_editLink toLocation:LOC_Edit_Links];
 
 	// Context menu
-	menuItem = [[NSMenuItem alloc] initWithTitle:EDIT_LINK_TITLE
-										  target:self
-										  action:@selector(editFormattedLink:)
-								   keyEquivalent:@""];
-	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_TextView_LinkEditing];
+	menuItem_editLinkContext = [[NSMenuItem alloc] initWithTitle:EDIT_LINK_TITLE
+														  target:self
+														  action:@selector(editFormattedLink:)
+												   keyEquivalent:@""];
+	[adium.menuController addContextualMenuItem:menuItem_editLinkContext toLocation:Context_TextView_LinkEditing];
 	[self registerToolbarItem];
 }
 
 - (void)uninstallPlugin
 {
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:menuItem_editLink];
+	menuItem_editLink = nil;
+
+	[adium.menuController removeContextualMenuItem:menuItem_editLinkContext];
+	menuItem_editLinkContext = nil;
+
 	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
 	if (toolbarItem != nil) {
 		[adium.toolbarController unregisterToolbarItem:toolbarItem forToolbarType:@"TextEntry"];

@@ -71,6 +71,13 @@
 - (void)uninstallPlugin
 {
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:previousChatMenuItem];
+	previousChatMenuItem = nil;
+
+	[adium.menuController removeMenuItem:nextChatMenuItem];
+	nextChatMenuItem = nil;
 }
 
 /*!

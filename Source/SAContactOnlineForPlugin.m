@@ -36,6 +36,15 @@
 }
 
 /*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Unregister the tooltip entry installPlugin registered, so an uninstalled plugin leaves no dead tooltip behind.
+	[adium.interfaceController unregisterContactListTooltipEntry:self secondaryEntry:NO];
+}
+
+/*!
  * @brief Tooltip label
  *
  * @result A label, or nil if no tooltip entry should be shown

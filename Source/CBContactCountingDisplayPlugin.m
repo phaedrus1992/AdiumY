@@ -229,6 +229,13 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:menuItem_countOnlineObjects];
+	menuItem_countOnlineObjects = nil;
+
+	[adium.menuController removeMenuItem:menuItem_countAllObjects];
+	menuItem_countAllObjects = nil;
 }
 
 @end

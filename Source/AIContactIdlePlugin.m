@@ -54,6 +54,9 @@
  */
 - (void)uninstallPlugin
 {
+	// Unregister the tooltip entry installPlugin registered, so an uninstalled plugin leaves no dead tooltip behind.
+	[adium.interfaceController unregisterContactListTooltipEntry:self secondaryEntry:YES];
+
 	// Stop tracking all idle handles
 	idleObjectTimer = nil;
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];

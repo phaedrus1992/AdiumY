@@ -18,6 +18,7 @@
 
 @interface AIContactListEditorPlugin : AIPlugin {
 	NSMenuItem *menuItem_delete;
+	NSMenuItem *menuItem_deleteContext;
 	NSMenuItem *menuItem_tabAddContact;
 	NSMenuItem *menuItem_addBookmark;
 	NSMenuItem *menuItem_addContact;

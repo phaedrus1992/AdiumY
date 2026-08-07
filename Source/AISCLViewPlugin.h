@@ -44,6 +44,7 @@
 	NSMenuItem *menuItem_nextDetached;
 	NSMenuItem *menuItem_previousDetached;
 	NSMenuItem *menuItem_consolidate;
+	NSMenuItem *separatorItem;
 
 	NSDictionary *contextMenuAttach;
 

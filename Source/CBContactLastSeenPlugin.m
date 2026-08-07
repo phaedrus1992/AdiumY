@@ -16,9 +16,11 @@
 
 #import "CBContactLastSeenPlugin.h"
 #import <AIUtilities/AIDateFormatterAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIInterfaceControllerProtocol.h>
 #import <AdiumY/AIListObject.h>
 #import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 
 #define PREF_GROUP_LAST_SEEN @"Last Seen"
 #define KEY_LAST_SEEN_STATUS @"Last Seen Status"
@@ -40,6 +42,18 @@
 
 	// Observe status changes
 	[[AIContactObserverManager sharedManager] registerListObjectObserver:self];
+}
+
+/*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Unregister the tooltip entry installPlugin registered, so an uninstalled plugin leaves no dead tooltip behind.
+	[adium.interfaceController unregisterContactListTooltipEntry:self secondaryEntry:NO];
+
+	// Remove the list-object observer installPlugin registered, so an uninstalled plugin stops receiving updates.
+	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 }
 
 - (NSSet *)updateListObject:(AIListObject *)inObject keys:(NSSet *)inModifiedKeys silent:(BOOL)silent

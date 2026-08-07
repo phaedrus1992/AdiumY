@@ -97,6 +97,13 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
 
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeContextualMenuItem:quickContextualMenuItem];
+	quickContextualMenuItem = nil;
+
+	[adium.menuController removeMenuItem:quickMenuItem];
+	quickMenuItem = nil;
+
 	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
 	if (registeredToolbarItem != nil) {
 		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"TextEntry"];

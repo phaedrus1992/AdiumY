@@ -60,6 +60,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   uninstall
 - Fix the contact-list-contents plugin leaving its contact-list tooltip entry
   and contextual menu item registered after uninstall
+- Fix the contact-sort-selection plugin leaving its sort controllers registered
+  after uninstall, so the contact list keeps a working sort
+- Fix the link-management, nudge-and-buzz, secure-messaging, add-bookmark,
+  alias-support, chat-cycling, contact-info, contact-list-editor,
+  contact-visibility-control, logger, detached-windows, URL-shortener,
+  emoticon-menu, contact-counting-display, blocking, import, privacy-settings,
+  and contact-sort-selection plugins leaving their menu items registered after
+  uninstall
+- Fix the contact-away, contact-idle, contact-online-since, contact-client,
+  contact-serverside-display-name, contact-online-for, and contact-last-seen
+  plugins leaving their contact-list tooltip entries registered after uninstall
+- Remove the dock-name-overlay and contact-last-seen plugins' list-object
+  observers when they uninstall, so the contact list stops reacting to their
+  changes after removal
 
 ## [2.0.0] - 2026-08-03
 
