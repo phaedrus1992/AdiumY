@@ -107,6 +107,7 @@ extern id AIObserverManagerSharedMock;
 	LastSeenMockInterfaceController *mockInterfaceController = [[LastSeenMockInterfaceController alloc] init];
 	MockContactObserverManager *mockObserverManager = [[MockContactObserverManager alloc] init];
 	id<AIAdium> savedAdium = adium;
+	id savedObserverManagerMock = AIObserverManagerSharedMock;
 
 	[mockAdium setInterfaceController:mockInterfaceController];
 	AIObserverManagerSharedMock = mockObserverManager;
@@ -143,7 +144,7 @@ extern id AIObserverManagerSharedMock;
 					   @"list-object observer unregistered is the plugin itself");
 	} @finally {
 		adium = savedAdium;
-		AIObserverManagerSharedMock = nil;
+		AIObserverManagerSharedMock = savedObserverManagerMock;
 	}
 }
 
