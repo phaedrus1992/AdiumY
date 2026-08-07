@@ -29,7 +29,9 @@ typedef enum { AIServicePrimary, AIServiceSecondary, AIServiceUnsupported } AISe
  *
  * This is typically called by the principal class of a service plugin
  */
-+ (void)registerService;
++ (instancetype)registerService;
+
+- (void)unregisterService;
 
 // Account Creation
 - (id)accountWithUID:(NSString *)inUID internalObjectID:(NSString *)inInternalObjectID;

@@ -294,6 +294,13 @@
 		interfacePlugin = inController;
 }
 
+// Unregisters code handling the interface, clearing it only if it is the registered controller
+- (void)unregisterInterfaceController:(id<AIInterfaceComponent>)inController
+{
+	if (interfacePlugin == inController)
+		interfacePlugin = nil;
+}
+
 // Register code to handle the contact list
 - (void)registerContactListController:(id<AIMultiContactListComponent>)inController
 {

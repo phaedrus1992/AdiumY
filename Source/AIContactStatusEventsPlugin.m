@@ -16,11 +16,17 @@
 
 #import "AIContactStatusEventsPlugin.h"
 #import <AIUtilities/AIImageAdditions.h>
+// The real app imports AIStringUtilities.h via Adium.pch; the standalone test target compiles this TU
+// without that prefix header, so the AILocalizedString macro needs its definition here.
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIContactAlertsControllerProtocol.h>
 #import <AdiumY/AIContactControllerProtocol.h>
 #import <AdiumY/AIListGroup.h>
 #import <AdiumY/AIMetaContact.h>
+// The real app imports AISharedAdium.h via Adium.pch; the standalone test target compiles this TU
+// without that prefix header, so the `adium` global needs its declaration here.
+#import <AdiumY/AISharedAdium.h>
 
 @interface AIContactStatusEventsPlugin ()
 - (BOOL)updateCache:(NSMutableDictionary *)cache
@@ -47,6 +53,21 @@
 	idleCache = [[NSMutableDictionary alloc] init];
 	statusMessageCache = [[NSMutableDictionary alloc] init];
 	mobileCache = [[NSMutableDictionary alloc] init];
+}
+
+/*!
+ * @brief Uninstall
+ *
+ * Release the caches installPlugin allocated. Nil'ing is idempotent: a second uninstall, after a previous teardown
+ * already nil'ed the ivars, is a no-op (#237).
+ */
+- (void)uninstallPlugin
+{
+	onlineCache = nil;
+	awayCache = nil;
+	idleCache = nil;
+	statusMessageCache = nil;
+	mobileCache = nil;
 }
 
 /*!

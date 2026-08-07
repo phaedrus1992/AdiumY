@@ -47,6 +47,7 @@ typedef enum { AINickServPassword, AIQPassword, AIXPassword, AIAuthServPassword 
  * All services should be registered before they are used. A service provides access to an instant messaging protocol.
  */
 - (void)registerService:(AIService *)inService;
+- (void)unregisterService:(AIService *)inService;
 
 /*!
  * @brief Returns an array of all available services
