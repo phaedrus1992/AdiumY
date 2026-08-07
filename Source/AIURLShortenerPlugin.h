@@ -22,6 +22,8 @@ typedef enum { AITinyURL = 0, AIisgd, AIMetamark, AINumberOfShortenLinkServices 
 	AIShortenLinkService shortener;
 	NSMenuItem *menuItem_shortenLink;
 	NSMenuItem *menuItem_shortenLinkContext;
+	NSMenu *shortenerSubMenu;
+	NSMenu *shortenerSubMenuContext;
 }
 
 @end

@@ -39,7 +39,7 @@
 
 - (void)installPlugin
 {
-	NSMenu *shortenerSubMenu = [[NSMenu alloc] init];
+	shortenerSubMenu = [[NSMenu alloc] init];
 	[shortenerSubMenu setDelegate:self];
 
 	// Edit menu
@@ -59,7 +59,8 @@
 															 action:@selector(shortenLink)
 													  keyEquivalent:@""];
 
-	[menuItem_shortenLinkContext setSubmenu:[shortenerSubMenu copy]];
+	shortenerSubMenuContext = [shortenerSubMenu copy];
+	[menuItem_shortenLinkContext setSubmenu:shortenerSubMenuContext];
 
 	[adium.menuController addContextualMenuItem:menuItem_shortenLinkContext toLocation:Context_TextView_Edit];
 
@@ -69,6 +70,13 @@
 - (void)uninstallPlugin
 {
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// Drop the submenu delegates first so a menu left open at uninstall can't message a
+	// deallocated plugin (NSMenu.delegate is assign, not weak).
+	[shortenerSubMenu setDelegate:nil];
+	shortenerSubMenu = nil;
+	[shortenerSubMenuContext setDelegate:nil];
+	shortenerSubMenuContext = nil;
 
 	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
 	[adium.menuController removeMenuItem:menuItem_shortenLink];
