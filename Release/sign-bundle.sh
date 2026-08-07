@@ -55,29 +55,12 @@ fi
 echo "==> Removing empty directories"
 find "$APP" -type d -empty -delete
 
-echo "==> Signing nested bundles and libraries"
-signed_bundles=()
-while IFS= read -r -d '' item; do
-	echo "    $item"
-	sign "$item"
-	signed_bundles+=("$item")
-done < <(find "$APP" -depth \
-	\( -name '*.framework' -o -name '*.bundle' -o -name '*.mdimporter' \
-	-o -name '*.xpc' -o -name '*.appex' -o -name '*.dylib' -o -name '*.so' \) \
-	-print0)
-
-# Signing a nested bundle's inner binary again would replace that bundle's
-# signature with a plain-binary one and break its seal.
-inside_signed_bundle() {
-	local path=$1 bundle
-	for bundle in ${signed_bundles+"${signed_bundles[@]}"}; do
-		[[ "$path" == "$bundle/"* ]] && return 0
-	done
-	return 1
-}
-
-# Helper executables that are not bundles — AdiumApplescriptRunner and anything
-# else dropped in alongside the main binary.
+# Loose executables first: helper tools that belong to no bundle of their own,
+# such as AdiumApplescriptRunner and Sparkle's Autoupdate. Signing a bundle
+# afterwards seals over them, which is the order notarization wants.
+#
+# A bundle's own main binary gets signed here too. That is redundant rather
+# than wrong — signing the enclosing bundle replaces it.
 #
 # -perm -u+x, not +111: BSD find's `+mode` spelling is deprecated and silently
 # matches nothing under `set -euo pipefail`, which quietly turned this whole
@@ -86,11 +69,28 @@ echo "==> Signing loose executables"
 MAIN_EXECUTABLE="$APP/Contents/MacOS/$(basename "$APP" .app)"
 while IFS= read -r -d '' bin; do
 	[ "$bin" = "$MAIN_EXECUTABLE" ] && continue
-	inside_signed_bundle "$bin" && continue
 	is_macho "$bin" || continue
 	echo "    $bin"
 	sign "$bin"
 done < <(find "$APP" -type f -perm -u+x -print0)
+
+# Then every nested code bundle, deepest first, so a child is never signed
+# after the parent that seals it.
+#
+# -type d on the bundles: a versioned framework symlinks its contents into its
+# root, and signing the same bundle twice through both paths breaks the seal.
+# Nested .app matters — Sparkle ships Updater.app inside its framework, still
+# carrying the Sparkle project's signature until this re-signs it.
+echo "==> Signing nested bundles and libraries"
+while IFS= read -r -d '' item; do
+	[ "$item" = "$APP" ] && continue
+	echo "    $item"
+	sign "$item"
+done < <(find "$APP" -depth \( \
+	\( -type d \( -name '*.app' -o -name '*.framework' -o -name '*.bundle' \
+	-o -name '*.mdimporter' -o -name '*.xpc' -o -name '*.appex' \) \) \
+	-o \( -type f \( -name '*.dylib' -o -name '*.so' \) \) \) \
+	-print0)
 
 echo "==> Signing $APP"
 if [ -n "$ENTITLEMENTS" ]; then
