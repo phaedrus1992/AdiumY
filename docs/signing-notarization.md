@@ -36,7 +36,7 @@ not something to ship.
 
 ## Current state of this repo
 
-- Apple team **K75Y6WZDVX**. Releases are signed, notarized and stapled by
+- Apple team **C36L3X7U5T**. Releases are signed, notarized and stapled by
   `fastlane` — see **`docs/releasing.md`**, which is the operational guide.
   This file is the background on *why* each step exists.
 - PR builds (`.github/workflows/ci.yml`) still use `CODE_SIGNING_ALLOWED=NO`

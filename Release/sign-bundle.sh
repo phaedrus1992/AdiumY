@@ -43,7 +43,7 @@ is_macho() {
 	[[ "$description" == *Mach-O* ]]
 }
 
-# "Developer ID Application: Someone (K75Y6WZDVX)" -> "K75Y6WZDVX". Empty for
+# "Developer ID Application: Someone (C36L3X7U5T)" -> "C36L3X7U5T". Empty for
 # ad-hoc signing, which has no team.
 EXPECTED_TEAM=""
 if [[ "$IDENTITY" =~ \(([A-Z0-9]{10})\)[[:space:]]*$ ]]; then

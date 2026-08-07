@@ -29,7 +29,7 @@ GitHub Actions runner.
 - `Adium.entitlements` exists and already carries
   `com.apple.security.cs.disable-library-validation` (libpurple and the other
   vendored dylibs need it under hardened runtime), but no target references it.
-- Apple team is `K75Y6WZDVX`. Bundle ID `com.github.phaedrus1992.adiumy`.
+- Apple team is `C36L3X7U5T`. Bundle ID `com.github.phaedrus1992.adiumy`.
   Universal via `ARCHS_STANDARD`; deployment target 12.0.
 
 ## Design

@@ -4,7 +4,7 @@ Cutting a release means producing a `.dmg` that a stranger can download and
 double-click without Gatekeeper complaining. `fastlane` drives the whole thing;
 see `fastlane/Fastfile`.
 
-Apple team: **K75Y6WZDVX**. Bundle ID: `com.github.phaedrus1992.adiumy`.
+Apple team: **C36L3X7U5T**. Bundle ID: `com.github.phaedrus1992.adiumy`.
 
 ## TL;DR
 
@@ -20,7 +20,7 @@ Or locally: `bundle exec fastlane mac release`.
 
 ### 1. Developer ID Application certificate
 
-Xcode → Settings → Accounts → team **K75Y6WZDVX** → Manage Certificates →
+Xcode → Settings → Accounts → team **C36L3X7U5T** → Manage Certificates →
 **+** → *Developer ID Application*.
 
 Apple issues at most 5 of these per team, and revoking one invalidates
@@ -28,8 +28,17 @@ signatures on builds already in the wild. Export a backup immediately:
 Keychain Access → right-click the certificate → Export → `.p12` with a strong
 password. Store it in a password manager, not in this repo.
 
-`fastlane` finds the identity by team ID; you never have to type its name.
-Override with `DEVELOPER_ID_IDENTITY` if you have more than one.
+`fastlane` finds the identity by team ID; you never have to type its name. If
+your certificate belongs to a different team, set `TEAM_ID`. Set
+`DEVELOPER_ID_IDENTITY` to the full quoted name only when one team has several
+Developer ID certificates and you need to pick between them.
+
+Note that the paid membership team is **not** necessarily the team on your
+"Apple Development" certificates — this repo's is `C36L3X7U5T` while local
+development certs sit under other teams. `security find-identity -v -p
+codesigning` shows what you actually have.
+
+Copy `.env.example` to `.env` (gitignored) for these; fastlane loads it.
 
 ### 2. App Store Connect API key
 
@@ -37,7 +46,7 @@ You do not invent `ASC_KEY_ID` or `ASC_ISSUER_ID` — Apple generates both when
 you create the key, and shows them on the page you create it from.
 
 1. Sign in at appstoreconnect.apple.com with the Apple ID that holds the
-   K75Y6WZDVX membership.
+   C36L3X7U5T membership.
 2. **Users and Access** → **Integrations** tab → **App Store Connect API** in
    the sidebar.
 3. Make sure you are on **Team Keys**, not Individual Keys. Notarization

@@ -17,7 +17,7 @@ default_platform(:mac)
 ROOT = File.expand_path("..", __dir__)
 
 APP_NAME      = "AdiumY"
-TEAM_ID       = "K75Y6WZDVX"
+TEAM_ID       = ENV["TEAM_ID"].to_s.empty? ? "C36L3X7U5T" : ENV["TEAM_ID"]
 CONFIGURATION = "Release"
 ENTITLEMENTS  = File.join(ROOT, "Adium.entitlements")
 BUILD_DIR     = File.join(ROOT, "build")
@@ -38,16 +38,48 @@ end
 # Resolves the Developer ID Application identity for this team, so the
 # certificate's common name never has to be hardcoded or passed by hand.
 def signing_identity
-  return ENV["DEVELOPER_ID_IDENTITY"] unless ENV["DEVELOPER_ID_IDENTITY"].to_s.empty?
-
   identities = sh("security find-identity -v -p codesigning", log: false)
+
+  override = ENV["DEVELOPER_ID_IDENTITY"].to_s
+  return resolve_identity_override(override, identities) unless override.empty?
+
   found = identities[/"(Developer ID Application:[^"]*\(#{TEAM_ID}\))"/, 1]
-  UI.user_error!(<<~ERROR) unless found
+  return found if found
+
+  # Listing what is actually installed turns "wrong team" — the most likely
+  # cause — into a one-line diagnosis instead of a guess.
+  available = identities.scan(/"(Developer ID Application:[^"]*)"/).flatten.uniq
+  UI.user_error!(<<~ERROR)
     No "Developer ID Application" certificate for team #{TEAM_ID} in the keychain.
-    Create one in Xcode > Settings > Accounts, or set DEVELOPER_ID_IDENTITY.
-    See docs/releasing.md.
+
+    #{available.empty? ? "No Developer ID certificates are installed at all." : "Installed Developer ID certificates:\n" + available.map { |i| "      #{i}" }.join("\n")}
+
+    If one of those is the right certificate, its team differs from #{TEAM_ID}.
+    Set TEAM_ID to the code in its parentheses, or DEVELOPER_ID_IDENTITY to the
+    whole quoted name. Otherwise create a certificate in
+    Xcode > Settings > Accounts. See docs/releasing.md.
   ERROR
-  found
+end
+
+# codesign -s matches substrings, so a bare team ID "works" while leaving
+# sign-bundle.sh unable to parse a team out of it — which silently disables its
+# wrong-team audit. Insist on the full name or the SHA-1.
+def resolve_identity_override(override, identities)
+  return override if identities.include?("\"#{override}\"")
+  return override if identities.match?(/^\s*\d+\)\s+#{Regexp.escape(override)}\s/)
+
+  UI.user_error!(<<~ERROR)
+    DEVELOPER_ID_IDENTITY is set to "#{override}", which is not an installed
+    signing identity.
+
+    It must be the whole name between the quotes in `security find-identity -v
+    -p codesigning`, for example:
+
+      DEVELOPER_ID_IDENTITY="Developer ID Application: Your Name (#{TEAM_ID})"
+
+    A bare team ID is not enough. To select by team instead, unset
+    DEVELOPER_ID_IDENTITY and set TEAM_ID. See docs/releasing.md.
+  ERROR
 end
 
 def asc_api_key
@@ -208,7 +240,9 @@ platform :mac do
       Run Dependencies/build/sparkle-tools/generate_keys and paste the public key in.
     ERROR
 
-    UI.success("Preflight passed for AdiumY #{release_version}")
+    # Deliberately not release_version: preflight is for checking credentials
+    # at any time, so an untagged working branch must not fail it.
+    UI.success("Preflight passed. Signing as: #{signing_identity}")
   end
 
   desc "Sign the built app inside-out with the Developer ID identity."
