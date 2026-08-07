@@ -60,7 +60,7 @@ extern id<AIAdium> adium;
 @implementation ESStatusPreferences
 + (id)preferencePaneForPlugin:(id)plugin
 {
-	return nil;
+	return [[self alloc] init];
 }
 @end
 
@@ -71,7 +71,7 @@ extern id<AIAdium> adium;
 @implementation ESStatusAdvancedPreferences
 + (id)preferencePaneForPlugin:(id)plugin
 {
-	return nil;
+	return [[self alloc] init];
 }
 @end
 
@@ -142,13 +142,24 @@ extern id<AIAdium> adium;
 
 @interface MenuMockPreferenceController : NSObject
 @property(nonatomic, assign) NSUInteger unregisterObserverCount;
+@property(nonatomic, strong) NSMutableArray *removedPanes;
 
 - (void)registerDefaults:(NSDictionary *)defaults forGroup:(NSString *)group;
 - (void)registerPreferenceObserver:(id)observer forGroup:(NSString *)group;
 - (void)unregisterPreferenceObserver:(id)observer;
+- (void)removePreferencePane:(id)pane;
 @end
 
 @implementation MenuMockPreferenceController
+- (instancetype)init
+{
+	if ((self = [super init])) {
+		_removedPanes = [[NSMutableArray alloc] init];
+	}
+
+	return self;
+}
+
 - (void)registerDefaults:(NSDictionary *)defaults forGroup:(NSString *)group
 {}
 
@@ -158,6 +169,11 @@ extern id<AIAdium> adium;
 - (void)unregisterPreferenceObserver:(id)observer
 {
 	_unregisterObserverCount++;
+}
+
+- (void)removePreferencePane:(id)pane
+{
+	[_removedPanes addObject:pane];
 }
 @end
 
@@ -356,9 +372,24 @@ extern id<AIAdium> adium;
 		XCTAssertEqual([mockMenuController.addedContextualItems count], (NSUInteger)0,
 					   @"sanity: ESStatusPreferencesPlugin registered no contextual items");
 
+		// Capture the panes before uninstall — uninstallPlugin nils both ivars.
+		id preferences = [plugin valueForKey:@"preferences"];
+		id advancedPreferences = [plugin valueForKey:@"advancedPreferences"];
+		XCTAssertNotNil(preferences, @"sanity: installPlugin created the status preferences pane");
+		XCTAssertNotNil(advancedPreferences, @"sanity: installPlugin created the advanced status preferences pane");
+
 		[self uninstallAndAssertRemovalForPlugin:plugin menuController:mockMenuController];
 
 		XCTAssertNil([plugin valueForKey:@"menuItem"], @"uninstallPlugin must nil the edit-status-menu item ivar");
+		XCTAssertEqual([mockPreferenceController.removedPanes count], (NSUInteger)2,
+					   @"uninstallPlugin must unregister both preference panes installPlugin registered");
+		XCTAssertTrue([mockPreferenceController.removedPanes containsObject:preferences],
+					  @"uninstallPlugin must unregister the status preferences pane");
+		XCTAssertTrue([mockPreferenceController.removedPanes containsObject:advancedPreferences],
+					  @"uninstallPlugin must unregister the advanced status preferences pane");
+		XCTAssertNil([plugin valueForKey:@"preferences"], @"uninstallPlugin must nil the status preferences pane ivar");
+		XCTAssertNil([plugin valueForKey:@"advancedPreferences"],
+					 @"uninstallPlugin must nil the advanced status preferences pane ivar");
 	} @finally {
 		adium = savedAdium;
 	}
