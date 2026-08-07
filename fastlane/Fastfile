@@ -333,6 +333,11 @@ platform :mac do
     UI.success("Notarized and stapled #{app_path}")
   end
 
+  desc "List your notarization submissions and their status. There is no web UI for these."
+  lane :notary_status do
+    sh("xcrun", "notarytool", "history", *notary_args(asc_api_key))
+  end
+
   desc "Staple a submission that finished after the notarize lane gave up waiting."
   lane :staple_notarized do |options|
     id = options[:submission_id] || ENV["SUBMISSION_ID"].to_s

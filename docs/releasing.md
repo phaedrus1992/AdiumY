@@ -152,6 +152,7 @@ Each lane runs alone, so a failed release resumes rather than restarts.
 | Lane | Does |
 |---|---|
 | `preflight` | Verifies certificate, API key, and `SUPublicEDKey`. Run this first. |
+| `notary_status` | Lists your notarization submissions and their status |
 | `staple_notarized` | Staples a submission that finished after `notarize_app` stopped waiting |
 | `build` | Vendored deps → `MMTabBarView.framework` → `xcodebuild -configuration Release` |
 | `sign` | `Release/sign-bundle.sh`: inside-out signing, hardened runtime, entitlements, verification |
@@ -191,6 +192,31 @@ lipo -archs AdiumY.app/Contents/MacOS/AdiumY   # arm64 x86_64
 
 The only test that really counts: download the DMG from the GitHub Release on a
 Mac that has never built AdiumY, and launch it.
+
+## What notarization is, and is not
+
+Notarization is **not** App Store submission. Nothing is reviewed by a person,
+nothing is listed publicly, and this repo does not ship to the Mac App Store at
+all — see the non-goals in the design spec.
+
+It is an automated malware scan. `notarize_app` zips the signed `.app`, uploads
+it to Apple, and Apple checks that every binary is signed with a valid
+Developer ID certificate, has the hardened runtime enabled, and carries a
+secure timestamp. If it passes, Apple issues a *ticket*. `stapler` attaches
+that ticket to the bundle so Gatekeeper can verify it on a machine that is
+offline or has never seen the app.
+
+Skipping it is not an option for distributing binaries: without a stapled
+ticket, anyone who downloads the DMG gets "Apple cannot check it for malicious
+software."
+
+Each upload is a **submission** with a UUID. Submissions live on Apple's
+servers and there is **no web page for them** — App Store Connect does not
+list them. The only view is the CLI:
+
+```sh
+bundle exec fastlane mac notary_status
+```
 
 ## When notarization is slow
 
