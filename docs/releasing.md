@@ -152,6 +152,7 @@ Each lane runs alone, so a failed release resumes rather than restarts.
 | Lane | Does |
 |---|---|
 | `preflight` | Verifies certificate, API key, and `SUPublicEDKey`. Run this first. |
+| `staple_notarized` | Staples a submission that finished after `notarize_app` stopped waiting |
 | `build` | Vendored deps → `MMTabBarView.framework` → `xcodebuild -configuration Release` |
 | `sign` | `Release/sign-bundle.sh`: inside-out signing, hardened runtime, entitlements, verification |
 | `notarize_app` | Submit, wait, staple, confirm Gatekeeper accepts |
@@ -190,6 +191,23 @@ lipo -archs AdiumY.app/Contents/MacOS/AdiumY   # arm64 x86_64
 
 The only test that really counts: download the DMG from the GitHub Release on a
 Mac that has never built AdiumY, and launch it.
+
+## When notarization is slow
+
+Apple's notary queue has no SLA. A first submission of this app sat "In
+Progress" for well over half an hour. The lane waits `NOTARY_TIMEOUT` (default
+`2h`) and, if that runs out, tells you the submission is still alive rather
+than failing the build:
+
+```sh
+xcrun notarytool info <id> --key ~/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8 \
+  --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER_ID"
+
+bundle exec fastlane mac staple_notarized SUBMISSION_ID:<id>
+```
+
+Nothing needs rebuilding — the ticket is tied to the signature you already
+have.
 
 ## When notarization fails
 
