@@ -98,6 +98,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   uninstall, so their menus cannot message a released plugin
 - Clear the Xtras-manager singleton when the Xtras plugin uninstalls, so it
   leaves no live reference behind
+- Remove the contact-alert event handlers the error-message-handler,
+  account-events, and nudge-and-buzz plugins register when they uninstall, so
+  an uninstalled plugin stops firing its events
+- Remove the preference panes the general-preferences, mention-event,
+  URL-handler, account-list-preferences, global-events-preferences, and
+  advanced-preferences plugins register when they uninstall, so an uninstalled
+  plugin's panes leave the preferences window — advanced panes now actually
+  unregister instead of silently staying registered
+- Clear the message-context-display plugin's shared instance when it
+  uninstalls, so it leaves no live reference behind
+- Stop the account-events plugin's grouping timers when it uninstalls, so they
+  stop firing into a released plugin
 
 ## [2.0.0] - 2026-08-03
 
