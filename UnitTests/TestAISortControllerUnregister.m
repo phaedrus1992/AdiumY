@@ -92,6 +92,34 @@
 	}
 }
 
+- (void)testUnregisterActiveControllerPromotesRemainingController
+{
+	AISortController *controllerA = [[AISortController alloc] init];
+	AISortController *controllerB = [[AISortController alloc] init];
+	AISortController *savedActive = [AISortController activeSortController];
+
+	[AISortController registerSortController:controllerA];
+	[AISortController registerSortController:controllerB];
+	[AISortController setActiveSortController:controllerA];
+	@try {
+		XCTAssertEqual([AISortController activeSortController], controllerA,
+					   @"sanity: controllerA is the active sort controller");
+
+		[AISortController unregisterSortController:controllerA];
+
+		XCTAssertEqual([AISortController activeSortController], controllerB,
+					   @"unregistering the active controller promotes a remaining one");
+		XCTAssertFalse([[AISortController availableSortControllers] containsObject:controllerA],
+					   @"unregistered controller is gone from the list");
+		XCTAssertTrue([[AISortController availableSortControllers] containsObject:controllerB],
+					  @"sibling controller remains registered");
+	} @finally {
+		[AISortController unregisterSortController:controllerA];
+		[AISortController unregisterSortController:controllerB];
+		[AISortController setActiveSortController:savedActive];
+	}
+}
+
 - (void)testUnregisterNeverRegisteredControllerIsNoop
 {
 	AISortController *registeredController = [[AISortController alloc] init];

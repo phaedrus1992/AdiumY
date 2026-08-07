@@ -14,13 +14,16 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// Cocoa first: this file compiles in the no-prefix-header test harness, and AIStringAdditions.h
+// (below) references NSString, so AppKit must already be in scope when it is parsed.
+#import <Cocoa/Cocoa.h>
+
 #import <AIUtilities/AIStringAdditions.h>
 #import <AdiumY/AIContactControllerProtocol.h>
 #import <AdiumY/AIListContact.h>
 #import <AdiumY/AIListGroup.h>
 #import <AdiumY/AISharedAdium.h>
 #import <AdiumY/AISortController.h>
-#import <Cocoa/Cocoa.h>
 
 #define KEY_RESOLVE_ALPHABETICALLY @"Status:Resolve Alphabetically"
 
@@ -64,13 +67,18 @@ static NSMutableArray *sortControllers = nil;
 
 + (void)unregisterSortController:(AISortController *)oldSortController
 {
-	// If the controller being unregistered is active, drop it so nothing later messages a
-	// deallocated sort controller after the plugin that registered it is uninstalled.
-	if (oldSortController == activeSortController) {
-		activeSortController = nil;
-	}
-
 	[sortControllers removeObject:oldSortController];
+
+	// If the unregistered controller was the active one, promote another registered controller
+	// so the contact list keeps a functional sort. Only when no controllers remain does the
+	// active slot clear, so nothing later messages a deallocated sort controller.
+	if ((oldSortController != nil) && (oldSortController == activeSortController)) {
+		if ([sortControllers count] > 0) {
+			[self setActiveSortController:[sortControllers objectAtIndex:0]];
+		} else {
+			activeSortController = nil;
+		}
+	}
 }
 
 + (NSArray *)availableSortControllers
