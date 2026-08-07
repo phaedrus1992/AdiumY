@@ -96,6 +96,28 @@ static NSMutableDictionary *globalOnlyEventHandlersByGroup[EVENT_HANDLER_GROUP_C
 	}
 }
 
+/*!
+ * @brief Unregister an event handler
+ *
+ * Removes the handler previously registered for the given event ID. A plugin calls this from its
+ * uninstallPlugin: so its handlers are not left in the controller's event handler dictionaries after
+ * the plugin uninstalls.
+ *
+ * @param eventID The event ID
+ */
+- (void)unregisterEventID:(NSString *)eventID
+{
+	[globalOnlyEventHandlers removeObjectForKey:eventID];
+	[eventHandlers removeObjectForKey:eventID];
+
+	// The group dictionaries are static and persist across controller instances; an unregistered
+	// event must be removed from every group, including groups whose dictionary is still nil.
+	for (NSInteger group = 0; group < EVENT_HANDLER_GROUP_COUNT; group++) {
+		[globalOnlyEventHandlersByGroup[group] removeObjectForKey:eventID];
+		[eventHandlersByGroup[group] removeObjectForKey:eventID];
+	}
+}
+
 // Return all event IDs
 - (NSArray *)allEventIDs
 {

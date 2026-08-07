@@ -73,7 +73,7 @@
 	// Uninstall the preference panes installPlugin registered (removal is nil-safe).
 	[adium.preferenceController removePreferencePane:preferences];
 	preferences = nil;
-	[adium.preferenceController removePreferencePane:advancedPreferences];
+	[adium.preferenceController removeAdvancedPreferencePane:advancedPreferences];
 	advancedPreferences = nil;
 }
 

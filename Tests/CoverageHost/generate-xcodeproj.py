@@ -61,6 +61,12 @@ for k in [
     "itunesPluginTestFileRef", "itunesPluginTestBuildFile",
     "appearancePluginFileRef", "appearancePluginBuildFile",
     "appearancePluginTestFileRef", "appearancePluginTestBuildFile",
+    "advPrefsPluginFileRef", "advPrefsPluginBuildFile",
+    "advPrefsPluginTestFileRef", "advPrefsPluginTestBuildFile",
+    "esAccountEventsPluginFileRef", "esAccountEventsPluginBuildFile",
+    "esAccountEventsPluginTestFileRef", "esAccountEventsPluginTestBuildFile",
+    "dcPluginFileRef", "dcPluginBuildFile",
+    "dcPluginTestFileRef", "dcPluginTestBuildFile",
     "lastSeenPluginFileRef", "lastSeenPluginHeaderRef", "lastSeenPluginBuildFile",
     "lastSeenPluginTestFileRef", "lastSeenPluginTestBuildFile",
     "sortCtrlFileRef", "sortCtrlHeaderRef", "sortCtrlBuildFile",
@@ -103,6 +109,15 @@ for k in [
     "accountMenuAccessUninstallTestFileRef", "accountMenuAccessUninstallTestBuildFile",
     "xtrasManagerUninstallTestFileRef", "xtrasManagerUninstallTestBuildFile",
     "emoticonMenuUninstallTestFileRef", "emoticonMenuUninstallTestBuildFile",
+
+    # Plugin-uninstall teardown batch 4 (#230/#231): nudge/buzz + preference-pane plugins + consolidated test
+    "nudgeBuzzPluginFileRef", "nudgeBuzzPluginBuildFile",
+    "esGeneralPrefsPluginFileRef", "esGeneralPrefsPluginBuildFile",
+    "mentionEventPluginFileRef", "mentionEventPluginBuildFile",
+    "urlHandlerPluginFileRef", "urlHandlerPluginBuildFile",
+    "accountListPrefsPluginFileRef", "accountListPrefsPluginBuildFile",
+    "globalEventsPrefsPluginFileRef", "globalEventsPrefsPluginBuildFile",
+    "variantTeardownTestFileRef", "variantTeardownTestBuildFile",
 
     # Frameworks
     "xctestFwkRef", "xctestFwkBuildFile",
@@ -158,6 +173,9 @@ objects = {
                      H["itunesPluginTestFileRef"],
                      H["appearancePluginFileRef"],
                      H["appearancePluginTestFileRef"],
+                     H["advPrefsPluginFileRef"], H["advPrefsPluginTestFileRef"],
+                     H["esAccountEventsPluginFileRef"], H["esAccountEventsPluginTestFileRef"],
+                     H["dcPluginFileRef"], H["dcPluginTestFileRef"],
                      H["ezvIncomingFileRef"], H["ezvIncomingHeaderRef"],
                      H["ezvTransferFileRef"], H["ezvTransferHeaderRef"],
                      H["ezvTestFileRef"],
@@ -171,7 +189,11 @@ objects = {
                      H["emoticonMenuPluginFileRef"],
                      H["accountMenuAccessUninstallTestFileRef"],
                      H["xtrasManagerUninstallTestFileRef"],
-                     H["emoticonMenuUninstallTestFileRef"]],
+                     H["emoticonMenuUninstallTestFileRef"],
+                     H["nudgeBuzzPluginFileRef"], H["esGeneralPrefsPluginFileRef"],
+                     H["mentionEventPluginFileRef"], H["urlHandlerPluginFileRef"],
+                     H["accountListPrefsPluginFileRef"], H["globalEventsPrefsPluginFileRef"],
+                     H["variantTeardownTestFileRef"]],
         "name": "Sources",
         "sourceTree": "<group>",
     },
@@ -385,6 +407,43 @@ objects = {
         "isa": "PBXFileReference",
         "lastKnownFileType": "sourcecode.c.objc",
         "path": "../../UnitTests/TestAIAppearancePreferencesPluginObserverRemoval.m",
+        "sourceTree": "<group>",
+    },
+    # Plugin-uninstall teardown batch 4 (#230/#231/#232): per-plugin TU + test.
+    H["advPrefsPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIAdvancedPreferencesPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["advPrefsPluginTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestAIAdvancedPreferencesPluginUninstall.m",
+        "sourceTree": "<group>",
+    },
+    H["esAccountEventsPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/ESAccountEvents.m",
+        "sourceTree": "<group>",
+    },
+    H["esAccountEventsPluginTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestESAccountEventsUnregister.m",
+        "sourceTree": "<group>",
+    },
+    H["dcPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/DCMessageContextDisplayPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["dcPluginTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestDCMessageContextDisplayPluginUninstall.m",
         "sourceTree": "<group>",
     },
     H["sortCtrlFileRef"]: {
@@ -637,6 +696,50 @@ objects = {
         "sourceTree": "<group>",
     },
 
+    # Plugin-uninstall teardown batch 4 (#230/#231): plugin TUs + consolidated variant test.
+    H["nudgeBuzzPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Nudge and Buzz Handler/AINudgeBuzzHandlerPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["esGeneralPrefsPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/General Preferences/ESGeneralPreferencesPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["mentionEventPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIMentionEventPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["urlHandlerPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIURLHandlerPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["accountListPrefsPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIAccountListPreferencesPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["globalEventsPrefsPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/ESGlobalEventsPreferencesPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["variantTeardownTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestPluginTeardownVariantUninstall.m",
+        "sourceTree": "<group>",
+    },
+
     H["xctestFwkRef"]: {
         "isa": "PBXFileReference",
         "lastKnownFileType": "wrapper.framework",
@@ -710,6 +813,9 @@ objects = {
                   H["errHandlerPluginBuildFile"], H["errHandlerPluginTestBuildFile"],
                   H["itunesPluginBuildFile"], H["itunesPluginTestBuildFile"],
                   H["appearancePluginBuildFile"], H["appearancePluginTestBuildFile"],
+                  H["advPrefsPluginBuildFile"], H["advPrefsPluginTestBuildFile"],
+                  H["esAccountEventsPluginBuildFile"], H["esAccountEventsPluginTestBuildFile"],
+                  H["dcPluginBuildFile"], H["dcPluginTestBuildFile"],
                   H["sortCtrlBuildFile"], H["sortCtrlTestBuildFile"],
                   H["lastSeenPluginBuildFile"], H["lastSeenPluginTestBuildFile"],
                   H["ezvIncomingBuildFile"], H["ezvTransferBuildFile"],
@@ -730,7 +836,11 @@ objects = {
                   H["emoticonMenuPluginBuildFile"],
                   H["accountMenuAccessUninstallTestBuildFile"],
                   H["xtrasManagerUninstallTestBuildFile"],
-                  H["emoticonMenuUninstallTestBuildFile"]],
+                  H["emoticonMenuUninstallTestBuildFile"],
+                  H["nudgeBuzzPluginBuildFile"], H["esGeneralPrefsPluginBuildFile"],
+                  H["mentionEventPluginBuildFile"], H["urlHandlerPluginBuildFile"],
+                  H["accountListPrefsPluginBuildFile"], H["globalEventsPrefsPluginBuildFile"],
+                  H["variantTeardownTestBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
     H["testFrameworksPhase"]: {
@@ -767,6 +877,12 @@ objects = {
     H["itunesPluginTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["itunesPluginTestFileRef"]},
     H["appearancePluginBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["appearancePluginFileRef"]},
     H["appearancePluginTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["appearancePluginTestFileRef"]},
+    H["advPrefsPluginBuildFile"]:         {"isa": "PBXBuildFile", "fileRef": H["advPrefsPluginFileRef"]},
+    H["advPrefsPluginTestBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["advPrefsPluginTestFileRef"]},
+    H["esAccountEventsPluginBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["esAccountEventsPluginFileRef"]},
+    H["esAccountEventsPluginTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["esAccountEventsPluginTestFileRef"]},
+    H["dcPluginBuildFile"]:               {"isa": "PBXBuildFile", "fileRef": H["dcPluginFileRef"]},
+    H["dcPluginTestBuildFile"]:           {"isa": "PBXBuildFile", "fileRef": H["dcPluginTestFileRef"]},
     H["sortCtrlBuildFile"]:       {"isa": "PBXBuildFile", "fileRef": H["sortCtrlFileRef"]},
     H["sortCtrlTestBuildFile"]:   {"isa": "PBXBuildFile", "fileRef": H["sortCtrlTestFileRef"]},
     H["lastSeenPluginBuildFile"]:       {"isa": "PBXBuildFile", "fileRef": H["lastSeenPluginFileRef"]},
@@ -803,6 +919,13 @@ objects = {
     H["accountMenuAccessUninstallTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["accountMenuAccessUninstallTestFileRef"]},
     H["xtrasManagerUninstallTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["xtrasManagerUninstallTestFileRef"]},
     H["emoticonMenuUninstallTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["emoticonMenuUninstallTestFileRef"]},
+    H["nudgeBuzzPluginBuildFile"]:         {"isa": "PBXBuildFile", "fileRef": H["nudgeBuzzPluginFileRef"]},
+    H["esGeneralPrefsPluginBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["esGeneralPrefsPluginFileRef"]},
+    H["mentionEventPluginBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["mentionEventPluginFileRef"]},
+    H["urlHandlerPluginBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["urlHandlerPluginFileRef"]},
+    H["accountListPrefsPluginBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["accountListPrefsPluginFileRef"]},
+    H["globalEventsPrefsPluginBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["globalEventsPrefsPluginFileRef"]},
+    H["variantTeardownTestBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["variantTeardownTestFileRef"]},
     H["userNotificationsFwkBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["userNotificationsFwkRef"]},
 
     # ── Target Dependency ───────────────────────────────────────
@@ -954,6 +1077,7 @@ objects = {
                 '"$(SRCROOT)/../../Plugins/Open Message Window Contact Alert"',
                 '"$(SRCROOT)/../../Plugins/Send Message Contact Alert"',
                 '"$(SRCROOT)/../../Plugins/Dock Icon Badging"',
+                "$(SRCROOT)/LMX",
             ),
             # Real Adium headers rely on Adium.pch for Cocoa/Foundation; restore that
             # invariant for the harness (clang-format orders <AdiumY/...> before <Cocoa/...>).
@@ -1003,6 +1127,7 @@ objects = {
                 '"$(SRCROOT)/../../Plugins/Open Message Window Contact Alert"',
                 '"$(SRCROOT)/../../Plugins/Send Message Contact Alert"',
                 '"$(SRCROOT)/../../Plugins/Dock Icon Badging"',
+                "$(SRCROOT)/LMX",
             ),
             # Real Adium headers rely on Adium.pch for Cocoa/Foundation; restore that
             # invariant for the harness (clang-format orders <AdiumY/...> before <Cocoa/...>).

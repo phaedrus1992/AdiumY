@@ -68,11 +68,13 @@
 @interface ErrorMessageAlertMockContactAlertsController : NSObject
 @property(nonatomic, readonly) NSMutableArray<NSString *> *registeredActionIDs;
 @property(nonatomic, readonly) NSMutableArray<NSString *> *unregisteredActionIDs;
+@property(nonatomic, readonly) NSMutableArray<NSString *> *unregisteredEventIDs;
 @property(nonatomic, assign) NSUInteger registerEventIDCount;
 
 - (void)registerActionID:(NSString *)actionID withHandler:(id)handler;
 - (void)registerEventID:(NSString *)eventID withHandler:(id)handler inGroup:(NSInteger)group globalOnly:(BOOL)global;
 - (void)unregisterActionID:(NSString *)actionID;
+- (void)unregisterEventID:(NSString *)eventID;
 @end
 
 @implementation ErrorMessageAlertMockContactAlertsController
@@ -81,6 +83,7 @@
 	if ((self = [super init])) {
 		_registeredActionIDs = [[NSMutableArray alloc] init];
 		_unregisteredActionIDs = [[NSMutableArray alloc] init];
+		_unregisteredEventIDs = [[NSMutableArray alloc] init];
 	}
 	return self;
 }
@@ -98,6 +101,11 @@
 - (void)unregisterActionID:(NSString *)actionID
 {
 	[_unregisteredActionIDs addObject:actionID];
+}
+
+- (void)unregisterEventID:(NSString *)eventID
+{
+	[_unregisteredEventIDs addObject:eventID];
 }
 @end
 
@@ -154,9 +162,9 @@
 				   @"Interface_ShouldDisplayErrorMessage observer still registered after uninstallPlugin");
 }
 
-// installPlugin registers ERROR_MESSAGE_CONTACT_ALERT_IDENTIFIER's action handler; uninstallPlugin must
-// unregister it, or the handler stays registered on an uninstalled plugin (#219). The registerEventID:
-// registration is not asserted — its unregistration is out of scope (#200).
+// installPlugin registers ERROR_MESSAGE_CONTACT_ALERT_IDENTIFIER's action handler and
+// INTERFACE_ERROR_MESSAGE's event handler; uninstallPlugin must unregister both, or the handlers stay
+// registered on an uninstalled plugin (#219, #200).
 - (void)testUninstallUnregistersContactAlertActionHandler
 {
 	ErrorMessageAlertMockContactAlertsController *mockController =
@@ -177,6 +185,8 @@
 
 		XCTAssertEqualObjects([mockController unregisteredActionIDs], @[ ERROR_MESSAGE_CONTACT_ALERT_IDENTIFIER ],
 							  @"uninstallPlugin must unregister the action ID it registered");
+		XCTAssertEqualObjects([mockController unregisteredEventIDs], @[ INTERFACE_ERROR_MESSAGE ],
+							  @"uninstallPlugin must unregister the event ID it registered");
 	} @finally {
 		adium = savedAdium;
 	}

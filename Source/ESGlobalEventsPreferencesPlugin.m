@@ -14,12 +14,24 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede ESGlobalEventsPreferencesPlugin.h, whose interface inherits from it. clang-format
+// would sort the quoted own-header first.
+#import <AdiumY/AIPlugin.h>
 #import "ESGlobalEventsPreferencesPlugin.h"
+// clang-format on
+// The standalone test target has no Adium.pch, which provides AIPreferenceControllerProtocol.h app-wide;
+// import it here so adium.preferenceController's selectors resolve without the pch.
+// clang-format off
+#import <AdiumY/AIPreferenceControllerProtocol.h>
+// clang-format on
 #import "AISoundController.h"
 #import "ESGlobalEventsPreferences.h"
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIContactAlertsControllerProtocol.h>
 #import <AdiumY/AISoundSet.h>
 
@@ -78,7 +90,13 @@
 {
 	// Uninstall our observers
 	[[NSNotificationCenter defaultCenter] removeObserver:preferences];
-	[[NSNotificationCenter defaultCenter] removeObserver:preferences];
+
+	// Remove the preference pane installPlugin created, so an uninstalled plugin's pane leaves the preferences
+	// window.
+	if (preferences != nil) {
+		[adium.preferenceController removePreferencePane:preferences];
+		preferences = nil;
+	}
 }
 
 - (void)adiumFinishedLaunching:(NSNotification *)notification

@@ -201,6 +201,14 @@
 	[advancedPaneArray addObject:inPane];
 }
 
+/*!
+ * @brief Remove a view from the preferences
+ */
+- (void)removeAdvancedPreferencePane:(AIAdvancedPreferencePane *)inPane
+{
+	[advancedPaneArray removeObject:inPane];
+}
+
 - (NSArray *)advancedPaneArray
 {
 	return advancedPaneArray;

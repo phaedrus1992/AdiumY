@@ -8,6 +8,10 @@
 
 #import <AdiumY/AIControllerProtocol.h>
 
+// The real AISoundControllerProtocol.h defines this at line 19; the standalone test target has no
+// Adium.pch providing it app-wide, so define it here for the sound-plugging TUs.
+#define PREF_GROUP_SOUNDS @"Sounds"
+
 @protocol AISoundController <AIController>
 - (void)playSoundAtPath:(NSString *)inPath;
 - (void)speakText:(NSString *)text withVoice:(NSString *)voiceString pitch:(float)pitch rate:(float)rate;

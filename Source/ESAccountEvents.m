@@ -14,8 +14,15 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede ESAccountEvents.h, whose interface inherits from it. clang-format
+// would sort the quoted own-header first.
+#import <AdiumY/AIPlugin.h>
 #import "ESAccountEvents.h"
+// clang-format on
 #import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIContactAlertsControllerProtocol.h>
 #import <AdiumY/AIContactControllerProtocol.h>
@@ -62,6 +69,18 @@
 - (void)uninstallPlugin
 {
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
+
+	// Invalidate the grouping timers installPlugin scheduled. A pending NSTimer retains its target, so
+	// an uninstalled plugin's timer would otherwise keep firing generateEvent: and triggering alerts.
+	[accountConnectionStatusGroupingOnlineTimer invalidate];
+	accountConnectionStatusGroupingOnlineTimer = nil;
+	[accountConnectionStatusGroupingOfflineTimer invalidate];
+	accountConnectionStatusGroupingOfflineTimer = nil;
+
+	// Unregister the events installPlugin registered so an uninstalled plugin stops generating alerts.
+	[adium.contactAlertsController unregisterEventID:ACCOUNT_CONNECTED];
+	[adium.contactAlertsController unregisterEventID:ACCOUNT_DISCONNECTED];
+	[adium.contactAlertsController unregisterEventID:ACCOUNT_RECEIVED_EMAIL];
 }
 
 /*!

@@ -14,7 +14,18 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede AIAccountListPreferencesPlugin.h, whose interface inherits from it. clang-format
+// would sort the quoted own-header first.
+#import <AdiumY/AIPlugin.h>
 #import "AIAccountListPreferencesPlugin.h"
+// clang-format on
+// The standalone test target has no Adium.pch, which provides AIPreferenceControllerProtocol.h app-wide;
+// import it here so adium.preferenceController's selectors resolve without the pch.
+// clang-format off
+#import <AdiumY/AIPreferenceControllerProtocol.h>
+// clang-format on
 #import "AIAccountListPreferences.h"
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AdiumY/AIMenuControllerProtocol.h>
@@ -45,6 +56,13 @@
 {
 	// Remove the observer installPlugin registered so an uninstalled plugin stops receiving notifications.
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:@"AIEditAccount" object:nil];
+
+	// Remove the preference pane installPlugin created, so an uninstalled plugin's pane leaves the preferences
+	// window.
+	if (accountListPreferences != nil) {
+		[adium.preferenceController removePreferencePane:accountListPreferences];
+		accountListPreferences = nil;
+	}
 }
 
 /*!

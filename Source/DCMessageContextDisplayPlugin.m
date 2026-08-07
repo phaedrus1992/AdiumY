@@ -14,11 +14,23 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede DCMessageContextDisplayPlugin.h, whose interface inherits from it (and which
+// AILoggerPlugin.h, imported below, also inherits from). clang-format would sort the quoted
+// own-header first.
+#import <AdiumY/AIPlugin.h>
 #import "DCMessageContextDisplayPlugin.h"
+// clang-format on
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AdiumY/AIChat.h>
 #import <AdiumY/AIContentContext.h>
 #import <AdiumY/AIContentControllerProtocol.h>
+// clang-format off
+// The standalone test target has no Adium.pch, which provides AIPreferenceControllerProtocol.h
+// app-wide; import it here so adium.preferenceController's selectors resolve without the pch.
+#import <AdiumY/AIPreferenceControllerProtocol.h>
+// clang-format on
 #import <AdiumY/AIContentStatus.h>
 #import <AdiumY/AIService.h>
 
@@ -95,6 +107,10 @@ static DCMessageContextDisplayPlugin *sharedInstance = nil;
 {
 	[adium.preferenceController unregisterPreferenceObserver:self];
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+
+	// Clear the shared instance installPlugin set, so an uninstalled plugin is no longer handed out
+	// by +sharedInstance (#232).
+	sharedInstance = nil;
 }
 
 - (void)preferencesChangedForGroup:(NSString *)group

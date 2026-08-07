@@ -14,6 +14,13 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede AINudgeBuzzHandlerPlugin.h, whose interface inherits from it. clang-format
+// would sort the quoted own-header first.
+#import <AdiumY/AIPlugin.h>
+#import "AINudgeBuzzHandlerPlugin.h"
+// clang-format on
 #import <AdiumY/AIChatControllerProtocol.h>
 #import <AdiumY/AIContactAlertsControllerProtocol.h>
 #import <AdiumY/AIContentControllerProtocol.h>
@@ -30,9 +37,8 @@
 
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AIUtilities/AIToolbarUtilities.h>
-
-#import "AINudgeBuzzHandlerPlugin.h"
 
 #define NOTIFICATION AILocalizedString(@"Request Attention", "Request Attention (nudge or buzz) menu item")
 #define TOOLBAR_NOTIFY_IDENTIFIER @"NotifyParticipants"
@@ -120,6 +126,9 @@
 {
 	// Unregister ourself.
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+
+	// Unregister the event installPlugin registered, so an uninstalled plugin stops generating nudge/buzz alerts.
+	[adium.contactAlertsController unregisterEventID:CONTENT_NUDGE_BUZZ_OCCURED];
 
 	// Unregister the content filter installPlugin registered, so an uninstalled plugin stops filtering outgoing
 	// content.

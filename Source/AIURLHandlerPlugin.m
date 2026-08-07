@@ -14,7 +14,18 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede AIURLHandlerPlugin.h, whose interface inherits from it. clang-format
+// would sort the quoted own-header first.
+#import <AdiumY/AIPlugin.h>
 #import "AIURLHandlerPlugin.h"
+// clang-format on
+// The standalone test target has no Adium.pch, which provides AIPreferenceControllerProtocol.h app-wide;
+// import it here so adium.preferenceController's selectors resolve without the pch.
+// clang-format off
+#import <AdiumY/AIPreferenceControllerProtocol.h>
+// clang-format on
 #import "AIURLHandlerAdvancedPreferences.h"
 
 #import "AINewContactWindowController.h"
@@ -85,6 +96,13 @@
 - (void)uninstallPlugin
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+
+	// Remove the preference pane installPlugin created, so an uninstalled plugin's pane leaves the preferences
+	// window.
+	if (preferences != nil) {
+		[adium.preferenceController removeAdvancedPreferencePane:preferences];
+		preferences = nil;
+	}
 }
 
 #pragma mark Scheme enforcement

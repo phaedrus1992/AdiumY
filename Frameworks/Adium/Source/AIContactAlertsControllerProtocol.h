@@ -62,6 +62,17 @@ typedef enum {
 			 globalOnly:(BOOL)global;
 
 /*!
+ * @brief Unregister an event handler
+ *
+ * Removes the handler previously registered for the given event ID. A plugin calls this from its
+ * uninstallPlugin: so its handlers are not left in the controller's event handler dictionaries after
+ * the plugin uninstalls.
+ *
+ * @param eventID The event ID
+ */
+- (void)unregisterEventID:(NSString *)eventID;
+
+/*!
  * @brief Generate an event, returning a set of the actionIDs which were performed.
  *
  * This should be called when eventID occurs; it triggers all associated actions.

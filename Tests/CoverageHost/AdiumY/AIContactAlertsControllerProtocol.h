@@ -32,6 +32,8 @@
 
 #define KEY_ACTION_DETAILS @"ActionDetails"
 #define INTERFACE_ERROR_MESSAGE @"Interface_ErrorMessageReceived"
+#define KEY_EVENT_ID @"EventID"
+#define KEY_ACTION_ID @"ActionID"
 
 typedef enum {
 	AIContactsEventHandlerGroup = 0,
@@ -59,6 +61,11 @@ typedef enum {
 			withHandler:(id<AIEventHandler>)handler
 				inGroup:(AIEventHandlerGroupType)inGroup
 			 globalOnly:(BOOL)global;
+- (void)unregisterEventID:(NSString *)eventID;
+- (NSString *)eventIDForEnglishDisplayName:(NSString *)displayName;
+- (void)addGlobalAlert:(NSDictionary *)newAlert;
+- (void)setAllGlobalAlerts:(NSArray *)allGlobalAlerts;
+- (void)removeAllGlobalAlertsWithActionID:(NSString *)actionID;
 - (NSSet *)generateEvent:(NSString *)eventID
 				   forListObject:(AIListObject *)listObject
 						userInfo:(id)userInfo
