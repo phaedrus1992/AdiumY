@@ -66,10 +66,9 @@
  * off adium.
  */
 @interface ErrorMessageAlertMockContactAlertsController : NSObject
-@property(nonatomic, assign) NSUInteger registerActionIDCount;
+@property(nonatomic, readonly) NSMutableArray<NSString *> *registeredActionIDs;
+@property(nonatomic, readonly) NSMutableArray<NSString *> *unregisteredActionIDs;
 @property(nonatomic, assign) NSUInteger registerEventIDCount;
-@property(nonatomic, assign) NSUInteger unregisterActionIDCount;
-@property(nonatomic, copy) NSString *lastUnregisteredActionID;
 
 - (void)registerActionID:(NSString *)actionID withHandler:(id)handler;
 - (void)registerEventID:(NSString *)eventID withHandler:(id)handler inGroup:(NSInteger)group globalOnly:(BOOL)global;
@@ -77,9 +76,18 @@
 @end
 
 @implementation ErrorMessageAlertMockContactAlertsController
+- (instancetype)init
+{
+	if ((self = [super init])) {
+		_registeredActionIDs = [[NSMutableArray alloc] init];
+		_unregisteredActionIDs = [[NSMutableArray alloc] init];
+	}
+	return self;
+}
+
 - (void)registerActionID:(NSString *)actionID withHandler:(id)handler
 {
-	_registerActionIDCount++;
+	[_registeredActionIDs addObject:actionID];
 }
 
 - (void)registerEventID:(NSString *)eventID withHandler:(id)handler inGroup:(NSInteger)group globalOnly:(BOOL)global
@@ -89,8 +97,7 @@
 
 - (void)unregisterActionID:(NSString *)actionID
 {
-	_unregisterActionIDCount++;
-	_lastUnregisteredActionID = actionID;
+	[_unregisteredActionIDs addObject:actionID];
 }
 @end
 
@@ -163,14 +170,12 @@
 		ErrorMessageHandlerObserverCountingPlugin *plugin = [[ErrorMessageHandlerObserverCountingPlugin alloc] init];
 		[plugin installPlugin];
 
-		XCTAssertEqual([mockController registerActionIDCount], (NSUInteger)1,
-					   @"sanity: installPlugin registered the contact alert action handler");
+		XCTAssertEqualObjects([mockController registeredActionIDs], @[ ERROR_MESSAGE_CONTACT_ALERT_IDENTIFIER ],
+							  @"sanity: installPlugin registered the contact alert action handler");
 
 		[plugin uninstallPlugin];
 
-		XCTAssertEqual([mockController unregisterActionIDCount], (NSUInteger)1,
-					   @"uninstallPlugin did not unregister the contact alert action handler");
-		XCTAssertEqualObjects([mockController lastUnregisteredActionID], ERROR_MESSAGE_CONTACT_ALERT_IDENTIFIER,
+		XCTAssertEqualObjects([mockController unregisteredActionIDs], @[ ERROR_MESSAGE_CONTACT_ALERT_IDENTIFIER ],
 							  @"uninstallPlugin must unregister the action ID it registered");
 	} @finally {
 		adium = savedAdium;
