@@ -97,11 +97,10 @@
 - (void)uninstallPlugin
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
-	[adium.preferenceController unregisterPreferenceObserver:self];
 
 	// Nil the submenu delegates so an uninstalled plugin leaves no dangling delegate.
-	[quickMenuItem.submenu setDelegate:nil];
-	[quickContextualMenuItem.submenu setDelegate:nil];
+	[[quickMenuItem submenu] setDelegate:nil];
+	[[quickContextualMenuItem submenu] setDelegate:nil];
 
 	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
 	[adium.menuController removeContextualMenuItem:quickContextualMenuItem];
@@ -115,6 +114,14 @@
 		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"TextEntry"];
 		registeredToolbarItem = nil;
 	}
+
+	// Nil the delegate of every emoticon menu installPlugin attached to a live toolbar item, then drop the
+	// tracked items so an uninstalled plugin leaves no dangling toolbar menu delegate (#221).
+	for (NSToolbarItem *item in toolbarItems) {
+		[[[item view] menu] setDelegate:nil];
+		[[[item menuFormRepresentation] submenu] setDelegate:nil];
+	}
+	[toolbarItems removeAllObjects];
 }
 
 /*!

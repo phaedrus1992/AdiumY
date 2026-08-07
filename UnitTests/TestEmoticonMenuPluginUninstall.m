@@ -20,7 +20,7 @@
  * Link shims for the standalone test target. BGEmoticonMenuPlugin's own @implementation (wired into this
  * bundle) provides its class; the relaxed @interface below declares only the surface this test drives. The
  * shared `adium` global and the AIPlugin class are provided by TestESUserIconHandlingPluginObserverRemoval.m
- * in the same bundle — not redefined here. The mocks record the menu/toolbar/preference registrations
+ * in the same bundle — not redefined here. The mocks record the menu/toolbar registrations
  * installPlugin makes so uninstallPlugin's teardown is observable.
  */
 @protocol AIAdium;
@@ -103,23 +103,9 @@ extern id<AIAdium> adium;
 }
 @end
 
-@interface EmoticonMockPreferenceController : NSObject
-@property(nonatomic, assign) NSUInteger unregisterObserverCount;
-
-- (void)unregisterPreferenceObserver:(id)observer;
-@end
-
-@implementation EmoticonMockPreferenceController
-- (void)unregisterPreferenceObserver:(id)observer
-{
-	_unregisterObserverCount++;
-}
-@end
-
 @interface EmoticonMockAdium : NSObject
 @property(nonatomic, strong) EmoticonMockMenuController *menuController;
 @property(nonatomic, strong) EmoticonMockToolbarController *toolbarController;
-@property(nonatomic, strong) EmoticonMockPreferenceController *preferenceController;
 @end
 
 @implementation EmoticonMockAdium
@@ -137,11 +123,9 @@ extern id<AIAdium> adium;
 {
 	EmoticonMockMenuController *mockMenuController = [[EmoticonMockMenuController alloc] init];
 	EmoticonMockToolbarController *mockToolbarController = [[EmoticonMockToolbarController alloc] init];
-	EmoticonMockPreferenceController *mockPreferenceController = [[EmoticonMockPreferenceController alloc] init];
 	EmoticonMockAdium *mockAdium = [[EmoticonMockAdium alloc] init];
 	[mockAdium setMenuController:mockMenuController];
 	[mockAdium setToolbarController:mockToolbarController];
-	[mockAdium setPreferenceController:mockPreferenceController];
 
 	id<AIAdium> savedAdium = adium;
 	adium = (id<AIAdium>)mockAdium;
@@ -181,8 +165,57 @@ extern id<AIAdium> adium;
 					   @"uninstallPlugin must unregister the toolbar item it registered");
 		XCTAssertEqualObjects([mockToolbarController registeredType], @"TextEntry",
 							  @"uninstallPlugin must unregister the toolbar item from the TextEntry toolbar");
-		XCTAssertEqual([mockPreferenceController unregisterObserverCount], (NSUInteger)1,
-					   @"uninstallPlugin must unregister the preference observer");
+	} @finally {
+		adium = savedAdium;
+	}
+}
+
+// installPlugin attaches itself as the delegate of the emoticon menu it sets up on a live toolbar item
+// (driven by NSToolbarWillAddItemNotification); uninstallPlugin must nil those delegates and drop the
+// tracked items so an uninstalled plugin leaves no dangling toolbar menu delegate (#221).
+- (void)testUninstallDropsToolbarMenuDelegates
+{
+	EmoticonMockMenuController *mockMenuController = [[EmoticonMockMenuController alloc] init];
+	EmoticonMockToolbarController *mockToolbarController = [[EmoticonMockToolbarController alloc] init];
+	EmoticonMockAdium *mockAdium = [[EmoticonMockAdium alloc] init];
+	[mockAdium setMenuController:mockMenuController];
+	[mockAdium setToolbarController:mockToolbarController];
+
+	id<AIAdium> savedAdium = adium;
+	adium = (id<AIAdium>)mockAdium;
+	@try {
+		BGEmoticonMenuPlugin *plugin = [[BGEmoticonMenuPlugin alloc] init];
+		[plugin installPlugin];
+
+		// The plugin only reacts to toolbar items whose identifier is TOOLBAR_EMOTICON_IDENTIFIER
+		// (@"InsertEmoticon", a private #define in the plugin's own TU — assert the literal here).
+		NSToolbarItem *toolbarItem = [[NSToolbarItem alloc] initWithItemIdentifier:@"InsertEmoticon"];
+		NSView *view = [[NSView alloc] initWithFrame:NSZeroRect];
+		[toolbarItem setView:view];
+
+		[[NSNotificationCenter defaultCenter] postNotificationName:NSToolbarWillAddItemNotification
+															object:nil
+														  userInfo:@{@"item" : toolbarItem}];
+
+		// installPlugin replaces the view's menu and the menu-form's submenu with a single emoticon menu
+		// (delegate = itself); capture that menu to verify uninstall nils its delegate.
+		NSMenu *emoticonMenu = [[toolbarItem view] menu];
+		XCTAssertNotNil(emoticonMenu, @"sanity: installPlugin attached an emoticon menu to the toolbar view");
+		XCTAssertEqual((id)[emoticonMenu delegate], plugin,
+					   @"sanity: installPlugin set itself as the toolbar emoticon menu delegate");
+		XCTAssertEqual((id)[[[toolbarItem menuFormRepresentation] submenu] delegate], plugin,
+					   @"sanity: installPlugin set itself as the toolbar menu-form delegate");
+		XCTAssertEqual([[[plugin valueForKey:@"toolbarItems"] allObjects] count], (NSUInteger)1,
+					   @"sanity: installPlugin tracks the live toolbar item");
+
+		[plugin uninstallPlugin];
+
+		XCTAssertNil([emoticonMenu delegate],
+					 @"uninstallPlugin must nil the toolbar emoticon menu delegate so none dangles");
+		XCTAssertNil([[[toolbarItem menuFormRepresentation] submenu] delegate],
+					 @"uninstallPlugin must nil the toolbar menu-form delegate so none dangles");
+		XCTAssertEqual([[[plugin valueForKey:@"toolbarItems"] allObjects] count], (NSUInteger)0,
+					   @"uninstallPlugin must drop its tracked toolbar items");
 	} @finally {
 		adium = savedAdium;
 	}
