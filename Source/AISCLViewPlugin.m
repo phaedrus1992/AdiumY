@@ -169,6 +169,9 @@
 
 	[adium.menuController removeMenuItem:menuItem_previousDetached];
 	menuItem_previousDetached = nil;
+
+	// Nil the submenu delegate so an uninstalled plugin leaves no dangling delegate.
+	[attachSubmenu setDelegate:nil];
 }
 
 - (void)dealloc

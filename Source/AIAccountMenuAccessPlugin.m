@@ -17,6 +17,7 @@
 #import "AIAccountMenuAccessPlugin.h"
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIAccountControllerProtocol.h>
 #import <AdiumY/AIMenuControllerProtocol.h>
@@ -50,6 +51,7 @@
 			   target:self
 			   action:@selector(showGuestAccountWindow:)
 		keyEquivalent:@""];
+	guestAccountMenuItem = menuItem;
 	[adium.menuController addMenuItem:menuItem toLocation:LOC_File_Additions];
 }
 
@@ -57,7 +59,22 @@
  * @brief Uninstall Plugin
  */
 - (void)uninstallPlugin
-{}
+{
+	// Remove the guest account menu item installPlugin registered (removal is nil-safe).
+	if (guestAccountMenuItem != nil) {
+		[adium.menuController removeMenuItem:guestAccountMenuItem];
+		guestAccountMenuItem = nil;
+	}
+
+	// Remove the account menu items accountMenu:didRebuildMenuItems: registered.
+	for (NSMenuItem *menuItem in installedMenuItems) {
+		[adium.menuController removeMenuItem:menuItem];
+	}
+	installedMenuItems = nil;
+
+	// Drop the account menu so an uninstalled plugin leaves no dangling delegate.
+	accountMenu = nil;
+}
 
 /*!
  * @brief Add account menu items to our location

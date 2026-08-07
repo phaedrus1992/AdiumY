@@ -18,6 +18,7 @@
 #import "ESApplescriptabilityController.h"
 #import "ESPanelApplescriptDetailPane.h"
 #import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIContactAlertsControllerProtocol.h>
 
 #define APPLESCRIPT_ALERT_SHORT AILocalizedString(@"Run an AppleScript", nil)
@@ -34,6 +35,11 @@
 {
 	// Install our contact alert
 	[adium.contactAlertsController registerActionID:APPLESCRIPT_CONTACT_ALERT_IDENTIFIER withHandler:self];
+}
+
+- (void)uninstallPlugin
+{
+	[adium.contactAlertsController unregisterActionID:APPLESCRIPT_CONTACT_ALERT_IDENTIFIER];
 }
 
 /*!

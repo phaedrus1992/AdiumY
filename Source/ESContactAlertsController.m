@@ -511,6 +511,19 @@ NSInteger eventIDSort(id objectA, id objectB, void *context)
 }
 
 /*!
+ * @brief Unregister an action handler
+ *
+ * Removes the handler registered for actionID so it is no longer invoked for that action. A plugin
+ * calls this from its uninstallPlugin: method to drop its handlers when it uninstalls.
+ *
+ * @param actionID The actionID
+ */
+- (void)unregisterActionID:(NSString *)actionID
+{
+	[actionHandlers removeObjectForKey:actionID];
+}
+
+/*!
  * @brief Return a dictionary whose keys are action IDs and whose objects are objects conforming to AIActionHandler
  */
 - (NSDictionary *)actionHandlers
@@ -570,7 +583,9 @@ NSInteger eventIDSort(id objectA, id objectB, void *context)
 	NSString *defaultActionID = [adium.preferenceController preferenceForKey:KEY_DEFAULT_ACTION_ID
 																	   group:PREF_GROUP_CONTACT_ALERTS];
 	if (![actionHandlers objectForKey:defaultActionID]) {
-		defaultActionID = [[actionHandlers allKeys] objectAtIndex:0];
+		// No stored default and no actions left to fall back on (all action plugins uninstalled) — return
+		// nil rather than crash on an empty actionHandlers (previously reachable via unregisterActionID:).
+		defaultActionID = [[actionHandlers allKeys] firstObject];
 	}
 
 	return defaultActionID;

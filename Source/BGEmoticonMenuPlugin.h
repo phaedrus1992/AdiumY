@@ -15,6 +15,7 @@
  */
 
 #import "AIEmoticonPack.h"
+#import <AdiumY/AIPlugin.h>
 
 @interface BGEmoticonMenuPlugin : AIPlugin <NSMenuDelegate> {
 	NSMenuItem *quickMenuItem;

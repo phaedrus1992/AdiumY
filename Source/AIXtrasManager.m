@@ -21,6 +21,7 @@
 #import <AIUtilities/AIFileManagerAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIImageTextCell.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AIUtilities/AIToolbarUtilities.h>
 #import <AIUtilities/AIXtraBundleIdentifier.h>
 #import <AdiumY/AIDockControllerProtocol.h>
@@ -56,6 +57,11 @@ static AIXtrasManager *manager;
 - (void)installPlugin
 {
 	manager = self;
+}
+
+- (void)uninstallPlugin
+{
+	manager = nil;
 }
 
 - (void)windowDidLoad

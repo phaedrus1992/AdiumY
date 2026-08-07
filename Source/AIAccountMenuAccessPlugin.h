@@ -15,10 +15,12 @@
  */
 
 #import <AdiumY/AIAccountMenu.h>
+#import <AdiumY/AIPlugin.h>
 
 @interface AIAccountMenuAccessPlugin : AIPlugin <AIAccountMenuDelegate> {
 	AIAccountMenu *accountMenu;
 	NSArray *installedMenuItems;
+	NSMenuItem *guestAccountMenuItem;
 }
 
 @end

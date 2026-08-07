@@ -22,9 +22,11 @@
 #import <AIUtilities/AIDateFormatterAdditions.h>
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIContactAlertsControllerProtocol.h>
 #import <AdiumY/AIContentMessage.h>
 #import <AdiumY/AIListObject.h>
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 
 #define CONTACT_ANNOUNCER_NIB @"ContactAnnouncer" // Filename of the announcer info view
 #define ANNOUNCER_ALERT_SHORT AILocalizedString(@"Speak Specific Text", nil)
@@ -55,6 +57,12 @@
 										forGroup:PREF_GROUP_ANNOUNCER];
 
 	lastSenderString = nil;
+}
+
+- (void)uninstallPlugin
+{
+	[adium.contactAlertsController unregisterActionID:SPEAK_TEXT_ALERT_IDENTIFIER];
+	[adium.contactAlertsController unregisterActionID:SPEAK_EVENT_ALERT_IDENTIFIER];
 }
 
 /*!

@@ -52,6 +52,9 @@
 
 	// Remove the observer installPlugin registered so an uninstalled plugin stops handling error notifications.
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:Interface_ShouldDisplayErrorMessage object:nil];
+
+	// Unregister the action installPlugin registered (the event registration is intentionally left in place).
+	[adium.contactAlertsController unregisterActionID:ERROR_MESSAGE_CONTACT_ALERT_IDENTIFIER];
 }
 
 - (void)handleError:(NSNotification *)notification

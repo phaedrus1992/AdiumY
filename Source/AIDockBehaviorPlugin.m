@@ -18,6 +18,7 @@
 #import "AIDockController.h"
 #import "ESDockAlertDetailPane.h"
 #import <AIUtilities/AIImageAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIChat.h>
 #import <AdiumY/AIContactAlertsControllerProtocol.h>
 #import <AdiumY/AIInterfaceControllerProtocol.h>
@@ -45,6 +46,11 @@
 {
 	// Install our contact alert
 	[adium.contactAlertsController registerActionID:AIDockBehavior_ALERT_IDENTIFIER withHandler:self];
+}
+
+- (void)uninstallPlugin
+{
+	[adium.contactAlertsController unregisterActionID:AIDockBehavior_ALERT_IDENTIFIER];
 }
 
 /*!
