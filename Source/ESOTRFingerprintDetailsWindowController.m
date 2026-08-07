@@ -20,10 +20,15 @@
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIServiceIcons.h>
 
-/* libotr headers */
+/* libotr headers. Order matters: proto.h and tlv.h declare the types message.h
+ * uses, and libotr's headers include none of their own dependencies.
+ * Fenced off because clang-format sorts includes alphabetically. */
+// clang-format off
 #import <libotr/context.h>
-#import <libotr/message.h>
 #import <libotr/proto.h>
+#import <libotr/tlv.h>
+#import <libotr/message.h>
+// clang-format on
 
 @interface ESOTRFingerprintDetailsWindowController ()
 - (id)initWithWindowNibName:(NSString *)windowNibName forFingerprintDict:(NSDictionary *)inFingerprintDict;

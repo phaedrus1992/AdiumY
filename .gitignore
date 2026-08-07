@@ -1,6 +1,7 @@
 syntax: glob
 .DS_Store
 .tmp/
+.env
 *.mode*
 *.pbxuser
 *.perspectivev3
@@ -137,3 +138,9 @@ Dependencies/sandbox-*/
 
 # XEP-0393 test binary
 Tests/MessageStylingTest
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/test_output/
+fastlane/README.md
