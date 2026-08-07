@@ -64,9 +64,14 @@
 												 name:AIApplicationDidFinishLoadingNotification
 											   object:nil];
 
-	[AISortController registerSortController:[[AIAlphabeticalSort alloc] init]];
-	[AISortController registerSortController:[[ESStatusSort alloc] init]];
-	[AISortController registerSortController:[[AIManualSort alloc] init]];
+	sortController_alphabetical = [[AIAlphabeticalSort alloc] init];
+	[AISortController registerSortController:sortController_alphabetical];
+
+	sortController_status = [[ESStatusSort alloc] init];
+	[AISortController registerSortController:sortController_status];
+
+	sortController_manual = [[AIManualSort alloc] init];
+	[AISortController registerSortController:sortController_manual];
 }
 
 /*!
@@ -78,6 +83,26 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self
 													name:AIApplicationDidFinishLoadingNotification
 												  object:nil];
+
+	// Remove the sort-selection menu items _configureSortSelectionMenuItems added (menu item
+	// removal is nil-safe, so a never-launched plugin is handled too).
+	for (NSMenuItem *menuItem in sortSelectionMenuItems) {
+		[adium.menuController removeMenuItem:menuItem];
+	}
+	sortSelectionMenuItems = nil;
+
+	[adium.menuController removeMenuItem:menuItem_configureSort];
+	menuItem_configureSort = nil;
+
+	// Unregister the sort controllers installPlugin registered so an uninstalled plugin leaks none.
+	[AISortController unregisterSortController:sortController_alphabetical];
+	sortController_alphabetical = nil;
+
+	[AISortController unregisterSortController:sortController_status];
+	sortController_status = nil;
+
+	[AISortController unregisterSortController:sortController_manual];
+	sortController_manual = nil;
 }
 
 /*!
@@ -125,6 +150,9 @@
 {
 	// Create the menu
 
+	// Retain the per-controller items so uninstallPlugin can remove exactly what was added.
+	sortSelectionMenuItems = [[NSMutableArray alloc] init];
+
 	// Add each sort controller
 	for (AISortController *controller in [AISortController availableSortControllers]) {
 		NSMenuItem *menuItem;
@@ -137,6 +165,7 @@
 
 		// Add the menu item
 		[adium.menuController addMenuItem:menuItem toLocation:LOC_View_Sorting];
+		[sortSelectionMenuItems addObject:menuItem];
 	}
 
 	// Add the menu item for configuring the sort

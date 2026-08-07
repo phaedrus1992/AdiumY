@@ -18,7 +18,9 @@
 #import <AdiumY/AIContactControllerProtocol.h>
 #import <AdiumY/AIListContact.h>
 #import <AdiumY/AIListGroup.h>
+#import <AdiumY/AISharedAdium.h>
 #import <AdiumY/AISortController.h>
+#import <Cocoa/Cocoa.h>
 
 #define KEY_RESOLVE_ALPHABETICALLY @"Status:Resolve Alphabetically"
 
@@ -58,6 +60,17 @@ static NSMutableArray *sortControllers = nil;
 	if (!sortControllers)
 		sortControllers = [[NSMutableArray alloc] init];
 	[sortControllers addObject:newSortController];
+}
+
++ (void)unregisterSortController:(AISortController *)oldSortController
+{
+	// If the controller being unregistered is active, drop it so nothing later messages a
+	// deallocated sort controller after the plugin that registered it is uninstalled.
+	if (oldSortController == activeSortController) {
+		activeSortController = nil;
+	}
+
+	[sortControllers removeObject:oldSortController];
 }
 
 + (NSArray *)availableSortControllers

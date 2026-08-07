@@ -40,6 +40,7 @@ typedef struct {
 + (void)setActiveSortController:(AISortController *)newSortController;
 + (AISortController *)activeSortController;
 + (void)registerSortController:(AISortController *)newSortController;
++ (void)unregisterSortController:(AISortController *)oldSortController;
 + (NSArray *)availableSortControllers;
 
 - (BOOL)shouldSortForModifiedStatusKeys:(NSSet *)inModifiedKeys;
