@@ -16,7 +16,9 @@
 
 #import <AdiumY/AIAccountMenu.h>
 #import <AdiumY/AIContactObserverManager.h>
+#import <AdiumY/AIPlugin.h>
 #import <AdiumY/AIStatusMenu.h>
+#import <Cocoa/Cocoa.h>
 
 @interface AIStateMenuPlugin : AIPlugin <AIListObjectObserver, AIAccountMenuDelegate, AIStatusMenuDelegate> {
 	NSMenuItem *dockStatusMenuRoot;

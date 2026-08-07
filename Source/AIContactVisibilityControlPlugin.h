@@ -16,6 +16,8 @@
 
 #import <AdiumY/AIAccountMenu.h>
 #import <AdiumY/AIContactControllerProtocol.h>
+#import <AdiumY/AIPlugin.h>
+#import <Cocoa/Cocoa.h>
 
 @interface AIContactVisibilityControlPlugin : AIPlugin <AIAccountMenuDelegate, NSMenuDelegate> {
 	NSMenuItem *menuItem_hideContacts;

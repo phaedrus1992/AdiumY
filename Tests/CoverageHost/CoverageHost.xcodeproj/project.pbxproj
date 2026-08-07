@@ -605,6 +605,138 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
+		<key>3E57FBD4EE1C5BABBC59F1F7</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/AIChatConsolidationPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>CA87E761DB125D38A2EC8B82</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/AINewMessagePanelPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>D13DFE89D4CD5B46BF4C1056</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/DCJoinChatPanelPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>4EABC3D7625C512BB6619793</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/Invite to Chat Plugin/DCInviteToChatPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>D8A739BC0FC156E8AC1B0A8F</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/ESStatusPreferencesPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>26B1DF7ACC3A516FBC89D9A6</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/AIStateMenuPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>7D74AE23F93959229F5381AE</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/AIContactIdlePlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>147EB995A8845A0F8C75B076</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/AIContactVisibilityControlPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>D8888EB443CD5C5FB43D5E47</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestMenuPluginUninstall.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>2E6AA103A40452818E78948E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAIStateMenuPluginUninstall.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>289009956E08566FB3255E3B</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAIContactIdlePluginUninstall.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>E690A34652BD53EC8A4B3A3E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAIContactVisibilityControlPluginUninstall.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
 		<key>1041C5FC221D577F8FF36681</key>
 		<dict>
 			<key>isa</key>
@@ -724,6 +856,18 @@
 				<string>DB575F80636F5301BADAB37F</string>
 				<string>6393ED63D97A5091BA577D0F</string>
 				<string>ABF5B93723D45B538879C9F5</string>
+				<string>38574E407D7A5F9783DCC0D9</string>
+				<string>AC47A308A0E2568E937161BE</string>
+				<string>78DD20B65428590BA8561200</string>
+				<string>95D837EC8A7750B7AFBA2408</string>
+				<string>7467FAC443505A5A81DD7E15</string>
+				<string>09486639C3135A019E8E251D</string>
+				<string>4210B04D02AB5BA49AC529D5</string>
+				<string>740BCB5C9EE856968EC5CC60</string>
+				<string>5394BB2A11D95607B1AE6F02</string>
+				<string>C867703D5EB6575F8C216703</string>
+				<string>27DA83BB2C9B500F987E550E</string>
+				<string>5F2359C731FA50C099885455</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
@@ -960,6 +1104,90 @@
 			<key>fileRef</key>
 			<string>19CB2B45B4DD586482D53023</string>
 		</dict>
+		<key>38574E407D7A5F9783DCC0D9</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>3E57FBD4EE1C5BABBC59F1F7</string>
+		</dict>
+		<key>AC47A308A0E2568E937161BE</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>CA87E761DB125D38A2EC8B82</string>
+		</dict>
+		<key>78DD20B65428590BA8561200</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>D13DFE89D4CD5B46BF4C1056</string>
+		</dict>
+		<key>95D837EC8A7750B7AFBA2408</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>4EABC3D7625C512BB6619793</string>
+		</dict>
+		<key>7467FAC443505A5A81DD7E15</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>D8A739BC0FC156E8AC1B0A8F</string>
+		</dict>
+		<key>09486639C3135A019E8E251D</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>26B1DF7ACC3A516FBC89D9A6</string>
+		</dict>
+		<key>4210B04D02AB5BA49AC529D5</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>7D74AE23F93959229F5381AE</string>
+		</dict>
+		<key>740BCB5C9EE856968EC5CC60</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>147EB995A8845A0F8C75B076</string>
+		</dict>
+		<key>5394BB2A11D95607B1AE6F02</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>D8888EB443CD5C5FB43D5E47</string>
+		</dict>
+		<key>C867703D5EB6575F8C216703</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>2E6AA103A40452818E78948E</string>
+		</dict>
+		<key>27DA83BB2C9B500F987E550E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>289009956E08566FB3255E3B</string>
+		</dict>
+		<key>5F2359C731FA50C099885455</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>E690A34652BD53EC8A4B3A3E</string>
+		</dict>
 		<key>DE7B656C24B85237B361EB6C</key>
 		<dict>
 			<key>isa</key>
@@ -1188,6 +1416,8 @@
 					<string>$(SRCROOT)/../../UnitTests</string>
 					<string>"$(SRCROOT)/../../Plugins/WebKit Message View"</string>
 					<string>"$(SRCROOT)/../../Plugins/Error Message Handler"</string>
+					<string>"$(SRCROOT)/../../Plugins/Invite to Chat Plugin"</string>
+					<string>"$(SRCROOT)/../../Plugins/Dual Window Interface"</string>
 					<string>$(SRCROOT)/../../Frameworks/Adium/Source</string>
 					<string>$(SRCROOT)/../../Plugins/Bonjour/libezv/Classes</string>
 					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"</string>
@@ -1195,7 +1425,7 @@
 					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Simple HTTP Server"</string>
 				</array>
 				<key>GCC_PREFIX_HEADER</key>
-				<string></string>
+				<string>CoverageHostTests.pch</string>
 				<key>INFOPLIST_FILE</key>
 				<string>CoverageHostTests-Info.plist</string>
 				<key>INSTALL_PATH</key>
@@ -1248,6 +1478,8 @@
 					<string>$(SRCROOT)/../../UnitTests</string>
 					<string>"$(SRCROOT)/../../Plugins/WebKit Message View"</string>
 					<string>"$(SRCROOT)/../../Plugins/Error Message Handler"</string>
+					<string>"$(SRCROOT)/../../Plugins/Invite to Chat Plugin"</string>
+					<string>"$(SRCROOT)/../../Plugins/Dual Window Interface"</string>
 					<string>$(SRCROOT)/../../Frameworks/Adium/Source</string>
 					<string>$(SRCROOT)/../../Plugins/Bonjour/libezv/Classes</string>
 					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"</string>
@@ -1255,7 +1487,7 @@
 					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Simple HTTP Server"</string>
 				</array>
 				<key>GCC_PREFIX_HEADER</key>
-				<string></string>
+				<string>CoverageHostTests.pch</string>
 				<key>INFOPLIST_FILE</key>
 				<string>CoverageHostTests-Info.plist</string>
 				<key>INSTALL_PATH</key>

@@ -17,6 +17,7 @@
 #import "AIContactIdlePlugin.h"
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIDateFormatterAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIContactControllerProtocol.h>
 #import <AdiumY/AIInterfaceControllerProtocol.h>
 #import <AdiumY/AIListObject.h>
@@ -58,6 +59,7 @@
 	[adium.interfaceController unregisterContactListTooltipEntry:self secondaryEntry:YES];
 
 	// Stop tracking all idle handles
+	[idleObjectTimer invalidate];
 	idleObjectTimer = nil;
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 }

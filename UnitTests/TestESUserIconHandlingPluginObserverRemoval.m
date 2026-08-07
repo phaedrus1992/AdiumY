@@ -14,6 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import <AdiumY/AIContactObserverManager.h>
 #import <XCTest/XCTest.h>
 
 /*
@@ -52,6 +53,22 @@ id<AIAdium> adium = nil;
 + (id)serviceIconForObject:(id)inObject type:(NSInteger)iconType direction:(NSInteger)direction
 {
 	return nil;
+}
+@end
+
+/*
+ * AIContactObserverManager is the real class — its implementation lives in Adium.framework, which the
+ * standalone test target does not link, so this TU provides the class's +sharedManager. It returns the
+ * AIObserverManagerSharedMock slot, which each teardown test sets to a recording mock for the duration
+ * of the test. Kept here (rather than in the CB test file) so the teardown test files share one
+ * definition without duplicate-symbol conflicts.
+ */
+id AIObserverManagerSharedMock = nil;
+
+@implementation AIContactObserverManager
++ (AIContactObserverManager *)sharedManager
+{
+	return (AIContactObserverManager *)AIObserverManagerSharedMock;
 }
 @end
 

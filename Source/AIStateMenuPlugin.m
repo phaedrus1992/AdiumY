@@ -16,6 +16,7 @@
 
 #import "AIStateMenuPlugin.h"
 #import <AIUtilities/AIMenuAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIAccountControllerProtocol.h>
 #import <AdiumY/AIEditStateWindowController.h>
@@ -80,6 +81,9 @@
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[adium.menuController removeMenuItem:dockStatusMenuRoot];
+
+	// Unregister the list-object observer installPlugin registered.
+	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 
 	accountMenu = nil;
 	statusMenu = nil;

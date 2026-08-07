@@ -18,6 +18,7 @@
 #import "AIListBookmark.h"
 #import "DCInviteToChatWindowController.h"
 #import <AIUtilities/AIMenuAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIChat.h>
 #import <AdiumY/AIContactControllerProtocol.h>
@@ -53,6 +54,16 @@
 															  action:@selector(dummyTarget:)
 													   keyEquivalent:@""];
 	[adium.menuController addContextualMenuItem:menuItem_inviteToChatContext toLocation:Context_Contact_Action];
+}
+
+- (void)uninstallPlugin
+{
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:menuItem_inviteToChat];
+	menuItem_inviteToChat = nil;
+
+	[adium.menuController removeContextualMenuItem:menuItem_inviteToChatContext];
+	menuItem_inviteToChatContext = nil;
 }
 
 // Validate our menu items

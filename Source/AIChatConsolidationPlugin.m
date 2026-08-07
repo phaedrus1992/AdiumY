@@ -22,6 +22,7 @@
 #import <AdiumY/AIMenuControllerProtocol.h>
 
 #import <AIUtilities/AIMenuAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 
 #define CONSOLIDATE_CHATS_MENU_TITLE AILocalizedString(@"Consolidate Chats", nil)
 #define NEW_TAB_MENU_TITLE AILocalizedString(@"Move Chat to New Window", nil)
@@ -55,6 +56,19 @@
 												  action:@selector(moveChatToNewWindow:)
 										   keyEquivalent:@""];
 	[adium.menuController addMenuItem:newWndowMenuItem toLocation:LOC_Window_Commands];
+}
+
+/*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:consolidateMenuItem];
+	consolidateMenuItem = nil;
+
+	[adium.menuController removeMenuItem:newWndowMenuItem];
+	newWndowMenuItem = nil;
 }
 
 /*!

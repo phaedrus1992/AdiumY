@@ -21,7 +21,9 @@
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 
 #define STATUS_DEFAULT_PREFS @"StatusDefaults"
 
@@ -42,8 +44,6 @@
  */
 - (void)installPlugin
 {
-	NSMenuItem *menuItem;
-
 	// Install our preference view
 	preferences = (ESStatusPreferences *)[ESStatusPreferences preferencePaneForPlugin:self];
 	advancedPreferences = (ESStatusAdvancedPreferences *)[ESStatusAdvancedPreferences preferencePaneForPlugin:self];
@@ -59,6 +59,16 @@
 	[adium.preferenceController registerDefaults:[NSDictionary dictionaryNamed:STATUS_DEFAULT_PREFS
 																	  forClass:[self class]]
 										forGroup:PREF_GROUP_STATUS_PREFERENCES];
+}
+
+/*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Remove the menu item installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:menuItem];
+	menuItem = nil;
 }
 
 /*!

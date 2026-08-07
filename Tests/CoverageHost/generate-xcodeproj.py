@@ -69,6 +69,20 @@ for k in [
     "ezvTransferFileRef", "ezvTransferHeaderRef", "ezvTransferBuildFile",
     "ezvTestFileRef", "ezvTestBuildFile",
 
+    # Plugin-uninstall teardown plugins + tests (#212-#215)
+    "chatConsolPluginFileRef", "chatConsolPluginBuildFile",
+    "newMsgPluginFileRef", "newMsgPluginBuildFile",
+    "joinChatPluginFileRef", "joinChatPluginBuildFile",
+    "invitePluginFileRef", "invitePluginBuildFile",
+    "statusPrefsPluginFileRef", "statusPrefsPluginBuildFile",
+    "stateMenuPluginFileRef", "stateMenuPluginBuildFile",
+    "idlePluginFileRef", "idlePluginBuildFile",
+    "visibilityPluginFileRef", "visibilityPluginBuildFile",
+    "menuPluginTestFileRef", "menuPluginTestBuildFile",
+    "stateMenuPluginTestFileRef", "stateMenuPluginTestBuildFile",
+    "idlePluginTestFileRef", "idlePluginTestBuildFile",
+    "visibilityPluginTestFileRef", "visibilityPluginTestBuildFile",
+
     # Frameworks
     "xctestFwkRef", "xctestFwkBuildFile",
     "aiutilitiesFwkRef", "aiutilitiesFwkBuildFile",
@@ -407,6 +421,81 @@ objects = {
         "sourceTree": "<group>",
     },
 
+    # Plugin-uninstall teardown plugins (#212-#215). DCInviteToChatPlugin lives in its plugin
+    # bundle directory; the other seven under Source/.
+    H["chatConsolPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIChatConsolidationPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["newMsgPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AINewMessagePanelPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["joinChatPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/DCJoinChatPanelPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["invitePluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Invite to Chat Plugin/DCInviteToChatPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["statusPrefsPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/ESStatusPreferencesPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["stateMenuPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIStateMenuPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["idlePluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIContactIdlePlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["visibilityPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIContactVisibilityControlPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["menuPluginTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestMenuPluginUninstall.m",
+        "sourceTree": "<group>",
+    },
+    H["stateMenuPluginTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestAIStateMenuPluginUninstall.m",
+        "sourceTree": "<group>",
+    },
+    H["idlePluginTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestAIContactIdlePluginUninstall.m",
+        "sourceTree": "<group>",
+    },
+    H["visibilityPluginTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestAIContactVisibilityControlPluginUninstall.m",
+        "sourceTree": "<group>",
+    },
+
     H["xctestFwkRef"]: {
         "isa": "PBXFileReference",
         "lastKnownFileType": "wrapper.framework",
@@ -473,7 +562,13 @@ objects = {
                   H["sortCtrlBuildFile"], H["sortCtrlTestBuildFile"],
                   H["lastSeenPluginBuildFile"], H["lastSeenPluginTestBuildFile"],
                   H["ezvIncomingBuildFile"], H["ezvTransferBuildFile"],
-                  H["ezvTestBuildFile"]],
+                  H["ezvTestBuildFile"],
+                  H["chatConsolPluginBuildFile"], H["newMsgPluginBuildFile"],
+                  H["joinChatPluginBuildFile"], H["invitePluginBuildFile"],
+                  H["statusPrefsPluginBuildFile"], H["stateMenuPluginBuildFile"],
+                  H["idlePluginBuildFile"], H["visibilityPluginBuildFile"],
+                  H["menuPluginTestBuildFile"], H["stateMenuPluginTestBuildFile"],
+                  H["idlePluginTestBuildFile"], H["visibilityPluginTestBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
     H["testFrameworksPhase"]: {
@@ -516,6 +611,18 @@ objects = {
     H["ezvIncomingBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["ezvIncomingFileRef"]},
     H["ezvTransferBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["ezvTransferFileRef"]},
     H["ezvTestBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["ezvTestFileRef"]},
+    H["chatConsolPluginBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["chatConsolPluginFileRef"]},
+    H["newMsgPluginBuildFile"]:         {"isa": "PBXBuildFile", "fileRef": H["newMsgPluginFileRef"]},
+    H["joinChatPluginBuildFile"]:       {"isa": "PBXBuildFile", "fileRef": H["joinChatPluginFileRef"]},
+    H["invitePluginBuildFile"]:         {"isa": "PBXBuildFile", "fileRef": H["invitePluginFileRef"]},
+    H["statusPrefsPluginBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["statusPrefsPluginFileRef"]},
+    H["stateMenuPluginBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["stateMenuPluginFileRef"]},
+    H["idlePluginBuildFile"]:           {"isa": "PBXBuildFile", "fileRef": H["idlePluginFileRef"]},
+    H["visibilityPluginBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["visibilityPluginFileRef"]},
+    H["menuPluginTestBuildFile"]:       {"isa": "PBXBuildFile", "fileRef": H["menuPluginTestFileRef"]},
+    H["stateMenuPluginTestBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["stateMenuPluginTestFileRef"]},
+    H["idlePluginTestBuildFile"]:       {"isa": "PBXBuildFile", "fileRef": H["idlePluginTestFileRef"]},
+    H["visibilityPluginTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["visibilityPluginTestFileRef"]},
 
     # ── Target Dependency ───────────────────────────────────────
     H["testTargetDep"]: {
@@ -655,13 +762,17 @@ objects = {
                 "$(SRCROOT)/../../UnitTests",
                 '"$(SRCROOT)/../../Plugins/WebKit Message View"',
                 '"$(SRCROOT)/../../Plugins/Error Message Handler"',
+                '"$(SRCROOT)/../../Plugins/Invite to Chat Plugin"',
+                '"$(SRCROOT)/../../Plugins/Dual Window Interface"',
                 "$(SRCROOT)/../../Frameworks/Adium/Source",
                 "$(SRCROOT)/../../Plugins/Bonjour/libezv/Classes",
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"',
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Private Classes"',
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Simple HTTP Server"',
             ),
-            "GCC_PREFIX_HEADER": "",
+            # Real Adium headers rely on Adium.pch for Cocoa/Foundation; restore that
+            # invariant for the harness (clang-format orders <AdiumY/...> before <Cocoa/...>).
+            "GCC_PREFIX_HEADER": "CoverageHostTests.pch",
             "INFOPLIST_FILE": "CoverageHostTests-Info.plist",
             "INSTALL_PATH": "$(LOCAL_LIBRARY_DIR)/Bundles",
             "LD_RUNPATH_SEARCH_PATHS": (
@@ -696,13 +807,17 @@ objects = {
                 "$(SRCROOT)/../../UnitTests",
                 '"$(SRCROOT)/../../Plugins/WebKit Message View"',
                 '"$(SRCROOT)/../../Plugins/Error Message Handler"',
+                '"$(SRCROOT)/../../Plugins/Invite to Chat Plugin"',
+                '"$(SRCROOT)/../../Plugins/Dual Window Interface"',
                 "$(SRCROOT)/../../Frameworks/Adium/Source",
                 "$(SRCROOT)/../../Plugins/Bonjour/libezv/Classes",
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"',
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Private Classes"',
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Simple HTTP Server"',
             ),
-            "GCC_PREFIX_HEADER": "",
+            # Real Adium headers rely on Adium.pch for Cocoa/Foundation; restore that
+            # invariant for the harness (clang-format orders <AdiumY/...> before <Cocoa/...>).
+            "GCC_PREFIX_HEADER": "CoverageHostTests.pch",
             "INFOPLIST_FILE": "CoverageHostTests-Info.plist",
             "INSTALL_PATH": "$(LOCAL_LIBRARY_DIR)/Bundles",
             "LD_RUNPATH_SEARCH_PATHS": (
