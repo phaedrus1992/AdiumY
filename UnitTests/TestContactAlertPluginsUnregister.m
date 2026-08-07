@@ -30,6 +30,8 @@
 #import "NEHUserNotificationPlugin.h"
 #import "SMContactListShowBehaviorPlugin.h"
 
+@class AIPlugin;
+
 /*
  * Link shims for the standalone test target. Each plugin TU sends a class message to its details
  * pane and/or data classes (e.g. [ESSendMessageAlertDetailPane actionDetailsPane]), which emits
@@ -140,30 +142,60 @@ void AILogWithSignature_impl(const char *function, int line, NSString *format, .
 @end
 
 /*
- * The contact-alert plugins reach through `adium` for several controllers during install; every
- * accessor beyond contactAlertsController must return nil (not crash), since the plugins only
- * call into the real controllers on code paths the tests do not exercise.
+ * The contact-alert plugins reach through `adium` for several controllers during install and uninstall.
+ * contactAlertsController is always a recording mock; preferenceController and chatController default to
+ * nil (unset) but a test can inject recording mocks to observe the Dock overlay's observer teardown.
+ * soundController and interfaceController must return nil (not crash) — the plugins only call into the
+ * real controllers on code paths the tests do not exercise.
  */
+@interface ContactAlertsMockPreferenceController : NSObject
+@property(nonatomic, assign) NSUInteger unregisterObserverCount;
+
+- (void)registerPreferenceObserver:(id)observer forGroup:(NSString *)group;
+- (void)unregisterPreferenceObserver:(id)observer;
+@end
+
+@implementation ContactAlertsMockPreferenceController
+- (void)registerPreferenceObserver:(id)observer forGroup:(NSString *)group
+{
+	// No-op: installPlugin registers appearance/list-theme observers; uninstall is what this records.
+}
+
+- (void)unregisterPreferenceObserver:(id)observer
+{
+	_unregisterObserverCount++;
+}
+@end
+
+@interface ContactAlertsMockChatController : NSObject
+@property(nonatomic, assign) NSUInteger unregisterObserverCount;
+
+- (void)registerChatObserver:(id)observer;
+- (void)unregisterChatObserver:(id)observer;
+@end
+
+@implementation ContactAlertsMockChatController
+- (void)registerChatObserver:(id)observer
+{
+	// No-op: installPlugin registers as a chat observer; uninstall is what this records.
+}
+
+- (void)unregisterChatObserver:(id)observer
+{
+	_unregisterObserverCount++;
+}
+@end
+
 @interface ContactAlertsMockAdium : NSObject
 @property(nonatomic, strong) ContactAlertsMockController *contactAlertsController;
+@property(nonatomic, strong) ContactAlertsMockPreferenceController *preferenceController;
+@property(nonatomic, strong) ContactAlertsMockChatController *chatController;
 
-- (id)preferenceController;
-- (id)chatController;
 - (id)soundController;
 - (id)interfaceController;
 @end
 
 @implementation ContactAlertsMockAdium
-- (id)preferenceController
-{
-	return nil;
-}
-
-- (id)chatController
-{
-	return nil;
-}
-
 - (id)soundController
 {
 	return nil;
@@ -258,15 +290,33 @@ void AILogWithSignature_impl(const char *function, int line, NSString *format, .
 		unregistersActionIDs:@[ USER_NOTIFICATION_ALERT_IDENTIFIER ]];
 }
 
-- (void)testSendMessageContactAlertPluginUnregistersItsAction
+- (void)testSendMessageContactAlertPluginUnregistersItsActionAndClearsMessageState
 {
-	[self assertPlugin:[[ESSendMessageContactAlertPlugin alloc] init]
-		  registersActionIDs:@[ @"SendMessage" ]
-		unregistersActionIDs:@[ @"SendMessage" ]];
+	ESSendMessageContactAlertPlugin *plugin = [[ESSendMessageContactAlertPlugin alloc] init];
+	ContactAlertsMockController *mockController = [[ContactAlertsMockController alloc] init];
+	ContactAlertsMockAdium *mockAdium = [[ContactAlertsMockAdium alloc] init];
+	[mockAdium setContactAlertsController:mockController];
+
+	id<AIAdium> savedAdium = adium;
+	adium = (id<AIAdium>)mockAdium;
+	@try {
+		[plugin installPlugin];
+		XCTAssertEqualObjects([mockController registeredActionIDs], @[ @"SendMessage" ],
+							  @"sanity: installPlugin registered the literal action ID it uninstalls");
+		[plugin uninstallPlugin];
+		XCTAssertEqualObjects([mockController unregisteredActionIDs], @[ @"SendMessage" ],
+							  @"uninstallPlugin must unregister the literal action ID installPlugin registered");
+		XCTAssertNil([plugin valueForKey:@"attributes"],
+					 @"uninstallPlugin must drop the message-attributes ivar it holds");
+	} @finally {
+		adium = savedAdium;
+	}
 }
 
 - (void)testContactListShowBehaviorPluginUnregistersItsAction
 {
+	// uninstallPlugin also calls cancelPreviousPerformRequestsWithTarget:, which schedules nothing in this
+	// harness and so is not observable through the mock — the action unregistration is what this pins down.
 	[self assertPlugin:[[SMContactListShowBehaviorPlugin alloc] init]
 		  registersActionIDs:@[ SHOW_CONTACT_LIST_BEHAVIOR_ALERT_IDENTIFIER ]
 		unregistersActionIDs:@[ SHOW_CONTACT_LIST_BEHAVIOR_ALERT_IDENTIFIER ]];
@@ -277,6 +327,39 @@ void AILogWithSignature_impl(const char *function, int line, NSString *format, .
 	[self assertPlugin:[[AIDockNameOverlay alloc] init]
 		  registersActionIDs:@[ DOCK_OVERLAY_ALERT_IDENTIFIER ]
 		unregistersActionIDs:@[ DOCK_OVERLAY_ALERT_IDENTIFIER ]];
+}
+
+// installPlugin registers dock-overlay preference and chat observers in addition to the action;
+// uninstallPlugin must drop all three. The list-object observer is a shared singleton with no mock
+// seam, so it is not asserted here.
+- (void)testDockNameOverlayUnregistersItsActionAndObservers
+{
+	ContactAlertsMockController *mockController = [[ContactAlertsMockController alloc] init];
+	ContactAlertsMockPreferenceController *mockPreferenceController =
+		[[ContactAlertsMockPreferenceController alloc] init];
+	ContactAlertsMockChatController *mockChatController = [[ContactAlertsMockChatController alloc] init];
+	ContactAlertsMockAdium *mockAdium = [[ContactAlertsMockAdium alloc] init];
+	[mockAdium setContactAlertsController:mockController];
+	[mockAdium setPreferenceController:mockPreferenceController];
+	[mockAdium setChatController:mockChatController];
+
+	id<AIAdium> savedAdium = adium;
+	adium = (id<AIAdium>)mockAdium;
+	@try {
+		AIDockNameOverlay *plugin = [[AIDockNameOverlay alloc] init];
+		[plugin installPlugin];
+		XCTAssertEqualObjects([mockController registeredActionIDs], @[ DOCK_OVERLAY_ALERT_IDENTIFIER ],
+							  @"sanity: installPlugin registered the dock overlay action");
+		[plugin uninstallPlugin];
+		XCTAssertEqualObjects([mockController unregisteredActionIDs], @[ DOCK_OVERLAY_ALERT_IDENTIFIER ],
+							  @"uninstallPlugin must unregister the dock overlay action");
+		XCTAssertEqual([mockPreferenceController unregisterObserverCount], (NSUInteger)1,
+					   @"uninstallPlugin must unregister the dock overlay preference observer");
+		XCTAssertEqual([mockChatController unregisterObserverCount], (NSUInteger)1,
+					   @"uninstallPlugin must unregister the dock overlay chat observer");
+	} @finally {
+		adium = savedAdium;
+	}
 }
 
 @end
