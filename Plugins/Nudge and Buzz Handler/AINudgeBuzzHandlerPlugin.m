@@ -125,6 +125,13 @@
 	// content.
 	[adium.contentController unregisterContentFilter:self];
 
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:notifyMenuItem];
+	notifyMenuItem = nil;
+
+	[adium.menuController removeContextualMenuItem:notifyContextualMenuItem];
+	notifyContextualMenuItem = nil;
+
 	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
 	if (registeredToolbarItem != nil) {
 		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"MessageWindow"];

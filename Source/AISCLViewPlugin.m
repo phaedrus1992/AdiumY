@@ -98,7 +98,8 @@
 	[adium.menuController addContextualMenuItem:detachMenuItem toLocation:Context_Group_AttachDetach];
 
 	// Control detached groups menu
-	[adium.menuController addMenuItem:[NSMenuItem separatorItem] toLocation:LOC_Window_Commands];
+	separatorItem = [NSMenuItem separatorItem];
+	[adium.menuController addMenuItem:separatorItem toLocation:LOC_Window_Commands];
 
 	menuItem_consolidate =
 		[[NSMenuItem alloc] initWithTitle:AILocalizedString(@"Consolidate Detached Groups", "menu item title")
@@ -149,6 +150,25 @@
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeContextualMenuItem:attachMenuItem];
+	attachMenuItem = nil;
+
+	[adium.menuController removeContextualMenuItem:detachMenuItem];
+	detachMenuItem = nil;
+
+	[adium.menuController removeMenuItem:separatorItem];
+	separatorItem = nil;
+
+	[adium.menuController removeMenuItem:menuItem_consolidate];
+	menuItem_consolidate = nil;
+
+	[adium.menuController removeMenuItem:menuItem_nextDetached];
+	menuItem_nextDetached = nil;
+
+	[adium.menuController removeMenuItem:menuItem_previousDetached];
+	menuItem_previousDetached = nil;
 }
 
 - (void)dealloc

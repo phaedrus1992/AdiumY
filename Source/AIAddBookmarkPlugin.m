@@ -74,6 +74,12 @@
 
 - (void)uninstallPlugin
 {
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:addBookmarkMenuItem];
+	addBookmarkMenuItem = nil;
+
+	[adium.menuController removeContextualMenuItem:addBookmarkContextMenuItem];
+	addBookmarkContextMenuItem = nil;
 
 	[adium.toolbarController unregisterToolbarItem:addBookmarkToolbarItem forToolbarType:@"MessageWindow"];
 }

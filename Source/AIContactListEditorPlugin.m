@@ -75,7 +75,6 @@
  */
 - (void)installPlugin
 {
-	NSMenuItem *menuItem;
 	NSToolbarItem *toolbarItem;
 
 	// Add Contact
@@ -116,11 +115,11 @@
 										  keyEquivalent:@"\b"];
 	[adium.menuController addMenuItem:menuItem_delete toLocation:LOC_Contact_Manage];
 
-	menuItem = [[NSMenuItem alloc] initWithTitle:DELETE_CONTACT_CONTEXT_ELLIPSIS
-										  target:self
-										  action:@selector(deleteSelectionFromTab:)
-								   keyEquivalent:@""];
-	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_Contact_NegativeAction];
+	menuItem_deleteContext = [[NSMenuItem alloc] initWithTitle:DELETE_CONTACT_CONTEXT_ELLIPSIS
+														target:self
+														action:@selector(deleteSelectionFromTab:)
+												 keyEquivalent:@""];
+	[adium.menuController addContextualMenuItem:menuItem_deleteContext toLocation:Context_Contact_NegativeAction];
 
 	// Add Contact toolbar item
 	toolbarItem = [AIToolbarUtilities toolbarItemWithIdentifier:ADD_CONTACT_IDENTIFIER
@@ -144,6 +143,25 @@
 - (void)uninstallPlugin
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:menuItem_addContact];
+	menuItem_addContact = nil;
+
+	[adium.menuController removeContextualMenuItem:menuItem_addContactContext];
+	menuItem_addContactContext = nil;
+
+	[adium.menuController removeContextualMenuItem:menuItem_tabAddContact];
+	menuItem_tabAddContact = nil;
+
+	[adium.menuController removeMenuItem:menuItem_addGroup];
+	menuItem_addGroup = nil;
+
+	[adium.menuController removeMenuItem:menuItem_delete];
+	menuItem_delete = nil;
+
+	[adium.menuController removeContextualMenuItem:menuItem_deleteContext];
+	menuItem_deleteContext = nil;
 
 	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
 	if (registeredToolbarItem != nil) {

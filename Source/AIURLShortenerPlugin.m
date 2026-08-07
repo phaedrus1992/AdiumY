@@ -39,31 +39,29 @@
 
 - (void)installPlugin
 {
-	NSMenuItem *menuItem;
-
 	NSMenu *shortenerSubMenu = [[NSMenu alloc] init];
 	[shortenerSubMenu setDelegate:self];
 
 	// Edit menu
-	menuItem = [[NSMenuItem alloc] initWithTitle:SHORTEN_LINK_TITLE
-										  target:self
-										  action:@selector(shortenLink)
-								   keyEquivalent:@"K"
-										 keyMask:NSEventModifierFlagCommand];
+	menuItem_shortenLink = [[NSMenuItem alloc] initWithTitle:SHORTEN_LINK_TITLE
+													  target:self
+													  action:@selector(shortenLink)
+											   keyEquivalent:@"K"
+													 keyMask:NSEventModifierFlagCommand];
 
-	[menuItem setSubmenu:shortenerSubMenu];
+	[menuItem_shortenLink setSubmenu:shortenerSubMenu];
 
-	[adium.menuController addMenuItem:menuItem toLocation:LOC_Edit_Links];
+	[adium.menuController addMenuItem:menuItem_shortenLink toLocation:LOC_Edit_Links];
 
 	// Context menu
-	menuItem = [[NSMenuItem alloc] initWithTitle:SHORTEN_LINK_TITLE
-										  target:self
-										  action:@selector(shortenLink)
-								   keyEquivalent:@""];
+	menuItem_shortenLinkContext = [[NSMenuItem alloc] initWithTitle:SHORTEN_LINK_TITLE
+															 target:self
+															 action:@selector(shortenLink)
+													  keyEquivalent:@""];
 
-	[menuItem setSubmenu:[shortenerSubMenu copy]];
+	[menuItem_shortenLinkContext setSubmenu:[shortenerSubMenu copy]];
 
-	[adium.menuController addContextualMenuItem:menuItem toLocation:Context_TextView_Edit];
+	[adium.menuController addContextualMenuItem:menuItem_shortenLinkContext toLocation:Context_TextView_Edit];
 
 	[adium.preferenceController registerPreferenceObserver:self forGroup:PREF_GROUP_FORMATTING];
 }
@@ -71,6 +69,13 @@
 - (void)uninstallPlugin
 {
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:menuItem_shortenLink];
+	menuItem_shortenLink = nil;
+
+	[adium.menuController removeContextualMenuItem:menuItem_shortenLinkContext];
+	menuItem_shortenLinkContext = nil;
 }
 
 #pragma mark Preferences

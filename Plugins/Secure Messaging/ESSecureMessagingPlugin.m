@@ -80,6 +80,13 @@
 	[adium.chatController unregisterChatObserver:self];
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
+	// Remove the menu items configureMenuItems registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:menuItem_encryption];
+	menuItem_encryption = nil;
+
+	[adium.menuController removeContextualMenuItem:menuItem_encryptionContext];
+	menuItem_encryptionContext = nil;
+
 	// Unregister the toolbar item registerToolbarItem registered, so an uninstalled plugin leaves no dead item behind.
 	if (registeredToolbarItem != nil) {
 		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"MessageWindow"];

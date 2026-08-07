@@ -60,6 +60,25 @@
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeContextualMenuItem:menuItem_getInfoContextualContact];
+	menuItem_getInfoContextualContact = nil;
+
+	[adium.menuController removeContextualMenuItem:menuItem_getInfoContextualGroup];
+	menuItem_getInfoContextualGroup = nil;
+
+	[adium.menuController removeContextualMenuItem:menuItem_getInfoContextualGroupChat];
+	menuItem_getInfoContextualGroupChat = nil;
+
+	[adium.menuController removeMenuItem:menuItem_getInfo];
+	menuItem_getInfo = nil;
+
+	[adium.menuController removeMenuItem:menuItem_getInfoAlternate];
+	menuItem_getInfoAlternate = nil;
+
+	[adium.menuController removeMenuItem:menuItem_getInfoWithPrompt];
+	menuItem_getInfoWithPrompt = nil;
+
 	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
 	if (registeredToolbarItem != nil) {
 		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"ListObject"];

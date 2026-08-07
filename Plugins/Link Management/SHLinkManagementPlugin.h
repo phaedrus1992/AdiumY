@@ -20,6 +20,8 @@
 
 @interface SHLinkManagementPlugin : AIPlugin {
 	NSToolbarItem *toolbarItem;
+	NSMenuItem *menuItem_editLink;
+	NSMenuItem *menuItem_editLinkContext;
 }
 
 @end

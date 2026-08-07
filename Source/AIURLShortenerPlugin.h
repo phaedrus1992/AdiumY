@@ -20,6 +20,8 @@ typedef enum { AITinyURL = 0, AIisgd, AIMetamark, AINumberOfShortenLinkServices 
 
 @interface AIURLShortenerPlugin : AIPlugin <NSMenuDelegate> {
 	AIShortenLinkService shortener;
+	NSMenuItem *menuItem_shortenLink;
+	NSMenuItem *menuItem_shortenLinkContext;
 }
 
 @end

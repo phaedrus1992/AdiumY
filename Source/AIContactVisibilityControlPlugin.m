@@ -138,6 +138,31 @@
 - (void)uninstallPlugin
 {
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:menuItem_hideContacts];
+	menuItem_hideContacts = nil;
+
+	[adium.menuController removeMenuItem:menuItem_hideAccountContact];
+	menuItem_hideAccountContact = nil;
+
+	[adium.menuController removeMenuItem:menuItem_hideOffline];
+	menuItem_hideOffline = nil;
+
+	[adium.menuController removeMenuItem:menuItem_hideIdle];
+	menuItem_hideIdle = nil;
+
+	[adium.menuController removeMenuItem:menuItem_hideAway];
+	menuItem_hideAway = nil;
+
+	[adium.menuController removeMenuItem:menuItem_hideMobile];
+	menuItem_hideMobile = nil;
+
+	[adium.menuController removeMenuItem:menuItem_hideBlocked];
+	menuItem_hideBlocked = nil;
+
+	[adium.menuController removeMenuItem:menuItem_useOfflineGroup];
+	menuItem_useOfflineGroup = nil;
 }
 
 /*!
