@@ -36,9 +36,6 @@ jobs:
       - name: Install build tools
         run: brew install meson ninja pkg-config intltool
 
-      - name: Fetch Sparkle framework and CLI tools
-        run: bash Dependencies/build-phases/get-sparkle.sh
-
       - name: Import Developer ID certificate
         env:
           DEVELOPER_ID_P12: ${{ secrets.DEVELOPER_ID_P12 }}

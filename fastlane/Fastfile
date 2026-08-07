@@ -139,6 +139,11 @@ platform :mac do
     UI.message("Building vendored universal dependencies")
     sh("bash", File.join(ROOT, "Dependencies", "build-universal-deps.sh"))
 
+    # Supplies both Sparkle.framework, which the app links against, and the
+    # CLI tools the appcast lane needs.
+    UI.message("Fetching Sparkle")
+    sh("bash", File.join(ROOT, "Dependencies", "build-phases", "get-sparkle.sh"))
+
     UI.message("Building MMTabBarView.framework")
     sh("xcodebuild",
        "-project", File.join(ROOT, "Dependencies/MMTabBarView/MMTabBarView/MMTabBarView.xcodeproj"),
