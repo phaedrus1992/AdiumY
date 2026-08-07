@@ -35,7 +35,7 @@
 	<key>OSAScriptingDefinition</key>
 	<string>Adium.sdef</string>
 	<key>SUFeedURL</key>
-	<string></string>
+	<string>https://raw.githubusercontent.com/phaedrus1992/AdiumY/main/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string></string>
 	<key>UTExportedTypeDeclarations</key>
