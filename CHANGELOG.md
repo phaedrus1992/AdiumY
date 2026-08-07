@@ -8,7 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Add a fastlane release pipeline that builds, Developer ID signs, notarizes
+  and staples AdiumY, packages it as a disk image, and publishes it to GitHub
+  Releases with a signed Sparkle appcast — releases can now be cut from CI on a
+  `v*` tag instead of one maintainer's laptop
 - Add "Save Image As" to the message-view context menu for remote images
+
+### Changed
+- Point the Sparkle update feed at
+  `https://raw.githubusercontent.com/phaedrus1992/AdiumY/main/appcast.xml`;
+  `SUFeedURL` was previously an empty string, so auto-update was linked but
+  never configured
+
+### Removed
+- Remove the pre-fork release tooling in `Release/`. It drove mercurial, signed
+  with a certificate belonging to another team, and depended on `mkalias`,
+  `buildchlog`, and an `AdiumApplescriptRunner` build product that cannot run
+  on any supported macOS
 
 ### Fixed
 - Stop HTML paste from loading remote images embedded in pasted rich text — it
