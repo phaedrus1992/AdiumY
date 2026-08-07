@@ -70,6 +70,13 @@
 {
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 
+	// Invalidate the grouping timers installPlugin scheduled. A pending NSTimer retains its target, so
+	// an uninstalled plugin's timer would otherwise keep firing generateEvent: and triggering alerts.
+	[accountConnectionStatusGroupingOnlineTimer invalidate];
+	accountConnectionStatusGroupingOnlineTimer = nil;
+	[accountConnectionStatusGroupingOfflineTimer invalidate];
+	accountConnectionStatusGroupingOfflineTimer = nil;
+
 	// Unregister the events installPlugin registered so an uninstalled plugin stops generating alerts.
 	[adium.contactAlertsController unregisterEventID:ACCOUNT_CONNECTED];
 	[adium.contactAlertsController unregisterEventID:ACCOUNT_DISCONNECTED];

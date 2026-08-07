@@ -112,4 +112,45 @@
 	}
 }
 
+// installPlugin schedules account-connection grouping timers; an NSTimer retains its target, so a
+// pending timer keeps an uninstalled plugin alive and keeps firing generateEvent: (triggering the
+// user's account alerts). uninstallPlugin must invalidate and release both grouping timers.
+- (void)testUninstallInvalidatesGroupingTimers
+{
+	// Unscheduled timers never fire, so they stay valid until invalidated — exactly the pending state
+	// uninstallPlugin must clear.
+	NSTimer *onlineTimer = [NSTimer timerWithTimeInterval:10.0
+												  target:self
+												selector:@selector(description)
+												userInfo:nil
+												 repeats:NO];
+	NSTimer *offlineTimer = [NSTimer timerWithTimeInterval:10.0
+												   target:self
+												 selector:@selector(description)
+												 userInfo:nil
+												  repeats:NO];
+	XCTAssertTrue([onlineTimer isValid], @"sanity: an unscheduled timer is still valid");
+	XCTAssertTrue([offlineTimer isValid], @"sanity: an unscheduled timer is still valid");
+
+	ESAccountEvents *plugin = [[ESAccountEvents alloc] init];
+	[plugin setValue:onlineTimer forKey:@"accountConnectionStatusGroupingOnlineTimer"];
+	[plugin setValue:offlineTimer forKey:@"accountConnectionStatusGroupingOfflineTimer"];
+
+	AccountEventsMockAdium *mockAdium = [[AccountEventsMockAdium alloc] init];
+	id<AIAdium> savedAdium = adium;
+	adium = (id<AIAdium>)mockAdium;
+	@try {
+		[plugin uninstallPlugin];
+	} @finally {
+		adium = savedAdium;
+	}
+
+	XCTAssertNil([plugin valueForKey:@"accountConnectionStatusGroupingOnlineTimer"],
+				 @"uninstallPlugin must release the pending online grouping timer");
+	XCTAssertNil([plugin valueForKey:@"accountConnectionStatusGroupingOfflineTimer"],
+				 @"uninstallPlugin must release the pending offline grouping timer");
+	XCTAssertFalse([onlineTimer isValid], @"uninstallPlugin must invalidate the online grouping timer");
+	XCTAssertFalse([offlineTimer isValid], @"uninstallPlugin must invalidate the offline grouping timer");
+}
+
 @end
