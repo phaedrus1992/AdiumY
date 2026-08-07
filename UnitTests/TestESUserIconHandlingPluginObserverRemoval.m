@@ -31,6 +31,11 @@ id<AIAdium> adium = nil;
 @end
 
 @implementation AIPlugin
+- (void)installPlugin
+{}
+
+- (void)uninstallPlugin
+{}
 @end
 
 @interface AIListContact : NSObject
