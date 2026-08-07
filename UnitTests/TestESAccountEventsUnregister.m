@@ -120,15 +120,15 @@
 	// Unscheduled timers never fire, so they stay valid until invalidated — exactly the pending state
 	// uninstallPlugin must clear.
 	NSTimer *onlineTimer = [NSTimer timerWithTimeInterval:10.0
-												  target:self
-												selector:@selector(description)
-												userInfo:nil
-												 repeats:NO];
-	NSTimer *offlineTimer = [NSTimer timerWithTimeInterval:10.0
 												   target:self
 												 selector:@selector(description)
 												 userInfo:nil
 												  repeats:NO];
+	NSTimer *offlineTimer = [NSTimer timerWithTimeInterval:10.0
+													target:self
+												  selector:@selector(description)
+												  userInfo:nil
+												   repeats:NO];
 	XCTAssertTrue([onlineTimer isValid], @"sanity: an unscheduled timer is still valid");
 	XCTAssertTrue([offlineTimer isValid], @"sanity: an unscheduled timer is still valid");
 
