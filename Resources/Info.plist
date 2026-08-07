@@ -37,7 +37,7 @@
 	<key>SUFeedURL</key>
 	<string>https://raw.githubusercontent.com/phaedrus1992/AdiumY/main/appcast.xml</string>
 	<key>SUPublicEDKey</key>
-	<string></string>
+        <string>fmk7kzjP1kO1OCYsk12tyUnzdrFbvyoFhYqkLkOZdPo=</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
