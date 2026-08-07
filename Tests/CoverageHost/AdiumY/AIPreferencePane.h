@@ -1,0 +1,1 @@
+../../../Frameworks/Adium/Source/AIPreferencePane.h

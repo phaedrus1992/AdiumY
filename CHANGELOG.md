@@ -48,6 +48,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Remove the appearance preferences plugin's status-icon-set notification
   observer when it uninstalls, so it stops reacting to icon-set changes after
   removal
+- Fix the nudge-and-buzz and AppleScript-filters plugins leaving their
+  outgoing-message content filters registered after uninstall
+- Fix the nudge-and-buzz, secure-messaging, link-management, contact-info,
+  contact-list-editor, logger, emoticon-menu, standard-toolbar, blocking,
+  Safari-link, and AppleScript-filters plugins leaving their chat and
+  contact-list toolbar items registered after uninstall
+- Fix the auto-reply, status-changed-messages, account-list-preferences,
+  contact-sort-selection, general-preferences, status-menu-item, and
+  away-status-window plugins leaving notification observers registered after
+  uninstall
+- Fix the contact-list-contents plugin leaving its contact-list tooltip entry
+  and contextual menu item registered after uninstall
 
 ## [2.0.0] - 2026-08-03
 

@@ -113,6 +113,32 @@ NSInteger _scriptKeywordLengthSort(id scriptA, id scriptB, void *context);
 }
 
 /*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Unregister the content filter installPlugin registered, so an uninstalled plugin stops filtering outgoing
+	// content.
+	[adium.contentController unregisterDelayedContentFilter:self];
+
+	// Remove the observers installPlugin registered so an uninstalled plugin stops receiving notifications.
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:AIXtrasDidChangeNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSToolbarWillAddItemNotification object:nil];
+
+	// Remove the menu items installPlugin registered, so an uninstalled plugin leaves no dangling-target items behind.
+	[adium.menuController removeMenuItem:scriptMenuItem];
+	scriptMenuItem = nil;
+	[adium.menuController removeContextualMenuItem:contextualScriptMenuItem];
+	contextualScriptMenuItem = nil;
+
+	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
+	if (toolbarItem != nil) {
+		[adium.toolbarController unregisterToolbarItem:toolbarItem forToolbarType:@"TextEntry"];
+		toolbarItem = nil;
+	}
+}
+
+/*!
  * @brief Deallocate
  */
 

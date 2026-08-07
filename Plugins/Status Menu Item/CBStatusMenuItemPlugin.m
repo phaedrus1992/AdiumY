@@ -51,6 +51,11 @@
 - (void)uninstallPlugin
 {
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// Remove the launch observer if Adium never finished launching before this plugin was uninstalled.
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:AIApplicationDidFinishLoadingNotification
+												  object:nil];
 	itemController = nil;
 }
 

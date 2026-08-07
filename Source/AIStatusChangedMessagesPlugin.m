@@ -106,6 +106,24 @@ static NSDictionary *statusTypeDict = nil;
 }
 
 /*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Remove every observer installPlugin registered so an uninstalled plugin stops receiving notifications.
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CONTACT_STATUS_ONLINE_YES object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CONTACT_STATUS_ONLINE_NO object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CONTACT_STATUS_IDLE_YES object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CONTACT_STATUS_IDLE_NO object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CONTACT_STATUS_MOBILE_YES object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CONTACT_STATUS_MOBILE_NO object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CONTACT_STATUS_AWAY_YES object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CONTACT_STATUS_AWAY_NO object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:CONTACT_STATUS_MESSAGE object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:Chat_WillClose object:nil];
+}
+
+/*!
  * @brief Notification a changed status message
  *
  * @param notification <tt>NSNotification</tt> whose object is the AIListContact

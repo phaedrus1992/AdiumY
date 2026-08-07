@@ -59,7 +59,13 @@
 }
 
 - (void)uninstallPlugin
-{}
+{
+	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
+	if (toolbarItem != nil) {
+		[adium.toolbarController unregisterToolbarItem:toolbarItem forToolbarType:@"TextEntry"];
+		toolbarItem = nil;
+	}
+}
 
 // Update our add/edit link menu item
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem

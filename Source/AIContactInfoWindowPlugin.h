@@ -22,6 +22,8 @@
 	NSMenuItem *menuItem_getInfoContextualGroupChat;
 	NSMenuItem *menuItem_getInfoContextualGroup;
 	NSMenuItem *menuItem_getInfoWithPrompt;
+
+	NSToolbarItem *registeredToolbarItem;
 }
 
 @end

@@ -16,13 +16,20 @@
 // Thanks to GrowlTunes from the Growl project for demonstrating how to receive notifications when
 // the iTunes track changes.
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// Cocoa and AIPlugin must precede ESiTunesPlugin.h, whose interface references both.
+#import <Cocoa/Cocoa.h>
+#import <AdiumY/AIPlugin.h>
 #import "ESiTunesPlugin.h"
+// clang-format on
 #import "AIStatusController.h"
 #import <AIUtilities/AIApplicationAdditions.h>
 #import <AIUtilities/AIAttributedStringAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AIUtilities/AIToolbarUtilities.h>
 #import <AIUtilities/AIWindowAdditions.h>
 #import <AIUtilities/MVMenuButton.h>
@@ -30,6 +37,7 @@
 #import <AdiumY/AIContentControllerProtocol.h>
 #import <AdiumY/AIHTMLDecoder.h>
 #import <AdiumY/AIMenuControllerProtocol.h>
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 #import <AdiumY/AIStatus.h>
 #import <AdiumY/AIToolbarControllerProtocol.h>
 #import <WebKit/WebKit.h>
@@ -70,6 +78,7 @@
 - (void)createiTunesCurrentTrackStatusState;
 - (void)updateiTunesCurrentTrackFormat;
 - (void)createiTunesToolbarItemWithPath:(NSString *)path;
+- (BOOL)meetsMinimumiTunesVersionForPath:(NSString *)path;
 - (void)createiTunesToolbarItemMenuItems:(NSMenu *)iTunesMenu;
 - (NSMenu *)createTriggerMenu;
 - (void)insertTriggerMenu;
@@ -217,8 +226,7 @@
 	iTunesCurrentInfo = nil;
 
 	// Only install our items if a copy of iTunes which meets the minimum requirements is found
-	if ([[[NSBundle bundleWithPath:itunesPath] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] doubleValue] >
-		ITUNES_MINIMUM_VERSION) {
+	if ([self meetsMinimumiTunesVersionForPath:itunesPath]) {
 		// Perform substitutions on outgoing content
 		[adium.contentController registerContentFilter:self ofType:AIFilterContent direction:AIFilterOutgoing];
 		[[NSDistributedNotificationCenter defaultCenter] addObserver:self
@@ -248,6 +256,18 @@
 		// Create the Edit > Insert and contextual menus
 		[self insertTriggerMenu];
 	}
+}
+
+/*!
+ * @brief Whether the copy of iTunes at the given path meets the minimum supported version
+ *
+ * @param path The path to a copy of iTunes
+ * @result YES if its version exceeds ITUNES_MINIMUM_VERSION, NO otherwise
+ */
+- (BOOL)meetsMinimumiTunesVersionForPath:(NSString *)path
+{
+	return ([[[NSBundle bundleWithPath:path] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] doubleValue] >
+			ITUNES_MINIMUM_VERSION);
 }
 
 /*!

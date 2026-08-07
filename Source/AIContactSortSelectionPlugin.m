@@ -70,6 +70,17 @@
 }
 
 /*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Remove the observer installPlugin registered so an uninstalled plugin stops receiving notifications.
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:AIApplicationDidFinishLoadingNotification
+												  object:nil];
+}
+
+/*!
  * @brief Deallocate
  */
 

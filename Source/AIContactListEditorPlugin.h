@@ -23,6 +23,8 @@
 	NSMenuItem *menuItem_addContact;
 	NSMenuItem *menuItem_addContactContext;
 	NSMenuItem *menuItem_addGroup;
+
+	NSToolbarItem *registeredToolbarItem;
 }
 
 @end

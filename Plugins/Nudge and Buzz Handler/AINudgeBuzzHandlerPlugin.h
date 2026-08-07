@@ -24,6 +24,8 @@
 	NSMenuItem *notifyContextualMenuItem;
 
 	NSImage *notifyToolbarIcon;
+
+	NSToolbarItem *registeredToolbarItem;
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem;

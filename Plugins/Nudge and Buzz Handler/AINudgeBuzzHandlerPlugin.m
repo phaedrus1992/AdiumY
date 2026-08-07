@@ -113,12 +113,23 @@
 
 	// Register the toolbar into message windows
 	[adium.toolbarController registerToolbarItem:chatItem forToolbarType:@"MessageWindow"];
+	registeredToolbarItem = chatItem;
 }
 
 - (void)uninstallPlugin
 {
 	// Unregister ourself.
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+
+	// Unregister the content filter installPlugin registered, so an uninstalled plugin stops filtering outgoing
+	// content.
+	[adium.contentController unregisterContentFilter:self];
+
+	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
+	if (registeredToolbarItem != nil) {
+		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"MessageWindow"];
+		registeredToolbarItem = nil;
+	}
 }
 
 #pragma mark Toolbar Handling

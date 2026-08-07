@@ -58,6 +58,19 @@
 						   action:@selector(showSourceDestinationPicker:)
 							 menu:nil];
 	[adium.toolbarController registerToolbarItem:toolbarItem forToolbarType:@"MessageWindow"];
+	registeredToolbarItem = toolbarItem;
+}
+
+/*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
+	if (registeredToolbarItem != nil) {
+		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"MessageWindow"];
+		registeredToolbarItem = nil;
+	}
 }
 
 /*!

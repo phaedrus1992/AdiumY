@@ -71,6 +71,25 @@
 }
 
 /*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Unregister the tooltip entry installPlugin registered, so an uninstalled plugin leaves no dead tooltip behind.
+	[adium.interfaceController unregisterContactListTooltipEntry:self secondaryEntry:YES];
+
+	// Remove the observer installPlugin registered so an uninstalled plugin stops receiving notifications.
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:AIContactInfoInspectorDidChangeInspectedObject
+												  object:nil];
+
+	// Remove the contextual menu item installPlugin registered, so an uninstalled plugin leaves no dangling-target item
+	// behind.
+	[adium.menuController removeContextualMenuItem:contextualMenuItem];
+	contextualMenuItem = nil;
+}
+
+/*!
  * @brief Tooltip label
  *
  * @result A label, or nil if no tooltip entry should be shown

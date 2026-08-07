@@ -15,6 +15,7 @@
  */
 
 @interface AIStandardToolbarItemsPlugin : AIPlugin {
+	NSToolbarItem *registeredToolbarItem;
 }
 
 @end
