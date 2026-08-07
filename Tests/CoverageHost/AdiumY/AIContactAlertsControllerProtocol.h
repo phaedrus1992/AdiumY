@@ -25,8 +25,8 @@
  */
 #import <Foundation/Foundation.h>
 
-#import <AdiumY/AIPlugin.h>
 #import <AdiumY/AIControllerProtocol.h>
+#import <AdiumY/AIPlugin.h>
 
 @class AIListObject, AIChat, AIActionDetailsPane;
 
@@ -53,7 +53,7 @@ typedef enum {
 				inGroup:(AIEventHandlerGroupType)inGroup
 			 globalOnly:(BOOL)global;
 - (NSSet *)generateEvent:(NSString *)eventID
-		   forListObject:(AIListObject *)listObject
-				userInfo:(id)userInfo
-previouslyPerformedActionIDs:(NSSet *)previouslyPerformedActionIDs;
+				   forListObject:(AIListObject *)listObject
+						userInfo:(id)userInfo
+	previouslyPerformedActionIDs:(NSSet *)previouslyPerformedActionIDs;
 @end
