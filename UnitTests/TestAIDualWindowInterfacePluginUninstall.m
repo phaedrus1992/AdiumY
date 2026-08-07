@@ -131,6 +131,35 @@
 	}
 }
 
+// uninstallPlugin: must close the interface before unregistering. The component loader uninstalls
+// components (AIAdium.m controllerWillClose) before the interface controller's own controllerWillClose
+// would close the interface, so unregistering first would skip closeInterface's window/observer/pane
+// cleanup entirely on the shutdown path (#236).
+- (void)testUninstallClosesInterfaceBeforeUnregistering
+{
+	DualWindowMockInterfaceController *mockInterfaceController = [[DualWindowMockInterfaceController alloc] init];
+	DualWindowMockPreferenceController *mockPreferenceController = [[DualWindowMockPreferenceController alloc] init];
+	DualWindowMockAdium *mockAdium = [[DualWindowMockAdium alloc] init];
+	[mockAdium setInterfaceController:mockInterfaceController];
+	[mockAdium setPreferenceController:mockPreferenceController];
+
+	id<AIAdium> savedAdium = adium;
+	adium = (id<AIAdium>)mockAdium;
+	@try {
+		AIDualWindowInterfacePlugin *plugin = [[AIDualWindowInterfacePlugin alloc] init];
+		[plugin setValue:[[NSObject alloc] init] forKey:@"preferenceMessageAdvController"];
+
+		[plugin uninstallPlugin];
+
+		XCTAssertEqual([mockPreferenceController removeAdvancedPreferencePaneCount], (NSUInteger)1,
+					   @"uninstallPlugin must close the interface, removing the advanced preference pane");
+		XCTAssertEqual([mockInterfaceController unregisterInterfaceControllerCount], (NSUInteger)1,
+					   @"uninstallPlugin must also unregister the interface controller");
+	} @finally {
+		adium = savedAdium;
+	}
+}
+
 // openInterface: creates an ESDualWindowMessageAdvancedPreferences pane; closeInterface: must remove
 // it from the preference controller before releasing the ivar, or the pane lingers in the
 // preferences window after the plugin unloads (#236).

@@ -47,6 +47,13 @@
 // Uninstall
 - (void)uninstallPlugin
 {
+	// Close the interface before unregistering. The component loader uninstalls components
+	// (AIAdium.m controllerWillClose) before the interface controller's own controllerWillClose would
+	// close the interface, so unregistering first would leave interfacePlugin nil and skip the
+	// window/observer/pane cleanup in closeInterface. closeInterface is idempotent-safe (nil-guarded
+	// pane removal, nil containers), so a second uninstall is a no-op (#236).
+	[self closeInterface];
+
 	// Unregister the interface controller installPlugin registered, so an uninstalled plugin stops receiving
 	// interface callbacks (#236).
 	[adium.interfaceController unregisterInterfaceController:self];
