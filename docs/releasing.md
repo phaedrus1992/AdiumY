@@ -33,20 +33,56 @@ Override with `DEVELOPER_ID_IDENTITY` if you have more than one.
 
 ### 2. App Store Connect API key
 
-appstoreconnect.apple.com → Users and Access → Integrations → App Store
-Connect API → **+**, role **Developer**.
+You do not invent `ASC_KEY_ID` or `ASC_ISSUER_ID` — Apple generates both when
+you create the key, and shows them on the page you create it from.
 
-The `.p8` downloads exactly once. Save it to
-`~/.appstoreconnect/private_keys/AuthKey_<KEY_ID>.p8` and note the Key ID and
-Issuer ID.
+1. Sign in at appstoreconnect.apple.com with the Apple ID that holds the
+   K75Y6WZDVX membership.
+2. **Users and Access** → **Integrations** tab → **App Store Connect API** in
+   the sidebar.
+3. Make sure you are on **Team Keys**, not Individual Keys. Notarization
+   rejects individual keys.
+4. **+** → give it a name (`AdiumY release` is fine) → access **Developer** →
+   **Generate**.
+
+Three things then appear on that page:
+
+| Page label | Looks like | Where it goes |
+|---|---|---|
+| Issuer ID (above the key list) | `57246542-96fe-1a63-e053-0824d011072a` | `ASC_ISSUER_ID` |
+| KEY ID (the new key's row) | `2X9R4HXF34` | `ASC_KEY_ID` |
+| Download API Key | `AuthKey_2X9R4HXF34.p8` | the file below |
+
+The Issuer ID is one per team and is shared by every key you ever create. The
+Key ID is per key and is also embedded in the downloaded filename, so if you
+lose track of it, read it off the `.p8`.
+
+The `.p8` downloads **once** — Apple does not keep a copy. Put it where
+fastlane looks:
+
+```sh
+mkdir -p ~/.appstoreconnect/private_keys
+mv ~/Downloads/AuthKey_2X9R4HXF34.p8 ~/.appstoreconnect/private_keys/
+
+export ASC_KEY_ID=2X9R4HXF34
+export ASC_ISSUER_ID=57246542-96fe-1a63-e053-0824d011072a
+```
+
+Confirm Apple accepts all three before relying on them — this round-trips to
+App Store Connect and prints your (probably empty) submission history:
+
+```sh
+xcrun notarytool history --key ~/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8 \
+  --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER_ID"
+```
+
+`fastlane mac preflight` runs exactly that check for you.
+
+Put both exports in your shell profile, or a `.env` file fastlane picks up —
+just not in this repo.
 
 This replaces `notarytool store-credentials` with an app-specific password: a
 keychain profile cannot be transported to CI, an API key can.
-
-```sh
-export ASC_KEY_ID=XXXXXXXXXX
-export ASC_ISSUER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-```
 
 ### 3. Sparkle EdDSA keypair
 
