@@ -51,13 +51,26 @@ echo "==> Creating read-write image"
 hdiutil create -srcfolder "$STAGE" -volname "$VOLUME_NAME" \
 	-fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW "$TEMP_DMG" -quiet
 
-echo "==> Applying Finder layout"
 DEV_NAME=$(hdiutil attach -readwrite -noverify -noautoopen "$TEMP_DMG" |
 	grep -E '^/dev/' | sed 1q | awk '{print $1}')
 MOUNT_DIR="/Volumes/$VOLUME_NAME"
 
+# Driving Finder needs a GUI login session, which a CI runner does not have.
+# A pre-baked .DS_Store is the headless path: it encodes the same icon
+# positions and window size, and just gets copied in.
+DS_STORE="$RELEASE_DIR/Artwork/dmg-DS_Store"
+if [ -f "$DS_STORE" ]; then
+	echo "==> Applying pre-baked Finder layout"
+	ditto "$DS_STORE" "$MOUNT_DIR/.DS_Store"
+	apply_finder_layout=false
+else
+	echo "==> Applying Finder layout via AppleScript"
+	apply_finder_layout=true
+fi
+
 # Background image is 600x400; the window is sized to match it exactly.
-osascript <<APPLESCRIPT
+if [ "$apply_finder_layout" = true ]; then
+	osascript <<APPLESCRIPT || echo "warning: Finder layout failed (no GUI session?); DMG will use default icon positions" >&2
 tell application "Finder"
 	tell disk "$VOLUME_NAME"
 		open
@@ -80,8 +93,12 @@ tell application "Finder"
 	end tell
 end tell
 APPLESCRIPT
+fi
 
 chmod -Rf go-w "$MOUNT_DIR" || true
+
+# Mounting read-write leaves these behind; they have no business in a release.
+rm -rf "$MOUNT_DIR/.fseventsd" "$MOUNT_DIR/.Trashes" "$MOUNT_DIR/.TemporaryItems"
 sync
 
 hdiutil detach "$DEV_NAME" -quiet
