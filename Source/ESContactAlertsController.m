@@ -583,7 +583,9 @@ NSInteger eventIDSort(id objectA, id objectB, void *context)
 	NSString *defaultActionID = [adium.preferenceController preferenceForKey:KEY_DEFAULT_ACTION_ID
 																	   group:PREF_GROUP_CONTACT_ALERTS];
 	if (![actionHandlers objectForKey:defaultActionID]) {
-		defaultActionID = [[actionHandlers allKeys] objectAtIndex:0];
+		// No stored default and no actions left to fall back on (all action plugins uninstalled) — return
+		// nil rather than crash on an empty actionHandlers (previously reachable via unregisterActionID:).
+		defaultActionID = [[actionHandlers allKeys] firstObject];
 	}
 
 	return defaultActionID;
