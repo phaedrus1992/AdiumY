@@ -9,6 +9,7 @@
 
 require "base64"
 require "json"
+require "open3"
 require "shellwords"
 require "tmpdir"
 
@@ -128,13 +129,35 @@ def verify_asc_credentials
      })
 end
 
-def release_version
+# nil rather than an error, for callers that can proceed without a version.
+def resolved_version
   from_env = ENV["VERSION"].to_s
   return from_env unless from_env.empty?
 
   tag = sh("git -C #{ROOT.shellescape} describe --tags --exact-match 2>/dev/null || true", log: false).strip
-  UI.user_error!("HEAD is not on a version tag. Pass VERSION=x.y.z or tag the commit.") if tag.empty?
-  tag.delete_prefix("v")
+  tag.empty? ? nil : tag.delete_prefix("v")
+end
+
+def release_version
+  resolved_version ||
+    UI.user_error!("HEAD is not on a version tag. Pass VERSION=x.y.z or tag the commit.")
+end
+
+# Sparkle refuses an archive whose CFBundleVersion is missing, and Xcode drops
+# the key entirely when the build setting behind it expands to empty. Catch it
+# at build time rather than at the appcast step, an hour later.
+def assert_bundle_version(app)
+  plist = File.join(app, "Contents", "Info.plist")
+  version = sh("/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' #{plist.shellescape} 2>/dev/null || true",
+               log: false).strip
+  UI.user_error!(<<~ERROR) if version.empty?
+    #{app} has no CFBundleVersion.
+
+    Resources/Info.plist maps it to $(CURRENT_PROJECT_VERSION); check that
+    xcconfigs/Base.xcconfig still defines it. Sparkle rejects archives without
+    it, so the appcast lane would fail.
+  ERROR
+  version
 end
 
 # notarytool exits non-zero on submission errors but the per-file reasons only
@@ -189,14 +212,27 @@ def commit_appcast(version)
   end
 end
 
-def sparkle_key_file
-  from_env = ENV["SPARKLE_PRIVATE_KEY"].to_s
-  return nil if from_env.empty?
+# generate_appcast reads the EdDSA key from the login keychain by default, and
+# from stdin with `--ed-key-file -`. Piping the CI secret keeps the private key
+# off the runner's disk entirely.
+def run_generate_appcast(args)
+  key = ENV["SPARKLE_PRIVATE_KEY"].to_s
 
-  file = File.join(Dir.mktmpdir, "sparkle_ed25519")
-  File.write(file, from_env)
-  File.chmod(0o600, file)
-  file
+  if key.empty?
+    output, status = Open3.capture2e(*args)
+  else
+    output, status = Open3.capture2e(*args, "--ed-key-file", "-", stdin_data: key)
+  end
+
+  UI.user_error!(<<~ERROR) unless status.success?
+    generate_appcast failed:
+
+    #{output}
+
+    With no SPARKLE_PRIVATE_KEY set it signs using the "Private key for signing
+    Sparkle updates" item in your login keychain. Export it for CI with
+    Dependencies/build/sparkle-tools/generate_keys -x <file>.
+  ERROR
 end
 
 platform :mac do
@@ -219,12 +255,18 @@ platform :mac do
     sh("cp", "-R", File.join(BUILD_DIR, "Release/MMTabBarView.framework"),
        File.join(ROOT, "Frameworks/MMTabBarView.framework"))
 
-    UI.message("Building #{APP_NAME}.app")
+    # Stamp the version when there is one, so CFBundleVersion tracks the tag.
+    # Without it the xcconfig floor applies, which is fine for a dev build but
+    # would make every release look like the same version to Sparkle.
+    version = resolved_version
+    version_args = version ? ["CURRENT_PROJECT_VERSION=#{version}", "MARKETING_VERSION=#{version}"] : []
+
+    UI.message("Building #{APP_NAME}.app#{version ? " #{version}" : ''}")
     sh("xcodebuild", "-project", File.join(ROOT, "Adium.xcodeproj"),
        "-target", APP_NAME, "-configuration", CONFIGURATION, "-sdk", "macosx",
-       "SYMROOT=#{BUILD_DIR}", "build")
+       "SYMROOT=#{BUILD_DIR}", *version_args, "build")
 
-    UI.success("Built #{app_path}")
+    UI.success("Built #{app_path} (CFBundleVersion #{assert_bundle_version(app_path)})")
   end
 
   desc "Check every credential and setting a release needs, before spending an hour building."
@@ -274,13 +316,8 @@ platform :mac do
     generate = File.join(SPARKLE_TOOLS, "generate_appcast")
     UI.user_error!("#{generate} missing. Run Dependencies/build-phases/get-sparkle.sh.") unless File.executable?(generate)
 
-    args = [generate, "--download-url-prefix", "#{DOWNLOAD_URL}/v#{version}/", "-o", APPCAST]
-    key_file = sparkle_key_file
-    args += ["--ed-key-file", key_file] if key_file
-    args << DIST_DIR
-
-    sh(*args)
-    File.delete(key_file) if key_file
+    run_generate_appcast([generate, "--download-url-prefix", "#{DOWNLOAD_URL}/v#{version}/",
+                          "-o", APPCAST, DIST_DIR])
     UI.success("Wrote #{APPCAST}")
   end
 

@@ -100,12 +100,28 @@ bash Dependencies/build-phases/get-sparkle.sh
 Dependencies/build/sparkle-tools/generate_keys
 ```
 
-The private key goes into your login keychain; the public key is printed.
-Paste the public key into `SUPublicEDKey` in `Resources/Info.plist`.
+The private key goes into your login keychain as "Private key for signing
+Sparkle updates"; the public key is printed. Paste the public key into
+`SUPublicEDKey` in `Resources/Info.plist`.
 
 **This cannot be changed after the first release ships** — existing installs
 would reject every future update. `fastlane mac preflight` refuses to run while
 `SUPublicEDKey` is empty.
+
+Locally, `generate_appcast` reads the private key straight from the keychain.
+For CI you have to export it — `-x` writes the base64-encoded private seed to a
+file. Pipe it into the secret without leaving a copy on disk:
+
+```sh
+KEYFILE=$(mktemp)
+Dependencies/build/sparkle-tools/generate_keys -x "$KEYFILE"
+gh secret set SPARKLE_PRIVATE_KEY < "$KEYFILE"
+rm -P "$KEYFILE"
+```
+
+macOS will show a keychain prompt the first time; click **Allow** (not Always
+Allow). To move the key to another Mac instead, `generate_keys -f <file>`
+imports it.
 
 ## GitHub Actions secrets
 
