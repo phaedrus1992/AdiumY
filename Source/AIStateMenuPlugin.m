@@ -85,6 +85,18 @@
 	// Unregister the list-object observer installPlugin registered.
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 
+	// Remove the status, account, and social-networking menu items installPlugin registered
+	// (menu item removal is nil-safe).
+	for (NSMenuItem *menuItem in currentMenuItemArray) {
+		[adium.menuController removeMenuItem:menuItem];
+	}
+	for (NSMenuItem *menuItem in installedMenuItems) {
+		[adium.menuController removeMenuItem:menuItem];
+	}
+	if (socialNetworkingMenuItem) {
+		[adium.menuController removeMenuItem:socialNetworkingMenuItem];
+	}
+
 	accountMenu = nil;
 	statusMenu = nil;
 	dockStatusMenuRoot = nil;

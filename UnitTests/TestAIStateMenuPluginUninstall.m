@@ -75,6 +75,8 @@ extern id<AIAdium> adium;
  * imports the real Adium headers). installPlugin/uninstallPlugin are inherited from AIPlugin.
  */
 @interface AIStateMenuPlugin : AIPlugin
+- (void)statusMenu:(AIStatusMenu *)inStatusMenu didRebuildStatusMenuItems:(NSArray *)menuItemArray;
+- (void)accountMenu:(AIAccountMenu *)inAccountMenu didRebuildMenuItems:(NSArray *)menuItems;
 @end
 
 /*
@@ -89,20 +91,34 @@ extern id AIObserverManagerSharedMock;
 @interface StateMenuMockMenuController : NSObject
 @property(nonatomic, assign) NSUInteger addCount;
 @property(nonatomic, assign) NSUInteger removeCount;
+@property(nonatomic, strong) NSMutableArray *addedItems;
+@property(nonatomic, strong) NSMutableArray *removedItems;
 
 - (void)addMenuItem:(NSMenuItem *)item toLocation:(NSInteger)location;
 - (void)removeMenuItem:(NSMenuItem *)item;
 @end
 
 @implementation StateMenuMockMenuController
+- (instancetype)init
+{
+	if ((self = [super init])) {
+		_addedItems = [[NSMutableArray alloc] init];
+		_removedItems = [[NSMutableArray alloc] init];
+	}
+
+	return self;
+}
+
 - (void)addMenuItem:(NSMenuItem *)item toLocation:(NSInteger)location
 {
 	_addCount++;
+	[_addedItems addObject:item];
 }
 
 - (void)removeMenuItem:(NSMenuItem *)item
 {
 	_removeCount++;
+	[_removedItems addObject:item];
 }
 @end
 
@@ -130,8 +146,30 @@ extern id AIObserverManagerSharedMock;
 }
 @end
 
+/*
+ * updateKeyEquivalents (called at the end of statusMenu:didRebuildStatusMenuItems:) reads
+ * adium.statusController; a status-menu rebuild must not crash on an unrecognized selector.
+ */
+@interface StateMenuMockStatusController : NSObject
+- (NSInteger)activeStatusTypeTreatingInvisibleAsAway:(BOOL)invisible;
+- (id)defaultInitialStatusState;
+@end
+
+@implementation StateMenuMockStatusController
+- (NSInteger)activeStatusTypeTreatingInvisibleAsAway:(BOOL)invisible
+{
+	return 0; // AIAvailableStatusType
+}
+
+- (id)defaultInitialStatusState
+{
+	return nil;
+}
+@end
+
 @interface StateMenuMockAdium : NSObject
 @property(nonatomic, strong) StateMenuMockMenuController *menuController;
+@property(nonatomic, strong) StateMenuMockStatusController *statusController;
 @end
 
 @implementation StateMenuMockAdium
@@ -146,8 +184,10 @@ extern id AIObserverManagerSharedMock;
 {
 	StateMenuMockMenuController *mockMenuController = [[StateMenuMockMenuController alloc] init];
 	StateMenuMockObserverManager *mockObserverManager = [[StateMenuMockObserverManager alloc] init];
+	StateMenuMockStatusController *mockStatusController = [[StateMenuMockStatusController alloc] init];
 	StateMenuMockAdium *mockAdium = [[StateMenuMockAdium alloc] init];
 	[mockAdium setMenuController:mockMenuController];
+	[mockAdium setStatusController:mockStatusController];
 	id<AIAdium> savedAdium = adium;
 	id savedObserverManagerMock = AIObserverManagerSharedMock;
 
@@ -168,6 +208,9 @@ extern id AIObserverManagerSharedMock;
 		XCTAssertEqual(mockObserverManager.registeredObserver, plugin,
 					   @"sanity: the registered list-object observer is the plugin itself");
 
+		// Capture the item before uninstall — uninstallPlugin nils dockStatusMenuRoot.
+		NSMenuItem *registeredDockItem = [plugin valueForKey:@"dockStatusMenuRoot"];
+
 		[plugin uninstallPlugin];
 
 		XCTAssertEqual([mockObserverManager unregisterCount], (NSUInteger)1,
@@ -176,6 +219,56 @@ extern id AIObserverManagerSharedMock;
 					   @"the list-object observer unregistered is the plugin itself");
 		XCTAssertEqual([mockMenuController removeCount], (NSUInteger)1,
 					   @"uninstallPlugin did not remove the dock status menu item");
+		XCTAssertTrue([mockMenuController.removedItems containsObject:registeredDockItem],
+					  @"the dock status menu item removed is the one installPlugin registered");
+	} @finally {
+		adium = savedAdium;
+		AIObserverManagerSharedMock = savedObserverManagerMock;
+	}
+}
+
+- (void)testUninstallRemovesStatusAndAccountMenuItems
+{
+	StateMenuMockMenuController *mockMenuController = [[StateMenuMockMenuController alloc] init];
+	StateMenuMockObserverManager *mockObserverManager = [[StateMenuMockObserverManager alloc] init];
+	StateMenuMockStatusController *mockStatusController = [[StateMenuMockStatusController alloc] init];
+	StateMenuMockAdium *mockAdium = [[StateMenuMockAdium alloc] init];
+	[mockAdium setMenuController:mockMenuController];
+	[mockAdium setStatusController:mockStatusController];
+	id<AIAdium> savedAdium = adium;
+	id savedObserverManagerMock = AIObserverManagerSharedMock;
+
+	AIObserverManagerSharedMock = mockObserverManager;
+	adium = (id<AIAdium>)mockAdium;
+	@try {
+		AIStateMenuPlugin *plugin = [[AIStateMenuPlugin alloc] init];
+		[plugin installPlugin];
+
+		[[NSNotificationCenter defaultCenter] postNotificationName:@"AIApplicationDidFinishLoading" object:nil];
+
+		// Capture the item before uninstall — uninstallPlugin nils dockStatusMenuRoot.
+		NSMenuItem *registeredDockItem = [plugin valueForKey:@"dockStatusMenuRoot"];
+
+		// Reproduce the delegate callbacks that register the status and account menu items at runtime.
+		NSMenuItem *statusItem = [[NSMenuItem alloc] initWithTitle:@"Status" action:nil keyEquivalent:@""];
+		NSMenuItem *accountItem = [[NSMenuItem alloc] initWithTitle:@"Account" action:nil keyEquivalent:@""];
+		[plugin statusMenu:nil didRebuildStatusMenuItems:@[ statusItem ]];
+		[plugin accountMenu:nil didRebuildMenuItems:@[ accountItem ]];
+
+		XCTAssertEqual([mockMenuController addCount], (NSUInteger)3,
+					   @"sanity: dock status root + status item + account item = three registered menu items");
+
+		[plugin uninstallPlugin];
+
+		XCTAssertEqual(
+			[mockMenuController removeCount], (NSUInteger)3,
+			@"uninstallPlugin must remove the dock status root and every status/account menu item it registered");
+		XCTAssertTrue([mockMenuController.removedItems containsObject:registeredDockItem],
+					  @"uninstallPlugin must remove the dock status menu item");
+		XCTAssertTrue([mockMenuController.removedItems containsObject:statusItem],
+					  @"uninstallPlugin must remove the status menu items in currentMenuItemArray");
+		XCTAssertTrue([mockMenuController.removedItems containsObject:accountItem],
+					  @"uninstallPlugin must remove the account menu items in installedMenuItems");
 	} @finally {
 		adium = savedAdium;
 		AIObserverManagerSharedMock = savedObserverManagerMock;
