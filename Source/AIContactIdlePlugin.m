@@ -61,6 +61,7 @@
 	// Stop tracking all idle handles
 	[idleObjectTimer invalidate];
 	idleObjectTimer = nil;
+	idleObjectArray = nil;
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 }
 

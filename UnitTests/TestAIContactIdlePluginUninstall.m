@@ -154,6 +154,7 @@ extern id AIObserverManagerSharedMock;
 
 		XCTAssertFalse([idleObjectTimer isValid],
 					   @"uninstallPlugin must invalidate the idle-update timer so it cannot fire after uninstall");
+		XCTAssertNil([plugin valueForKey:@"idleObjectArray"], @"uninstallPlugin must nil the idle-object array ivar");
 		XCTAssertEqual([mockInterfaceController unregisterCount], (NSUInteger)1,
 					   @"sanity: uninstallPlugin unregisters the tooltip entry");
 		XCTAssertEqual([mockObserverManager unregisterCount], (NSUInteger)1,
