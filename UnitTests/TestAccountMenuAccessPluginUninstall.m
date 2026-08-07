@@ -139,4 +139,41 @@ extern id<AIAdium> adium;
 	}
 }
 
+// installPlugin registers the guest item even when accountMenu:didRebuildMenuItems: never fires (the
+// account menu shim returns no items); uninstallPlugin must still remove that item and drop the account
+// menu so nothing dangles on an uninstalled plugin (#218).
+- (void)testUninstallWithoutRebuiltMenuItemsRemovesGuestItem
+{
+	AccountMenuAccessMockMenuController *mockMenuController = [[AccountMenuAccessMockMenuController alloc] init];
+	AccountMenuAccessMockAdium *mockAdium = [[AccountMenuAccessMockAdium alloc] init];
+	[mockAdium setMenuController:mockMenuController];
+
+	id<AIAdium> savedAdium = adium;
+	adium = (id<AIAdium>)mockAdium;
+	@try {
+		AIAccountMenuAccessPlugin *plugin = [[AIAccountMenuAccessPlugin alloc] init];
+		[plugin installPlugin];
+
+		NSMenuItem *guestMenuItem = [plugin valueForKey:@"guestAccountMenuItem"];
+		XCTAssertNotNil(guestMenuItem, @"sanity: installPlugin registered the guest account menu item");
+		XCTAssertEqual([mockMenuController.addedItems count], (NSUInteger)1,
+					   @"sanity: installPlugin added exactly the guest item (no account items rebuilt)");
+
+		[plugin uninstallPlugin];
+
+		XCTAssertEqual([mockMenuController.removedItems count], (NSUInteger)1,
+					   @"uninstallPlugin must remove the guest item even when no account items were rebuilt");
+		XCTAssertTrue([mockMenuController.removedItems containsObject:guestMenuItem],
+					  @"uninstallPlugin must remove the guest account menu item");
+		XCTAssertNil([plugin valueForKey:@"guestAccountMenuItem"],
+					 @"uninstallPlugin must clear the guest account menu item");
+		XCTAssertNil([plugin valueForKey:@"installedMenuItems"],
+					 @"uninstallPlugin must clear the installed account menu items");
+		XCTAssertNil([plugin valueForKey:@"accountMenu"],
+					 @"uninstallPlugin must drop the account menu so no delegate dangles");
+	} @finally {
+		adium = savedAdium;
+	}
+}
+
 @end
