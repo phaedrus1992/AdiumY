@@ -35,9 +35,20 @@ sign() {
 	codesign --force --timestamp --options runtime --sign "$IDENTITY" "$@"
 }
 
+# No pipeline here on purpose: `file -b x | grep -q` returns non-zero under
+# `set -o pipefail`, because grep -q exits early and file dies on SIGPIPE.
 is_macho() {
-	file -b "$1" | grep -q 'Mach-O'
+	local description
+	description=$(file -b "$1")
+	[[ "$description" == *Mach-O* ]]
 }
+
+# "Developer ID Application: Someone (K75Y6WZDVX)" -> "K75Y6WZDVX". Empty for
+# ad-hoc signing, which has no team.
+EXPECTED_TEAM=""
+if [[ "$IDENTITY" =~ \(([A-Z0-9]{10})\)[[:space:]]*$ ]]; then
+	EXPECTED_TEAM="${BASH_REMATCH[1]}"
+fi
 
 # An empty directory under Versions/ makes framework signing fail. Version
 # control leaves these behind when a vendored dependency drops a directory.
@@ -45,25 +56,41 @@ echo "==> Removing empty directories"
 find "$APP" -type d -empty -delete
 
 echo "==> Signing nested bundles and libraries"
+signed_bundles=()
 while IFS= read -r -d '' item; do
 	echo "    $item"
 	sign "$item"
+	signed_bundles+=("$item")
 done < <(find "$APP" -depth \
 	\( -name '*.framework' -o -name '*.bundle' -o -name '*.mdimporter' \
 	-o -name '*.xpc' -o -name '*.appex' -o -name '*.dylib' -o -name '*.so' \) \
 	-print0)
 
-# Helper executables that are not bundles — AdiumApplescriptRunner and
-# anything else dropped into Resources or MacOS alongside the main binary.
+# Signing a nested bundle's inner binary again would replace that bundle's
+# signature with a plain-binary one and break its seal.
+inside_signed_bundle() {
+	local path=$1 bundle
+	for bundle in ${signed_bundles+"${signed_bundles[@]}"}; do
+		[[ "$path" == "$bundle/"* ]] && return 0
+	done
+	return 1
+}
+
+# Helper executables that are not bundles — AdiumApplescriptRunner and anything
+# else dropped in alongside the main binary.
+#
+# -perm -u+x, not +111: BSD find's `+mode` spelling is deprecated and silently
+# matches nothing under `set -euo pipefail`, which quietly turned this whole
+# pass into a no-op.
 echo "==> Signing loose executables"
 MAIN_EXECUTABLE="$APP/Contents/MacOS/$(basename "$APP" .app)"
 while IFS= read -r -d '' bin; do
 	[ "$bin" = "$MAIN_EXECUTABLE" ] && continue
+	inside_signed_bundle "$bin" && continue
 	is_macho "$bin" || continue
 	echo "    $bin"
 	sign "$bin"
-done < <(find "$APP/Contents/MacOS" "$APP/Contents/Resources" \
-	-type f -perm +111 -print0 2>/dev/null)
+done < <(find "$APP" -type f -perm -u+x -print0)
 
 echo "==> Signing $APP"
 if [ -n "$ENTITLEMENTS" ]; then
@@ -75,18 +102,32 @@ fi
 echo "==> Verifying seal and nested code"
 codesign --verify --strict --deep --verbose=2 "$APP"
 
-echo "==> Verifying every executable individually"
+# `codesign --verify` alone is not enough: the linker ad-hoc-signs every binary
+# at link time, so an executable this script missed still verifies while being
+# rejected by notarization as "not signed with a valid Developer ID
+# certificate". Check who signed it, not just that something did.
+echo "==> Auditing every executable"
 failed=0
 while IFS= read -r -d '' bin; do
 	is_macho "$bin" || continue
-	if ! codesign --verify "$bin" 2>/dev/null; then
+
+	if ! info=$(codesign --display --verbose=2 "$bin" 2>&1); then
 		echo "    UNSIGNED: $bin" >&2
 		failed=1
+		continue
 	fi
-done < <(find "$APP" -type f -perm +111 -print0)
+
+	if [[ "$info" == *linker-signed* ]]; then
+		echo "    STILL LINKER-SIGNED: $bin" >&2
+		failed=1
+	elif [ -n "$EXPECTED_TEAM" ] && [[ "$info" != *"TeamIdentifier=$EXPECTED_TEAM"* ]]; then
+		echo "    WRONG TEAM: $bin" >&2
+		failed=1
+	fi
+done < <(find "$APP" -type f -print0)
 
 if [ "$failed" -ne 0 ]; then
-	echo "error: bundle contains unsigned executables; notarization will fail" >&2
+	echo "error: bundle has executables this script did not sign; notarization will fail" >&2
 	exit 1
 fi
 
