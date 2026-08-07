@@ -55,8 +55,8 @@
 @implementation AIXtrasManager
 @end
 
-#import <AdiumY/AIPlugin.h>
 #import "AIAppearancePreferencesPlugin.h"
+#import <AdiumY/AIPlugin.h>
 
 /*
  * Fakes for the teardown test. AppearanceMockPreferenceController records the register/unregister
@@ -134,7 +134,8 @@
 	id<AIAdium> savedAdium = adium;
 	adium = (id<AIAdium>)mockAdium;
 	@try {
-		AppearancePreferencesObserverCountingPlugin *plugin = [[AppearancePreferencesObserverCountingPlugin alloc] init];
+		AppearancePreferencesObserverCountingPlugin *plugin =
+			[[AppearancePreferencesObserverCountingPlugin alloc] init];
 		[plugin installPlugin];
 
 		XCTAssertEqual([mockPreferenceController registerDefaultsCount], (NSUInteger)1,
@@ -146,8 +147,7 @@
 
 		// Positive control: the observer must fire while installed, or this test cannot tell
 		// "removed by uninstallPlugin" from "never registered at all".
-		[[NSNotificationCenter defaultCenter] postNotificationName:AIStatusIconSetInvalidSetNotification
-															object:nil];
+		[[NSNotificationCenter defaultCenter] postNotificationName:AIStatusIconSetInvalidSetNotification object:nil];
 		XCTAssertEqual([plugin invalidStatusSetCount], (NSUInteger)1,
 					   @"sanity: AIStatusIconSetInvalidSetNotification observer fired while installed");
 
@@ -155,8 +155,7 @@
 
 		XCTAssertEqual([mockPreferenceController unregisterObserverCount], (NSUInteger)1,
 					   @"uninstallPlugin did not unregister the preference observer");
-		[[NSNotificationCenter defaultCenter] postNotificationName:AIStatusIconSetInvalidSetNotification
-															object:nil];
+		[[NSNotificationCenter defaultCenter] postNotificationName:AIStatusIconSetInvalidSetNotification object:nil];
 		XCTAssertEqual([plugin invalidStatusSetCount], (NSUInteger)1,
 					   @"AIStatusIconSetInvalidSetNotification observer still registered after uninstallPlugin");
 	} @finally {

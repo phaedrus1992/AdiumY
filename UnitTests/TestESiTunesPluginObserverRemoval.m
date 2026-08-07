@@ -68,8 +68,8 @@
 @implementation AIHTMLDecoder
 @end
 
-#import <AdiumY/AIPlugin.h>
 #import "ESiTunesPlugin.h"
+#import <AdiumY/AIPlugin.h>
 
 /*
  * Declares the installPlugin internals the test subclass overrides or calls super on. These live in
@@ -265,14 +265,12 @@
 	// "removed by uninstallPlugin" from "never registered at all".
 	XCTAssertEqual([plugin currentTrackFormatDidChangeCount], (NSUInteger)0,
 				   @"sanity: installPlugin does not fire the current-track-format observer");
-	[[NSNotificationCenter defaultCenter] postNotificationName:Adium_CurrentTrackFormatChangedNotification
-														object:nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:Adium_CurrentTrackFormatChangedNotification object:nil];
 	XCTAssertEqual([plugin currentTrackFormatDidChangeCount], (NSUInteger)1,
 				   @"sanity: Adium_CurrentTrackFormatChangedNotification observer fired while installed");
 
 	[plugin uninstallPlugin];
-	[[NSNotificationCenter defaultCenter] postNotificationName:Adium_CurrentTrackFormatChangedNotification
-														object:nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:Adium_CurrentTrackFormatChangedNotification object:nil];
 	XCTAssertEqual([plugin currentTrackFormatDidChangeCount], (NSUInteger)1,
 				   @"Adium_CurrentTrackFormatChangedNotification observer still registered after uninstallPlugin");
 }
@@ -304,8 +302,7 @@
 					   @"sanity: toolbar item registered once at install");
 		XCTAssertEqualObjects([mockToolbarController registeredToolbarType], @"TextEntry",
 							  @"sanity: toolbar item registered in the TextEntry toolbar");
-		XCTAssertEqual([mockStatusController addCount], (NSUInteger)1,
-					   @"sanity: status state added once at install");
+		XCTAssertEqual([mockStatusController addCount], (NSUInteger)1, @"sanity: status state added once at install");
 		XCTAssertEqual([mockMenuController addMenuItemCount], (NSUInteger)1,
 					   @"sanity: Edit > Insert menu item added once at install");
 		XCTAssertEqual([mockMenuController addContextualMenuItemCount], (NSUInteger)1,
@@ -319,8 +316,9 @@
 					   @"uninstallPlugin did not unregister the toolbar item");
 		XCTAssertTrue([mockToolbarController unregisteredItem] == [mockToolbarController registeredItem],
 					  @"uninstallPlugin unregistered a different toolbar item than registerToolbarItem registered");
-		XCTAssertEqualObjects([mockToolbarController unregisteredToolbarType], @"TextEntry",
-							  @"uninstallPlugin unregistered the toolbar item in a different toolbar than it was registered");
+		XCTAssertEqualObjects(
+			[mockToolbarController unregisteredToolbarType], @"TextEntry",
+			@"uninstallPlugin unregistered the toolbar item in a different toolbar than it was registered");
 		XCTAssertEqual([mockStatusController removeCount], (NSUInteger)1,
 					   @"uninstallPlugin did not remove the status state");
 		XCTAssertTrue([mockStatusController removedStatusState] == [mockStatusController addedStatusState],
