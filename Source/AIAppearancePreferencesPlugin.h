@@ -14,6 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import <AdiumY/AIPlugin.h>
+
 #define KEY_STATUS_ICON_PACK @"Status Icon Pack"
 #define KEY_SERVICE_ICON_PACK @"Service Icon Pack"
 #define KEY_MENU_BAR_ICONS @"Menu Bar Icons"

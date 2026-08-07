@@ -15,6 +15,7 @@
  */
 
 #import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIPlugin.h>
 
 @class AIStatus;
 
