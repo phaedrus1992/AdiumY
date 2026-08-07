@@ -119,6 +119,8 @@ extern id<AIAdium> adium;
 
 		XCTAssertEqual([mockMenuController.removedItems count], (NSUInteger)8,
 					   @"uninstallPlugin removed a different number of menu items than installPlugin registered");
+		XCTAssertEqual([mockPreferenceController unregisterObserverCount], (NSUInteger)1,
+					   @"uninstallPlugin must unregister the preference observer it registered");
 		XCTAssertNil([[plugin valueForKey:@"menu_hideAccounts"] delegate],
 					 @"uninstallPlugin must nil the hide-accounts submenu delegate");
 	} @finally {
