@@ -14,7 +14,13 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede AIMentionEventPlugin.h, whose interface inherits from it. clang-format
+// would sort the quoted own-header first.
+#import <AdiumY/AIPlugin.h>
 #import "AIMentionEventPlugin.h"
+// clang-format on
 #import "AIContentTopic.h"
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIChat.h>
@@ -51,6 +57,13 @@
 {
 	[adium.contentController unregisterContentFilter:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// Remove the preference pane installPlugin created, so an uninstalled plugin's pane leaves the preferences
+	// window.
+	if (advancedPreferences != nil) {
+		[adium.preferenceController removeAdvancedPreferencePane:advancedPreferences];
+		advancedPreferences = nil;
+	}
 }
 
 #pragma mark -

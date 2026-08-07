@@ -28,7 +28,18 @@
  it also makes it much more difficult to ensure a consistent look/feel to the preferences.
 */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede ESGeneralPreferencesPlugin.h, whose interface inherits from it. clang-format
+// would sort the quoted own-header first.
+#import <AdiumY/AIPlugin.h>
 #import "ESGeneralPreferencesPlugin.h"
+// clang-format on
+// The standalone test target has no Adium.pch, which provides AIPreferenceControllerProtocol.h app-wide;
+// import it here so adium.preferenceController's selectors resolve without the pch.
+// clang-format off
+#import <AdiumY/AIPreferenceControllerProtocol.h>
+// clang-format on
 #import "ESGeneralPreferences.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AISendingTextView.h>
@@ -71,6 +82,13 @@
 - (void)uninstallPlugin
 {
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// Remove the preference pane installPlugin created, so an uninstalled plugin's pane leaves the preferences
+	// window.
+	if (preferences != nil) {
+		[adium.preferenceController removePreferencePane:preferences];
+		preferences = nil;
+	}
 }
 
 - (void)hitHotKey:(AIHotKey *)hotKey

@@ -21,7 +21,9 @@
  * AIMessageAlertsAdvancedPreferences, and AIConfirmationsAdvancedPreferences by class name (each
  * sent +preferencePane), which emit _OBJC_CLASS_$_ symbols no linked framework provides, so each
  * gets a minimal implementation here. Each returns a live pane so installPlugin stores non-nil
- * references and uninstallPlugin must removePreferencePane: all three — the exact path #231 fixes.
+ * references and uninstallPlugin must remove all three — the exact path #231 fixes.
+ * AIAdvancedPreferences is a regular pane (removePreferencePane:); the two advanced panes go
+ * through removeAdvancedPreferencePane:.
  * The shared `adium` global and the AIPlugin class are provided by TestESUserIconHandlingPluginObserverRemoval.m
  * in the same bundle — not redefined here.
  */
@@ -67,19 +69,26 @@
 
 /*
  * Fakes for the teardown test. AdvancedPrefsMockPreferenceController records removePreferencePane:
- * calls (the only preference-controller interaction uninstallPlugin makes); AdvancedPrefsMockAdium
- * supplies the preference controller.
+ * and removeAdvancedPreferencePane: calls (the only preference-controller interactions
+ * uninstallPlugin makes); AdvancedPrefsMockAdium supplies the preference controller.
  */
 @interface AdvancedPrefsMockPreferenceController : NSObject
 @property(nonatomic, assign) NSUInteger removePreferencePaneCount;
+@property(nonatomic, assign) NSUInteger removeAdvancedPreferencePaneCount;
 
 - (void)removePreferencePane:(id)inPane;
+- (void)removeAdvancedPreferencePane:(id)inPane;
 @end
 
 @implementation AdvancedPrefsMockPreferenceController
 - (void)removePreferencePane:(id)inPane
 {
 	_removePreferencePaneCount++;
+}
+
+- (void)removeAdvancedPreferencePane:(id)inPane
+{
+	_removeAdvancedPreferencePaneCount++;
 }
 @end
 
@@ -98,7 +107,7 @@
 // installPlugin creates three preference panes (AIAdvancedPreferences, AIMessageAlertsAdvancedPreferences,
 // AIConfirmationsAdvancedPreferences), each registering itself with the preference controller;
 // uninstallPlugin must remove every one, or the uninstalled plugin's panes stay in the preferences
-// window (#231).
+// window (#231). AIAdvancedPreferences is a regular pane; the other two are advanced panes.
 - (void)testUninstallRemovesAllRegisteredPreferencePanes
 {
 	AdvancedPrefsMockPreferenceController *mockPreferenceController =
@@ -117,8 +126,10 @@
 
 		[plugin uninstallPlugin];
 
-		XCTAssertEqual([mockPreferenceController removePreferencePaneCount], (NSUInteger)3,
-					   @"uninstallPlugin must remove every preference pane installPlugin registered");
+		XCTAssertEqual([mockPreferenceController removePreferencePaneCount], (NSUInteger)1,
+					   @"uninstallPlugin must remove the regular advanced preferences pane");
+		XCTAssertEqual([mockPreferenceController removeAdvancedPreferencePaneCount], (NSUInteger)2,
+					   @"uninstallPlugin must remove every advanced preference pane installPlugin registered");
 	} @finally {
 		adium = savedAdium;
 	}

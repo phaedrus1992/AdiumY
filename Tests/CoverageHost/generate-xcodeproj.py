@@ -110,6 +110,15 @@ for k in [
     "xtrasManagerUninstallTestFileRef", "xtrasManagerUninstallTestBuildFile",
     "emoticonMenuUninstallTestFileRef", "emoticonMenuUninstallTestBuildFile",
 
+    # Plugin-uninstall teardown batch 4 (#230/#231): nudge/buzz + preference-pane plugins + consolidated test
+    "nudgeBuzzPluginFileRef", "nudgeBuzzPluginBuildFile",
+    "esGeneralPrefsPluginFileRef", "esGeneralPrefsPluginBuildFile",
+    "mentionEventPluginFileRef", "mentionEventPluginBuildFile",
+    "urlHandlerPluginFileRef", "urlHandlerPluginBuildFile",
+    "accountListPrefsPluginFileRef", "accountListPrefsPluginBuildFile",
+    "globalEventsPrefsPluginFileRef", "globalEventsPrefsPluginBuildFile",
+    "variantTeardownTestFileRef", "variantTeardownTestBuildFile",
+
     # Frameworks
     "xctestFwkRef", "xctestFwkBuildFile",
     "aiutilitiesFwkRef", "aiutilitiesFwkBuildFile",
@@ -180,7 +189,11 @@ objects = {
                      H["emoticonMenuPluginFileRef"],
                      H["accountMenuAccessUninstallTestFileRef"],
                      H["xtrasManagerUninstallTestFileRef"],
-                     H["emoticonMenuUninstallTestFileRef"]],
+                     H["emoticonMenuUninstallTestFileRef"],
+                     H["nudgeBuzzPluginFileRef"], H["esGeneralPrefsPluginFileRef"],
+                     H["mentionEventPluginFileRef"], H["urlHandlerPluginFileRef"],
+                     H["accountListPrefsPluginFileRef"], H["globalEventsPrefsPluginFileRef"],
+                     H["variantTeardownTestFileRef"]],
         "name": "Sources",
         "sourceTree": "<group>",
     },
@@ -683,6 +696,50 @@ objects = {
         "sourceTree": "<group>",
     },
 
+    # Plugin-uninstall teardown batch 4 (#230/#231): plugin TUs + consolidated variant test.
+    H["nudgeBuzzPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Nudge and Buzz Handler/AINudgeBuzzHandlerPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["esGeneralPrefsPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/General Preferences/ESGeneralPreferencesPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["mentionEventPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIMentionEventPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["urlHandlerPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIURLHandlerPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["accountListPrefsPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIAccountListPreferencesPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["globalEventsPrefsPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/ESGlobalEventsPreferencesPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["variantTeardownTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestPluginTeardownVariantUninstall.m",
+        "sourceTree": "<group>",
+    },
+
     H["xctestFwkRef"]: {
         "isa": "PBXFileReference",
         "lastKnownFileType": "wrapper.framework",
@@ -779,7 +836,11 @@ objects = {
                   H["emoticonMenuPluginBuildFile"],
                   H["accountMenuAccessUninstallTestBuildFile"],
                   H["xtrasManagerUninstallTestBuildFile"],
-                  H["emoticonMenuUninstallTestBuildFile"]],
+                  H["emoticonMenuUninstallTestBuildFile"],
+                  H["nudgeBuzzPluginBuildFile"], H["esGeneralPrefsPluginBuildFile"],
+                  H["mentionEventPluginBuildFile"], H["urlHandlerPluginBuildFile"],
+                  H["accountListPrefsPluginBuildFile"], H["globalEventsPrefsPluginBuildFile"],
+                  H["variantTeardownTestBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
     H["testFrameworksPhase"]: {
@@ -858,6 +919,13 @@ objects = {
     H["accountMenuAccessUninstallTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["accountMenuAccessUninstallTestFileRef"]},
     H["xtrasManagerUninstallTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["xtrasManagerUninstallTestFileRef"]},
     H["emoticonMenuUninstallTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["emoticonMenuUninstallTestFileRef"]},
+    H["nudgeBuzzPluginBuildFile"]:         {"isa": "PBXBuildFile", "fileRef": H["nudgeBuzzPluginFileRef"]},
+    H["esGeneralPrefsPluginBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["esGeneralPrefsPluginFileRef"]},
+    H["mentionEventPluginBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["mentionEventPluginFileRef"]},
+    H["urlHandlerPluginBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["urlHandlerPluginFileRef"]},
+    H["accountListPrefsPluginBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["accountListPrefsPluginFileRef"]},
+    H["globalEventsPrefsPluginBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["globalEventsPrefsPluginFileRef"]},
+    H["variantTeardownTestBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["variantTeardownTestFileRef"]},
     H["userNotificationsFwkBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["userNotificationsFwkRef"]},
 
     # ── Target Dependency ───────────────────────────────────────

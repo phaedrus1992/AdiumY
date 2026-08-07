@@ -175,6 +175,11 @@ extern id<AIAdium> adium;
 {
 	[_removedPanes addObject:pane];
 }
+
+- (void)removeAdvancedPreferencePane:(id)pane
+{
+	[_removedPanes addObject:pane];
+}
 @end
 
 @interface MenuMockAdium : NSObject

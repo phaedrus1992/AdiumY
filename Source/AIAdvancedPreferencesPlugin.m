@@ -53,11 +53,11 @@
 		advancedPreferences = nil;
 	}
 	if (messageAlertsPreferences != nil) {
-		[adium.preferenceController removePreferencePane:messageAlertsPreferences];
+		[adium.preferenceController removeAdvancedPreferencePane:messageAlertsPreferences];
 		messageAlertsPreferences = nil;
 	}
 	if (confirmationsPreferences != nil) {
-		[adium.preferenceController removePreferencePane:confirmationsPreferences];
+		[adium.preferenceController removeAdvancedPreferencePane:confirmationsPreferences];
 		confirmationsPreferences = nil;
 	}
 }

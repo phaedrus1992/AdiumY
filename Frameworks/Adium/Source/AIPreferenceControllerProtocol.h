@@ -50,6 +50,7 @@ typedef enum {
 - (void)removePreferencePane:(AIPreferencePane *)inPane;
 - (NSArray *)paneArray;
 - (void)addAdvancedPreferencePane:(AIAdvancedPreferencePane *)inPane;
+- (void)removeAdvancedPreferencePane:(AIAdvancedPreferencePane *)inPane;
 - (NSArray *)advancedPaneArray;
 
 // Observing
