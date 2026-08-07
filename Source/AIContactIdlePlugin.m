@@ -103,6 +103,8 @@
 				// Stop tracking the handle
 				[idleObjectArray removeObject:inObject];
 				if ([idleObjectArray count] == 0) {
+					// No idle contacts left; stop the repeating update timer so it cannot fire forever.
+					[idleObjectTimer invalidate];
 					idleObjectTimer = nil;
 					idleObjectArray = nil;
 				}
