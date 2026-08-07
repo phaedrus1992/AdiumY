@@ -59,6 +59,7 @@ typedef enum {
 			withHandler:(id<AIEventHandler>)handler
 				inGroup:(AIEventHandlerGroupType)inGroup
 			 globalOnly:(BOOL)global;
+- (void)unregisterEventID:(NSString *)eventID;
 - (NSSet *)generateEvent:(NSString *)eventID
 				   forListObject:(AIListObject *)listObject
 						userInfo:(id)userInfo

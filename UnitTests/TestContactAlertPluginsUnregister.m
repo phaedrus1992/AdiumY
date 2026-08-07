@@ -62,10 +62,24 @@ DETAIL_PANE_SHIM(SMContactListShowDetailsPane)
 #undef DETAIL_PANE_SHIM
 
 /*
- * Link shim for the debug-logging symbol. ESDebugAILog.h (reached via Adium.pch in the real app)
- * declares AILogWithSignature_impl, which ESSendMessageContactAlertPlugin.m calls; the standalone
- * test bundle links no debug-logging implementation, so this no-op satisfies the undefined symbol.
+ * Link shims for the debug-logging symbols. ESDebugAILog.h (reached via Adium.pch in the real app,
+ * and via the CoverageHostTests prefix header here) declares AIDebugLoggingEnabled plus the
+ * AILog_impl/AILogWithPrefix_impl/AILogWithSignature_impl functions, which wired plugin TUs call;
+ * the standalone test bundle links no debug-logging implementation, so these no-ops satisfy the
+ * undefined symbols.
  */
+BOOL AIDebugLoggingEnabled = NO;
+
+void AILog_impl(NSString *format, ...)
+{
+	// No-op: the standalone test bundle links no debug-logging implementation.
+}
+
+void AILogWithPrefix_impl(const char *signature, NSString *format, ...)
+{
+	// No-op: the standalone test bundle links no debug-logging implementation.
+}
+
 void AILogWithSignature_impl(const char *function, int line, NSString *format, ...)
 {
 	// No-op: the standalone test bundle links no debug-logging implementation.

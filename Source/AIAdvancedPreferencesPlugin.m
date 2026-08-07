@@ -14,7 +14,19 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede AIAdvancedPreferencesPlugin.h, whose interface inherits from it. clang-format
+// would sort the quoted own-header first.
+#import <AdiumY/AIPlugin.h>
 #import "AIAdvancedPreferencesPlugin.h"
+// clang-format on
+
+// clang-format off
+// The standalone test target has no Adium.pch, which provides AIPreferenceControllerProtocol.h
+// app-wide; import it here so adium.preferenceController's selectors resolve without the pch.
+#import <AdiumY/AIPreferenceControllerProtocol.h>
+// clang-format on
 #import "AIAdvancedPreferences.h"
 #import "AIConfirmationsAdvancedPreferences.h"
 #import "AIMessageAlertsAdvancedPreferences.h"
@@ -23,13 +35,31 @@
 
 - (void)installPlugin
 {
-	[AIAdvancedPreferences preferencePane];
+	advancedPreferences = (AIAdvancedPreferences *)[AIAdvancedPreferences preferencePane];
 
 	// Generic advanced panes with no specific plugins.
 	messageAlertsPreferences =
 		(AIMessageAlertsAdvancedPreferences *)[AIMessageAlertsAdvancedPreferences preferencePane];
 	confirmationsPreferences =
 		(AIConfirmationsAdvancedPreferences *)[AIConfirmationsAdvancedPreferences preferencePane];
+}
+
+- (void)uninstallPlugin
+{
+	// Remove the preference panes installPlugin registered so an uninstalled plugin stops appearing
+	// in the preferences window (removal is nil-safe).
+	if (advancedPreferences != nil) {
+		[adium.preferenceController removePreferencePane:advancedPreferences];
+		advancedPreferences = nil;
+	}
+	if (messageAlertsPreferences != nil) {
+		[adium.preferenceController removePreferencePane:messageAlertsPreferences];
+		messageAlertsPreferences = nil;
+	}
+	if (confirmationsPreferences != nil) {
+		[adium.preferenceController removePreferencePane:confirmationsPreferences];
+		confirmationsPreferences = nil;
+	}
 }
 
 @end
