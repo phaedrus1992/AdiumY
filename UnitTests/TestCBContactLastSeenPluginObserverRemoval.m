@@ -25,12 +25,12 @@
  * and MockContactObserverManager record the register/unregister calls; LastSeenMockAdium is a plain
  * NSObject (never formally conforming to <AIAdium>) installed via `adium = (id<AIAdium>)mockAdium`.
  *
- * AIContactObserverManager is the real class — its implementation lives in Adium.framework, which the
- * standalone target does not link, so this TU provides the class's +sharedManager returning the
- * recording mock (the real @interface, imported via CBContactLastSeenPlugin.h, stays in scope). The
- * shared `adium` global and the AIPlugin class are provided by
- * TestESUserIconHandlingPluginObserverRemoval.m in the same bundle — not redefined here.
+ * AIContactObserverManager's +sharedManager is provided by
+ * TestESUserIconHandlingPluginObserverRemoval.m in the same bundle; it returns the shared
+ * AIObserverManagerSharedMock slot, set to the recording mock below. The shared `adium` global and
+ * the AIPlugin class are provided by that same file — not redefined here.
  */
+extern id AIObserverManagerSharedMock;
 @interface LastSeenMockInterfaceController : NSObject
 @property(nonatomic, strong) id registeredTooltipEntry;
 @property(nonatomic, assign) BOOL registeredSecondaryEntry;
@@ -83,15 +83,6 @@
 }
 @end
 
-static MockContactObserverManager *sharedObserverManagerMock = nil;
-
-@implementation AIContactObserverManager
-+ (AIContactObserverManager *)sharedManager
-{
-	return (AIContactObserverManager *)sharedObserverManagerMock;
-}
-@end
-
 @interface LastSeenMockAdium : NSObject
 @property(nonatomic, strong) LastSeenMockInterfaceController *interfaceController;
 @end
@@ -116,9 +107,10 @@ static MockContactObserverManager *sharedObserverManagerMock = nil;
 	LastSeenMockInterfaceController *mockInterfaceController = [[LastSeenMockInterfaceController alloc] init];
 	MockContactObserverManager *mockObserverManager = [[MockContactObserverManager alloc] init];
 	id<AIAdium> savedAdium = adium;
+	id savedObserverManagerMock = AIObserverManagerSharedMock;
 
 	[mockAdium setInterfaceController:mockInterfaceController];
-	sharedObserverManagerMock = mockObserverManager;
+	AIObserverManagerSharedMock = mockObserverManager;
 	adium = (id<AIAdium>)mockAdium;
 	@try {
 		[plugin installPlugin];
@@ -152,7 +144,7 @@ static MockContactObserverManager *sharedObserverManagerMock = nil;
 					   @"list-object observer unregistered is the plugin itself");
 	} @finally {
 		adium = savedAdium;
-		sharedObserverManagerMock = nil;
+		AIObserverManagerSharedMock = savedObserverManagerMock;
 	}
 }
 

@@ -1,0 +1,15 @@
+/*
+ * Prefix header for the CoverageHostTests target.
+ *
+ * The real Adium app compiles every TU against Adium.pch, which imports
+ * <Cocoa/Cocoa.h> globally; real Adium headers (AIAdiumProtocol.h,
+ * AIAbstractListObjectMenu.h, ...) rely on that and declare no imports of
+ * their own. clang-format's SortIncludes orders <AdiumY/...> before
+ * <Cocoa/Cocoa.h>, so plugin headers can no longer guarantee Foundation is in
+ * scope before a pch-dependent header is parsed. Restore the app's invariant
+ * here so the include chain is order-independent.
+ */
+
+#ifdef __OBJC__
+	#import <Cocoa/Cocoa.h>
+#endif

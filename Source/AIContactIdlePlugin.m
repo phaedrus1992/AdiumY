@@ -17,6 +17,7 @@
 #import "AIContactIdlePlugin.h"
 #import <AIUtilities/AIArrayAdditions.h>
 #import <AIUtilities/AIDateFormatterAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIContactControllerProtocol.h>
 #import <AdiumY/AIInterfaceControllerProtocol.h>
 #import <AdiumY/AIListObject.h>
@@ -58,7 +59,9 @@
 	[adium.interfaceController unregisterContactListTooltipEntry:self secondaryEntry:YES];
 
 	// Stop tracking all idle handles
+	[idleObjectTimer invalidate];
 	idleObjectTimer = nil;
+	idleObjectArray = nil;
 	[[AIContactObserverManager sharedManager] unregisterListObjectObserver:self];
 }
 
@@ -101,6 +104,8 @@
 				// Stop tracking the handle
 				[idleObjectArray removeObject:inObject];
 				if ([idleObjectArray count] == 0) {
+					// No idle contacts left; stop the repeating update timer so it cannot fire forever.
+					[idleObjectTimer invalidate];
 					idleObjectTimer = nil;
 					idleObjectArray = nil;
 				}

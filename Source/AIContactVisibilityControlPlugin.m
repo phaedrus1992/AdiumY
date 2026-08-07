@@ -19,12 +19,14 @@
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIImageAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIAccountControllerProtocol.h>
 #import <AdiumY/AIContactControllerProtocol.h>
 #import <AdiumY/AIListGroup.h>
 #import <AdiumY/AIListObject.h>
 #import <AdiumY/AIMenuControllerProtocol.h>
 #import <AdiumY/AIMetaContact.h>
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 
 #define HIDE_CONTACTS_MENU_TITLE AILocalizedString(@"Hide Certain Contacts", nil)
 #define HIDE_OFFLINE_MENU_TITLE AILocalizedString(@"Hide Offline Contacts", nil)
@@ -138,6 +140,9 @@
 - (void)uninstallPlugin
 {
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// The account submenu retains this plugin as its delegate; drop the back-reference before tearing it down.
+	[menu_hideAccounts setDelegate:nil];
 
 	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
 	[adium.menuController removeMenuItem:menuItem_hideContacts];

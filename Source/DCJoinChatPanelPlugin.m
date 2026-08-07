@@ -18,6 +18,7 @@
 #import "DCJoinChatWindowController.h"
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIAccountControllerProtocol.h>
 #import <AdiumY/AIMenuControllerProtocol.h>
@@ -41,6 +42,16 @@
 												  action:@selector(joinChat:)
 										   keyEquivalent:@"J"];
 	[adium.menuController addMenuItem:joinChatMenuItem toLocation:LOC_File_New];
+}
+
+/*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Remove the menu item installPlugin registered (menu item removal is nil-safe).
+	[adium.menuController removeMenuItem:joinChatMenuItem];
+	joinChatMenuItem = nil;
 }
 
 /*!

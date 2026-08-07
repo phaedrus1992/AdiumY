@@ -74,6 +74,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Remove the dock-name-overlay and contact-last-seen plugins' list-object
   observers when they uninstall, so the contact list stops reacting to their
   changes after removal
+- Remove the chat-consolidation, new-message, join-chat, invite-to-chat, and
+  edit-status-menu items five plugins register when they uninstall, instead of
+  leaving dead menu entries that target a released plugin
+- Unregister the status and advanced-status preference panes the edit-status-menu
+  plugin registers when it uninstalls
+- Unregister the status-menu plugin's list-object observer and remove its dock,
+  status-menu, and account menu items when it uninstalls, so it leaves nothing
+  registered
+- Stop the idle plugin's repeating idle-update timer when it uninstalls or when
+  the last tracked contact stops being idle, instead of letting it keep firing
+- Drop the hide-accounts submenu delegate when the contact-visibility plugin
+  uninstalls, so the menu cannot message a released plugin
 
 ## [2.0.0] - 2026-08-03
 
