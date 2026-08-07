@@ -41,6 +41,15 @@
 }
 
 /*!
+ * @brief Uninstall
+ */
+- (void)uninstallPlugin
+{
+	// Unregister the tooltip entry installPlugin registered, so an uninstalled plugin leaves no dead tooltip behind.
+	[adium.interfaceController unregisterContactListTooltipEntry:self secondaryEntry:YES];
+}
+
+/*!
  * @brief Return the description of the object's status to show after Status:
  *
  * If a statusName exists for the object's status, its localized description will be shown.
