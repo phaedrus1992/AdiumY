@@ -86,6 +86,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   the last tracked contact stops being idle, instead of letting it keep firing
 - Drop the hide-accounts submenu delegate when the contact-visibility plugin
   uninstalls, so the menu cannot message a released plugin
+- Remove the contact-alert action handlers the eleven alert plugins register
+  when they uninstall, so an uninstalled plugin stops responding to alerts
+- Fix a crash when every contact-alert action plugin has been uninstalled, since
+  the default-action fallback no longer indexes an empty handler list
+- Remove the account-menu items the account-menu-access plugin registers when it
+  uninstalls
+- Remove the appearance-preferences pane the appearance-preferences plugin
+  registers when it uninstalls
+- Drop the emoticon-menu and SCL-view plugins' submenu delegates when they
+  uninstall, so their menus cannot message a released plugin
+- Clear the Xtras-manager singleton when the Xtras plugin uninstalls, so it
+  leaves no live reference behind
 
 ## [2.0.0] - 2026-08-03
 
