@@ -97,7 +97,7 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
 
-	// Unregister the toolbar item registerToolbarItem registered, so an uninstalled plugin leaves no dead item behind.
+	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
 	if (registeredToolbarItem != nil) {
 		[adium.toolbarController unregisterToolbarItem:registeredToolbarItem forToolbarType:@"TextEntry"];
 		registeredToolbarItem = nil;

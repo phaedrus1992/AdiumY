@@ -60,7 +60,7 @@
 
 - (void)uninstallPlugin
 {
-	// Unregister the toolbar item registerToolbarItem registered, so an uninstalled plugin leaves no dead item behind.
+	// Unregister the toolbar item installPlugin registered, so an uninstalled plugin leaves no dead item behind.
 	if (toolbarItem != nil) {
 		[adium.toolbarController unregisterToolbarItem:toolbarItem forToolbarType:@"TextEntry"];
 		toolbarItem = nil;
