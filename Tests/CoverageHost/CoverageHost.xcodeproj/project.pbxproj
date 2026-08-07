@@ -125,6 +125,14 @@
 				<string>32A8ED4A111453A49CC515FA</string>
 				<string>EE0EB79AE2315A25A1DB33CF</string>
 				<string>062D2F9BE8265EEDAF656C9D</string>
+				<string>A4B0BA7C577C52939DDE0EB7</string>
+				<string>2D7E20C8000E544E8A748D34</string>
+				<string>A7B5D94AB6F25695A95D189B</string>
+				<string>596CAE5D0CC65CC88EA5626F</string>
+				<string>04368451B6225267830FC59B</string>
+				<string>892D5ECE7B0C537F9FD5ED3C</string>
+				<string>34D3AC3099B35DE59A19F536</string>
+				<string>D680C17077525D4ABF8E4F1E</string>
 			</array>
 			<key>name</key>
 			<string>Sources</string>
@@ -1098,6 +1106,94 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
+		<key>A4B0BA7C577C52939DDE0EB7</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/AIContactStatusEventsPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>2D7E20C8000E544E8A748D34</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAIContactStatusEventsPluginUninstall.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>A7B5D94AB6F25695A95D189B</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/Dual Window Interface/AIDualWindowInterfacePlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>596CAE5D0CC65CC88EA5626F</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAIDualWindowInterfacePluginUninstall.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>04368451B6225267830FC59B</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/AWBonjourPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>892D5ECE7B0C537F9FD5ED3C</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAWBonjourPluginUninstall.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>34D3AC3099B35DE59A19F536</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/AdiumServices.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>D680C17077525D4ABF8E4F1E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAdiumServicesUnregister.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
 		<key>1041C5FC221D577F8FF36681</key>
 		<dict>
 			<key>isa</key>
@@ -1272,6 +1368,14 @@
 				<string>D598920B53885D4FB7956D12</string>
 				<string>6DD852E3D4435EC0BCEED6B9</string>
 				<string>72FC9A6979D951E48B8C29E3</string>
+				<string>CB9FB7CA43565E93AF390AA6</string>
+				<string>FA88776A10A9560DA4BA8DF7</string>
+				<string>06E8BBF925D55907AC1F9342</string>
+				<string>787E93AB3C59551EB73C4BE4</string>
+				<string>6908AAD7C1F65423B2040538</string>
+				<string>6D49D10A5D2654A083E41A28</string>
+				<string>AD4FA203946A53629B45A4D8</string>
+				<string>27B646E707A751FAB0C712FD</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
@@ -1803,6 +1907,62 @@
 			<key>fileRef</key>
 			<string>062D2F9BE8265EEDAF656C9D</string>
 		</dict>
+		<key>CB9FB7CA43565E93AF390AA6</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>A4B0BA7C577C52939DDE0EB7</string>
+		</dict>
+		<key>FA88776A10A9560DA4BA8DF7</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>2D7E20C8000E544E8A748D34</string>
+		</dict>
+		<key>06E8BBF925D55907AC1F9342</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>A7B5D94AB6F25695A95D189B</string>
+		</dict>
+		<key>787E93AB3C59551EB73C4BE4</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>596CAE5D0CC65CC88EA5626F</string>
+		</dict>
+		<key>6908AAD7C1F65423B2040538</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>04368451B6225267830FC59B</string>
+		</dict>
+		<key>6D49D10A5D2654A083E41A28</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>892D5ECE7B0C537F9FD5ED3C</string>
+		</dict>
+		<key>AD4FA203946A53629B45A4D8</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>34D3AC3099B35DE59A19F536</string>
+		</dict>
+		<key>27B646E707A751FAB0C712FD</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>D680C17077525D4ABF8E4F1E</string>
+		</dict>
 		<key>D1922B0BDA615AD2ABDAA1EA</key>
 		<dict>
 			<key>isa</key>
@@ -2041,6 +2201,7 @@
 					<string>"$(SRCROOT)/../../Plugins/Invite to Chat Plugin"</string>
 					<string>"$(SRCROOT)/../../Plugins/Dual Window Interface"</string>
 					<string>$(SRCROOT)/../../Frameworks/Adium/Source</string>
+					<string>$(SRCROOT)/../../Plugins/Bonjour</string>
 					<string>$(SRCROOT)/../../Plugins/Bonjour/libezv/Classes</string>
 					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"</string>
 					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Private Classes"</string>
@@ -2108,6 +2269,7 @@
 					<string>"$(SRCROOT)/../../Plugins/Invite to Chat Plugin"</string>
 					<string>"$(SRCROOT)/../../Plugins/Dual Window Interface"</string>
 					<string>$(SRCROOT)/../../Frameworks/Adium/Source</string>
+					<string>$(SRCROOT)/../../Plugins/Bonjour</string>
 					<string>$(SRCROOT)/../../Plugins/Bonjour/libezv/Classes</string>
 					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"</string>
 					<string>"$(SRCROOT)/../../Plugins/Bonjour/libezv/Private Classes"</string>

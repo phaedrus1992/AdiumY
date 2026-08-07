@@ -18,6 +18,9 @@
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIAccountControllerProtocol.h>
 #import <AdiumY/AIService.h>
+// The real app imports AISharedAdium.h via Adium.pch; the standalone test target compiles this TU
+// without that prefix header, so the `adium` global needs its declaration here.
+#import <AdiumY/AISharedAdium.h>
 
 @implementation AdiumServices
 
@@ -41,6 +44,20 @@
 - (void)registerService:(AIService *)inService
 {
 	[services setObject:inService forKey:inService.serviceCodeUniqueID];
+}
+
+/*!
+ * @brief Unregister an AIService instance
+ *
+ * The inverse of registerService:. Removes the service from the registry, so an uninstalled service plugin leaves
+ * no entry behind. A nil service is a no-op: removeObjectForKey:nil would raise NSInvalidArgumentException (#235).
+ * @param inService The service to unregister
+ */
+- (void)unregisterService:(AIService *)inService
+{
+	if (inService != nil) {
+		[services removeObjectForKey:inService.serviceCodeUniqueID];
+	}
 }
 
 /*!

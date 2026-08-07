@@ -28,9 +28,20 @@
  */
 @implementation AIService
 
-+ (void)registerService
++ (instancetype)registerService
 {
-	(void)[[self alloc] init];
+	return [[self alloc] init];
+}
+
+/*!
+ * @brief Unregister this service
+ *
+ * The inverse of +registerService. Removes the service from the account controller's registry, so an uninstalled
+ * service plugin leaves no entry behind (#235).
+ */
+- (void)unregisterService
+{
+	[adium.accountController unregisterService:self];
 }
 
 /*!

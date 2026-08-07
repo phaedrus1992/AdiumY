@@ -110,6 +110,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   uninstalls, so it leaves no live reference behind
 - Stop the account-events plugin's grouping timers when it uninstalls, so they
   stop firing into a released plugin
+- Fix the contact-status-events plugin leaving its five per-contact status caches
+  allocated after uninstall
+- Unregister the dual-window interface plugin's interface controller and remove
+  its advanced preference pane when it uninstalls
+- Unregister the Bonjour plugin's Bonjour service when it uninstalls
 
 ## [2.0.0] - 2026-08-03
 

@@ -14,7 +14,14 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede AIDualWindowInterfacePlugin.h, whose interface inherits from it.
+// clang-format would sort the quoted own-header first.
+#import <AdiumY/AIPlugin.h>
 #import "AIDualWindowInterfacePlugin.h"
+// clang-format on
+
 #import "AIMessageTabViewItem.h"
 #import "AIMessageViewController.h"
 #import "AIMessageWindowController.h"
@@ -23,6 +30,9 @@
 #import <AdiumY/AIChat.h>
 #import <AdiumY/AIChatControllerProtocol.h>
 #import <AdiumY/AIInterfaceControllerProtocol.h>
+// The real app imports AIPreferenceControllerProtocol.h via Adium.pch; the standalone test target
+// compiles this TU without that prefix header, so registerDefaults:forGroup: needs its declaration here.
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 
 #define ADIUM_UNIQUE_CONTAINER @"ADIUM_UNIQUE_CONTAINER"
 
@@ -32,6 +42,21 @@
 - (void)installPlugin
 {
 	[adium.interfaceController registerInterfaceController:self];
+}
+
+// Uninstall
+- (void)uninstallPlugin
+{
+	// Close the interface before unregistering. The component loader uninstalls components
+	// (AIAdium.m controllerWillClose) before the interface controller's own controllerWillClose would
+	// close the interface, so unregistering first would leave interfacePlugin nil and skip the
+	// window/observer/pane cleanup in closeInterface. closeInterface is idempotent-safe (nil-guarded
+	// pane removal, nil containers), so a second uninstall is a no-op (#236).
+	[self closeInterface];
+
+	// Unregister the interface controller installPlugin registered, so an uninstalled plugin stops receiving
+	// interface callbacks (#236).
+	[adium.interfaceController unregisterInterfaceController:self];
 }
 
 // Open the interface
@@ -71,8 +96,14 @@
 	// Stop observing
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
+	// Remove the advanced preference pane openInterface created, so an uninstalled plugin's pane leaves the
+	// preferences window (removal is nil-safe; only clear the ivar once the pane is out).
+	if (preferenceMessageAdvController != nil) {
+		[adium.preferenceController removeAdvancedPreferencePane:preferenceMessageAdvController];
+		preferenceMessageAdvController = nil;
+	}
+
 	// Cleanup
-	preferenceMessageAdvController = nil;
 	containers = nil;
 	delayedContainerShowArray = nil;
 }

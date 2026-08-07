@@ -22,7 +22,14 @@
  * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede AWBonjourPlugin.h, whose interface inherits from it.
+// clang-format would sort the quoted own-header first.
+#import <AdiumY/AIPlugin.h>
 #import "AWBonjourPlugin.h"
+// clang-format on
+
 #import "AWBonjourAccount.h"
 #import "AWBonjourService.h"
 
@@ -30,7 +37,18 @@
 
 - (void)installPlugin
 {
-	[AWBonjourService registerService];
+	service = [AWBonjourService registerService];
+}
+
+// Uninstall
+- (void)uninstallPlugin
+{
+	// Unregister the service installPlugin registered, so an unloaded plugin leaves no Bonjour service registered
+	// (#235). Nil-safe: a second uninstall, after the ivar is already nil, is a no-op.
+	if (service != nil) {
+		[service unregisterService];
+		service = nil;
+	}
 }
 
 @end

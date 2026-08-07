@@ -82,6 +82,7 @@ typedef enum {
 
 @protocol AIInterfaceController <AIController>
 - (void)registerInterfaceController:(id<AIInterfaceComponent>)inController;
+- (void)unregisterInterfaceController:(id<AIInterfaceComponent>)inController;
 - (void)registerContactListController:(id<AIContactListComponent>)inController;
 
 /*!	@brief	Implement handling of the reopen Apple Event.

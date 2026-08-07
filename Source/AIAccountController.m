@@ -84,6 +84,11 @@
 {
 	[adiumServices registerService:inService];
 }
+
+- (void)unregisterService:(AIService *)inService
+{
+	[adiumServices unregisterService:inService];
+}
 - (NSArray *)services
 {
 	return [adiumServices services];
