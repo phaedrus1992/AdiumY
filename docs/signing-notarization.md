@@ -36,15 +36,20 @@ not something to ship.
 
 ## Current state of this repo
 
-- CI (`.github/workflows/ci.yml`) builds with `CODE_SIGNING_ALLOWED=NO` —
-  artifacts are unsigned and will be blocked for downloaders.
-- No Apple Developer account exists for this project yet.
+- Apple team **K75Y6WZDVX**. Releases are signed, notarized and stapled by
+  `fastlane` — see **`docs/releasing.md`**, which is the operational guide.
+  This file is the background on *why* each step exists.
+- PR builds (`.github/workflows/ci.yml`) still use `CODE_SIGNING_ALLOWED=NO`
+  and are deliberately unsigned; don't hand those to users.
 - App product name is `AdiumY` (universal arm64+x86_64); sign the finished fat
   binary once, after all slices are assembled.
 
-## Workflow (once you have an account)
+## The manual equivalent of what fastlane does
 
 ### 1. One-time: store notarization credentials
+
+The release pipeline uses an App Store Connect API key (`.p8`) instead, because
+a keychain profile cannot be transported to CI. For one-off local work:
 
 ```sh
 xcrun notarytool store-credentials AC --apple-id you@example.com --team-id TEAMID
@@ -102,9 +107,9 @@ find AdiumY.app -type f -perm +111 -exec codesign --verify {} \;
 - **Universal binaries**: `codesign` signs all slices at once, but any later
   edit (`install_name_tool`, `lipo`, `strip`) invalidates the signature —
   re-sign after patching.
-- **CI**: store the Developer ID certificate and the notary keychain profile as
-  GitHub secrets so anyone on the team can cut a release, instead of one
-  developer's laptop.
+- **CI**: `.github/workflows/release.yml` runs on `v*` tags and holds the
+  certificate and API key as GitHub secrets, so a release does not depend on
+  one developer's laptop. Secret names are listed in `docs/releasing.md`.
 
 ## Common notarization rejections
 
@@ -116,5 +121,6 @@ find AdiumY.app -type f -perm +111 -exec codesign --verify {} \;
 
 ## Related
 
+- `docs/releasing.md` — the actual release procedure and credential setup.
 - `Utilities/README-appcast.md` — Sparkle appcast (EdDSA) release signing.
 - llmenv `mac-dev` bundle, `rules/signing-notarization.md` — same guidance.
