@@ -38,11 +38,16 @@
 #import "ESOTRUnknownFingerprintController.h"
 #import "OTRCommon.h"
 
+/* Order matters: proto.h and tlv.h declare the types message.h uses, and
+ * libotr's headers include none of their own dependencies.
+ * Fenced off because clang-format sorts includes alphabetically. */
+// clang-format off
 #import <libotr/instag.h>
-#import <libotr/message.h>
-#import <libotr/privkey.h>
 #import <libotr/proto.h>
 #import <libotr/tlv.h>
+#import <libotr/message.h>
+#import <libotr/privkey.h>
+// clang-format on
 
 #import <stdlib.h>
 
