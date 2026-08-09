@@ -30,10 +30,21 @@
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIObjectAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+// The real app imports AIStringUtilities.h via Adium.pch; the standalone test target compiles this TU
+// without that prefix header, so the AILocalizedString macro needs its definition here.
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIService.h>
 #import <AdiumY/AIStatus.h>
 #import <AdiumY/AIStatusIcons.h>
+// The real app imports AIPlugin.h via Adium.pch; the standalone test target compiles this TU
+// without that prefix header, so the `adium` global needs its declaration here.
+#import <AdiumY/AIPlugin.h>
+// The real app imports AIPreferenceControllerProtocol.h via Adium.pch; import it here so
+// adium.preferenceController's selectors resolve without the pch.
+// clang-format off
+#import <AdiumY/AIPreferenceControllerProtocol.h>
+// clang-format on
 
 // State menu
 #define STATUS_TITLE_OFFLINE AILocalizedStringFromTable(@"Offline", @"Statuses", "Name of a status")
@@ -218,6 +229,24 @@ static NSMutableSet *temporaryStateArray = nil;
 												   [NSNumber numberWithInteger:type], KEY_STATUS_TYPE, nil];
 
 	[statusDicts addObject:statusDict];
+}
+
+/*!
+ * @brief Unregister all statuses registered by a service
+ *
+ * The inverse of registerStatus:withDescription:ofType:forService:. Removes the service's entry
+ * from each status type's dictionary, dropping its statuses from the status menu (#240).
+ *
+ * @param service The AIService whose statuses should be removed
+ */
+- (void)unregisterStatusesForService:(AIService *)service
+{
+	AIStatusType type;
+	NSString *serviceCodeUniqueID = service.serviceCodeUniqueID;
+
+	for (type = AIAvailableStatusType; type < STATUS_TYPES_COUNT; type++) {
+		[statusDictsByServiceCodeUniqueID[type] removeObjectForKey:serviceCodeUniqueID];
+	}
 }
 
 #pragma mark Status menus

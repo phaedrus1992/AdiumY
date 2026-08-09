@@ -133,6 +133,13 @@
 				<string>892D5ECE7B0C537F9FD5ED3C</string>
 				<string>34D3AC3099B35DE59A19F536</string>
 				<string>D680C17077525D4ABF8E4F1E</string>
+				<string>2D400BFD65D958AFB0723BA4</string>
+				<string>929FA1DB55365A28B37FDD1A</string>
+				<string>2C1CD77B976E53EE82775801</string>
+				<string>F3A7C89B77B855E6B362597D</string>
+				<string>D75B29B2FB3B5D26A3C85C85</string>
+				<string>96EC8C9E6B855F85B77BD82E</string>
+				<string>9E5D7A92E7F5537CA1644C4D</string>
 			</array>
 			<key>name</key>
 			<string>Sources</string>
@@ -1194,6 +1201,83 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
+		<key>2D400BFD65D958AFB0723BA4</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Frameworks/Adium/Source/AIService.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>929FA1DB55365A28B37FDD1A</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAIServiceUnregister.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>2C1CD77B976E53EE82775801</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/AIStatusController.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F3A7C89B77B855E6B362597D</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/Purple Service/CBPurpleServicePlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>D75B29B2FB3B5D26A3C85C85</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestCBPurpleServicePluginUninstall.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>96EC8C9E6B855F85B77BD82E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/AISCLViewPlugin.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>9E5D7A92E7F5537CA1644C4D</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAISCLViewPluginUninstall.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
 		<key>1041C5FC221D577F8FF36681</key>
 		<dict>
 			<key>isa</key>
@@ -1376,6 +1460,13 @@
 				<string>6D49D10A5D2654A083E41A28</string>
 				<string>AD4FA203946A53629B45A4D8</string>
 				<string>27B646E707A751FAB0C712FD</string>
+				<string>B85F5C7F4C715404A2987435</string>
+				<string>9135E8837FF0563788B41FBD</string>
+				<string>5F9D1EE0F77B5743A1B0BE35</string>
+				<string>A68EA9696AB95F7AA1BEA7D5</string>
+				<string>C311239E73CC5141BB965BAD</string>
+				<string>089310D491BD5C0585435C12</string>
+				<string>535A8FC9E96C5A508615C3E7</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
@@ -1963,6 +2054,55 @@
 			<key>fileRef</key>
 			<string>D680C17077525D4ABF8E4F1E</string>
 		</dict>
+		<key>B85F5C7F4C715404A2987435</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>2D400BFD65D958AFB0723BA4</string>
+		</dict>
+		<key>9135E8837FF0563788B41FBD</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>929FA1DB55365A28B37FDD1A</string>
+		</dict>
+		<key>5F9D1EE0F77B5743A1B0BE35</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>2C1CD77B976E53EE82775801</string>
+		</dict>
+		<key>A68EA9696AB95F7AA1BEA7D5</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>F3A7C89B77B855E6B362597D</string>
+		</dict>
+		<key>C311239E73CC5141BB965BAD</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>D75B29B2FB3B5D26A3C85C85</string>
+		</dict>
+		<key>089310D491BD5C0585435C12</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>96EC8C9E6B855F85B77BD82E</string>
+		</dict>
+		<key>535A8FC9E96C5A508615C3E7</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>9E5D7A92E7F5537CA1644C4D</string>
+		</dict>
 		<key>D1922B0BDA615AD2ABDAA1EA</key>
 		<dict>
 			<key>isa</key>
@@ -2210,6 +2350,7 @@
 					<string>"$(SRCROOT)/../../Plugins/Open Message Window Contact Alert"</string>
 					<string>"$(SRCROOT)/../../Plugins/Send Message Contact Alert"</string>
 					<string>"$(SRCROOT)/../../Plugins/Dock Icon Badging"</string>
+					<string>"$(SRCROOT)/../../Plugins/Purple Service"</string>
 					<string>$(SRCROOT)/LMX</string>
 				</array>
 				<key>GCC_PREFIX_HEADER</key>
@@ -2278,6 +2419,7 @@
 					<string>"$(SRCROOT)/../../Plugins/Open Message Window Contact Alert"</string>
 					<string>"$(SRCROOT)/../../Plugins/Send Message Contact Alert"</string>
 					<string>"$(SRCROOT)/../../Plugins/Dock Icon Badging"</string>
+					<string>"$(SRCROOT)/../../Plugins/Purple Service"</string>
 					<string>$(SRCROOT)/LMX</string>
 				</array>
 				<key>GCC_PREFIX_HEADER</key>

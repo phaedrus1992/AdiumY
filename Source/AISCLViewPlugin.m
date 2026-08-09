@@ -13,19 +13,37 @@
  * You should have received a copy of the GNU General Public License along with this program; if not,
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede AISCLViewPlugin.h, whose interface inherits from it. clang-format
+// would sort the quoted own-header first.
+#import <AdiumY/AIPlugin.h>
 #import "AISCLViewPlugin.h"
+// clang-format on
 #import "AIBorderlessListWindowController.h"
-#import "AIListOutlineView.h"
 #import "AIStandardListWindowController.h"
 #import "ESContactListAdvancedPreferences.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AIUtilities/AIStringAdditions.h>
+// The real app imports AIListOutlineView.h via HEADER_SEARCH_PATHS; the standalone test target's
+// AdiumY/AIListOutlineView.h is a shadow-stub for the AIListWindowController.h chain, so route both
+// this direct import and the AIAnimatingListOutlineView.h pull through the same shim to avoid a
+// duplicate @interface (stub : NSOutlineView vs real : AIMultiCellOutlineView).
+#import <AdiumY/AIListOutlineView.h>
+// The real app imports AIStringUtilities.h via Adium.pch; the standalone test target compiles this TU
+// without that prefix header, so the AILocalizedString macro needs its definition here.
+#import <AIUtilities/AIStringUtilities.h>
 #import <AdiumY/AIContactList.h>
 #import <AdiumY/AIInterfaceControllerProtocol.h>
 #import <AdiumY/AIListContact.h>
 #import <AdiumY/AIListGroup.h>
 #import <AdiumY/AIMenuControllerProtocol.h>
+// The real app imports AIPreferenceControllerProtocol.h via Adium.pch; import it here so
+// adium.preferenceController's selectors resolve without the pch.
+// clang-format off
+#import <AdiumY/AIPreferenceControllerProtocol.h>
+// clang-format on
 
 #define PREF_GROUP_APPEARANCE @"Appearance"
 
@@ -150,6 +168,9 @@
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[adium.preferenceController unregisterPreferenceObserver:self];
+
+	// Unregister as the contact list controller installPlugin registered us as (#242).
+	[adium.interfaceController unregisterContactListController:self];
 
 	// Remove the menu items installPlugin registered (menu item removal is nil-safe).
 	[adium.menuController removeContextualMenuItem:attachMenuItem];

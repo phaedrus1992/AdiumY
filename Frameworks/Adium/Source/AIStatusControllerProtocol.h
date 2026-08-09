@@ -102,6 +102,16 @@
 				ofType:(AIStatusType)type
 			forService:(AIService *)service;
 /*!
+ * @brief Unregister all statuses registered by a service
+ *
+ * The inverse of registerStatus:withDescription:ofType:forService:. Removes every status the
+ * service registered from the per-service status storage, so an uninstalled service leaves no
+ * statuses behind in the status menu (#240).
+ *
+ * @param service The AIService whose statuses should be removed
+ */
+- (void)unregisterStatusesForService:(AIService *)service;
+/*!
  * @brief Generate and return a menu of status types (Away, Be right back, etc.)
  *
  * @param service The service for which to return a specific list of types, or nil to return all available types

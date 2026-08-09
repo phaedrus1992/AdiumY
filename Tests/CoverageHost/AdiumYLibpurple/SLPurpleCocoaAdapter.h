@@ -1,0 +1,1 @@
+../../../Plugins/Purple Service/SLPurpleCocoaAdapter.h

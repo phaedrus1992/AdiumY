@@ -30,13 +30,11 @@
 @end
 
 /*
- * Link shim for the class symbol only: the bundle never instantiates a plain AIService, so its real
- * -init (which registers with adium.accountController) is intentionally not compiled in.
+ * Bare @interface only — the real AIService.m is wired into this bundle (it provides the class
+ * symbol plus +registerService/-init/-unregisterService), so declaring the class here satisfies
+ * the TestAdiumService subclass reference without emitting a second _OBJC_CLASS_ definition.
  */
 @interface AIService : NSObject
-@end
-
-@implementation AIService
 @end
 
 /*
