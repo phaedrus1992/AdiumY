@@ -78,6 +78,7 @@ for k in [
     "ezvXmlNodeFileRef", "ezvXmlNodeHeaderRef", "ezvXmlNodeBuildFile",
     "ezvXmlNodeTestFileRef", "ezvXmlNodeTestBuildFile",
     "ezvFolderCleanupTestFileRef", "ezvFolderCleanupTestBuildFile",
+    "ezvXmlPropsTestFileRef", "ezvXmlPropsTestBuildFile",
 
     # Plugin-uninstall teardown plugins + tests (#212-#215)
     "chatConsolPluginFileRef", "chatConsolPluginBuildFile",
@@ -372,6 +373,7 @@ objects = {
                      H["ezvTestFileRef"],
                      H["ezvXmlNodeFileRef"], H["ezvXmlNodeHeaderRef"],
                      H["ezvXmlNodeTestFileRef"], H["ezvFolderCleanupTestFileRef"],
+                     H["ezvXmlPropsTestFileRef"],
                      H["eventSoundsPluginFileRef"], H["dockBehaviorPluginFileRef"],
                      H["announcerPluginFileRef"], H["applescriptAlertPluginFileRef"],
                      H["smclsbPluginFileRef"], H["nehPluginFileRef"],
@@ -742,6 +744,12 @@ objects = {
         "isa": "PBXFileReference",
         "lastKnownFileType": "sourcecode.c.objc",
         "path": "../../UnitTests/TestEKEzvIncomingFileTransferFolderCleanup.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvXmlPropsTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestAWEzvXMLNodeSerializationProperties.m",
         "sourceTree": "<group>",
     },
 
@@ -1146,6 +1154,7 @@ objects = {
                   H["ezvTestBuildFile"],
                   H["ezvXmlNodeBuildFile"], H["ezvXmlNodeTestBuildFile"],
                   H["ezvFolderCleanupTestBuildFile"],
+                  H["ezvXmlPropsTestBuildFile"],
                   H["chatConsolPluginBuildFile"], H["newMsgPluginBuildFile"],
                   H["joinChatPluginBuildFile"], H["invitePluginBuildFile"],
                   H["statusPrefsPluginBuildFile"], H["stateMenuPluginBuildFile"],
@@ -1234,6 +1243,7 @@ objects = {
     H["ezvXmlNodeBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["ezvXmlNodeFileRef"]},
     H["ezvXmlNodeTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvXmlNodeTestFileRef"]},
     H["ezvFolderCleanupTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvFolderCleanupTestFileRef"]},
+    H["ezvXmlPropsTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvXmlPropsTestFileRef"]},
     H["chatConsolPluginBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["chatConsolPluginFileRef"]},
     H["newMsgPluginBuildFile"]:         {"isa": "PBXBuildFile", "fileRef": H["newMsgPluginFileRef"]},
     H["joinChatPluginBuildFile"]:       {"isa": "PBXBuildFile", "fileRef": H["joinChatPluginFileRef"]},

@@ -105,6 +105,7 @@
 				<string>342D21E5C0A1572E9BD9431D</string>
 				<string>9E84714987565776A7D1C305</string>
 				<string>D5B8C85DF5835A609620AEED</string>
+				<string>854C51A205355BA9A3A18E78</string>
 				<string>46FE1773C7365DF0B826EAA1</string>
 				<string>E58D9E42FB09518F816AB9AA</string>
 				<string>E4E14D1A35FA5D6984B1C19E</string>
@@ -762,6 +763,17 @@
 			<string>sourcecode.c.objc</string>
 			<key>path</key>
 			<string>../../UnitTests/TestEKEzvIncomingFileTransferFolderCleanup.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>854C51A205355BA9A3A18E78</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAWEzvXMLNodeSerializationProperties.m</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
@@ -1467,6 +1479,7 @@
 				<string>69F7DFD4AD02543F860CBEEA</string>
 				<string>168768666A0F575681DDE9C3</string>
 				<string>A7DBEFAB16675783B10AFD88</string>
+				<string>8EF6D196DF5B5C6C83451C20</string>
 				<string>38574E407D7A5F9783DCC0D9</string>
 				<string>AC47A308A0E2568E937161BE</string>
 				<string>78DD20B65428590BA8561200</string>
@@ -1817,6 +1830,13 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>D5B8C85DF5835A609620AEED</string>
+		</dict>
+		<key>8EF6D196DF5B5C6C83451C20</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>854C51A205355BA9A3A18E78</string>
 		</dict>
 		<key>38574E407D7A5F9783DCC0D9</key>
 		<dict>
