@@ -79,8 +79,11 @@
 
 	// Unregister the services we registered at install, or they stay in the account/status registries (#241).
 	[ircService unregisterService];
+	ircService = nil;
 	[simpleService unregisterService];
+	simpleService = nil;
 	[jabberService unregisterService];
+	jabberService = nil;
 }
 
 @end
