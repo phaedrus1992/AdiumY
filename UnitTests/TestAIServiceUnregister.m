@@ -148,4 +148,35 @@
 	}
 }
 
+// removeObjectForKey:nil raises NSInvalidArgumentException. A nil service yields a nil key, so
+// unregisterStatusesForService: must no-op rather than raise — the same guard the account-side
+// unregister gained in #235.
+- (void)testUnregisterStatusesForNilServiceDoesNotRaise
+{
+	MockAccountController *accountController = [[MockAccountController alloc] init];
+	id<AIStatusController> statusController = [[AIStatusController alloc] init];
+	AIServiceMockAdium *mockAdium = [[AIServiceMockAdium alloc] init];
+	mockAdium.accountController = accountController;
+	mockAdium.statusController = statusController;
+
+	id<AIAdium> savedAdium = adium;
+	@try {
+		adium = (id<AIAdium>)mockAdium;
+
+		TestStatusService *service = [TestStatusService registerService];
+		NSMenu *menu = [statusController menuOfStatusesForService:service withTarget:nil];
+		XCTAssertNotNil([menu itemWithTitle:@"Unique Test Status Away - 240"],
+						@"sanity: the registered status appears in the status menu");
+
+		XCTAssertNoThrow([statusController unregisterStatusesForService:nil],
+						 @"unregisterStatusesForService: with a nil service must not raise");
+
+		NSMenu *menuAfter = [statusController menuOfStatusesForService:service withTarget:nil];
+		XCTAssertNotNil([menuAfter itemWithTitle:@"Unique Test Status Away - 240"],
+						@"nil-service unregister must not remove any statuses");
+	} @finally {
+		adium = savedAdium;
+	}
+}
+
 @end

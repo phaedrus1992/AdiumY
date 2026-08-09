@@ -244,8 +244,12 @@ static NSMutableSet *temporaryStateArray = nil;
 	AIStatusType type;
 	NSString *serviceCodeUniqueID = service.serviceCodeUniqueID;
 
-	for (type = AIAvailableStatusType; type < STATUS_TYPES_COUNT; type++) {
-		[statusDictsByServiceCodeUniqueID[type] removeObjectForKey:serviceCodeUniqueID];
+	// removeObjectForKey:nil raises NSInvalidArgumentException; the account-side unregister gained
+	// the same nil guard in #235, so a nil service is a safe no-op here too.
+	if (serviceCodeUniqueID != nil) {
+		for (type = AIAvailableStatusType; type < STATUS_TYPES_COUNT; type++) {
+			[statusDictsByServiceCodeUniqueID[type] removeObjectForKey:serviceCodeUniqueID];
+		}
 	}
 }
 
