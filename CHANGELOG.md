@@ -115,6 +115,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Unregister the dual-window interface plugin's interface controller and remove
   its advanced preference pane when it uninstalls
 - Unregister the Bonjour plugin's Bonjour service when it uninstalls
+- Unregister a service's statuses when it uninstalls, so they no longer remain
+  selectable in the status menu
+- Unregister the IRC, Simple, and Jabber services the purple-service plugin
+  registers when it uninstalls
+- Unregister the contact list controller the SCL-view plugin registers when it
+  uninstalls, so the interface stops holding a released plugin as its contact
+  list controller
 
 ## [2.0.0] - 2026-08-03
 

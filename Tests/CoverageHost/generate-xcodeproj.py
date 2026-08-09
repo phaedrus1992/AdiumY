@@ -16,6 +16,7 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 XCODE_PROJ = os.path.join(PROJECT_DIR, "CoverageHost.xcodeproj")
 SCHEME_DIR = os.path.join(XCODE_PROJ, "xcshareddata", "xcschemes")
 AIUTILITIES_PATH = "../../build/DerivedData/Build/Products/Debug"
+REPO_ROOT = os.path.dirname(os.path.dirname(PROJECT_DIR))
 
 
 def uid(key: str) -> str:
@@ -129,6 +130,15 @@ for k in [
     "adiumServicesFileRef", "adiumServicesBuildFile",
     "adiumServicesUnregisterTestFileRef", "adiumServicesUnregisterTestBuildFile",
 
+    # Plugin-uninstall teardown batch 6 (#240-#242): AIService/AIStatusController + Purple Service + SCLView plugins
+    "aiServiceFileRef", "aiServiceBuildFile",
+    "aiServiceUnregisterTestFileRef", "aiServiceUnregisterTestBuildFile",
+    "aiStatusControllerFileRef", "aiStatusControllerBuildFile",
+    "purpleServicePluginFileRef", "purpleServicePluginBuildFile",
+    "purpleServiceUninstallTestFileRef", "purpleServiceUninstallTestBuildFile",
+    "sclViewPluginFileRef", "sclViewPluginBuildFile",
+    "sclViewUninstallTestFileRef", "sclViewUninstallTestBuildFile",
+
     # Frameworks
     "xctestFwkRef", "xctestFwkBuildFile",
     "aiutilitiesFwkRef", "aiutilitiesFwkBuildFile",
@@ -137,6 +147,174 @@ for k in [
 ]:
     H[k] = uid(k)
 
+
+# ── SHIM_MANIFEST ─────────────────────────────────────────────────────
+# Canonical inventory of the shim header dirs that stand in for AdiumY.framework
+# (CI builds no framework; <AdiumY/...> resolves via Tests/CoverageHost/AdiumY etc.).
+#
+# Each entry is "<ns>/<header>" -> one of:
+#   ("symlink", "<repo-relative real header>") — the shim file must be a symlink
+#        resolving to that real header (checked-in, so it tracks upstream exactly)
+#   ("stub", None)                             — a committed shadow stub (regular file);
+#        the real header is too heavy to pull into the harness
+#
+# The generator hard-fails on every run if any entry is missing/wrong, if a shim dir
+# contains an unlisted file, or if a wired TU imports a <ns/header> not listed here.
+SHIM_NAMESPACES = ("AdiumY", "AdiumYLibpurple", "libpurple")
+SHIM_MANIFEST = {
+    # AdiumY ── symlink -> real header
+    "AdiumY/AIAbstractAccount.h": ("symlink", "Frameworks/Adium/Source/AIAbstractAccount.h"),
+    "AdiumY/AIAbstractListController.h": ("symlink", "Frameworks/Adium/Source/AIAbstractListController.h"),
+    "AdiumY/AIAbstractListObjectMenu.h": ("symlink", "Frameworks/Adium/Source/AIAbstractListObjectMenu.h"),
+    "AdiumY/AIAccount.h": ("symlink", "Frameworks/Adium/Source/AIAccount.h"),
+    "AdiumY/AIAccountControllerProtocol.h": ("symlink", "Frameworks/Adium/Source/AIAccountControllerProtocol.h"),
+    "AdiumY/AIAccountMenu.h": ("symlink", "Frameworks/Adium/Source/AIAccountMenu.h"),
+    "AdiumY/AIAccountViewController.h": ("symlink", "Frameworks/Adium/Source/AIAccountViewController.h"),
+    "AdiumY/AIAdiumProtocol.h": ("symlink", "Frameworks/Adium/Source/AIAdiumProtocol.h"),
+    "AdiumY/AIAdvancedPreferencePane.h": ("symlink", "Frameworks/Adium/Source/AIAdvancedPreferencePane.h"),
+    "AdiumY/AIChat.h": ("symlink", "Frameworks/Adium/Source/AIChat.h"),
+    "AdiumY/AIChatControllerProtocol.h": ("symlink", "Frameworks/Adium/Source/AIChatControllerProtocol.h"),
+    "AdiumY/AIContactControllerProtocol.h": ("symlink", "Frameworks/Adium/Source/AIContactControllerProtocol.h"),
+    "AdiumY/AIContactList.h": ("symlink", "Frameworks/Adium/Source/AIContactList.h"),
+    "AdiumY/AIContactMenu.h": ("symlink", "Frameworks/Adium/Source/AIContactMenu.h"),
+    "AdiumY/AIContactObserverManager.h": ("symlink", "Frameworks/Adium/Source/AIContactObserverManager.h"),
+    "AdiumY/AIContentContext.h": ("symlink", "Frameworks/Adium/Source/AIContentContext.h"),
+    "AdiumY/AIContentControllerProtocol.h": ("symlink", "Frameworks/Adium/Source/AIContentControllerProtocol.h"),
+    "AdiumY/AIContentEvent.h": ("symlink", "Frameworks/Adium/Source/AIContentEvent.h"),
+    "AdiumY/AIContentNotification.h": ("symlink", "Frameworks/Adium/Source/AIContentNotification.h"),
+    "AdiumY/AIContentObject.h": ("symlink", "Frameworks/Adium/Source/AIContentObject.h"),
+    "AdiumY/AIContentStatus.h": ("symlink", "Frameworks/Adium/Source/AIContentStatus.h"),
+    "AdiumY/AIContentTyping.h": ("symlink", "Frameworks/Adium/Source/AIContentTyping.h"),
+    "AdiumY/AIControllerProtocol.h": ("symlink", "Frameworks/Adium/Source/AIControllerProtocol.h"),
+    "AdiumY/AIDockControllerProtocol.h": ("symlink", "Frameworks/Adium/Source/AIDockControllerProtocol.h"),
+    "AdiumY/AIEditStateWindowController.h": ("symlink", "Frameworks/Adium/Source/AIEditStateWindowController.h"),
+    "AdiumY/AIHTMLDecoder.h": ("symlink", "Frameworks/Adium/Source/AIHTMLDecoder.h"),
+    "AdiumY/AIHTTPDownloadValidation.h": ("symlink", "Frameworks/Adium/Source/AIHTTPDownloadValidation.h"),
+    "AdiumY/AIInterfaceControllerProtocol.h": ("symlink", "Frameworks/Adium/Source/AIInterfaceControllerProtocol.h"),
+    "AdiumY/AIListContact.h": ("symlink", "Frameworks/Adium/Source/AIListContact.h"),
+    "AdiumY/AIListGroup.h": ("symlink", "Frameworks/Adium/Source/AIListGroup.h"),
+    "AdiumY/AIListObject.h": ("symlink", "Frameworks/Adium/Source/AIListObject.h"),
+    "AdiumY/AIListOutlineView+Drawing.h": ("symlink", "Frameworks/Adium/Source/AIListOutlineView+Drawing.h"),
+    "AdiumY/AIMenuControllerProtocol.h": ("symlink", "Frameworks/Adium/Source/AIMenuControllerProtocol.h"),
+    "AdiumY/AIMessageEntryTextView.h": ("symlink", "Frameworks/Adium/Source/AIMessageEntryTextView.h"),
+    "AdiumY/AIMetaContact.h": ("symlink", "Frameworks/Adium/Source/AIMetaContact.h"),
+    "AdiumY/AIModularPane.h": ("symlink", "Frameworks/Adium/Source/AIModularPane.h"),
+    "AdiumY/AIPasswordPromptController.h": ("symlink", "Source/AIPasswordPromptController.h"),
+    "AdiumY/AIPlugin.h": ("symlink", "Frameworks/Adium/Source/AIPlugin.h"),
+    "AdiumY/AIPreferenceControllerProtocol.h": ("symlink", "Frameworks/Adium/Source/AIPreferenceControllerProtocol.h"),
+    "AdiumY/AIPreferencePane.h": ("symlink", "Frameworks/Adium/Source/AIPreferencePane.h"),
+    "AdiumY/AISCLViewPlugin.h": ("symlink", "Source/AISCLViewPlugin.h"),
+    "AdiumY/AIService.h": ("symlink", "Frameworks/Adium/Source/AIService.h"),
+    "AdiumY/AIServiceIcons.h": ("symlink", "Frameworks/Adium/Source/AIServiceIcons.h"),
+    "AdiumY/AISharedAdium.h": ("symlink", "Frameworks/Adium/Source/AISharedAdium.h"),
+    "AdiumY/AISocialNetworkingStatusMenu.h": ("symlink", "Frameworks/Adium/Source/AISocialNetworkingStatusMenu.h"),
+    "AdiumY/AISortController.h": ("symlink", "Frameworks/Adium/Source/AISortController.h"),
+    "AdiumY/AISoundSet.h": ("symlink", "Frameworks/Adium/Source/AISoundSet.h"),
+    "AdiumY/AIStatus.h": ("symlink", "Frameworks/Adium/Source/AIStatus.h"),
+    "AdiumY/AIStatusController.h": ("symlink", "Source/AIStatusController.h"),
+    "AdiumY/AIStatusControllerProtocol.h": ("symlink", "Frameworks/Adium/Source/AIStatusControllerProtocol.h"),
+    "AdiumY/AIStatusDefines.h": ("symlink", "Frameworks/Adium/Source/AIStatusDefines.h"),
+    "AdiumY/AIStatusIcons.h": ("symlink", "Frameworks/Adium/Source/AIStatusIcons.h"),
+    "AdiumY/AIStatusItem.h": ("symlink", "Frameworks/Adium/Source/AIStatusItem.h"),
+    "AdiumY/AIStatusMenu.h": ("symlink", "Frameworks/Adium/Source/AIStatusMenu.h"),
+    "AdiumY/AIToolbarControllerProtocol.h": ("symlink", "Frameworks/Adium/Source/AIToolbarControllerProtocol.h"),
+    "AdiumY/AIWindowController.h": ("symlink", "Frameworks/Adium/Source/AIWindowController.h"),
+    "AdiumY/AIXMLElement.h": ("symlink", "Frameworks/Adium/Source/AIXMLElement.h"),
+    "AdiumY/AIXtraInfo.h": ("symlink", "Frameworks/Adium/Source/AIXtraInfo.h"),
+    "AdiumY/ESDebugAILog.h": ("symlink", "Frameworks/Adium/Source/ESDebugAILog.h"),
+    "AdiumY/ESObjectWithProperties.h": ("symlink", "Frameworks/Adium/Source/ESObjectWithProperties.h"),
+    "AdiumY/ESUserIconHandlingPlugin.h": ("symlink", "Source/ESUserIconHandlingPlugin.h"),
+    "AdiumY/SS_PreferencePaneProtocol.h": ("symlink", "Frameworks/Adium/Source/SS_PreferencePaneProtocol.h"),
+
+    # AdiumY ── shadow stub (regular file)
+    "AdiumY/AIActionDetailsPane.h": ("stub", None),
+    "AdiumY/AIApplescriptabilityControllerProtocol.h": ("stub", None),
+    "AdiumY/AIContactAlertsControllerProtocol.h": ("stub", None),
+    "AdiumY/AIContentMessage.h": ("stub", None),
+    "AdiumY/AIEmoticon.h": ("stub", None),
+    "AdiumY/AIEmoticonControllerProtocol.h": ("stub", None),
+    "AdiumY/AIListOutlineView.h": ("stub", None),
+    "AdiumY/AIPathUtilities.h": ("stub", None),
+    "AdiumY/AISoundControllerProtocol.h": ("stub", None),
+    "AdiumY/ESFileTransfer.h": ("stub", None),
+    "AdiumY/KNShelfSplitView.h": ("stub", None),
+
+    # AdiumYLibpurple
+    "AdiumYLibpurple/CBPurpleAccount.h": ("stub", None),
+    "AdiumYLibpurple/PurpleCommon.h": ("stub", None),
+    "AdiumYLibpurple/SLPurpleCocoaAdapter.h": ("symlink", "Plugins/Purple Service/SLPurpleCocoaAdapter.h"),
+
+    # libpurple
+    "libpurple/libpurple.h": ("stub", None),
+}
+
+
+def _validate_shim_manifest(repo_root):
+    """Every SHIM_MANIFEST entry must exist on disk with the declared kind, and every shim dir
+    file must be listed. Hard error (SystemExit) on any drift — the generator refuses to emit
+    a project built against a shim tree that no longer matches the manifest."""
+    errors = []
+    for ns_hdr, (kind, target) in sorted(SHIM_MANIFEST.items()):
+        p = os.path.join(PROJECT_DIR, *ns_hdr.split("/"))
+        if not os.path.lexists(p):
+            errors.append(f"missing {ns_hdr} (declared {kind})")
+            continue
+        if kind == "symlink":
+            if not os.path.islink(p):
+                errors.append(f"{ns_hdr} should be a symlink -> {target}, but is a "
+                              f"{'regular file' if os.path.isfile(p) else 'other'}")
+            else:
+                resolved = os.path.relpath(os.path.realpath(p), repo_root)
+                if resolved != target:
+                    errors.append(f"{ns_hdr} resolves to {resolved}, expected {target}")
+        else:  # stub
+            if os.path.islink(p):
+                errors.append(f"{ns_hdr} should be a regular file (stub), but is a symlink")
+    # Reverse drift: a file present in a shim dir but not in the manifest.
+    for ns in SHIM_NAMESPACES:
+        d = os.path.join(PROJECT_DIR, ns)
+        if not os.path.isdir(d):
+            errors.append(f"shim namespace dir missing: {ns}")
+            continue
+        for name in os.listdir(d):
+            if f"{ns}/{name}" not in SHIM_MANIFEST:
+                errors.append(f"unlisted shim file present: {ns}/{name}")
+    if errors:
+        raise SystemExit("SHIM_MANIFEST VIOLATION:\n  " + "\n  ".join(sorted(errors)))
+
+
+def _validate_wired_imports(repo_root):
+    """Every <ns/header> angle import made by a wired repo TU must be listed in SHIM_MANIFEST.
+    A wired TU importing an unlisted shim header means the shim dir drifted — hard error."""
+    import re
+    angle = re.compile(r"#import\s*<([^>/]+)/([^>]+)>")
+    errors = []
+    for ref in objects.values():
+        if ref.get("isa") != "PBXFileReference":
+            continue
+        if ref.get("lastKnownFileType") != "sourcecode.c.objc":
+            continue
+        path = ref.get("path", "")
+        if not path.startswith("../../"):
+            continue  # in-project files (main.m, CoverageHostTest.m) aren't repo TUs
+        rel = path[len("../../"):]
+        src = os.path.join(repo_root, rel)
+        if not os.path.isfile(src):
+            continue  # a missing source is a build error, not a manifest concern
+        with open(src, encoding="utf-8", errors="replace") as f:
+            text = f.read()
+        for m in angle.finditer(text):
+            ns, hdr = m.group(1), m.group(2)
+            if ns in SHIM_NAMESPACES and f"{ns}/{hdr}" not in SHIM_MANIFEST:
+                errors.append(f"{rel} imports <{ns}/{hdr}> not in SHIM_MANIFEST")
+    if errors:
+        raise SystemExit("SHIM_MANIFEST VIOLATION (unlisted wired import):\n  "
+                         + "\n  ".join(sorted(set(errors))))
+
+
+# Validate the shim tree up front (independent of the project model) so a drifted
+# shim dir fails the run before any codegen.
+_validate_shim_manifest(REPO_ROOT)
 
 objects = {
     # ── PBXProject ──────────────────────────────────────────────
@@ -211,7 +389,14 @@ objects = {
                      H["bonjourPluginFileRef"],
                      H["bonjourUninstallTestFileRef"],
                      H["adiumServicesFileRef"],
-                     H["adiumServicesUnregisterTestFileRef"]],
+                     H["adiumServicesUnregisterTestFileRef"],
+                     H["aiServiceFileRef"],
+                     H["aiServiceUnregisterTestFileRef"],
+                     H["aiStatusControllerFileRef"],
+                     H["purpleServicePluginFileRef"],
+                     H["purpleServiceUninstallTestFileRef"],
+                     H["sclViewPluginFileRef"],
+                     H["sclViewUninstallTestFileRef"]],
         "name": "Sources",
         "sourceTree": "<group>",
     },
@@ -806,6 +991,50 @@ objects = {
         "sourceTree": "<group>",
     },
 
+    # Plugin-uninstall teardown batch 6 (#240-#242): AIService/AIStatusController + Purple Service + SCLView plugins
+    H["aiServiceFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Frameworks/Adium/Source/AIService.m",
+        "sourceTree": "<group>",
+    },
+    H["aiServiceUnregisterTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestAIServiceUnregister.m",
+        "sourceTree": "<group>",
+    },
+    H["aiStatusControllerFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AIStatusController.m",
+        "sourceTree": "<group>",
+    },
+    H["purpleServicePluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Purple Service/CBPurpleServicePlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["purpleServiceUninstallTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestCBPurpleServicePluginUninstall.m",
+        "sourceTree": "<group>",
+    },
+    H["sclViewPluginFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/AISCLViewPlugin.m",
+        "sourceTree": "<group>",
+    },
+    H["sclViewUninstallTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestAISCLViewPluginUninstall.m",
+        "sourceTree": "<group>",
+    },
+
     H["xctestFwkRef"]: {
         "isa": "PBXFileReference",
         "lastKnownFileType": "wrapper.framework",
@@ -914,7 +1143,14 @@ objects = {
                   H["bonjourPluginBuildFile"],
                   H["bonjourUninstallTestBuildFile"],
                   H["adiumServicesBuildFile"],
-                  H["adiumServicesUnregisterTestBuildFile"]],
+                  H["adiumServicesUnregisterTestBuildFile"],
+                  H["aiServiceBuildFile"],
+                  H["aiServiceUnregisterTestBuildFile"],
+                  H["aiStatusControllerBuildFile"],
+                  H["purpleServicePluginBuildFile"],
+                  H["purpleServiceUninstallTestBuildFile"],
+                  H["sclViewPluginBuildFile"],
+                  H["sclViewUninstallTestBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
     H["testFrameworksPhase"]: {
@@ -1008,6 +1244,13 @@ objects = {
     H["bonjourUninstallTestBuildFile"]:            {"isa": "PBXBuildFile", "fileRef": H["bonjourUninstallTestFileRef"]},
     H["adiumServicesBuildFile"]:                   {"isa": "PBXBuildFile", "fileRef": H["adiumServicesFileRef"]},
     H["adiumServicesUnregisterTestBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["adiumServicesUnregisterTestFileRef"]},
+    H["aiServiceBuildFile"]:                       {"isa": "PBXBuildFile", "fileRef": H["aiServiceFileRef"]},
+    H["aiServiceUnregisterTestBuildFile"]:         {"isa": "PBXBuildFile", "fileRef": H["aiServiceUnregisterTestFileRef"]},
+    H["aiStatusControllerBuildFile"]:              {"isa": "PBXBuildFile", "fileRef": H["aiStatusControllerFileRef"]},
+    H["purpleServicePluginBuildFile"]:             {"isa": "PBXBuildFile", "fileRef": H["purpleServicePluginFileRef"]},
+    H["purpleServiceUninstallTestBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["purpleServiceUninstallTestFileRef"]},
+    H["sclViewPluginBuildFile"]:                   {"isa": "PBXBuildFile", "fileRef": H["sclViewPluginFileRef"]},
+    H["sclViewUninstallTestBuildFile"]:            {"isa": "PBXBuildFile", "fileRef": H["sclViewUninstallTestFileRef"]},
     H["userNotificationsFwkBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["userNotificationsFwkRef"]},
 
     # ── Target Dependency ───────────────────────────────────────
@@ -1160,6 +1403,7 @@ objects = {
                 '"$(SRCROOT)/../../Plugins/Open Message Window Contact Alert"',
                 '"$(SRCROOT)/../../Plugins/Send Message Contact Alert"',
                 '"$(SRCROOT)/../../Plugins/Dock Icon Badging"',
+                '"$(SRCROOT)/../../Plugins/Purple Service"',
                 "$(SRCROOT)/LMX",
             ),
             # Real Adium headers rely on Adium.pch for Cocoa/Foundation; restore that
@@ -1211,6 +1455,7 @@ objects = {
                 '"$(SRCROOT)/../../Plugins/Open Message Window Contact Alert"',
                 '"$(SRCROOT)/../../Plugins/Send Message Contact Alert"',
                 '"$(SRCROOT)/../../Plugins/Dock Icon Badging"',
+                '"$(SRCROOT)/../../Plugins/Purple Service"',
                 "$(SRCROOT)/LMX",
             ),
             # Real Adium headers rely on Adium.pch for Cocoa/Foundation; restore that
@@ -1251,6 +1496,10 @@ objects = {
         "defaultConfigurationName": "Debug",
     },
 }
+
+# Every wired TU's <ns/header> imports must be listed in SHIM_MANIFEST — the shim dir
+# and the project model are one source of truth.
+_validate_wired_imports(REPO_ROOT)
 
 
 # ── Write pbxproj ────────────────────────────────────────────────────

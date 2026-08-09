@@ -308,6 +308,13 @@
 		contactListPlugin = inController;
 }
 
+// Unregister code handling the contact list, clearing it only if it is the registered controller
+- (void)unregisterContactListController:(id<AIMultiContactListComponent>)inController
+{
+	if (contactListPlugin == inController)
+		contactListPlugin = nil;
+}
+
 // Preferences changed
 - (void)preferencesChangedForGroup:(NSString *)group
 							   key:(NSString *)key

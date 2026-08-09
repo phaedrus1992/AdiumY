@@ -45,10 +45,26 @@
 }
 @end
 
+/*
+ * The wired AIStatusController.m sends [AIStatusIcons statusIconForStatusName:...] when building
+ * status menus, so the shim must implement the method (returning nil) to keep menu construction
+ * from raising an unrecognized-selector exception.
+ */
 @interface AIStatusIcons : NSObject
++ (id)statusIconForStatusName:(NSString *)statusName
+				   statusType:(NSInteger)statusType
+					 iconType:(NSInteger)iconType
+					direction:(NSInteger)direction;
 @end
 
 @implementation AIStatusIcons
++ (id)statusIconForStatusName:(NSString *)statusName
+				   statusType:(NSInteger)statusType
+					 iconType:(NSInteger)iconType
+					direction:(NSInteger)direction
+{
+	return nil;
+}
 @end
 
 #import "AIAppearancePreferencesPlugin.h"

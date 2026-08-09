@@ -14,14 +14,27 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+// clang-format off
+// Import order is load-bearing for the standalone test target (no prefix header):
+// AIPlugin must precede CBPurpleServicePlugin.h and the AIIRCServicesPasswordPlugin.h /
+// AIAnnoyingIRCMessagesHiderPlugin.h headers, whose interfaces inherit from it. clang-format
+// would sort the quoted own-headers first.
+#import <AdiumY/AIPlugin.h>
 #import "CBPurpleServicePlugin.h"
 #import "AIAnnoyingIRCMessagesHiderPlugin.h"
 #import "AIIRCServicesPasswordPlugin.h"
+// clang-format on
 #import "AMPurpleTuneTooltip.h"
 #import "PurpleServices.h"
+// The standalone test target has no Adium.pch, which provides AIAccount.h and
+// AIPreferenceControllerProtocol.h app-wide; import them before SLPurpleCocoaAdapter.h (whose
+// interface references AIAccount) and before registerDefaults:forGroup: is used below.
+#import <AdiumY/AIAccount.h>
+// clang-format off
+#import <AdiumY/AIPreferenceControllerProtocol.h>
+// clang-format on
 #import "SLPurpleCocoaAdapter.h"
 #import <AIUtilities/AIDictionaryAdditions.h>
-#import <AdiumY/AIAccount.h>
 #import <AdiumYLibpurple/SLPurpleCocoaAdapter.h>
 
 @implementation CBPurpleServicePlugin
@@ -37,10 +50,10 @@
 	[adium.preferenceController registerDefaults:[NSDictionary dictionaryNamed:PURPLE_DEFAULTS forClass:[self class]]
 										forGroup:GROUP_ACCOUNT_STATUS];
 
-	// Install the services
-	[ESIRCService registerService];
-	[ESSimpleService registerService];
-	[ESJabberService registerService];
+	// Install the services; keep the instances so uninstallPlugin can unregister them (#241).
+	ircService = [ESIRCService registerService];
+	simpleService = [ESSimpleService registerService];
+	jabberService = [ESJabberService registerService];
 
 	[SLPurpleCocoaAdapter pluginDidLoad];
 
@@ -63,6 +76,14 @@
 	[ircPasswordPlugin uninstallPlugin];
 
 	[messageHiderPlugin uninstallPlugin];
+
+	// Unregister the services we registered at install, or they stay in the account/status registries (#241).
+	[ircService unregisterService];
+	ircService = nil;
+	[simpleService unregisterService];
+	simpleService = nil;
+	[jabberService unregisterService];
+	jabberService = nil;
 }
 
 @end

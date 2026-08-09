@@ -19,6 +19,15 @@
 #import <AdiumY/AIAccountControllerProtocol.h>
 #import <AdiumY/AIAccountViewController.h>
 #import <AdiumY/AIService.h>
+// unregisterStatusesForService: is declared on the AIStatusController protocol; the real app imports
+// this via Adium.pch, the standalone test target compiles without a prefix header.
+#import <AdiumY/AIStatusControllerProtocol.h>
+// The real app imports AIStringUtilities.h via Adium.pch; the standalone test target compiles this TU
+// without that prefix header, so the AILocalizedString macro needs its definition here.
+#import <AIUtilities/AIStringUtilities.h>
+// The real app imports AIPlugin.h via Adium.pch; the standalone test target compiles this TU
+// without that prefix header, so the `adium` global needs its declaration here.
+#import <AdiumY/AIPlugin.h>
 
 /*!
  * @class AIService
@@ -36,12 +45,13 @@
 /*!
  * @brief Unregister this service
  *
- * The inverse of +registerService. Removes the service from the account controller's registry, so an uninstalled
- * service plugin leaves no entry behind (#235).
+ * The inverse of +registerService. Removes the service from the account controller's registry and clears its
+ * registered statuses, so an uninstalled service plugin leaves no account or status entry behind (#235, #240).
  */
 - (void)unregisterService
 {
 	[adium.accountController unregisterService:self];
+	[adium.statusController unregisterStatusesForService:self];
 }
 
 /*!
