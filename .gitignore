@@ -128,7 +128,7 @@ Resources/zh_HK/LC_MESSAGES
 # Editor temp/swap files (BBEdit, etc.)
 .*!*
 
-.claude
+.claude/*.local.json
 .yaks
 .superpowers/
 .supervisors/
