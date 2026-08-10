@@ -62,4 +62,55 @@
 	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
 }
 
+/* getData registers every file in the tree into urlData/urlSizes and sums their sizes, while the
+ * generated XML stops at the receiver's depth cap. A file deeper than the cap would be registered
+ * but never appear in the XML, so the receiver never requests it, urlData never empties, and
+ * moreFilesToDownload keeps the server alive forever — the #250 hang. getData must apply the same
+ * depth cap as generateXMLFromDirectory:depth: (root = depth 1, entries past depth 32 excluded).
+ */
+- (void)testGetDataSkipsEntriesDeeperThanReceiverDepthCap
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvOutgoingGetDataDepthCap"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+
+	/* d33 sits at depth 35; a file inside it would be depth 36, well past the cap of 32. */
+	NSString *current = tempRoot;
+	for (NSUInteger i = 0; i <= 33; i++) {
+		current = [current stringByAppendingPathComponent:[NSString stringWithFormat:@"d%lu", (unsigned long)i]];
+	}
+	[[NSFileManager defaultManager] createDirectoryAtPath:current
+							  withIntermediateDirectories:YES
+											   attributes:nil
+													error:NULL];
+	NSString *deepFile = [current stringByAppendingPathComponent:@"deep.bin"];
+	[[NSFileManager defaultManager] createFileAtPath:deepFile
+										   contents:[NSData dataWithBytes:"x" length:1]
+										  attributes:nil];
+	NSString *shallowFile = [tempRoot stringByAppendingPathComponent:@"shallow.bin"];
+	[[NSFileManager defaultManager] createFileAtPath:shallowFile
+										   contents:[NSData dataWithBytes:"y" length:1]
+										  attributes:nil];
+
+	EKEzvOutgoingFileTransfer *transfer = [[EKEzvOutgoingFileTransfer alloc] init];
+	[transfer setValue:@YES forKey:@"isDirectory"];
+	[transfer setLocalFilename:tempRoot];
+
+	BOOL success = [transfer getData];
+	XCTAssertTrue(success, @"getData must succeed for the deep-but-capped tree");
+
+	NSDictionary *urlData = [transfer valueForKey:@"urlData"];
+	for (NSString *key in urlData) {
+		XCTAssertLessThanOrEqual([[key pathComponents] count], (NSUInteger)32,
+								   @"urlData key %@ must not exceed the receiver depth cap", key);
+	}
+
+	NSString *shallowSubPath = [[tempRoot lastPathComponent] stringByAppendingPathComponent:@"shallow.bin"];
+	XCTAssertNotNil([urlData objectForKey:shallowSubPath], @"a file at depth 2 must still be registered");
+
+	XCTAssertEqual([transfer size], (unsigned long long)1,
+				   @"transfer size must exclude the file past the depth cap");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
 @end

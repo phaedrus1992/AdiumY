@@ -172,6 +172,14 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		NSString *basePath = [[self localFilename] stringByAppendingString:@"/"];
 
 		for (NSString *file in [fileManager enumeratorAtPath:[self localFilename]]) {
+			/* Skip entries past the receiver's depth cap (root = depth 1): generateDirectoryXML stops
+			 * at depth 32, so a deeper file would be registered but never appear in the XML — urlData
+			 * would never empty and moreFilesToDownload would keep the server alive forever
+			 * (issue #252). */
+			NSUInteger depth = [[file pathComponents] count] + 1;
+			if (depth > EKEZVFOLDER_MAX_DEPTH) {
+				continue;
+			}
 			NSString *fullPath = [basePath stringByAppendingString:file];
 
 			BOOL exists = NO;
