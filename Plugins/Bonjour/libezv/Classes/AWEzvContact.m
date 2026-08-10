@@ -81,7 +81,6 @@
 - (void)sendMessage:(NSString *)message withHtml:(NSString *)html
 {
 	AWEzvXMLNode *messageNode, *bodyNode, *textNode, *htmlNode, *htmlBodyNode, *htmlMessageNode;
-	NSMutableString *mutableString;
 	NSString *messageText;
 	NSString *htmlFiltered;
 	NSString *fixedHTML;
@@ -98,19 +97,14 @@
 		/* Message cleanup: normalize line breaks only. The text serializer (AWEzvXMLText) escapes
 		 * & < > exactly once when the message is serialized; pre-escaping here would double-escape
 		 * the wire (&amp;amp;) (issue #259). */
-		mutableString = [message mutableCopy];
-		[mutableString replaceOccurrencesOfString:@"<br>"
-									   withString:@"<br />"
-										  options:NSCaseInsensitiveSearch
-											range:NSMakeRange(0, [mutableString length])];
-		messageText = [mutableString copy];
-
-		mutableString = [fixedHTML mutableCopy];
-		[mutableString replaceOccurrencesOfString:@"<br>"
-									   withString:@"<br />"
-										  options:NSCaseInsensitiveSearch
-											range:NSMakeRange(0, [mutableString length])];
-		htmlFiltered = [mutableString copy];
+		messageText = [message stringByReplacingOccurrencesOfString:@"<br>"
+														 withString:@"<br />"
+															options:NSCaseInsensitiveSearch
+															  range:NSMakeRange(0, [message length])];
+		htmlFiltered = [fixedHTML stringByReplacingOccurrencesOfString:@"<br>"
+															withString:@"<br />"
+															   options:NSCaseInsensitiveSearch
+																 range:NSMakeRange(0, [fixedHTML length])];
 
 		/* setup XML tree */
 		messageNode = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"message"];
