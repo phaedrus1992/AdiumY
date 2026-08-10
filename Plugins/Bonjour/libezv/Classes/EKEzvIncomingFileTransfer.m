@@ -9,6 +9,7 @@
 #import "EKEzvIncomingFileTransfer.h"
 #import "AWEzv.h"
 #import "AWEzvContactManager.h"
+#import "AWEzvSupportRoutines.h"
 #import <errno.h>
 #import <sys/xattr.h>
 #import <AdiumY/AIHTTPDownloadValidation.h>
@@ -69,6 +70,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 - (bool)downloadChildElements:(NSXMLElement *)dir path:(NSString *)path url:(NSString *)url depth:(NSUInteger)depth;
 - (void)removeCreatedDirectories;
 - (void)removePartialTransferArtifacts;
+- (void)failTransfer;
 @end
 
 @implementation EKEzvIncomingFileTransfer
@@ -96,7 +98,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		[self downloadFolder];
 	} else {
 		[[[manager client] client] reportError:@"Don't know what type of item we are downloading" ofLevel:AWEzvError];
-		[[[manager client] client] transferFailed:self];
+		[self failTransfer];
 	}
 }
 
@@ -126,7 +128,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 																		  error:&error];
 	if (error) {
 		[[[[self manager] client] client] reportError:[error localizedDescription] ofLevel:AWEzvError];
-		[[[[self manager] client] client] transferFailed:self];
+		[self failTransfer];
 		return;
 	}
 	/*NO error so we have the xml */
@@ -142,7 +144,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		/*We need to remove this file*/
 		if (![fileManager removeItemAtPath:localFilename error:NULL]) {
 			[[[[self manager] client] client] reportError:@"Could not replace old file at path" ofLevel:AWEzvError];
-			[[[[self manager] client] client] transferFailed:self];
+			[self failTransfer];
 			return;
 		}
 	}
@@ -154,7 +156,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		[[[[self manager] client] client]
 			reportError:@"There was an error creating the root directory for the file tranfer"
 				ofLevel:AWEzvError];
-		[[[[self manager] client] client] transferFailed:self];
+		[self failTransfer];
 		return;
 	}
 
@@ -188,14 +190,12 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 				[[[[self manager] client] client]
 					reportError:[NSString stringWithFormat:@"Error downloading file from %@ to %@", downloadURL, path]
 						ofLevel:AWEzvError];
-				[[[[self manager] client] client] transferFailed:self];
+				[self failTransfer];
 			}
 		}
 
 	} else {
-		transferFailed = YES;
-		[self removePartialTransferArtifacts];
-		[[[[self manager] client] client] transferFailed:self];
+		[self failTransfer];
 	}
 }
 - (bool)downloadFolder:(NSXMLElement *)root path:(NSString *)rootPath url:(NSString *)rootURL
@@ -327,9 +327,14 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 - (void)removeCreatedDirectories
 {
 	/* Remove the directories this walk created, deepest first, so no partial folder tree
-	 * survives a failed transfer (issue #191). */
+	 * survives a failed transfer (issue #191). A path already gone is expected; any other removal
+	 * failure is logged so a leftover tree is not silently ignored. */
 	for (NSString *path in [createdDirectories reverseObjectEnumerator]) {
-		[[NSFileManager defaultManager] removeItemAtPath:path error:NULL];
+		NSError *error = nil;
+		if (![[NSFileManager defaultManager] removeItemAtPath:path error:&error]
+			&& error != nil && [error code] != NSFileNoSuchFileError) {
+			AWEzvLog(@"Could not remove created directory %@: %@", path, [error localizedDescription]);
+		}
 	}
 	createdDirectories = nil;
 }
@@ -339,14 +344,32 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	 * destination (single file or root folder) on disk (issue #248). Remove every in-progress
 	 * download path, then the created directory tree, then the transfer's own destination. The
 	 * destination covers the just-failed task's own partial file, whose path is removed from
-	 * downloadPaths before the error branch runs. */
+	 * downloadPaths before the error branch runs. Paths already gone are expected; any other
+	 * removal failure is logged so a leftover artifact is not silently ignored. */
 	for (NSString *path in [downloadPaths allValues]) {
-		[[NSFileManager defaultManager] removeItemAtPath:path error:NULL];
+		NSError *error = nil;
+		if (![[NSFileManager defaultManager] removeItemAtPath:path error:&error]
+			&& error != nil && [error code] != NSFileNoSuchFileError) {
+			AWEzvLog(@"Could not remove partial download %@: %@", path, [error localizedDescription]);
+		}
 	}
 	[self removeCreatedDirectories];
 	if (localFilename != nil) {
-		[[NSFileManager defaultManager] removeItemAtPath:localFilename error:NULL];
+		NSError *error = nil;
+		if (![[NSFileManager defaultManager] removeItemAtPath:localFilename error:&error]
+			&& error != nil && [error code] != NSFileNoSuchFileError) {
+			AWEzvLog(@"Could not remove transfer destination %@: %@", localFilename, [error localizedDescription]);
+		}
 	}
+}
+- (void)failTransfer
+{
+	/* Every failure path funnels here: mark the transfer failed so -dealloc's safety net still
+	 * removes artifacts if cleanup has not run, remove the partial files and created folder tree
+	 * now, and report the failure to the client (issue #248). */
+	transferFailed = YES;
+	[self removePartialTransferArtifacts];
+	[[[manager client] client] transferFailed:self];
 }
 
 - (void)downloadFile
@@ -394,7 +417,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 				reportError:[NSString
 								stringWithFormat:@"Error applying permissions of %@ to file at %@", attributes, path]
 					ofLevel:AWEzvError];
-			[[[manager client] client] transferFailed:self];
+			[self failTransfer];
 			permissionsToApply = nil;
 			return NO;
 		}
@@ -430,7 +453,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	} else {
 		// inform the user that the download could not be made
 		[[[manager client] client] reportError:@"Error starting download of file transfer." ofLevel:AWEzvError];
-		[[[manager client] client] transferFailed:self];
+		[self failTransfer];
 	}
 }
 
@@ -447,9 +470,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		completionHandler(NSURLSessionResponseCancel);
 		/* Rejecting the response fails the transfer; remove any earlier tasks' partial files and
 		 * the created folder tree (issue #248). */
-		transferFailed = YES;
-		[self removePartialTransferArtifacts];
-		[[[manager client] client] transferFailed:self];
+		[self failTransfer];
 		[[[manager client] client] reportError:[validationError localizedDescription] ofLevel:AWEzvError];
 		return;
 	}
@@ -478,9 +499,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	NSFileHandle *downloadFileHandle = [NSFileHandle fileHandleForWritingAtPath:path];
 	if (downloadFileHandle == nil) {
 		completionHandler(NSURLSessionResponseCancel);
-		transferFailed = YES;
-		[self removePartialTransferArtifacts];
-		[[[manager client] client] transferFailed:self];
+		[self failTransfer];
 		return;
 	}
 	[downloadFileHandle seekToEndOfFile];
@@ -524,9 +543,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		}
 		/* The failed task's partial file, and for a directory transfer the created folder tree and
 		 * any other in-flight paths, must not be left on disk (issue #248). */
-		transferFailed = YES;
-		[self removePartialTransferArtifacts];
-		[[[manager client] client] transferFailed:self];
+		[self failTransfer];
 		// inform the user
 		[[[manager client] client]
 			reportError:[NSString stringWithFormat:@"Download failed! Error - %@ %@", [error localizedDescription],
@@ -543,9 +560,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		if (!decoded) {
 			/* A body that fails to decode is a failed transfer; remove its artifacts rather than
 			 * applying permissions to a corrupt file (issue #248). */
-			transferFailed = YES;
-			[self removePartialTransferArtifacts];
-			[[[manager client] client] transferFailed:self];
+			[self failTransfer];
 			return;
 		}
 	}
