@@ -167,7 +167,7 @@ const char endn[] = { '\x00', '\x00', '\x00', '\x00'};
     
     
     /* create XML data */
-    xmlData = [NSData dataWithBytes:[plist UTF8String] length:[plist length]];
+    xmlData = [plist dataUsingEncoding:NSUTF8StringEncoding];
 
     /* extract plist from XML data */
     format = NSPropertyListXMLFormat_v1_0;

@@ -32,7 +32,7 @@
 - (bool)startHTTPServer;
 - (void)sendTransferMessage;
 - (NSData *)generateDirectoryXML;
-- (NSArray *)generateXMLFromDirectory:(NSString *)basePath;
+- (NSArray *)generateXMLFromDirectory:(NSString *)basePath depth:(NSUInteger)depth;
 - (NSString *)baseURL;
 - (BOOL)isBaseURIForDirectoryTransfer:(NSString *)URI;
 - (BOOL)isValidURI:(NSString *)URI;

@@ -79,6 +79,15 @@ for k in [
     "ezvXmlNodeTestFileRef", "ezvXmlNodeTestBuildFile",
     "ezvFolderCleanupTestFileRef", "ezvFolderCleanupTestBuildFile",
     "ezvXmlPropsTestFileRef", "ezvXmlPropsTestBuildFile",
+    "ezvOutgoingFileRef", "ezvOutgoingHeaderRef", "ezvOutgoingBuildFile",
+    "ezvOutgoingDepthCapTestFileRef", "ezvOutgoingDepthCapTestBuildFile",
+    "ezvOutgoingUTF8TestFileRef", "ezvOutgoingUTF8TestBuildFile",
+    "httpserverStubFileRef", "httpserverStubBuildFile",
+    "ezvResponseGuardTestFileRef", "ezvResponseGuardTestBuildFile",
+    "ezvStreamFileRef", "ezvStreamHeaderRef", "ezvStreamBuildFile",
+    "ezvStackFileRef", "ezvStackHeaderRef", "ezvStackBuildFile",
+    "ezvSupportRoutinesFileRef", "ezvSupportRoutinesHeaderRef", "ezvSupportRoutinesBuildFile",
+    "ezvStreamDepthCapTestFileRef", "ezvStreamDepthCapTestBuildFile",
 
     # Plugin-uninstall teardown plugins + tests (#212-#215)
     "chatConsolPluginFileRef", "chatConsolPluginBuildFile",
@@ -148,6 +157,7 @@ for k in [
     "aiutilitiesFwkRef", "aiutilitiesFwkBuildFile",
     "cocoaFwkRef", "cocoaFwkBuildFile",
     "userNotificationsFwkRef", "userNotificationsFwkBuildFile",
+    "uniformTypeIdentifiersFwkRef", "uniformTypeIdentifiersFwkBuildFile",
 ]:
     H[k] = uid(k)
 
@@ -374,6 +384,15 @@ objects = {
                      H["ezvXmlNodeFileRef"], H["ezvXmlNodeHeaderRef"],
                      H["ezvXmlNodeTestFileRef"], H["ezvFolderCleanupTestFileRef"],
                      H["ezvXmlPropsTestFileRef"],
+                     H["ezvOutgoingFileRef"], H["ezvOutgoingHeaderRef"],
+                     H["ezvOutgoingDepthCapTestFileRef"],
+                     H["ezvOutgoingUTF8TestFileRef"],
+                     H["httpserverStubFileRef"],
+                     H["ezvResponseGuardTestFileRef"],
+                     H["ezvStreamFileRef"], H["ezvStreamHeaderRef"],
+                     H["ezvStackFileRef"], H["ezvStackHeaderRef"],
+                     H["ezvSupportRoutinesFileRef"], H["ezvSupportRoutinesHeaderRef"],
+                     H["ezvStreamDepthCapTestFileRef"],
                      H["eventSoundsPluginFileRef"], H["dockBehaviorPluginFileRef"],
                      H["announcerPluginFileRef"], H["applescriptAlertPluginFileRef"],
                      H["smclsbPluginFileRef"], H["nehPluginFileRef"],
@@ -409,7 +428,7 @@ objects = {
     },
     H["frameworksGroup"]: {
         "isa": "PBXGroup",
-        "children": [H["xctestFwkRef"], H["userNotificationsFwkRef"]],
+        "children": [H["xctestFwkRef"], H["userNotificationsFwkRef"], H["uniformTypeIdentifiersFwkRef"]],
         "name": "Frameworks",
         "sourceTree": "<group>",
     },
@@ -750,6 +769,84 @@ objects = {
         "isa": "PBXFileReference",
         "lastKnownFileType": "sourcecode.c.objc",
         "path": "../../UnitTests/TestAWEzvXMLNodeSerializationProperties.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvStreamFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Bonjour/libezv/Private Classes/AWEzvXMLStream.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvStreamHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Plugins/Bonjour/libezv/Private Classes/AWEzvXMLStream.h",
+        "sourceTree": "<group>",
+    },
+    H["ezvStackFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Bonjour/libezv/Private Classes/AWEzvStack.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvStackHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Plugins/Bonjour/libezv/Private Classes/AWEzvStack.h",
+        "sourceTree": "<group>",
+    },
+    H["ezvSupportRoutinesFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Bonjour/libezv/Other Sources/AWEzvSupportRoutines.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvSupportRoutinesHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Plugins/Bonjour/libezv/Other Sources/AWEzvSupportRoutines.h",
+        "sourceTree": "<group>",
+    },
+    H["ezvStreamDepthCapTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestAWEzvXMLStreamDepthCap.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvOutgoingFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Plugins/Bonjour/libezv/Classes/EKEzvOutgoingFileTransfer.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvOutgoingHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Plugins/Bonjour/libezv/Classes/EKEzvOutgoingFileTransfer.h",
+        "sourceTree": "<group>",
+    },
+    H["ezvOutgoingDepthCapTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestEKEzvOutgoingFileTransferDepthCap.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvOutgoingUTF8TestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestEKEzvOutgoingFileTransferUTF8Length.m",
+        "sourceTree": "<group>",
+    },
+    H["httpserverStubFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/HTTPServerStub.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvResponseGuardTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestEKEzvIncomingFileTransferResponseGuard.m",
         "sourceTree": "<group>",
     },
 
@@ -1108,6 +1205,16 @@ objects = {
         "sourceTree": "<absolute>",
     },
 
+    # UniformTypeIdentifiers.framework — EKEzvOutgoingFileTransfer.m sends to UTType
+    # (class sends via mimeTypeForPath:), which need the framework linked into the test bundle.
+    H["uniformTypeIdentifiersFwkRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "wrapper.framework",
+        "name": "UniformTypeIdentifiers.framework",
+        "path": "/System/Library/Frameworks/UniformTypeIdentifiers.framework",
+        "sourceTree": "<absolute>",
+    },
+
     # ── Build Phases: Host ───────────────────────────────────────
     H["hostSourcesPhase"]: {
         "isa": "PBXSourcesBuildPhase",
@@ -1155,6 +1262,15 @@ objects = {
                   H["ezvXmlNodeBuildFile"], H["ezvXmlNodeTestBuildFile"],
                   H["ezvFolderCleanupTestBuildFile"],
                   H["ezvXmlPropsTestBuildFile"],
+                  H["ezvOutgoingBuildFile"],
+                  H["ezvOutgoingDepthCapTestBuildFile"],
+                  H["ezvOutgoingUTF8TestBuildFile"],
+                  H["httpserverStubBuildFile"],
+                  H["ezvResponseGuardTestBuildFile"],
+                  H["ezvStreamBuildFile"],
+                  H["ezvStackBuildFile"],
+                  H["ezvSupportRoutinesBuildFile"],
+                  H["ezvStreamDepthCapTestBuildFile"],
                   H["chatConsolPluginBuildFile"], H["newMsgPluginBuildFile"],
                   H["joinChatPluginBuildFile"], H["invitePluginBuildFile"],
                   H["statusPrefsPluginBuildFile"], H["stateMenuPluginBuildFile"],
@@ -1197,7 +1313,8 @@ objects = {
         "isa": "PBXFrameworksBuildPhase",
         "buildActionMask": 2147483647,
         "files": [H["xctestFwkBuildFile"], H["aiutilitiesFwkBuildFile"],
-                  H["cocoaFwkBuildFile"], H["userNotificationsFwkBuildFile"]],
+                  H["cocoaFwkBuildFile"], H["userNotificationsFwkBuildFile"],
+                  H["uniformTypeIdentifiersFwkBuildFile"]],
         "runOnlyForDeploymentPostprocessing": False,
     },
 
@@ -1244,6 +1361,15 @@ objects = {
     H["ezvXmlNodeTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvXmlNodeTestFileRef"]},
     H["ezvFolderCleanupTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvFolderCleanupTestFileRef"]},
     H["ezvXmlPropsTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvXmlPropsTestFileRef"]},
+    H["ezvOutgoingBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["ezvOutgoingFileRef"]},
+    H["ezvOutgoingDepthCapTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvOutgoingDepthCapTestFileRef"]},
+    H["ezvOutgoingUTF8TestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvOutgoingUTF8TestFileRef"]},
+    H["httpserverStubBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["httpserverStubFileRef"]},
+    H["ezvResponseGuardTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvResponseGuardTestFileRef"]},
+    H["ezvStreamBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvStreamFileRef"]},
+    H["ezvStackBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvStackFileRef"]},
+    H["ezvSupportRoutinesBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvSupportRoutinesFileRef"]},
+    H["ezvStreamDepthCapTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvStreamDepthCapTestFileRef"]},
     H["chatConsolPluginBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["chatConsolPluginFileRef"]},
     H["newMsgPluginBuildFile"]:         {"isa": "PBXBuildFile", "fileRef": H["newMsgPluginFileRef"]},
     H["joinChatPluginBuildFile"]:       {"isa": "PBXBuildFile", "fileRef": H["joinChatPluginFileRef"]},
@@ -1296,6 +1422,7 @@ objects = {
     H["sclViewPluginBuildFile"]:                   {"isa": "PBXBuildFile", "fileRef": H["sclViewPluginFileRef"]},
     H["sclViewUninstallTestBuildFile"]:            {"isa": "PBXBuildFile", "fileRef": H["sclViewUninstallTestFileRef"]},
     H["userNotificationsFwkBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["userNotificationsFwkRef"]},
+    H["uniformTypeIdentifiersFwkBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["uniformTypeIdentifiersFwkRef"]},
 
     # ── Target Dependency ───────────────────────────────────────
     H["testTargetDep"]: {
@@ -1459,6 +1586,7 @@ objects = {
                 "@loader_path/../Frameworks",
                 "$(FRAMEWORK_SEARCH_PATHS)",
             ),
+            "OTHER_LDFLAGS": ("-lexpat",),
             "PRODUCT_BUNDLE_IDENTIFIER": "com.github.phaedrus1992.adiumy.CoverageHostTests",
             "PRODUCT_NAME": "$(TARGET_NAME)",
             "SDKROOT": "macosx",
@@ -1511,6 +1639,7 @@ objects = {
                 "@loader_path/../Frameworks",
                 "$(FRAMEWORK_SEARCH_PATHS)",
             ),
+            "OTHER_LDFLAGS": ("-lexpat",),
             "PRODUCT_BUNDLE_IDENTIFIER": "com.github.phaedrus1992.adiumy.CoverageHostTests",
             "PRODUCT_NAME": "$(TARGET_NAME)",
             "SDKROOT": "macosx",

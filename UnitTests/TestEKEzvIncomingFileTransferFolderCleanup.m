@@ -83,4 +83,76 @@
 	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
 }
 
+/*
+ * Issue #248: the #191 cleanup only covers the synchronous folder walk. A transfer that fails or is
+ * cancelled after downloads have started leaves its partial file(s) and the created folder tree on
+ * disk. The destination (single file or root folder), every in-progress download path, and the
+ * created directory tree must all be removed on cancel and on async download error.
+ */
+
+/* Cancel must remove the in-flight partial file, the created folder tree, and the destination root.
+ * The walk creates <tempRoot>/a and tracks it; a KVC-set downloadPaths simulates an in-flight task
+ * whose partial file lives under that tree. */
+- (void)testCancelDownloadRemovesPartialFilesAndCreatedDirectories
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvAsyncCancelCleanup"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+
+	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
+	[transfer setLocalFilename:tempRoot];
+
+	NSXMLElement *outer = [self dirElementNamed:@"a"];
+	XCTAssertTrue([transfer downloadFolder:outer path:tempRoot url:@"http://example.com/base"],
+				  @"a single valid <dir> child must complete the folder walk");
+
+	NSString *partialFile = [tempRoot stringByAppendingPathComponent:@"a/partial.bin"];
+	[[NSFileManager defaultManager] createFileAtPath:partialFile contents:[NSData data] attributes:nil];
+	[transfer setValue:[@{@"fake-task" : partialFile} mutableCopy] forKey:@"downloadPaths"];
+
+	[transfer cancelDownload];
+
+	XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:partialFile],
+				   @"the partial file of a cancelled download must be removed");
+	XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:[tempRoot stringByAppendingPathComponent:@"a"]],
+				   @"the created folder tree must be removed on cancel");
+	XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:tempRoot],
+				   @"the transfer destination must be removed on cancel");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
+/* An async download error (via the session delegate callback) must remove the same artifacts: the
+ * failed task's partial file, the created folder tree, and the destination root. */
+- (void)testDownloadErrorRemovesPartialFilesAndCreatedDirectories
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvAsyncErrorCleanup"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+
+	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
+	[transfer setLocalFilename:tempRoot];
+
+	NSXMLElement *outer = [self dirElementNamed:@"a"];
+	XCTAssertTrue([transfer downloadFolder:outer path:tempRoot url:@"http://example.com/base"],
+				  @"a single valid <dir> child must complete the folder walk");
+
+	NSString *partialFile = [tempRoot stringByAppendingPathComponent:@"a/partial.bin"];
+	[[NSFileManager defaultManager] createFileAtPath:partialFile contents:[NSData data] attributes:nil];
+	[transfer setValue:[@{@"fake-task" : partialFile} mutableCopy] forKey:@"downloadPaths"];
+
+	NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCannotConnectToHost userInfo:nil];
+	/* The delegate method must not see a nil task (removeObjectForKey:nil throws); the real
+	 * callback always passes a live task, so use a non-nil stand-in. */
+	NSURLSessionDataTask *dummyTask = (NSURLSessionDataTask *)[[NSObject alloc] init];
+	[transfer URLSession:nil task:dummyTask didCompleteWithError:error];
+
+	XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:partialFile],
+				   @"the partial file of a failed download must be removed");
+	XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:[tempRoot stringByAppendingPathComponent:@"a"]],
+				   @"the created folder tree must be removed on download error");
+	XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:tempRoot],
+				   @"the transfer destination must be removed on download error");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
 @end
