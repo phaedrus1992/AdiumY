@@ -17,6 +17,11 @@
 #define APPLE_SINGLE_MAGIC_NUMBER 0x00051600
 #define APPLE_SINGLE_VERSION_NUMBER 0x00020000
 
+/* Maximum nesting depth for the generated folder tree. The receiver (EKEzvIncomingFileTransfer.m)
+ * fails any element deeper than this (root element = depth 1), so the sender must not emit entries
+ * past it, or the peer would reject the whole transfer (issue #250). */
+#define EKEZVFOLDER_MAX_DEPTH 32
+
 #define AS_ENTRY_DATA_FORK 1
 #define AS_ENTRY_RESOURCE_FORK 2
 #define AS_ENTRY_REAL_NAME 3
@@ -240,7 +245,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	NSXMLElement *name = [[NSXMLElement alloc] initWithName:@"name"
 												 stringValue:[newPath lastPathComponent]];
 	[root addChild:name];
-	NSArray *children = [self generateXMLFromDirectory:newPath];
+	NSArray *children = [self generateXMLFromDirectory:newPath depth:2];
 
 	NSXMLElement *child;
 	for (child in children) {
@@ -251,8 +256,14 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	return [NSData dataWithBytes:[xmlString UTF8String] length:[xmlString length]];
 }
 
-- (NSArray *)generateXMLFromDirectory:(NSString *)basePath
+- (NSArray *)generateXMLFromDirectory:(NSString *)basePath depth:(NSUInteger)depth
 {
+	/* Folders past the cap emit no XML: the receiver treats depth 33+ as a transfer failure, so
+	 * emitting them would guarantee a rejected transfer. Truncation keeps the tree acceptable. */
+	if (depth > EKEZVFOLDER_MAX_DEPTH) {
+		return [NSArray array];
+	}
+
 	/*Example XML:
 	 * <dir posixflags="01ED"> <name>untitled folder</name>
 	 *  <file mimetype="application/rtf" size="318"> <name>blah copy.rtf</name></file>
@@ -288,7 +299,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			NSXMLElement *name = [[NSXMLElement alloc] initWithName:@"name" stringValue:file];
 			[directoryNode addChild:name];
 
-			NSArray *dirChildren = [self generateXMLFromDirectory:newPath];
+			NSArray *dirChildren = [self generateXMLFromDirectory:newPath depth:depth + 1];
 
 			for (NSXMLElement *child in dirChildren) {
 				[directoryNode addChild:child];
