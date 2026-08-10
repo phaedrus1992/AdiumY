@@ -114,9 +114,7 @@ end
 # access. Catches a typo now rather than after an hour-long build.
 def verify_asc_credentials
   key = asc_api_key
-  sh("xcrun", "notarytool", "history",
-     "--key", key[:path], "--key-id", key[:id], "--issuer", key[:issuer],
-     "--output-format", "json",
+  sh("xcrun", "notarytool", "history", *notary_args(key), "--output-format", "json",
      log: false, error_callback: lambda { |_|
        UI.user_error!(<<~ERROR)
          App Store Connect rejected the API key.
@@ -171,19 +169,46 @@ def notary_timeout
   from_env.empty? ? "2h" : from_env
 end
 
+# Every notarytool call that wants structured data goes through here, so
+# "the command failed" and "the command succeeded with an unexpected verdict"
+# can never collapse into the same silent {}. A `--wait` submission that hits
+# NOTARY_TIMEOUT exits non-zero from notarytool itself but still prints a
+# valid ticket with an id and a status — the exit code alone can't tell a
+# live queue apart from a broken key or a dead network, so failure is judged
+# by whether Apple sent back parseable JSON, not by the process exit status.
+def notarytool_json(*args, key:)
+  raw = sh("xcrun", "notarytool", *args, *notary_args(key), "--output-format", "json",
+           log: false, error_callback: ->(_) {})
+  parsed = begin
+    JSON.parse(raw[/\{.*\}/m].to_s)
+  rescue JSON::ParserError
+    nil
+  end
+
+  UI.user_error!(<<~ERROR) if parsed.nil?
+    xcrun notarytool #{args.join(' ')} produced no usable output:
+
+    #{raw}
+  ERROR
+
+  parsed
+end
+
+# Same non-JSON shape, for `notarytool log`. Kept separate from
+# notarytool_json rather than unified, because a failure here is reported
+# inline in the caller's message rather than raised on its own.
+def notarytool_text(*args, key:)
+  failed = false
+  output = sh("xcrun", "notarytool", *args, *notary_args(key), log: false,
+              error_callback: ->(_) { failed = true })
+  failed ? "(failed to fetch the log itself: #{output})" : output
+end
+
 def notarize_and_staple(path)
   key = asc_api_key
   submitted = path.end_with?(".app") ? zip_for_notarization(path) : path
 
-  result = sh("xcrun", "notarytool", "submit", submitted, *notary_args(key),
-              "--wait", "--timeout", notary_timeout, "--output-format", "json",
-              log: false, error_callback: ->(_) {})
-  ticket = begin
-    JSON.parse(result[/\{.*\}/m].to_s)
-  rescue JSON::ParserError
-    {}
-  end
-
+  ticket = notarytool_json("submit", submitted, "--wait", "--timeout", notary_timeout, key: key)
   check_notarization_ticket(ticket, key, path) unless ticket["status"] == "Accepted"
 
   File.delete(submitted) if submitted != path && File.exist?(submitted)
@@ -202,25 +227,10 @@ def requested_submission_id(options)
   [from_options, ENV["SUBMISSION_ID"]].compact.map(&:to_s).find { |v| !v.empty? }.to_s
 end
 
-def submission_status(id, key)
-  info = sh("xcrun", "notarytool", "info", id, *notary_args(key), "--output-format", "json",
-            log: false, error_callback: ->(_) {})
-  JSON.parse(info[/\{.*\}/m].to_s)["status"].to_s
-rescue JSON::ParserError
-  "unknown"
-end
-
 # Having to paste a UUID to finish a release is a pointless failure mode when
 # the newest accepted submission is almost always the one meant.
 def latest_accepted_submission(key)
-  history = sh("xcrun", "notarytool", "history", *notary_args(key), "--output-format", "json",
-               log: false, error_callback: ->(_) {})
-  entries = begin
-    JSON.parse(history[/\{.*\}/m].to_s)["history"] || []
-  rescue JSON::ParserError
-    []
-  end
-
+  entries = notarytool_json("history", key: key)["history"] || []
   newest = entries.select { |e| e["status"] == "Accepted" }
                   .max_by { |e| e["createdDate"].to_s }
   UI.user_error!(<<~ERROR) unless newest
@@ -233,7 +243,23 @@ def latest_accepted_submission(key)
   ERROR
 
   UI.message("Using latest accepted submission #{newest['id']} (#{newest['name']}, #{newest['createdDate']})")
-  newest["id"]
+  newest
+end
+
+# `submit` always zips the .app under a fixed name, and always submits the DMG
+# itself (never zipped), so the submission's own "name" field is enough to
+# tell staple_notarized which local file a resumed submission belongs to —
+# without that, a DMG-side timeout gets "resolved" by stapling the app, which
+# reports success while shipping a DMG with no ticket at all.
+def artifact_for_submission(name)
+  return app_path if name == "#{APP_NAME}.app.zip"
+
+  dmg = File.join(DIST_DIR, name)
+  UI.user_error!(<<~ERROR) unless File.exist?(dmg)
+    Submission name #{name.inspect} matches neither #{File.basename(app_path)}.zip
+    nor a file in #{DIST_DIR}. Was #{DIST_DIR} cleaned since that submission?
+  ERROR
+  dmg
 end
 
 # A queue timeout and a rejection both leave status != Accepted, but only one of
@@ -241,22 +267,34 @@ end
 # submission that is still perfectly alive.
 def check_notarization_ticket(ticket, key, path)
   id = ticket["id"].to_s
-  status = ticket["status"] || "no verdict"
+  status = ticket["status"]
 
-  if status == "In Progress" || id.empty?
+  # notarytool always emits a submission id once Apple has accepted the
+  # upload, even for a queue timeout. No id means the ticket we have is not a
+  # real verdict at all — most likely `submit` never reached Apple.
+  UI.user_error!(<<~ERROR) if id.empty?
+    xcrun notarytool did not return a submission id for #{File.basename(path)}.
+
+    Response: #{ticket.inspect}
+
+    This is not a slow queue — it means the submit command itself did not
+    reach Apple (bad credentials, no network, or a malformed upload).
+  ERROR
+
+  if status == "In Progress"
     UI.user_error!(<<~ERROR)
       Notarization of #{File.basename(path)} did not finish within #{notary_timeout}.
-      #{id.empty? ? '' : "Submission #{id} is still queued at Apple."}
-      Nothing is wrong with the build yet. Wait for it, then staple:
+      Submission #{id} is still queued at Apple. Nothing is wrong with the build yet.
 
-        bundle exec fastlane mac staple_notarized#{id.empty? ? '' : " SUBMISSION_ID:#{id}"}
+      Wait for it, then staple:
+
+        bundle exec fastlane mac staple_notarized submission_id:#{id}
 
       Or raise the limit with NOTARY_TIMEOUT=4h.
     ERROR
   end
 
-  log = sh("xcrun", "notarytool", "log", id, *notary_args(key),
-           log: false, error_callback: ->(_) {})
+  log = notarytool_text("log", id, key: key)
   UI.user_error!("Notarization of #{File.basename(path)} was #{status}:\n#{log}")
 end
 
@@ -376,21 +414,25 @@ platform :mac do
 
   desc "List your notarization submissions and their status. There is no web UI for these."
   lane :notary_status do
-    sh("xcrun", "notarytool", "history", *notary_args(asc_api_key))
+    puts sh("xcrun", "notarytool", "history", *notary_args(asc_api_key), log: false)
   end
 
   desc "Staple a submission that finished after the notarize lane gave up waiting."
   lane :staple_notarized do |options|
     key = asc_api_key
     id = requested_submission_id(options)
-    id = latest_accepted_submission(key) if id.empty?
+    entry = id.empty? ? latest_accepted_submission(key) : notarytool_json("info", id, key: key)
 
-    status = submission_status(id, key)
-    UI.user_error!("Submission #{id} is #{status}, not Accepted.") unless status == "Accepted"
+    # An unknown or wrong-team id still returns id + parseable JSON, just with
+    # no "status" — only a "message" explaining why. Report that verbatim
+    # rather than the uninformative "Submission X is , not Accepted."
+    UI.user_error!("Submission #{id}: #{entry['message']}") if entry["message"] && !entry["status"]
+    UI.user_error!("Submission #{entry['id']} is #{entry['status']}, not Accepted.") unless entry["status"] == "Accepted"
 
-    staple(app_path)
-    sh("spctl", "--assess", "--type", "execute", "--verbose=2", app_path)
-    UI.success("Stapled #{app_path} with submission #{id}")
+    artifact = artifact_for_submission(entry["name"])
+    staple(artifact)
+    sh("spctl", "--assess", "--type", "execute", "--verbose=2", artifact)
+    UI.success("Stapled #{artifact} with submission #{entry['id']}")
   end
 
   desc "Build the disk image, then sign, notarize and staple it."
