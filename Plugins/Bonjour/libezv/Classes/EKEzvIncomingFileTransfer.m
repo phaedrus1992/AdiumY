@@ -372,6 +372,12 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 }
 - (void)failTransfer
 {
+	/* A transfer that has already succeeded owns its received artifacts; no failure path may remove
+	 * them, so a stale failure arriving after the transport reported completion is a no-op
+	 * (issue #260). */
+	if (transferSucceeded) {
+		return;
+	}
 	/* Every failure path funnels here: mark the transfer failed so -dealloc's safety net still
 	 * removes artifacts if cleanup has not run, remove the partial files and created folder tree
 	 * now, and report the failure to the client (issue #248). */
@@ -574,7 +580,11 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	}
 	percentComplete = ((float)bytesReceived / (float)size);
 	BOOL success = TRUE;
-	if (percentComplete >= 1.0) {
+	/* Completion is the transport's signal, not the peer-declared size's: when the last data task
+	 * completes without error, everything the peer sent has been received. Keying on
+	 * bytesReceived/size would leave an over-declared (or zero) size never marked succeeded, so a
+	 * late -cancelDownload could still delete the received file (issue #260). */
+	if ([currentDownloads count] == 0) {
 		success = [self applyPermissions];
 		if (success) {
 			/* Fully received and accepted: a late -cancelDownload or -dealloc must never remove
@@ -587,8 +597,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		 * received transfer leaves nothing behind (issue #248). */
 		transferFailed = YES;
 		[self removePartialTransferArtifacts];
-	}
-	if (success) {
+	} else {
 		[[[manager client] client] updateProgressForFileTransfer:self
 														 percent:[NSNumber numberWithFloat:percentComplete]
 													   bytesSent:[NSNumber numberWithLongLong:bytesReceived]];
