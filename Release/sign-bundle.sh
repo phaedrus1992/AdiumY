@@ -44,7 +44,9 @@ is_macho() {
 }
 
 # "Developer ID Application: Someone (C36L3X7U5T)" -> "C36L3X7U5T". Empty for
-# ad-hoc signing, which has no team.
+# ad-hoc signing, which has no team. The Fastfile is responsible for always
+# passing a full name here rather than a bare SHA-1 or team ID, precisely so
+# this can find one — see resolve_identity_override.
 EXPECTED_TEAM=""
 if [[ "$IDENTITY" =~ \(([A-Z0-9]{10})\)[[:space:]]*$ ]]; then
 	EXPECTED_TEAM="${BASH_REMATCH[1]}"

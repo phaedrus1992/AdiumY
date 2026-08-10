@@ -63,19 +63,27 @@ def signing_identity
   ERROR
 end
 
-# codesign -s matches substrings, so a bare team ID "works" while leaving
-# sign-bundle.sh unable to parse a team out of it — which silently disables its
-# wrong-team audit. Insist on the full name or the SHA-1.
+# codesign -s matches substrings, so a bare team ID "works" as a signing
+# identity while carrying no "(TEAMID)" suffix for sign-bundle.sh's wrong-team
+# audit to find — silently disabling that check for every binary. A SHA-1 had
+# the same hole: it matched here and was returned as-is, still team-less.
+# Whenever the override matches a SHA-1, this now returns the full quoted
+# name that SHA-1 belongs to instead of the SHA-1 itself, so whatever reaches
+# codesign and sign-bundle.sh always carries the team suffix regardless of
+# which form the override was given in. Only a full name that appears nowhere
+# in the keychain is still rejected outright.
 def resolve_identity_override(override, identities)
   return override if identities.include?("\"#{override}\"")
-  return override if identities.match?(/^\s*\d+\)\s+#{Regexp.escape(override)}\s/)
+
+  by_sha = identities.match(/^\s*\d+\)\s+#{Regexp.escape(override)}\s+"([^"]+)"/)
+  return by_sha[1] if by_sha
 
   UI.user_error!(<<~ERROR)
     DEVELOPER_ID_IDENTITY is set to "#{override}", which is not an installed
     signing identity.
 
-    It must be the whole name between the quotes in `security find-identity -v
-    -p codesigning`, for example:
+    It must be the whole name between the quotes, or the SHA-1 hash, from
+    `security find-identity -v -p codesigning`, for example:
 
       DEVELOPER_ID_IDENTITY="Developer ID Application: Your Name (#{TEAM_ID})"
 
