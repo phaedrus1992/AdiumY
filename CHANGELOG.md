@@ -155,6 +155,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   serializing), instead of recursing without bound
 - Remove the partially-created folder tree when a Bonjour folder download fails,
   so a failed download no longer leaves a partial tree at the chosen destination
+- Fix a completed Bonjour file transfer being deleted by a late cancel or a stale
+  error — once a transfer has fully received its files, cancelling it or a
+  failure arriving afterwards leaves the received files on disk
+- Fix Bonjour messages containing `&`, `<`, or `>` being escaped twice on the
+  wire — a peer now receives the literal character instead of the double-escaped
+  `&amp;amp;`
 
 ## [2.0.0] - 2026-08-03
 

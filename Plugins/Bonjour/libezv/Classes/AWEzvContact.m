@@ -81,8 +81,7 @@
 - (void)sendMessage:(NSString *)message withHtml:(NSString *)html
 {
 	AWEzvXMLNode *messageNode, *bodyNode, *textNode, *htmlNode, *htmlBodyNode, *htmlMessageNode;
-	NSMutableString *mutableString;
-	NSString *messageExtraEscapedString;
+	NSString *messageText;
 	NSString *htmlFiltered;
 	NSString *fixedHTML;
 
@@ -95,33 +94,17 @@
 			[self createConnection];
 		}
 
-		/* Message cleanup */
-		/* actual message */
-		mutableString = [message mutableCopy];
-		[mutableString replaceOccurrencesOfString:@"<br>"
-									   withString:@"<br />"
-										  options:NSCaseInsensitiveSearch
-											range:NSMakeRange(0, [mutableString length])];
-		[mutableString replaceOccurrencesOfString:@"&"
-									   withString:@"&amp;"
-										  options:NSLiteralSearch
-											range:NSMakeRange(0, [mutableString length])];
-		[mutableString replaceOccurrencesOfString:@"<"
-									   withString:@"&lt;"
-										  options:NSLiteralSearch
-											range:NSMakeRange(0, [mutableString length])];
-		[mutableString replaceOccurrencesOfString:@">"
-									   withString:@"&gt;"
-										  options:NSLiteralSearch
-											range:NSMakeRange(0, [mutableString length])];
-		messageExtraEscapedString = [mutableString copy];
-
-		mutableString = [fixedHTML mutableCopy];
-		[mutableString replaceOccurrencesOfString:@"<br>"
-									   withString:@"<br />"
-										  options:NSCaseInsensitiveSearch
-											range:NSMakeRange(0, [mutableString length])];
-		htmlFiltered = [mutableString copy];
+		/* Message cleanup: normalize line breaks only. The text serializer (AWEzvXMLText) escapes
+		 * & < > exactly once when the message is serialized; pre-escaping here would double-escape
+		 * the wire (&amp;amp;) (issue #259). */
+		messageText = [message stringByReplacingOccurrencesOfString:@"<br>"
+														 withString:@"<br />"
+															options:NSCaseInsensitiveSearch
+															  range:NSMakeRange(0, [message length])];
+		htmlFiltered = [fixedHTML stringByReplacingOccurrencesOfString:@"<br>"
+															withString:@"<br />"
+															   options:NSCaseInsensitiveSearch
+																 range:NSMakeRange(0, [fixedHTML length])];
 
 		/* setup XML tree */
 		messageNode = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"message"];
@@ -133,7 +116,7 @@
 		bodyNode = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"body"];
 		[messageNode addChild:bodyNode];
 
-		textNode = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLText name:messageExtraEscapedString];
+		textNode = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLText name:messageText];
 		[bodyNode addChild:textNode];
 
 		htmlNode = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"html"];

@@ -106,6 +106,9 @@
 				<string>9E84714987565776A7D1C305</string>
 				<string>D5B8C85DF5835A609620AEED</string>
 				<string>854C51A205355BA9A3A18E78</string>
+				<string>C8378009B9115010A43BCB2E</string>
+				<string>9B61F77B613F5F35AFB4FC6E</string>
+				<string>6F112801594859A19A9F1168</string>
 				<string>C6A6341BBA9C59A6B9D7C8C2</string>
 				<string>0E69FB7F5D8A5C919AF56868</string>
 				<string>524C5277586A59B8B8E8DE75</string>
@@ -788,6 +791,39 @@
 			<string>sourcecode.c.objc</string>
 			<key>path</key>
 			<string>../../UnitTests/TestAWEzvXMLNodeSerializationProperties.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>C8378009B9115010A43BCB2E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Classes/AWEzvContact.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>9B61F77B613F5F35AFB4FC6E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Classes/AWEzvContact.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>6F112801594859A19A9F1168</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAWEzvContactSendEscaping.m</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
@@ -1650,6 +1686,8 @@
 				<string>168768666A0F575681DDE9C3</string>
 				<string>A7DBEFAB16675783B10AFD88</string>
 				<string>8EF6D196DF5B5C6C83451C20</string>
+				<string>1B8ED8AA54345C2892A84807</string>
+				<string>A002615F894B5417993BAA5A</string>
 				<string>12F24C87D5205FE18E959CF2</string>
 				<string>C14DA150C3E85FD69C7261CA</string>
 				<string>D6033BC96C0A5421A56D5070</string>
@@ -2017,6 +2055,20 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>854C51A205355BA9A3A18E78</string>
+		</dict>
+		<key>1B8ED8AA54345C2892A84807</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>C8378009B9115010A43BCB2E</string>
+		</dict>
+		<key>A002615F894B5417993BAA5A</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>6F112801594859A19A9F1168</string>
 		</dict>
 		<key>12F24C87D5205FE18E959CF2</key>
 		<dict>
