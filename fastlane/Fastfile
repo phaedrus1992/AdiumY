@@ -195,6 +195,47 @@ def staple(path)
   sh("xcrun", "stapler", "validate", path)
 end
 
+# fastlane downcases lane option keys, so `SUBMISSION_ID:x` on the command line
+# does not arrive as :SUBMISSION_ID. Accept any casing, and the env var.
+def requested_submission_id(options)
+  from_options = options.to_h.find { |k, _| k.to_s.casecmp?("submission_id") }&.last
+  [from_options, ENV["SUBMISSION_ID"]].compact.map(&:to_s).find { |v| !v.empty? }.to_s
+end
+
+def submission_status(id, key)
+  info = sh("xcrun", "notarytool", "info", id, *notary_args(key), "--output-format", "json",
+            log: false, error_callback: ->(_) {})
+  JSON.parse(info[/\{.*\}/m].to_s)["status"].to_s
+rescue JSON::ParserError
+  "unknown"
+end
+
+# Having to paste a UUID to finish a release is a pointless failure mode when
+# the newest accepted submission is almost always the one meant.
+def latest_accepted_submission(key)
+  history = sh("xcrun", "notarytool", "history", *notary_args(key), "--output-format", "json",
+               log: false, error_callback: ->(_) {})
+  entries = begin
+    JSON.parse(history[/\{.*\}/m].to_s)["history"] || []
+  rescue JSON::ParserError
+    []
+  end
+
+  newest = entries.select { |e| e["status"] == "Accepted" }
+                  .max_by { |e| e["createdDate"].to_s }
+  UI.user_error!(<<~ERROR) unless newest
+    No accepted notarization submission found.
+
+    Check what you have with `bundle exec fastlane mac notary_status`, then pass
+    one explicitly:
+
+      bundle exec fastlane mac staple_notarized submission_id:<uuid>
+  ERROR
+
+  UI.message("Using latest accepted submission #{newest['id']} (#{newest['name']}, #{newest['createdDate']})")
+  newest["id"]
+end
+
 # A queue timeout and a rejection both leave status != Accepted, but only one of
 # them means the build is broken. Telling them apart avoids throwing away a
 # submission that is still perfectly alive.
@@ -340,18 +381,16 @@ platform :mac do
 
   desc "Staple a submission that finished after the notarize lane gave up waiting."
   lane :staple_notarized do |options|
-    id = options[:submission_id] || ENV["SUBMISSION_ID"].to_s
-    UI.user_error!("Pass SUBMISSION_ID:<uuid> or set SUBMISSION_ID.") if id.empty?
-
     key = asc_api_key
-    info = sh("xcrun", "notarytool", "info", id, *notary_args(key), "--output-format", "json",
-              log: false, error_callback: ->(_) {})
-    status = (JSON.parse(info[/\{.*\}/m].to_s)["status"] rescue nil) || "unknown"
+    id = requested_submission_id(options)
+    id = latest_accepted_submission(key) if id.empty?
 
+    status = submission_status(id, key)
     UI.user_error!("Submission #{id} is #{status}, not Accepted.") unless status == "Accepted"
+
     staple(app_path)
     sh("spctl", "--assess", "--type", "execute", "--verbose=2", app_path)
-    UI.success("Stapled #{app_path}")
+    UI.success("Stapled #{app_path} with submission #{id}")
   end
 
   desc "Build the disk image, then sign, notarize and staple it."

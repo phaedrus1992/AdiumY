@@ -229,7 +229,7 @@ than failing the build:
 xcrun notarytool info <id> --key ~/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8 \
   --key-id "$ASC_KEY_ID" --issuer "$ASC_ISSUER_ID"
 
-bundle exec fastlane mac staple_notarized SUBMISSION_ID:<id>
+bundle exec fastlane mac staple_notarized
 ```
 
 Nothing needs rebuilding — the ticket is tied to the signature you already
