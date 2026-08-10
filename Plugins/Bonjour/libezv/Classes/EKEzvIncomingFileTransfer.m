@@ -61,10 +61,14 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	/* Directories created by the in-progress downloadFolder:path:url:depth: walk. On failure
 	 * the walk removes them (deepest first) so no partial folder tree is left on disk (#191). */
 	NSMutableArray *createdDirectories;
+	/* Set once any failure or cancel path has run, so -dealloc can remove partial artifacts without
+	 * ever deleting a successfully-received transfer (issue #248). */
+	BOOL transferFailed;
 }
 - (bool)downloadFolder:(NSXMLElement *)root path:(NSString *)rootPath url:(NSString *)rootURL depth:(NSUInteger)depth;
 - (bool)downloadChildElements:(NSXMLElement *)dir path:(NSString *)path url:(NSString *)url depth:(NSUInteger)depth;
 - (void)removeCreatedDirectories;
+- (void)removePartialTransferArtifacts;
 @end
 
 @implementation EKEzvIncomingFileTransfer
@@ -73,6 +77,12 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 - (void)dealloc
 {
 	[downloadSession invalidateAndCancel];
+	if (transferFailed) {
+		/* Safety net: a transfer released after a failure (rather than after its cleanup already
+		 * ran) must still not leave partial files behind. Guarded so a successful transfer's
+		 * received files are never removed (issue #248). */
+		[self removePartialTransferArtifacts];
+	}
 }
 - (void)startDownload
 {
@@ -102,6 +112,10 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	}
 	[downloadSession invalidateAndCancel];
 	downloadSession = nil;
+	/* A cancelled transfer must not leave its partial files or the created folder tree on disk
+	 * (issue #248). */
+	transferFailed = YES;
+	[self removePartialTransferArtifacts];
 }
 - (void)downloadFolder
 {
@@ -179,8 +193,8 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		}
 
 	} else {
-		[self removeCreatedDirectories];
-		[fileManager removeItemAtPath:localFilename error:NULL];
+		transferFailed = YES;
+		[self removePartialTransferArtifacts];
 		[[[[self manager] client] client] transferFailed:self];
 	}
 }
@@ -319,6 +333,21 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	}
 	createdDirectories = nil;
 }
+- (void)removePartialTransferArtifacts
+{
+	/* A failed or cancelled transfer must not leave partial files, the created folder tree, or the
+	 * destination (single file or root folder) on disk (issue #248). Remove every in-progress
+	 * download path, then the created directory tree, then the transfer's own destination. The
+	 * destination covers the just-failed task's own partial file, whose path is removed from
+	 * downloadPaths before the error branch runs. */
+	for (NSString *path in [downloadPaths allValues]) {
+		[[NSFileManager defaultManager] removeItemAtPath:path error:NULL];
+	}
+	[self removeCreatedDirectories];
+	if (localFilename != nil) {
+		[[NSFileManager defaultManager] removeItemAtPath:localFilename error:NULL];
+	}
+}
 
 - (void)downloadFile
 {
@@ -416,6 +445,10 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	NSError *validationError = AIHTTPDownloadValidationErrorForResponse(response);
 	if (validationError != nil) {
 		completionHandler(NSURLSessionResponseCancel);
+		/* Rejecting the response fails the transfer; remove any earlier tasks' partial files and
+		 * the created folder tree (issue #248). */
+		transferFailed = YES;
+		[self removePartialTransferArtifacts];
 		[[[manager client] client] transferFailed:self];
 		[[[manager client] client] reportError:[validationError localizedDescription] ofLevel:AWEzvError];
 		return;
@@ -469,6 +502,10 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			/* A cancelled download is intentional; nothing to report. */
 			return;
 		}
+		/* The failed task's partial file, and for a directory transfer the created folder tree and
+		 * any other in-flight paths, must not be left on disk (issue #248). */
+		transferFailed = YES;
+		[self removePartialTransferArtifacts];
 		[[[manager client] client] transferFailed:self];
 		// inform the user
 		[[[manager client] client]
@@ -484,7 +521,12 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		NSString *itemPath = [self urlToPath:itemURL];
 		BOOL decoded = [self decodeAppleSingleAtPath:itemPath];
 		if (!decoded) {
+			/* A body that fails to decode is a failed transfer; remove its artifacts rather than
+			 * applying permissions to a corrupt file (issue #248). */
+			transferFailed = YES;
+			[self removePartialTransferArtifacts];
 			[[[manager client] client] transferFailed:self];
+			return;
 		}
 	}
 	percentComplete = ((float)bytesReceived / (float)size);
@@ -492,10 +534,17 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	if (percentComplete >= 1.0) {
 		success = [self applyPermissions];
 	}
-	if (success)
+	if (!success) {
+		/* applyPermissions already reported the failure; remove artifacts so a partially-
+		 * received transfer leaves nothing behind (issue #248). */
+		transferFailed = YES;
+		[self removePartialTransferArtifacts];
+	}
+	if (success) {
 		[[[manager client] client] updateProgressForFileTransfer:self
 														 percent:[NSNumber numberWithFloat:percentComplete]
 													   bytesSent:[NSNumber numberWithLongLong:bytesReceived]];
+	}
 }
 
 #pragma mark Encoding Helper Methods
