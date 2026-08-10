@@ -9,7 +9,13 @@ on:
 jobs:
   release:
     runs-on: macos-15
-    timeout-minutes: 120
+    # `release` notarizes twice (app, then DMG), each waiting up to the 2h
+    # NOTARY_TIMEOUT default, on top of a from-source build that alone runs
+    # 45-60m. 120m was tight enough to kill the job mid-notarization on a
+    # slow Apple queue, wasting a completed build and a signed artifact.
+    # 330 covers build + two full-length notary waits with room for
+    # sign/package/appcast/publish; 360 is GitHub's hard cap for hosted runners.
+    timeout-minutes: 330
     permissions:
       contents: write
 
