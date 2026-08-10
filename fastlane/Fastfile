@@ -129,9 +129,11 @@ def verify_asc_credentials
 end
 
 # nil rather than an error, for callers that can proceed without a version.
+# The "v" prefix is stripped from either source, so VERSION=v2.1.0 can't
+# produce a "vv2.1.0" tag on publish or a non-numeric CFBundleVersion.
 def resolved_version
   from_env = ENV["VERSION"].to_s
-  return from_env unless from_env.empty?
+  return from_env.delete_prefix("v") unless from_env.empty?
 
   tag = sh("git -C #{ROOT.shellescape} describe --tags --exact-match 2>/dev/null || true", log: false).strip
   tag.empty? ? nil : tag.delete_prefix("v")
@@ -309,19 +311,48 @@ def zip_for_notarization(app)
 end
 
 # The Sparkle feed is served from main, so the appcast has to land there as
-# well as on the release. On CI the token is passed in the remote URL rather
-# than persisted into .git/config by the checkout step.
+# well as on the release — but `release` runs from a detached tag checkout,
+# never from main itself, and a build that takes an hour easily outlives
+# whatever main's tip was at checkout time. Committing straight to ROOT's
+# working tree would commit onto the tag and then fail to push to main at
+# all; a disposable worktree lets the tag checkout stay untouched while still
+# rebasing and retrying if main moved again between fetch and push.
+#
+# On CI the token is passed in the remote URL rather than persisted into
+# .git/config by the checkout step.
 def commit_appcast(version)
-  sh("git", "-C", ROOT, "add", APPCAST)
-  sh("git", "-C", ROOT, "commit", "-m", "chore(release): update appcast for #{version}")
-
   token = ENV["GITHUB_TOKEN"].to_s
-  if token.empty?
-    sh("git", "-C", ROOT, "push", "origin", "HEAD:main")
-  else
-    sh("git", "-C", ROOT, "push",
-       "https://x-access-token:#{token}@github.com/#{GITHUB_REPO}.git", "HEAD:main",
-       log: false)
+  push_target = token.empty? ? "origin" : "https://x-access-token:#{token}@github.com/#{GITHUB_REPO}.git"
+
+  # Git names the worktree's internal .git/worktrees/<name> administrative
+  # entry from the leaf of this path, not the full path — a literal "main"
+  # leaf would let a second release collide with a first run's admin entry if
+  # cleanup ever left one behind. mktmpdir's own leaf is already unique, so
+  # the worktree lives directly at its path rather than a subdirectory of it.
+  worktree = Dir.mktmpdir
+  begin
+    sh("git", "-C", ROOT, "fetch", "origin", "main", log: false)
+    sh("git", "-C", ROOT, "worktree", "add", "--detach", worktree, "origin/main", log: false)
+
+    FileUtils.cp(APPCAST, File.join(worktree, "appcast.xml"))
+    sh("git", "-C", worktree, "add", "appcast.xml")
+    sh("git", "-C", worktree, "commit", "-m", "chore(release): update appcast for #{version}")
+
+    pushed = false
+    3.times do
+      rejected = false
+      sh("git", "-C", worktree, "push", push_target, "HEAD:main",
+         log: token.empty?, error_callback: ->(_) { rejected = true })
+      unless rejected
+        pushed = true
+        break
+      end
+      sh("git", "-C", worktree, "fetch", "origin", "main", log: false)
+      sh("git", "-C", worktree, "rebase", "origin/main", log: false)
+    end
+    UI.user_error!("Could not push appcast.xml to main: main kept moving after 3 attempts.") unless pushed
+  ensure
+    sh("git", "-C", ROOT, "worktree", "remove", "--force", worktree, log: false) if File.exist?(worktree)
   end
 end
 
