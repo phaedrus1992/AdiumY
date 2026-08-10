@@ -19,22 +19,26 @@ APP=$1
 VERSION=$2
 OUTPUT=$3
 
-RELEASE_DIR=$(cd "$(dirname "$0")" && pwd)
-SRC_DIR=$(dirname "$RELEASE_DIR")
-VOLUME_NAME="AdiumY $VERSION"
-STAGE=$(mktemp -d)
-TEMP_DMG=$(mktemp -u).dmg
-
 if [ ! -d "$APP" ]; then
 	echo "error: $APP is not a bundle directory" >&2
 	exit 66
 fi
 
+RELEASE_DIR=$(cd "$(dirname "$0")" && pwd)
+SRC_DIR=$(dirname "$RELEASE_DIR")
+VOLUME_NAME="AdiumY $VERSION"
+STAGE=$(mktemp -d)
+# A directory + fixed leaf name, not `mktemp -u`: `-u` prints a name it never
+# reserves, so nothing stops another process claiming it before this script
+# creates the actual image there.
+DMG_WORKDIR=$(mktemp -d)
+TEMP_DMG="$DMG_WORKDIR/image.dmg"
+
 cleanup() {
 	if [ -n "${DEV_NAME:-}" ] && [ -e "$DEV_NAME" ]; then
 		hdiutil detach "$DEV_NAME" -quiet -force || true
 	fi
-	rm -rf "$STAGE" "$TEMP_DMG"
+	rm -rf "$STAGE" "$DMG_WORKDIR"
 }
 trap cleanup EXIT
 
