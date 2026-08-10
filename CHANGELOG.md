@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Add "Save Image As" to the message-view context menu for remote images
 
 ### Fixed
+- Remove partial files and created folder trees when an incoming Bonjour file
+  transfer fails or is cancelled, instead of leaving them on disk
+- Escape special characters in Bonjour XML attribute values so a peer-supplied
+  value cannot inject markup into the serialized tag
+- Fix outgoing Bonjour folder transfers hanging when a file or folder nests
+  deeper than 32 levels — the sender now caps its file list at the same depth
+  the receiver enforces, so the download queue drains and the transfer completes
+- Fix Bonjour folder transfers failing when a file or folder name contains
+  non-ASCII characters — the folder XML is now sized by UTF-8 byte length
+  instead of being truncated mid-tag
+- Reject Bonjour XML nested past 32 levels from a peer instead of building a
+  tree deep enough to overflow the stack when it is torn down
 - Stop HTML paste from loading remote images embedded in pasted rich text — it
   no longer triggers a network request for those images
 - Fix message-style preferences left over from the pre-rename AdiumY fork
