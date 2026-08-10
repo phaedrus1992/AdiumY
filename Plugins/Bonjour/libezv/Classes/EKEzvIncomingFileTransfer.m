@@ -135,6 +135,16 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 {
 	/*We need to first get the xml for the layout */
 	NSURL *URL = [NSURL URLWithString:url];
+	if (URL == nil) {
+		/* A peer-supplied base URL that does not parse must fail the transfer loudly rather than
+		 * hand nil to initWithContentsOfURL:, which raises NSInvalidArgumentException (variant of
+		 * issue #264 found in pre-PR review). */
+		[[[[self manager] client] client]
+			reportError:[NSString stringWithFormat:@"Could not download transfer because its URL is invalid: %@", url]
+				ofLevel:AWEzvError];
+		[self failTransfer];
+		return;
+	}
 	NSError *error = nil;
 	NSXMLDocument *documentRoot = [[NSXMLDocument alloc] initWithContentsOfURL:URL options:0 error:&error];
 	if (error) {
@@ -403,7 +413,18 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 - (void)downloadFile
 {
-	[self downloadURL:[NSURL URLWithString:url] toPath:localFilename];
+	NSURL *downloadURL = [NSURL URLWithString:url];
+	if (downloadURL == nil) {
+		/* Mirror the directory-transfer guard: an unparseable peer-supplied URL must fail the
+		 * transfer, not reach requestWithURL:/dataTaskWithRequest: with nil (variant of issue #264
+		 * found in pre-PR review). */
+		[[[[self manager] client] client]
+			reportError:[NSString stringWithFormat:@"Could not download file because its URL is invalid: %@", url]
+				ofLevel:AWEzvError];
+		[self failTransfer];
+		return;
+	}
+	[self downloadURL:downloadURL toPath:localFilename];
 }
 
 #pragma mark Download Helper Methods
