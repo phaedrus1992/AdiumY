@@ -57,9 +57,14 @@ struct AppleSingleFinderInfo {
 };
 typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
-@interface EKEzvIncomingFileTransfer ()
+@interface EKEzvIncomingFileTransfer () {
+	/* Directories created by the in-progress downloadFolder:path:url:depth: walk. On failure
+	 * the walk removes them (deepest first) so no partial folder tree is left on disk (#191). */
+	NSMutableArray *createdDirectories;
+}
 - (bool)downloadFolder:(NSXMLElement *)root path:(NSString *)rootPath url:(NSString *)rootURL depth:(NSUInteger)depth;
 - (bool)downloadChildElements:(NSXMLElement *)dir path:(NSString *)path url:(NSString *)url depth:(NSUInteger)depth;
+- (void)removeCreatedDirectories;
 @end
 
 @implementation EKEzvIncomingFileTransfer
@@ -174,12 +179,20 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		}
 
 	} else {
+		[self removeCreatedDirectories];
+		[fileManager removeItemAtPath:localFilename error:NULL];
 		[[[[self manager] client] client] transferFailed:self];
 	}
 }
 - (bool)downloadFolder:(NSXMLElement *)root path:(NSString *)rootPath url:(NSString *)rootURL
 {
-	return [self downloadFolder:root path:rootPath url:rootURL depth:1];
+	bool success = [self downloadFolder:root path:rootPath url:rootURL depth:1];
+	if (!success) {
+		/* The walk failed partway: remove every directory it created so no partial folder tree
+		 * is left on disk (issue #191). */
+		[self removeCreatedDirectories];
+	}
+	return success;
 }
 - (bool)downloadFolder:(NSXMLElement *)root path:(NSString *)rootPath url:(NSString *)rootURL depth:(NSUInteger)depth
 {
@@ -265,6 +278,12 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			return NO;
 		}
 
+		/* Track the created directory so a later failure in this walk can remove it (#191). */
+		if (createdDirectories == nil) {
+			createdDirectories = [[NSMutableArray alloc] initWithCapacity:4];
+		}
+		[createdDirectories addObject:newPath];
+
 		/* Now call downloadFolder for dir and file children */
 		NSString *newURL = [rootURL
 			stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]];
@@ -291,6 +310,16 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	}
 	return fileSuccess && folderSuccess;
 }
+- (void)removeCreatedDirectories
+{
+	/* Remove the directories this walk created, deepest first, so no partial folder tree
+	 * survives a failed transfer (issue #191). */
+	for (NSString *path in [createdDirectories reverseObjectEnumerator]) {
+		[[NSFileManager defaultManager] removeItemAtPath:path error:NULL];
+	}
+	createdDirectories = nil;
+}
+
 - (void)downloadFile
 {
 	[self downloadURL:[NSURL URLWithString:url] toPath:localFilename];

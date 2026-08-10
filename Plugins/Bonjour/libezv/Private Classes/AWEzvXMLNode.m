@@ -34,6 +34,11 @@
 
 #define DEFAULT_CAPACITY	10
 
+/* Maximum nesting depth for -xmlString serialization. A peer-supplied <message><html>
+ * tree nested deeper would overflow the stack on OSes whose expat nests without bound; the
+ * serializer drops content past the cap instead of recursing (issue #190). */
+#define AWEZVXML_MAX_DEPTH 32
+
 @implementation AWEzvXMLNode
 
 
@@ -92,38 +97,44 @@
 }
 
 - (NSString *)xmlString {
+    return [self xmlStringWithMaxDepth:AWEZVXML_MAX_DEPTH];
+}
+
+- (NSString *)xmlStringWithMaxDepth:(NSUInteger)maxDepth {
     NSMutableString	*string;
     NSString		*key;
     AWEzvXMLNode	*node;
     
     if (type == AWEzvXMLText) {
         string = [name mutableCopy];
-        [string replaceOccurrencesOfString:@"&" withString:@"&amp;" 
-								   options:NSLiteralSearch range:NSMakeRange(0, [string length])];
-        [string replaceOccurrencesOfString:@"<" withString:@"&lt;" 
-								   options:NSLiteralSearch range:NSMakeRange(0, [string length])];
-        [string replaceOccurrencesOfString:@">" withString:@"&gt;" 
-								   options:NSLiteralSearch range:NSMakeRange(0, [string length])];
+        [string replaceOccurrencesOfString:@"&" withString:@"&amp;"
+                                   options:NSLiteralSearch range:NSMakeRange(0, [string length])];
+        [string replaceOccurrencesOfString:@"<" withString:@"&lt;"
+                                   options:NSLiteralSearch range:NSMakeRange(0, [string length])];
+        [string replaceOccurrencesOfString:@">" withString:@"&gt;"
+                                   options:NSLiteralSearch range:NSMakeRange(0, [string length])];
         return [string copy];
 
     } else if (type == AWEzvXMLRaw) {
-		return [name copy];
+        return [name copy];
     }
     
     string = [NSMutableString stringWithString:@"<"];
     [string appendString:name];
     
-		for (key in [attributes keyEnumerator]) {
+    for (key in [attributes keyEnumerator]) {
         [string appendFormat:@" %@=\"%@\"", key, [attributes objectForKey:key]];
     }
     
     [string appendString:@">"];
     
-    for (node in children) {
-		NSString	*xmlString;
-		if ((xmlString = [node xmlString])) {
-			[string appendString:xmlString];
-		}
+    if (maxDepth > 0) {
+        for (node in children) {
+            NSString *childString;
+            if ((childString = [node xmlStringWithMaxDepth:(maxDepth - 1)])) {
+                [string appendString:childString];
+            }
+        }
     }
     
     [string appendFormat:@"</%@>", name];
@@ -146,13 +157,13 @@
 	
 	for (node in children) {
 		NSString	*xmlString;
-		if ((xmlString = [node xmlString])) {
+		if ((xmlString = [node xmlStringWithMaxDepth:AWEZVXML_MAX_DEPTH])) {
 			[string appendString:xmlString];
 		}
 	}
 	
 	[string appendFormat:@"</%@>", name];
 
-    return [NSString stringWithFormat:@"<AWEzvXMLNode %@:type %i:\"%@\">",self,type,string];
+    return [NSString stringWithFormat:@"<AWEzvXMLNode type %i:\"%@\">",type,string];
 }
 @end

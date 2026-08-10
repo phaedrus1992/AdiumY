@@ -53,5 +53,6 @@ enum types {
 - (NSString *)name;
 - (void) setName:(NSString *)name;
 - (NSString *)xmlString;
+- (NSString *)xmlStringWithMaxDepth:(NSUInteger)maxDepth;
 
 @end
