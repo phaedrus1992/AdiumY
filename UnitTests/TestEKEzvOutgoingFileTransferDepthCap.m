@@ -19,16 +19,9 @@
 #import <XCTest/XCTest.h>
 
 /*
- * EKEzvOutgoingFileTransfer references the HTTPServer class (startHTTPServer/stopSending/baseURL),
- * but the test bundle does not compile libezv's Simple HTTP Server stack. The class reference
- * (_OBJC_CLASS_$_HTTPServer) is a hard link-time symbol even when those methods never run, so
- * provide a minimal stub. The folder-XML generation under test never touches the server; HTTPServer
- * is an external network boundary, not the code under test (issue #250).
- */
-@implementation HTTPServer
-@end
-
-/*
+ * The HTTPServer class reference (issue #250) is resolved by the shared stub in HTTPServerStub.m —
+ * see that file for why the test bundle needs it.
+ *
  * Send/receive depth-cap asymmetry (issue #250): the receiver (EKEzvIncomingFileTransfer.m) fails
  * any element nested deeper than EKEZVFOLDER_MAX_DEPTH (32, root element = depth 1), but the sender
  * (EKEzvOutgoingFileTransfer.m) recursed without bound, emitting XML the receiver would reject. The

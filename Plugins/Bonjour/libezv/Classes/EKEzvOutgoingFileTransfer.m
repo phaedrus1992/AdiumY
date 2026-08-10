@@ -253,7 +253,9 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	}
 
 	NSString *xmlString = [root XMLString];
-	return [NSData dataWithBytes:[xmlString UTF8String] length:[xmlString length]];
+	/* length: counts UTF-16 code units, not UTF-8 bytes — a non-ASCII filename truncates the data.
+	 * dataUsingEncoding: derives the byte count from the UTF-8 encoding (issue #252). */
+	return [xmlString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (NSArray *)generateXMLFromDirectory:(NSString *)basePath depth:(NSUInteger)depth
