@@ -155,4 +155,52 @@
 	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
 }
 
+/*
+ * Issue #260: the #248 cleanup runs on cancel and on failure, but nothing guards the success side —
+ * a cancel issued after the transfer has fully received its file deletes the received artifacts.
+ * Completion state must make a late cancel a no-op so a successful transfer is never cleaned up.
+ */
+
+/* Drive the transfer to successful completion (didCompleteWithError: with no error, full byte
+ * count), then cancel. The received file, created folder tree, and destination root must survive. */
+- (void)testCancelAfterSuccessfulDownloadLeavesFileOnDisk
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvCancelAfterSuccess"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+
+	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
+	[transfer setLocalFilename:tempRoot];
+
+	NSXMLElement *outer = [self dirElementNamed:@"a"];
+	XCTAssertTrue([transfer downloadFolder:outer path:tempRoot url:@"http://example.com/base"],
+				  @"a single valid <dir> child must complete the folder walk");
+
+	NSString *receivedFile = [tempRoot stringByAppendingPathComponent:@"a/received.bin"];
+	[[NSFileManager defaultManager] createFileAtPath:receivedFile contents:[NSData data] attributes:nil];
+
+	/* Make the transfer believe it has received the full announced size. */
+	[transfer setValue:[NSNumber numberWithLongLong:100] forKey:@"bytesReceived"];
+	[transfer setSize:100];
+
+	/* The success path reads [[dataTask originalRequest] URL], so the task must be a real
+	 * NSURLSessionDataTask (a bare NSObject stand-in has no originalRequest). */
+	NSURLSession *session =
+		[NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+	NSURLSessionDataTask *task = [session
+		dataTaskWithRequest:[NSURLRequest
+								requestWithURL:[NSURL URLWithString:@"http://example.com/base/a/received.bin"]]];
+	[transfer URLSession:nil task:task didCompleteWithError:nil];
+
+	[transfer cancelDownload];
+
+	XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:receivedFile],
+				  @"a late cancel after a completed download must leave the received file on disk");
+	XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:[tempRoot stringByAppendingPathComponent:@"a"]],
+				  @"a late cancel after a completed download must leave the folder tree intact");
+	XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:tempRoot],
+				  @"a late cancel after a completed download must leave the destination root intact");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
 @end

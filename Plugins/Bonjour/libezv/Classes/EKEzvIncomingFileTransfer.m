@@ -65,6 +65,9 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	/* Set once any failure or cancel path has run, so -dealloc can remove partial artifacts without
 	 * ever deleting a successfully-received transfer (issue #248). */
 	BOOL transferFailed;
+	/* Set once the transfer is fully received and accepted, so a late -cancelDownload or -dealloc
+	 * never removes artifacts of a transfer the user owns (issue #260). */
+	BOOL transferSucceeded;
 }
 - (bool)downloadFolder:(NSXMLElement *)root path:(NSString *)rootPath url:(NSString *)rootURL depth:(NSUInteger)depth;
 - (bool)downloadChildElements:(NSXMLElement *)dir path:(NSString *)path url:(NSString *)url depth:(NSUInteger)depth;
@@ -79,10 +82,10 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 - (void)dealloc
 {
 	[downloadSession invalidateAndCancel];
-	if (transferFailed) {
+	if (transferFailed && !transferSucceeded) {
 		/* Safety net: a transfer released after a failure (rather than after its cleanup already
 		 * ran) must still not leave partial files behind. Guarded so a successful transfer's
-		 * received files are never removed (issue #248). */
+		 * received files are never removed (issues #248, #260). */
 		[self removePartialTransferArtifacts];
 	}
 }
@@ -104,6 +107,11 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 - (void)cancelDownload
 {
+	if (transferSucceeded) {
+		/* A completed transfer's received artifacts belong to the user; a late cancel is a no-op
+		 * (issue #260). */
+		return;
+	}
 	if ([currentDownloads count] > 0) {
 		NSURLSessionDataTask *download;
 		for (download in currentDownloads) {
@@ -568,6 +576,11 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	BOOL success = TRUE;
 	if (percentComplete >= 1.0) {
 		success = [self applyPermissions];
+		if (success) {
+			/* Fully received and accepted: a late -cancelDownload or -dealloc must never remove
+			 * the received artifacts (issue #260). */
+			transferSucceeded = YES;
+		}
 	}
 	if (!success) {
 		/* applyPermissions already reported the failure; remove artifacts so a partially-
