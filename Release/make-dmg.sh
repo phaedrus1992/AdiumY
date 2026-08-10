@@ -51,9 +51,31 @@ echo "==> Creating read-write image"
 hdiutil create -srcfolder "$STAGE" -volname "$VOLUME_NAME" \
 	-fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW "$TEMP_DMG" -quiet
 
-DEV_NAME=$(hdiutil attach -readwrite -noverify -noautoopen "$TEMP_DMG" |
-	grep -E '^/dev/' | sed 1q | awk '{print $1}')
-MOUNT_DIR="/Volumes/$VOLUME_NAME"
+# -plist + python3 rather than `hdiutil attach | grep | sed 1q | awk`: that
+# pipeline reintroduces the exact SIGPIPE-under-pipefail hazard sign-bundle.sh
+# documents elsewhere in this repo (sed quits reading after the first match,
+# which can signal the still-writing upstream stage), and it guessed
+# MOUNT_DIR from VOLUME_NAME rather than reading it — wrong the moment a
+# volume of that name is already mounted (e.g. left over from an interrupted
+# run), silently operating on someone else's disk image for the rest of the
+# script. plutil/python3 both fully drain their stdin, so nothing here exits
+# early and there is nothing to SIGPIPE.
+ATTACH_INFO=$(hdiutil attach -readwrite -noverify -noautoopen -plist "$TEMP_DMG" |
+	plutil -convert json -o - - |
+	python3 -c '
+import json, sys
+for e in json.load(sys.stdin)["system-entities"]:
+    if "mount-point" in e:
+        print(e["dev-entry"])
+        print(e["mount-point"])
+        break
+')
+DEV_NAME=$(printf '%s\n' "$ATTACH_INFO" | sed -n '1p')
+MOUNT_DIR=$(printf '%s\n' "$ATTACH_INFO" | sed -n '2p')
+[ -n "$MOUNT_DIR" ] || {
+	echo "error: hdiutil attach did not report a mountable partition" >&2
+	exit 1
+}
 
 # Driving Finder needs a GUI login session, which a CI runner does not have.
 # A pre-baked .DS_Store is the headless path: it encodes the same icon
