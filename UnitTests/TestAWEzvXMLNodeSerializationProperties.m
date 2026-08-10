@@ -93,6 +93,57 @@
 	XCTAssertTrue([xml hasSuffix:@"</message>"], @"the root tag must close");
 }
 
+/* Attribute values must escape & < > and " exactly once each, in that order, so a peer-supplied
+ * value cannot inject markup into the serialized tag (issue #249). */
+- (void)testAttributeValueEscaping
+{
+	AWEzvXMLNode *node = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"message"];
+	[node addAttribute:@"summary" withValue:@"5 < 6 & 7 > 4"];
+
+	NSString *xml = [node xmlString];
+
+	XCTAssertTrue([xml containsString:@"summary=\"5 &lt; 6 &amp; 7 &gt; 4\""],
+				  @"attribute values must escape & < > in a single pass");
+}
+
+/* A value mixing all four escapable characters must come out exactly once each, with & escaped
+ * first so the replacement is not re-escaped. */
+- (void)testAttributeValueEscapesAllFourCharactersSinglePass
+{
+	AWEzvXMLNode *node = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"message"];
+	[node addAttribute:@"summary" withValue:@"& < > \""];
+
+	NSString *xml = [node xmlString];
+
+	XCTAssertTrue([xml containsString:@"summary=\"&amp; &lt; &gt; &quot;\""],
+				  @"& must escape before < > and \" so the replacements are not re-escaped");
+	XCTAssertFalse([xml containsString:@"&amp;amp;"], @"& must not be double-escaped");
+}
+
+/* A literal entity string in the value must escape to its escaped form, not collapse back. */
+- (void)testAttributeValueLiteralEntityNotCollapsed
+{
+	AWEzvXMLNode *node = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"message"];
+	[node addAttribute:@"summary" withValue:@"&amp;"];
+
+	NSString *xml = [node xmlString];
+
+	XCTAssertTrue([xml containsString:@"summary=\"&amp;amp;\""],
+				  @"a literal &amp; in an attribute value must escape to &amp;amp;");
+}
+
+/* -description serializes the same attributes and must escape their values identically. */
+- (void)testDescriptionEscapesAttributeValues
+{
+	AWEzvXMLNode *node = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"message"];
+	[node addAttribute:@"summary" withValue:@"a & b"];
+
+	NSString *description = [node description];
+
+	XCTAssertTrue([description containsString:@"summary=\"a &amp; b\""],
+				  @"description must escape attribute values the same way xmlString does");
+}
+
 /* maxDepth:0 on an element with attributes must keep the attributes on its own tag. */
 - (void)testXmlStringWithMaxDepthZeroKeepsAttributes
 {

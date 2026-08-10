@@ -39,6 +39,23 @@
  * serializer drops content past the cap instead of recursing (issue #190). */
 #define AWEZVXML_MAX_DEPTH 32
 
+/* Escapes an attribute value for embedding between double quotes in a serialized tag. & must be
+ * replaced first so the replacements introduced by later passes are not re-escaped, then < > "
+ * (issue #249). */
+static NSString *AWEzvXMLAttributeValueEscaped(NSString *value)
+{
+    NSMutableString *escaped = [value mutableCopy];
+    [escaped replaceOccurrencesOfString:@"&" withString:@"&amp;"
+                                options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+    [escaped replaceOccurrencesOfString:@"<" withString:@"&lt;"
+                                options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+    [escaped replaceOccurrencesOfString:@">" withString:@"&gt;"
+                                options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+    [escaped replaceOccurrencesOfString:@"\"" withString:@"&quot;"
+                                options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+    return [escaped copy];
+}
+
 @implementation AWEzvXMLNode
 
 
@@ -123,11 +140,11 @@
     [string appendString:name];
     
     for (key in [attributes keyEnumerator]) {
-        [string appendFormat:@" %@=\"%@\"", key, [attributes objectForKey:key]];
+        [string appendFormat:@" %@=\"%@\"", key, AWEzvXMLAttributeValueEscaped([attributes objectForKey:key])];
     }
-    
+
     [string appendString:@">"];
-    
+
     if (maxDepth > 0) {
         for (node in children) {
             NSString *childString;
@@ -150,7 +167,7 @@
 	[string appendString:name];
 	
 	for (key in [attributes keyEnumerator]) {
-		[string appendFormat:@" %@=\"%@\"", key, [attributes objectForKey:key]];
+		[string appendFormat:@" %@=\"%@\"", key, AWEzvXMLAttributeValueEscaped([attributes objectForKey:key])];
 	}
 	
 	[string appendString:@">"];
