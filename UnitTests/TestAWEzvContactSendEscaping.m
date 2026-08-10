@@ -14,6 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import "AIPropertyTestUtilities.h"
 #import "AWEzvContact.h"
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
@@ -54,6 +55,65 @@
 	TestContactRecordingStream *stream = [[TestContactRecordingStream alloc] init];
 	[contact setValue:stream forKey:@"stream"];
 	return stream;
+}
+
+/* Filters a string to the XML-valid, round-trippable text-content domain. Control characters below
+ * 0x20 are not representable as XML text, and \r is normalized to \n by every XML processor, so both
+ * are dropped — PBTRandomUnicodeString can generate them, and they are not the escaper's concern.
+ * Unlike attribute values, \n and \t survive text content intact, so they are kept. */
+- (NSString *)xmlTextValidCopy:(NSString *)string
+{
+	NSMutableString *valid = [NSMutableString stringWithCapacity:[string length]];
+	for (NSUInteger i = 0; i < [string length]; i++) {
+		unichar character = [string characterAtIndex:i];
+		if (character == '\n' || character == '\t' ||
+			((character >= 0x20 && character <= 0xD7FF) || (character >= 0xE000 && character <= 0xFFFD))) {
+			[valid appendString:[NSString stringWithCharacters:&character length:1]];
+		}
+	}
+	return [valid copy];
+}
+
+/* Property: the wire round-trip is a bijection up to the <br> → <br /> normalization. For every
+ * XML-valid plaintext, the peer-visible <body> text (after NSXMLDocument decode) equals the
+ * normalized sent text — the serializer escapes & < > exactly once, and decoding recovers the
+ * original, so nothing is double-escaped (issue #259). Mirrors the attribute-value property tests
+ * but over the text path -sendMessage:withHtml: writes. */
+- (void)assertPlaintextRoundTrip:(NSString *)message
+{
+	AWEzvContact *contact = [[AWEzvContact alloc] init];
+	[contact setUniqueID:@"bob@example.com"];
+	[contact setValue:@"127.0.0.1" forKey:@"ipAddr"];
+	TestContactRecordingStream *stream = [self streamForContact:contact];
+
+	[contact sendMessage:message withHtml:@"<b>bold</b>"];
+
+	NSString *wire = [stream sentString];
+	NSError *error = nil;
+	NSXMLDocument *document = [[NSXMLDocument alloc] initWithXMLString:wire options:0 error:&error];
+	XCTAssertNotNil(document, @"serialized message must parse (message %@, error %@)", message, error);
+	if (document != nil) {
+		NSXMLElement *body = [[[document rootElement] elementsForName:@"body"] firstObject];
+		NSString *expected = [message stringByReplacingOccurrencesOfString:@"<br>"
+																withString:@"<br />"
+																   options:NSCaseInsensitiveSearch
+																	 range:NSMakeRange(0, [message length])];
+		XCTAssertEqualObjects([body stringValue], expected,
+							  @"decoded plaintext must equal the normalized sent text (message %@)", message);
+	}
+}
+
+/* ASCII values guarantee the escapable & < > characters appear, pinning single-escape. */
+- (void)testOutboundPlaintextRoundTripsOverRandomASCII
+{
+	PBTCheckDefault({ [self assertPlaintextRoundTrip:PBTRandomASCIIString(64)]; });
+}
+
+/* Unicode values cover multi-byte and combining marks; the printable range rarely includes the
+ * escapable characters, so the ASCII test above carries the escaping weight. */
+- (void)testOutboundPlaintextRoundTripsOverRandomUnicode
+{
+	PBTCheckDefault({ [self assertPlaintextRoundTrip:[self xmlTextValidCopy:PBTRandomUnicodeString(64)]]; });
 }
 
 - (void)testOutboundPlaintextEscapedExactlyOnce
