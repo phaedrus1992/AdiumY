@@ -178,9 +178,12 @@
 	NSString *receivedFile = [tempRoot stringByAppendingPathComponent:@"a/received.bin"];
 	[[NSFileManager defaultManager] createFileAtPath:receivedFile contents:[NSData data] attributes:nil];
 
-	/* Make the transfer believe it has received the full announced size. */
+	/* The peer over-declared the size (200 announced, 100 actually received): completion must be
+	 * keyed on the transport (all data tasks done without error), not the bytes/size ratio, or the
+	 * transfer would never be marked succeeded and the late cancel would delete the received file
+	 * (issue #260). */
 	[transfer setValue:[NSNumber numberWithLongLong:100] forKey:@"bytesReceived"];
-	[transfer setSize:100];
+	[transfer setSize:200];
 
 	/* The success path reads [[dataTask originalRequest] URL], so the task must be a real
 	 * NSURLSessionDataTask (a bare NSObject stand-in has no originalRequest). */
@@ -199,6 +202,42 @@
 				  @"a late cancel after a completed download must leave the folder tree intact");
 	XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:tempRoot],
 				  @"a late cancel after a completed download must leave the destination root intact");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
+/* A failure that arrives after the transfer was already marked succeeded must not remove the
+ * received artifacts (issue #260): -failTransfer funnels every failure path and is guarded the same
+ * way -cancelDownload is, so a stale error callback cannot delete a completed transfer's files. */
+- (void)testLateFailureAfterSuccessLeavesFileOnDisk
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvLateFailureAfterSuccess"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+
+	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
+	[transfer setLocalFilename:tempRoot];
+
+	NSXMLElement *outer = [self dirElementNamed:@"a"];
+	XCTAssertTrue([transfer downloadFolder:outer path:tempRoot url:@"http://example.com/base"],
+				  @"a single valid <dir> child must complete the folder walk");
+
+	NSString *receivedFile = [tempRoot stringByAppendingPathComponent:@"a/received.bin"];
+	[[NSFileManager defaultManager] createFileAtPath:receivedFile contents:[NSData data] attributes:nil];
+
+	/* Simulate a transfer the transport already reported complete (the real flow sets this at the
+	 * end of the last task's -didCompleteWithError:). */
+	[transfer setValue:[NSNumber numberWithBool:YES] forKey:@"transferSucceeded"];
+
+	NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCannotConnectToHost userInfo:nil];
+	NSURLSessionDataTask *dummyTask = (NSURLSessionDataTask *)[[NSObject alloc] init];
+	[transfer URLSession:nil task:dummyTask didCompleteWithError:error];
+
+	XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:receivedFile],
+				  @"a failure after the transfer succeeded must leave the received file on disk");
+	XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:[tempRoot stringByAppendingPathComponent:@"a"]],
+				  @"a failure after the transfer succeeded must leave the folder tree intact");
+	XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:tempRoot],
+				  @"a failure after the transfer succeeded must leave the destination root intact");
 
 	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
 }
