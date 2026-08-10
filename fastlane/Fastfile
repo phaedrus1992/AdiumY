@@ -426,7 +426,12 @@ platform :mac do
     signing_identity
     verify_asc_credentials
 
-    key = sh("/usr/libexec/PlistBuddy -c 'Print :SUPublicEDKey' #{File.join(ROOT, 'Resources/Info.plist').shellescape}",
+    # 2>/dev/null || true, matching assert_bundle_version: PlistBuddy exits
+    # non-zero when the key is missing outright rather than merely empty, and
+    # without this an untended `sh` failure would raise fastlane's generic
+    # shell error instead of the actionable message below.
+    key = sh("/usr/libexec/PlistBuddy -c 'Print :SUPublicEDKey' " \
+             "#{File.join(ROOT, 'Resources/Info.plist').shellescape} 2>/dev/null || true",
              log: false).strip
     UI.user_error!(<<~ERROR) if key.empty?
       SUPublicEDKey is empty in Resources/Info.plist. Sparkle cannot verify updates
