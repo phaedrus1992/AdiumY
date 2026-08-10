@@ -83,6 +83,7 @@ for k in [
     "ezvOutgoingDepthCapTestFileRef", "ezvOutgoingDepthCapTestBuildFile",
     "ezvOutgoingUTF8TestFileRef", "ezvOutgoingUTF8TestBuildFile",
     "httpserverStubFileRef", "httpserverStubBuildFile",
+    "ezvResponseGuardTestFileRef", "ezvResponseGuardTestBuildFile",
 
     # Plugin-uninstall teardown plugins + tests (#212-#215)
     "chatConsolPluginFileRef", "chatConsolPluginBuildFile",
@@ -383,6 +384,7 @@ objects = {
                      H["ezvOutgoingDepthCapTestFileRef"],
                      H["ezvOutgoingUTF8TestFileRef"],
                      H["httpserverStubFileRef"],
+                     H["ezvResponseGuardTestFileRef"],
                      H["eventSoundsPluginFileRef"], H["dockBehaviorPluginFileRef"],
                      H["announcerPluginFileRef"], H["applescriptAlertPluginFileRef"],
                      H["smclsbPluginFileRef"], H["nehPluginFileRef"],
@@ -789,6 +791,12 @@ objects = {
         "isa": "PBXFileReference",
         "lastKnownFileType": "sourcecode.c.objc",
         "path": "../../UnitTests/HTTPServerStub.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvResponseGuardTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestEKEzvIncomingFileTransferResponseGuard.m",
         "sourceTree": "<group>",
     },
 
@@ -1208,6 +1216,7 @@ objects = {
                   H["ezvOutgoingDepthCapTestBuildFile"],
                   H["ezvOutgoingUTF8TestBuildFile"],
                   H["httpserverStubBuildFile"],
+                  H["ezvResponseGuardTestBuildFile"],
                   H["chatConsolPluginBuildFile"], H["newMsgPluginBuildFile"],
                   H["joinChatPluginBuildFile"], H["invitePluginBuildFile"],
                   H["statusPrefsPluginBuildFile"], H["stateMenuPluginBuildFile"],
@@ -1302,6 +1311,7 @@ objects = {
     H["ezvOutgoingDepthCapTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvOutgoingDepthCapTestFileRef"]},
     H["ezvOutgoingUTF8TestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvOutgoingUTF8TestFileRef"]},
     H["httpserverStubBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["httpserverStubFileRef"]},
+    H["ezvResponseGuardTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvResponseGuardTestFileRef"]},
     H["chatConsolPluginBuildFile"]:     {"isa": "PBXBuildFile", "fileRef": H["chatConsolPluginFileRef"]},
     H["newMsgPluginBuildFile"]:         {"isa": "PBXBuildFile", "fileRef": H["newMsgPluginFileRef"]},
     H["joinChatPluginBuildFile"]:       {"isa": "PBXBuildFile", "fileRef": H["joinChatPluginFileRef"]},

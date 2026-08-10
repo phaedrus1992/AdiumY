@@ -459,10 +459,30 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		[encodedDownloads addObject:[[dataTask originalRequest] URL]];
 	}
 
+	/* A concurrent failure or cancellation (issue #248) may have torn down this transfer while the
+	 * response was in flight. Reject the late response instead of creating a destination file for a
+	 * dead transfer. */
+	if (transferFailed) {
+		completionHandler(NSURLSessionResponseCancel);
+		return;
+	}
+
 	/* Create the destination file now, replacing NSURLDownload's setDestination:allowOverwrite:. */
 	NSString *path = [downloadPaths objectForKey:dataTask];
+	if (path == nil) {
+		/* The task's path was removed by a concurrent failure's cleanup: nothing to write to. */
+		completionHandler(NSURLSessionResponseCancel);
+		return;
+	}
 	[[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
 	NSFileHandle *downloadFileHandle = [NSFileHandle fileHandleForWritingAtPath:path];
+	if (downloadFileHandle == nil) {
+		completionHandler(NSURLSessionResponseCancel);
+		transferFailed = YES;
+		[self removePartialTransferArtifacts];
+		[[[manager client] client] transferFailed:self];
+		return;
+	}
 	[downloadFileHandle seekToEndOfFile];
 	[downloadFileHandles setObject:downloadFileHandle forKey:dataTask];
 
