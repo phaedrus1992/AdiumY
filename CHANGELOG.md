@@ -122,6 +122,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Unregister the contact list controller the SCL-view plugin registers when it
   uninstalls, so the interface stops holding a released plugin as its contact
   list controller
+- Cap Bonjour message-XML serialization at 32 nesting levels — a deeply nested
+  peer-supplied message no longer crashes the app (stack overflow while
+  serializing), instead of recursing without bound
+- Remove the partially-created folder tree when a Bonjour folder download fails,
+  so a failed download no longer leaves a partial tree at the chosen destination
 
 ## [2.0.0] - 2026-08-03
 
