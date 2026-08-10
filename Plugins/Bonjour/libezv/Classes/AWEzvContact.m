@@ -82,7 +82,7 @@
 {
 	AWEzvXMLNode *messageNode, *bodyNode, *textNode, *htmlNode, *htmlBodyNode, *htmlMessageNode;
 	NSMutableString *mutableString;
-	NSString *messageExtraEscapedString;
+	NSString *messageText;
 	NSString *htmlFiltered;
 	NSString *fixedHTML;
 
@@ -95,26 +95,15 @@
 			[self createConnection];
 		}
 
-		/* Message cleanup */
-		/* actual message */
+		/* Message cleanup: normalize line breaks only. The text serializer (AWEzvXMLText) escapes
+		 * & < > exactly once when the message is serialized; pre-escaping here would double-escape
+		 * the wire (&amp;amp;) (issue #259). */
 		mutableString = [message mutableCopy];
 		[mutableString replaceOccurrencesOfString:@"<br>"
 									   withString:@"<br />"
 										  options:NSCaseInsensitiveSearch
 											range:NSMakeRange(0, [mutableString length])];
-		[mutableString replaceOccurrencesOfString:@"&"
-									   withString:@"&amp;"
-										  options:NSLiteralSearch
-											range:NSMakeRange(0, [mutableString length])];
-		[mutableString replaceOccurrencesOfString:@"<"
-									   withString:@"&lt;"
-										  options:NSLiteralSearch
-											range:NSMakeRange(0, [mutableString length])];
-		[mutableString replaceOccurrencesOfString:@">"
-									   withString:@"&gt;"
-										  options:NSLiteralSearch
-											range:NSMakeRange(0, [mutableString length])];
-		messageExtraEscapedString = [mutableString copy];
+		messageText = [mutableString copy];
 
 		mutableString = [fixedHTML mutableCopy];
 		[mutableString replaceOccurrencesOfString:@"<br>"
@@ -133,7 +122,7 @@
 		bodyNode = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"body"];
 		[messageNode addChild:bodyNode];
 
-		textNode = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLText name:messageExtraEscapedString];
+		textNode = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLText name:messageText];
 		[bodyNode addChild:textNode];
 
 		htmlNode = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"html"];
