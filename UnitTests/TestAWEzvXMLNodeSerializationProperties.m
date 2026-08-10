@@ -15,6 +15,7 @@
  */
 
 #import "AWEzvXMLNode.h"
+#import "AIPropertyTestUtilities.h"
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
 
@@ -142,6 +143,67 @@
 
 	XCTAssertTrue([description containsString:@"summary=\"a &amp; b\""],
 				  @"description must escape attribute values the same way xmlString does");
+}
+
+/* Filters a string to the XML-valid, round-trippable attribute-value domain. Control characters
+ * below 0x20 (other than the line endings, which attribute-value normalization collapses to
+ * spaces anyway) and the surrogate range are not representable as attribute content, so they are
+ * dropped — PBTRandomUnicodeString can generate them, and they are not the escaper's concern. */
+- (NSString *)xmlValidCopy:(NSString *)string
+{
+	NSMutableString *valid = [NSMutableString stringWithCapacity:[string length]];
+	for (NSUInteger i = 0; i < [string length]; i++) {
+		unichar character = [string characterAtIndex:i];
+		if ((character >= 0x20 && character <= 0xD7FF) || (character >= 0xE000 && character <= 0xFFFD)) {
+			[valid appendString:[NSString stringWithCharacters:&character length:1]];
+		}
+	}
+	return [valid copy];
+}
+
+/* Property: escaping must be a bijection on the wire — every XML-valid attribute value serializes
+ * to parseable XML whose parsed attribute equals the original (issue #249). NSXMLDocument decodes
+ * the predefined entities, so an under-escaped " or & breaks the parse and an over-escaped &amp;
+ * round-trips to "&amp;" rather than the original. ASCII values exercise all four escapable
+ * characters; the existing example tests are single instances of this property. */
+- (void)testAttributeValueEscapingRoundtripASCII
+{
+	PBTCheckDefault({
+		NSString *value = PBTRandomASCIIString(64);
+
+		AWEzvXMLNode *node = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"message"];
+		[node addAttribute:@"summary" withValue:value];
+		NSString *xml = [node xmlString];
+
+		NSError *error = nil;
+		NSXMLDocument *document = [[NSXMLDocument alloc] initWithXMLString:xml options:0 error:&error];
+		XCTAssertNotNil(document, @"serialized attribute must parse (value %@, error %@)", value, error);
+		if (document != nil) {
+			NSString *recovered = [[[document rootElement] attributeForName:@"summary"] stringValue];
+			XCTAssertEqualObjects(recovered, value, @"escaped attribute must round-trip through NSXMLDocument");
+		}
+	});
+}
+
+/* The same bijection property over Unicode values (multi-byte, combining marks, and the four
+ * escapable characters), filtered to the XML-valid domain. */
+- (void)testAttributeValueEscapingRoundtripUnicode
+{
+	PBTCheckDefault({
+		NSString *value = [self xmlValidCopy:PBTRandomUnicodeString(64)];
+
+		AWEzvXMLNode *node = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:@"message"];
+		[node addAttribute:@"summary" withValue:value];
+		NSString *xml = [node xmlString];
+
+		NSError *error = nil;
+		NSXMLDocument *document = [[NSXMLDocument alloc] initWithXMLString:xml options:0 error:&error];
+		XCTAssertNotNil(document, @"serialized attribute must parse (value %@, error %@)", value, error);
+		if (document != nil) {
+			NSString *recovered = [[[document rootElement] attributeForName:@"summary"] stringValue];
+			XCTAssertEqualObjects(recovered, value, @"escaped attribute must round-trip through NSXMLDocument");
+		}
+	});
 }
 
 /* maxDepth:0 on an element with attributes must keep the attributes on its own tag. */
