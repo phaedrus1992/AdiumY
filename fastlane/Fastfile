@@ -8,6 +8,7 @@
 # codesign flags, applied by Release/sign-bundle.sh.
 
 require "base64"
+require "fileutils"
 require "json"
 require "open3"
 require "shellwords"
@@ -451,8 +452,19 @@ platform :mac do
     generate = File.join(SPARKLE_TOOLS, "generate_appcast")
     UI.user_error!("#{generate} missing. Run Dependencies/build-phases/get-sparkle.sh.") unless File.executable?(generate)
 
-    run_generate_appcast([generate, "--download-url-prefix", "#{DOWNLOAD_URL}/v#{version}/",
-                          "-o", APPCAST, DIST_DIR])
+    # generate_appcast only reuses and extends a prior appcast that already
+    # lives IN the archives directory it's pointed at — "-o" only controls
+    # where the result is copied, it is never read for history. DIST_DIR is
+    # recreated fresh by `package` and holds only the current version's DMG,
+    # so without this, every release replaced the whole feed with a
+    # single-item one for just the new version instead of adding to it.
+    dist_appcast = File.join(DIST_DIR, "appcast.xml")
+    FileUtils.cp(APPCAST, dist_appcast) if File.exist?(APPCAST)
+
+    run_generate_appcast([generate, "--download-url-prefix", "#{DOWNLOAD_URL}/v#{version}/", DIST_DIR])
+
+    UI.user_error!("generate_appcast did not produce #{dist_appcast}") unless File.exist?(dist_appcast)
+    FileUtils.cp(dist_appcast, APPCAST)
     UI.success("Wrote #{APPCAST}")
   end
 
