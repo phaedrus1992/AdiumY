@@ -84,11 +84,11 @@
 													error:NULL];
 	NSString *deepFile = [current stringByAppendingPathComponent:@"deep.bin"];
 	[[NSFileManager defaultManager] createFileAtPath:deepFile
-										   contents:[NSData dataWithBytes:"x" length:1]
+											contents:[NSData dataWithBytes:"x" length:1]
 										  attributes:nil];
 	NSString *shallowFile = [tempRoot stringByAppendingPathComponent:@"shallow.bin"];
 	[[NSFileManager defaultManager] createFileAtPath:shallowFile
-										   contents:[NSData dataWithBytes:"y" length:1]
+											contents:[NSData dataWithBytes:"y" length:1]
 										  attributes:nil];
 
 	EKEzvOutgoingFileTransfer *transfer = [[EKEzvOutgoingFileTransfer alloc] init];
@@ -101,14 +101,13 @@
 	NSDictionary *urlData = [transfer valueForKey:@"urlData"];
 	for (NSString *key in urlData) {
 		XCTAssertLessThanOrEqual([[key pathComponents] count], (NSUInteger)32,
-								   @"urlData key %@ must not exceed the receiver depth cap", key);
+								 @"urlData key %@ must not exceed the receiver depth cap", key);
 	}
 
 	NSString *shallowSubPath = [[tempRoot lastPathComponent] stringByAppendingPathComponent:@"shallow.bin"];
 	XCTAssertNotNil([urlData objectForKey:shallowSubPath], @"a file at depth 2 must still be registered");
 
-	XCTAssertEqual([transfer size], (unsigned long long)1,
-				   @"transfer size must exclude the file past the depth cap");
+	XCTAssertEqual([transfer size], (unsigned long long)1, @"transfer size must exclude the file past the depth cap");
 
 	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
 }

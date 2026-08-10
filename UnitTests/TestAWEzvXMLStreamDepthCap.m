@@ -14,9 +14,9 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#import "AWEzvXMLStream.h"
-#import "AWEzvXMLNode.h"
 #import "AWEzvStack.h"
+#import "AWEzvXMLNode.h"
+#import "AWEzvXMLStream.h"
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
 
@@ -27,14 +27,13 @@
  * must drop elements past AWEZVXML_MAX_DEPTH so the tree (and its recursive dealloc) stays bounded.
  */
 @interface TestStreamDepthCapDelegate : NSObject <AWEzvXMLStreamProtocol>
-@property (nonatomic, strong) AWEzvXMLNode *receivedRoot;
+@property(nonatomic, strong) AWEzvXMLNode *receivedRoot;
 @end
 
 @implementation TestStreamDepthCapDelegate
 
 - (void)XMLConnectionClosed
-{
-}
+{}
 
 - (void)XMLReceived:(AWEzvXMLNode *)root
 {
@@ -76,7 +75,7 @@
 	TestStreamDepthCapDelegate *delegate = [[TestStreamDepthCapDelegate alloc] init];
 	[stream setDelegate:delegate];
 
-	const XML_Char *noAttributes[] = { NULL };
+	const XML_Char *noAttributes[] = {NULL};
 	for (NSUInteger i = 0; i < 200; i++) {
 		[stream xmlStartElement:"a" attributes:noAttributes];
 	}

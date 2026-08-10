@@ -81,9 +81,11 @@
 
 	__block NSURLSessionResponseDisposition disposition = NSURLSessionResponseAllow;
 	[transfer URLSession:nil
-			   dataTask:dummyTask
-	 didReceiveResponse:[self okResponse]
-	  completionHandler:^(NSURLSessionResponseDisposition d) { disposition = d; }];
+				  dataTask:dummyTask
+		didReceiveResponse:[self okResponse]
+		 completionHandler:^(NSURLSessionResponseDisposition d) {
+			 disposition = d;
+		 }];
 
 	XCTAssertEqual(disposition, NSURLSessionResponseCancel,
 				   @"a response for a transfer that already failed must be rejected");
@@ -110,9 +112,11 @@
 
 	__block NSURLSessionResponseDisposition disposition = NSURLSessionResponseAllow;
 	[transfer URLSession:nil
-			   dataTask:dummyTask
-	 didReceiveResponse:[self okResponse]
-	  completionHandler:^(NSURLSessionResponseDisposition d) { disposition = d; }];
+				  dataTask:dummyTask
+		didReceiveResponse:[self okResponse]
+		 completionHandler:^(NSURLSessionResponseDisposition d) {
+			 disposition = d;
+		 }];
 
 	XCTAssertEqual(disposition, NSURLSessionResponseCancel,
 				   @"a response for an unknown task must be rejected, not accepted");

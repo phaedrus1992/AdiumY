@@ -56,7 +56,8 @@
 
 	NSError *error = nil;
 	NSXMLDocument *document = [[NSXMLDocument alloc] initWithData:xmlData options:0 error:&error];
-	XCTAssertNil(error, @"folder XML with non-ASCII filenames must be valid UTF-8, not a truncated byte prefix: %@", error);
+	XCTAssertNil(error, @"folder XML with non-ASCII filenames must be valid UTF-8, not a truncated byte prefix: %@",
+				 error);
 	XCTAssertNotNil(document, @"folder XML with non-ASCII filenames must parse as well-formed XML");
 
 	NSString *xml = [[NSString alloc] initWithData:xmlData encoding:NSUTF8StringEncoding];
@@ -66,8 +67,7 @@
 	NSArray *realNames = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tempRoot error:NULL];
 	XCTAssertEqual([realNames count], (NSUInteger)2, @"both non-ASCII files must exist on disk");
 	for (NSString *name in realNames) {
-		XCTAssertTrue([xml containsString:name],
-					   @"on-disk filename %@ must round-trip through the folder XML", name);
+		XCTAssertTrue([xml containsString:name], @"on-disk filename %@ must round-trip through the folder XML", name);
 	}
 
 	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
