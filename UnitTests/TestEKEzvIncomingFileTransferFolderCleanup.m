@@ -178,12 +178,13 @@
 	NSString *receivedFile = [tempRoot stringByAppendingPathComponent:@"a/received.bin"];
 	[[NSFileManager defaultManager] createFileAtPath:receivedFile contents:[NSData data] attributes:nil];
 
-	/* The peer over-declared the size (200 announced, 100 actually received): completion must be
-	 * keyed on the transport (all data tasks done without error), not the bytes/size ratio, or the
-	 * transfer would never be marked succeeded and the late cancel would delete the received file
-	 * (issue #260). */
+	/* The transfer received its full declared size (100 announced, 100 received). Completion is keyed
+	 * on the transport (all data tasks done without error), not the bytes/size ratio, so a transfer
+	 * is marked succeeded the moment its last task finishes — and the late cancel is a no-op (issue
+	 * #260). The over-declared variant (100 received of 200 announced) is now a truncation failure
+	 * and lives in -testTruncatedDownloadFailsWhenSizeMismatch (issue #263). */
 	[transfer setValue:[NSNumber numberWithLongLong:100] forKey:@"bytesReceived"];
-	[transfer setSize:200];
+	[transfer setSize:100];
 
 	/* The success path reads [[dataTask originalRequest] URL], so the task must be a real
 	 * NSURLSessionDataTask (a bare NSObject stand-in has no originalRequest). */
@@ -238,6 +239,258 @@
 				  @"a failure after the transfer succeeded must leave the folder tree intact");
 	XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:tempRoot],
 				  @"a failure after the transfer succeeded must leave the destination root intact");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
+/*
+ * Issue #263: the transport gate (all data tasks done without error) marks a transfer succeeded
+ * without ever cross-checking bytesReceived against the peer-declared size. A truncated download
+ * whose last task ends cleanly is accepted as complete. A post-gate integrity check must fail it.
+ */
+
+/* The peer declared 200 bytes, only 100 arrived, and the transport reported completion without
+ * error: the transfer must fail — remove the partial artifact, never mark it succeeded. */
+- (void)testTruncatedDownloadFailsWhenSizeMismatch
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvTruncatedSizeMismatch"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+
+	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
+	[transfer setLocalFilename:tempRoot];
+
+	NSXMLElement *outer = [self dirElementNamed:@"a"];
+	XCTAssertTrue([transfer downloadFolder:outer path:tempRoot url:@"http://example.com/base"],
+				  @"a single valid <dir> child must complete the folder walk");
+
+	NSString *receivedFile = [tempRoot stringByAppendingPathComponent:@"a/received.bin"];
+	[[NSFileManager defaultManager] createFileAtPath:receivedFile contents:[NSData data] attributes:nil];
+
+	[transfer setValue:[NSNumber numberWithLongLong:100] forKey:@"bytesReceived"];
+	[transfer setSize:200];
+
+	/* The success path reads [[dataTask originalRequest] URL], so the task must be a real
+	 * NSURLSessionDataTask (a bare NSObject stand-in has no originalRequest). */
+	NSURLSession *session =
+		[NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+	NSURLSessionDataTask *task = [session
+		dataTaskWithRequest:[NSURLRequest
+								requestWithURL:[NSURL URLWithString:@"http://example.com/base/a/received.bin"]]];
+	[transfer URLSession:nil task:task didCompleteWithError:nil];
+
+	XCTAssertFalse([[transfer valueForKey:@"transferSucceeded"] boolValue],
+				   @"a download that received fewer bytes than the declared size must not be marked succeeded");
+	XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:receivedFile],
+				   @"the partial file of a truncated download must be removed (issue #263)");
+	XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:tempRoot],
+				   @"the destination root of a truncated download must be removed (issue #263)");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
+/* Drives a single-file transfer through the completion gate with the given received/declared byte
+ * counts, returning the transfer so the caller can assert success state and on-disk artifacts. */
+- (EKEzvIncomingFileTransfer *)transferCompletedWithBytesReceived:(long long)received
+													 declaredSize:(unsigned long long)declared
+														 tempRoot:(NSString *)tempRoot
+{
+	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
+	[transfer setLocalFilename:tempRoot];
+
+	NSXMLElement *outer = [self dirElementNamed:@"a"];
+	XCTAssertTrue([transfer downloadFolder:outer path:tempRoot url:@"http://example.com/base"],
+				  @"a single valid <dir> child must complete the folder walk");
+
+	NSString *receivedFile = [tempRoot stringByAppendingPathComponent:@"a/received.bin"];
+	[[NSFileManager defaultManager] createFileAtPath:receivedFile contents:[NSData data] attributes:nil];
+
+	[transfer setValue:[NSNumber numberWithLongLong:received] forKey:@"bytesReceived"];
+	[transfer setSize:declared];
+
+	/* The success path reads [[dataTask originalRequest] URL], so the task must be a real
+	 * NSURLSessionDataTask (a bare NSObject stand-in has no originalRequest). */
+	NSURLSession *session =
+		[NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+	NSURLSessionDataTask *task = [session
+		dataTaskWithRequest:[NSURLRequest
+								requestWithURL:[NSURL URLWithString:@"http://example.com/base/a/received.bin"]]];
+	[transfer URLSession:nil task:task didCompleteWithError:nil];
+	return transfer;
+}
+
+/* Boundary tests for the #263 truncation predicate — "size > 0 && bytesReceived < size". The two
+ * existing tests (100/200 truncated, 100/100 complete) miss the edges: exactly one byte short,
+ * an AppleSingle-envelope overrun (bytes > declared), a zero declared size, and a wrapped negative
+ * bytesReceived. Each must land on the same side of the predicate the spec encodes. */
+
+- (void)testSizeBoundaryOneByteShortTruncates
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvBoundaryShort"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+
+	EKEzvIncomingFileTransfer *transfer = [self transferCompletedWithBytesReceived:99
+																	  declaredSize:100
+																		  tempRoot:tempRoot];
+
+	XCTAssertFalse([[transfer valueForKey:@"transferSucceeded"] boolValue],
+				   @"99 of 100 declared bytes is a truncated download and must fail (issue #263)");
+	XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:tempRoot],
+				   @"a one-byte-short download must remove its artifacts (issue #263)");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
+- (void)testSizeBoundaryOverrunAccepted
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvBoundaryOverrun"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+
+	EKEzvIncomingFileTransfer *transfer = [self transferCompletedWithBytesReceived:150
+																	  declaredSize:100
+																		  tempRoot:tempRoot];
+
+	XCTAssertTrue([[transfer valueForKey:@"transferSucceeded"] boolValue],
+				  @"an AppleSingle envelope may legitimately exceed the raw declared size (issue #263)");
+	XCTAssertTrue(
+		[[NSFileManager defaultManager] fileExistsAtPath:[tempRoot stringByAppendingPathComponent:@"a/received.bin"]],
+		@"an overrun download is complete and its file must be kept (issue #263)");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
+- (void)testSizeBoundaryZeroDeclaredNeverTruncates
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvBoundaryZeroSize"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+
+	EKEzvIncomingFileTransfer *transfer = [self transferCompletedWithBytesReceived:0 declaredSize:0 tempRoot:tempRoot];
+
+	XCTAssertTrue([[transfer valueForKey:@"transferSucceeded"] boolValue],
+				  @"a zero declared size disables the truncation check and never fails (issue #263)");
+	XCTAssertTrue(
+		[[NSFileManager defaultManager] fileExistsAtPath:[tempRoot stringByAppendingPathComponent:@"a/received.bin"]],
+		@"a zero-declared-size download must keep its file (issue #263)");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
+- (void)testSizeBoundaryNegativeReceivedNeverTruncates
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvBoundaryNegativeReceived"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+
+	EKEzvIncomingFileTransfer *transfer = [self transferCompletedWithBytesReceived:-1
+																	  declaredSize:100
+																		  tempRoot:tempRoot];
+
+	XCTAssertTrue(
+		[[transfer valueForKey:@"transferSucceeded"] boolValue],
+		@"a negative bytesReceived wraps huge under the (unsigned long long) cast and must not truncate (issue #263)");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
+/*
+ * Issue #264: the child file URL is built with stringByAppendingPathComponent: and then parsed with
+ * [NSURL URLWithString:]. When the combined URL is not a parseable absolute URL, URLWithString:
+ * returns nil, and setValue:nil forKey: silently removes the download entry — the file is dropped
+ * from the transfer with no error and no failure. The walk must fail loudly instead.
+ */
+
+/* A peer-supplied base URL that does not form a parseable absolute URL when combined with a valid
+ * child name must fail the transfer, not silently skip the file. The child name is appended with
+ * stringByAppendingPathComponent:, which collapses "//" to "/" — so a host defect would be hidden
+ * in the path, where URLWithString: is lenient. An illegal scheme character survives the append
+ * intact, though: the space in "ht tp://" makes URLWithString: reject the combined URL (issue #264). */
+- (void)testFileWithInvalidBuiltURLFailsTransfer
+{
+	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
+	[transfer setValue:[NSMutableDictionary dictionary] forKey:@"itemsToDownload"];
+
+	NSXMLElement *file = [[NSXMLElement alloc] initWithName:@"file"];
+	NSXMLElement *nameElement = [[NSXMLElement alloc] initWithName:@"name"];
+	[nameElement setStringValue:@"report.pdf"];
+	[file addChild:nameElement];
+	BOOL result = [transfer downloadFolder:file path:@"/tmp/EKEzvInvalidBuiltURL" url:@"ht tp://example.com"];
+
+	XCTAssertFalse(
+		result, @"a file whose combined URL is unparseable must fail the transfer, not silently skip it (issue #264)");
+	XCTAssertEqual([[transfer valueForKey:@"itemsToDownload"] count], (NSUInteger)0,
+				   @"a file with an unparseable URL must not be registered for download");
+}
+
+/*
+ * Pre-PR review (sprint #267): the #264 guard covers the child-file path, but the top-level parses
+ * of the same peer-supplied url ivar were still unguarded — a directory URL that fails URLWithString:
+ * reached initWithContentsOfURL:nil (NSInvalidArgumentException crash), and a single-file URL reached
+ * requestWithURL:/dataTaskWithRequest: with nil. Both must fail the transfer loudly instead.
+ */
+
+/* An unparseable directory URL must fail the transfer at the top level rather than crash the
+ * receiver with an NSInvalidArgumentException from initWithContentsOfURL:nil. */
+- (void)testDirectoryDownloadWithUnparseableURLFailsTransfer
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvInvalidDirectoryURL"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+
+	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
+	[transfer setUrl:@"ht tp://example.com"];
+	[transfer setLocalFilename:tempRoot];
+	[transfer downloadFolder];
+
+	XCTAssertTrue([[transfer valueForKey:@"transferFailed"] boolValue],
+				  @"a directory transfer with an unparseable URL must fail, not crash (issue #264 variant)");
+	XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:tempRoot],
+				   @"a failed directory transfer must not leave its destination behind");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
+/* An unparseable single-file URL must fail the transfer the same way instead of handing nil to the
+ * download machinery. */
+- (void)testSingleFileDownloadWithUnparseableURLFailsTransfer
+{
+	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
+	[transfer setUrl:@"ht tp://example.com"];
+	[transfer setLocalFilename:[NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvInvalidFileURL"]];
+	[transfer downloadFile];
+
+	XCTAssertTrue([[transfer valueForKey:@"transferFailed"] boolValue],
+				  @"a single-file transfer with an unparseable URL must fail, not crash (issue #264 variant)");
+}
+
+/*
+ * Issue #265: -dealloc only removed partial artifacts when transferFailed was already set. A transfer
+ * released mid-flight (downloads in progress, neither failed nor succeeded) leaked its partial files
+ * and created folder tree. The dealloc safety net must cover the in-flight case too.
+ */
+
+/* Release the transfer's last strong reference while a download is in flight (both flags NO): dealloc
+ * must remove the partial file and the destination root. */
+- (void)testDeallocRemovesPartialArtifactsMidFlight
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvDeallocMidFlight"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+	[[NSFileManager defaultManager] createDirectoryAtPath:tempRoot
+							  withIntermediateDirectories:YES
+											   attributes:nil
+													error:NULL];
+
+	NSString *partialFile = [tempRoot stringByAppendingPathComponent:@"partial.bin"];
+	[[NSFileManager defaultManager] createFileAtPath:partialFile contents:[NSData data] attributes:nil];
+
+	@autoreleasepool {
+		EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
+		[transfer setLocalFilename:tempRoot];
+		[transfer setValue:[@{@"fake-task" : partialFile} mutableCopy] forKey:@"downloadPaths"];
+		/* Neither transferFailed nor transferSucceeded is set: the mid-flight case of issue #265. */
+	}
+	/* The transfer's last strong reference is gone; dealloc must have cleaned up. */
+
+	XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:partialFile],
+				   @"releasing a transfer mid-flight must remove its partial file (issue #265)");
+	XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:tempRoot],
+				   @"releasing a transfer mid-flight must remove the destination root (issue #265)");
 
 	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
 }

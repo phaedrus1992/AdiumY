@@ -29,6 +29,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 - Remove partial files and created folder trees when an incoming Bonjour file
   transfer fails or is cancelled, instead of leaving them on disk
+- Verify an incoming Bonjour transfer's downloaded byte count against the
+  peer-declared size before accepting it as complete — a truncated download is
+  no longer marked finished
+- Fail an incoming Bonjour folder transfer instead of silently skipping a file
+  when a peer-supplied child URL does not parse
+- Remove partial files and created folder trees when an incoming Bonjour
+  transfer is released mid-flight, instead of leaking them on disk
+- Reject incoming Bonjour transfer URLs that do not parse instead of crashing —
+  a malformed peer-supplied URL no longer raises an exception
 - Escape special characters in Bonjour XML attribute values so a peer-supplied
   value cannot inject markup into the serialized tag
 - Fix outgoing Bonjour folder transfers hanging when a file or folder nests

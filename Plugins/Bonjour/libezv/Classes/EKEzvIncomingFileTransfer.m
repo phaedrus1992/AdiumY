@@ -5,14 +5,14 @@
 //  Created by Erich Kreutzer on 8/14/07.
 //
 
-#import <Cocoa/Cocoa.h>
 #import "EKEzvIncomingFileTransfer.h"
 #import "AWEzv.h"
 #import "AWEzvContactManager.h"
 #import "AWEzvSupportRoutines.h"
+#import <AdiumY/AIHTTPDownloadValidation.h>
+#import <Cocoa/Cocoa.h>
 #import <errno.h>
 #import <sys/xattr.h>
-#import <AdiumY/AIHTTPDownloadValidation.h>
 
 #define APPLE_SINGLE_HEADER_LENGTH 26
 #define APPLE_SINGLE_MAGIC_NUMBER 0x00051600
@@ -82,10 +82,14 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 - (void)dealloc
 {
 	[downloadSession invalidateAndCancel];
-	if (transferFailed && !transferSucceeded) {
-		/* Safety net: a transfer released after a failure (rather than after its cleanup already
-		 * ran) must still not leave partial files behind. Guarded so a successful transfer's
-		 * received files are never removed (issues #248, #260). */
+	if (!transferSucceeded) {
+		/* Safety net (issues #248, #265): a transfer released before it was marked succeeded must
+		 * not leave partial files or the created folder tree on disk. Covers both the failed-but-
+		 * cleanup-ran case and a transfer released mid-flight whose downloads never completed or
+		 * failed. A successful transfer's received files are never removed (issue #260). The client
+		 * is not notified from dealloc: reporting here would hand the deallocating transfer to the
+		 * manager/client chain, which may itself be tearing down — unsafe under ARC. Removing the
+		 * partial artifacts is the leak this closes. */
 		[self removePartialTransferArtifacts];
 	}
 }
@@ -131,9 +135,18 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 {
 	/*We need to first get the xml for the layout */
 	NSURL *URL = [NSURL URLWithString:url];
+	if (URL == nil) {
+		/* A peer-supplied base URL that does not parse must fail the transfer loudly rather than
+		 * hand nil to initWithContentsOfURL:, which raises NSInvalidArgumentException (variant of
+		 * issue #264 found in pre-PR review). */
+		[[[[self manager] client] client]
+			reportError:[NSString stringWithFormat:@"Could not download transfer because its URL is invalid: %@", url]
+				ofLevel:AWEzvError];
+		[self failTransfer];
+		return;
+	}
 	NSError *error = nil;
-	NSXMLDocument *documentRoot = [[NSXMLDocument alloc] initWithContentsOfURL:URL options:0
-																		  error:&error];
+	NSXMLDocument *documentRoot = [[NSXMLDocument alloc] initWithContentsOfURL:URL options:0 error:&error];
 	if (error) {
 		[[[[self manager] client] client] reportError:[error localizedDescription] ofLevel:AWEzvError];
 		[self failTransfer];
@@ -224,9 +237,8 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	/*A peer-supplied tree must not nest deeper than EKEZVFOLDER_MAX_DEPTH; past the cap the <dir>
 	 * recursion would be unbounded, so fail the whole transfer rather than descending (issue #187).*/
 	if (depth > EKEZVFOLDER_MAX_DEPTH) {
-		[[[[self manager] client] client]
-			reportError:@"Could not download transfer because it is nested too deeply."
-				ofLevel:AWEzvError];
+		[[[[self manager] client] client] reportError:@"Could not download transfer because it is nested too deeply."
+											  ofLevel:AWEzvError];
 		return NO;
 	}
 	if ([[root name] isEqualToString:@"file"]) {
@@ -254,11 +266,23 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			return NO;
 		}
 		NSString *newPath = [rootPath stringByAppendingPathComponent:safeName];
-		NSString *newURL = [rootURL
-			stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]];
+		NSString *newURL =
+			[rootURL stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:
+																  [NSCharacterSet URLPathAllowedCharacterSet]]];
 
 		/*Download file to newPath from newURL*/
-		[itemsToDownload setValue:[NSURL URLWithString:newURL] forKey:newPath];
+		NSURL *downloadURL = [NSURL URLWithString:newURL];
+		if (downloadURL == nil) {
+			/* A child whose combined URL does not parse must fail the transfer loudly, matching the
+			 * invalid-name and depth-cap paths, rather than silently dropping the file — the nil URL
+			 * stored by setValue:forKey: would remove the entry with no error (issue #264). */
+			[[[[self manager] client] client]
+				reportError:[NSString
+								stringWithFormat:@"Could not download file %@ because its URL is invalid.", newURL]
+					ofLevel:AWEzvError];
+			return NO;
+		}
+		[itemsToDownload setValue:downloadURL forKey:newPath];
 		[permissionsToApply setValue:[self posixAttributesFromString:posixFlags] forKey:newPath];
 
 		return YES;
@@ -307,8 +331,9 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		[createdDirectories addObject:newPath];
 
 		/* Now call downloadFolder for dir and file children */
-		NSString *newURL = [rootURL
-			stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]];
+		NSString *newURL =
+			[rootURL stringByAppendingPathComponent:[safeName stringByAddingPercentEncodingWithAllowedCharacters:
+																  [NSCharacterSet URLPathAllowedCharacterSet]]];
 
 		return [self downloadChildElements:root path:newPath url:newURL depth:depth];
 	} else {
@@ -339,8 +364,8 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	 * failure is logged so a leftover tree is not silently ignored. */
 	for (NSString *path in [createdDirectories reverseObjectEnumerator]) {
 		NSError *error = nil;
-		if (![[NSFileManager defaultManager] removeItemAtPath:path error:&error]
-			&& error != nil && [error code] != NSFileNoSuchFileError) {
+		if (![[NSFileManager defaultManager] removeItemAtPath:path error:&error] && error != nil &&
+			[error code] != NSFileNoSuchFileError) {
 			AWEzvLog(@"Could not remove created directory %@: %@", path, [error localizedDescription]);
 		}
 	}
@@ -356,16 +381,16 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	 * removal failure is logged so a leftover artifact is not silently ignored. */
 	for (NSString *path in [downloadPaths allValues]) {
 		NSError *error = nil;
-		if (![[NSFileManager defaultManager] removeItemAtPath:path error:&error]
-			&& error != nil && [error code] != NSFileNoSuchFileError) {
+		if (![[NSFileManager defaultManager] removeItemAtPath:path error:&error] && error != nil &&
+			[error code] != NSFileNoSuchFileError) {
 			AWEzvLog(@"Could not remove partial download %@: %@", path, [error localizedDescription]);
 		}
 	}
 	[self removeCreatedDirectories];
 	if (localFilename != nil) {
 		NSError *error = nil;
-		if (![[NSFileManager defaultManager] removeItemAtPath:localFilename error:&error]
-			&& error != nil && [error code] != NSFileNoSuchFileError) {
+		if (![[NSFileManager defaultManager] removeItemAtPath:localFilename error:&error] && error != nil &&
+			[error code] != NSFileNoSuchFileError) {
 			AWEzvLog(@"Could not remove transfer destination %@: %@", localFilename, [error localizedDescription]);
 		}
 	}
@@ -388,7 +413,18 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 - (void)downloadFile
 {
-	[self downloadURL:[NSURL URLWithString:url] toPath:localFilename];
+	NSURL *downloadURL = [NSURL URLWithString:url];
+	if (downloadURL == nil) {
+		/* Mirror the directory-transfer guard: an unparseable peer-supplied URL must fail the
+		 * transfer, not reach requestWithURL:/dataTaskWithRequest: with nil (variant of issue #264
+		 * found in pre-PR review). */
+		[[[[self manager] client] client]
+			reportError:[NSString stringWithFormat:@"Could not download file because its URL is invalid: %@", url]
+				ofLevel:AWEzvError];
+		[self failTransfer];
+		return;
+	}
+	[self downloadURL:downloadURL toPath:localFilename];
 }
 
 #pragma mark Download Helper Methods
@@ -407,7 +443,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		 */
 		return nil;
 	}
-	return @{ @"NSFilePosixPermissions" : [NSNumber numberWithUnsignedInt:tempInt] };
+	return @{@"NSFilePosixPermissions" : [NSNumber numberWithUnsignedInt:tempInt]};
 }
 - (BOOL)applyPermissions
 {
@@ -456,8 +492,9 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	 */
 	if (downloadSession == nil) {
 		NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-		downloadSession = [NSURLSession sessionWithConfiguration:configuration delegate:self
-												  delegateQueue:[NSOperationQueue mainQueue]];
+		downloadSession = [NSURLSession sessionWithConfiguration:configuration
+														delegate:self
+												   delegateQueue:[NSOperationQueue mainQueue]];
 	}
 	NSURLSessionDataTask *theDownload = [downloadSession dataTaskWithRequest:theRequest];
 	if (theDownload) {
@@ -585,6 +622,20 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	 * bytesReceived/size would leave an over-declared (or zero) size never marked succeeded, so a
 	 * late -cancelDownload could still delete the received file (issue #260). */
 	if ([currentDownloads count] == 0) {
+		/* Post-completion integrity check (issue #263): a transfer whose received byte count falls
+		 * short of the peer-declared non-zero size was truncated — the transport finished without
+		 * error, but not all declared content arrived. Fail it rather than accept a corrupt file.
+		 * The comparison is "short of", not "differs from": an AppleSingle-encoded body carries an
+		 * envelope (header + entries + Finder info) on top of the raw file, so bytesReceived can
+		 * legitimately exceed the raw declared size. */
+		if (size > 0 && (unsigned long long)bytesReceived < size) {
+			[self failTransfer];
+			[[[manager client] client]
+				reportError:[NSString stringWithFormat:@"Download incomplete: received %qu of %qu declared bytes.",
+													   (unsigned long long)bytesReceived, size]
+					ofLevel:AWEzvError];
+			return;
+		}
 		success = [self applyPermissions];
 		if (success) {
 			/* Fully received and accepted: a late -cancelDownload or -dealloc must never remove
