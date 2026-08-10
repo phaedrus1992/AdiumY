@@ -535,14 +535,26 @@ platform :mac do
   desc "CI only: import the Developer ID certificate into a temporary keychain."
   lane :setup_signing do
     setup_ci(provider: "travis")
-    p12 = File.join(Dir.mktmpdir, "developer_id.p12")
-    File.binwrite(p12, Base64.decode64(ENV.fetch("DEVELOPER_ID_P12")))
-    import_certificate(
-      certificate_path: p12,
-      certificate_password: ENV.fetch("DEVELOPER_ID_P12_PASSWORD"),
-      keychain_name: "fastlane_tmp_keychain",
-      keychain_password: ""
-    )
-    File.delete(p12)
+    dir = Dir.mktmpdir
+    p12 = File.join(dir, "developer_id.p12")
+    begin
+      # strict_decode64, not decode64: decode64 silently drops characters
+      # outside the base64 alphabet instead of raising, so a secret pasted
+      # with stray whitespace or a copy-paste error produces a corrupt .p12
+      # and a generic, hard-to-diagnose import_certificate failure.
+      File.binwrite(p12, Base64.strict_decode64(ENV.fetch("DEVELOPER_ID_P12")))
+      File.chmod(0o600, p12)
+      import_certificate(
+        certificate_path: p12,
+        certificate_password: ENV.fetch("DEVELOPER_ID_P12_PASSWORD"),
+        keychain_name: "fastlane_tmp_keychain",
+        keychain_password: ""
+      )
+    ensure
+      # Runs on a bad password or a malformed cert too, not just success —
+      # the previous File.delete on the happy path only left the decoded
+      # private key on disk for every failure mode instead of none.
+      FileUtils.remove_entry(dir, true)
+    end
   end
 end

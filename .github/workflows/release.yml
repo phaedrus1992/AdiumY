@@ -75,4 +75,6 @@ jobs:
 
       - name: Remove credentials
         if: always()
-        run: rm -rf ~/.appstoreconnect/private_keys
+        run: |
+          rm -rf ~/.appstoreconnect/private_keys
+          security delete-keychain fastlane_tmp_keychain || true
