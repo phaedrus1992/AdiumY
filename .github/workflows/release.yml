@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+# Notarization is a network round trip to Apple measured in minutes, so this
+# never runs on pull requests. PR builds stay unsigned in ci.yml.
+jobs:
+  release:
+    runs-on: macos-15
+    # `release` notarizes twice (app, then DMG), each waiting up to the 2h
+    # NOTARY_TIMEOUT default, on top of a from-source build that alone runs
+    # 45-60m. 120m was tight enough to kill the job mid-notarization on a
+    # slow Apple queue, wasting a completed build and a signed artifact.
+    # 330 covers build + two full-length notary waits with room for
+    # sign/package/appcast/publish; 360 is GitHub's hard cap for hosted runners.
+    timeout-minutes: 330
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      # No caches anywhere in this job, deliberately. ci.yml runs on pull
+      # requests and writes the deps-v2-* and bundler caches; a malicious PR
+      # could poison either and have the result land inside a signed,
+      # notarized release. Everything here is built from source.
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          bundler-cache: false
+
+      - name: Install fastlane
+        run: bundle install --jobs 4
+
+      - name: Install build tools
+        run: brew install meson ninja pkg-config intltool
+
+      - name: Import Developer ID certificate
+        env:
+          DEVELOPER_ID_P12: ${{ secrets.DEVELOPER_ID_P12 }}
+          DEVELOPER_ID_P12_PASSWORD: ${{ secrets.DEVELOPER_ID_P12_PASSWORD }}
+        run: bundle exec fastlane mac setup_signing
+
+      - name: Write App Store Connect API key
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.appstoreconnect/private_keys
+          umask 077
+          printf '%s' "$ASC_KEY_P8" | base64 --decode \
+            > ~/.appstoreconnect/private_keys/"AuthKey_${ASC_KEY_ID}.p8"
+
+      - name: Configure git identity for the appcast commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Build, sign, notarize and publish
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bundle exec fastlane mac release
+
+      - name: Remove credentials
+        if: always()
+        run: |
+          rm -rf ~/.appstoreconnect/private_keys
+          security delete-keychain fastlane_tmp_keychain || true
