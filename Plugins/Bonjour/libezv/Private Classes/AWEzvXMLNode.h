@@ -36,6 +36,12 @@ enum types {
     AWEzvXMLRaw
 };
 
+/* Maximum nesting depth for XML in this library. Shared by the -xmlString serializer, which
+ * drops content past the cap instead of recursing (issue #190), and the AWEzvXMLStream parser,
+ * which drops elements past the cap so the delivered tree — and its recursive dealloc — stays
+ * bounded (issue #252). */
+#define AWEZVXML_MAX_DEPTH 32
+
 @interface AWEzvXMLNode : NSObject {
     NSString		*name;
     int			type;

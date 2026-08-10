@@ -34,11 +34,6 @@
 
 #define DEFAULT_CAPACITY	10
 
-/* Maximum nesting depth for -xmlString serialization. A peer-supplied <message><html>
- * tree nested deeper would overflow the stack on OSes whose expat nests without bound; the
- * serializer drops content past the cap instead of recursing (issue #190). */
-#define AWEZVXML_MAX_DEPTH 32
-
 /* Escapes an attribute value for embedding between double quotes in a serialized tag. & must be
  * replaced first so the replacements introduced by later passes are not re-escaped, then < > "
  * (issue #249). */

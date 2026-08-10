@@ -112,6 +112,13 @@
 				<string>4A9BCA8CC58856A9A8855834</string>
 				<string>34DF6CA0C04F5A75A99A709E</string>
 				<string>88CB5E39F9955EDABCD178F2</string>
+				<string>F47DFFDC81D05BAE91FB4ED4</string>
+				<string>25252CC177A05033B1954ABD</string>
+				<string>83463C60914650889440F0CA</string>
+				<string>4A2D31CDB21256CABACA3314</string>
+				<string>AD22D7CF4EF851AF8556F63E</string>
+				<string>D1262B8826F455349DF6FF4B</string>
+				<string>A89C14563FD95D9F9FEF7255</string>
 				<string>46FE1773C7365DF0B826EAA1</string>
 				<string>E58D9E42FB09518F816AB9AA</string>
 				<string>E4E14D1A35FA5D6984B1C19E</string>
@@ -781,6 +788,83 @@
 			<string>sourcecode.c.objc</string>
 			<key>path</key>
 			<string>../../UnitTests/TestAWEzvXMLNodeSerializationProperties.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F47DFFDC81D05BAE91FB4ED4</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Private Classes/AWEzvXMLStream.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>25252CC177A05033B1954ABD</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Private Classes/AWEzvXMLStream.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>83463C60914650889440F0CA</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Private Classes/AWEzvStack.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>4A2D31CDB21256CABACA3314</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Private Classes/AWEzvStack.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>AD22D7CF4EF851AF8556F63E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Other Sources/AWEzvSupportRoutines.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>D1262B8826F455349DF6FF4B</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Other Sources/AWEzvSupportRoutines.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>A89C14563FD95D9F9FEF7255</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAWEzvXMLStreamDepthCap.m</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
@@ -1571,6 +1655,10 @@
 				<string>D6033BC96C0A5421A56D5070</string>
 				<string>DEBC4A961227569C84EAF93F</string>
 				<string>6B23A1609B395BEC8B519E08</string>
+				<string>5E09FE984D98557BA779DBF2</string>
+				<string>A1CB5BDBB69D5ED98AADB7F7</string>
+				<string>92BBECC9C79152BC9B8FBD29</string>
+				<string>B7ACC6EDC5005FE18E0966C1</string>
 				<string>38574E407D7A5F9783DCC0D9</string>
 				<string>AC47A308A0E2568E937161BE</string>
 				<string>78DD20B65428590BA8561200</string>
@@ -1964,6 +2052,34 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>88CB5E39F9955EDABCD178F2</string>
+		</dict>
+		<key>5E09FE984D98557BA779DBF2</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>F47DFFDC81D05BAE91FB4ED4</string>
+		</dict>
+		<key>A1CB5BDBB69D5ED98AADB7F7</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>83463C60914650889440F0CA</string>
+		</dict>
+		<key>92BBECC9C79152BC9B8FBD29</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>AD22D7CF4EF851AF8556F63E</string>
+		</dict>
+		<key>B7ACC6EDC5005FE18E0966C1</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>A89C14563FD95D9F9FEF7255</string>
 		</dict>
 		<key>38574E407D7A5F9783DCC0D9</key>
 		<dict>
@@ -2590,6 +2706,10 @@
 					<string>@loader_path/../Frameworks</string>
 					<string>$(FRAMEWORK_SEARCH_PATHS)</string>
 				</array>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-lexpat</string>
+				</array>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
 				<string>com.github.phaedrus1992.adiumy.CoverageHostTests</string>
 				<key>PRODUCT_NAME</key>
@@ -2658,6 +2778,10 @@
 				<array>
 					<string>@loader_path/../Frameworks</string>
 					<string>$(FRAMEWORK_SEARCH_PATHS)</string>
+				</array>
+				<key>OTHER_LDFLAGS</key>
+				<array>
+					<string>-lexpat</string>
 				</array>
 				<key>PRODUCT_BUNDLE_IDENTIFIER</key>
 				<string>com.github.phaedrus1992.adiumy.CoverageHostTests</string>

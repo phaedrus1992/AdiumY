@@ -154,7 +154,16 @@ void xml_char_data	(void *userData,
 @synthesize delegate;
 
 - (void) xmlStartElement:(const XML_Char *)name attributes:(const XML_Char **)attributes {
-    
+    elementDepth++;
+
+    /* Drop elements past the shared depth cap so the tree built here — and the recursive dealloc
+     * that frees it — stays bounded against a maliciously nested peer stream (issue #252). The
+     * end tags of dropped elements fall through to the harmless "not at top of stack" log branch
+     * in xmlEndElement:. */
+    if (elementDepth > AWEZVXML_MAX_DEPTH) {
+        return;
+    }
+
     NSString *nodeName = [NSString stringWithUTF8String:name];
     
     AWEzvXMLNode *node = [[AWEzvXMLNode alloc] initWithType:AWEzvXMLElement name:nodeName];
@@ -186,6 +195,9 @@ void xml_char_data	(void *userData,
 }
 
 - (void) xmlEndElement:(const XML_Char *)name {
+	if (elementDepth > 0) {
+		elementDepth--;
+	}
 	NSString	    *nodeName = [NSString stringWithUTF8String:name];
 	if (([nodeStack size] > 0) && ([(AWEzvXMLNode *)[nodeStack top] type] == AWEzvXMLText)) {
 		[nodeStack pop];

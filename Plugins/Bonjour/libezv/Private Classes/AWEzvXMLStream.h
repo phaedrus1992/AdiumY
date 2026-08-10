@@ -43,6 +43,7 @@
     NSFileHandle *connection;
     AWEzvStack	*nodeStack;
     int		initiator, negotiated;
+    NSUInteger	elementDepth;
 }
 
 - (id) initWithFileHandle:(NSFileHandle *)connection initiator:(int)initiator;
