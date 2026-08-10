@@ -106,6 +106,9 @@
 				<string>9E84714987565776A7D1C305</string>
 				<string>D5B8C85DF5835A609620AEED</string>
 				<string>854C51A205355BA9A3A18E78</string>
+				<string>C6A6341BBA9C59A6B9D7C8C2</string>
+				<string>0E69FB7F5D8A5C919AF56868</string>
+				<string>524C5277586A59B8B8E8DE75</string>
 				<string>46FE1773C7365DF0B826EAA1</string>
 				<string>E58D9E42FB09518F816AB9AA</string>
 				<string>E4E14D1A35FA5D6984B1C19E</string>
@@ -159,6 +162,7 @@
 			<array>
 				<string>1041C5FC221D577F8FF36681</string>
 				<string>34031A49E79F5C30AE822C09</string>
+				<string>6CC3FE6FB8375DC7AFE6D30F</string>
 			</array>
 			<key>name</key>
 			<string>Frameworks</string>
@@ -777,6 +781,39 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
+		<key>C6A6341BBA9C59A6B9D7C8C2</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Classes/EKEzvOutgoingFileTransfer.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>0E69FB7F5D8A5C919AF56868</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Classes/EKEzvOutgoingFileTransfer.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>524C5277586A59B8B8E8DE75</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestEKEzvOutgoingFileTransferDepthCap.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
 		<key>3E57FBD4EE1C5BABBC59F1F7</key>
 		<dict>
 			<key>isa</key>
@@ -1390,6 +1427,19 @@
 			<key>sourceTree</key>
 			<string>&lt;absolute&gt;</string>
 		</dict>
+		<key>6CC3FE6FB8375DC7AFE6D30F</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>UniformTypeIdentifiers.framework</string>
+			<key>path</key>
+			<string>/System/Library/Frameworks/UniformTypeIdentifiers.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;absolute&gt;</string>
+		</dict>
 		<key>36C974F6CF2E5C95AA7FEF24</key>
 		<dict>
 			<key>isa</key>
@@ -1480,6 +1530,8 @@
 				<string>168768666A0F575681DDE9C3</string>
 				<string>A7DBEFAB16675783B10AFD88</string>
 				<string>8EF6D196DF5B5C6C83451C20</string>
+				<string>12F24C87D5205FE18E959CF2</string>
+				<string>C14DA150C3E85FD69C7261CA</string>
 				<string>38574E407D7A5F9783DCC0D9</string>
 				<string>AC47A308A0E2568E937161BE</string>
 				<string>78DD20B65428590BA8561200</string>
@@ -1547,6 +1599,7 @@
 				<string>A069B7FA0A2C5A61BE53C9C3</string>
 				<string>0ACE8C60D1405A44AF7C994F</string>
 				<string>D1922B0BDA615AD2ABDAA1EA</string>
+				<string>950446663C86514DAA609D03</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
@@ -1837,6 +1890,20 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>854C51A205355BA9A3A18E78</string>
+		</dict>
+		<key>12F24C87D5205FE18E959CF2</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>C6A6341BBA9C59A6B9D7C8C2</string>
+		</dict>
+		<key>C14DA150C3E85FD69C7261CA</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>524C5277586A59B8B8E8DE75</string>
 		</dict>
 		<key>38574E407D7A5F9783DCC0D9</key>
 		<dict>
@@ -2201,6 +2268,13 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>34031A49E79F5C30AE822C09</string>
+		</dict>
+		<key>950446663C86514DAA609D03</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>6CC3FE6FB8375DC7AFE6D30F</string>
 		</dict>
 		<key>DE7B656C24B85237B361EB6C</key>
 		<dict>
