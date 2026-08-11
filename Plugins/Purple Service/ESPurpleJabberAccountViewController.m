@@ -249,6 +249,8 @@ static NSComparisonResult compareByDistance(id one, id two, void *context)
 // blocking-with-modal-alert flow stays as-is while the response's declared Content-Length is captured
 // for the received-vs-declared truncation check (issue #273). Same pattern as AIURLShortenerPlugin's
 // resultFromURL:. The data task runs on a background queue, so the wait only parks the caller thread.
+static const NSTimeInterval AIServerListFeedFetchTimeout = 30.0;
+
 static NSData *AIServerListFeedData(NSURL *url, NSURLResponse **outResponse, NSError **outError)
 {
 	__block NSData *data = nil;
@@ -265,7 +267,20 @@ static NSData *AIServerListFeedData(NSURL *url, NSURLResponse **outResponse, NSE
 			dispatch_semaphore_signal(semaphore);
 		}];
 	[task resume];
-	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+
+	/* Bound the main-thread block: a stalled request must never freeze the UI indefinitely, so the
+	 * wait times out and surfaces a timeout error instead of parking forever (issue #273). */
+	long waitResult = dispatch_semaphore_wait(
+		semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(AIServerListFeedFetchTimeout * NSEC_PER_SEC)));
+	if (waitResult != 0) {
+		[task cancel];
+		error = [NSError errorWithDomain:NSURLErrorDomain
+									code:NSURLErrorTimedOut
+								userInfo:@{
+									NSLocalizedDescriptionKey :
+										AILocalizedString(@"The server list request timed out.", nil)
+								}];
+	}
 
 	if (outResponse != nil) {
 		*outResponse = response;
@@ -283,10 +298,20 @@ static NSData *AIServerListFeedData(NSURL *url, NSURLResponse **outResponse, NSE
 		NSURLResponse *feedResponse = nil;
 		NSData *feedData = AIServerListFeedData([NSURL URLWithString:SERVERFEEDRSSURL], &feedResponse, &err);
 		if (err == nil) {
+			/* Reject non-HTTP responses and non-2xx statuses before parsing, matching every other
+			 * validated download site (issue #273). */
+			err = AIHTTPDownloadValidationErrorForResponse(feedResponse);
+		}
+		if (err == nil) {
 			err = AIHTTPDownloadValidationErrorForTruncatedDownload([feedResponse expectedContentLength],
 																	(int64_t)[feedData length]);
 		}
-		NSXMLDocument *serverfeed = [[NSXMLDocument alloc] initWithData:feedData options:0 error:&err];
+		/* Parse only after the download and validation succeed, so a network or validation error is
+		 * reported as itself rather than overwritten by a spurious parse error on nil data (issue #273). */
+		NSXMLDocument *serverfeed = nil;
+		if (err == nil) {
+			serverfeed = [[NSXMLDocument alloc] initWithData:feedData options:0 error:&err];
+		}
 		if (err) {
 			[[NSAlert alertWithError:err] runModal];
 		} else {
