@@ -121,11 +121,17 @@ for i in "${!DYLIB_MAP_DYLIB[@]}"; do
     # Check for leaked absolute / sandbox / build paths in actual dependency lines.
     # Skip otool's binary-path header lines (which always contain the file path)
     # by filtering out lines ending with ":". Only dependency paths matter.
-    bad_deps="$(otool -L "$binary" 2>/dev/null | grep -v ':$' | grep -E '(/Users/|sandbox-|/Dependencies/build)')" || true
+    otool_err="$SCRATCH_DIR/otool-${fw}.err"
+    bad_deps="$(otool -L "$binary" 2>"$otool_err" | grep -v ':$' | grep -E '(/Users/|sandbox-|/Dependencies/build)')" || true
     if [ -n "$bad_deps" ]; then
         echo "  FAIL: $fw.framework — contains absolute/sandbox dependency paths:"
         echo "$bad_deps"
         has_errors=1
+    elif [ -s "$otool_err" ]; then
+        # otool failing here would read as a clean dependency scan — surface
+        # the real reason so a broken check can't pass as a good one.
+        echo "  WARN: $fw.framework — otool failed; dependency scan incomplete:" >&2
+        sed 's/^/  /' "$otool_err" >&2
     fi
 
     # Check code signature — WARN only (non-fatal for dev cycle).

@@ -32,29 +32,35 @@ SANDBOX_ARM64="$ROOTDIR/sandbox-arm64"
 sdk_dir() {
     local err_file sdk_path
     err_file="$(mktemp)"
-    if sdk_path="$(xcrun --sdk macosx --show-sdk-path 2>"$err_file")"; then
-        if [ -n "$sdk_path" ]; then
-            rm -f "$err_file"
-            printf '%s\n' "$sdk_path"
-            return 0
-        fi
-        echo "build-common.sh: xcrun returned no output for SDK 'macosx' (query: xcrun --sdk macosx --show-sdk-path)" >&2
-    else
-        echo "build-common.sh: xcrun failed for SDK 'macosx' (query: xcrun --sdk macosx --show-sdk-path)" >&2
-        if [ -s "$err_file" ]; then
-            sed 's/^/  /' "$err_file" >&2
-        fi
+    # Success is xcrun exiting 0 AND printing a non-empty path. Either a
+    # non-zero exit or an empty stdout (an unselected/absent SDK prints nothing)
+    # is the same failure — one fall-through below covers both, so the real
+    # stderr can't be mistaken for a different error.
+    if sdk_path="$(xcrun --sdk macosx --show-sdk-path 2>"$err_file")" && [ -n "$sdk_path" ]; then
+        rm -f "$err_file"
+        printf '%s\n' "$sdk_path"
+        return 0
+    fi
+    echo "build-common.sh: no SDK path from xcrun for 'macosx' (query: xcrun --sdk macosx --show-sdk-path)" >&2
+    if [ -s "$err_file" ]; then
+        sed 's/^/  /' "$err_file" >&2
     fi
     rm -f "$err_file"
     echo "  Fix: install the SDK, or select the right Xcode:" >&2
     echo "  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer" >&2
     return 1
 }
-SDK_DIR="$(sdk_dir)"
+SDK_DIR="$(sdk_dir)" || exit 1
 SDK_VER="11.0"
 # shellcheck disable=SC2034 # used by build phase scripts that source this file
 NUM_JOBS="$(sysctl -n hw.activecpu 2>/dev/null || echo 4)"
 FORCE="${FORCE:-0}"
+
+# Per-run scratch for tool stderr captured instead of discarded — a failing
+# otool/xcrun must surface its own reason, not vanish under 2>/dev/null. This
+# file is sourced only by build-universal-deps.sh, so the trap spans that run.
+SCRATCH_DIR="$(mktemp -d)"
+trap 'rm -rf "$SCRATCH_DIR"' EXIT
 
 # ---- Architecture triples ----
 HOST_X86_64="x86_64-apple-darwin"
@@ -303,10 +309,18 @@ build_framework() {
             esac
         fi
     done < <(
-        otool -L "$ver_dir/$binary_name" 2>/dev/null | \
+        otool -L "$ver_dir/$binary_name" 2>"$SCRATCH_DIR/otool-${name}.err" | \
         grep -v ':' | grep -v '/usr/lib/' | grep -v '/System/' | \
         grep -v '@rpath' | grep -v '@executable_path'
     )
+
+    # otool failing here would make the dependency scan look clean while the
+    # framework still ships with bad links. Surface the real stderr when it
+    # didn't complete.
+    if [ -s "$SCRATCH_DIR/otool-${name}.err" ]; then
+        echo "  WARN: otool failed while scanning $name — dependency rewrite may be incomplete:" >&2
+        sed 's/^/  /' "$SCRATCH_DIR/otool-${name}.err" >&2
+    fi
 
     if [ "$has_errors" -ne 0 ]; then
         return 1
