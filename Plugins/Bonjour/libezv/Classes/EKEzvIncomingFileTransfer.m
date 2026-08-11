@@ -227,6 +227,20 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 }
 - (bool)downloadFolder:(NSXMLElement *)root path:(NSString *)rootPath url:(NSString *)rootURL
 {
+	/* Child URLs are built by appending path components to the base URL, so a query or fragment on the
+	 * peer-supplied base would be concatenated into every child's path and silently mis-address the
+	 * files (issue #270). Reject such a base before walking; the #264 guard only catches URLs that are
+	 * unparseable, not mangled-but-parseable ones. rootComponents nil (unparseable) falls through to
+	 * the #264 guard rather than erroring twice. The check lives in this walk entry — once per
+	 * top-level element, not in the recursive walk — so a bad base fails the transfer loudly without
+	 * reporting once per nested child. */
+	NSURLComponents *rootComponents = [NSURLComponents componentsWithString:rootURL];
+	if (rootComponents != nil && ([rootComponents query] != nil || [rootComponents fragment] != nil)) {
+		[[[[self manager] client] client]
+			reportError:@"Could not download transfer because its base URL contains a query or fragment."
+				ofLevel:AWEzvError];
+		return NO;
+	}
 	bool success = [self downloadFolder:root path:rootPath url:rootURL depth:1];
 	if (!success) {
 		/* The walk failed partway: remove every directory it created so no partial folder tree
@@ -245,18 +259,6 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	if (depth > EKEZVFOLDER_MAX_DEPTH) {
 		[[[[self manager] client] client] reportError:@"Could not download transfer because it is nested too deeply."
 											  ofLevel:AWEzvError];
-		return NO;
-	}
-	/* Child URLs are built by appending path components to rootURL, so a query or fragment on the
-	 * peer-supplied base would be concatenated into every child's path and silently mis-address the
-	 * files (issue #270). Reject such a base at the walk start; the #264 guard only catches URLs that
-	 * are unparseable, not mangled-but-parseable ones. rootComponents nil (unparseable) falls through
-	 * to the #264 guard rather than erroring twice. */
-	NSURLComponents *rootComponents = [NSURLComponents componentsWithString:rootURL];
-	if (rootComponents != nil && ([rootComponents query] != nil || [rootComponents fragment] != nil)) {
-		[[[[self manager] client] client]
-			reportError:@"Could not download transfer because its base URL contains a query or fragment."
-				ofLevel:AWEzvError];
 		return NO;
 	}
 	if ([[root name] isEqualToString:@"file"]) {
@@ -647,9 +649,15 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		 * truncated raw body cannot hide behind envelope bytes (issue #269). */
 		if ([self transferWasTruncated]) {
 			[self failTransfer];
+			/* Report the envelope-adjusted raw content length, so the message measures the same thing
+			 * the integrity check does rather than the raw wire byte count (issue #269). */
+			unsigned long long receivedRaw = 0;
+			if (appleSingleEnvelopeBytes <= (unsigned long long)bytesReceived) {
+				receivedRaw = (unsigned long long)bytesReceived - appleSingleEnvelopeBytes;
+			}
 			[[[manager client] client]
 				reportError:[NSString stringWithFormat:@"Download incomplete: received %qu of %qu declared bytes.",
-													   (unsigned long long)bytesReceived, size]
+													   receivedRaw, size]
 					ofLevel:AWEzvError];
 			return;
 		}
@@ -712,7 +720,9 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	struct AppleSingleHeader header;
 	struct AppleSingleEntry entry;
 	NSRange resourceRange = NSMakeRange(0, 0);
+	NSRange dataForkRange = NSMakeRange(0, 0);
 	BOOL resourceExist = NO;
+	BOOL dataForkExist = NO;
 	unsigned long long dataForkLength = 0;
 	offset = 0;
 
@@ -769,6 +779,8 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		case AS_ENTRY_DATA_FORK:
 			// NSLog(@"AS_ENTRY_DATA_FORK");
 			dataForkLength = entry.length;
+			dataForkRange = NSMakeRange(entry.offset, entry.length);
+			dataForkExist = YES;
 			resourceRange = NSMakeRange(entry.offset, entry.length);
 			resourceExist = YES;
 			break;
@@ -824,7 +836,12 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 
 	/*Now we can write the date and apply the attributes */
 	if (resourceExist) {
-		NSData *decodedData = [data subdataWithRange:resourceRange];
+		/* Prefer the data fork when a body carries both forks: the data fork is the file content the
+		 * transfer delivers and the truncation accounting measures it, so installing a later resource
+		 * fork would leave a file whose length the integrity check never validated (issue #269). A
+		 * resource-fork-only body (no data fork) falls back to the existing last-content-entry write. */
+		NSRange contentRange = dataForkExist ? dataForkRange : resourceRange;
+		NSData *decodedData = [data subdataWithRange:contentRange];
 		if (![decodedData writeToFile:path atomically:YES]) {
 			[[[manager client] client] reportError:@"AppleSingle: Could not write decoded data." ofLevel:AWEzvError];
 		}
@@ -851,9 +868,16 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		/* A zero declared size is not cross-checkable; never fail on it (issue #263). */
 		return NO;
 	}
+	unsigned long long received = (unsigned long long)bytesReceived;
+	if (appleSingleEnvelopeBytes > received) {
+		/* Accounting drift (more envelope claimed than bytes received) is unreachable on the current
+		 * decode path, but must fail closed — the unsigned subtraction would otherwise wrap to a huge
+		 * value and silently accept a truncated body (issue #269). */
+		return YES;
+	}
 	/* Envelope overhead (accumulated during decode) is subtracted so the raw data length — not the
 	 * wire byte count — is compared against the peer-declared size (issue #269). */
-	return ((unsigned long long)bytesReceived - appleSingleEnvelopeBytes) < size;
+	return (received - appleSingleEnvelopeBytes) < size;
 }
 
 @end

@@ -80,11 +80,49 @@
 	return body;
 }
 
-/* Drives a transfer whose single file is an AppleSingle body through the completion gate, with the
- * declared size given. Returns the transfer for success/artifact assertions. */
-- (EKEzvIncomingFileTransfer *)transferDecodedWithRawLength:(NSUInteger)rawLength
-											   declaredSize:(unsigned long long)declared
-												   tempRoot:(NSString *)tempRoot
+/* AppleSingle body carrying a data fork followed by a resource fork. The resource fork entry comes
+ * last, so a naive last-content-entry-wins writer would install the resource fork instead of the
+ * data fork the transfer actually delivers (issue #269 dual-fork case). */
+- (NSData *)appleSingleBodyWithDataForkLength:(NSUInteger)dataForkLength
+						   resourceForkLength:(NSUInteger)resourceForkLength
+{
+	NSMutableData *body = [NSMutableData data];
+
+	UInt32 magic = htonl(0x00051600);
+	UInt32 version = htonl(0x00020000);
+	UInt16 numberEntries = htons(2);
+	char filler[16] = {0};
+
+	UInt32 dataForkOffset = (UInt32)(EKEZV_TEST_AS_HEADER_LENGTH + 2 * EKEZV_TEST_AS_ENTRY_LENGTH);
+	UInt32 dataForkEntryID = htonl(EKEZV_TEST_AS_DATA_FORK_ENTRY_ID);
+	UInt32 dataForkEntryOffset = htonl(dataForkOffset);
+	UInt32 dataForkEntryLength = htonl((UInt32)dataForkLength);
+
+	UInt32 resourceForkOffset = dataForkOffset + (UInt32)dataForkLength;
+	UInt32 resourceForkEntryID = htonl(2); /* AS_ENTRY_RESOURCE_FORK */
+	UInt32 resourceForkEntryOffset = htonl(resourceForkOffset);
+	UInt32 resourceForkEntryLength = htonl((UInt32)resourceForkLength);
+
+	[body appendBytes:&magic length:sizeof(magic)];
+	[body appendBytes:&version length:sizeof(version)];
+	[body appendBytes:filler length:sizeof(filler)];
+	[body appendBytes:&numberEntries length:sizeof(numberEntries)];
+	[body appendBytes:&dataForkEntryID length:sizeof(dataForkEntryID)];
+	[body appendBytes:&dataForkEntryOffset length:sizeof(dataForkEntryOffset)];
+	[body appendBytes:&dataForkEntryLength length:sizeof(dataForkEntryLength)];
+	[body appendBytes:&resourceForkEntryID length:sizeof(resourceForkEntryID)];
+	[body appendBytes:&resourceForkEntryOffset length:sizeof(resourceForkEntryOffset)];
+	[body appendBytes:&resourceForkEntryLength length:sizeof(resourceForkEntryLength)];
+	[body appendData:[NSMutableData dataWithLength:dataForkLength]];
+	[body appendData:[NSMutableData dataWithLength:resourceForkLength]];
+	return body;
+}
+
+/* Drives a transfer whose single file is the given AppleSingle body through the completion gate, with
+ * the declared size given. Returns the transfer for success/artifact assertions. */
+- (EKEzvIncomingFileTransfer *)transferWithAppleSingleBody:(NSData *)body
+											  declaredSize:(unsigned long long)declared
+												  tempRoot:(NSString *)tempRoot
 {
 	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
 	[transfer setLocalFilename:tempRoot];
@@ -95,7 +133,6 @@
 				  @"a single valid <dir> child must complete the folder walk");
 
 	NSString *receivedFile = [tempRoot stringByAppendingPathComponent:@"a/received.bin"];
-	NSData *body = [self appleSingleBodyWithRawLength:rawLength];
 	[[NSFileManager defaultManager] createFileAtPath:receivedFile contents:body attributes:nil];
 
 	NSURL *itemURL = [NSURL URLWithString:@"http://example.com/base/a/received.bin"];
@@ -110,6 +147,15 @@
 	NSURLSessionDataTask *task = [session dataTaskWithRequest:[NSURLRequest requestWithURL:itemURL]];
 	[transfer URLSession:nil task:task didCompleteWithError:nil];
 	return transfer;
+}
+
+- (EKEzvIncomingFileTransfer *)transferDecodedWithRawLength:(NSUInteger)rawLength
+											   declaredSize:(unsigned long long)declared
+												   tempRoot:(NSString *)tempRoot
+{
+	return [self transferWithAppleSingleBody:[self appleSingleBodyWithRawLength:rawLength]
+								declaredSize:declared
+									tempRoot:tempRoot];
 }
 
 /* Predicate unit tests (issue #269). */
@@ -166,6 +212,20 @@
 	XCTAssertFalse([transfer transferWasTruncated], @"a zero declared size disables the truncation check (issue #269)");
 }
 
+/* Accounting drift: envelope bytes claimed (50) exceed bytes received (40). The unsigned subtraction
+ * would wrap to a huge value and return NO (fail-open); the guard must fail closed and treat the
+ * transfer as truncated (issue #269). */
+- (void)testPredicateEnvelopeExceedingReceivedFailsClosed
+{
+	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
+	[transfer setValue:[NSNumber numberWithLongLong:40] forKey:@"bytesReceived"];
+	[transfer setValue:[NSNumber numberWithUnsignedLongLong:50] forKey:@"appleSingleEnvelopeBytes"];
+	[transfer setSize:100];
+
+	XCTAssertTrue([transfer transferWasTruncated],
+				  @"envelope overhead exceeding received bytes must fail closed (issue #269)");
+}
+
 /* End-to-end decode accounting (issue #269). */
 
 /* A truncated AppleSingle body: declared 100, raw content 80 (wire 118 after the 38-byte envelope).
@@ -203,6 +263,31 @@
 	NSData *decoded = [[NSFileManager defaultManager] contentsAtPath:receivedFile];
 	XCTAssertEqual([decoded length], (NSUInteger)80,
 				   @"the decoded file must hold the raw data fork, not the envelope (issue #269)");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+}
+
+/* A dual-fork body [DATA_FORK(80), RESOURCE_FORK(5)] with declared size 80: the resource fork entry
+ * comes last, but the data fork is the delivered file content, so decode must install the data fork
+ * (80 bytes) — not the 5-byte resource fork — and the truncation check (80 raw >= 80 declared) must
+ * pass. Before the data-fork-preference fix, the last-entry-wins write installed the resource fork
+ * while the check still passed, silently delivering the wrong content (issue #269). */
+- (void)testDualForkBodyInstallsDataFork
+{
+	NSString *tempRoot = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvEnvelopeDualFork"];
+	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
+
+	EKEzvIncomingFileTransfer *transfer = [self transferWithAppleSingleBody:[self appleSingleBodyWithDataForkLength:80
+																								 resourceForkLength:5]
+															   declaredSize:80
+																   tempRoot:tempRoot];
+
+	XCTAssertTrue([[transfer valueForKey:@"transferSucceeded"] boolValue],
+				  @"a dual-fork body whose data fork meets the declared size must be accepted (issue #269)");
+	NSString *receivedFile = [tempRoot stringByAppendingPathComponent:@"a/received.bin"];
+	NSData *decoded = [[NSFileManager defaultManager] contentsAtPath:receivedFile];
+	XCTAssertEqual([decoded length], (NSUInteger)80,
+				   @"the data fork, not the resource fork, must be installed (issue #269)");
 
 	[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
 }
