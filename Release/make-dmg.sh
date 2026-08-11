@@ -105,7 +105,12 @@ layout_applied=true
 DS_STORE="$RELEASE_DIR/Artwork/dmg-DS_Store"
 if [ -f "$DS_STORE" ]; then
 	echo "==> Applying pre-baked Finder layout"
-	ditto "$DS_STORE" "$MOUNT_DIR/.DS_Store"
+	ditto "$DS_STORE" "$MOUNT_DIR/.DS_Store" || true
+	if [ ! -f "$MOUNT_DIR/.DS_Store" ]; then
+		# ditto failed or produced nothing — same degraded state as a failed
+		# AppleScript pass, tracked for the end-of-run summary.
+		layout_applied=false
+	fi
 	apply_finder_layout=false
 else
 	echo "==> Applying Finder layout via AppleScript"
@@ -140,17 +145,15 @@ tell application "Finder"
 end tell
 APPLESCRIPT
 	if [ -n "$osascript_failed" ]; then
-		echo "warning: Finder layout failed; DMG will use default icon positions" >&2
+		# The DMG still builds (degraded layout); the single end-of-run warning
+		# and the DMG_REQUIRE_FINDER_LAYOUT=1 gate below cover the policy. Here
+		# only osascript's own reason is surfaced.
 		if [ -f "$OSASCRIPT_ERR" ]; then
 			echo "  osascript: $(cat "$OSASCRIPT_ERR")" >&2
 		else
 			echo "  osascript: (no stderr captured — writing $OSASCRIPT_ERR failed)" >&2
 		fi
 		layout_applied=false
-		if [ "${DMG_REQUIRE_FINDER_LAYOUT:-}" = "1" ]; then
-			echo "error: DMG_REQUIRE_FINDER_LAYOUT=1 — Finder layout failure is fatal" >&2
-			exit 1
-		fi
 	fi
 fi
 
@@ -170,5 +173,9 @@ hdiutil convert "$TEMP_DMG" -format UDBZ -o "$OUTPUT" -quiet
 
 if [ "$layout_applied" != true ]; then
 	echo "warning: DMG built without Finder layout — icons use default positions (set DMG_REQUIRE_FINDER_LAYOUT=1 to make this fatal)" >&2
+	if [ "${DMG_REQUIRE_FINDER_LAYOUT:-}" = "1" ]; then
+		echo "error: DMG_REQUIRE_FINDER_LAYOUT=1 — Finder layout failure is fatal" >&2
+		exit 1
+	fi
 fi
 echo "==> Built: $OUTPUT"
