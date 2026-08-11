@@ -12,13 +12,19 @@ database built from the same source list, search paths, and flags, so the LSP
 resolves SDK/AdiumY/AIUtilities headers exactly as a real compile does.
 """
 
-import glob
 import uuid
 import plistlib
 import os
-import json
-import shlex
 import subprocess
+
+from generate_xcodeproj_core import (
+    build_compile_entries,
+    discover_unit_test_sources,
+    expand_build_path,
+    sources_for_target,
+    validate_source_paths,
+    write_compile_commands_atomic,
+)
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 XCODE_PROJ = os.path.join(PROJECT_DIR, "CoverageHost.xcodeproj")
@@ -1801,6 +1807,17 @@ def convert_bool_to_string(obj):
 
 proj = convert_bool_to_string(proj)
 
+# Fail fast on a stale/mistyped hardcoded path (issue #194): abort naming the
+# bad path before writing, instead of letting xcodebuild fail opaquely at build
+# time with no pointer back to the generator.
+missing_sources = validate_source_paths(objects, PROJECT_DIR)
+if missing_sources:
+    raise SystemExit(
+        "generate-xcodeproj.py: project model references source files that do not "
+        "exist on disk:\n  " + "\n  ".join(missing_sources) +
+        "\nFix the generator's hardcoded paths (or add the files) before regenerating."
+    )
+
 pbxproj_path = os.path.join(XCODE_PROJ, "project.pbxproj")
 print(f"Generating {pbxproj_path} …")
 os.makedirs(XCODE_PROJ, exist_ok=True)
@@ -1886,54 +1903,10 @@ with open(os.path.join(SCHEME_DIR, "CoverageHost.xcscheme"), "w") as f:
 
 
 # ── Compile commands (clangd) ────────────────────────────────────────
-def _expand_build_path(entry):
-    """Expand a build-setting path entry to absolute, or None if not a real path.
-
-    Handles `$(inherited)` (skip), optional surrounding quotes, and
-    `$(SRCROOT)`-relative entries (the harness's HEADER_SEARCH_PATHS style).
-    Quotes are stripped before whitespace so a padded quoted entry
-    (e.g. `"  $(SRCROOT)/x  "`) still normalizes; any other unresolved `$(...)`
-    build variable (e.g. `$(FRAMEWORK_SEARCH_PATHS)`) is skipped rather than
-    emitted as a literal path."""
-    if not isinstance(entry, str):
-        print(f"WARNING: skipping non-string build path entry {entry!r}")
-        return None
-    p = entry
-    if len(p) >= 2 and p[0] == '"' and p[-1] == '"':
-        p = p[1:-1]
-    p = p.strip()
-    if p == "$(inherited)":
-        return None
-    p = p.replace("$(SRCROOT)", PROJECT_DIR)
-    if "$(" in p:
-        # Unresolved build variable (e.g. $(FRAMEWORK_SEARCH_PATHS)) this
-        # generator can't expand — skip rather than emit a literal path, but
-        # warn so a typo'd entry doesn't silently vanish from clangd's flags.
-        print(f"WARNING: skipping unresolved build variable {entry!r} (cannot expand to a path)")
-        return None
-    if not os.path.isabs(p):
-        p = os.path.join(PROJECT_DIR, p)
-    return os.path.normpath(p)
-
-
-def _sources_for_target(target_id):
-    """Absolute paths of the ObjC translation units in a target's sources phase."""
-    files = []
-    for phase_id in objects[target_id]["buildPhases"]:
-        phase = objects[phase_id]
-        if phase.get("isa") != "PBXSourcesBuildPhase":
-            continue
-        for build_file_id in phase.get("files", []):
-            ref_id = objects[build_file_id].get("fileRef")
-            if not ref_id:
-                continue
-            ref = objects.get(ref_id, {})
-            if ref.get("lastKnownFileType") != "sourcecode.c.objc":
-                continue
-            path = ref.get("path", "")
-            if path:  # non-empty; the type filter above already guarantees an ObjC TU
-                files.append(os.path.normpath(os.path.join(PROJECT_DIR, path)))
-    return files
+# The pure helpers used here (`expand_build_path`, `sources_for_target`,
+# `discover_unit_test_sources`, `build_compile_entries`, `write_compile_commands_atomic`)
+# live in generate_xcodeproj_core.py — importable without this module's module-level
+# side effects, so the unittest suite can exercise them with synthetic inputs.
 
 
 def write_compile_commands(repo_root):
@@ -1961,7 +1934,9 @@ def write_compile_commands(repo_root):
     compiler = subprocess.check_output(
         ["xcrun", "--sdk", test_settings["SDKROOT"], "--find", "clang"], text=True).strip()
 
-    flags = ["-x", "objective-c"]
+    flags = []
+    # The language flag (-x objective-c / -x objective-c++) is added per-source in
+    # build_compile_entries — .mm TUs must parse as objective-c++, not objective-c.
     # convert_bool_to_string (above) has already mutated these buildSettings to
     # "YES"/"NO" strings, so compare against the string — a plain truthiness
     # test makes the disabled ("NO") case still emit the flag.
@@ -1972,12 +1947,12 @@ def write_compile_commands(repo_root):
     flags += ["-isysroot", sdk,
               "-mmacosx-version-min=%s" % project_settings["MACOSX_DEPLOYMENT_TARGET"]]
     for entry in test_settings.get("FRAMEWORK_SEARCH_PATHS", ()):
-        p = _expand_build_path(entry)
+        p = expand_build_path(entry, PROJECT_DIR)
         if p:
             flags += ["-F", p]
     flags += ["-F", dev_frameworks]
     for entry in test_settings.get("HEADER_SEARCH_PATHS", ()):
-        p = _expand_build_path(entry)
+        p = expand_build_path(entry, PROJECT_DIR)
         if p:
             flags += ["-I", p]
     pch = os.path.normpath(os.path.join(PROJECT_DIR, test_settings["GCC_PREFIX_HEADER"]))
@@ -1987,23 +1962,22 @@ def write_compile_commands(repo_root):
     # must name every file (Xcode has no glob in a pbxproj), but a new test
     # file lands in UnitTests/ without touching the generator — which left
     # clangd with no entry (the pre-existing TestAIPropertyTestUtilities.m
-    # drift). Cover every UnitTests TU regardless: extra entries are harmless
-    # for clangd, which only reads each file's flags.
-    sources = sorted(set(_sources_for_target(H["hostTarget"]) +
-                         _sources_for_target(H["testTarget"])) |
-                     {os.path.normpath(p)
-                      for p in glob.glob(os.path.join(repo_root, "UnitTests", "*.m"))})
-    entries = [
-        {"directory": repo_root,
-         "command": shlex.join([compiler] + flags + ["-c", src, "-o", "/dev/null"]),
-         "file": src}
-        for src in sources
-    ]
+    # drift). Cover every UnitTests TU regardless (recursively — a
+    # UnitTests/Sub/*.m must not silently drop out): extra entries are
+    # harmless for clangd, which only reads each file's flags.
+    sources = sorted(set(sources_for_target(H["hostTarget"], objects, PROJECT_DIR) +
+                         sources_for_target(H["testTarget"], objects, PROJECT_DIR)) |
+                     set(discover_unit_test_sources(repo_root)))
+    if not sources:
+        raise SystemExit(
+            "generate-xcodeproj.py: no translation units found to index — every "
+            "source resolved to a skip (sourceTree / build-variable drift) or "
+            "UnitTests/ is empty. Refusing to write an empty compile_commands.json."
+        )
+    entries = build_compile_entries(compiler, flags, sources, repo_root)
 
     out = os.path.join(repo_root, "compile_commands.json")
-    with open(out, "w") as f:
-        json.dump(entries, f, indent=2)
-        f.write("\n")
+    write_compile_commands_atomic(entries, out)
     print(f"Generated {out} ({len(entries)} translation units) for clangd")
 
 

@@ -143,6 +143,9 @@ Tests/MessageStylingTest
 # Tests/CoverageHost/generate-xcodeproj.py alongside the xcodeproj
 compile_commands.json
 
+# Python bytecode cache from the generator + its unittest suite
+__pycache__/
+
 # fastlane
 fastlane/report.xml
 fastlane/Preview.html
