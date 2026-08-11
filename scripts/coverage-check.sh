@@ -84,7 +84,19 @@ resolve_threshold() {
 # --- Get coverage report ---
 # xccov view --report --json outputs per-target coverage as a fraction (0-1)
 XCC_ERR="$SCRATCH_DIR/xccov.err"
-REPORT_JSON=$($XCRUN xccov view --report --json "$COV_FILE" 2>"$XCC_ERR" || true)
+XCC_RC=0
+REPORT_JSON=$("$XCRUN" xccov view --report --json "$COV_FILE" 2>"$XCC_ERR") || XCC_RC=$?
+
+# A non-zero rc is a real tool failure (bad profdata, missing target), not the
+# "no test-run targets" case — that legitimately-empty condition exits 0 with
+# empty stdout. Fail loudly so a broken report can't be misread as a pass.
+if [ "$XCC_RC" -ne 0 ]; then
+  echo "ERROR: xccov failed — coverage not measured:" >&2
+  if [ -s "$XCC_ERR" ]; then
+    sed 's/^/  /' "$XCC_ERR" >&2
+  fi
+  exit 1
+fi
 
 if [ -z "$REPORT_JSON" ]; then
   echo "INFO: xccov report is empty — no test-run targets in profdata. Pre-built framework check follows."
@@ -141,9 +153,23 @@ if [ -d "$BUILD_PRODUCTS" ]; then
     # no diagnostic. Capture its stderr so the reason degrades to the WARN path
     # below instead of being discarded (previously 2>/dev/null hid the cause).
     llvm_cov_err="$SCRATCH_DIR/llvm-cov-$fw_name.err"
-    cov_pct=$($XCRUN llvm-cov report -arch "$native_arch" \
+    llvm_cov_rc=0
+    cov_pct=$("$XCRUN" llvm-cov report -arch "$native_arch" \
       --instr-profile="$COV_FILE" --object="$fw_binary" 2>"$llvm_cov_err" \
-      | awk '$1 == "TOTAL" {gsub(/%/, "", $10); print $10}') || true
+      | awk '$1 == "TOTAL" {gsub(/%/, "", $10); print $10}') || llvm_cov_rc=$?
+
+    # A TOTAL row followed by a crash means llvm-cov died partway — the
+    # percentage is untrustworthy. Distinguish this from a genuinely
+    # uninstrumented binary, which llvm-cov reports as rc 1 with empty stdout
+    # ("no coverage data found"): that stays a WARN, not a false ERROR.
+    if [ -n "$cov_pct" ] && [ "$llvm_cov_rc" -ne 0 ]; then
+      echo "ERROR: llvm-cov produced partial output then failed for $fw_name — coverage not measured:" >&2
+      if [ -s "$llvm_cov_err" ]; then
+        sed 's/^/  /' "$llvm_cov_err" >&2
+      fi
+      FAILED=1
+      continue
+    fi
 
     if [ -z "$cov_pct" ] || [ "$cov_pct" = "-" ] || [ "$cov_pct" = "0.00" ]; then
       echo "WARN: $fw_name — no coverage data (not instrumented or not exercised)"
@@ -173,13 +199,17 @@ BINARY_DIR="${DERIVED_DATA}/Build/Products/Debug"
 if [ -d "$BINARY_DIR" ]; then
   # Find a production binary to extract branch coverage from the profdata
   BINARY=$(find "$BINARY_DIR" -maxdepth 1 -type d -name '*.framework' -print -quit 2>/dev/null || true)
-  if [ -n "$BINARY" ] && $XCRUN llvm-cov --help &>/dev/null; then
+  if [ -n "$BINARY" ] && "$XCRUN" llvm-cov --help &>/dev/null; then
     BINARY_NAME=$(basename "$BINARY" .framework)
-    BRANCH_REPORT=$($XCRUN llvm-cov export -summary-only \
-      -instr-profile "$COV_FILE" "$BINARY/$BINARY_NAME" 2>/dev/null || true)
+    BRANCH_ERR="$SCRATCH_DIR/branchcov.err"
+    BRANCH_REPORT=$("$XCRUN" llvm-cov export -summary-only \
+      -instr-profile "$COV_FILE" "$BINARY/$BINARY_NAME" 2>"$BRANCH_ERR" || true)
     if [ -n "$BRANCH_REPORT" ]; then
       BRANCH_PCT=$(echo "$BRANCH_REPORT" | jq -r '.data[0].totals.branches.percent // 0' 2>/dev/null || echo "N/A")
       echo "Branch coverage (${BINARY##*/}): ${BRANCH_PCT}%  (informational, not gated)"
+    elif [ -s "$BRANCH_ERR" ]; then
+      echo "Branch coverage: llvm-cov export failed — ${BINARY##*/}" >&2
+      sed 's/^/  /' "$BRANCH_ERR" >&2
     fi
   fi
 else
