@@ -177,6 +177,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Fix Bonjour messages containing `&`, `<`, or `>` being escaped twice on the
   wire — a peer now receives the literal character instead of the double-escaped
   `&amp;amp;`
+- Reject truncated or otherwise invalid server-list downloads when registering
+  a new Jabber account — a feed that arrives shorter than its declared
+  Content-Length, returns a non-2xx status, or stalls past a 30-second timeout
+  surfaces an error instead of parsing a partial body as if it were complete
+- Reject malformed AppleSingle transfer data instead of crashing — a Bonjour
+  peer's AppleSingle header with a 32-bit-overflowing entry offset or an
+  oversize Finder-info entry no longer raises an exception
+- Fail an incoming Bonjour file transfer when its decoded data cannot be
+  written to disk, instead of installing a partial file as a completed download
+- Reject a message-view remote-image download whose downloaded file cannot be
+  verified before it is moved into place, instead of installing an unverified
+  file
 
 ## [2.0.0] - 2026-08-03
 
