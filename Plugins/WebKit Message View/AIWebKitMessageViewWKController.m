@@ -48,6 +48,7 @@
 #import <AdiumY/AIEmoticon.h>
 #import <AdiumY/AIFileTransferControllerProtocol.h>
 #import <AdiumY/AIHTMLDecoder.h>
+#import <AdiumY/AIHTTPDownloadValidation.h>
 #import <AdiumY/AIListContact.h>
 #import <AdiumY/AIListObject.h>
 #import <AdiumY/AIMenuControllerProtocol.h>
@@ -541,7 +542,8 @@ static NSString *const AIWKContextMenuScript =
 			  if (rejectionError == nil) {
 				  // The response check only sees the declared Content-Length; NSURLSessionDownloadTask
 				  // does not enforce it against the body. Re-check the actual bytes on disk before
-				  // committing so a missing or misstated Content-Length cannot bypass the cap (#168).
+				  // committing so a missing or misstated Content-Length cannot bypass the cap (#168)
+				  // or the received-vs-declared truncation check (#273).
 				  NSError *attributesError = nil;
 				  NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:[location path]
 																							  error:&attributesError];
@@ -551,6 +553,9 @@ static NSString *const AIWKContextMenuScript =
 					  int64_t actualBytes = [attributes[NSFileSize] longLongValue];
 					  if (actualBytes > AIWKMaxRemoteImageDownloadBytes) {
 						  rejectionError = AIWKImageDownloadValidationErrorForByteCount(actualBytes);
+					  } else {
+						  rejectionError = AIHTTPDownloadValidationErrorForTruncatedDownload(
+							  [response expectedContentLength], actualBytes);
 					  }
 				  }
 			  }

@@ -263,6 +263,82 @@ static BOOL AIHTTPIsRealLeaf(NSString *name)
 	});
 }
 
+#pragma mark - Truncation validation
+
+// A complete download — received bytes equal to the declared Content-Length — is accepted.
+- (void)testCompleteDownloadIsAccepted
+{
+	XCTAssertNil(AIHTTPDownloadValidationErrorForTruncatedDownload(100, 100));
+	// A receiver may legally get more bytes than declared (a server that over-declared, or a
+	// body the client reassembles); that is not truncation.
+	XCTAssertNil(AIHTTPDownloadValidationErrorForTruncatedDownload(100, 200));
+}
+
+// A short download — received bytes below the declared Content-Length — is rejected with the
+// Truncated code in AIHTTPDownloadErrorDomain.
+- (void)testShortDownloadIsRejected
+{
+	for (NSNumber *received in @[ @99, @50, @0 ]) {
+		NSError *error = AIHTTPDownloadValidationErrorForTruncatedDownload(100, [received longLongValue]);
+		XCTAssertNotNil(error, @"received = %@", received);
+		XCTAssertEqualObjects([error domain], AIHTTPDownloadErrorDomain, @"received = %@", received);
+		XCTAssertEqual([error code], AIHTTPDownloadErrorTruncated, @"received = %@", received);
+	}
+}
+
+// The unknown-length sentinel (-1) carries no size contract, so a short body is not treated as
+// truncated (issue #263's declared==0 guard).
+- (void)testUnknownDeclaredLengthIsAccepted
+{
+	XCTAssertNil(AIHTTPDownloadValidationErrorForTruncatedDownload(NSURLResponseUnknownLength, 0));
+	XCTAssertNil(AIHTTPDownloadValidationErrorForTruncatedDownload(NSURLResponseUnknownLength, 1024));
+}
+
+// A non-positive declared length (0 or negative) also carries no size contract.
+- (void)testNonPositiveDeclaredLengthIsAccepted
+{
+	XCTAssertNil(AIHTTPDownloadValidationErrorForTruncatedDownload(0, 0));
+	XCTAssertNil(AIHTTPDownloadValidationErrorForTruncatedDownload(0, 1024));
+	XCTAssertNil(AIHTTPDownloadValidationErrorForTruncatedDownload(-5, 0));
+}
+
+// Property: AIHTTPDownloadValidationErrorForTruncatedDownload returns nil exactly when there is no
+// size contract (declaredLength <= 0) or the received bytes meet or exceed the declaration; an
+// NSError in AIHTTPDownloadErrorDomain with code Truncated otherwise. The oracle reads the same
+// inputs the implementation does, locking in the declared<=0 and received<declared boundaries — the
+// regression surface a fixed set of example lengths can miss (a "<=" / "<" flip).
+- (void)testTruncationErrorCodeProperty
+{
+	PBTCheckDefault({
+		int64_t declaredLength;
+		switch (PBTUniform(6)) {
+		case 0:
+			declaredLength = 0;
+			break;
+		case 1:
+			declaredLength = -5;
+			break;
+		case 2:
+			declaredLength = (int64_t)NSURLResponseUnknownLength; // -1
+			break;
+		default:
+			declaredLength = (int64_t)PBTUniform(UINT32_MAX) + 1;
+			break;
+		}
+		int64_t receivedBytes = (int64_t)PBTUniform(UINT32_MAX);
+
+		NSError *error = AIHTTPDownloadValidationErrorForTruncatedDownload(declaredLength, receivedBytes);
+		BOOL shouldBeNil = (declaredLength <= 0) || (receivedBytes >= declaredLength);
+		if (shouldBeNil) {
+			XCTAssertNil(error, @"declared = %lld, received = %lld", declaredLength, receivedBytes);
+		} else {
+			XCTAssertNotNil(error, @"declared = %lld, received = %lld", declaredLength, receivedBytes);
+			XCTAssertEqualObjects([error domain], AIHTTPDownloadErrorDomain, @"declared = %lld", declaredLength);
+			XCTAssertEqual([error code], AIHTTPDownloadErrorTruncated, @"declared = %lld", declaredLength);
+		}
+	});
+}
+
 - (NSHTTPURLResponse *)httpResponseWithStatus:(NSInteger)statusCode
 {
 	return [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://example.com/download"]

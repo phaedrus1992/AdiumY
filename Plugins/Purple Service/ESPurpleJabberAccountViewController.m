@@ -18,6 +18,7 @@
 #import <AdiumY/AIAccount.h>
 #import <AdiumY/AIContactControllerProtocol.h>
 #import <AdiumY/AIContactList.h>
+#import <AdiumY/AIHTTPDownloadValidation.h>
 #import <AdiumY/AIService.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 #include <tgmath.h>
@@ -244,13 +245,48 @@ static NSComparisonResult compareByDistance(id one, id two, void *context)
 	return NSOrderedAscending;
 }
 
+// NSURLSession has no synchronous API; block on a semaphore so registerNewAccount:'s existing
+// blocking-with-modal-alert flow stays as-is while the response's declared Content-Length is captured
+// for the received-vs-declared truncation check (issue #273). Same pattern as AIURLShortenerPlugin's
+// resultFromURL:. The data task runs on a background queue, so the wait only parks the caller thread.
+static NSData *AIServerListFeedData(NSURL *url, NSURLResponse **outResponse, NSError **outError)
+{
+	__block NSData *data = nil;
+	__block NSURLResponse *response = nil;
+	__block NSError *error = nil;
+	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
+	NSURLSessionDataTask *task = [[NSURLSession sharedSession]
+		  dataTaskWithURL:url
+		completionHandler:^(NSData *taskData, NSURLResponse *taskResponse, NSError *taskError) {
+			data = taskData;
+			response = taskResponse;
+			error = taskError;
+			dispatch_semaphore_signal(semaphore);
+		}];
+	[task resume];
+	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+
+	if (outResponse != nil) {
+		*outResponse = response;
+	}
+	if (outError != nil) {
+		*outError = error;
+	}
+	return data;
+}
+
 - (IBAction)registerNewAccount:(id)sender
 {
 	if (!servers) {
-		NSError *err = NULL;
-		NSXMLDocument *serverfeed = [[NSXMLDocument alloc] initWithContentsOfURL:[NSURL URLWithString:SERVERFEEDRSSURL]
-																		 options:0
-																		   error:&err];
+		NSError *err = nil;
+		NSURLResponse *feedResponse = nil;
+		NSData *feedData = AIServerListFeedData([NSURL URLWithString:SERVERFEEDRSSURL], &feedResponse, &err);
+		if (err == nil) {
+			err = AIHTTPDownloadValidationErrorForTruncatedDownload([feedResponse expectedContentLength],
+																	(int64_t)[feedData length]);
+		}
+		NSXMLDocument *serverfeed = [[NSXMLDocument alloc] initWithData:feedData options:0 error:&err];
 		if (err) {
 			[[NSAlert alertWithError:err] runModal];
 		} else {
