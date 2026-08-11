@@ -70,19 +70,32 @@ def xcrun_query(arguments, sdk):
     The three SDK queries in write_compile_commands (sdk path, platform path,
     clang discovery) use this so a machine with the SDK missing — or no Xcode
     selected at all — gets an actionable SystemExit naming the failing query,
-    not a bare CalledProcessError traceback. OSError (xcrun itself missing)
-    is treated the same way.
+    not a bare CalledProcessError traceback. The failing query's captured
+    stderr (the tool's own reason) is folded into the message. OSError (xcrun
+    itself missing) is treated the same way. Empty stdout — a query that ran
+    but produced nothing — is rejected too, so a broken install can't silently
+    yield an empty SDK path.
     """
     argv = ["xcrun", "--sdk", sdk] + list(arguments)
     try:
-        return subprocess.check_output(argv, text=True).strip()
+        completed = subprocess.run(argv, text=True, capture_output=True, check=True)
     except (subprocess.CalledProcessError, OSError) as exc:
+        detail = (getattr(exc, "stderr", "") or str(exc)).strip()
         raise SystemExit(
             f"generate-xcodeproj.py: xcrun failed for SDK {sdk!r} "
-            f"(query: {' '.join(argv)}): {exc}\n"
+            f"(query: {' '.join(argv)}): {detail}\n"
             "Fix: install the SDK, or point Xcode's developer dir at the right Xcode:\n"
             "  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer"
         ) from exc
+    result = completed.stdout.strip()
+    if not result:
+        raise SystemExit(
+            f"generate-xcodeproj.py: xcrun returned no output for SDK {sdk!r} "
+            f"(query: {' '.join(argv)})\n"
+            "Fix: install the SDK, or point Xcode's developer dir at the right Xcode:\n"
+            "  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer"
+        )
+    return result
 
 
 def _resolve_source_ref(path, source_tree, project_dir):
