@@ -10,71 +10,6 @@
 	<string>46</string>
 	<key>objects</key>
 	<dict>
-		<key>11763B9A0FCEF7F000701353</key>
-		<dict>
-			<key>children</key>
-			<array>
-				<string>11AA10110FCE0969003908B6</string>
-				<string>11AA10120FCE0969003908B6</string>
-			</array>
-			<key>isa</key>
-			<string>PBXGroup</string>
-			<key>name</key>
-			<string>Uploader which updates its progress</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11AA10110FCE0969003908B6</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>name</key>
-			<string>AIProgressDataUploader.h</string>
-			<key>path</key>
-			<string>Source/AIProgressDataUploader.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11AA10120FCE0969003908B6</key>
-		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>name</key>
-			<string>AIProgressDataUploader.m</string>
-			<key>path</key>
-			<string>Source/AIProgressDataUploader.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>11AA10130FCE0969003908B6</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11AA10110FCE0969003908B6</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-			<key>settings</key>
-			<dict>
-				<key>ATTRIBUTES</key>
-				<array>
-					<string>Public</string>
-				</array>
-			</dict>
-		</dict>
-		<key>11AA10140FCE0969003908B6</key>
-		<dict>
-			<key>fileRef</key>
-			<string>11AA10120FCE0969003908B6</string>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-		</dict>
 		<key>11AA1EF90BCAE9C3003DDA66</key>
 		<dict>
 			<key>isa</key>
@@ -7911,7 +7846,6 @@
 				<string>633400D00F9C14E0003C77A9</string>
 				<string>634DC5570F9C3B2F007B6479</string>
 				<string>63BB1CB90F9EDD2B00424B80</string>
-				<string>11AA10130FCE0969003908B6</string>
 				<string>4D91644C2577F77300930BC8</string>
 				<string>4D91644D2577F77300930BC8</string>
 				<string>7E959AD010E3187000C26397</string>
@@ -8029,7 +7963,6 @@
 				<string>633400C60F9C14C2003C77A9</string>
 				<string>633400C80F9C14C2003C77A9</string>
 				<string>63BB1CC90F9EDDB600424B80</string>
-				<string>11AA10140FCE0969003908B6</string>
 				<string>5A5F601D12962EC0007A2232</string>
 				<string>9718DF46136A2C5200013760</string>
 				<string>B68008D89D8E5635BB9CC644</string>
@@ -8275,7 +8208,6 @@
 				<string>6334FF0C0F9C14BF003C77A9</string>
 				<string>6334FF090F9C14BF003C77A9</string>
 				<string>6334FF060F9C14BF003C77A9</string>
-				<string>11763B9A0FCEF7F000701353</string>
 			</array>
 			<key>isa</key>
 			<string>PBXGroup</string>
