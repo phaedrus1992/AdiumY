@@ -15,6 +15,7 @@
  */
 
 #import "AIHTTPDownloadValidation.h"
+#import "AIPropertyTestUtilities.h"
 #import "XtrasInstaller.h"
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
@@ -149,6 +150,32 @@
 	XCTAssertFalse(installer.errorCalled, @"an unknown-length download must not present an error (issue #268)");
 	XCTAssertTrue(installer.didFinishCalled,
 				  @"an unknown-length download must proceed to downloadDidFinish (issue #268)");
+}
+
+// Property: downloadWasTruncated agrees with the shared validator over the full unsigned domain. The
+// predicate delegates to AIHTTPDownloadValidationErrorForTruncatedDownload after casting the unsigned
+// ivars to int64_t, so values at or above 2^63 wrap to negative — "no size contract" for a declared
+// length, and always-short for a received count against a positive declaration. The oracle applies
+// the same casts, locking the wrap boundary as part of the contract; the hand-written unsigned
+// comparison this delegation replaced (issue #280) disagreed on exactly that quadrant.
+- (void)testPredicateAgreesWithValidatorOverUnsignedDomain
+{
+	PBTCheckDefault({
+		uint64_t const declared = PBTUniformUInt64(UINT64_MAX);
+		uint64_t const received = PBTUniformUInt64(UINT64_MAX);
+
+		XtrasInstaller *installer = [[XtrasInstaller alloc] init];
+		[installer setValue:[NSNumber numberWithUnsignedLongLong:declared] forKey:@"downloadSize"];
+		[installer setValue:[NSNumber numberWithUnsignedLongLong:received] forKey:@"amountDownloaded"];
+
+		NSError *oracleError = AIHTTPDownloadValidationErrorForTruncatedDownload((int64_t)declared, (int64_t)received);
+		BOOL expected = (oracleError != nil);
+		BOOL truncated = [installer downloadWasTruncated];
+
+		XCTAssertEqual(truncated, expected,
+					   @"declared=%llu received=%llu: downloadWasTruncated disagreed with the validator", declared,
+					   received);
+	});
 }
 
 @end
