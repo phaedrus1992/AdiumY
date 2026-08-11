@@ -133,8 +133,12 @@ tell application "Finder"
 end tell
 APPLESCRIPT
 	if [ -n "$osascript_failed" ]; then
-		echo "warning: Finder layout failed (no GUI session?); DMG will use default icon positions" >&2
-		echo "  osascript: $(cat "$OSASCRIPT_ERR")" >&2
+		echo "warning: Finder layout failed; DMG will use default icon positions" >&2
+		if [ -f "$OSASCRIPT_ERR" ]; then
+			echo "  osascript: $(cat "$OSASCRIPT_ERR")" >&2
+		else
+			echo "  osascript: (no stderr captured — writing $OSASCRIPT_ERR failed)" >&2
+		fi
 	fi
 fi
 
