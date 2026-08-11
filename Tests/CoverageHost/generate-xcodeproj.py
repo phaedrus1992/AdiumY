@@ -91,6 +91,12 @@ for k in [
     "ezvSupportRoutinesFileRef", "ezvSupportRoutinesHeaderRef", "ezvSupportRoutinesBuildFile",
     "ezvStreamDepthCapTestFileRef", "ezvStreamDepthCapTestBuildFile",
 
+    # EZV transfer-integrity hardening (#268-#270)
+    "xtrasInstallerFileRef", "xtrasInstallerHeaderRef", "xtrasInstallerBuildFile",
+    "xtrasInstallerTestFileRef", "xtrasInstallerTestBuildFile",
+    "ezvTruncationTestFileRef", "ezvTruncationTestBuildFile",
+    "ezvBaseURLGuardTestFileRef", "ezvBaseURLGuardTestBuildFile",
+
     # Plugin-uninstall teardown plugins + tests (#212-#215)
     "chatConsolPluginFileRef", "chatConsolPluginBuildFile",
     "newMsgPluginFileRef", "newMsgPluginBuildFile",
@@ -211,6 +217,10 @@ SHIM_MANIFEST = {
     "AdiumY/AIListGroup.h": ("symlink", "Frameworks/Adium/Source/AIListGroup.h"),
     "AdiumY/AIListObject.h": ("symlink", "Frameworks/Adium/Source/AIListObject.h"),
     "AdiumY/AIListOutlineView+Drawing.h": ("symlink", "Frameworks/Adium/Source/AIListOutlineView+Drawing.h"),
+    "AdiumY/AILocalizationAssistance.h": ("symlink", "Frameworks/Adium/Source/AILocalizationAssistance.h"),
+    "AdiumY/AILocalizationButton.h": ("symlink", "Frameworks/Adium/Source/AILocalizationButton.h"),
+    "AdiumY/AILocalizationButtonCell.h": ("symlink", "Frameworks/Adium/Source/AILocalizationButtonCell.h"),
+    "AdiumY/AILocalizationTextField.h": ("symlink", "Frameworks/Adium/Source/AILocalizationTextField.h"),
     "AdiumY/AIMenuControllerProtocol.h": ("symlink", "Frameworks/Adium/Source/AIMenuControllerProtocol.h"),
     "AdiumY/AIMessageEntryTextView.h": ("symlink", "Frameworks/Adium/Source/AIMessageEntryTextView.h"),
     "AdiumY/AIMetaContact.h": ("symlink", "Frameworks/Adium/Source/AIMetaContact.h"),
@@ -397,6 +407,10 @@ objects = {
                      H["ezvStackFileRef"], H["ezvStackHeaderRef"],
                      H["ezvSupportRoutinesFileRef"], H["ezvSupportRoutinesHeaderRef"],
                      H["ezvStreamDepthCapTestFileRef"],
+                     H["xtrasInstallerFileRef"], H["xtrasInstallerHeaderRef"],
+                     H["xtrasInstallerTestFileRef"],
+                     H["ezvTruncationTestFileRef"],
+                     H["ezvBaseURLGuardTestFileRef"],
                      H["eventSoundsPluginFileRef"], H["dockBehaviorPluginFileRef"],
                      H["announcerPluginFileRef"], H["applescriptAlertPluginFileRef"],
                      H["smclsbPluginFileRef"], H["nehPluginFileRef"],
@@ -871,6 +885,36 @@ objects = {
         "path": "../../UnitTests/TestEKEzvIncomingFileTransferResponseGuard.m",
         "sourceTree": "<group>",
     },
+    H["xtrasInstallerFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../Source/XtrasInstaller.m",
+        "sourceTree": "<group>",
+    },
+    H["xtrasInstallerHeaderRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.h",
+        "path": "../../Source/XtrasInstaller.h",
+        "sourceTree": "<group>",
+    },
+    H["xtrasInstallerTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestXtrasInstallerDownloadTruncation.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvTruncationTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestEKEzvIncomingFileTransferTruncationAccounting.m",
+        "sourceTree": "<group>",
+    },
+    H["ezvBaseURLGuardTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestEKEzvIncomingFileTransferBaseURLGuard.m",
+        "sourceTree": "<group>",
+    },
 
     # Plugin-uninstall teardown plugins (#212-#215). DCInviteToChatPlugin lives in its plugin
     # bundle directory; the other seven under Source/.
@@ -1294,6 +1338,10 @@ objects = {
                   H["ezvStackBuildFile"],
                   H["ezvSupportRoutinesBuildFile"],
                   H["ezvStreamDepthCapTestBuildFile"],
+                  H["xtrasInstallerBuildFile"],
+                  H["xtrasInstallerTestBuildFile"],
+                  H["ezvTruncationTestBuildFile"],
+                  H["ezvBaseURLGuardTestBuildFile"],
                   H["chatConsolPluginBuildFile"], H["newMsgPluginBuildFile"],
                   H["joinChatPluginBuildFile"], H["invitePluginBuildFile"],
                   H["statusPrefsPluginBuildFile"], H["stateMenuPluginBuildFile"],
@@ -1391,6 +1439,10 @@ objects = {
     H["ezvOutgoingUTF8TestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvOutgoingUTF8TestFileRef"]},
     H["httpserverStubBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["httpserverStubFileRef"]},
     H["ezvResponseGuardTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvResponseGuardTestFileRef"]},
+    H["xtrasInstallerBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["xtrasInstallerFileRef"]},
+    H["xtrasInstallerTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["xtrasInstallerTestFileRef"]},
+    H["ezvTruncationTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvTruncationTestFileRef"]},
+    H["ezvBaseURLGuardTestBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvBaseURLGuardTestFileRef"]},
     H["ezvStreamBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvStreamFileRef"]},
     H["ezvStackBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvStackFileRef"]},
     H["ezvSupportRoutinesBuildFile"]: {"isa": "PBXBuildFile", "fileRef": H["ezvSupportRoutinesFileRef"]},

@@ -27,6 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   on any supported macOS
 
 ### Fixed
+- Reject Xtra downloads that arrive with fewer bytes than the server declared,
+  instead of decompressing and installing a truncated Xtra as complete
+- Measure Bonjour transfers by their raw content, not their wire bytes, so an
+  AppleSingle envelope cannot mask a truncated download — and a transfer that
+  carries both a data and resource fork installs the data fork it delivers
+- Reject Bonjour folder transfers whose peer-supplied base URL contains a query
+  or fragment instead of silently building mis-addressed child URLs
 - Remove partial files and created folder trees when an incoming Bonjour file
   transfer fails or is cancelled, instead of leaving them on disk
 - Verify an incoming Bonjour transfer's downloaded byte count against the

@@ -17,4 +17,9 @@
 	// symbols (AIDebugLoggingEnabled, AILog_impl, AILogWithPrefix_impl, AILogWithSignature_impl) are
 	// supplied by the test bundle's link shims.
 	#import <AdiumY/ESDebugAILog.h>
+	// Adium.pch also imports AIStringUtilities.h (the AILocalizedString macro) and AILocalizationAssistance.h
+	// (the NSButton/NSTextField/NSButtonCell setLocalizedString: categories) globally. XtrasInstaller.m uses
+	// both with no local import, so restore those invariants too.
+	#import <AIUtilities/AIStringUtilities.h>
+	#import <AdiumY/AILocalizationAssistance.h>
 #endif
