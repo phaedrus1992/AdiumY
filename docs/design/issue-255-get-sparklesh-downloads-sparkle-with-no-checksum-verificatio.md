@@ -36,14 +36,18 @@ the thing the build fails on — not a best-effort warning.
    checksum + downloaded file to `shasum`, which exits non-zero on mismatch.
    Under `set -e` / `set -o pipefail` a bad download now aborts the build
    before the artifact is extracted or installed.
-3. **`curl -fL` for the framework download** (was `-fL` already); the CLI
-   download keeps `-f#L`. `--fail` already made a 404/5xx a hard error; the
+3. **`curl -fL` for the framework download** (added `-f` to the previous `-L`); the
+   CLI download keeps `-f#L`. `--fail` makes a 404/5xx a hard error; the
    checksum extends that to a *silently corrupted or MITM'd* download — a
    200-with-wrong-bytes that `--fail` can't catch.
 4. Renovate (`renovate: datasource=github-releases depName=sparkle-project/Sparkle`
    above `SPARKLE_VERSION`) bumps only the version; the comment on the checksums
    explains that a bump without re-pinning fails the build rather than shipping
    an unverified artifact — which is the desired fail-closed behavior.
+5. The early-exit cache path (Sparkle.framework already on disk) skips
+   verification — the checksum guarantee covers *fresh downloads only*. A
+   framework installed by a pre-checksum version of this script is never
+   re-verified; `--clean` re-downloads and re-verifies if that matters.
 
 ## 3. Verification
 

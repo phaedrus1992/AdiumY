@@ -40,8 +40,11 @@ end
 
 # Resolves the Developer ID Application identity for this team, so the
 # certificate's common name never has to be hardcoded or passed by hand.
-# Memoized: `release` runs security find-identity in preflight and then again
-# in sign/package, and the keychain does not change mid-run.
+# Memoized for the process lifetime: `release` runs security find-identity in
+# preflight and then again in sign/package, and the keychain does not change
+# mid-run. The cache is only invalidated by a new process — any lane that
+# mutates the keychain (e.g. imports a certificate, like setup_signing) must
+# reset @signing_identity = nil first or it will sign with a stale identity.
 def signing_identity
   @signing_identity ||= compute_signing_identity
 end
@@ -411,9 +414,13 @@ platform :mac do
        "-project", File.join(ROOT, "Dependencies/MMTabBarView/MMTabBarView/MMTabBarView.xcodeproj"),
        "-scheme", "MMTabBarView", "-configuration", "Release", "-sdk", "macosx",
        "SYMROOT=#{BUILD_DIR}", "CODE_SIGNING_ALLOWED=NO", "build")
-    FileUtils.rm_rf(File.join(ROOT, "Frameworks/MMTabBarView.framework"))
-    FileUtils.cp_r(File.join(BUILD_DIR, "Release/MMTabBarView.framework"),
-                   File.join(ROOT, "Frameworks/MMTabBarView.framework"))
+    # rm_rf ignores errors (FileUtils force semantics), so a removal that
+    # silently fails leaves the stale framework in place and cp_r nests the
+    # fresh one inside it — a wrong artifact with no error. Fail loudly instead.
+    framework = File.join(ROOT, "Frameworks/MMTabBarView.framework")
+    FileUtils.rm_rf(framework)
+    UI.user_error!("Could not remove #{framework}; cp_r would nest the fresh framework inside it") if File.exist?(framework)
+    FileUtils.cp_r(File.join(BUILD_DIR, "Release/MMTabBarView.framework"), framework)
 
     # Stamp the version when there is one, so CFBundleVersion tracks the tag.
     # Without it the xcconfig floor applies, which is fine for a dev build but
