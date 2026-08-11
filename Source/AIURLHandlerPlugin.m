@@ -346,15 +346,21 @@
 							  dataTaskWithURL:urlToDownload
 							completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 								if (error != nil) {
+									AILogWithSignature(@"aim:BuddyIcon download failed for %@: %@", urlToDownload, error);
 									return;
 								}
 								NSImage *image = [[NSImage alloc] initWithData:data];
 								if (image == nil) {
+									/* The body did not decode as an image; log so the silent drop is diagnosable. */
+									AILogWithSignature(@"aim:BuddyIcon data from %@ is not an image (%lu bytes)",
+													   urlToDownload, (unsigned long)[data length]);
 									return;
 								}
 								NSError *rejectionError = AIHTTPDownloadValidationErrorForTruncatedDownload(
 									[response expectedContentLength], (int64_t)[data length]);
 								if (rejectionError != nil) {
+									AILogWithSignature(@"aim:BuddyIcon download from %@ rejected: %@", urlToDownload,
+													   rejectionError);
 									return;
 								}
 								dispatch_async(dispatch_get_main_queue(), ^{
