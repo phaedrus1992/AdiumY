@@ -297,6 +297,42 @@ BOOL PBTRandomBool(void)
 	return _pbt_bool();
 }
 
+uint64_t PBTUniformUInt64(uint64_t max)
+{
+	if (max == 0) {
+		return 0;
+	}
+	if (max <= UINT32_MAX) {
+		return _pbt_range((uint32_t)max);
+	}
+	/* Two 32-bit draws composed into a 64-bit value: _pbt_range's uint32_t max cannot reach beyond
+	 * UINT32_MAX, so a larger max needs the full width composed by hand. */
+	uint64_t high = (uint64_t)_pbt_range(UINT32_MAX) << 32;
+	uint64_t low = (uint64_t)_pbt_range(UINT32_MAX);
+	return (high | low) % max;
+}
+
+uint64_t PBTBoundaryUInt64(uint64_t max)
+{
+	if (max == 0) {
+		return 0;
+	}
+	switch (_pbt_range(6)) {
+	case 0:
+		return 0;
+	case 1:
+		return max > 1 ? 1 : 0;
+	case 2:
+		return max - 1;
+	case 3:
+		return max / 2;
+	case 4:
+		return max > 2 ? (max - 2) : (max > 1 ? (max - 1) : 0);
+	default:
+		return PBTUniformUInt64(max);
+	}
+}
+
 // MARK: - Dictionary generators
 
 NSDictionary *PBTRandomStringDictionary(uint32_t maxPairs)

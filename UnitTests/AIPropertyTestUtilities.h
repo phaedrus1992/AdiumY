@@ -95,6 +95,15 @@ NSUInteger PBTUniform(uint32_t max);
 /// Returns a random BOOL.
 BOOL PBTRandomBool(void);
 
+/// Returns a random uint64_t in [0, max).
+uint64_t PBTUniformUInt64(uint64_t max);
+
+/// Returns a boundary-biased uint64_t in [0, max): the low/high extremes (0, 1, max - 1, max / 2,
+/// max - 2) each fire with fixed probability and a uniform draw otherwise. PBTUniform only covers
+/// the 32-bit space, so 64-bit callers (e.g. the AppleSingle envelope accounting, issue #275) use
+/// this to hit the arithmetic boundaries a fixed set of example values can miss.
+uint64_t PBTBoundaryUInt64(uint64_t max);
+
 // MARK: - Dictionary generators
 
 /// Returns a dictionary with 0..n random string keys and values. Suitable for simulating
