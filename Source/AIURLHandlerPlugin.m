@@ -346,7 +346,8 @@
 							  dataTaskWithURL:urlToDownload
 							completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 								if (error != nil) {
-									AILogWithSignature(@"aim:BuddyIcon download failed for %@: %@", urlToDownload, error);
+									AILogWithSignature(@"aim:BuddyIcon download failed for %@: %@", urlToDownload,
+													   error);
 									return;
 								}
 								NSImage *image = [[NSImage alloc] initWithData:data];

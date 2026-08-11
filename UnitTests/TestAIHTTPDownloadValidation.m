@@ -332,8 +332,8 @@ static BOOL AIHTTPIsRealLeaf(NSString *name)
 		}
 		/* Sweep the negative received side too: a negative byte count must still compare correctly
 		 * against a positive declaration (issue #273). */
-		int64_t receivedBytes = PBTRandomBool() ? (int64_t)PBTUniform(UINT32_MAX)
-												: -(int64_t)PBTUniformUInt64(UINT32_MAX);
+		int64_t receivedBytes =
+			PBTRandomBool() ? (int64_t)PBTUniform(UINT32_MAX) : -(int64_t)PBTUniformUInt64(UINT32_MAX);
 
 		NSError *error = AIHTTPDownloadValidationErrorForTruncatedDownload(declaredLength, receivedBytes);
 		BOOL shouldBeNil = (declaredLength <= 0) || (receivedBytes >= declaredLength);

@@ -274,12 +274,12 @@ static NSData *AIServerListFeedData(NSURL *url, NSURLResponse **outResponse, NSE
 		semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(AIServerListFeedFetchTimeout * NSEC_PER_SEC)));
 	if (waitResult != 0) {
 		[task cancel];
-		error = [NSError errorWithDomain:NSURLErrorDomain
-									code:NSURLErrorTimedOut
-								userInfo:@{
-									NSLocalizedDescriptionKey :
-										AILocalizedString(@"The server list request timed out.", nil)
-								}];
+		error = [NSError
+			errorWithDomain:NSURLErrorDomain
+					   code:NSURLErrorTimedOut
+				   userInfo:@{
+					   NSLocalizedDescriptionKey : AILocalizedString(@"The server list request timed out.", nil)
+				   }];
 	}
 
 	if (outResponse != nil) {

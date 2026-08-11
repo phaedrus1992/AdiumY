@@ -681,36 +681,30 @@
 
 	/* Header shorter than the 26-byte minimum. */
 	NSData *shortBody = [NSMutableData dataWithLength:10];
-	XCTAssertFalse([self decodeBody:shortBody atTempPath:tempPath],
-				   @"a header shorter than 26 bytes must be rejected");
+	XCTAssertFalse([self decodeBody:shortBody atTempPath:tempPath], @"a header shorter than 26 bytes must be rejected");
 
 	/* Valid single data-fork body with 0 raw bytes (38 wire bytes) — the base for field mutations. */
 	NSData *baseBody = [self appleSingleBodyWithRawLength:0];
 	XCTAssertEqual([baseBody length], (NSUInteger)38);
 
 	/* Bad magic number (bytes 0-3). */
-	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt32:0xDEADBEEF atOffset:0]
-						 atTempPath:tempPath],
+	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt32:0xDEADBEEF atOffset:0] atTempPath:tempPath],
 				   @"a bad magic number must be rejected");
 
 	/* Bad version number (bytes 4-7). */
-	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt32:0x00000001 atOffset:4]
-						 atTempPath:tempPath],
+	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt32:0x00000001 atOffset:4] atTempPath:tempPath],
 				   @"a bad version must be rejected");
 
 	/* Header claims 2 entries but only 1 is present — the second entry read over-runs the body. */
-	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt16:2 atOffset:24]
-						 atTempPath:tempPath],
+	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt16:2 atOffset:24] atTempPath:tempPath],
 				   @"an entry count that over-runs the body must be rejected");
 
 	/* Entry ID 0 (bytes 26-29). */
-	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt32:0 atOffset:26]
-						 atTempPath:tempPath],
+	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt32:0 atOffset:26] atTempPath:tempPath],
 				   @"entry ID 0 must be rejected");
 
 	/* Offset past the end of the body (offset = 0xFFFFFFFF > 38, bytes 30-33). */
-	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt32:0xFFFFFFFF atOffset:30]
-						 atTempPath:tempPath],
+	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt32:0xFFFFFFFF atOffset:30] atTempPath:tempPath],
 				   @"an offset past the end of the body must be rejected");
 
 	/* Offset 0 + length 0xFFFFFFFF over-runs the body without wrapping UInt32. */
@@ -730,10 +724,10 @@
 	/* Finder-info entry length 100 into the fixed 32-byte stack struct must be rejected, not
 	 * overflow the buffer. */
 	NSData *finderBody = [self appleSingleBodyWithEntries:@[ @{
-								 @"id" : @(EKEZV_TEST_AS_FINDER_INFO_ENTRY_ID),
-								 @"length" : @100,
-								 @"fill" : @0x04,
-							 } ]];
+								   @"id" : @(EKEZV_TEST_AS_FINDER_INFO_ENTRY_ID),
+								   @"length" : @100,
+								   @"fill" : @0x04,
+							   } ]];
 	XCTAssertFalse([self decodeBody:finderBody atTempPath:tempPath],
 				   @"a Finder-info entry longer than the 32-byte struct must be rejected (issue #273)");
 
