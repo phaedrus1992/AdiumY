@@ -6,11 +6,19 @@ Creates two targets:
   2. CoverageHostTests — XCTest bundle injected into CoverageHost
 
 Both are in a standalone project so we don't touch AIUtilities.xcodeproj.
+
+Also writes compile_commands.json at the repo root — the clangd compilation
+database built from the same source list, search paths, and flags, so the LSP
+resolves SDK/AdiumY/AIUtilities headers exactly as a real compile does.
 """
 
+import glob
 import uuid
 import plistlib
 import os
+import json
+import shlex
+import subprocess
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 XCODE_PROJ = os.path.join(PROJECT_DIR, "CoverageHost.xcodeproj")
@@ -44,6 +52,7 @@ for k in [
 
     # CoverageHostTests extra sources (PBT util, AIXtraBundleIdentifier, migration)
     "pbtUtilFileRef", "pbtUtilHeaderRef", "pbtUtilBuildFile",
+    "pbtUtilTestFileRef", "pbtUtilTestBuildFile",
     "xtraIdentFileRef", "xtraIdentHeaderRef", "xtraIdentBuildFile",
     "xtraIdentTestFileRef", "xtraIdentTestBuildFile",
     "migrFileRef", "migrHeaderRef", "migrBuildFile",
@@ -368,7 +377,7 @@ objects = {
         "isa": "PBXGroup",
         "children": [H["hostMainFileRef"], H["hostInfoPlistRef"],
                      H["testFileRef"], H["testInfoPlistRef"],
-                     H["pbtUtilFileRef"], H["pbtUtilHeaderRef"],
+                     H["pbtUtilFileRef"], H["pbtUtilTestFileRef"], H["pbtUtilHeaderRef"],
                      H["xtraIdentFileRef"], H["xtraIdentHeaderRef"],
                      H["xtraIdentTestFileRef"],
                      H["migrFileRef"], H["migrHeaderRef"],
@@ -504,6 +513,12 @@ objects = {
         "isa": "PBXFileReference",
         "lastKnownFileType": "sourcecode.c.objc",
         "path": "../../UnitTests/AIPropertyTestUtilities.m",
+        "sourceTree": "<group>",
+    },
+    H["pbtUtilTestFileRef"]: {
+        "isa": "PBXFileReference",
+        "lastKnownFileType": "sourcecode.c.objc",
+        "path": "../../UnitTests/TestAIPropertyTestUtilities.m",
         "sourceTree": "<group>",
     },
     H["pbtUtilHeaderRef"]: {
@@ -1308,7 +1323,7 @@ objects = {
     H["testSourcesPhase"]: {
         "isa": "PBXSourcesBuildPhase",
         "buildActionMask": 2147483647,
-        "files": [H["testBuildFile"], H["pbtUtilBuildFile"],
+        "files": [H["testBuildFile"], H["pbtUtilBuildFile"], H["pbtUtilTestBuildFile"],
                   H["xtraIdentTestBuildFile"], H["xtraIdentBuildFile"],
                   H["migrTestBuildFile"], H["migrBuildFile"],
                   H["ctxMenuBuildFile"], H["ctxMenuTestBuildFile"],
@@ -1397,6 +1412,7 @@ objects = {
     H["cocoaFwkBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["cocoaFwkRef"]},
 
     H["pbtUtilBuildFile"]:        {"isa": "PBXBuildFile", "fileRef": H["pbtUtilFileRef"]},
+    H["pbtUtilTestBuildFile"]:    {"isa": "PBXBuildFile", "fileRef": H["pbtUtilTestFileRef"]},
     H["xtraIdentBuildFile"]:      {"isa": "PBXBuildFile", "fileRef": H["xtraIdentFileRef"]},
     H["xtraIdentTestBuildFile"]:  {"isa": "PBXBuildFile", "fileRef": H["xtraIdentTestFileRef"]},
     H["migrBuildFile"]:           {"isa": "PBXBuildFile", "fileRef": H["migrFileRef"]},
@@ -1642,6 +1658,9 @@ objects = {
                 '"$(SRCROOT)/../../Plugins/Invite to Chat Plugin"',
                 '"$(SRCROOT)/../../Plugins/Dual Window Interface"',
                 "$(SRCROOT)/../../Frameworks/Adium/Source",
+                # Unpublished AIUtilities headers (e.g. AIXtraBundleIdentifier.h) resolve
+                # via -I here; published ones via -F to the built AIUtilities.framework.
+                "$(SRCROOT)/../../Frameworks/AIUtilities/Source",
                 "$(SRCROOT)/../../Plugins/Bonjour",
                 "$(SRCROOT)/../../Plugins/Bonjour/libezv/Classes",
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"',
@@ -1695,6 +1714,9 @@ objects = {
                 '"$(SRCROOT)/../../Plugins/Invite to Chat Plugin"',
                 '"$(SRCROOT)/../../Plugins/Dual Window Interface"',
                 "$(SRCROOT)/../../Frameworks/Adium/Source",
+                # Unpublished AIUtilities headers (e.g. AIXtraBundleIdentifier.h) resolve
+                # via -I here; published ones via -F to the built AIUtilities.framework.
+                "$(SRCROOT)/../../Frameworks/AIUtilities/Source",
                 "$(SRCROOT)/../../Plugins/Bonjour",
                 "$(SRCROOT)/../../Plugins/Bonjour/libezv/Classes",
                 '"$(SRCROOT)/../../Plugins/Bonjour/libezv/Other Sources"',
@@ -1861,6 +1883,131 @@ scheme_xml = f'''<?xml version="1.0" encoding="UTF-8"?>
 os.makedirs(SCHEME_DIR, exist_ok=True)
 with open(os.path.join(SCHEME_DIR, "CoverageHost.xcscheme"), "w") as f:
     f.write(scheme_xml)
+
+
+# ── Compile commands (clangd) ────────────────────────────────────────
+def _expand_build_path(entry):
+    """Expand a build-setting path entry to absolute, or None if not a real path.
+
+    Handles `$(inherited)` (skip), optional surrounding quotes, and
+    `$(SRCROOT)`-relative entries (the harness's HEADER_SEARCH_PATHS style).
+    Quotes are stripped before whitespace so a padded quoted entry
+    (e.g. `"  $(SRCROOT)/x  "`) still normalizes; any other unresolved `$(...)`
+    build variable (e.g. `$(FRAMEWORK_SEARCH_PATHS)`) is skipped rather than
+    emitted as a literal path."""
+    if not isinstance(entry, str):
+        print(f"WARNING: skipping non-string build path entry {entry!r}")
+        return None
+    p = entry
+    if len(p) >= 2 and p[0] == '"' and p[-1] == '"':
+        p = p[1:-1]
+    p = p.strip()
+    if p == "$(inherited)":
+        return None
+    p = p.replace("$(SRCROOT)", PROJECT_DIR)
+    if "$(" in p:
+        # Unresolved build variable (e.g. $(FRAMEWORK_SEARCH_PATHS)) this
+        # generator can't expand — skip rather than emit a literal path, but
+        # warn so a typo'd entry doesn't silently vanish from clangd's flags.
+        print(f"WARNING: skipping unresolved build variable {entry!r} (cannot expand to a path)")
+        return None
+    if not os.path.isabs(p):
+        p = os.path.join(PROJECT_DIR, p)
+    return os.path.normpath(p)
+
+
+def _sources_for_target(target_id):
+    """Absolute paths of the ObjC translation units in a target's sources phase."""
+    files = []
+    for phase_id in objects[target_id]["buildPhases"]:
+        phase = objects[phase_id]
+        if phase.get("isa") != "PBXSourcesBuildPhase":
+            continue
+        for build_file_id in phase.get("files", []):
+            ref_id = objects[build_file_id].get("fileRef")
+            if not ref_id:
+                continue
+            ref = objects.get(ref_id, {})
+            if ref.get("lastKnownFileType") != "sourcecode.c.objc":
+                continue
+            path = ref.get("path", "")
+            if path:  # non-empty; the type filter above already guarantees an ObjC TU
+                files.append(os.path.normpath(os.path.join(PROJECT_DIR, path)))
+    return files
+
+
+def write_compile_commands(repo_root):
+    """Emit compile_commands.json at the repo root for clangd.
+
+    Flags mirror the CoverageHostTests target's Debug build settings
+    (HEADER_SEARCH_PATHS, FRAMEWORK_SEARCH_PATHS, GCC_PREFIX_HEADER, ARC,
+    deployment target), so clangd parses each TU with the same view as a real
+    compile. The database is a build artifact — regenerate via this generator
+    (or `make xcodeproj`) — and is gitignored.
+    """
+    test_settings = objects[H["testDebugConfig"]]["buildSettings"]
+    project_settings = objects[H["projectDebugConfig"]]["buildSettings"]
+
+    sdk = subprocess.check_output(
+        ["xcrun", "--sdk", test_settings["SDKROOT"], "--show-sdk-path"], text=True).strip()
+    # Xcode injects TEST_FRAMEWORK_SEARCH_PATHS (the developer frameworks dir)
+    # for test targets, where XCTest.framework lives — outside the SDK's
+    # System/Library/Frameworks. Mirror it so #import <XCTest/XCTest.h> resolves.
+    platform_path = subprocess.check_output(
+        ["xcrun", "--sdk", test_settings["SDKROOT"], "--show-sdk-platform-path"], text=True).strip()
+    dev_frameworks = os.path.join(platform_path, "Developer", "Library", "Frameworks")
+    # The same toolchain clang the real build uses — the first token of each
+    # entry's command must be the compiler executable, or clangd misparses it.
+    compiler = subprocess.check_output(
+        ["xcrun", "--sdk", test_settings["SDKROOT"], "--find", "clang"], text=True).strip()
+
+    flags = ["-x", "objective-c"]
+    # convert_bool_to_string (above) has already mutated these buildSettings to
+    # "YES"/"NO" strings, so compare against the string — a plain truthiness
+    # test makes the disabled ("NO") case still emit the flag.
+    if test_settings.get("CLANG_ENABLE_OBJC_ARC") == "YES":
+        flags.append("-fobjc-arc")
+    if test_settings.get("CLANG_ENABLE_OBJC_WEAK") == "YES":
+        flags.append("-fobjc-weak")
+    flags += ["-isysroot", sdk,
+              "-mmacosx-version-min=%s" % project_settings["MACOSX_DEPLOYMENT_TARGET"]]
+    for entry in test_settings.get("FRAMEWORK_SEARCH_PATHS", ()):
+        p = _expand_build_path(entry)
+        if p:
+            flags += ["-F", p]
+    flags += ["-F", dev_frameworks]
+    for entry in test_settings.get("HEADER_SEARCH_PATHS", ()):
+        p = _expand_build_path(entry)
+        if p:
+            flags += ["-I", p]
+    pch = os.path.normpath(os.path.join(PROJECT_DIR, test_settings["GCC_PREFIX_HEADER"]))
+    flags += ["-include", pch]
+
+    # Sources are the model's explicit PBXFileReference list. The xcodeproj
+    # must name every file (Xcode has no glob in a pbxproj), but a new test
+    # file lands in UnitTests/ without touching the generator — which left
+    # clangd with no entry (the pre-existing TestAIPropertyTestUtilities.m
+    # drift). Cover every UnitTests TU regardless: extra entries are harmless
+    # for clangd, which only reads each file's flags.
+    sources = sorted(set(_sources_for_target(H["hostTarget"]) +
+                         _sources_for_target(H["testTarget"])) |
+                     {os.path.normpath(p)
+                      for p in glob.glob(os.path.join(repo_root, "UnitTests", "*.m"))})
+    entries = [
+        {"directory": repo_root,
+         "command": shlex.join([compiler] + flags + ["-c", src, "-o", "/dev/null"]),
+         "file": src}
+        for src in sources
+    ]
+
+    out = os.path.join(repo_root, "compile_commands.json")
+    with open(out, "w") as f:
+        json.dump(entries, f, indent=2)
+        f.write("\n")
+    print(f"Generated {out} ({len(entries)} translation units) for clangd")
+
+
+write_compile_commands(REPO_ROOT)
 
 
 # ── Source files, Info.plists and scheme are committed alongside the
