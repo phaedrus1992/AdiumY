@@ -549,6 +549,10 @@ static NSString *const AIWKContextMenuScript =
 																							  error:&attributesError];
 				  if (attributesError != nil) {
 					  AILogWithSignature(@"Failed to stat downloaded image at %@: %@", location, attributesError);
+					  /* A file whose size cannot be verified must not be committed: both the byte cap
+					   * (#168) and the received-vs-declared truncation check (#273) are skipped on this
+					   * path, so failing closed keeps the unverified download off disk (issue #273). */
+					  rejectionError = attributesError;
 				  } else {
 					  int64_t actualBytes = [attributes[NSFileSize] longLongValue];
 					  if (actualBytes > AIWKMaxRemoteImageDownloadBytes) {
