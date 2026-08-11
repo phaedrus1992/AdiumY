@@ -164,6 +164,12 @@ Each lane runs alone, so a failed release resumes rather than restarts.
 
 `VERSION` is read from the current git tag. Override with `VERSION=2.0.0`.
 
+`make-dmg.sh` (the `package` lane) reports a DMG whose Finder layout did not
+land — icons sit at default positions, e.g. on a headless runner with no
+`ditto`able `.DS_Store` or no Finder — as an end-of-run warning instead of a
+silent pass. Set `DMG_REQUIRE_FINDER_LAYOUT=1` to make a missing layout fatal
+for release builds that must ship it.
+
 ## How signing works here
 
 Signing is applied to the finished bundle, not baked into the Xcode project.

@@ -133,5 +133,18 @@ if [ "$failed" -ne 0 ]; then
 	exit 1
 fi
 
-codesign --display --verbose=4 "$APP" 2>&1 | grep -E 'Authority|TeamIdentifier|Runtime|flags'
+# Report signing details, but never let a grep non-match kill the release
+# silently: under `set -o pipefail`, a signature that prints none of these
+# tokens (or a failed --display whose error text carries none) turns grep's
+# exit 1 into an unlabeled abort. Show the actual output either way.
+SIGN_INFO=$(codesign --display --verbose=4 "$APP" 2>&1 || true)
+SIGN_LINES=$(printf '%s\n' "$SIGN_INFO" | grep -E 'Authority|TeamIdentifier|Runtime|flags' || true)
+if [ -n "$SIGN_LINES" ]; then
+	echo "$SIGN_LINES"
+else
+	# Empty SIGN_INFO falls through here too: the message covers both a tool
+	# that printed nothing and one that printed nothing recognizable.
+	echo "warning: $APP signature shows none of Authority/TeamIdentifier/Runtime/flags:" >&2
+	echo "$SIGN_INFO" >&2
+fi
 echo "==> Signed: $APP"

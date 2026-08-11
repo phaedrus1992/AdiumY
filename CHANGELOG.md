@@ -194,6 +194,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Reject a message-view remote-image download whose downloaded file cannot be
   verified before it is moved into place, instead of installing an unverified
   file
+- Surface the real tool error instead of a silent pass in the build/release
+  scripts: `coverage-check` reports xccov/llvm-cov failures with their stderr
+  (handing llvm-cov-format profdata off to the llvm-cov check), and the
+  signing/dependency scripts show the actual codesign/otool/xcrun reason
+- Warn when a DMG is built without its Finder layout instead of producing a
+  silently-degraded image (`DMG_REQUIRE_FINDER_LAYOUT=1` makes a missing layout
+  fatal)
+- Harden the sandbox-reference verification in `relink-sandbox-refs` against a
+  SIGPIPE false pass that could ship a bundle with dead sandbox references
 
 ## [2.0.0] - 2026-08-03
 

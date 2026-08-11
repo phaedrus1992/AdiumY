@@ -121,11 +121,17 @@ for i in "${!DYLIB_MAP_DYLIB[@]}"; do
     # Check for leaked absolute / sandbox / build paths in actual dependency lines.
     # Skip otool's binary-path header lines (which always contain the file path)
     # by filtering out lines ending with ":". Only dependency paths matter.
-    bad_deps="$(otool -L "$binary" 2>/dev/null | grep -v ':$' | grep -E '(/Users/|sandbox-|/Dependencies/build)')" || true
+    otool_err="$SCRATCH_DIR/otool-${fw}.err"
+    bad_deps="$(otool -L "$binary" 2>"$otool_err" | grep -v ':$' | grep -E '(/Users/|sandbox-|/Dependencies/build)')" || true
     if [ -n "$bad_deps" ]; then
         echo "  FAIL: $fw.framework — contains absolute/sandbox dependency paths:"
         echo "$bad_deps"
         has_errors=1
+    elif [ -s "$otool_err" ]; then
+        # otool failing here would read as a clean dependency scan — surface
+        # the real reason so a broken check can't pass as a good one.
+        echo "  WARN: $fw.framework — otool failed; dependency scan incomplete:" >&2
+        sed 's/^/  /' "$otool_err" >&2
     fi
 
     # Check code signature — WARN only (non-fatal for dev cycle).
@@ -134,8 +140,13 @@ for i in "${!DYLIB_MAP_DYLIB[@]}"; do
     # expected for local development builds and will be superseded by proper
     # Developer ID signing + notarization for distribution builds.
     # See: docs/design/signing.md (pending)
-    if ! codesign --verify --strict "$binary" 2>/dev/null; then
-        echo "  WARN: $fw.framework — codesign verification failed (non-fatal, ad-hoc only)"
+    # Surface codesign's own message so a genuine break (bad seal, wrong team,
+    # corrupted binary) is distinguishable from the expected ad-hoc failure
+    # instead of being swallowed by 2>/dev/null and labeled benign.
+    if ! codesign_out="$(codesign --verify --strict "$binary" 2>&1)"; then
+        echo "  WARN: $fw.framework — codesign verification failed (non-fatal, ad-hoc only):"
+        # shellcheck disable=SC2001  # line-anchored indent: parameter expansion has no ^ anchor
+        echo "$codesign_out" | sed 's/^/    /'
     fi
 
     # Check top-level symlinks
