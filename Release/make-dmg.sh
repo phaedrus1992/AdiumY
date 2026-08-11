@@ -95,6 +95,13 @@ MOUNT_DIR=$(printf '%s\n' "$ATTACH_INFO" | sed -n '2p')
 # Driving Finder needs a GUI login session, which a CI runner does not have.
 # A pre-baked .DS_Store is the headless path: it encodes the same icon
 # positions and window size, and just gets copied in.
+#
+# A DMG whose layout never landed is degraded but not corrupt — icons sit at
+# default positions — and that used to be invisible: the build finished and
+# the artifact looked identical to a correct one. Track it for the end-of-run
+# summary, and let DMG_REQUIRE_FINDER_LAYOUT=1 make a missing layout fatal for
+# release builds that must ship it.
+layout_applied=true
 DS_STORE="$RELEASE_DIR/Artwork/dmg-DS_Store"
 if [ -f "$DS_STORE" ]; then
 	echo "==> Applying pre-baked Finder layout"
@@ -139,6 +146,11 @@ APPLESCRIPT
 		else
 			echo "  osascript: (no stderr captured — writing $OSASCRIPT_ERR failed)" >&2
 		fi
+		layout_applied=false
+		if [ "${DMG_REQUIRE_FINDER_LAYOUT:-}" = "1" ]; then
+			echo "error: DMG_REQUIRE_FINDER_LAYOUT=1 — Finder layout failure is fatal" >&2
+			exit 1
+		fi
 	fi
 fi
 
@@ -156,4 +168,7 @@ rm -f "$OUTPUT"
 mkdir -p "$(dirname "$OUTPUT")"
 hdiutil convert "$TEMP_DMG" -format UDBZ -o "$OUTPUT" -quiet
 
+if [ "$layout_applied" != true ]; then
+	echo "warning: DMG built without Finder layout — icons use default positions (set DMG_REQUIRE_FINDER_LAYOUT=1 to make this fatal)" >&2
+fi
 echo "==> Built: $OUTPUT"

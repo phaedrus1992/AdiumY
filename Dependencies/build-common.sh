@@ -22,7 +22,35 @@ SRCROOT="$(cd "$ROOTDIR/.." && pwd)"
 BUILD_DIR="$ROOTDIR/build"
 SANDBOX_X86_64="$ROOTDIR/sandbox-x86_64"
 SANDBOX_ARM64="$ROOTDIR/sandbox-arm64"
-SDK_DIR="$(xcrun --sdk macosx --show-sdk-path)"
+# Resolve the macOS SDK path. A bare `xcrun --show-sdk-path` fails with only
+# xcrun's own line and no hint about the fix, which is the usual cause (no
+# Xcode selected, or xcode-select pointing at an SDK-less location). Mirror
+# the CoverageHost generator's xcrun_query
+# (Tests/CoverageHost/generate_xcodeproj_core.py): name the failing query,
+# surface the real stderr, and point at the fix. Empty output is a failure
+# too — an unselected/absent SDK prints nothing on stdout.
+sdk_dir() {
+    local err_file sdk_path
+    err_file="$(mktemp)"
+    if sdk_path="$(xcrun --sdk macosx --show-sdk-path 2>"$err_file")"; then
+        if [ -n "$sdk_path" ]; then
+            rm -f "$err_file"
+            printf '%s\n' "$sdk_path"
+            return 0
+        fi
+        echo "build-common.sh: xcrun returned no output for SDK 'macosx' (query: xcrun --sdk macosx --show-sdk-path)" >&2
+    else
+        echo "build-common.sh: xcrun failed for SDK 'macosx' (query: xcrun --sdk macosx --show-sdk-path)" >&2
+        if [ -s "$err_file" ]; then
+            sed 's/^/  /' "$err_file" >&2
+        fi
+    fi
+    rm -f "$err_file"
+    echo "  Fix: install the SDK, or select the right Xcode:" >&2
+    echo "  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer" >&2
+    return 1
+}
+SDK_DIR="$(sdk_dir)"
 SDK_VER="11.0"
 # shellcheck disable=SC2034 # used by build phase scripts that source this file
 NUM_JOBS="$(sysctl -n hw.activecpu 2>/dev/null || echo 4)"

@@ -14,6 +14,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$PROJECT_DIR"
 
+# Per-run scratch for tool stderr captured instead of discarded — a failing
+# xccov/llvm-cov must surface its own reason, not abort silently (or misread
+# a broken report as an empty one).
+SCRATCH_DIR="$(mktemp -d)"
+trap 'rm -rf "$SCRATCH_DIR"' EXIT
+
 DEFAULT_THRESHOLD="${COVERAGE_THRESHOLD:-50}"
 if ! [[ "$DEFAULT_THRESHOLD" =~ ^[0-9]+$ ]]; then
   echo "ERROR: COVERAGE_THRESHOLD must be a positive integer, got: '$DEFAULT_THRESHOLD'" >&2
@@ -77,10 +83,14 @@ resolve_threshold() {
 
 # --- Get coverage report ---
 # xccov view --report --json outputs per-target coverage as a fraction (0-1)
-REPORT_JSON=$($XCRUN xccov view --report --json "$COV_FILE" 2>/dev/null || true)
+XCC_ERR="$SCRATCH_DIR/xccov.err"
+REPORT_JSON=$($XCRUN xccov view --report --json "$COV_FILE" 2>"$XCC_ERR" || true)
 
 if [ -z "$REPORT_JSON" ]; then
   echo "INFO: xccov report is empty — no test-run targets in profdata. Pre-built framework check follows."
+  if [ -s "$XCC_ERR" ]; then
+    echo "  xccov: $(cat "$XCC_ERR")" >&2
+  fi
 fi
 
 FAILED=0
@@ -127,12 +137,19 @@ if [ -d "$BUILD_PRODUCTS" ]; then
     # Pass native arch for universal (fat) binaries — llvm-cov needs it
     native_arch=$(uname -m)
 
-    cov_pct=$(xcrun llvm-cov report -arch "$native_arch" \
-      --instr-profile="$COV_FILE" --object="$fw_binary" 2>/dev/null \
-      | awk '$1 == "TOTAL" {gsub(/%/, "", $10); print $10}')
+    # `|| true`: a failing llvm-cov must not set -e abort the whole check with
+    # no diagnostic. Capture its stderr so the reason degrades to the WARN path
+    # below instead of being discarded (previously 2>/dev/null hid the cause).
+    llvm_cov_err="$SCRATCH_DIR/llvm-cov-$fw_name.err"
+    cov_pct=$($XCRUN llvm-cov report -arch "$native_arch" \
+      --instr-profile="$COV_FILE" --object="$fw_binary" 2>"$llvm_cov_err" \
+      | awk '$1 == "TOTAL" {gsub(/%/, "", $10); print $10}') || true
 
     if [ -z "$cov_pct" ] || [ "$cov_pct" = "-" ] || [ "$cov_pct" = "0.00" ]; then
       echo "WARN: $fw_name — no coverage data (not instrumented or not exercised)"
+      if [ -s "$llvm_cov_err" ]; then
+        echo "  llvm-cov: $(cat "$llvm_cov_err")" >&2
+      fi
       continue
     fi
 

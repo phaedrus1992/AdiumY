@@ -134,8 +134,13 @@ for i in "${!DYLIB_MAP_DYLIB[@]}"; do
     # expected for local development builds and will be superseded by proper
     # Developer ID signing + notarization for distribution builds.
     # See: docs/design/signing.md (pending)
-    if ! codesign --verify --strict "$binary" 2>/dev/null; then
-        echo "  WARN: $fw.framework — codesign verification failed (non-fatal, ad-hoc only)"
+    # Surface codesign's own message so a genuine break (bad seal, wrong team,
+    # corrupted binary) is distinguishable from the expected ad-hoc failure
+    # instead of being swallowed by 2>/dev/null and labeled benign.
+    if ! codesign_out="$(codesign --verify --strict "$binary" 2>&1)"; then
+        echo "  WARN: $fw.framework — codesign verification failed (non-fatal, ad-hoc only):"
+        # shellcheck disable=SC2001  # line-anchored indent: parameter expansion has no ^ anchor
+        echo "$codesign_out" | sed 's/^/    /'
     fi
 
     # Check top-level symlinks
