@@ -1896,6 +1896,7 @@ def _expand_build_path(entry):
     build variable (e.g. `$(FRAMEWORK_SEARCH_PATHS)`) is skipped rather than
     emitted as a literal path."""
     if not isinstance(entry, str):
+        print(f"WARNING: skipping non-string build path entry {entry!r}")
         return None
     p = entry
     if len(p) >= 2 and p[0] == '"' and p[-1] == '"':
@@ -1905,6 +1906,10 @@ def _expand_build_path(entry):
         return None
     p = p.replace("$(SRCROOT)", PROJECT_DIR)
     if "$(" in p:
+        # Unresolved build variable (e.g. $(FRAMEWORK_SEARCH_PATHS)) this
+        # generator can't expand — skip rather than emit a literal path, but
+        # warn so a typo'd entry doesn't silently vanish from clangd's flags.
+        print(f"WARNING: skipping unresolved build variable {entry!r} (cannot expand to a path)")
         return None
     if not os.path.isabs(p):
         p = os.path.join(PROJECT_DIR, p)
