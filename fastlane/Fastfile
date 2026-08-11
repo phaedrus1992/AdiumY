@@ -13,13 +13,14 @@ require "json"
 require "open3"
 require "shellwords"
 require "tmpdir"
+require_relative "shared"
 
 default_platform(:mac)
 
 ROOT = File.expand_path("..", __dir__)
 
 APP_NAME      = "AdiumY"
-TEAM_ID       = ENV["TEAM_ID"].to_s.empty? ? "C36L3X7U5T" : ENV["TEAM_ID"]
+TEAM_ID       = env_or("TEAM_ID", TEAM_ID_DEFAULT)
 CONFIGURATION = "Release"
 ENTITLEMENTS  = File.join(ROOT, "Adium.entitlements")
 BUILD_DIR     = File.join(ROOT, "build")
@@ -39,7 +40,16 @@ end
 
 # Resolves the Developer ID Application identity for this team, so the
 # certificate's common name never has to be hardcoded or passed by hand.
+# Memoized for the process lifetime: `release` runs security find-identity in
+# preflight and then again in sign/package, and the keychain does not change
+# mid-run. The cache is only invalidated by a new process — any lane that
+# mutates the keychain (e.g. imports a certificate, like setup_signing) must
+# reset @signing_identity = nil first or it will sign with a stale identity.
 def signing_identity
+  @signing_identity ||= compute_signing_identity
+end
+
+def compute_signing_identity
   identities = sh("security find-identity -v -p codesigning", log: false)
 
   override = ENV["DEVELOPER_ID_IDENTITY"].to_s
@@ -107,8 +117,7 @@ def asc_api_key
     See docs/releasing.md.
   ERROR
 
-  path = ENV["ASC_KEY_PATH"]
-  path = File.expand_path("~/.appstoreconnect/private_keys/AuthKey_#{key_id}.p8") if path.to_s.empty?
+  path = env_or("ASC_KEY_PATH", File.expand_path("~/.appstoreconnect/private_keys/AuthKey_#{key_id}.p8"))
   UI.user_error!(<<~ERROR) unless File.exist?(path)
     App Store Connect API key not found at #{path}.
 
@@ -140,7 +149,7 @@ end
 # The "v" prefix is stripped from either source, so VERSION=v2.1.0 can't
 # produce a "vv2.1.0" tag on publish or a non-numeric CFBundleVersion.
 def resolved_version
-  from_env = ENV["VERSION"].to_s
+  from_env = env_or("VERSION")
   return from_env.delete_prefix("v") unless from_env.empty?
 
   tag = sh("git -C #{ROOT.shellescape} describe --tags --exact-match 2>/dev/null || true", log: false).strip
@@ -176,8 +185,7 @@ end
 # Apple's queue has no SLA. Observed over half an hour on a first submission,
 # so the default is generous; NOTARY_TIMEOUT overrides it.
 def notary_timeout
-  from_env = ENV["NOTARY_TIMEOUT"].to_s
-  from_env.empty? ? "2h" : from_env
+  env_or("NOTARY_TIMEOUT", "2h")
 end
 
 # Every notarytool call that wants structured data goes through here, so
@@ -220,7 +228,7 @@ def notarize_and_staple(path)
   submitted = path.end_with?(".app") ? zip_for_notarization(path) : path
 
   ticket = notarytool_json("submit", submitted, "--wait", "--timeout", notary_timeout, key: key)
-  check_notarization_ticket(ticket, key, path) unless ticket["status"] == "Accepted"
+  fail_notarization!(ticket, key, path) unless ticket["status"] == "Accepted"
 
   File.delete(submitted) if submitted != path && File.exist?(submitted)
   staple(path)
@@ -276,7 +284,10 @@ end
 # A queue timeout and a rejection both leave status != Accepted, but only one of
 # them means the build is broken. Telling them apart avoids throwing away a
 # submission that is still perfectly alive.
-def check_notarization_ticket(ticket, key, path)
+#
+# Never returns: every path raises, so the caller's `unless status == Accepted`
+# only skips this when there is nothing to complain about.
+def fail_notarization!(ticket, key, path)
   id = ticket["id"].to_s
   status = ticket["status"]
 
@@ -403,9 +414,13 @@ platform :mac do
        "-project", File.join(ROOT, "Dependencies/MMTabBarView/MMTabBarView/MMTabBarView.xcodeproj"),
        "-scheme", "MMTabBarView", "-configuration", "Release", "-sdk", "macosx",
        "SYMROOT=#{BUILD_DIR}", "CODE_SIGNING_ALLOWED=NO", "build")
-    sh("rm", "-rf", File.join(ROOT, "Frameworks/MMTabBarView.framework"))
-    sh("cp", "-R", File.join(BUILD_DIR, "Release/MMTabBarView.framework"),
-       File.join(ROOT, "Frameworks/MMTabBarView.framework"))
+    # rm_rf ignores errors (FileUtils force semantics), so a removal that
+    # silently fails leaves the stale framework in place and cp_r nests the
+    # fresh one inside it — a wrong artifact with no error. Fail loudly instead.
+    framework = File.join(ROOT, "Frameworks/MMTabBarView.framework")
+    FileUtils.rm_rf(framework)
+    UI.user_error!("Could not remove #{framework}; cp_r would nest the fresh framework inside it") if File.exist?(framework)
+    FileUtils.cp_r(File.join(BUILD_DIR, "Release/MMTabBarView.framework"), framework)
 
     # Stamp the version when there is one, so CFBundleVersion tracks the tag.
     # Without it the xcconfig floor applies, which is fine for a dev build but

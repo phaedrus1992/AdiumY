@@ -16,6 +16,14 @@ SRCROOT="$(cd "$ROOTDIR/../.." && pwd)"               # project root (two up fro
 
 # renovate: datasource=github-releases depName=sparkle-project/Sparkle
 SPARKLE_VERSION="2.9.4"
+# SHA-256 of the two artifacts for this version, computed from the 2.9.4 GitHub
+# release (download, then `shasum -a 256`). Both land inside the notarized
+# release, so a pinned checksum is what keeps the download honest. Re-pin both
+# when bumping SPARKLE_VERSION: a renovate PR that bumps the version without
+# updating these checksums fails the build instead of shipping an unverified
+# artifact.
+SPARKLE_FRAMEWORK_SHA256="cb6fdbdc8884f15d62a616e79face92b08322410fd2d425edc6596ccbf4ba3b0"  # Sparkle-for-Swift-Package-Manager.zip
+SPARKLE_CLI_SHA256="ce89daf967db1e1893ed3ebd67575ed82d3902563e3191ca92aaec9164fbdef9"  # Sparkle-2.9.4.tar.xz
 FRAMEWORK_DIR="$SRCROOT/Frameworks/Sparkle.framework"
 DOWNLOAD_URL="https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-for-Swift-Package-Manager.zip"
 TEMP_DIR="$(mktemp -d)"
@@ -37,7 +45,8 @@ if [ -d "$FRAMEWORK_DIR" ]; then
 fi
 
 echo "Downloading Sparkle $SPARKLE_VERSION from $DOWNLOAD_URL"
-curl -L -o "$TEMP_DIR/sparkle.zip" "$DOWNLOAD_URL" 2>&1
+curl -fL -o "$TEMP_DIR/sparkle.zip" "$DOWNLOAD_URL" 2>&1
+echo "$SPARKLE_FRAMEWORK_SHA256  $TEMP_DIR/sparkle.zip" | shasum -a 256 -c -
 
 echo "Extracting Sparkle XCFramework"
 unzip -q -d "$TEMP_DIR" "$TEMP_DIR/sparkle.zip"
@@ -58,7 +67,8 @@ CLI_TARBALL_URL="https://github.com/sparkle-project/Sparkle/releases/download/${
 CLI_DIR="$SRCROOT/Dependencies/build/sparkle-tools"
 
 mkdir -p "$CLI_DIR"
-curl -#L -o "$TEMP_DIR/sparkle.tar.xz" "$CLI_TARBALL_URL"
+curl -f#L -o "$TEMP_DIR/sparkle.tar.xz" "$CLI_TARBALL_URL"
+echo "$SPARKLE_CLI_SHA256  $TEMP_DIR/sparkle.tar.xz" | shasum -a 256 -c -
 tar -xJf "$TEMP_DIR/sparkle.tar.xz" -C "$TEMP_DIR"
 
 EXTRACTED_BIN_DIR="$(find "$TEMP_DIR" -path "*/bin" -type d | head -1)"

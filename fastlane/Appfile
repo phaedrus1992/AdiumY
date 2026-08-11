@@ -1,2 +1,4 @@
+require_relative "shared"
+
 app_identifier("com.github.phaedrus1992.adiumy")
-team_id(ENV["TEAM_ID"].to_s.empty? ? "C36L3X7U5T" : ENV["TEAM_ID"])
+team_id(env_or("TEAM_ID", TEAM_ID_DEFAULT))
