@@ -771,7 +771,10 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			return NO;
 		}
 
-		if ((entry.offset + entry.length) > length) {
+		/* Compare in 64-bit: entry.offset and entry.length are UInt32, so summing them as UInt32 can
+		 * wrap (e.g. offset 40 + length 0xFFFFFFFF) and slip an out-of-bounds range past the check
+		 * into subdataWithRange: (issue #273). */
+		if (((unsigned long long)entry.offset + entry.length) > length) {
 			[[[manager client] client] reportError:@"AppleSingle: Invalid AppleSingle Encoding." ofLevel:AWEzvError];
 			return NO;
 		}
@@ -791,6 +794,12 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 			break;
 		case AS_ENTRY_FINDER_INFO:
 			// NSLog(@"AS_ENTRY_FINDER_INFO");
+			/* The Finder info is read straight into a fixed 32-byte stack struct; a longer entry would
+			 * overflow it (issue #273). */
+			if (entry.length != sizeof(info)) {
+				[[[manager client] client] reportError:@"AppleSingle: Invalid Finder info length." ofLevel:AWEzvError];
+				return NO;
+			}
 			[data getBytes:&info range:NSMakeRange(entry.offset, entry.length)];
 			info.finderInfo.finderFlags = ntohs(info.finderInfo.finderFlags);
 			hasFinderInfo = YES;
@@ -844,6 +853,10 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		NSData *decodedData = [data subdataWithRange:contentRange];
 		if (![decodedData writeToFile:path atomically:YES]) {
 			[[[manager client] client] reportError:@"AppleSingle: Could not write decoded data." ofLevel:AWEzvError];
+			/* A failed write must fail the transfer: the caller (URLSession:task:didCompleteWithError:)
+			 * treats NO as "remove artifacts and fail", and returning YES would install a partial file
+			 * as success (issue #273). */
+			return NO;
 		}
 		/* Accumulate the envelope overhead (header + entries + Finder info) so -transferWasTruncated can
 		 * measure the raw data fork against the declared size (issue #269). */

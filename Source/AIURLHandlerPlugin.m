@@ -42,6 +42,7 @@
 #import <AdiumY/AIChatControllerProtocol.h>
 #import <AdiumY/AIContactControllerProtocol.h>
 #import <AdiumY/AIContentMessage.h>
+#import <AdiumY/AIHTTPDownloadValidation.h>
 #import <AdiumY/AIInterfaceControllerProtocol.h>
 #import <AdiumY/AIService.h>
 
@@ -337,15 +338,39 @@
 				NSString *iconURLString = [url queryArgumentForKey:@"src"];
 				if ([iconURLString length]) {
 					NSURL *urlToDownload = [[NSURL alloc] initWithString:iconURLString];
-					NSData *imageData = (urlToDownload ? [NSData dataWithContentsOfURL:urlToDownload] : nil);
-
-					// Should prompt for where to apply the icon?
-					if (imageData && [[NSImage alloc] initWithData:imageData]) {
-						// If we successfully got image data, and that data makes a valid NSImage, set it as our global
-						// buddy icon
-						[adium.preferenceController setPreference:imageData
-														   forKey:KEY_USER_ICON
-															group:GROUP_ACCOUNT_STATUS];
+					if (urlToDownload != nil) {
+						// Fetch asynchronously so the response's declared Content-Length is available to the
+						// received-vs-declared truncation check (issue #273); dataWithContentsOfURL: exposes
+						// no response metadata, so a truncated icon download would otherwise be applied silently.
+						NSURLSessionDataTask *task = [[NSURLSession sharedSession]
+							  dataTaskWithURL:urlToDownload
+							completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+								if (error != nil) {
+									AILogWithSignature(@"aim:BuddyIcon download failed for %@: %@", urlToDownload,
+													   error);
+									return;
+								}
+								NSImage *image = [[NSImage alloc] initWithData:data];
+								if (image == nil) {
+									/* The body did not decode as an image; log so the silent drop is diagnosable. */
+									AILogWithSignature(@"aim:BuddyIcon data from %@ is not an image (%lu bytes)",
+													   urlToDownload, (unsigned long)[data length]);
+									return;
+								}
+								NSError *rejectionError = AIHTTPDownloadValidationErrorForTruncatedDownload(
+									[response expectedContentLength], (int64_t)[data length]);
+								if (rejectionError != nil) {
+									AILogWithSignature(@"aim:BuddyIcon download from %@ rejected: %@", urlToDownload,
+													   rejectionError);
+									return;
+								}
+								dispatch_async(dispatch_get_main_queue(), ^{
+									[adium.preferenceController setPreference:data
+																	   forKey:KEY_USER_ICON
+																		group:GROUP_ACCOUNT_STATUS];
+								});
+							}];
+						[task resume];
 					}
 				}
 			}

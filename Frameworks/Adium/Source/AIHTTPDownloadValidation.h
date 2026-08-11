@@ -28,6 +28,8 @@ typedef NS_ENUM(NSInteger, AIHTTPDownloadErrorCode) {
 	AIHTTPDownloadErrorNotHTTP = 1,
 	/// The HTTP status was outside 2xx.
 	AIHTTPDownloadErrorBadStatus,
+	/// The received bytes fell short of the declared Content-Length (issues #263, #273).
+	AIHTTPDownloadErrorTruncated,
 };
 
 /// Validates an NSURLSession response before committing a downloaded file to a destination
@@ -37,6 +39,18 @@ typedef NS_ENUM(NSInteger, AIHTTPDownloadErrorCode) {
 /// @param response The NSURLSession response, possibly nil.
 /// @return nil when acceptable; an error describing the violated check otherwise.
 NSError *_Nullable AIHTTPDownloadValidationErrorForResponse(NSURLResponse *_Nullable response);
+
+/// Rejects a download whose received byte count falls short of the declared Content-Length.
+/// Returns nil when there is no size contract to enforce — an unknown declared length
+/// (NSURLResponseUnknownLength, -1) or a non-positive one — so a server that omits
+/// Content-Length is not treated as truncated (issue #263's declared==0 guard). Any separate
+/// cap on absolute size (e.g. AIWKMaxRemoteImageDownloadBytes) is the caller's to enforce.
+///
+/// @param declaredLength The response's expectedContentLength, possibly NSURLResponseUnknownLength.
+/// @param receivedBytes The actual number of bytes received.
+/// @return nil when acceptable; an NSError in AIHTTPDownloadErrorDomain with code
+///         AIHTTPDownloadErrorTruncated when receivedBytes < declaredLength (issue #273).
+NSError *_Nullable AIHTTPDownloadValidationErrorForTruncatedDownload(int64_t declaredLength, int64_t receivedBytes);
 
 /// Returns a safe default name for a network-provided filename or path: the path's last path
 /// component, unless that is empty, ".", "..", "/", or whitespace-only (a degenerate name that

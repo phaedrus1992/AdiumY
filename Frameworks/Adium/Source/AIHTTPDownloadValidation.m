@@ -44,6 +44,26 @@ NSError *AIHTTPDownloadValidationErrorForResponse(NSURLResponse *response)
 	return nil;
 }
 
+NSError *AIHTTPDownloadValidationErrorForTruncatedDownload(int64_t declaredLength, int64_t receivedBytes)
+{
+	// A non-positive declared length — including the unknown sentinel NSURLResponseUnknownLength
+	// (-1) — carries no size contract: there is nothing to compare received bytes against, so a
+	// short body is indistinguishable from a complete one (issue #263's declared==0 guard).
+	if (declaredLength <= 0) {
+		return nil;
+	}
+
+	if (receivedBytes < declaredLength) {
+		return AIHTTPDownloadValidationError(
+			AIHTTPDownloadErrorTruncated,
+			[NSString stringWithFormat:AILocalizedStringFromTable(
+										   @"Download was truncated: received %lld of %lld declared bytes.", nil, nil),
+									   (long long)receivedBytes, (long long)declaredLength]);
+	}
+
+	return nil;
+}
+
 // YES iff name's last path component is a real, non-degenerate leaf: non-empty, not ".", "..",
 // "/", and not whitespace-only (a name of only whitespace is empty once the OS trims it when
 // writing, so the save panel would get no usable default — issue #175).
