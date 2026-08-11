@@ -27,6 +27,17 @@ fi
 RELEASE_DIR=$(cd "$(dirname "$0")" && pwd)
 SRC_DIR=$(dirname "$RELEASE_DIR")
 VOLUME_NAME="AdiumY $VERSION"
+# The Finder layout below is fed through an unquoted heredoc, so these values
+# reach the AppleScript source text verbatim. A version carrying a `"` (or a
+# manual VERSION= override with a backtick) would otherwise break out of the
+# string literal and become AppleScript of its own. Newlines collapse to a
+# space so a hostile/multi-line value cannot even split the `tell disk` line.
+apple_escape() {
+	# shellcheck disable=SC2016  # single-quoted sed program: backslash + backtick are literal, must NOT expand
+	printf '%s' "$1" | tr '\n' ' ' | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/`/\\`/g'
+}
+ESCAPED_VOLUME_NAME=$(apple_escape "$VOLUME_NAME")
+ESCAPED_APP_LEAF=$(apple_escape "$(basename "$APP")")
 STAGE=$(mktemp -d)
 # A directory + fixed leaf name, not `mktemp -u`: `-u` prints a name it never
 # reserves, so nothing stops another process claiming it before this script
@@ -98,7 +109,7 @@ fi
 if [ "$apply_finder_layout" = true ]; then
 	osascript <<APPLESCRIPT || echo "warning: Finder layout failed (no GUI session?); DMG will use default icon positions" >&2
 tell application "Finder"
-	tell disk "$VOLUME_NAME"
+	tell disk "$ESCAPED_VOLUME_NAME"
 		open
 		set current view of container window to icon view
 		set toolbar visible of container window to false
@@ -108,7 +119,7 @@ tell application "Finder"
 		set arrangement of theViewOptions to not arranged
 		set icon size of theViewOptions to 96
 		set background picture of theViewOptions to file ".background:dmgBackground.png"
-		set position of item "$(basename "$APP")" of container window to {150, 200}
+		set position of item "$ESCAPED_APP_LEAF" of container window to {150, 200}
 		set position of item "Applications" of container window to {450, 200}
 		set position of item "Changes.txt" of container window to {150, 330}
 		set position of item "License.txt" of container window to {450, 330}
