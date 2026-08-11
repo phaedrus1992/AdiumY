@@ -20,6 +20,7 @@
 #import <AIUtilities/AIStringAdditions.h>
 #import <AIUtilities/AIWindowAdditions.h>
 #import <AdiumY/AIContentControllerProtocol.h>
+#import <AdiumY/AIHTTPDownloadValidation.h>
 #import <AdiumY/AIMenuControllerProtocol.h>
 #import <AutoHyperlinks/AHHyperlinkScanner.h>
 
@@ -327,31 +328,38 @@
 
 	AILogWithSignature(@"Requesting %@", inURL);
 
-	// NSURLSession has no synchronous API; block on a semaphore (bounded by the request timeout)
-	// so the URL selection can't change underneath us, matching the previous behavior.
-	__block NSData *shortenedData = nil;
-	__block NSURLResponse *response = nil;
-	__block NSError *errorResponse = nil;
-	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-	NSURLSessionDataTask *task =
-		[[NSURLSession sharedSession] dataTaskWithRequest:request
-										completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error) {
-											shortenedData = data;
-											response = urlResponse;
-											errorResponse = error;
-											dispatch_semaphore_signal(semaphore);
-										}];
-	[task resume];
-	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+	// NSURLSession has no synchronous API; the shared helper blocks on a semaphore (bounded by the
+	// request timeout) so the URL selection can't change underneath us, matching the previous
+	// behavior.
+	NSData *shortenedData = nil;
+	NSURLResponse *response = nil;
+	NSError *errorResponse = nil;
+	shortenedData = AIHTTPDownloadValidationSyncFetch(request, &response, &errorResponse);
 
-	// If the request was successful, replace the selected text with the shortened URL. Otherwise fail silently.
-	if (shortenedData && !errorResponse && ((NSHTTPURLResponse *)response).statusCode == 200) {
+	// If the request was successful and the body is complete, replace the selected text with the
+	// shortened URL. Otherwise fail silently. The shared validator rejects a non-HTTP/non-2xx
+	// response and a truncated body (received < declared Content-Length) before the bytes are
+	// consumed as a shortened URL (issue #279).
+	NSError *responseError = AIHTTPDownloadValidationErrorForResponse(response);
+	NSError *truncationError = AIHTTPDownloadValidationErrorForTruncatedDownload(
+		(int64_t)[response expectedContentLength], (int64_t)[shortenedData length]);
+	if (shortenedData && !errorResponse && responseError == nil && truncationError == nil) {
 		resultString = [[NSString stringWithData:shortenedData
 										encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n"
 																								 withString:@""];
 		AILogWithSignature(@"Shortened to %@", resultString);
 	} else {
-		AILogWithSignature(@"Unable to shorten: %@", errorResponse);
+		/* The validator surfaces three distinct failure kinds; log the first one present so the
+		 * reason isn't "(null)" when the transport succeeded but the response or body failed the
+		 * integrity checks (issue #279). */
+		NSError *failureError = errorResponse;
+		if (failureError == nil) {
+			failureError = responseError;
+		}
+		if (failureError == nil) {
+			failureError = truncationError;
+		}
+		AILogWithSignature(@"Unable to shorten: %@", failureError);
 	}
 
 	return resultString;

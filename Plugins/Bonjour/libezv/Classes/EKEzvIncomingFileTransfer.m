@@ -151,8 +151,32 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		[self failTransfer];
 		return;
 	}
+	/* Fetch the folder-layout XML through the shared sync helper so the response's declared
+	 * Content-Length is available for the integrity checks before the XML is parsed. The helper
+	 * blocks on a semaphore (bounded by the request timeout), preserving the synchronous walk that
+	 * follows (issues #279, #283). */
+	NSURLRequest *layoutRequest = [NSURLRequest requestWithURL:URL];
+	NSData *layoutData = nil;
+	NSURLResponse *response = nil;
+	NSError *fetchError = nil;
+	layoutData = AIHTTPDownloadValidationSyncFetch(layoutRequest, &response, &fetchError);
+
+	/* A peer-supplied layout is trusted only after passing the same integrity checks as every other
+	 * body this transfer consumes: reject a transport error, a non-HTTP/non-2xx response, or a
+	 * truncated body before parsing it into a folder tree (issue #279). */
+	NSError *validationError = fetchError ?: AIHTTPDownloadValidationErrorForResponse(response);
+	if (validationError == nil) {
+		validationError = AIHTTPDownloadValidationErrorForTruncatedDownload((int64_t)[response expectedContentLength],
+																		   (int64_t)[layoutData length]);
+	}
+	if (validationError != nil) {
+		[[[[self manager] client] client] reportError:[validationError localizedDescription] ofLevel:AWEzvError];
+		[self failTransfer];
+		return;
+	}
+
 	NSError *error = nil;
-	NSXMLDocument *documentRoot = [[NSXMLDocument alloc] initWithContentsOfURL:URL options:0 error:&error];
+	NSXMLDocument *documentRoot = [[NSXMLDocument alloc] initWithData:layoutData options:0 error:&error];
 	if (error) {
 		[[[[self manager] client] client] reportError:[error localizedDescription] ofLevel:AWEzvError];
 		[self failTransfer];

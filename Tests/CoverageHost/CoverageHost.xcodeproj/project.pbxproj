@@ -65,6 +65,7 @@
 				<string>13B01A69A6A0549FA7B43273</string>
 				<string>2D77E76425BD5C16B1B059A0</string>
 				<string>0C7FEECB9D1254CF99DA83CE</string>
+				<string>349FAF5A119C28E532A62951</string>
 				<string>11E84536F930580380214005</string>
 				<string>F09A95CC0FCF5A08A87719ED</string>
 				<string>DF9DD999E70A542A82B68DFA</string>
@@ -279,6 +280,17 @@
 			<string>sourcecode.c.objc</string>
 			<key>path</key>
 			<string>../../UnitTests/AIPropertyTestUtilities.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>349FAF5A119C28E532A62951</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAIPropertyTestUtilities.m</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
@@ -1711,6 +1723,7 @@
 			<array>
 				<string>083800CF183D50E7918FC738</string>
 				<string>5445D09F3AE5506694DC96B9</string>
+				<string>80850B55F1CCE7C18F94A40E</string>
 				<string>7744FE2BBB9D5DCD965BB0ED</string>
 				<string>9A1F2C63AE565070B78B37F8</string>
 				<string>FB8D35F4B8075066B9F6B599</string>
@@ -1874,6 +1887,13 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>0C7FEECB9D1254CF99DA83CE</string>
+		</dict>
+		<key>80850B55F1CCE7C18F94A40E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>349FAF5A119C28E532A62951</string>
 		</dict>
 		<key>9A1F2C63AE565070B78B37F8</key>
 		<dict>

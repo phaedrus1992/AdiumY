@@ -64,6 +64,74 @@ NSError *AIHTTPDownloadValidationErrorForTruncatedDownload(int64_t declaredLengt
 	return nil;
 }
 
+NSData *AIHTTPDownloadValidationSyncFetch(NSURLRequest *request, NSURLResponse **outResponse, NSError **outError)
+{
+	if (request == nil || [request URL] == nil) {
+		/* A nil or URL-less request must not reach dataTaskWithRequest:, which returns nil and
+		 * leaves the semaphore below unwoken forever (issue #273). */
+		if (outResponse != nil) {
+			*outResponse = nil;
+		}
+		if (outError != nil) {
+			*outError = [NSError
+				errorWithDomain:NSURLErrorDomain
+						   code:NSURLErrorBadURL
+					   userInfo:@{
+						   NSLocalizedDescriptionKey : AILocalizedStringFromTable(@"The request has no URL.", nil, nil)
+					   }];
+		}
+		return nil;
+	}
+
+	__block NSData *resultData = nil;
+	__block NSURLResponse *resultResponse = nil;
+	__block NSError *resultError = nil;
+	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+	NSURLSessionDataTask *task =
+		[[NSURLSession sharedSession] dataTaskWithRequest:request
+										completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error) {
+											resultData = data;
+											resultResponse = urlResponse;
+											resultError = error;
+											dispatch_semaphore_signal(semaphore);
+										}];
+	[task resume];
+
+	/* Bound the wait at the request's own timeoutInterval: a stalled request must never park the
+	 * calling thread indefinitely, so the wait times out and surfaces a timeout error instead
+	 * (issue #273). The data task runs on a background queue, so the wait only parks the caller
+	 * thread. */
+	dispatch_time_t waitUntil = dispatch_time(DISPATCH_TIME_NOW, (int64_t)([request timeoutInterval] * NSEC_PER_SEC));
+	if (dispatch_semaphore_wait(semaphore, waitUntil) != 0) {
+		[task cancel];
+		/* The completion handler is still running on the session's background queue and can
+		 * overwrite resultData/resultResponse/resultError at any moment, so write the out-params
+		 * directly and return without reading those __block locals — touching them here would race
+		 * the handler. A successful wait, by contrast, happens-after the handler ran and signaled,
+		 * so its writes are visible to the reads below. */
+		if (outResponse != nil) {
+			*outResponse = nil;
+		}
+		if (outError != nil) {
+			*outError = [NSError
+				errorWithDomain:NSURLErrorDomain
+						   code:NSURLErrorTimedOut
+					   userInfo:@{
+						   NSLocalizedDescriptionKey : AILocalizedStringFromTable(@"The request timed out.", nil, nil)
+					   }];
+		}
+		return nil;
+	}
+
+	if (outResponse != nil) {
+		*outResponse = resultResponse;
+	}
+	if (outError != nil) {
+		*outError = resultError;
+	}
+	return resultData;
+}
+
 // YES iff name's last path component is a real, non-degenerate leaf: non-empty, not ".", "..",
 // "/", and not whitespace-only (a name of only whitespace is empty once the OS trims it when
 // writing, so the save panel would get no usable default — issue #175).

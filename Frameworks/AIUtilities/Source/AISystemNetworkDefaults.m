@@ -22,6 +22,84 @@
 #import <CoreServices/CoreServices.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 
+/* Fetch a proxy auto-configuration (PAC) script synchronously and return it as a UTF-8 string, or
+ * nil when the response is truncated or otherwise unusable. An NSURLSession data task is used so
+ * the response's declared Content-Length is available; stringWithContentsOfURL: exposes no
+ * response and cannot detect a truncated body (issue #279). AIUtilities cannot import the Adium
+ * framework's AIHTTPDownloadValidationErrorForTruncatedDownload, so the received-vs-declared rule
+ * is inlined: a non-positive declared length (including NSURLResponseUnknownLength, -1) carries no
+ * size contract, and the body is truncated exactly when receivedBytes < declaredLength. The wait is
+ * bounded at dataTaskWithURL:'s default 60s request timeout (a stalled PAC host must not park the
+ * caller thread), and a non-HTTP or non-2xx response is refused rather than evaluated as a script. */
+static NSString *AIProxyAutoConfigScriptForURL(NSURL *pacURL)
+{
+	if (pacURL == nil) {
+		return nil;
+	}
+	__block NSData *scriptData = nil;
+	__block NSURLResponse *response = nil;
+	__block NSError *error = nil;
+	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+	NSURLSessionDataTask *task =
+		[[NSURLSession sharedSession] dataTaskWithURL:pacURL
+									completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *fetchError) {
+										scriptData = data;
+										response = urlResponse;
+										error = fetchError;
+										dispatch_semaphore_signal(semaphore);
+									}];
+	[task resume];
+
+	/* Bound the wait at 60s, dataTaskWithURL:'s default request timeout: a stalled PAC host must
+	 * not park the thread that is about to evaluate the script for a proxy connection. The data
+	 * task runs on a background queue, so the wait only parks the caller thread. */
+	dispatch_time_t waitUntil = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(60 * NSEC_PER_SEC));
+	if (dispatch_semaphore_wait(semaphore, waitUntil) != 0) {
+		[task cancel];
+		/* The completion handler is still running on the session's background queue and can
+		 * overwrite scriptData/response/error at any moment, so return without reading those
+		 * __block locals — touching them here would race the handler. A successful wait, by
+		 * contrast, happens-after the handler ran and signaled, so its writes are visible below. */
+		NSLog(@"PAC script download for %@ timed out.", pacURL);
+		return nil;
+	}
+
+	if (error != nil) {
+		NSLog(@"PAC script download for %@ failed: %@", pacURL, error);
+		return nil;
+	}
+
+	if (scriptData == nil) {
+		NSLog(@"PAC script download for %@ returned no data.", pacURL);
+		return nil;
+	}
+
+	/* Reject a non-HTTP or non-2xx response rather than evaluating it as a PAC script: a proxy
+	 * host answering 404 or 500 with an HTML error page must not be fed to
+	 * CFNetworkCopyProxiesForAutoConfigurationScript (issue #279). */
+	if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+		NSLog(@"PAC script download for %@ returned a non-HTTP response; refusing to evaluate.", pacURL);
+		return nil;
+	}
+	NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+	NSInteger statusCode = [httpResponse statusCode];
+	if (statusCode < 200 || statusCode > 299) {
+		NSLog(@"PAC script download for %@ returned HTTP status %ld; refusing to evaluate.", pacURL, (long)statusCode);
+		return nil;
+	}
+
+	/* Reject a body whose received byte count falls short of the response's declared non-zero size
+	 * rather than evaluating it as a PAC script (issue #279). */
+	long long declaredLength = [response expectedContentLength];
+	if (declaredLength > 0 && (long long)[scriptData length] < declaredLength) {
+		NSLog(@"PAC script download was truncated: received %lld of %lld declared bytes.",
+			  (long long)[scriptData length], declaredLength);
+		return nil;
+	}
+
+	return [[NSString alloc] initWithData:scriptData encoding:NSUTF8StringEncoding];
+}
+
 @implementation AISystemNetworkDefaults
 
 + (NSDictionary *)systemProxySettingsDictionaryForType:(ProxyType)proxyType forServer:(NSString *)hostName
@@ -129,9 +207,7 @@
 				if (pacFile) {
 					CFURLRef url = (__bridge CFURLRef)
 						[NSURL URLWithString:[NSString stringWithFormat:@"http://%@", hostName ?: @"google.com"]];
-					NSString *scriptStr = [NSString stringWithContentsOfURL:[NSURL URLWithString:pacFile]
-																   encoding:NSUTF8StringEncoding
-																	  error:NULL];
+					NSString *scriptStr = AIProxyAutoConfigScriptForURL([NSURL URLWithString:pacFile]);
 
 					if (url && scriptStr) {
 						NSArray *proxies;

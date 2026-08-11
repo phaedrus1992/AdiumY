@@ -14,6 +14,8 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import "AIHTTPDownloadValidation.h"
+#import "AIPropertyTestUtilities.h"
 #import "XtrasInstaller.h"
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
@@ -33,6 +35,7 @@
 @interface TestXtrasInstallerSpy : XtrasInstaller
 @property(nonatomic) BOOL didFinishCalled;
 @property(nonatomic) BOOL errorCalled;
+@property(nonatomic) NSError *presentedError;
 @end
 
 @implementation TestXtrasInstallerSpy
@@ -45,6 +48,7 @@
 - (void)presentDownloadError:(NSError *)error
 {
 	self.errorCalled = YES;
+	self.presentedError = error;
 }
 
 @end
@@ -116,6 +120,10 @@
 
 	XCTAssertTrue(installer.errorCalled, @"a truncated download must present an error (issue #268)");
 	XCTAssertFalse(installer.didFinishCalled, @"a truncated download must not reach downloadDidFinish (issue #268)");
+	XCTAssertEqualObjects(installer.presentedError.domain, AIHTTPDownloadErrorDomain,
+						  @"a truncated download must surface the shared AIHTTPDownloadErrorDomain (issue #280)");
+	XCTAssertEqual(installer.presentedError.code, AIHTTPDownloadErrorTruncated,
+				   @"a truncated download must surface AIHTTPDownloadErrorTruncated (issue #280)");
 }
 
 - (void)testCompleteDownloadFinishes
@@ -142,6 +150,32 @@
 	XCTAssertFalse(installer.errorCalled, @"an unknown-length download must not present an error (issue #268)");
 	XCTAssertTrue(installer.didFinishCalled,
 				  @"an unknown-length download must proceed to downloadDidFinish (issue #268)");
+}
+
+// Property: downloadWasTruncated agrees with the shared validator over the full unsigned domain. The
+// predicate delegates to AIHTTPDownloadValidationErrorForTruncatedDownload after casting the unsigned
+// ivars to int64_t, so values at or above 2^63 wrap to negative — "no size contract" for a declared
+// length, and always-short for a received count against a positive declaration. The oracle applies
+// the same casts, locking the wrap boundary as part of the contract; the hand-written unsigned
+// comparison this delegation replaced (issue #280) disagreed on exactly that quadrant.
+- (void)testPredicateAgreesWithValidatorOverUnsignedDomain
+{
+	PBTCheckDefault({
+		uint64_t const declared = PBTUniformUInt64(UINT64_MAX);
+		uint64_t const received = PBTUniformUInt64(UINT64_MAX);
+
+		XtrasInstaller *installer = [[XtrasInstaller alloc] init];
+		[installer setValue:[NSNumber numberWithUnsignedLongLong:declared] forKey:@"downloadSize"];
+		[installer setValue:[NSNumber numberWithUnsignedLongLong:received] forKey:@"amountDownloaded"];
+
+		NSError *oracleError = AIHTTPDownloadValidationErrorForTruncatedDownload((int64_t)declared, (int64_t)received);
+		BOOL expected = (oracleError != nil);
+		BOOL truncated = [installer downloadWasTruncated];
+
+		XCTAssertEqual(truncated, expected,
+					   @"declared=%llu received=%llu: downloadWasTruncated disagreed with the validator", declared,
+					   received);
+	});
 }
 
 @end

@@ -52,6 +52,23 @@ NSError *_Nullable AIHTTPDownloadValidationErrorForResponse(NSURLResponse *_Null
 ///         AIHTTPDownloadErrorTruncated when receivedBytes < declaredLength (issue #273).
 NSError *_Nullable AIHTTPDownloadValidationErrorForTruncatedDownload(int64_t declaredLength, int64_t receivedBytes);
 
+/// Synchronously fetches \c request and returns its body, response, and transport error.
+///
+/// Blocks the calling thread on a semaphore until the data task completes, preserving synchronous
+/// call sites while exposing the response's declared Content-Length for the integrity checks. The
+/// wait is capped at the request's own timeoutInterval: a stalled request aborts the task and
+/// surfaces NSURLErrorTimedOut instead of parking the calling thread forever (issue #273). This is
+/// the single implementation of the synchronous-fetch pattern every download site used to hand-roll
+/// (issue #283).
+///
+/// @param request The request to fetch (its timeoutInterval bounds the wait).
+/// @param outResponse On return, the response, or nil if the request never completed.
+/// @param outError On return, the transport error (including a synthesized timeout), or nil on success.
+/// @return The response body, or nil on failure.
+NSData *_Nullable AIHTTPDownloadValidationSyncFetch(NSURLRequest *_Nonnull request,
+													NSURLResponse *_Nullable *_Nullable outResponse,
+													NSError *_Nullable *_Nullable outError);
+
 /// Returns a safe default name for a network-provided filename or path: the path's last path
 /// component, unless that is empty, ".", "..", "/", or whitespace-only (a degenerate name that
 /// would point a save panel at a directory or be silently discarded). `fallbackName` is then

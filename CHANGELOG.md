@@ -27,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   on any supported macOS
 
 ### Fixed
+- Reject a truncated URL-shortener response (fewer bytes than the server
+  declared) instead of inserting a possibly-incomplete shortened URL
+- Refuse to evaluate a proxy auto-configuration (PAC) script that downloads
+  fewer bytes than the server declared or arrives over a non-HTTP or
+  error-status response, instead of using it for proxy settings
 - Reject Xtra downloads that arrive with fewer bytes than the server declared,
   instead of decompressing and installing a truncated Xtra as complete
 - Measure Bonjour transfers by their raw content, not their wire bytes, so an
