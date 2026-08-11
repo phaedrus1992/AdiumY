@@ -42,9 +42,75 @@ stale database when the generator changes.
 
 ## 2. Approach
 
-_To be filled in before implementation._
+Extend `write_compile_commands(repo_root)` in `Tests/CoverageHost/generate-xcodeproj.py` to emit
+`compile_commands.json` at the repo root, called from the generator's module tail so the database is
+rebuilt on every xcodeproj regeneration. Flags are derived from the `CoverageHostTests` Debug build
+settings so clangd parses each TU with the same view as a real compile:
+
+- Language/ARC: `-x objective-c`, `-fobjc-arc`/`-fobjc-weak` (from `CLANG_ENABLE_OBJC_ARC/WEAK`).
+- SDK: `-isysroot` via `xcrun --sdk <SDKROOT> --show-sdk-path`, plus
+  `-mmacosx-version-min` from the project's deployment target.
+- `-F` per `FRAMEWORK_SEARCH_PATHS` entry (the built AIUtilities.framework dir) and `-I` per
+  `HEADER_SEARCH_PATHS` entry. Both go through `_expand_build_path`, which resolves `$(SRCROOT)`
+  and strips quoting so they work as plain `-F`/`-I` flags.
+- **Dev frameworks dir:** Xcode injects `TEST_FRAMEWORK_SEARCH_PATHS` for test targets — the
+  platform's `Developer/Library/Frameworks`, where `XCTest.framework` lives outside the SDK's
+  System frameworks. The generator derives it via `xcrun --show-sdk-platform-path` and appends a
+  matching `-F`; without it `#import <XCTest/XCTest.h>` fails on every test TU.
+- **PCH:** `-include <GCC_PREFIX_HEADER>` (the CoverageHostTests prefix header), mirroring the
+  real build.
+- **Unpublished AIUtilities headers:** `#import "AIXtraBundleIdentifier.h"`-style includes can't be
+  resolved by `-F` alone — clang's framework search for a bare quoted include only matches a
+  framework named after the header's basename. The real build resolves these via generated Xcode
+  header maps that point into `Frameworks/AIUtilities/Source`. To give clangd the same reach with a
+  durable path, both test configs' `HEADER_SEARCH_PATHS` gain
+  `$(SRCROOT)/../../Frameworks/AIUtilities/Source`, which the generator picks up as an `-I`.
+
+Sources are the model's explicit `PBXFileReference` list (the host + test targets'
+`PBXSourcesBuildPhase`) **unioned with a `UnitTests/*.m` glob**. The xcodeproj must name every
+source explicitly — pbxproj has no glob — so a newly-added test file would otherwise have no clangd
+entry until someone edits the generator, which is exactly the drift this work hit (a missing
+`TestAIPropertyTestUtilities.m`). The DB unions the glob so every test TU is covered; extra entries
+are harmless for clangd, which only reads each file's flags. Each entry:
+
+```json
+{"directory": "<repo root>",
+ "command": "<toolchain clang> -x objective-c -fobjc-arc -isysroot <sdk> ... -c <abs src> -o /dev/null",
+ "file": "<abs src>"}
+```
+
+The `command` field must start with the compiler executable (resolved via
+`xcrun --sdk <SDKROOT> --find clang`), not a flag — clangd misparses the first token as the
+compiler path otherwise. `compile_commands.json` is gitignored (a build artifact); `.clangd` points
+`CompilationDatabase: .` at it, and `make xcodeproj` regenerates both the project and the database
+from this single source of truth.
+
+Supporting change in the same pass: `Tests/CoverageHost/CoverageHost.xcodeproj` was missing
+`TestAIPropertyTestUtilities.m` (drift from the generator), fixed as part of regenerating.
+
+The alternative of a one-shot `xcodebuild -generateCompileCommands` (noted in the issue) was
+rejected — it goes stale the moment the generator's sources or build settings change, and it
+doesn't encode the dev-frameworks `-F` that `XCTest.h` needs.
+
+## Known pre-existing gap (surfaced by the glob)
+
+The glob covers all 68 `UnitTests/*.m`, of which **23 are legacy OCUnit tests** that
+`#import <SenTestingKit/SenTestingKit.h>` — a framework removed from Xcode ~2014. They can't
+compile anywhere (no SDK contains SenTestingKit) and are only referenced by the broken legacy
+"Unit tests" `.octest` target in `Adium.xcodeproj`, not by the CoverageHost harness. The DB covers
+them too, so clangd reports a single truthful `SenTestingKit.h file not found` on each instead of
+the standalone-parse wall — the cleanup (migrate to XCTest or delete) is tracked in #291.
 
 ## 3. Verification
 
-- [ ] Verify fix/feature works as described
+- [x] Regenerate (generator + `make xcodeproj`): `compile_commands.json` has 128 TUs; rerunning the
+      generator is byte-identical (deterministic).
+- [x] `-fsyntax-only` sweep: all 105 harness TUs parse clean — the XCTest,
+      AIUtilities-published, and AIUtilities-unpublished header paths all resolve. The 23
+      glob-added legacy SenTestingKit TUs report `SenTestingKit.h file not found` (framework
+      removed from the SDK; see Known pre-existing gap).
+- [x] clangd: `clangd --check` on `UnitTests/TestMenuPluginUninstall.m` and
+      `UnitTests/AIXtraBundleIdentifierTest.m` reports 0 errors.
+- [x] `CoverageHost.xcodeproj` diff vs `main` is only the 2 `AIUtilities/Source` header-path
+      additions plus the generator's UUID normalization — no unrelated churn.
 
