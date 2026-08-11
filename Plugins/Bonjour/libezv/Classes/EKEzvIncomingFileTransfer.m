@@ -853,6 +853,10 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		NSData *decodedData = [data subdataWithRange:contentRange];
 		if (![decodedData writeToFile:path atomically:YES]) {
 			[[[manager client] client] reportError:@"AppleSingle: Could not write decoded data." ofLevel:AWEzvError];
+			/* A failed write must fail the transfer: the caller (URLSession:task:didCompleteWithError:)
+			 * treats NO as "remove artifacts and fail", and returning YES would install a partial file
+			 * as success (issue #273). */
+			return NO;
 		}
 		/* Accumulate the envelope overhead (header + entries + Finder info) so -transferWasTruncated can
 		 * measure the raw data fork against the declared size (issue #269). */
