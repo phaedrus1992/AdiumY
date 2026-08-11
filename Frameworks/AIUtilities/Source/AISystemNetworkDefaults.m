@@ -28,7 +28,9 @@
  * response and cannot detect a truncated body (issue #279). AIUtilities cannot import the Adium
  * framework's AIHTTPDownloadValidationErrorForTruncatedDownload, so the received-vs-declared rule
  * is inlined: a non-positive declared length (including NSURLResponseUnknownLength, -1) carries no
- * size contract, and the body is truncated exactly when receivedBytes < declaredLength. */
+ * size contract, and the body is truncated exactly when receivedBytes < declaredLength. The wait is
+ * bounded at dataTaskWithURL:'s default 60s request timeout (a stalled PAC host must not park the
+ * caller thread), and a non-HTTP or non-2xx response is refused rather than evaluated as a script. */
 static NSString *AIProxyAutoConfigScriptForURL(NSURL *pacURL)
 {
 	if (pacURL == nil) {
@@ -47,9 +49,42 @@ static NSString *AIProxyAutoConfigScriptForURL(NSURL *pacURL)
 										dispatch_semaphore_signal(semaphore);
 									}];
 	[task resume];
-	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 
-	if (error != nil || scriptData == nil) {
+	/* Bound the wait at 60s, dataTaskWithURL:'s default request timeout: a stalled PAC host must
+	 * not park the thread that is about to evaluate the script for a proxy connection. The data
+	 * task runs on a background queue, so the wait only parks the caller thread. */
+	dispatch_time_t waitUntil = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(60 * NSEC_PER_SEC));
+	if (dispatch_semaphore_wait(semaphore, waitUntil) != 0) {
+		[task cancel];
+		/* The completion handler is still running on the session's background queue and can
+		 * overwrite scriptData/response/error at any moment, so return without reading those
+		 * __block locals — touching them here would race the handler. A successful wait, by
+		 * contrast, happens-after the handler ran and signaled, so its writes are visible below. */
+		NSLog(@"PAC script download for %@ timed out.", pacURL);
+		return nil;
+	}
+
+	if (error != nil) {
+		NSLog(@"PAC script download for %@ failed: %@", pacURL, error);
+		return nil;
+	}
+
+	if (scriptData == nil) {
+		NSLog(@"PAC script download for %@ returned no data.", pacURL);
+		return nil;
+	}
+
+	/* Reject a non-HTTP or non-2xx response rather than evaluating it as a PAC script: a proxy
+	 * host answering 404 or 500 with an HTML error page must not be fed to
+	 * CFNetworkCopyProxiesForAutoConfigurationScript (issue #279). */
+	if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+		NSLog(@"PAC script download for %@ returned a non-HTTP response; refusing to evaluate.", pacURL);
+		return nil;
+	}
+	NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+	NSInteger statusCode = [httpResponse statusCode];
+	if (statusCode < 200 || statusCode > 299) {
+		NSLog(@"PAC script download for %@ returned HTTP status %ld; refusing to evaluate.", pacURL, (long)statusCode);
 		return nil;
 	}
 
