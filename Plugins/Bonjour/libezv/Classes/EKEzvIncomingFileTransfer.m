@@ -68,12 +68,18 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	/* Set once the transfer is fully received and accepted, so a late -cancelDownload or -dealloc
 	 * never removes artifacts of a transfer the user owns (issue #260). */
 	BOOL transferSucceeded;
+	/* Accumulated AppleSingle envelope overhead (header + entry table + Finder info) subtracted from
+	 * bytesReceived by -transferWasTruncated, so a truncated raw body cannot hide behind envelope
+	 * bytes (issue #269). A resource-fork-only/dual-fork body counts its whole content as overhead and
+	 * can false-positive a truncation; that is pathological for EZV and fails loudly on untrusted data. */
+	unsigned long long appleSingleEnvelopeBytes;
 }
 - (bool)downloadFolder:(NSXMLElement *)root path:(NSString *)rootPath url:(NSString *)rootURL depth:(NSUInteger)depth;
 - (bool)downloadChildElements:(NSXMLElement *)dir path:(NSString *)path url:(NSString *)url depth:(NSUInteger)depth;
 - (void)removeCreatedDirectories;
 - (void)removePartialTransferArtifacts;
 - (void)failTransfer;
+- (BOOL)transferWasTruncated;
 @end
 
 @implementation EKEzvIncomingFileTransfer
@@ -239,6 +245,18 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	if (depth > EKEZVFOLDER_MAX_DEPTH) {
 		[[[[self manager] client] client] reportError:@"Could not download transfer because it is nested too deeply."
 											  ofLevel:AWEzvError];
+		return NO;
+	}
+	/* Child URLs are built by appending path components to rootURL, so a query or fragment on the
+	 * peer-supplied base would be concatenated into every child's path and silently mis-address the
+	 * files (issue #270). Reject such a base at the walk start; the #264 guard only catches URLs that
+	 * are unparseable, not mangled-but-parseable ones. rootComponents nil (unparseable) falls through
+	 * to the #264 guard rather than erroring twice. */
+	NSURLComponents *rootComponents = [NSURLComponents componentsWithString:rootURL];
+	if (rootComponents != nil && ([rootComponents query] != nil || [rootComponents fragment] != nil)) {
+		[[[[self manager] client] client]
+			reportError:@"Could not download transfer because its base URL contains a query or fragment."
+				ofLevel:AWEzvError];
 		return NO;
 	}
 	if ([[root name] isEqualToString:@"file"]) {
@@ -625,10 +643,9 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		/* Post-completion integrity check (issue #263): a transfer whose received byte count falls
 		 * short of the peer-declared non-zero size was truncated — the transport finished without
 		 * error, but not all declared content arrived. Fail it rather than accept a corrupt file.
-		 * The comparison is "short of", not "differs from": an AppleSingle-encoded body carries an
-		 * envelope (header + entries + Finder info) on top of the raw file, so bytesReceived can
-		 * legitimately exceed the raw declared size. */
-		if (size > 0 && (unsigned long long)bytesReceived < size) {
+		 * -transferWasTruncated subtracts the accumulated AppleSingle envelope overhead, so a
+		 * truncated raw body cannot hide behind envelope bytes (issue #269). */
+		if ([self transferWasTruncated]) {
 			[self failTransfer];
 			[[[manager client] client]
 				reportError:[NSString stringWithFormat:@"Download incomplete: received %qu of %qu declared bytes.",
@@ -696,6 +713,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 	struct AppleSingleEntry entry;
 	NSRange resourceRange = NSMakeRange(0, 0);
 	BOOL resourceExist = NO;
+	unsigned long long dataForkLength = 0;
 	offset = 0;
 
 	if (length < APPLE_SINGLE_HEADER_LENGTH) {
@@ -750,6 +768,7 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		switch (entry.entryID) {
 		case AS_ENTRY_DATA_FORK:
 			// NSLog(@"AS_ENTRY_DATA_FORK");
+			dataForkLength = entry.length;
 			resourceRange = NSMakeRange(entry.offset, entry.length);
 			resourceExist = YES;
 			break;
@@ -809,6 +828,9 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		if (![decodedData writeToFile:path atomically:YES]) {
 			[[[manager client] client] reportError:@"AppleSingle: Could not write decoded data." ofLevel:AWEzvError];
 		}
+		/* Accumulate the envelope overhead (header + entries + Finder info) so -transferWasTruncated can
+		 * measure the raw data fork against the declared size (issue #269). */
+		appleSingleEnvelopeBytes += [data length] - dataForkLength;
 		/*Now apply attributes — store the Finder info in the com.apple.FinderInfo extended attribute
 		 * (replaces the deprecated FSRef/FSSetCatalogInfo API, which also zeroed the data it copied).
 		 */
@@ -821,6 +843,17 @@ typedef struct AppleSingleFinderInfo AppleSingleFinderInfo;
 		}
 	}
 	return YES;
+}
+
+- (BOOL)transferWasTruncated
+{
+	if (size == 0) {
+		/* A zero declared size is not cross-checkable; never fail on it (issue #263). */
+		return NO;
+	}
+	/* Envelope overhead (accumulated during decode) is subtracted so the raw data length — not the
+	 * wire byte count — is compared against the peer-declared size (issue #269). */
+	return ((unsigned long long)bytesReceived - appleSingleEnvelopeBytes) < size;
 }
 
 @end

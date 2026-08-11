@@ -26,6 +26,7 @@
 - (void)closeInstaller __attribute__((ns_consumes_self));
 - (void)updateInfoText;
 - (void)presentDownloadError:(NSError *)error;
+- (BOOL)downloadWasTruncated;
 @end
 
 /*!
@@ -188,9 +189,30 @@
 		if ([error code] != NSURLErrorCancelled) {
 			[self presentDownloadError:error];
 		}
+	} else if ([self downloadWasTruncated]) {
+		/* Post-completion integrity check (issue #268): the transport finished without error, but fewer
+		 * bytes arrived than the declared non-zero size. Treat it as a download failure instead of
+		 * decompressing and installing a corrupt Xtra as "complete". */
+		NSString *informativeText = [NSString
+			stringWithFormat:AILocalizedString(@"Download incomplete: received %qu of %qu declared bytes.", nil),
+							 amountDownloaded, downloadSize];
+		NSError *truncationError = [NSError errorWithDomain:NSURLErrorDomain
+													   code:NSURLErrorUnknown
+												   userInfo:@{NSLocalizedDescriptionKey : informativeText}];
+		[self presentDownloadError:truncationError];
 	} else {
 		[self downloadDidFinish];
 	}
+}
+
+- (BOOL)downloadWasTruncated
+{
+	/* An unknown declared length (NSURLResponseUnknownLength, -1, wrapped to ULLONG_MAX in the unsigned
+	 * ivar) or a zero size disables the check: there is no declared byte count to compare against. */
+	if (downloadSize == (unsigned long long)NSURLResponseUnknownLength) {
+		return NO;
+	}
+	return (downloadSize > 0 && amountDownloaded < downloadSize);
 }
 
 - (void)presentDownloadError:(NSError *)error

@@ -122,6 +122,11 @@
 				<string>AD22D7CF4EF851AF8556F63E</string>
 				<string>D1262B8826F455349DF6FF4B</string>
 				<string>A89C14563FD95D9F9FEF7255</string>
+				<string>131B53350D945592B2320C7C</string>
+				<string>766FA3D15E445481A5874F5C</string>
+				<string>CA6FB54B118D5A6F91F0A82E</string>
+				<string>63BCF156941C5403B1C0D0AF</string>
+				<string>1022C5BA94CA5D4BAB9B7B4F</string>
 				<string>46FE1773C7365DF0B826EAA1</string>
 				<string>E58D9E42FB09518F816AB9AA</string>
 				<string>E4E14D1A35FA5D6984B1C19E</string>
@@ -970,6 +975,61 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
+		<key>131B53350D945592B2320C7C</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/XtrasInstaller.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>766FA3D15E445481A5874F5C</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Source/XtrasInstaller.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>CA6FB54B118D5A6F91F0A82E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestXtrasInstallerDownloadTruncation.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>63BCF156941C5403B1C0D0AF</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestEKEzvIncomingFileTransferTruncationAccounting.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>1022C5BA94CA5D4BAB9B7B4F</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestEKEzvIncomingFileTransferBaseURLGuard.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
 		<key>3E57FBD4EE1C5BABBC59F1F7</key>
 		<dict>
 			<key>isa</key>
@@ -1697,6 +1757,10 @@
 				<string>A1CB5BDBB69D5ED98AADB7F7</string>
 				<string>92BBECC9C79152BC9B8FBD29</string>
 				<string>B7ACC6EDC5005FE18E0966C1</string>
+				<string>4C8B131082355562B50307E8</string>
+				<string>472C52FE65E354648564DB10</string>
+				<string>12E85110DACB5535B7A82BA9</string>
+				<string>9C96FD69BC2058529589C0DF</string>
 				<string>38574E407D7A5F9783DCC0D9</string>
 				<string>AC47A308A0E2568E937161BE</string>
 				<string>78DD20B65428590BA8561200</string>
@@ -2104,6 +2168,34 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>88CB5E39F9955EDABCD178F2</string>
+		</dict>
+		<key>4C8B131082355562B50307E8</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>131B53350D945592B2320C7C</string>
+		</dict>
+		<key>472C52FE65E354648564DB10</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>CA6FB54B118D5A6F91F0A82E</string>
+		</dict>
+		<key>12E85110DACB5535B7A82BA9</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>63BCF156941C5403B1C0D0AF</string>
+		</dict>
+		<key>9C96FD69BC2058529589C0DF</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>1022C5BA94CA5D4BAB9B7B4F</string>
 		</dict>
 		<key>5E09FE984D98557BA779DBF2</key>
 		<dict>

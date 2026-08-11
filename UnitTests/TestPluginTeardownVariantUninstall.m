@@ -89,12 +89,6 @@
 @implementation AITemporaryIRCAccountWindowController
 @end
 
-@interface XtrasInstaller : NSObject
-@end
-
-@implementation XtrasInstaller
-@end
-
 @interface AIAccountListPreferences : NSObject
 @end
 
