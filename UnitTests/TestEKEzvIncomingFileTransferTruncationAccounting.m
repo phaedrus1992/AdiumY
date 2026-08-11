@@ -245,6 +245,37 @@
 	return @[ @(entryID), @(length), @(fill) ];
 }
 
+/* Decode a body from a temp file through the public decodeAppleSingleAtPath: API on a bare transfer.
+ * The decode path needs no session/manager — its error reporting ([[[manager client] client]
+ * reportError:...]) is nil-safe on a fresh instance. */
+- (BOOL)decodeBody:(NSData *)body atTempPath:(NSString *)tempPath
+{
+	[[NSFileManager defaultManager] createFileAtPath:tempPath contents:body attributes:nil];
+	EKEzvIncomingFileTransfer *transfer = [[EKEzvIncomingFileTransfer alloc] init];
+	return [transfer decodeAppleSingleAtPath:tempPath];
+}
+
+/* Mutated copy of a body with a big-endian UInt32 written at a byte offset, for corrupting
+ * header/entry wire fields (magic, version, entry ID, offset, length) to hit decode's rejection
+ * branches. */
+- (NSData *)body:(NSData *)body writingUInt32:(uint32_t)value atOffset:(NSUInteger)offset
+{
+	NSMutableData *mutated = [body mutableCopy];
+	uint32_t beValue = htonl(value);
+	[mutated replaceBytesInRange:NSMakeRange(offset, sizeof(beValue)) withBytes:&beValue];
+	return mutated;
+}
+
+/* Mutated copy of a body with a big-endian UInt16 written at a byte offset (the header's
+ * numberEntries field). */
+- (NSData *)body:(NSData *)body writingUInt16:(uint16_t)value atOffset:(NSUInteger)offset
+{
+	NSMutableData *mutated = [body mutableCopy];
+	uint16_t beValue = htons(value);
+	[mutated replaceBytesInRange:NSMakeRange(offset, sizeof(beValue)) withBytes:&beValue];
+	return mutated;
+}
+
 /* Predicate unit tests (issue #269). */
 
 - (void)testPredicateShortWireTruncates
@@ -635,6 +666,115 @@
 						   @"a rejected resource-fork-only body must remove its artifacts (issue #275)");
 		}
 		[[NSFileManager defaultManager] removeItemAtPath:tempRootReject error:NULL];
+	});
+}
+
+/* Each malformed wire shape must be rejected (decode returns NO) rather than crash the parser. One
+ * case per rejection branch: a header shorter than 26 bytes, bad magic, bad version, an entry count
+ * that over-runs the body, entry ID 0, an offset past the end, an offset+length that over-runs the
+ * body, the UInt32 offset+length wrap, and a Finder-info entry longer than the 32-byte struct. The
+ * last two are the NSRangeException / stack-overflow paths a peer on the local network could reach;
+ * they must fail closed (issue #273). */
+- (void)testDecodeRejectsMalformedInput
+{
+	NSString *tempPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvMalformed.bin"];
+
+	/* Header shorter than the 26-byte minimum. */
+	NSData *shortBody = [NSMutableData dataWithLength:10];
+	XCTAssertFalse([self decodeBody:shortBody atTempPath:tempPath],
+				   @"a header shorter than 26 bytes must be rejected");
+
+	/* Valid single data-fork body with 0 raw bytes (38 wire bytes) — the base for field mutations. */
+	NSData *baseBody = [self appleSingleBodyWithRawLength:0];
+	XCTAssertEqual([baseBody length], (NSUInteger)38);
+
+	/* Bad magic number (bytes 0-3). */
+	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt32:0xDEADBEEF atOffset:0]
+						 atTempPath:tempPath],
+				   @"a bad magic number must be rejected");
+
+	/* Bad version number (bytes 4-7). */
+	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt32:0x00000001 atOffset:4]
+						 atTempPath:tempPath],
+				   @"a bad version must be rejected");
+
+	/* Header claims 2 entries but only 1 is present — the second entry read over-runs the body. */
+	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt16:2 atOffset:24]
+						 atTempPath:tempPath],
+				   @"an entry count that over-runs the body must be rejected");
+
+	/* Entry ID 0 (bytes 26-29). */
+	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt32:0 atOffset:26]
+						 atTempPath:tempPath],
+				   @"entry ID 0 must be rejected");
+
+	/* Offset past the end of the body (offset = 0xFFFFFFFF > 38, bytes 30-33). */
+	XCTAssertFalse([self decodeBody:[self body:baseBody writingUInt32:0xFFFFFFFF atOffset:30]
+						 atTempPath:tempPath],
+				   @"an offset past the end of the body must be rejected");
+
+	/* Offset 0 + length 0xFFFFFFFF over-runs the body without wrapping UInt32. */
+	NSData *overrun = [self body:baseBody writingUInt32:0 atOffset:30];
+	overrun = [self body:overrun writingUInt32:0xFFFFFFFF atOffset:34];
+	XCTAssertFalse([self decodeBody:overrun atTempPath:tempPath],
+				   @"an entry whose offset+length over-runs the body must be rejected");
+
+	/* UInt32 wrap: on a 48-byte body, offset 40 + length 0xFFFFFFFF sums to 39 in UInt32, slipping
+	 * past the old offset+length check into subdataWithRange: with an out-of-bounds range. The 64-bit
+	 * comparison must reject it instead of raising NSRangeException. */
+	NSData *wrapBody = [self body:[self appleSingleBodyWithRawLength:10] writingUInt32:40 atOffset:30];
+	wrapBody = [self body:wrapBody writingUInt32:0xFFFFFFFF atOffset:34];
+	XCTAssertFalse([self decodeBody:wrapBody atTempPath:tempPath],
+				   @"a UInt32-wrapping offset+length must be rejected, not crash (issue #273)");
+
+	/* Finder-info entry length 100 into the fixed 32-byte stack struct must be rejected, not
+	 * overflow the buffer. */
+	NSData *finderBody = [self appleSingleBodyWithEntries:@[ @{
+								 @"id" : @(EKEZV_TEST_AS_FINDER_INFO_ENTRY_ID),
+								 @"length" : @100,
+								 @"fill" : @0x04,
+							 } ]];
+	XCTAssertFalse([self decodeBody:finderBody atTempPath:tempPath],
+				   @"a Finder-info entry longer than the 32-byte struct must be rejected (issue #273)");
+
+	[[NSFileManager defaultManager] removeItemAtPath:tempPath error:NULL];
+}
+
+/* Property: no byte arrangement of an AppleSingle body may crash the decoder. Mutate a valid body in
+ * place — corrupt the entry count and every entry field with boundary-biased extremes, sometimes the
+ * magic/version — and require decode to reject or, when it accepts, write only a sub-range of the
+ * input. PBTCheck's @try/@catch turns any NSRangeException from a missed bounds check into a failure
+ * (issue #273). */
+- (void)testDecodeNeverCrashesOnMutatedInputProperty
+{
+	PBTCheckDefault({
+		NSData *base = [self appleSingleBodyWithRawLength:(NSUInteger)PBTBoundaryUInt64(1 << 8)];
+		NSMutableData *mutated = [base mutableCopy];
+
+		/* Entry count (bytes 24-25): 0..3 — a count over the body over-runs, 0 parses cleanly. */
+		uint16_t entriesBE = htons((uint16_t)PBTUniformUInt64(4));
+		[mutated replaceBytesInRange:NSMakeRange(24, 2) withBytes:&entriesBE];
+
+		/* Entry ID / offset / length (bytes 26-37): boundary-biased extremes exercise the offset and
+		 * length bounds including the UInt32 wrap at the top of the range. */
+		for (NSUInteger field = 26; field < 38; field += 4) {
+			uint32_t valueBE = htonl((uint32_t)PBTBoundaryUInt64(UINT32_MAX + 1ULL));
+			[mutated replaceBytesInRange:NSMakeRange(field, 4) withBytes:&valueBE];
+		}
+
+		/* Corrupt magic/version roughly half the time so a random entry table doesn't always parse. */
+		if (PBTRandomBool()) {
+			uint32_t magicBE = htonl((uint32_t)PBTUniformUInt64(0xFFFF));
+			[mutated replaceBytesInRange:NSMakeRange(0, 4) withBytes:&magicBE];
+		}
+
+		NSString *tempPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"EKEzvMutated.bin"];
+		if ([self decodeBody:mutated atTempPath:tempPath]) {
+			NSData *decoded = [[NSFileManager defaultManager] contentsAtPath:tempPath];
+			XCTAssertLessThanOrEqual([decoded length], (NSUInteger)[base length],
+									 @"an accepted body must write only bytes present in the input");
+		}
+		[[NSFileManager defaultManager] removeItemAtPath:tempPath error:NULL];
 	});
 }
 
