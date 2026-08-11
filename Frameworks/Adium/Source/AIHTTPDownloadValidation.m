@@ -66,9 +66,12 @@ NSError *AIHTTPDownloadValidationErrorForTruncatedDownload(int64_t declaredLengt
 
 NSData *AIHTTPDownloadValidationSyncFetch(NSURLRequest *request, NSURLResponse **outResponse, NSError **outError)
 {
-	if (request == nil) {
-		/* A nil request must not reach dataTaskWithRequest:, which returns nil and leaves the
-		 * semaphore below unwoken forever. */
+	if (request == nil || [request URL] == nil) {
+		/* A nil or URL-less request must not reach dataTaskWithRequest:, which returns nil and
+		 * leaves the semaphore below unwoken forever (issue #273). */
+		if (outResponse != nil) {
+			*outResponse = nil;
+		}
 		if (outError != nil) {
 			*outError = [NSError
 				errorWithDomain:NSURLErrorDomain
@@ -101,12 +104,23 @@ NSData *AIHTTPDownloadValidationSyncFetch(NSURLRequest *request, NSURLResponse *
 	dispatch_time_t waitUntil = dispatch_time(DISPATCH_TIME_NOW, (int64_t)([request timeoutInterval] * NSEC_PER_SEC));
 	if (dispatch_semaphore_wait(semaphore, waitUntil) != 0) {
 		[task cancel];
-		resultError = [NSError
-			errorWithDomain:NSURLErrorDomain
-					   code:NSURLErrorTimedOut
-				   userInfo:@{
-					   NSLocalizedDescriptionKey : AILocalizedStringFromTable(@"The request timed out.", nil, nil)
-				   }];
+		/* The completion handler is still running on the session's background queue and can
+		 * overwrite resultData/resultResponse/resultError at any moment, so write the out-params
+		 * directly and return without reading those __block locals — touching them here would race
+		 * the handler. A successful wait, by contrast, happens-after the handler ran and signaled,
+		 * so its writes are visible to the reads below. */
+		if (outResponse != nil) {
+			*outResponse = nil;
+		}
+		if (outError != nil) {
+			*outError = [NSError
+				errorWithDomain:NSURLErrorDomain
+						   code:NSURLErrorTimedOut
+					   userInfo:@{
+						   NSLocalizedDescriptionKey : AILocalizedStringFromTable(@"The request timed out.", nil, nil)
+					   }];
+		}
+		return nil;
 	}
 
 	if (outResponse != nil) {

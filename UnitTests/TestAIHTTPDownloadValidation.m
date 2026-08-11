@@ -76,6 +76,16 @@ static BOOL AIHTTPIsRealLeaf(NSString *name)
 		   ([[name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] length] > 0);
 }
 
+// A non-nil response placeholder for the SyncFetch out-param assertions: the nil/URL-less guard must
+// overwrite it with nil, so a missing *outResponse write leaves this behind and fails the test.
+static NSURLResponse *AIHTTPDummyResponse(void)
+{
+	return [[NSURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://example.com"]
+									 MIMEType:@"application/octet-stream"
+						expectedContentLength:0
+							 textEncodingName:nil];
+}
+
 @implementation AIHTTPDownloadValidationTest
 
 #pragma mark - Response validation
@@ -401,6 +411,52 @@ static BOOL AIHTTPIsRealLeaf(NSString *name)
 			XCTAssertNil(error, @"declared = %lld, received = %lld", declaredLength, receivedBytes);
 		}
 	});
+}
+
+#pragma mark - Synchronous fetch
+
+// Edge: a nil request — as a caller with an unusable URL string produces — must be rejected
+// immediately with NSURLErrorBadURL and never reach dataTaskWithRequest:, which would return a task
+// that never completes and strand the semaphore below (issue #273). Both out-params are written so
+// the caller never reads stale values (issue #279).
+- (void)testSyncFetchRejectsNilRequest
+{
+	NSURLResponse *outResponse = AIHTTPDummyResponse();
+	NSError *outError = nil;
+	/* Passing nil directly exercises the request == nil guard; -Wnonnull is suppressed for the
+	 * _Nonnull parameter, which is exactly the contract point under test. */
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+	NSData *data = AIHTTPDownloadValidationSyncFetch(nil, &outResponse, &outError);
+#pragma clang diagnostic pop
+
+	XCTAssertNil(data);
+	XCTAssertNil(outResponse);
+	XCTAssertNotNil(outError);
+	XCTAssertEqualObjects([outError domain], NSURLErrorDomain);
+	XCTAssertEqual([outError code], NSURLErrorBadURL);
+}
+
+// Edge: a request whose URL is nil (the shortener's bad-input path, issue #279) must be rejected
+// immediately with NSURLErrorBadURL — a nil-URL request handed to dataTaskWithRequest: would create
+// a task that never completes and strand the semaphore.
+- (void)testSyncFetchRejectsURLlessRequest
+{
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com"]];
+	/* NSMutableURLRequest.URL is readwrite; nil it via KVC to keep the deprecated setURL: call off
+	 * the warning path. */
+	[request setValue:nil forKey:@"URL"];
+	XCTAssertNil([request URL], @"URL must be nil to exercise the URL-less guard");
+
+	NSURLResponse *outResponse = AIHTTPDummyResponse();
+	NSError *outError = nil;
+	NSData *data = AIHTTPDownloadValidationSyncFetch(request, &outResponse, &outError);
+
+	XCTAssertNil(data);
+	XCTAssertNil(outResponse);
+	XCTAssertNotNil(outError);
+	XCTAssertEqualObjects([outError domain], NSURLErrorDomain);
+	XCTAssertEqual([outError code], NSURLErrorBadURL);
 }
 
 - (NSHTTPURLResponse *)httpResponseWithStatus:(NSInteger)statusCode
