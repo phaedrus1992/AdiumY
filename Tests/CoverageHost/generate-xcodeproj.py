@@ -1968,6 +1968,12 @@ def write_compile_commands(repo_root):
     sources = sorted(set(sources_for_target(H["hostTarget"], objects, PROJECT_DIR) +
                          sources_for_target(H["testTarget"], objects, PROJECT_DIR)) |
                      set(discover_unit_test_sources(repo_root)))
+    if not sources:
+        raise SystemExit(
+            "generate-xcodeproj.py: no translation units found to index — every "
+            "source resolved to a skip (sourceTree / build-variable drift) or "
+            "UnitTests/ is empty. Refusing to write an empty compile_commands.json."
+        )
     entries = build_compile_entries(compiler, flags, sources, repo_root)
 
     out = os.path.join(repo_root, "compile_commands.json")

@@ -96,6 +96,20 @@ class ExpandBuildPathTest(unittest.TestCase):
                       "$(A)$(B)", '$(SRCROOT)/"x']:
             expand_build_path(entry, "/proj")  # must not raise
 
+    def test_empty_entry_skipped(self):
+        # Pre-review P1: an empty/whitespace entry once normalized to the
+        # project dir itself and was emitted as a search-path flag.
+        self.assertIsNone(expand_build_path("", "/proj"))
+        self.assertIsNone(expand_build_path("   ", "/proj"))
+        self.assertIsNone(expand_build_path('""', "/proj"))
+
+    def test_unmatched_quote_skipped(self):
+        # Pre-review P2: a lone quote was kept as a literal in the resolved
+        # path, producing a flag clangd can't resolve.
+        self.assertIsNone(expand_build_path('"unterminated', "/proj"))
+        self.assertIsNone(expand_build_path('a"b', "/proj"))
+        self.assertIsNone(expand_build_path('$(SRCROOT)/"x', "/proj"))
+
 
 class SourcesForTargetTest(unittest.TestCase):
     def _objects(self):
@@ -155,6 +169,34 @@ class SourcesForTargetTest(unittest.TestCase):
             sources_for_target("T", objs, "/proj"),
         )
 
+    def test_missing_target_returns_empty(self):
+        self.assertEqual(sources_for_target("NOPE", self._objects(), "/proj"), [])
+
+    def test_target_without_build_phases_returns_empty(self):
+        objs = self._objects()
+        objs["T2"] = {"isa": "PBXNativeTarget"}
+        self.assertEqual(sources_for_target("T2", objs, "/proj"), [])
+
+    def test_includes_objcpp_model_ref(self):
+        # Pre-review P2: a wired ObjC++ TU (sourcecode.cpp.objcpp) was silently
+        # dropped by the objc-only type filter.
+        objs = self._objects()
+        objs["R3"] = {"lastKnownFileType": "sourcecode.cpp.objcpp", "path": "a.mm",
+                      "sourceTree": "<group>"}
+        got = sources_for_target("T", objs, "/proj")
+        self.assertEqual(
+            got,
+            [os.path.normpath("/proj/Sub/b.m"), os.path.normpath("/proj/a.m"),
+             os.path.normpath("/proj/a.mm")],
+        )
+
+    def test_empty_path_ref_skipped(self):
+        objs = self._objects()
+        objs["R1"] = {"lastKnownFileType": "sourcecode.c.objc", "path": "",
+                      "sourceTree": "<group>"}
+        got = sources_for_target("T", objs, "/proj")
+        self.assertEqual(got, [os.path.normpath("/proj/Sub/b.m")])
+
 
 class DiscoverUnitTestSourcesTest(unittest.TestCase):
     def test_recursive_glob_includes_mm(self):
@@ -207,6 +249,47 @@ class CompileCommandTest(unittest.TestCase):
         args = ("clang", ["-I", "/x"], "/abs/a.m")
         self.assertEqual(compile_command(*args), compile_command(*args))
 
+    def test_roundtrips_varied_flag_domain(self):
+        # Pre-review P1: the shlex round-trip was pinned with one fixed flag
+        # list. Flags are a wide domain (spaces, quotes, $, =, empty values) —
+        # every token must survive shlex.join → shlex.split.
+        source = "/abs/a.m"
+        cases = [
+            ["-fobjc-arc"],
+            ["-I", "/dir with spaces/sub"],
+            ["-D", 'FOO="bar baz"'],
+            ["-D", "X=$SHELL"],
+            ["-D", "A=1", "-D", "B=2"],
+            ["-isysroot", "/path with quote's"],
+            ["-I", ""],
+            ["-Wl,-rpath,/a b/c"],
+            ["-include", "/prefix.h", "-I", "/a b/c", "-D", "K=v with spaces"],
+            ["-std=c++17", "-Wno-everything"],
+        ]
+        for flags in cases:
+            with self.subTest(flags=flags):
+                self.assertEqual(
+                    shlex.split(compile_command("/usr/bin/clang", flags, source)),
+                    self._tokens(source, flags),
+                )
+
+    def test_language_flag_follows_lowercased_mm_suffix(self):
+        # `.MM` is ObjC++; any other spelling (multi-dot, no dot, bare "mm")
+        # is plain ObjC.
+        self.assertIn("-x objective-c++", compile_command("clang", [], "/x.MM"))
+        self.assertNotIn("objective-c++", compile_command("clang", [], "/x.mm.txt"))
+        self.assertNotIn("objective-c++", compile_command("clang", [], "no-ext"))
+        self.assertNotIn("objective-c++", compile_command("clang", [], "mm"))
+
+    def test_compiler_path_with_spaces_roundtrips(self):
+        compiler = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+        flags = ["-fobjc-arc"]
+        source = "/abs/a.m"
+        self.assertEqual(
+            shlex.split(compile_command(compiler, flags, source)),
+            [compiler] + ["-x", "objective-c"] + flags + ["-c", source, "-o", "/dev/null"],
+        )
+
 
 class BuildCompileEntriesTest(unittest.TestCase):
     def test_bijection_sources_to_entries(self):
@@ -249,7 +332,18 @@ class WriteCompileCommandsAtomicTest(unittest.TestCase):
             out = os.path.join(d, "compile_commands.json")
             write_compile_commands_atomic([], out)
             self.assertTrue(os.path.exists(out))
-            self.assertFalse(os.path.exists(out + ".tmp"))
+            self.assertEqual([n for n in os.listdir(d) if n.endswith(".tmp")], [])
+
+    def test_replace_failure_leaves_no_tmp_and_raises(self):
+        # Pre-review P1: an interrupted write (here, a directory parked where
+        # the database goes, so os.replace fails) must not leave a stray .tmp
+        # behind and must abort naming the path.
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "compile_commands.json")
+            os.mkdir(out)
+            with self.assertRaises(SystemExit):
+                write_compile_commands_atomic([{"a": 1}], out)
+            self.assertEqual([n for n in os.listdir(d) if n.endswith(".tmp")], [])
 
     def test_overwrites_existing(self):
         with tempfile.TemporaryDirectory() as d:
@@ -290,6 +384,8 @@ class ValidateSourcePathsTest(unittest.TestCase):
                    "path": "$(SOURCE_ROOT)/x.m", "sourceTree": "<group>"},
             "R6": {"isa": "PBXFileReference", "path": "nofiletype.txt", "sourceTree": "<group>"},
             "R7": {"isa": "PBXBuildFile", "path": "not-a-ref.m", "sourceTree": "<group>"},
+            "R8": {"isa": "PBXFileReference", "lastKnownFileType": "sourcecode.c.objc",
+                   "path": "built-elsewhere.m", "sourceTree": "BUILT_PRODUCTS_DIR"},
         }
 
     def test_reports_only_missing_source_files(self):
@@ -299,6 +395,22 @@ class ValidateSourcePathsTest(unittest.TestCase):
                 missing,
                 sorted([os.path.normpath(os.path.join(d, "missing.h")),
                         os.path.normpath(os.path.join(d, "missing.m"))]),
+            )
+
+    def test_non_group_source_tree_refs_skipped(self):
+        # Pre-review P2: a sourcecode ref rooted elsewhere (BUILT_PRODUCTS_DIR,
+        # SOURCE_ROOT) resolves outside project_dir — checking it here would be
+        # a wrong "missing source" abort. The validator must skip it like the
+        # source resolver does.
+        with tempfile.TemporaryDirectory() as d:
+            objs = self._objects(d)
+            objs["R9"] = {"isa": "PBXFileReference",
+                          "lastKnownFileType": "sourcecode.c.objc",
+                          "path": "definitely-missing.m",
+                          "sourceTree": "SOURCE_ROOT"}
+            self.assertNotIn(
+                os.path.normpath(os.path.join(d, "definitely-missing.m")),
+                validate_source_paths(objs, d),
             )
 
     def test_clean_model_returns_empty(self):
