@@ -311,7 +311,7 @@ static BOOL AIHTTPIsRealLeaf(NSString *name)
 {
 	PBTCheckDefault({
 		int64_t declaredLength;
-		switch (PBTUniform(6)) {
+		switch (PBTUniform(5)) {
 		case 0:
 			declaredLength = 0;
 			break;
@@ -321,11 +321,19 @@ static BOOL AIHTTPIsRealLeaf(NSString *name)
 		case 2:
 			declaredLength = (int64_t)NSURLResponseUnknownLength; // -1
 			break;
-		default:
+		case 3:
 			declaredLength = (int64_t)PBTUniform(UINT32_MAX) + 1;
 			break;
+		default:
+			/* The full positive int64 domain, including declarations the 32-bit generator above never
+			 * reaches; the comparison is pure int64, so values past UINT32_MAX must not diverge (issue #273). */
+			declaredLength = (int64_t)PBTUniformUInt64((uint64_t)INT64_MAX);
+			break;
 		}
-		int64_t receivedBytes = (int64_t)PBTUniform(UINT32_MAX);
+		/* Sweep the negative received side too: a negative byte count must still compare correctly
+		 * against a positive declaration (issue #273). */
+		int64_t receivedBytes = PBTRandomBool() ? (int64_t)PBTUniform(UINT32_MAX)
+												: -(int64_t)PBTUniformUInt64(UINT32_MAX);
 
 		NSError *error = AIHTTPDownloadValidationErrorForTruncatedDownload(declaredLength, receivedBytes);
 		BOOL shouldBeNil = (declaredLength <= 0) || (receivedBytes >= declaredLength);
