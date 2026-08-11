@@ -138,15 +138,13 @@ fi
 # tokens (or a failed --display whose error text carries none) turns grep's
 # exit 1 into an unlabeled abort. Show the actual output either way.
 SIGN_INFO=$(codesign --display --verbose=4 "$APP" 2>&1 || true)
-if [ -z "$SIGN_INFO" ]; then
-	echo "warning: codesign --display --verbose=4 produced no output for $APP" >&2
+SIGN_LINES=$(printf '%s\n' "$SIGN_INFO" | grep -E 'Authority|TeamIdentifier|Runtime|flags' || true)
+if [ -n "$SIGN_LINES" ]; then
+	echo "$SIGN_LINES"
 else
-	SIGN_LINES=$(printf '%s\n' "$SIGN_INFO" | grep -E 'Authority|TeamIdentifier|Runtime|flags' || true)
-	if [ -n "$SIGN_LINES" ]; then
-		echo "$SIGN_LINES"
-	else
-		echo "warning: $APP signature shows none of Authority/TeamIdentifier/Runtime/flags:" >&2
-		echo "$SIGN_INFO" >&2
-	fi
+	# Empty SIGN_INFO falls through here too: the message covers both a tool
+	# that printed nothing and one that printed nothing recognizable.
+	echo "warning: $APP signature shows none of Authority/TeamIdentifier/Runtime/flags:" >&2
+	echo "$SIGN_INFO" >&2
 fi
 echo "==> Signed: $APP"
