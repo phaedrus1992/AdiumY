@@ -55,7 +55,12 @@ bundle_bins() {
         case "$f" in
             *Headers*|*.plist|*CodeResources*|*Resources/*) continue ;;
         esac
-        if file "$f" 2>/dev/null | grep -q 'Mach-O'; then echo "$f"; fi
+        # Capture, don't pipe: `file | grep -q` under pipefail can read a Mach-O
+        # match as a miss on systems where grep -q exits before file finishes
+        # (SIGPIPE) — same hazard sign-bundle.sh's is_macho documents. Compare
+        # strings instead.
+        desc=$(file "$f" 2>/dev/null || true)
+        if [[ "$desc" == *Mach-O* ]]; then echo "$f"; fi
     done
 }
 
@@ -171,10 +176,13 @@ done < <(bundle_bins)
 backfill_frameworks
 
 # --- Verify: no sandbox references may remain ------------------------------------
+# Capture, don't pipe: `otool -L | grep -q` under pipefail can read a found
+# sandbox ref as "no match" on systems where grep -q exits before otool finishes
+# writing — the exact bug that would ship a bundle with dead sandbox references.
 remaining=0
-if otool -L "$APP_BIN" | grep -q "Dependencies/sandbox-"; then remaining=1; fi
+if [[ "$(otool -L "$APP_BIN" 2>/dev/null || true)" == *"Dependencies/sandbox-"* ]]; then remaining=1; fi
 while IFS= read -r bin; do
-    if otool -L "$bin" | grep -q "Dependencies/sandbox-"; then remaining=1; fi
+    if [[ "$(otool -L "$bin" 2>/dev/null || true)" == *"Dependencies/sandbox-"* ]]; then remaining=1; fi
 done < <(bundle_bins)
 
 if [ "$remaining" -eq 1 ]; then
