@@ -319,11 +319,6 @@
  */
 - (NSString *)resultFromURL:(NSURL *)inURL
 {
-	if (inURL == nil) {
-		/* A nil URL must not reach dataTaskWithRequest:, which returns nil and leaves the semaphore
-		 * below unwoken forever. */
-		return nil;
-	}
 	NSString *resultString = nil;
 
 	// We send a synchronous request so the user can't change selection on us.
