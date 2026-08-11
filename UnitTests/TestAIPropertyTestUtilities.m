@@ -50,6 +50,31 @@
 	});
 }
 
+// Property: PBTUniformUInt64(2^33) reaches every residue modulo 4. The parity test above only
+// exercises bit 0 of the result; this locks in bit 1 as well, so a generator that made the low bit
+// uniform while leaving bit 1 biased (a high draw whose lowest bit folded into the residue) still
+// fails. A uniform [0, 2^33) range covers every mod-4 residue with equal probability (2^33 is a
+// multiple of 4), so all four must appear within a handful of draws.
+- (void)testUniformGeneratorReachesEveryResidueModuloFour
+{
+	PBTCheckDefault({
+		uint64_t const max = ((uint64_t)UINT32_MAX << 1) + 2; /* 2^33 */
+		BOOL seenResidue[4] = {NO};
+		NSUInteger found = 0;
+		for (NSUInteger i = 0; i < 512 && found < 4; i++) {
+			uint64_t const residue = PBTUniformUInt64(max) % 4;
+			if (!seenResidue[residue]) {
+				seenResidue[residue] = YES;
+				found++;
+			}
+		}
+		for (NSUInteger r = 0; r < 4; r++) {
+			XCTAssertTrue(seenResidue[r], @"residue %lu never drawn in 512 draws of PBTUniformUInt64(2^33)",
+						  (unsigned long)r);
+		}
+	});
+}
+
 // Property: PBTUniformUInt64(64) reaches every value in [0, 64) across enough draws — including
 // 0 and max - 1, the top of the range. Locks the near-uniform coverage the rejection-sampled
 // rewrite must preserve across the whole domain; the parity test above is the discriminator
@@ -78,11 +103,7 @@
 - (void)testUniformGeneratorRedrawsForLargeMaxes
 {
 	uint64_t const maxes[] = {
-		(uint64_t)1 << 62,
-		(uint64_t)1 << 63,
-		((uint64_t)1 << 63) + 1,
-		UINT64_MAX,
-		UINT64_MAX - 1,
+		(uint64_t)1 << 62, (uint64_t)1 << 63, ((uint64_t)1 << 63) + 1, UINT64_MAX, UINT64_MAX - 1,
 	};
 
 	for (size_t m = 0; m < sizeof(maxes) / sizeof(maxes[0]); m++) {
