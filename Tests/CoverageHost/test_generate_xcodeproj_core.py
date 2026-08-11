@@ -19,9 +19,11 @@ Covers the generator hardening deferred from PR #292 review (issues #294, #295,
 import json
 import os
 import shlex
+import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -33,6 +35,7 @@ from generate_xcodeproj_core import (
     sources_for_target,
     validate_source_paths,
     write_compile_commands_atomic,
+    xcrun_query,
 )
 
 
@@ -423,6 +426,50 @@ class ValidateSourcePathsTest(unittest.TestCase):
                         os.makedirs(os.path.dirname(ref_path), exist_ok=True)
                         open(ref_path, "w").close()
             self.assertEqual(validate_source_paths(objs, d), [])
+
+
+class XcrunQueryTest(unittest.TestCase):
+    """#298: SDK queries fail with an actionable SystemExit, not a traceback."""
+
+    def _patched_check_output(self, side_effect=None, return_value=""):
+        return unittest.mock.patch(
+            "generate_xcodeproj_core.subprocess.check_output",
+            return_value=return_value,
+            side_effect=side_effect,
+        )
+
+    def test_success_strips_and_builds_argv(self):
+        with self._patched_check_output(
+            return_value="  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk\n"
+        ) as mock_check:
+            self.assertEqual(
+                xcrun_query(["--show-sdk-path"], "macosx"),
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+            )
+        mock_check.assert_called_once_with(
+            ["xcrun", "--sdk", "macosx", "--show-sdk-path"], text=True
+        )
+
+    def test_called_process_error_raises_system_exit_with_query_and_hint(self):
+        err = subprocess.CalledProcessError(
+            1, ["xcrun", "--sdk", "macosx", "--find", "clang"]
+        )
+        with self._patched_check_output(side_effect=err):
+            with self.assertRaises(SystemExit) as cm:
+                xcrun_query(["--find", "clang"], "macosx")
+        msg = str(cm.exception)
+        self.assertIn("macosx", msg)
+        self.assertIn("xcrun --sdk macosx --find clang", msg)
+        self.assertIn(
+            "sudo xcode-select -s /Applications/Xcode.app/Contents/Developer", msg
+        )
+
+    def test_missing_xcrun_binary_raises_system_exit(self):
+        # OSError (xcrun itself absent) is the same failure surface as a
+        # non-zero exit: the hint, not a FileNotFoundError traceback.
+        with self._patched_check_output(side_effect=FileNotFoundError("xcrun")):
+            with self.assertRaises(SystemExit):
+                xcrun_query(["--show-sdk-platform-path"], "macosx")
 
 
 if __name__ == "__main__":

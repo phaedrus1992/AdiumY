@@ -15,7 +15,6 @@ resolves SDK/AdiumY/AIUtilities headers exactly as a real compile does.
 import uuid
 import plistlib
 import os
-import subprocess
 
 from generate_xcodeproj_core import (
     build_compile_entries,
@@ -24,6 +23,7 @@ from generate_xcodeproj_core import (
     sources_for_target,
     validate_source_paths,
     write_compile_commands_atomic,
+    xcrun_query,
 )
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -1921,18 +1921,15 @@ def write_compile_commands(repo_root):
     test_settings = objects[H["testDebugConfig"]]["buildSettings"]
     project_settings = objects[H["projectDebugConfig"]]["buildSettings"]
 
-    sdk = subprocess.check_output(
-        ["xcrun", "--sdk", test_settings["SDKROOT"], "--show-sdk-path"], text=True).strip()
+    sdk = xcrun_query(["--show-sdk-path"], test_settings["SDKROOT"])
     # Xcode injects TEST_FRAMEWORK_SEARCH_PATHS (the developer frameworks dir)
     # for test targets, where XCTest.framework lives — outside the SDK's
     # System/Library/Frameworks. Mirror it so #import <XCTest/XCTest.h> resolves.
-    platform_path = subprocess.check_output(
-        ["xcrun", "--sdk", test_settings["SDKROOT"], "--show-sdk-platform-path"], text=True).strip()
+    platform_path = xcrun_query(["--show-sdk-platform-path"], test_settings["SDKROOT"])
     dev_frameworks = os.path.join(platform_path, "Developer", "Library", "Frameworks")
     # The same toolchain clang the real build uses — the first token of each
     # entry's command must be the compiler executable, or clangd misparses it.
-    compiler = subprocess.check_output(
-        ["xcrun", "--sdk", test_settings["SDKROOT"], "--find", "clang"], text=True).strip()
+    compiler = xcrun_query(["--find", "clang"], test_settings["SDKROOT"])
 
     flags = []
     # The language flag (-x objective-c / -x objective-c++) is added per-source in
