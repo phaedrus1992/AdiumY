@@ -30,6 +30,10 @@ jobs:
         run: |
           make format-check CLANG_FORMAT="$(brew --prefix clang-format)/bin/clang-format"
 
+      - name: Run generator unit tests (Python, stdlib only)
+        run: |
+          python3 -m unittest discover -s Tests/CoverageHost -v
+
       - name: Shellcheck build scripts
         run: |
           brew install shellcheck 2>&1 || true
