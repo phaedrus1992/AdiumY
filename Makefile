@@ -18,7 +18,7 @@ XCODEBUILD ?= xcodebuild
 CP=ditto --rsrc
 RM=rm
 
-.PHONY: all adium clean localizable-strings latest test astest install format format-check coverage-check setup-blame install-hooks
+.PHONY: all adium clean localizable-strings latest test astest install format format-check coverage-check setup-blame install-hooks xcodeproj
 
 adium:
 	$(XCODEBUILD) -version
@@ -81,6 +81,11 @@ install-hooks:
 	HOOK
 	@chmod +x .git/hooks/pre-commit
 	@echo "Pre-commit hook installed. Run 'make format' to reformat all files."
+
+# Regenerate the CoverageHost test project + the repo-root clangd compilation
+# database (compile_commands.json) from the single source of truth.
+xcodeproj:
+	python3 Tests/CoverageHost/generate-xcodeproj.py
 
 latest:
 	hg pull -u
