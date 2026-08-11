@@ -354,7 +354,17 @@
 																								 withString:@""];
 		AILogWithSignature(@"Shortened to %@", resultString);
 	} else {
-		AILogWithSignature(@"Unable to shorten: %@", errorResponse);
+		/* The validator surfaces three distinct failure kinds; log the first one present so the
+		 * reason isn't "(null)" when the transport succeeded but the response or body failed the
+		 * integrity checks (issue #279). */
+		NSError *failureError = errorResponse;
+		if (failureError == nil) {
+			failureError = responseError;
+		}
+		if (failureError == nil) {
+			failureError = truncationError;
+		}
+		AILogWithSignature(@"Unable to shorten: %@", failureError);
 	}
 
 	return resultString;
