@@ -107,7 +107,9 @@ fi
 
 # Background image is 600x400; the window is sized to match it exactly.
 if [ "$apply_finder_layout" = true ]; then
-	osascript <<APPLESCRIPT || echo "warning: Finder layout failed (no GUI session?); DMG will use default icon positions" >&2
+	OSASCRIPT_ERR="$DMG_WORKDIR/osascript.err"
+	osascript_failed=""
+	osascript 2>"$OSASCRIPT_ERR" <<APPLESCRIPT || osascript_failed=1
 tell application "Finder"
 	tell disk "$ESCAPED_VOLUME_NAME"
 		open
@@ -130,6 +132,14 @@ tell application "Finder"
 	end tell
 end tell
 APPLESCRIPT
+	if [ -n "$osascript_failed" ]; then
+		echo "warning: Finder layout failed; DMG will use default icon positions" >&2
+		if [ -f "$OSASCRIPT_ERR" ]; then
+			echo "  osascript: $(cat "$OSASCRIPT_ERR")" >&2
+		else
+			echo "  osascript: (no stderr captured — writing $OSASCRIPT_ERR failed)" >&2
+		fi
+	fi
 fi
 
 chmod -Rf go-w "$MOUNT_DIR" || true

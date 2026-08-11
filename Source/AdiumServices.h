@@ -21,6 +21,7 @@
 }
 
 - (void)registerService:(AIService *)inService;
+- (void)unregisterService:(AIService *)inService;
 
 - (NSArray *)services;
 - (NSSet *)activeServicesIncludingCompatibleServices:(BOOL)includeCompatible;

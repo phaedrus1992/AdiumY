@@ -3,16 +3,19 @@
 generator's module-level side effects, so they're testable via `unittest`.
 
 Everything here is deterministic over its arguments: no module globals, no
-subprocess. `write_compile_commands_atomic` is the one exception — it writes
-the compilation database (via a temp file + atomic replace). generate-xcodeproj.py
-wires these against its in-memory project model and the SDK; the tests exercise
-them with synthetic inputs.
+subprocess. Two exceptions: `write_compile_commands_atomic` writes the
+compilation database (via a temp file + atomic replace), and `xcrun_query`
+shells out to xcrun so the SDK queries in write_compile_commands surface a
+one-line fix hint instead of a bare CalledProcessError traceback.
+generate-xcodeproj.py wires these against its in-memory project model and the
+SDK; the tests exercise them with synthetic inputs.
 """
 
 import glob
 import json
 import os
 import shlex
+import subprocess
 import tempfile
 
 
@@ -55,6 +58,44 @@ def expand_build_path(entry, project_dir):
     if not os.path.isabs(p):
         p = os.path.join(project_dir, p)
     return os.path.normpath(p)
+
+
+def xcrun_query(arguments, sdk):
+    """Run an xcrun query against an SDK, or fail with a one-line fix hint.
+
+    arguments is the argv tail after `xcrun` (e.g. ``["--show-sdk-path"]``);
+    sdk is the SDKROOT name (e.g. "macosx"). Returns the query's stripped
+    stdout.
+
+    The three SDK queries in write_compile_commands (sdk path, platform path,
+    clang discovery) use this so a machine with the SDK missing — or no Xcode
+    selected at all — gets an actionable SystemExit naming the failing query,
+    not a bare CalledProcessError traceback. The failing query's captured
+    stderr (the tool's own reason) is folded into the message. OSError (xcrun
+    itself missing) is treated the same way. Empty stdout — a query that ran
+    but produced nothing — is rejected too, so a broken install can't silently
+    yield an empty SDK path.
+    """
+    argv = ["xcrun", "--sdk", sdk] + list(arguments)
+    try:
+        completed = subprocess.run(argv, text=True, capture_output=True, check=True)
+    except (subprocess.CalledProcessError, OSError) as exc:
+        detail = (getattr(exc, "stderr", "") or str(exc)).strip()
+        raise SystemExit(
+            f"generate-xcodeproj.py: xcrun failed for SDK {sdk!r} "
+            f"(query: {' '.join(argv)}): {detail}\n"
+            "Fix: install the SDK, or point Xcode's developer dir at the right Xcode:\n"
+            "  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer"
+        ) from exc
+    result = completed.stdout.strip()
+    if not result:
+        raise SystemExit(
+            f"generate-xcodeproj.py: xcrun returned no output for SDK {sdk!r} "
+            f"(query: {' '.join(argv)})\n"
+            "Fix: install the SDK, or point Xcode's developer dir at the right Xcode:\n"
+            "  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer"
+        )
+    return result
 
 
 def _resolve_source_ref(path, source_tree, project_dir):

@@ -143,6 +143,9 @@ Tests/MessageStylingTest
 # Tests/CoverageHost/generate-xcodeproj.py alongside the xcodeproj
 compile_commands.json
 
+# clangd index cache — consumes compile_commands.json above
+.cache/
+
 # Python bytecode cache from the generator + its unittest suite
 __pycache__/
 

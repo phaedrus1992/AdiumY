@@ -127,22 +127,8 @@
 		11F1460C0B546C1200CA91F6 /* AIMenuBarIcons.m in Sources */ = {isa = PBXBuildFile; fileRef = 11F1460A0B546C1200CA91F6 /* AIMenuBarIcons.m */; };
 		11FC23C20F768C1600C1C906 /* AIXMLElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 11FC23BF0F768C0900C1C906 /* AIXMLElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		11FC23C30F768C2900C1C906 /* AIXMLElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 11FC23C00F768C0900C1C906 /* AIXMLElement.m */; };
-		31034EFF0C8142680003F5AA /* TestStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 31034EFE0C8142680003F5AA /* TestStringAdditions.m */; };
-		31034F0C0C8142720003F5AA /* UTF8Snowman.txt in Resources */ = {isa = PBXBuildFile; fileRef = 31034F0B0C8142720003F5AA /* UTF8Snowman.txt */; };
-		3107D5250F63134F0051DDD5 /* TestAttributedStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 3107D5240F63134F0051DDD5 /* TestAttributedStringAdditions.m */; };
-		312ED3D30C7E876E00A6BDA9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3448758D06D1EBDF00DA778C /* Cocoa.framework */; };
-		312ED3D50C7E878300A6BDA9 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 312ED3D40C7E878300A6BDA9 /* SenTestingKit.framework */; };
-		312ED3E20C7E8A0700A6BDA9 /* TestDateFormatterStringRepWithInterval.m in Sources */ = {isa = PBXBuildFile; fileRef = 312ED3E10C7E8A0700A6BDA9 /* TestDateFormatterStringRepWithInterval.m */; };
-		313C2F940D4B19B50032334D /* TestDictionaryAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 313C2F930D4B19B50032334D /* TestDictionaryAdditions.m */; };
-		31455C9A0CC353F800D231A0 /* TestDataAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 31455C990CC353F800D231A0 /* TestDataAdditions.m */; };
 		317D83680E89F40500298BDB /* msg-bookmark-chat.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 317D83670E89F40500298BDB /* msg-bookmark-chat.tiff */; };
-		318EA69C0D7A659900EDB105 /* TestColorAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 318EA69B0D7A659900EDB105 /* TestColorAdditions.m */; };
-		319B29800CE8EC6F00C65398 /* TestDateAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 319B297F0CE8EC6E00C65398 /* TestDateAdditions.m */; };
-		9858838df7e42b9d5c05909d /* TestAMPurpleJabberCSI.m in Sources */ = {isa = PBXBuildFile; fileRef = d4ad6c5d409eefa6dd85dc61 /* TestAMPurpleJabberCSI.m */; };
-		2c71da7d5ad6ce00ce647de0 /* TestAMPurpleJabberBookmarks.m in Sources */ = {isa = PBXBuildFile; fileRef = d9d48abda867a48fe49abcc1 /* TestAMPurpleJabberBookmarks.m */; };
-		a7e68c9a819b4d7fa5e17522 /* TestAMPurpleJabberPubsubBookmarks.m in Sources */ = {isa = PBXBuildFile; fileRef = c820184e283f43b6924f38e8 /* TestAMPurpleJabberPubsubBookmarks.m */; };
 		31E0CD810C5EEF5200271DB1 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 31E0CD800C5EEF5200271DB1 /* CoreAudio.framework */; };
-		31FA804C0D4A8EB200ABE634 /* Adium.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 0CAC6A130C0C657A0090AE95 /* Adium.sdef */; };
 		3402D5A5080DBC91004E50B4 /* SortConfiguration.nib in Resources */ = {isa = PBXBuildFile; fileRef = 347E791D07CAA52300350507 /* SortConfiguration.nib */; };
 		3402E01B07CB0CED0044F818 /* ESFileTransferProgressView.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3402E01A07CB0CEC0044F818 /* ESFileTransferProgressView.nib */; };
 		3402E02407CB0D1B0044F818 /* ProxyPasswordPrompt.nib in Resources */ = {isa = PBXBuildFile; fileRef = 3402E02307CB0D1B0044F818 /* ProxyPasswordPrompt.nib */; };
@@ -1003,7 +989,6 @@
 		63336B060949908300970871 /* DockIconPreviewView.nib in Resources */ = {isa = PBXBuildFile; fileRef = 63336B050949908300970871 /* DockIconPreviewView.nib */; };
 		63336E15094AB81300970871 /* XtraInfoView.nib in Resources */ = {isa = PBXBuildFile; fileRef = 63336E14094AB81300970871 /* XtraInfoView.nib */; };
 		633F175D08F905A800C76383 /* AIXtrasManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 633F175908F905A700C76383 /* AIXtrasManager.m */; };
-		634BCD1F0DDC1542005AF1C2 /* TestMutableStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 634BCD1E0DDC1542005AF1C2 /* TestMutableStringAdditions.m */; };
 		636D8C980E4E95A500E5F558 /* AIAddressBookController.m in Sources */ = {isa = PBXBuildFile; fileRef = 636D8C970E4E95A500E5F558 /* AIAddressBookController.m */; };
 		636D92790E4E95CE00E5F558 /* AIAddressBookController.h in Headers */ = {isa = PBXBuildFile; fileRef = 34E2A2EE07B018B1006735BC /* AIAddressBookController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		31B7AE7160D2D1EE9E400D44 /* Contacts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4497445109E25D12D66A1BAE /* Contacts.framework */; };
@@ -1143,8 +1128,6 @@
 		157A41826D404EB05E6A696A /* FriBidi.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9719C92B1530EDF700217FBE /* FriBidi.framework */; };
 		8705FD124693CDB6DDA2205E /* NSString-FBAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = E6D0F02CCCE8ED0F1E4F348D /* NSString-FBAdditions.m */; };
 		46A29DBDFEF508EE3F2E6FF2 /* NSString-FBAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 703142272A64505D5DE405E5 /* NSString-FBAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
-			6B4D8A2012345678ABCD0003 /* TestFBAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4D8A2012345678ABCD0002 /* TestFBAdditions.m */; };
-			6B4D8A2012345678ABCD0006 /* TestLMXParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B4D8A2012345678ABCD0005 /* TestLMXParser.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -1352,16 +1335,6 @@
 			name = "Copy Built-in Xtras";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		637864600F9BE1B70040DEDA /* Copy Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			name = "Copy Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F51BCD3E0A156281000FDC06 /* Copy Spotlight Importer */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1527,36 +1500,9 @@
 		11F1460A0B546C1200CA91F6 /* AIMenuBarIcons.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIMenuBarIcons.m; path = Source/AIMenuBarIcons.m; sourceTree = "<group>"; };
 		11FC23BF0F768C0900C1C906 /* AIXMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIXMLElement.h; path = Frameworks/Adium/Source/AIXMLElement.h; sourceTree = "<group>"; };
 		11FC23C00F768C0900C1C906 /* AIXMLElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AIXMLElement.m; path = Frameworks/Adium/Source/AIXMLElement.m; sourceTree = "<group>"; };
-		31034EFD0C8142680003F5AA /* TestStringAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestStringAdditions.h; path = UnitTests/TestStringAdditions.h; sourceTree = "<group>"; };
-		31034EFE0C8142680003F5AA /* TestStringAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestStringAdditions.m; path = UnitTests/TestStringAdditions.m; sourceTree = "<group>"; };
-		31034F0B0C8142720003F5AA /* UTF8Snowman.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = UTF8Snowman.txt; path = UnitTests/UTF8Snowman.txt; sourceTree = "<group>"; };
-		3107D5230F63134F0051DDD5 /* TestAttributedStringAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestAttributedStringAdditions.h; path = UnitTests/TestAttributedStringAdditions.h; sourceTree = "<group>"; };
-		3107D5240F63134F0051DDD5 /* TestAttributedStringAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestAttributedStringAdditions.m; path = UnitTests/TestAttributedStringAdditions.m; sourceTree = "<group>"; };
-		312ED3CA0C7E875B00A6BDA9 /* Unit tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Unit tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		312ED3D40C7E878300A6BDA9 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		312ED3E00C7E8A0700A6BDA9 /* TestDateFormatterStringRepWithInterval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestDateFormatterStringRepWithInterval.h; path = UnitTests/TestDateFormatterStringRepWithInterval.h; sourceTree = "<group>"; };
-		312ED3E10C7E8A0700A6BDA9 /* TestDateFormatterStringRepWithInterval.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestDateFormatterStringRepWithInterval.m; path = UnitTests/TestDateFormatterStringRepWithInterval.m; sourceTree = "<group>"; };
-		312ED3E30C7E8A4A00A6BDA9 /* UnitTests_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UnitTests_Prefix.pch; path = UnitTests/UnitTests_Prefix.pch; sourceTree = "<group>"; };
-		313C2F920D4B19B50032334D /* TestDictionaryAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestDictionaryAdditions.h; path = UnitTests/TestDictionaryAdditions.h; sourceTree = "<group>"; };
-		313C2F930D4B19B50032334D /* TestDictionaryAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestDictionaryAdditions.m; path = UnitTests/TestDictionaryAdditions.m; sourceTree = "<group>"; };
-		31455C980CC353F800D231A0 /* TestDataAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestDataAdditions.h; path = UnitTests/TestDataAdditions.h; sourceTree = "<group>"; };
-		31455C990CC353F800D231A0 /* TestDataAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestDataAdditions.m; path = UnitTests/TestDataAdditions.m; sourceTree = "<group>"; };
 		317D83670E89F40500298BDB /* msg-bookmark-chat.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = "msg-bookmark-chat.tiff"; path = "Resources/msg-bookmark-chat.tiff"; sourceTree = "<group>"; };
-		318EA69A0D7A659900EDB105 /* TestColorAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestColorAdditions.h; path = UnitTests/TestColorAdditions.h; sourceTree = "<group>"; };
-		318EA69B0D7A659900EDB105 /* TestColorAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestColorAdditions.m; path = UnitTests/TestColorAdditions.m; sourceTree = "<group>"; };
-		319B29420CE8D28300C65398 /* TestDateAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestDateAdditions.h; path = UnitTests/TestDateAdditions.h; sourceTree = "<group>"; };
-		319B297F0CE8EC6E00C65398 /* TestDateAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestDateAdditions.m; path = UnitTests/TestDateAdditions.m; sourceTree = "<group>"; };
 		31DDDAF112BDE54B0048F6C0 /* Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Prefix.pch; path = "Other/Adium Spotlight Importer/Prefix.pch"; sourceTree = "<group>"; };
 		31E0CD800C5EEF5200271DB1 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
-		31E84DF10C7F387800674BCA /* AIUnitTestUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIUnitTestUtilities.h; path = UnitTests/AIUnitTestUtilities.h; sourceTree = "<group>"; };
-		31FA7F0F0D4A75D000ABE634 /* TestRichTextCoercion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestRichTextCoercion.h; path = UnitTests/TestRichTextCoercion.h; sourceTree = "<group>"; };
-		31FA7F100D4A75D000ABE634 /* TestRichTextCoercion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestRichTextCoercion.m; path = UnitTests/TestRichTextCoercion.m; sourceTree = "<group>"; };
-		894a900296ea7e2ae57ed221 /* TestAMPurpleJabberCSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestAMPurpleJabberCSI.h; path = UnitTests/TestAMPurpleJabberCSI.h; sourceTree = "<group>"; };
-		d4ad6c5d409eefa6dd85dc61 /* TestAMPurpleJabberCSI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestAMPurpleJabberCSI.m; path = UnitTests/TestAMPurpleJabberCSI.m; sourceTree = "<group>"; };
-		1ca62324c887da666122f327 /* TestAMPurpleJabberBookmarks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestAMPurpleJabberBookmarks.h; path = UnitTests/TestAMPurpleJabberBookmarks.h; sourceTree = "<group>"; };
-		d9d48abda867a48fe49abcc1 /* TestAMPurpleJabberBookmarks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestAMPurpleJabberBookmarks.m; path = UnitTests/TestAMPurpleJabberBookmarks.m; sourceTree = "<group>"; };
-		75a50f6bea6140059238579e /* TestAMPurpleJabberPubsubBookmarks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestAMPurpleJabberPubsubBookmarks.h; path = UnitTests/TestAMPurpleJabberPubsubBookmarks.h; sourceTree = "<group>"; };
-		c820184e283f43b6924f38e8 /* TestAMPurpleJabberPubsubBookmarks.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestAMPurpleJabberPubsubBookmarks.m; path = UnitTests/TestAMPurpleJabberPubsubBookmarks.m; sourceTree = "<group>"; };
 		3402E01807CB0CE40044F818 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = Resources/en.lproj/ESFileTransferProgressView.nib; sourceTree = "<group>"; };
 		3402E01F07CB0D150044F818 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = Resources/en.lproj/ProxyPasswordPrompt.nib; sourceTree = "<group>"; };
 		3402E02007CB0D150044F818 /* en */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = en; path = Resources/en.lproj/PasswordPrompt.nib; sourceTree = "<group>"; };
@@ -3294,8 +3240,6 @@
 		633F175808F905A700C76383 /* AIXtrasManager.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = AIXtrasManager.h; path = Source/AIXtrasManager.h; sourceTree = "<group>"; };
 		633F175908F905A700C76383 /* AIXtrasManager.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = AIXtrasManager.m; path = Source/AIXtrasManager.m; sourceTree = "<group>"; };
 		6341AEFE0E53A09C00AE1439 /* libexpat.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libexpat.dylib; path = usr/lib/libexpat.dylib; sourceTree = SDKROOT; };
-		634BCD1D0DDC1542005AF1C2 /* TestMutableStringAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestMutableStringAdditions.h; path = UnitTests/TestMutableStringAdditions.h; sourceTree = "<group>"; };
-		634BCD1E0DDC1542005AF1C2 /* TestMutableStringAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestMutableStringAdditions.m; path = UnitTests/TestMutableStringAdditions.m; sourceTree = "<group>"; };
 		636C6E5D0ED56D0100E0E528 /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = /usr/lib/libcrypto.dylib; sourceTree = "<absolute>"; };
 		636D8C970E4E95A500E5F558 /* AIAddressBookController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AIAddressBookController.m; path = Frameworks/Adium/Source/AIAddressBookController.m; sourceTree = "<group>"; };
 		636D93660E4E9FD300E5F558 /* AdiumAddressBookAction_Yahoo.scpt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.scpt; name = AdiumAddressBookAction_Yahoo.scpt; path = Frameworks/Adium/Resources/AdiumAddressBookAction_Yahoo.scpt; sourceTree = "<group>"; };
@@ -3317,7 +3261,6 @@
 		63C7E11A0FAFA35E00B310AC /* AdiumApplescriptRunner.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = AdiumApplescriptRunner.xcconfig; sourceTree = "<group>"; };
 		63C7E2030FAFAA4700B310AC /* AIUtilities.framework.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = AIUtilities.framework.xcconfig; sourceTree = "<group>"; };
 		63C7E2040FAFAA4700B310AC /* AdiumY.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = AdiumY.xcconfig; sourceTree = "<group>"; };
-		63C7E2050FAFAA4700B310AC /* Unit tests.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Unit tests.xcconfig"; sourceTree = "<group>"; };
 		63C7E2060FAFAA4700B310AC /* AdiumYLibpurple.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = AdiumYLibpurple.xcconfig; sourceTree = "<group>"; };
 		63C7E2070FAFAA4700B310AC /* AdiumY.framework.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = AdiumY.framework.xcconfig; sourceTree = "<group>"; };
 		63C7E2080FAFAA4700B310AC /* Spotlight Importer.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "Spotlight Importer.xcconfig"; sourceTree = "<group>"; };
@@ -3615,22 +3558,9 @@
 		F5F8CA4B0A1A9C9400154550 /* GBQuestionHandlerPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GBQuestionHandlerPlugin.m; path = Source/GBQuestionHandlerPlugin.m; sourceTree = "<group>"; };
 		703142272A64505D5DE405E5 /* NSString-FBAdditions.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = "NSString-FBAdditions.h"; path = Frameworks/Adium/Source/NSString-FBAdditions.h; sourceTree = "<group>"; };
 		E6D0F02CCCE8ED0F1E4F348D /* NSString-FBAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString-FBAdditions.m"; path = Frameworks/Adium/Source/NSString-FBAdditions.m; sourceTree = "<group>"; };
-			6B4D8A2012345678ABCD0001 /* TestFBAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestFBAdditions.h; path = UnitTests/TestFBAdditions.h; sourceTree = "<group>"; };
-			6B4D8A2012345678ABCD0002 /* TestFBAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestFBAdditions.m; path = UnitTests/TestFBAdditions.m; sourceTree = "<group>"; };
-			6B4D8A2012345678ABCD0004 /* TestLMXParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestLMXParser.h; path = UnitTests/TestLMXParser.h; sourceTree = "<group>"; };
-			6B4D8A2012345678ABCD0005 /* TestLMXParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestLMXParser.m; path = UnitTests/TestLMXParser.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		312ED3C70C7E875B00A6BDA9 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				312ED3D30C7E876E00A6BDA9 /* Cocoa.framework in Frameworks */,
-				312ED3D50C7E878300A6BDA9 /* SenTestingKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		3485D67E09EB416300232CC4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -3815,7 +3745,6 @@
 				34BD9DA9053146CC000AB133 /* AdiumY.app */,
 				34BD9DE105314751000AB133 /* AdiumY.framework */,
 				3485D68009EB416300232CC4 /* AdiumYLibpurple.framework */,
-				312ED3CA0C7E875B00A6BDA9 /* Unit tests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3841,7 +3770,6 @@
 				9EB3C52304F94DB7001D1F74 /* Source */,
 				F50A325A03B5798301A8010A /* Resources */,
 				349C2F310867ACF7000BF883 /* ApplescriptRunner */,
-				312ED3D80C7E89CC00A6BDA9 /* Unit tests */,
 				29B97323FDCFA39411CA2CEA /* Linked Frameworks */,
 				63C7E0280FAF9B7D00B310AC /* xcconfigs */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
@@ -3858,44 +3786,6 @@
 				979AA6A914D59EF3008730DF /* Others */,
 			);
 			name = "Linked Frameworks";
-			sourceTree = "<group>";
-		};
-		312ED3D80C7E89CC00A6BDA9 /* Unit tests */ = {
-			isa = PBXGroup;
-			children = (
-				312ED3E30C7E8A4A00A6BDA9 /* UnitTests_Prefix.pch */,
-				31E84DF10C7F387800674BCA /* AIUnitTestUtilities.h */,
-				3107D5230F63134F0051DDD5 /* TestAttributedStringAdditions.h */,
-				3107D5240F63134F0051DDD5 /* TestAttributedStringAdditions.m */,
-				894a900296ea7e2ae57ed221 /* TestAMPurpleJabberCSI.h */,
-				d4ad6c5d409eefa6dd85dc61 /* TestAMPurpleJabberCSI.m */,
-				1ca62324c887da666122f327 /* TestAMPurpleJabberBookmarks.h */,
-				d9d48abda867a48fe49abcc1 /* TestAMPurpleJabberBookmarks.m */,
-				75a50f6bea6140059238579e /* TestAMPurpleJabberPubsubBookmarks.h */,
-				c820184e283f43b6924f38e8 /* TestAMPurpleJabberPubsubBookmarks.m */,
-				318EA69A0D7A659900EDB105 /* TestColorAdditions.h */,
-				318EA69B0D7A659900EDB105 /* TestColorAdditions.m */,
-				31455C980CC353F800D231A0 /* TestDataAdditions.h */,
-				31455C990CC353F800D231A0 /* TestDataAdditions.m */,
-				319B29420CE8D28300C65398 /* TestDateAdditions.h */,
-				319B297F0CE8EC6E00C65398 /* TestDateAdditions.m */,
-				312ED3E00C7E8A0700A6BDA9 /* TestDateFormatterStringRepWithInterval.h */,
-				312ED3E10C7E8A0700A6BDA9 /* TestDateFormatterStringRepWithInterval.m */,
-				313C2F920D4B19B50032334D /* TestDictionaryAdditions.h */,
-				313C2F930D4B19B50032334D /* TestDictionaryAdditions.m */,
-				31FA7F0F0D4A75D000ABE634 /* TestRichTextCoercion.h */,
-				31FA7F100D4A75D000ABE634 /* TestRichTextCoercion.m */,
-				634BCD1D0DDC1542005AF1C2 /* TestMutableStringAdditions.h */,
-				634BCD1E0DDC1542005AF1C2 /* TestMutableStringAdditions.m */,
-				31034EFD0C8142680003F5AA /* TestStringAdditions.h */,
-				31034EFE0C8142680003F5AA /* TestStringAdditions.m */,
-				6B4D8A2012345678ABCD0001 /* TestFBAdditions.h */,
-				6B4D8A2012345678ABCD0002 /* TestFBAdditions.m */,
-				6B4D8A2012345678ABCD0004 /* TestLMXParser.h */,
-				6B4D8A2012345678ABCD0005 /* TestLMXParser.m */,
-				31034F0B0C8142720003F5AA /* UTF8Snowman.txt */,
-			);
-			name = "Unit tests";
 			sourceTree = "<group>";
 		};
 		34086A1005E5E17B00ABB759 /* User Icon Handling */ = {
@@ -6095,7 +5985,6 @@
 				63C7E02C0FAF9BA800B310AC /* Release-Debug.xcconfig */,
 				63C7E2030FAFAA4700B310AC /* AIUtilities.framework.xcconfig */,
 				63C7E2040FAFAA4700B310AC /* AdiumY.xcconfig */,
-				63C7E2050FAFAA4700B310AC /* Unit tests.xcconfig */,
 				63C7E2060FAFAA4700B310AC /* AdiumYLibpurple.xcconfig */,
 				63C7E2070FAFAA4700B310AC /* AdiumY.framework.xcconfig */,
 				63C7E2080FAFAA4700B310AC /* Spotlight Importer.xcconfig */,
@@ -6213,7 +6102,6 @@
 			isa = PBXGroup;
 			children = (
 				34C846E5101E518F00140B4B /* QuickTime.framework */,
-				312ED3D40C7E878300A6BDA9 /* SenTestingKit.framework */,
 				31E0CD800C5EEF5200271DB1 /* CoreAudio.framework */,
 				11AA1EF90BCAE9C3003DDA66 /* Quartz.framework */,
 				815D37460A765E83009338C2 /* CoreServices.framework */,
@@ -7057,25 +6945,6 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		312ED3C90C7E875B00A6BDA9 /* Unit tests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 312ED3CC0C7E875C00A6BDA9 /* Build configuration list for PBXNativeTarget "Unit tests" */;
-			buildPhases = (
-				637864600F9BE1B70040DEDA /* Copy Frameworks */,
-				312ED3C50C7E875B00A6BDA9 /* Resources */,
-				312ED3C60C7E875B00A6BDA9 /* Sources */,
-				312ED3C70C7E875B00A6BDA9 /* Frameworks */,
-				312ED3C80C7E875B00A6BDA9 /* Run Unit Tests */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "Unit tests";
-			productName = "Unit tests";
-			productReference = 312ED3CA0C7E875B00A6BDA9 /* Unit tests.octest */;
-			productType = "com.apple.product-type.bundle.ocunit-test";
-		};
 		3485D67F09EB416300232CC4 /* AdiumYLibpurple */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3485D68209EB416500232CC4 /* Build configuration list for PBXNativeTarget "AdiumYLibpurple" */;
@@ -7156,10 +7025,6 @@
 				LastTestingUpgradeCheck = 0720;
 				LastUpgradeCheck = 1240;
 				TargetAttributes = {
-					312ED3C90C7E875B00A6BDA9 = {
-						DevelopmentTeam = "";
-						ProvisioningStyle = Manual;
-					};
 					3485D67F09EB416300232CC4 = {
 						ProvisioningStyle = Manual;
 					};
@@ -7247,7 +7112,6 @@
 				34BD9CD1053146CC000AB133 /* Adium */,
 				34BD9DAF05314751000AB133 /* AdiumY.Framework */,
 				3485D67F09EB416300232CC4 /* AdiumYLibpurple */,
-				312ED3C90C7E875B00A6BDA9 /* Unit tests */,
 			);
 		};
 /* End PBXProject section */
@@ -7319,14 +7183,6 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
-		312ED3C50C7E875B00A6BDA9 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				31034F0C0C8142720003F5AA /* UTF8Snowman.txt in Resources */,
-				31FA804C0D4A8EB200ABE634 /* Adium.sdef in Resources */,);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		3485D67C09EB416300232CC4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -7662,20 +7518,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		312ED3C80C7E875B00A6BDA9 /* Run Unit Tests */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Run Unit Tests";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
 		AD6000000000000000000001 /* Relink vendored dylibs */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -7694,26 +7536,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		312ED3C60C7E875B00A6BDA9 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				312ED3E20C7E8A0700A6BDA9 /* TestDateFormatterStringRepWithInterval.m in Sources */,
-				31034EFF0C8142680003F5AA /* TestStringAdditions.m in Sources */,
-				31455C9A0CC353F800D231A0 /* TestDataAdditions.m in Sources */,
-				319B29800CE8EC6F00C65398 /* TestDateAdditions.m in Sources */,
-				313C2F940D4B19B50032334D /* TestDictionaryAdditions.m in Sources */,
-				318EA69C0D7A659900EDB105 /* TestColorAdditions.m in Sources */,
-				634BCD1F0DDC1542005AF1C2 /* TestMutableStringAdditions.m in Sources */,
-				3107D5250F63134F0051DDD5 /* TestAttributedStringAdditions.m in Sources */,
-				6B4D8A2012345678ABCD0003 /* TestFBAdditions.m in Sources */,
-				6B4D8A2012345678ABCD0006 /* TestLMXParser.m in Sources */,
-				9858838df7e42b9d5c05909d /* TestAMPurpleJabberCSI.m in Sources */,
-			2c71da7d5ad6ce00ce647de0 /* TestAMPurpleJabberBookmarks.m in Sources */,
-				a7e68c9a819b4d7fa5e17522 /* TestAMPurpleJabberPubsubBookmarks.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		3485D67D09EB416300232CC4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -9398,30 +9220,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		312ED3CD0C7E875C00A6BDA9 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63C7E2050FAFAA4700B310AC /* Unit tests.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = YES;
-			};
-			name = Debug;
-		};
-		312ED3CE0C7E875C00A6BDA9 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63C7E2050FAFAA4700B310AC /* Unit tests.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = YES;
-			};
-			name = Release;
-		};
-		312ED3CF0C7E875C00A6BDA9 /* Release-Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63C7E2050FAFAA4700B310AC /* Unit tests.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = YES;
-			};
-			name = "Release-Debug";
-		};
 		3485D68309EB416500232CC4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63C7E2060FAFAA4700B310AC /* AdiumYLibpurple.xcconfig */;
@@ -9754,16 +9552,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		312ED3CC0C7E875C00A6BDA9 /* Build configuration list for PBXNativeTarget "Unit tests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				312ED3CD0C7E875C00A6BDA9 /* Debug */,
-				312ED3CE0C7E875C00A6BDA9 /* Release */,
-				312ED3CF0C7E875C00A6BDA9 /* Release-Debug */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		3485D68209EB416500232CC4 /* Build configuration list for PBXNativeTarget "AdiumYLibpurple" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
