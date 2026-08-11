@@ -68,4 +68,42 @@
 	});
 }
 
+// Property: PBTUniformUInt64 stays in [0, max) for the maxes that force the rejection-sampling
+// redraw path — the values past UINT32_MAX the parity test above can't reach (issue #281). For
+// 2^62, 2^63, and 2^63+1 a quarter to half of all draws fall in the partial top block and are
+// redrawn, so the redraw loop runs thousands of times per 4096-draw sweep; UINT64_MAX and
+// UINT64_MAX-1 pin the limit arithmetic at the top of the range (only 1-2 values are rejected,
+// but the modulo boundary must still hold). Both parities must appear — the discriminator that
+// catches a redraw biased toward one residue class.
+- (void)testUniformGeneratorRedrawsForLargeMaxes
+{
+	uint64_t const maxes[] = {
+		(uint64_t)1 << 62,
+		(uint64_t)1 << 63,
+		((uint64_t)1 << 63) + 1,
+		UINT64_MAX,
+		UINT64_MAX - 1,
+	};
+
+	for (size_t m = 0; m < sizeof(maxes) / sizeof(maxes[0]); m++) {
+		uint64_t const max = maxes[m];
+		BOOL sawEven = NO;
+		BOOL sawOdd = NO;
+		for (NSUInteger i = 0; i < 4096; i++) {
+			uint64_t value = PBTUniformUInt64(max);
+			XCTAssertLessThan(value, max, @"PBTUniformUInt64(%llu) drew %llu", max, value);
+			if (value % 2 == 0) {
+				sawEven = YES;
+			} else {
+				sawOdd = YES;
+			}
+			if (sawEven && sawOdd) {
+				break;
+			}
+		}
+		XCTAssertTrue(sawEven, @"no even value in 4096 draws of PBTUniformUInt64(%llu)", max);
+		XCTAssertTrue(sawOdd, @"no odd value in 4096 draws of PBTUniformUInt64(%llu)", max);
+	}
+}
+
 @end
