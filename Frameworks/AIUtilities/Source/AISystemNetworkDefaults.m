@@ -22,6 +22,49 @@
 #import <CoreServices/CoreServices.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 
+/* Fetch a proxy auto-configuration (PAC) script synchronously and return it as a UTF-8 string, or
+ * nil when the response is truncated or otherwise unusable. An NSURLSession data task is used so
+ * the response's declared Content-Length is available; stringWithContentsOfURL: exposes no
+ * response and cannot detect a truncated body (issue #279). AIUtilities cannot import the Adium
+ * framework's AIHTTPDownloadValidationErrorForTruncatedDownload, so the received-vs-declared rule
+ * is inlined: a non-positive declared length (including NSURLResponseUnknownLength, -1) carries no
+ * size contract, and the body is truncated exactly when receivedBytes < declaredLength. */
+static NSString *AIProxyAutoConfigScriptForURL(NSURL *pacURL)
+{
+	if (pacURL == nil) {
+		return nil;
+	}
+	__block NSData *scriptData = nil;
+	__block NSURLResponse *response = nil;
+	__block NSError *error = nil;
+	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+	NSURLSessionDataTask *task =
+		[[NSURLSession sharedSession] dataTaskWithURL:pacURL
+									completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *fetchError) {
+										scriptData = data;
+										response = urlResponse;
+										error = fetchError;
+										dispatch_semaphore_signal(semaphore);
+									}];
+	[task resume];
+	dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+
+	if (error != nil || scriptData == nil) {
+		return nil;
+	}
+
+	/* Reject a body whose received byte count falls short of the response's declared non-zero size
+	 * rather than evaluating it as a PAC script (issue #279). */
+	long long declaredLength = [response expectedContentLength];
+	if (declaredLength > 0 && (long long)[scriptData length] < declaredLength) {
+		NSLog(@"PAC script download was truncated: received %lld of %lld declared bytes.",
+			  (long long)[scriptData length], declaredLength);
+		return nil;
+	}
+
+	return [[NSString alloc] initWithData:scriptData encoding:NSUTF8StringEncoding];
+}
+
 @implementation AISystemNetworkDefaults
 
 + (NSDictionary *)systemProxySettingsDictionaryForType:(ProxyType)proxyType forServer:(NSString *)hostName
@@ -129,9 +172,7 @@
 				if (pacFile) {
 					CFURLRef url = (__bridge CFURLRef)
 						[NSURL URLWithString:[NSString stringWithFormat:@"http://%@", hostName ?: @"google.com"]];
-					NSString *scriptStr = [NSString stringWithContentsOfURL:[NSURL URLWithString:pacFile]
-																   encoding:NSUTF8StringEncoding
-																	  error:NULL];
+					NSString *scriptStr = AIProxyAutoConfigScriptForURL([NSURL URLWithString:pacFile]);
 
 					if (url && scriptStr) {
 						NSArray *proxies;

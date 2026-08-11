@@ -58,69 +58,27 @@
 	return dir;
 }
 
-/* AppleSingle body holding a single data-fork entry of rawLength raw bytes (big-endian wire format). */
+/* AppleSingle body holding a single data-fork entry of rawLength raw bytes (big-endian wire format).
+ * Delegates to the shared entries writer; the content fill is 0x00, matching the all-zero content the
+ * raw-length roundtrip asserts byte-for-byte (issue #283). */
 - (NSData *)appleSingleBodyWithRawLength:(NSUInteger)rawLength
 {
-	NSMutableData *body = [NSMutableData data];
-
-	/* The impl reads the header and entries with [data getBytes:&header length:26] / getBytes:range:,
-	 * so the wire fields must be 4-byte UInt32 (UInt16 for numberEntries) exactly as the AppleSingle
-	 * structs declare — unsigned long would be 8 bytes on LP64 and misalign every field. */
-	UInt32 magic = htonl(0x00051600);
-	UInt32 version = htonl(0x00020000);
-	UInt16 numberEntries = htons(1);
-	char filler[16] = {0};
-	UInt32 entryID = htonl(EKEZV_TEST_AS_DATA_FORK_ENTRY_ID);
-	UInt32 offset = htonl((UInt32)(EKEZV_TEST_AS_HEADER_LENGTH + EKEZV_TEST_AS_ENTRY_LENGTH));
-	UInt32 entryLength = htonl((UInt32)rawLength);
-
-	[body appendBytes:&magic length:sizeof(magic)];
-	[body appendBytes:&version length:sizeof(version)];
-	[body appendBytes:filler length:sizeof(filler)];
-	[body appendBytes:&numberEntries length:sizeof(numberEntries)];
-	[body appendBytes:&entryID length:sizeof(entryID)];
-	[body appendBytes:&offset length:sizeof(offset)];
-	[body appendBytes:&entryLength length:sizeof(entryLength)];
-	[body appendData:[NSMutableData dataWithLength:rawLength]];
-	return body;
+	return [self appleSingleBodyWithRawEntries:@[
+		[self rawEntryWithID:EKEZV_TEST_AS_DATA_FORK_ENTRY_ID length:rawLength fill:0x00],
+	]];
 }
 
 /* AppleSingle body carrying a data fork followed by a resource fork. The resource fork entry comes
  * last, so a naive last-content-entry-wins writer would install the resource fork instead of the
- * data fork the transfer actually delivers (issue #269 dual-fork case). */
+ * data fork the transfer actually delivers (issue #269 dual-fork case). Delegates to the shared
+ * entries writer (issue #283). */
 - (NSData *)appleSingleBodyWithDataForkLength:(NSUInteger)dataForkLength
 						   resourceForkLength:(NSUInteger)resourceForkLength
 {
-	NSMutableData *body = [NSMutableData data];
-
-	UInt32 magic = htonl(0x00051600);
-	UInt32 version = htonl(0x00020000);
-	UInt16 numberEntries = htons(2);
-	char filler[16] = {0};
-
-	UInt32 dataForkOffset = (UInt32)(EKEZV_TEST_AS_HEADER_LENGTH + 2 * EKEZV_TEST_AS_ENTRY_LENGTH);
-	UInt32 dataForkEntryID = htonl(EKEZV_TEST_AS_DATA_FORK_ENTRY_ID);
-	UInt32 dataForkEntryOffset = htonl(dataForkOffset);
-	UInt32 dataForkEntryLength = htonl((UInt32)dataForkLength);
-
-	UInt32 resourceForkOffset = dataForkOffset + (UInt32)dataForkLength;
-	UInt32 resourceForkEntryID = htonl(2); /* AS_ENTRY_RESOURCE_FORK */
-	UInt32 resourceForkEntryOffset = htonl(resourceForkOffset);
-	UInt32 resourceForkEntryLength = htonl((UInt32)resourceForkLength);
-
-	[body appendBytes:&magic length:sizeof(magic)];
-	[body appendBytes:&version length:sizeof(version)];
-	[body appendBytes:filler length:sizeof(filler)];
-	[body appendBytes:&numberEntries length:sizeof(numberEntries)];
-	[body appendBytes:&dataForkEntryID length:sizeof(dataForkEntryID)];
-	[body appendBytes:&dataForkEntryOffset length:sizeof(dataForkEntryOffset)];
-	[body appendBytes:&dataForkEntryLength length:sizeof(dataForkEntryLength)];
-	[body appendBytes:&resourceForkEntryID length:sizeof(resourceForkEntryID)];
-	[body appendBytes:&resourceForkEntryOffset length:sizeof(resourceForkEntryOffset)];
-	[body appendBytes:&resourceForkEntryLength length:sizeof(resourceForkEntryLength)];
-	[body appendData:[NSMutableData dataWithLength:dataForkLength]];
-	[body appendData:[NSMutableData dataWithLength:resourceForkLength]];
-	return body;
+	return [self appleSingleBodyWithRawEntries:@[
+		[self rawEntryWithID:EKEZV_TEST_AS_DATA_FORK_ENTRY_ID length:dataForkLength fill:0x01],
+		[self rawEntryWithID:EKEZV_TEST_AS_RESOURCE_FORK_ENTRY_ID length:resourceForkLength fill:0x02],
+	]];
 }
 
 /* Drives a transfer whose single file is the given AppleSingle body through the completion gate, with
@@ -185,11 +143,13 @@
 	}
 }
 
-/* AppleSingle body from an entry table. Each entry is a dictionary { @"id" : entryID, @"length" :
- * byteCount, @"fill" : contentByte }. The header is the standard 26 bytes, entries are laid out
- * sequentially in table order starting after the entry table, and each content block is filled with
- * its role byte (issue #275). */
-- (NSData *)appleSingleBodyWithEntries:(NSArray<NSDictionary *> *)entries
+/* AppleSingle body from an entry table. Each entry is a raw [id, length, fill] NSNumber tuple -
+ * the shape the multi-entry property generators shuffle before building (issue #275). The header
+ * is the standard 26 bytes, entries are laid out sequentially in table order starting after the
+ * entry table, and each content block is filled with its role byte. Wire fields must be 4-byte
+ * UInt32 (UInt16 for numberEntries) exactly as the AppleSingle structs declare - unsigned long
+ * would be 8 bytes on LP64 and misalign every field (issue #283). */
+- (NSData *)appleSingleBodyWithRawEntries:(NSArray<NSArray *> *)entries
 {
 	NSMutableData *body = [NSMutableData data];
 
@@ -204,36 +164,21 @@
 	[body appendBytes:&numberEntries length:sizeof(numberEntries)];
 
 	UInt32 offset = (UInt32)(EKEZV_TEST_AS_HEADER_LENGTH + [entries count] * EKEZV_TEST_AS_ENTRY_LENGTH);
-	for (NSDictionary *entry in entries) {
-		UInt32 entryID = htonl((UInt32)[[entry objectForKey:@"id"] unsignedIntValue]);
+	for (NSArray *entry in entries) {
+		UInt32 entryID = htonl((UInt32)[[entry objectAtIndex:0] unsignedIntValue]);
 		UInt32 entryOffset = htonl(offset);
-		UInt32 entryLength = htonl((UInt32)[[entry objectForKey:@"length"] unsignedIntValue]);
+		UInt32 entryLength = htonl((UInt32)[[entry objectAtIndex:1] unsignedIntValue]);
 		[body appendBytes:&entryID length:sizeof(entryID)];
 		[body appendBytes:&entryOffset length:sizeof(entryOffset)];
 		[body appendBytes:&entryLength length:sizeof(entryLength)];
-		offset += (UInt32)[[entry objectForKey:@"length"] unsignedIntValue];
+		offset += (UInt32)[[entry objectAtIndex:1] unsignedIntValue];
 	}
-	for (NSDictionary *entry in entries) {
-		NSUInteger length = [[entry objectForKey:@"length"] unsignedIntegerValue];
-		uint8_t fill = (uint8_t)[[entry objectForKey:@"fill"] unsignedIntValue];
+	for (NSArray *entry in entries) {
+		NSUInteger length = [[entry objectAtIndex:1] unsignedIntegerValue];
+		uint8_t fill = (uint8_t)[[entry objectAtIndex:2] unsignedIntValue];
 		[body appendData:[self dataWithRepeatedByte:fill length:length]];
 	}
 	return body;
-}
-
-/* Convenience: build a body from raw [id, length, fill] tuples, the shape the multi-entry property
- * generators shuffle before building. */
-- (NSData *)appleSingleBodyWithRawEntries:(NSArray<NSArray *> *)entries
-{
-	NSMutableArray *entryDicts = [NSMutableArray array];
-	for (NSArray *entry in entries) {
-		[entryDicts addObject:@{
-			@"id" : [entry objectAtIndex:0],
-			@"length" : [entry objectAtIndex:1],
-			@"fill" : [entry objectAtIndex:2],
-		}];
-	}
-	return [self appleSingleBodyWithEntries:entryDicts];
 }
 
 /* A raw [id, length, fill] entry tuple for appleSingleBodyWithRawEntries:. Built by a method — not a
@@ -509,11 +454,9 @@
 											   stringWithFormat:@"EKEzvRoundtripFixed-%lu", (unsigned long)rawLength]];
 		[[NSFileManager defaultManager] removeItemAtPath:tempRoot error:NULL];
 
-		NSData *body = [self appleSingleBodyWithEntries:@[ @{
-								 @"id" : @(EKEZV_TEST_AS_DATA_FORK_ENTRY_ID),
-								 @"length" : @(rawLength),
-								 @"fill" : @(0x01),
-							 } ]];
+		NSData *body = [self appleSingleBodyWithRawEntries:@[
+			[self rawEntryWithID:EKEZV_TEST_AS_DATA_FORK_ENTRY_ID length:rawLength fill:0x01],
+		]];
 		XCTAssertEqual([body length], (NSUInteger)(38 + rawLength), @"N = %lu", (unsigned long)rawLength);
 
 		EKEzvIncomingFileTransfer *transfer = [self transferWithAppleSingleBody:body
@@ -723,11 +666,9 @@
 
 	/* Finder-info entry length 100 into the fixed 32-byte stack struct must be rejected, not
 	 * overflow the buffer. */
-	NSData *finderBody = [self appleSingleBodyWithEntries:@[ @{
-								   @"id" : @(EKEZV_TEST_AS_FINDER_INFO_ENTRY_ID),
-								   @"length" : @100,
-								   @"fill" : @0x04,
-							   } ]];
+	NSData *finderBody = [self appleSingleBodyWithRawEntries:@[
+		[self rawEntryWithID:EKEZV_TEST_AS_FINDER_INFO_ENTRY_ID length:100 fill:0x04],
+	]];
 	XCTAssertFalse([self decodeBody:finderBody atTempPath:tempPath],
 				   @"a Finder-info entry longer than the 32-byte struct must be rejected (issue #273)");
 

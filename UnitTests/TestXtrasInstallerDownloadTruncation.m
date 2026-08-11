@@ -14,6 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import "AIHTTPDownloadValidation.h"
 #import "XtrasInstaller.h"
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
@@ -33,6 +34,7 @@
 @interface TestXtrasInstallerSpy : XtrasInstaller
 @property(nonatomic) BOOL didFinishCalled;
 @property(nonatomic) BOOL errorCalled;
+@property(nonatomic) NSError *presentedError;
 @end
 
 @implementation TestXtrasInstallerSpy
@@ -45,6 +47,7 @@
 - (void)presentDownloadError:(NSError *)error
 {
 	self.errorCalled = YES;
+	self.presentedError = error;
 }
 
 @end
@@ -116,6 +119,10 @@
 
 	XCTAssertTrue(installer.errorCalled, @"a truncated download must present an error (issue #268)");
 	XCTAssertFalse(installer.didFinishCalled, @"a truncated download must not reach downloadDidFinish (issue #268)");
+	XCTAssertEqualObjects(installer.presentedError.domain, AIHTTPDownloadErrorDomain,
+						  @"a truncated download must surface the shared AIHTTPDownloadErrorDomain (issue #280)");
+	XCTAssertEqual(installer.presentedError.code, AIHTTPDownloadErrorTruncated,
+				   @"a truncated download must surface AIHTTPDownloadErrorTruncated (issue #280)");
 }
 
 - (void)testCompleteDownloadFinishes

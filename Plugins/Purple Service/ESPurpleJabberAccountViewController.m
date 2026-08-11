@@ -245,58 +245,20 @@ static NSComparisonResult compareByDistance(id one, id two, void *context)
 	return NSOrderedAscending;
 }
 
-// NSURLSession has no synchronous API; block on a semaphore so registerNewAccount:'s existing
+// The server-feed fetch is synchronous: the shared AIHTTPDownloadValidationSyncFetch helper blocks
+// on a semaphore (bounded by the request's timeoutInterval) so registerNewAccount:'s existing
 // blocking-with-modal-alert flow stays as-is while the response's declared Content-Length is captured
-// for the received-vs-declared truncation check (issue #273). Same pattern as AIURLShortenerPlugin's
-// resultFromURL:. The data task runs on a background queue, so the wait only parks the caller thread.
+// for the received-vs-declared truncation check (issues #273, #283). 30s caps the main-thread block.
 static const NSTimeInterval AIServerListFeedFetchTimeout = 30.0;
-
-static NSData *AIServerListFeedData(NSURL *url, NSURLResponse **outResponse, NSError **outError)
-{
-	__block NSData *data = nil;
-	__block NSURLResponse *response = nil;
-	__block NSError *error = nil;
-	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-
-	NSURLSessionDataTask *task = [[NSURLSession sharedSession]
-		  dataTaskWithURL:url
-		completionHandler:^(NSData *taskData, NSURLResponse *taskResponse, NSError *taskError) {
-			data = taskData;
-			response = taskResponse;
-			error = taskError;
-			dispatch_semaphore_signal(semaphore);
-		}];
-	[task resume];
-
-	/* Bound the main-thread block: a stalled request must never freeze the UI indefinitely, so the
-	 * wait times out and surfaces a timeout error instead of parking forever (issue #273). */
-	long waitResult = dispatch_semaphore_wait(
-		semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(AIServerListFeedFetchTimeout * NSEC_PER_SEC)));
-	if (waitResult != 0) {
-		[task cancel];
-		error = [NSError
-			errorWithDomain:NSURLErrorDomain
-					   code:NSURLErrorTimedOut
-				   userInfo:@{
-					   NSLocalizedDescriptionKey : AILocalizedString(@"The server list request timed out.", nil)
-				   }];
-	}
-
-	if (outResponse != nil) {
-		*outResponse = response;
-	}
-	if (outError != nil) {
-		*outError = error;
-	}
-	return data;
-}
 
 - (IBAction)registerNewAccount:(id)sender
 {
 	if (!servers) {
 		NSError *err = nil;
 		NSURLResponse *feedResponse = nil;
-		NSData *feedData = AIServerListFeedData([NSURL URLWithString:SERVERFEEDRSSURL], &feedResponse, &err);
+		NSMutableURLRequest *feedRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:SERVERFEEDRSSURL]];
+		[feedRequest setTimeoutInterval:AIServerListFeedFetchTimeout];
+		NSData *feedData = AIHTTPDownloadValidationSyncFetch(feedRequest, &feedResponse, &err);
 		if (err == nil) {
 			/* Reject non-HTTP responses and non-2xx statuses before parsing, matching every other
 			 * validated download site (issue #273). */

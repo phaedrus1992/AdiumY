@@ -302,11 +302,63 @@ static BOOL AIHTTPIsRealLeaf(NSString *name)
 	XCTAssertNil(AIHTTPDownloadValidationErrorForTruncatedDownload(-5, 0));
 }
 
-// Property: AIHTTPDownloadValidationErrorForTruncatedDownload returns nil exactly when there is no
-// size contract (declaredLength <= 0) or the received bytes meet or exceed the declaration; an
-// NSError in AIHTTPDownloadErrorDomain with code Truncated otherwise. The oracle reads the same
-// inputs the implementation does, locking in the declared<=0 and received<declared boundaries — the
-// regression surface a fixed set of example lengths can miss (a "<=" / "<" flip).
+// Table-driven contract cases derived from the documented contract (see the header doc), not from
+// how the implementation structures its checks: declaredLength <= 0 carries no size contract, so
+// the body is never truncated; otherwise the download is truncated exactly when
+// receivedBytes < declaredLength. Each row pins a concrete (declared, received) pair to the
+// expected verdict, covering the unknown-length sentinel, negative and zero declarations, the
+// exact-equality and over-declared edges, and the 64-bit comparison boundary past UINT32_MAX
+// (issue #273) — the fixed cases a randomized sweep is unlikely to hit exactly.
+- (void)testTruncationErrorCodeContractCases
+{
+	typedef struct {
+		int64_t declaredLength;
+		int64_t receivedBytes;
+		BOOL truncated;
+	} ContractCase;
+
+	ContractCase const cases[] = {
+		/* No contract: non-positive declared length, any received count. */
+		{0, 0, NO},
+		{0, 1024, NO},
+		{NSURLResponseUnknownLength, 0, NO},
+		{NSURLResponseUnknownLength, 1024, NO},
+		{-5, 0, NO},
+		{-5, INT64_MAX, NO},
+		/* Contract satisfied: received meets or exceeds the declaration. */
+		{100, 100, NO},
+		{100, 200, NO},
+		{INT64_MAX, INT64_MAX, NO},
+		/* Contract violated: received falls short of the declaration. */
+		{100, 99, YES},
+		{100, 0, YES},
+		{100, -1, YES},
+		{1, 0, YES},
+		{INT64_MAX, INT64_MAX - 1, YES},
+		{(int64_t)UINT32_MAX + 1, (int64_t)UINT32_MAX, YES},
+	};
+
+	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
+		ContractCase const c = cases[i];
+		NSError *error = AIHTTPDownloadValidationErrorForTruncatedDownload(c.declaredLength, c.receivedBytes);
+		if (c.truncated) {
+			XCTAssertNotNil(error, @"declared = %lld, received = %lld", c.declaredLength, c.receivedBytes);
+			XCTAssertEqualObjects([error domain], AIHTTPDownloadErrorDomain, @"declared = %lld", c.declaredLength);
+			XCTAssertEqual([error code], AIHTTPDownloadErrorTruncated, @"declared = %lld", c.declaredLength);
+		} else {
+			XCTAssertNil(error, @"declared = %lld, received = %lld", c.declaredLength, c.receivedBytes);
+		}
+	}
+}
+
+// Property: AIHTTPDownloadValidationErrorForTruncatedDownload returns nil exactly when the
+// documented contract is not violated. The contract (see the header doc): a non-positive declared
+// length carries no size contract, so the body is never truncated; otherwise the download is
+// truncated exactly when receivedBytes < declaredLength. The oracle names those two contract
+// predicates separately (hasContract / receivedAllDeclared) and combines them, rather than
+// transcribing the implementation's early-return shape, so the property is a spec statement — a
+// "<=" / "<" flip or a moved boundary in the implementation can't hide behind an
+// identical-looking expression.
 - (void)testTruncationErrorCodeProperty
 {
 	PBTCheckDefault({
@@ -336,13 +388,17 @@ static BOOL AIHTTPIsRealLeaf(NSString *name)
 			PBTRandomBool() ? (int64_t)PBTUniform(UINT32_MAX) : -(int64_t)PBTUniformUInt64(UINT32_MAX);
 
 		NSError *error = AIHTTPDownloadValidationErrorForTruncatedDownload(declaredLength, receivedBytes);
-		BOOL shouldBeNil = (declaredLength <= 0) || (receivedBytes >= declaredLength);
-		if (shouldBeNil) {
-			XCTAssertNil(error, @"declared = %lld, received = %lld", declaredLength, receivedBytes);
-		} else {
+		/* Contract-derived oracle: "hasContract" is the positive reading of the declared<=0
+		 * no-contract clause, and "receivedAllDeclared" is the satisfaction clause; the verdict is
+		 * their conjunction, not the implementation's comparison structure. */
+		BOOL hasContract = (declaredLength > 0);
+		BOOL receivedAllDeclared = (receivedBytes >= declaredLength);
+		if (hasContract && !receivedAllDeclared) {
 			XCTAssertNotNil(error, @"declared = %lld, received = %lld", declaredLength, receivedBytes);
 			XCTAssertEqualObjects([error domain], AIHTTPDownloadErrorDomain, @"declared = %lld", declaredLength);
 			XCTAssertEqual([error code], AIHTTPDownloadErrorTruncated, @"declared = %lld", declaredLength);
+		} else {
+			XCTAssertNil(error, @"declared = %lld, received = %lld", declaredLength, receivedBytes);
 		}
 	});
 }

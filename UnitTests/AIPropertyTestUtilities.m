@@ -297,19 +297,33 @@ BOOL PBTRandomBool(void)
 	return _pbt_bool();
 }
 
+static uint64_t _pbt_u64(void)
+{
+	/* Three 31-bit draws (BSD random() returns 31 bits) compose bijectively onto the full 64-bit
+	 * space: (a << 33) | (b << 2) | (c & 0x3) has uniform high 62 bits and uniform low 2 bits, so
+	 * every value in [0, 2^64) is equally likely. The old composed-draws approach reused
+	 * _pbt_range(UINT32_MAX), whose outputs only span {0} and the odd numbers, and so locked the
+	 * result to a single parity for some large maxes (issue #281). */
+	uint64_t a = (uint64_t)random() & 0x7fffffff;
+	uint64_t b = (uint64_t)random() & 0x7fffffff;
+	uint64_t c = (uint64_t)random() & 0x7fffffff;
+	return (a << 33) | (b << 2) | (c & 0x3);
+}
+
 uint64_t PBTUniformUInt64(uint64_t max)
 {
 	if (max == 0) {
 		return 0;
 	}
-	if (max <= UINT32_MAX) {
-		return _pbt_range((uint32_t)max);
-	}
-	/* Two 32-bit draws composed into a 64-bit value: _pbt_range's uint32_t max cannot reach beyond
-	 * UINT32_MAX, so a larger max needs the full width composed by hand. */
-	uint64_t high = (uint64_t)_pbt_range(UINT32_MAX) << 32;
-	uint64_t low = (uint64_t)_pbt_range(UINT32_MAX);
-	return (high | low) % max;
+	/* Rejection sampling removes modulo bias for every max: values in the partial top block
+	 * [limit, 2^64) are rejected and redrawn, so each residue is equally likely. The rejected
+	 * region is smaller than max, keeping the expected number of draws below 2. */
+	uint64_t const limit = UINT64_MAX - (UINT64_MAX % max);
+	uint64_t value;
+	do {
+		value = _pbt_u64();
+	} while (value >= limit);
+	return value % max;
 }
 
 uint64_t PBTBoundaryUInt64(uint64_t max)

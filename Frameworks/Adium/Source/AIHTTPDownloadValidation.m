@@ -64,6 +64,60 @@ NSError *AIHTTPDownloadValidationErrorForTruncatedDownload(int64_t declaredLengt
 	return nil;
 }
 
+NSData *AIHTTPDownloadValidationSyncFetch(NSURLRequest *request, NSURLResponse **outResponse, NSError **outError)
+{
+	if (request == nil) {
+		/* A nil request must not reach dataTaskWithRequest:, which returns nil and leaves the
+		 * semaphore below unwoken forever. */
+		if (outError != nil) {
+			*outError = [NSError
+				errorWithDomain:NSURLErrorDomain
+						   code:NSURLErrorBadURL
+					   userInfo:@{
+						   NSLocalizedDescriptionKey : AILocalizedStringFromTable(@"The request has no URL.", nil, nil)
+					   }];
+		}
+		return nil;
+	}
+
+	__block NSData *resultData = nil;
+	__block NSURLResponse *resultResponse = nil;
+	__block NSError *resultError = nil;
+	dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+	NSURLSessionDataTask *task =
+		[[NSURLSession sharedSession] dataTaskWithRequest:request
+										completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error) {
+											resultData = data;
+											resultResponse = urlResponse;
+											resultError = error;
+											dispatch_semaphore_signal(semaphore);
+										}];
+	[task resume];
+
+	/* Bound the wait at the request's own timeoutInterval: a stalled request must never park the
+	 * calling thread indefinitely, so the wait times out and surfaces a timeout error instead
+	 * (issue #273). The data task runs on a background queue, so the wait only parks the caller
+	 * thread. */
+	dispatch_time_t waitUntil = dispatch_time(DISPATCH_TIME_NOW, (int64_t)([request timeoutInterval] * NSEC_PER_SEC));
+	if (dispatch_semaphore_wait(semaphore, waitUntil) != 0) {
+		[task cancel];
+		resultError = [NSError
+			errorWithDomain:NSURLErrorDomain
+					   code:NSURLErrorTimedOut
+				   userInfo:@{
+					   NSLocalizedDescriptionKey : AILocalizedStringFromTable(@"The request timed out.", nil, nil)
+				   }];
+	}
+
+	if (outResponse != nil) {
+		*outResponse = resultResponse;
+	}
+	if (outError != nil) {
+		*outError = resultError;
+	}
+	return resultData;
+}
+
 // YES iff name's last path component is a real, non-degenerate leaf: non-empty, not ".", "..",
 // "/", and not whitespace-only (a name of only whitespace is empty once the OS trims it when
 // writing, so the save panel would get no usable default — issue #175).

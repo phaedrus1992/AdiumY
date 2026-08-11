@@ -192,14 +192,11 @@
 	} else if ([self downloadWasTruncated]) {
 		/* Post-completion integrity check (issue #268): the transport finished without error, but fewer
 		 * bytes arrived than the declared non-zero size. Treat it as a download failure instead of
-		 * decompressing and installing a corrupt Xtra as "complete". */
-		NSString *informativeText = [NSString
-			stringWithFormat:AILocalizedString(@"Download incomplete: received %qu of %qu declared bytes.", nil),
-							 amountDownloaded, downloadSize];
-		NSError *truncationError = [NSError errorWithDomain:NSURLErrorDomain
-													   code:NSURLErrorUnknown
-												   userInfo:@{NSLocalizedDescriptionKey : informativeText}];
-		[self presentDownloadError:truncationError];
+		 * decompressing and installing a corrupt Xtra as "complete". The error comes from the shared
+		 * validator, so its domain/code (AIHTTPDownloadErrorDomain / AIHTTPDownloadErrorTruncated) is
+		 * the same one every download site reports (issue #280). */
+		[self presentDownloadError:AIHTTPDownloadValidationErrorForTruncatedDownload((int64_t)downloadSize,
+																					 (int64_t)amountDownloaded)];
 	} else {
 		[self downloadDidFinish];
 	}
@@ -207,12 +204,12 @@
 
 - (BOOL)downloadWasTruncated
 {
-	/* An unknown declared length (NSURLResponseUnknownLength, -1, wrapped to ULLONG_MAX in the unsigned
-	 * ivar) or a zero size disables the check: there is no declared byte count to compare against. */
-	if (downloadSize == (unsigned long long)NSURLResponseUnknownLength) {
-		return NO;
-	}
-	return (downloadSize > 0 && amountDownloaded < downloadSize);
+	/* Delegate the received-vs-declared comparison to the shared validator: it encodes the
+	 * no-contract rule — a non-positive declared length, including NSURLResponseUnknownLength (-1)
+	 * wrapped to ULLONG_MAX in the unsigned ivar — exactly as the hand-written check it replaces did
+	 * (issues #263, #280). The unsigned ivars are cast to int64_t; a wrapped unknown length maps to
+	 * -1, which the validator treats as "no size contract". */
+	return AIHTTPDownloadValidationErrorForTruncatedDownload((int64_t)downloadSize, (int64_t)amountDownloaded) != nil;
 }
 
 - (void)presentDownloadError:(NSError *)error
