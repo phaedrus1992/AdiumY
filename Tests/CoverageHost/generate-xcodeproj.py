@@ -1890,13 +1890,22 @@ def _expand_build_path(entry):
     """Expand a build-setting path entry to absolute, or None if not a real path.
 
     Handles `$(inherited)` (skip), optional surrounding quotes, and
-    `$(SRCROOT)`-relative entries (the harness's HEADER_SEARCH_PATHS style)."""
-    if entry == "$(inherited)":
+    `$(SRCROOT)`-relative entries (the harness's HEADER_SEARCH_PATHS style).
+    Quotes are stripped before whitespace so a padded quoted entry
+    (e.g. `"  $(SRCROOT)/x  "`) still normalizes; any other unresolved `$(...)`
+    build variable (e.g. `$(FRAMEWORK_SEARCH_PATHS)`) is skipped rather than
+    emitted as a literal path."""
+    if not isinstance(entry, str):
         return None
-    p = entry.strip()
+    p = entry
     if len(p) >= 2 and p[0] == '"' and p[-1] == '"':
         p = p[1:-1]
+    p = p.strip()
+    if p == "$(inherited)":
+        return None
     p = p.replace("$(SRCROOT)", PROJECT_DIR)
+    if "$(" in p:
+        return None
     if not os.path.isabs(p):
         p = os.path.join(PROJECT_DIR, p)
     return os.path.normpath(p)
@@ -1917,7 +1926,7 @@ def _sources_for_target(target_id):
             if ref.get("lastKnownFileType") != "sourcecode.c.objc":
                 continue
             path = ref.get("path", "")
-            if path.endswith(".m"):
+            if path:  # non-empty; the type filter above already guarantees an ObjC TU
                 files.append(os.path.normpath(os.path.join(PROJECT_DIR, path)))
     return files
 
@@ -1948,9 +1957,12 @@ def write_compile_commands(repo_root):
         ["xcrun", "--sdk", test_settings["SDKROOT"], "--find", "clang"], text=True).strip()
 
     flags = ["-x", "objective-c"]
-    if test_settings.get("CLANG_ENABLE_OBJC_ARC"):
+    # convert_bool_to_string (above) has already mutated these buildSettings to
+    # "YES"/"NO" strings, so compare against the string — a plain truthiness
+    # test makes the disabled ("NO") case still emit the flag.
+    if test_settings.get("CLANG_ENABLE_OBJC_ARC") == "YES":
         flags.append("-fobjc-arc")
-    if test_settings.get("CLANG_ENABLE_OBJC_WEAK"):
+    if test_settings.get("CLANG_ENABLE_OBJC_WEAK") == "YES":
         flags.append("-fobjc-weak")
     flags += ["-isysroot", sdk,
               "-mmacosx-version-min=%s" % project_settings["MACOSX_DEPLOYMENT_TARGET"]]
