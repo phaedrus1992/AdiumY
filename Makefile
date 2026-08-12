@@ -18,7 +18,7 @@ XCODEBUILD ?= xcodebuild
 CP=ditto --rsrc
 RM=rm
 
-.PHONY: all adium clean localizable-strings latest test astest install format format-check coverage-check setup-blame install-hooks xcodeproj
+.PHONY: all adium clean localizable-strings latest test astest install format format-check analyze coverage-check setup-blame install-hooks xcodeproj
 
 adium:
 	$(XCODEBUILD) -version
@@ -64,6 +64,9 @@ format:
 
 format-check:
 	scripts/format-check.sh
+
+analyze:
+	scripts/analyze-check.sh
 
 coverage-check:
 	scripts/coverage-check.sh

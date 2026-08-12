@@ -49,10 +49,14 @@ static BOOL getSurrogatesForUnicodeScalarValue(const UTF32Char scalar, unichar *
 	if (length && (buf[i] == '+')) {
 		++i;
 	}
-	if (i >= length)
+	if (i >= length) {
+		free(buf);
 		return NO;
-	if ((buf[i] < '0') || (buf[i] > '9'))
+	}
+	if ((buf[i] < '0') || (buf[i] > '9')) {
+		free(buf);
 		return NO;
+	}
 
 	unsigned total = 0;
 	while (i < length) {
@@ -64,6 +68,7 @@ static BOOL getSurrogatesForUnicodeScalarValue(const UTF32Char scalar, unichar *
 			break;
 		}
 	}
+	free(buf);
 	[self setScanLocation:i];
 	*unsignedIntValue = total;
 	return YES;

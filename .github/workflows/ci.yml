@@ -155,3 +155,61 @@ jobs:
           DERIVED_DATA_DIR: build/DerivedData
         run: |
           make coverage-check
+
+  analyze:
+    name: Analyze (Clang Static Analyzer)
+    runs-on: macos-15
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Analyze AIUtilities.framework
+        run: |
+          bash scripts/analyze-check.sh
+
+      - name: Upload analyze log (on failure)
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: analyze-log
+          path: build/analyze.log
+          if-no-files-found: warn
+
+  semgrep:
+    name: SAST (Semgrep)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          # Full history so --baseline-commit can diff against the base branch.
+          fetch-depth: 0
+
+      - name: Install Semgrep
+        run: |
+          pip install --quiet semgrep
+
+      - name: Scan for new findings (diff-aware vs base)
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ -n "$BASE_REF" ]; then
+            git fetch origin "$BASE_REF" --depth=1
+            BASELINE="origin/$BASE_REF"
+          else
+            # Push to main: baseline is the previous commit on main.
+            BASELINE="origin/main~1"
+          fi
+          # p/ci is the Semgrep CI ruleset (security + correctness). --error
+          # fails on findings; --baseline-commit limits failure to NEW findings
+          # on changed lines, so pre-existing issues don't block.
+          semgrep scan --config p/ci --baseline-commit "$BASELINE" --error --metrics=off

@@ -420,18 +420,24 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName)
 			   keychainItem:(out SecKeychainItemRef *)outKeychainItem
 					  error:(out NSError **)outError
 {
+	NSError *error = nil;
+	BOOL success = NO;
+
 	@autoreleasepool {
 
 		NSString *protocolStr = AIKeychainProtocolString(protocol);
 		OSStatus err = AIKeychainAddPassword(server, account, protocolStr, path, port, domain, authType, password);
 
-		if (outError)
-			*outError = AIKeychainErrorFromStatus(err, @"SecItemAdd");
-		if (outKeychainItem)
-			*outKeychainItem = NULL;
-
-		return (err == noErr);
+		error = AIKeychainErrorFromStatus(err, @"SecItemAdd");
+		success = (err == noErr);
 	}
+
+	if (outError)
+		*outError = error;
+	if (outKeychainItem)
+		*outKeychainItem = NULL;
+
+	return success;
 }
 
 - (BOOL)addInternetPassword:(NSString *)password
@@ -545,34 +551,38 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName)
 			   keychainItem:(out SecKeychainItemRef *)outKeychainItem
 					  error:(out NSError **)outError
 {
+	NSError *error = nil;
+	BOOL result = NO;
+
 	NSString *protocolStr = AIKeychainProtocolString(protocol);
 
 	if (!password) {
 		/* Remove the password */
 		@autoreleasepool {
 			OSStatus err = AIKeychainDeletePassword(server, account, protocolStr, path, port, domain, authType);
-			if (outError)
-				*outError = AIKeychainErrorFromStatus(err, @"SecItemDelete");
-			if (outKeychainItem)
-				*outKeychainItem = NULL;
-			return (err == noErr || err == errSecItemNotFound);
+			error = AIKeychainErrorFromStatus(err, @"SecItemDelete");
+			result = (err == noErr || err == errSecItemNotFound);
+		}
+	} else {
+		/* Try to add; if duplicate, update instead */
+		@autoreleasepool {
+			OSStatus err = AIKeychainAddPassword(server, account, protocolStr, path, port, domain, authType, password);
+
+			if (err == errSecDuplicateItem) {
+				err = AIKeychainUpdatePassword(server, account, protocolStr, path, port, domain, authType, password);
+			}
+
+			error = AIKeychainErrorFromStatus(err, @"SecItemAdd/Update");
+			result = (err == noErr);
 		}
 	}
 
-	/* Try to add; if duplicate, update instead */
-	@autoreleasepool {
-		OSStatus err = AIKeychainAddPassword(server, account, protocolStr, path, port, domain, authType, password);
+	if (outError)
+		*outError = error;
+	if (outKeychainItem)
+		*outKeychainItem = NULL;
 
-		if (err == errSecDuplicateItem) {
-			err = AIKeychainUpdatePassword(server, account, protocolStr, path, port, domain, authType, password);
-		}
-
-		if (outError)
-			*outError = AIKeychainErrorFromStatus(err, @"SecItemAdd/Update");
-		if (outKeychainItem)
-			*outKeychainItem = NULL;
-		return (err == noErr);
-	}
+	return result;
 }
 
 - (BOOL)setInternetPassword:(NSString *)password
@@ -605,17 +615,24 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName)
 						   keychainItem:(out SecKeychainItemRef *)outKeychainItem
 								  error:(out NSError **)outError
 {
+	NSError *error = nil;
+	BOOL result = NO;
+
 	@autoreleasepool {
 
 		NSString *protocolStr = AIKeychainProtocolString(protocol);
 		OSStatus err = AIKeychainDeletePassword(server, account, protocolStr, path, port, domain, authType);
 
-		if (outError)
-			*outError = AIKeychainErrorFromStatus(err, @"SecItemDelete");
-		if (outKeychainItem)
-			*outKeychainItem = NULL;
-		return (err == noErr || err == errSecItemNotFound);
+		error = AIKeychainErrorFromStatus(err, @"SecItemDelete");
+		result = (err == noErr || err == errSecItemNotFound);
 	}
+
+	if (outError)
+		*outError = error;
+	if (outKeychainItem)
+		*outKeychainItem = NULL;
+
+	return result;
 }
 
 - (BOOL)deleteInternetPasswordForServer:(NSString *)server
@@ -642,6 +659,9 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName)
 			  keychainItem:(out SecKeychainItemRef *)outKeychainItem
 					 error:(out NSError **)outError
 {
+	NSError *error = nil;
+	BOOL result = NO;
+
 	@autoreleasepool {
 
 		NSDictionary *attrs = [NSDictionary
@@ -652,12 +672,16 @@ static NSError *AIKeychainErrorFromStatus(OSStatus err, NSString *funcName)
 
 		OSStatus err = SecItemAdd((__bridge CFDictionaryRef)attrs, NULL);
 
-		if (outError)
-			*outError = AIKeychainErrorFromStatus(err, @"SecItemAdd");
-		if (outKeychainItem)
-			*outKeychainItem = NULL;
-		return (err == noErr);
+		error = AIKeychainErrorFromStatus(err, @"SecItemAdd");
+		result = (err == noErr);
 	}
+
+	if (outError)
+		*outError = error;
+	if (outKeychainItem)
+		*outKeychainItem = NULL;
+
+	return result;
 }
 
 - (NSString *)findGenericPasswordForService:(NSString *)service
