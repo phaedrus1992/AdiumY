@@ -282,25 +282,19 @@ def extract_event_handler_group_count(header_path):
 
 
 def event_handler_group_count_drift(real_header_path, stub_header_path):
-    """Return a list of drift errors between the real enum count and the test stub's.
+    """Return drift errors between the real enum count and the test stub's.
 
-    The CoverageHost test TU cannot import the real AIContactAlertsControllerProtocol.h
-    (it would drag in the AdiumY.framework declaration chain), so the register path
-    compiled into the test bundle reads EVENT_HANDLER_GROUP_COUNT from a hand-copied
-    stub. If the real enum grows and the stub isn't updated, the test bundle's static
-    arrays silently stay smaller than the app's — stale register-guard coverage. Every
-    generator run and the unit test suite enforce that the two stay in lockstep.
-
-    Returns an empty list when the two counts match; otherwise a list of
-    human-readable errors.
+    The CoverageHost register path reads EVENT_HANDLER_GROUP_COUNT from a hand-copied
+    stub; if the real enum grows without the stub, the test bundle's register arrays
+    silently stay undersized. Returns [] when the counts match, else a list of errors.
     """
     try:
         real = extract_event_handler_group_count(real_header_path)
-    except ValueError as e:
+    except (ValueError, OSError) as e:
         return [str(e)]
     try:
         stub = extract_event_handler_group_count(stub_header_path)
-    except ValueError as e:
+    except (ValueError, OSError) as e:
         return [str(e)]
     if real != stub:
         return [

@@ -359,10 +359,8 @@ def _validate_wired_imports(repo_root):
 # shim dir fails the run before any codegen.
 _validate_shim_manifest(REPO_ROOT)
 
-# Bind the CoverageHost register-guard stub to the real header: a stale
-# EVENT_HANDLER_GROUP_COUNT in the stub silently under-sizes the test bundle's
-# register-side arrays. Fail regeneration (matching _validate_shim_manifest)
-# instead of writing a project whose coverage silently drifted.
+# Bind the CoverageHost register-guard stub to the real header — a stale
+# EVENT_HANDLER_GROUP_COUNT silently under-sizes the test bundle's arrays.
 _enum_drift = event_handler_group_count_drift(
     os.path.join(REPO_ROOT, "Frameworks", "Adium", "Source", "AIContactAlertsControllerProtocol.h"),
     os.path.join(PROJECT_DIR, "AdiumY", "AIContactAlertsControllerProtocol.h"),

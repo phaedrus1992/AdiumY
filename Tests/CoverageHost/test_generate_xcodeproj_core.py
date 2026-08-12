@@ -549,6 +549,17 @@ class EventHandlerGroupCountDriftTest(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("EVENT_HANDLER_GROUP_COUNT", errors[0])
 
+    def test_missing_header_reported_as_drift_not_crash(self):
+        # A deleted/renamed header is OSError at open(); drift must report it as
+        # an error too, not let a raw FileNotFoundError traceback escape the
+        # generator. The real header path only exists in this repo's tree, so
+        # the missing file is whichever side of the pair doesn't exist.
+        real = self._header("#define EVENT_HANDLER_GROUP_COUNT 5\n")
+        missing_stub = os.path.join(self.test_dir, "AdiumY", "does-not-exist.h")
+        errors = event_handler_group_count_drift(real, missing_stub)
+        self.assertEqual(len(errors), 1)
+        self.assertIn(missing_stub, errors[0])
+
 
 if __name__ == "__main__":
     unittest.main()
