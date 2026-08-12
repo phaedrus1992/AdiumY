@@ -157,6 +157,21 @@ APPLESCRIPT
 	fi
 fi
 
+# A volume icon is the modern replacement for the HFS+ resource-fork `Icon\r`
+# files git cannot store: `.VolumeIcon.icns` on the volume root plus the
+# SetFile custom-icon attribute is what Finder renders on the mounted disk.
+# Purely cosmetic — a missing icon or SetFile degrades to a warning, never a
+# failed release.
+VOLUME_ICON="$RELEASE_DIR/Artwork/VolumeIcon.icns"
+if [ -f "$VOLUME_ICON" ]; then
+	echo "==> Applying volume icon"
+	if ! ditto "$VOLUME_ICON" "$MOUNT_DIR/.VolumeIcon.icns"; then
+		echo "  warning: could not copy $VOLUME_ICON — using the default volume icon" >&2
+	elif ! SetFile -a C "$MOUNT_DIR"; then
+		echo "  warning: SetFile -a C failed — using the default volume icon" >&2
+	fi
+fi
+
 chmod -Rf go-w "$MOUNT_DIR" || true
 
 # Mounting read-write leaves these behind; they have no business in a release.
