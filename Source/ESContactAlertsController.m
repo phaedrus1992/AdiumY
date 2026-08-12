@@ -86,7 +86,7 @@ static NSMutableDictionary *globalOnlyEventHandlersByGroup[EVENT_HANDLER_GROUP_C
 				inGroup:(AIEventHandlerGroupType)inGroup
 			 globalOnly:(BOOL)global
 {
-	NSParameterAssert(inGroup >= AIContactsEventHandlerGroup && inGroup <= AIOtherEventHandlerGroup);
+	NSParameterAssert(inGroup >= AIContactsEventHandlerGroup && inGroup < EVENT_HANDLER_GROUP_COUNT);
 	if (global) {
 		[globalOnlyEventHandlers setObject:handler forKey:eventID];
 
