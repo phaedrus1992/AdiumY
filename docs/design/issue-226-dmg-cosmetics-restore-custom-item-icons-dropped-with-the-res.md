@@ -33,11 +33,13 @@ Volume root icon via the modern mechanism, no resource forks:
    the DMG.
 2. `make-dmg.sh` applies it right after mounting the read-write image, before
    `chmod -Rf go-w`:
-   - `if [ -f "$RELEASE_DIR/Artwork/VolumeIcon.icns" ]` → `ditto` it to
+   - `ditto` `$RELEASE_DIR/Artwork/VolumeIcon.icns` to
      `$MOUNT_DIR/.VolumeIcon.icns`, then set the custom-icon attribute with
      `SetFile -a C "$MOUNT_DIR"`.
-   - A missing icon or a `SetFile` failure prints a warning and continues —
-     the icon is cosmetic and must never fail a release.
+   - A missing icon (ditto fails on the absent source) or a `SetFile` failure
+     prints a warning and continues — the icon is cosmetic and must never fail
+     a release. No `[ -f ]` guard: an absent icon degrades to the same ditto
+     warning rather than skipping silently.
 3. Finder renders the custom icon for the mounted disk from
    `.VolumeIcon.icns` + the `-a C` attribute. This replaces the HFS+
    resource-fork `Icon\r` artwork (`CustomIcons.tgz`) that git cannot store;
@@ -48,7 +50,7 @@ Volume root icon via the modern mechanism, no resource forks:
 - [x] Verified with the mock-tool harness (real `hdiutil attach -readwrite` is
   unavailable in a non-GUI/headless context): the committed `.VolumeIcon.icns`
   lands on the volume root byte-identical and `SetFile -a C` is invoked with
-  the mount path. Missing-icon (step skipped, no call) and `SetFile`-failure
-  (warning, non-fatal) paths both behave. Exercised end-to-end by the
-  GUI-session release pipeline on first release.
+  the mount path. Missing-icon (warning emitted, no `SetFile` call) and
+  `SetFile`-failure (warning, non-fatal) paths both behave. Exercised
+  end-to-end by the GUI-session release pipeline on first release.
 
