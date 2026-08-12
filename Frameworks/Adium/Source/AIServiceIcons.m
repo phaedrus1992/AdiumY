@@ -57,9 +57,6 @@ static NSDictionary *serviceIconNames[NUMBER_OF_SERVICE_ICON_TYPES];
 							  type:(AIServiceIconType)iconType
 						 direction:(AIIconDirection)iconDirection
 {
-	NSParameterAssert(iconType >= 0 && iconType < NUMBER_OF_SERVICE_ICON_TYPES);
-	NSParameterAssert(iconDirection >= 0 && iconDirection < NUMBER_OF_ICON_DIRECTIONS);
-
 	NSImage *serviceIcon = [self serviceIconForServiceID:service.serviceID type:iconType direction:iconDirection];
 
 	if (!serviceIcon && service) {
