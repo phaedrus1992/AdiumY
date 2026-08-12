@@ -73,22 +73,8 @@ setup-blame:
 	@echo "git blame configured to skip the bulk format commit."
 
 install-hooks:
-	@mkdir -p .git/hooks
-	@cat > .git/hooks/pre-commit <<- 'HOOK'
-	#!/bin/bash
-	# clang-format pre-commit hook — dry-run on staged ObjC files
-	set -euo pipefail
-	git diff --cached --name-only --diff-filter=ACM | grep -E '\.(m|mm|h|c|cpp)$$' | \
-	  while IFS= read -r f; do
-	    if ! clang-format --dry-run --Werror "$$f" 2>/dev/null; then
-	      echo "FAIL: $$f does not match .clang-format style"
-	      echo "Run 'make format' to fix, or 'git commit --no-verify' to bypass"
-	      exit 1
-	    fi
-	  done
-	HOOK
-	@chmod +x .git/hooks/pre-commit
-	@echo "Pre-commit hook installed. Run 'make format' to reformat all files."
+	prek install
+	@echo "prek pre-commit hook installed (see .pre-commit-config.yaml). Run 'make format' to reformat all files."
 
 # Regenerate the CoverageHost test project + the repo-root clangd compilation
 # database (compile_commands.json) from the single source of truth.
