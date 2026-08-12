@@ -19,6 +19,12 @@
 #import <AIUtilities/AIImageDrawingAdditions.h>
 #import <AIUtilities/AIMenuAdditions.h>
 #import <AdiumY/AIListObject.h>
+// The real app imports AIPlugin.h via Adium.pch; the standalone test target compiles this TU
+// without that prefix header, so the `adium` global needs its declaration here.
+#import <AdiumY/AIPlugin.h>
+// The real app imports AIPreferenceControllerProtocol.h via Adium.pch; import it here so
+// adium.preferenceController's selectors resolve without the pch.
+#import <AdiumY/AIPreferenceControllerProtocol.h>
 
 @interface ESContactAlertsController ()
 - (NSArray *)arrayOfMenuItemsForEventsWithTarget:(id)target forGlobalMenu:(BOOL)global;
@@ -80,6 +86,7 @@ static NSMutableDictionary *globalOnlyEventHandlersByGroup[EVENT_HANDLER_GROUP_C
 				inGroup:(AIEventHandlerGroupType)inGroup
 			 globalOnly:(BOOL)global
 {
+	NSParameterAssert(inGroup >= AIContactsEventHandlerGroup && inGroup <= AIOtherEventHandlerGroup);
 	if (global) {
 		[globalOnlyEventHandlers setObject:handler forKey:eventID];
 

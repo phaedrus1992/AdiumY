@@ -34,7 +34,6 @@
 - (void)_saveAccounts;
 - (NSString *)_generateUniqueInternalObjectID;
 - (NSString *)_upgradeServiceUniqueID:(NSString *)serviceUniqueID forAccountDict:(NSDictionary *)accountDict;
-- (void)upgradeAccounts;
 @end
 
 @interface AIAccount (SekretsIKnow)
@@ -67,8 +66,6 @@
 - (void)controllerDidLoad
 {
 	[self _loadAccounts];
-
-	[self upgradeAccounts];
 }
 
 // Accounts -------------------------------------------------------------------------------------------------------
@@ -351,81 +348,6 @@
 	// Save and broadcast an account list changed notification
 	[adium.preferenceController setPreference:flatAccounts forKey:ACCOUNT_LIST group:PREF_GROUP_ACCOUNTS];
 	[[NSNotificationCenter defaultCenter] postNotificationName:Account_ListChanged object:nil userInfo:nil];
-}
-
-/*!
- * @brief Perform upgrades for a new version
- *
- * 1.0: KEY_ACCOUNT_DISPLAY_NAME and @"textProfile" cleared if @"" and moved to global if identical on all accounts
- */
-- (void)upgradeAccounts
-{
-	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-	NSNumber *upgradedAccounts = [userDefaults objectForKey:@"Adium:Account Prefs Upgraded for 1.0"];
-
-	if (!upgradedAccounts || ![upgradedAccounts boolValue]) {
-		[userDefaults setObject:[NSNumber numberWithBool:YES] forKey:@"Adium:Account Prefs Upgraded for 1.0"];
-
-		AIAccount *account;
-		NSEnumerator *enumerator, *keyEnumerator;
-		NSString *key;
-
-		// Adium 0.8x would store @"" in preferences which we now want to be able to inherit global values if they don't
-		// have a value.
-		NSSet *keysWeNowUseGlobally = [NSSet setWithObjects:KEY_ACCOUNT_DISPLAY_NAME, @"textProfile", nil];
-
-		NSCharacterSet *whitespaceAndNewlineCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
-
-		keyEnumerator = [keysWeNowUseGlobally objectEnumerator];
-		while ((key = [keyEnumerator nextObject])) {
-			NSAttributedString *firstAttributedString = nil;
-			BOOL allOnThisKeyAreTheSame = YES;
-
-			enumerator = [[self accounts] objectEnumerator];
-			while ((account = [enumerator nextObject])) {
-				NSAttributedString *attributedString =
-					[[account preferenceForKey:key group:GROUP_ACCOUNT_STATUS] attributedString];
-				if (attributedString && ![attributedString length]) {
-					[account setPreference:nil forKey:key group:GROUP_ACCOUNT_STATUS];
-					attributedString = nil;
-				}
-
-				if (attributedString) {
-					if (firstAttributedString) {
-						/* If this string is not the same as the first one we found, all are not the same.
-						 * Only need to check if thus far they all have been the same
-						 */
-						if (allOnThisKeyAreTheSame &&
-							![[[attributedString string]
-								stringByTrimmingCharactersInSet:whitespaceAndNewlineCharacterSet]
-								isEqualToString:
-									[[firstAttributedString string]
-										stringByTrimmingCharactersInSet:whitespaceAndNewlineCharacterSet]]) {
-							allOnThisKeyAreTheSame = NO;
-						}
-					} else {
-						// Note the first one we find, which will be our reference
-						firstAttributedString = attributedString;
-					}
-				}
-			}
-
-			if (allOnThisKeyAreTheSame && firstAttributedString) {
-				// All strings on this key are the same. Set the preference globally...
-				[adium.preferenceController setPreference:[firstAttributedString dataRepresentation]
-												   forKey:key
-													group:GROUP_ACCOUNT_STATUS];
-
-				// And remove it from all accounts
-				enumerator = [[self accounts] objectEnumerator];
-				while ((account = [enumerator nextObject])) {
-					[account setPreference:nil forKey:key group:GROUP_ACCOUNT_STATUS];
-				}
-			}
-		}
-
-		[userDefaults synchronize];
-	}
 }
 
 @end

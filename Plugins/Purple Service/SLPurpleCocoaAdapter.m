@@ -225,39 +225,12 @@ void adium_glib_log(const gchar *log_domain, GLogLevelFlags flags, const gchar *
 	 */
 	setenv("GST_PLUGIN_SYSTEM_PATH", " ", 1);
 
-	// Set the gaim user directory to be within this user's directory
-	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"Adium 1.0.3 moved to libpurple"]) {
-		// Remove old icons cache
-		[[NSFileManager defaultManager]
-			removeItemAtPath:[[[adium.loginController userDirectory] stringByAppendingPathComponent:@"libgaim"]
-								 stringByAppendingPathComponent:@"icons"]
-					   error:NULL];
-
-		// Update the rest
-		[[NSFileManager defaultManager]
-			moveItemAtPath:[[adium.loginController userDirectory] stringByAppendingPathComponent:@"libgaim"]
-					toPath:[[adium.loginController userDirectory] stringByAppendingPathComponent:@"libpurple"]
-					 error:NULL];
-
-		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"Adium 1.0.3 moved to libpurple"];
-	}
-
 	// Set the purple user directory to be within this user's directory
 	NSString *purpleUserDir = [[adium.loginController userDirectory] stringByAppendingPathComponent:@"libpurple"];
 	purple_util_set_user_dir([[purpleUserDir stringByExpandingTildeInPath] fileSystemRepresentation]);
 
 	// Set the caches path
 	purple_buddy_icons_set_cache_dir([[[adium cachesPath] stringByExpandingTildeInPath] fileSystemRepresentation]);
-
-	/* Delete blist.xml once when 1.2.4 runs to clear out any old silliness, including improperly blocked Yahoo contacts
-	 */
-	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"Adium 1.2.4 deleted blist.xml"]) {
-		[[NSFileManager defaultManager]
-			removeItemAtPath:[[[NSString stringWithUTF8String:purple_user_dir()]
-								 stringByAppendingPathComponent:@"blist"] stringByAppendingPathExtension:@"xml"]
-					   error:NULL];
-		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"Adium 1.2.4 deleted blist.xml"];
-	}
 
 	purple_core_set_ui_ops(adium_purple_core_get_ops());
 	purple_eventloop_set_ui_ops(adium_purple_eventloop_get_ui_ops());

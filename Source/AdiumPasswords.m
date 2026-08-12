@@ -28,12 +28,8 @@
 #import "ESAccountPasswordPromptController.h"
 #import "ESProxyPasswordPromptController.h"
 
-#define KEY_PERFORMED_ACCOUNT_PASSWORD_UPGRADE @"Adium 1.3: Account Passwords Upgraded"
-
 @interface AdiumPasswords ()
 + (dispatch_queue_t)queue;
-- (NSString *)_oldStyleAccountNameForAccount:(AIAccount *)inAccount;
-- (NSString *)_passKeyForAccount:(AIAccount *)inAccount;
 - (NSString *)_accountNameForAccount:(AIAccount *)inAccount;
 - (NSString *)_accountNameForSpecialPassword:(AISpecialPasswordType)inType
 									 account:(AIAccount *)inAccount
@@ -41,20 +37,15 @@
 - (NSString *)_serverNameForAccount:(AIAccount *)inAccount;
 - (NSString *)_accountNameForProxyServer:(NSString *)proxyServer userName:(NSString *)userName;
 - (NSString *)_passKeyForProxyServer:(NSString *)proxyServer;
-- (void)_upgradeAccountPasswordKeychainEntries;
 @end
 
 @implementation AdiumPasswords
 
 /*!
- * @brief Finish Initing
- *
- * Requires that all accounts have been loaded
+ * @brief AIController load hook (protocol-required; no upgrade work remains)
  */
 - (void)controllerDidLoad
-{
-	[self _upgradeAccountPasswordKeychainEntries];
-}
+{}
 
 + (dispatch_queue_t)queue
 {
@@ -421,23 +412,6 @@
 #pragma mark Password Keys
 
 /*!
- * @brief Old-style Keychain identifier for an account
- */
-- (NSString *)_oldStyleAccountNameForAccount:(AIAccount *)inAccount
-{
-	return [NSString stringWithFormat:@"%@.%@", inAccount.service.serviceID, inAccount.internalObjectID];
-}
-- (NSString *)_passKeyForAccount:(AIAccount *)inAccount
-{
-	if ([[adium.loginController userArray] count] > 1) {
-		return [NSString stringWithFormat:@"Adium.%@.%@", adium.loginController.currentUser,
-										  [self _oldStyleAccountNameForAccount:inAccount]];
-	} else {
-		return [NSString stringWithFormat:@"Adium.%@", [self _oldStyleAccountNameForAccount:inAccount]];
-	}
-}
-
-/*!
  * @brief New-style Keychain identifier for an account
  */
 - (NSString *)_accountNameForAccount:(AIAccount *)inAccount
@@ -481,60 +455,6 @@
 		return [NSString stringWithFormat:@"Adium.%@.%@", [adium.loginController currentUser], proxyServer];
 	} else {
 		return [NSString stringWithFormat:@"Adium.%@", proxyServer];
-	}
-}
-
-#pragma mark Upgrade code
-
-/*!
- * @brief Changes the naming of the Keychain password entries from AdIM://Adium.{Service ID}.{Account internalObjectID}
- * to AdIM://{Service ID}.{Account UID}.
- */
-- (void)_upgradeAccountPasswordKeychainEntries
-{
-	if (![[NSUserDefaults standardUserDefaults] boolForKey:KEY_PERFORMED_ACCOUNT_PASSWORD_UPGRADE]) {
-		NSError *error;
-		AIKeychain *keychain = [AIKeychain defaultKeychain_error:&error];
-
-		for (AIAccount *account in adium.accountController.accounts) {
-			NSString *password = [keychain internetPasswordForServer:[self _passKeyForAccount:account]
-															 account:[self _oldStyleAccountNameForAccount:account]
-															protocol:FOUR_CHAR_CODE('AdIM')
-															   error:&error];
-			if (error) {
-				OSStatus err = (OSStatus)[error code];
-				if (err != errSecItemNotFound) {
-					NSDictionary *userInfo = [error userInfo];
-					NSLog(@"could not retrieve password for account %@: %@ returned %ld (%@)",
-						  [self _oldStyleAccountNameForAccount:account],
-						  [userInfo objectForKey:AIKEYCHAIN_ERROR_USERINFO_SECURITYFUNCTIONNAME], (long)err,
-						  [userInfo objectForKey:AIKEYCHAIN_ERROR_USERINFO_ERRORDESCRIPTION]);
-				}
-			} else {
-				[self setPassword:password forAccount:account];
-
-				// Delete old keychain entry
-				[keychain deleteInternetPasswordForServer:[self _passKeyForAccount:account]
-												  account:[self _oldStyleAccountNameForAccount:account]
-												 protocol:FOUR_CHAR_CODE('AdIM')
-													error:&error];
-				if (error) {
-					OSStatus err = (OSStatus)[error code];
-					/*errSecItemNotFound: no entry in the keychain. a harmless error.
-					 *we don't get here at all for noErr (error will be nil).
-					 */
-					if (err != errSecItemNotFound) {
-						NSDictionary *userInfo = [error userInfo];
-						NSLog(@"could not delete password for account %@: %@ returned %ld (%@)",
-							  [self _oldStyleAccountNameForAccount:account],
-							  [userInfo objectForKey:AIKEYCHAIN_ERROR_USERINFO_SECURITYFUNCTIONNAME], (long)err,
-							  [userInfo objectForKey:AIKEYCHAIN_ERROR_USERINFO_ERRORDESCRIPTION]);
-					}
-				}
-			}
-		}
-
-		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:KEY_PERFORMED_ACCOUNT_PASSWORD_UPGRADE];
 	}
 }
 
