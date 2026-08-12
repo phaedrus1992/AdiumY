@@ -2,7 +2,6 @@
   "permissions": {
     "allow": [
       "Read(./.tmp/**)",
-      "Write(./.tmp/**)",
       "Edit(./.tmp/**)",
       "Update(./.tmp/**)"
     ]
