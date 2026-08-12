@@ -940,6 +940,7 @@ static NSMutableSet *temporaryStateArray = nil;
 			if (invisibleIsAway && (statusType == AIInvisibleStatusType))
 				statusType = AIAwayStatusType;
 
+			NSParameterAssert(statusType >= AIAvailableStatusType && statusType < STATUS_TYPES_COUNT);
 			statusTypeCount[statusType]++;
 		}
 	}
