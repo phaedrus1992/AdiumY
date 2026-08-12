@@ -105,8 +105,7 @@ layout_applied=true
 DS_STORE="$RELEASE_DIR/Artwork/dmg-DS_Store"
 if [ -f "$DS_STORE" ]; then
 	echo "==> Applying pre-baked Finder layout"
-	ditto "$DS_STORE" "$MOUNT_DIR/.DS_Store" || true
-	if [ ! -f "$MOUNT_DIR/.DS_Store" ]; then
+	if ! ditto "$DS_STORE" "$MOUNT_DIR/.DS_Store"; then
 		# ditto failed or produced nothing — same degraded state as a failed
 		# AppleScript pass, tracked for the end-of-run summary.
 		layout_applied=false
@@ -155,6 +154,20 @@ APPLESCRIPT
 		fi
 		layout_applied=false
 	fi
+fi
+
+# A volume icon is the modern replacement for the HFS+ resource-fork `Icon\r`
+# files git cannot store: `.VolumeIcon.icns` on the volume root plus the
+# SetFile custom-icon attribute is what Finder renders on the mounted disk.
+# Purely cosmetic — a missing icon or SetFile degrades to a warning, never a
+# failed release. There is no `[ -f ]` guard: a missing icon makes ditto fail,
+# which already surfaces the warning below instead of skipping silently.
+VOLUME_ICON="$RELEASE_DIR/Artwork/VolumeIcon.icns"
+echo "==> Applying volume icon"
+if ! ditto "$VOLUME_ICON" "$MOUNT_DIR/.VolumeIcon.icns"; then
+	echo "  warning: could not copy $VOLUME_ICON — using the default volume icon" >&2
+elif ! SetFile -a C "$MOUNT_DIR"; then
+	echo "  warning: SetFile -a C failed — using the default volume icon" >&2
 fi
 
 chmod -Rf go-w "$MOUNT_DIR" || true

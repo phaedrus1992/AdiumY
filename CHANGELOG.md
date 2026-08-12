@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   Releases with a signed Sparkle appcast — releases can now be cut from CI on a
   `v*` tag instead of one maintainer's laptop
 - Add "Save Image As" to the message-view context menu for remote images
+- Bake the release disk image's Finder window layout (icon positions, window
+  size, background) so CI-built DMGs no longer ship with default icon positions
+- Restore the AdiumY icon on the release disk image's mounted volume
 
 ### Changed
 - Point the Sparkle update feed at
