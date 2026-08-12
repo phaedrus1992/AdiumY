@@ -34,6 +34,11 @@
 #define INTERFACE_ERROR_MESSAGE @"Interface_ErrorMessageReceived"
 #define KEY_EVENT_ID @"EventID"
 #define KEY_ACTION_ID @"ActionID"
+#define PREF_GROUP_CONTACT_ALERTS @"Contact Alerts"
+#define KEY_CONTACT_ALERTS @"Contact Alerts"
+#define KEY_DEFAULT_EVENT_ID @"Default Event ID"
+#define KEY_DEFAULT_ACTION_ID @"Default Action ID"
+#define KEY_ONE_TIME_ALERT @"OneTime"
 
 typedef enum {
 	AIContactsEventHandlerGroup = 0,
@@ -42,11 +47,41 @@ typedef enum {
 	AIFileTransferEventHandlerGroup,
 	AIOtherEventHandlerGroup
 } AIEventHandlerGroupType;
+#define EVENT_HANDLER_GROUP_COUNT 5
 
+/*
+ * The AIEventHandler/AIActionHandler protocols are required by ESContactAlertsController.m's
+ * register path (compiled into this bundle for #245): its static arrays are sized with
+ * EVENT_HANDLER_GROUP_COUNT and it sends the handler methods below. The full required-method sets
+ * match the real header; ErrorMessageHandlerPlugin implements every one of them.
+ */
 @protocol AIEventHandler <NSObject>
+- (NSString *)shortDescriptionForEventID:(NSString *)eventID;
+- (NSString *)globalShortDescriptionForEventID:(NSString *)eventID;
+- (NSString *)englishGlobalShortDescriptionForEventID:(NSString *)eventID;
+- (NSString *)longDescriptionForEventID:(NSString *)eventID forListObject:(AIListObject *)listObject;
+- (NSString *)naturalLanguageDescriptionForEventID:(NSString *)eventID
+										listObject:(AIListObject *)listObject
+										  userInfo:(id)userInfo
+									includeSubject:(BOOL)includeSubject;
+- (NSImage *)imageForEventID:(NSString *)eventID;
+- (NSString *)descriptionForCombinedEventID:(NSString *)eventID
+							  forListObject:(AIListObject *)listObject
+									forChat:(AIChat *)chat
+								  withCount:(NSUInteger)count;
 @end
 
 @protocol AIActionHandler <NSObject>
+- (NSString *)shortDescriptionForActionID:(NSString *)actionID;
+- (NSString *)longDescriptionForActionID:(NSString *)actionID withDetails:(NSDictionary *)details;
+- (NSImage *)imageForActionID:(NSString *)actionID;
+- (AIActionDetailsPane *)detailsPaneForActionID:(NSString *)actionID;
+- (BOOL)performActionID:(NSString *)actionID
+		  forListObject:(AIListObject *)listObject
+			withDetails:(NSDictionary *)details
+	  triggeringEventID:(NSString *)eventID
+			   userInfo:(id)userInfo;
+- (BOOL)allowMultipleActionsWithID:(NSString *)actionID;
 @end
 
 @protocol AIContactAlertsController <AIController>

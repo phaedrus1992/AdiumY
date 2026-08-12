@@ -20,8 +20,6 @@
 
 #define SOUNDSET_RESOURCE_PATH @"Sounds"
 
-#define SOUND_PACK_PATHNAME @"AdiumSetPathname_Private"
-#define SOUND_PACK_VERSION @"AdiumSetVersion"
 #define SOUND_NAMES @"Sounds"
 #define SOUND_SET_PATH_EXTENSION @"AdiumSoundSet"
 

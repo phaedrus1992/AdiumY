@@ -212,6 +212,7 @@ static NSMutableSet *temporaryStateArray = nil;
 				ofType:(AIStatusType)type
 			forService:(AIService *)service
 {
+	NSParameterAssert(type >= AIAvailableStatusType && type < STATUS_TYPES_COUNT);
 	NSMutableSet *statusDicts;
 	NSString *serviceCodeUniqueID = service.serviceCodeUniqueID;
 

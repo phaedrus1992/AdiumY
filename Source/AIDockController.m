@@ -28,8 +28,6 @@
 #define DOCK_DEFAULT_PREFS @"DockPrefs"
 #define ICON_DISPLAY_DELAY 0.1
 
-#define LAST_ICON_UPDATE_VERSION @"Adium:Last Icon Update Version"
-
 #define CONTINUOUS_BOUNCE_INTERVAL 0
 #define SINGLE_BOUNCE_INTERVAL 999
 #define NO_BOUNCE_INTERVAL 1000
@@ -106,13 +104,6 @@
 						   selector:@selector(appWillChangeActive:)
 							   name:NSApplicationWillResignActiveNotification
 							 object:nil];
-
-	// If Adium has been upgraded since the last time we ran re-apply the user's custom icon
-	NSString *lastVersion = [[NSUserDefaults standardUserDefaults] objectForKey:LAST_ICON_UPDATE_VERSION];
-	if (![[NSApp applicationVersion] isEqualToString:lastVersion]) {
-		[self updateAppBundleIcon];
-		[[NSUserDefaults standardUserDefaults] setObject:[NSApp applicationVersion] forKey:LAST_ICON_UPDATE_VERSION];
-	}
 }
 
 - (void)controllerWillClose

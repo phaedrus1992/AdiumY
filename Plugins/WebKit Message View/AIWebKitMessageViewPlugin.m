@@ -16,7 +16,6 @@
 
 #import "AIWebKitMessageViewPlugin.h"
 #import "AIWebKitMessageViewWKController.h"
-#import "AIWebkitMessageStylePreferenceMigration.h"
 #import "AIWebkitMessageViewStyle.h"
 #import "ESWebKitMessageViewPreferences.h"
 #import <AIUtilities/AIBundleAdditions.h>
@@ -32,7 +31,6 @@
 - (void)resetStylesForType:(AIWebkitStyleType)styleType;
 - (void)xtrasChanged:(NSNotification *)notification;
 - (void)clearHardcodedBuiltInStylePaths;
-- (void)performAdium14PreferenceUpdates;
 @end
 
 @implementation AIWebKitMessageViewPlugin
@@ -49,8 +47,6 @@
 	 * pre-Adium 1.4 version. This check can be removed ~Adium 1.6.
 	 */
 	[self clearHardcodedBuiltInStylePaths];
-
-	[self performAdium14PreferenceUpdates];
 
 	// Setup our preferences
 	[adium.preferenceController registerDefaults:[NSDictionary dictionaryNamed:WEBKIT_DEFAULT_PREFS
@@ -304,41 +300,6 @@
 												group:PREF_GROUP_WEBKIT_GROUP_MESSAGE_DISPLAY] rangeOfString:@".app"]
 			.location != NSNotFound)
 		[self resetStylesForType:AIWebkitGroupChat];
-}
-
-- (void)performAdium14PreferenceUpdates
-{
-	if (![[adium.preferenceController preferenceForKey:@"AdiumY 1.4:Updated Preferences"
-												 group:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY] boolValue]) {
-		NSDictionary *dict = [adium.preferenceController preferencesForGroup:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY];
-		NSMutableDictionary *newDict = [dict mutableCopy];
-		NSMutableSet *keysToRemove = [NSMutableSet set];
-
-		NSDictionary *delta = AIWebkitMessageStylePreferenceMigration(dict);
-
-		if (delta != nil) {
-			for (NSString *key in delta) {
-				id value = [delta objectForKey:key];
-				if (value == [NSNull null]) {
-					/* Deletion marker: drop it from the in-memory dict and queue a manual removal below, since
-					 * AIPreferenceController's setPreferences:inGroup: is nondestructive. */
-					[newDict removeObjectForKey:key];
-					[keysToRemove addObject:key];
-				} else {
-					[newDict setObject:value forKey:key];
-				}
-			}
-		}
-
-		[adium.preferenceController setPreferences:newDict inGroup:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY];
-		for (NSString *key in keysToRemove) {
-			[adium.preferenceController setPreference:nil forKey:key group:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY];
-		}
-
-		[adium.preferenceController setPreference:[NSNumber numberWithBool:YES]
-										   forKey:@"AdiumY 1.4:Updated Preferences"
-											group:PREF_GROUP_WEBKIT_REGULAR_MESSAGE_DISPLAY];
-	}
 }
 
 @end

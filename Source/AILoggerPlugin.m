@@ -95,7 +95,6 @@ CFStringRef CopyTextContentForFileData(CFStringRef contentTypeUTI, NSURL *urlToF
 - (void)_initLogIndexing;
 - (void)_upgradeLogExtensions;
 - (void)_upgradeLogPermissions;
-- (void)_reimportLogsToSpotlightIfNeeded;
 
 //  Action methods
 - (void)showLogViewer:(id)sender;
@@ -301,8 +300,6 @@ static dispatch_semaphore_t logLoadingPrefetchSemaphore; // limit prefetching lo
 
 	[self _upgradeLogExtensions];
 	[self _upgradeLogPermissions];
-
-	[self _reimportLogsToSpotlightIfNeeded];
 
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(showLogNotification:)
@@ -838,38 +835,6 @@ NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context)
 	[adium.preferenceController setPreference:[NSNumber numberWithBool:YES]
 									   forKey:@"Log Permissions Updated"
 										group:PREF_GROUP_LOGGING];
-}
-
-/*!
- * @brief Instruct spotlight to reimport logs
- *
- * Adium 1.0.2 and earlier had a bug which made spotlight import not work properly.
- * New logs are properly indexed, but previously created logs are not. On first launch of Adium 1.1,
- * Adium will tell Spotlight to reimport those old logs.
- *
- * We also reindex in Adium 1.3.3 to help capture logs in Mac OS X 10.5.6 which indexes logs in our default location.
- */
-- (void)_reimportLogsToSpotlightIfNeeded
-{
-	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"Adium 1.3.3:Reimported Spotlight Logs"]) {
-		@try {
-			NSArray *arguments;
-
-			arguments = [NSArray
-				arrayWithObjects:@"-r",
-								 [[[[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"Contents"]
-									 stringByAppendingPathComponent:@"Library"]
-									 stringByAppendingPathComponent:@"Spotlight"]
-									 stringByAppendingPathComponent:[@"AdiumSpotlightImporter"
-																		stringByAppendingPathExtension:@"mdimporter"]],
-								 nil];
-			[NSTask launchedTaskWithLaunchPath:@"/usr/bin/mdimport" arguments:arguments];
-		} @catch (NSException *e) {
-			NSLog(@"Exception caught while reimporting Spotlight logs: %@", e);
-		}
-
-		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"Adium 1.3.3:Reimported Spotlight Logs"];
-	}
 }
 
 #pragma mark KeyValueObserving

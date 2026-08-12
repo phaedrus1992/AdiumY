@@ -70,9 +70,6 @@
 				<string>F09A95CC0FCF5A08A87719ED</string>
 				<string>DF9DD999E70A542A82B68DFA</string>
 				<string>A82194F603F151638876A670</string>
-				<string>5B331FBE75715D1887061614</string>
-				<string>DC8EAB51A8C456858F484733</string>
-				<string>2CC8655C35C851E6A3497633</string>
 				<string>F9B767DA118E55B7B08F966E</string>
 				<string>371503F9B5725A20B52AF0D7</string>
 				<string>374C7B6633CB56D2AED136F0</string>
@@ -163,6 +160,9 @@
 				<string>2D400BFD65D958AFB0723BA4</string>
 				<string>929FA1DB55365A28B37FDD1A</string>
 				<string>2C1CD77B976E53EE82775801</string>
+				<string>B0E79B1E17095F39B38E3BB5</string>
+				<string>52DACF91E7D4557E93DC969E</string>
+				<string>D912F3ED4B3754D8AE647AC3</string>
 				<string>F3A7C89B77B855E6B362597D</string>
 				<string>D75B29B2FB3B5D26A3C85C85</string>
 				<string>96EC8C9E6B855F85B77BD82E</string>
@@ -335,39 +335,6 @@
 			<string>sourcecode.c.objc</string>
 			<key>path</key>
 			<string>../../UnitTests/AIXtraBundleIdentifierTest.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5B331FBE75715D1887061614</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>path</key>
-			<string>../../Plugins/WebKit Message View/AIWebkitMessageStylePreferenceMigration.m</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>DC8EAB51A8C456858F484733</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.h</string>
-			<key>path</key>
-			<string>../../Plugins/WebKit Message View/AIWebkitMessageStylePreferenceMigration.h</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>2CC8655C35C851E6A3497633</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.c.objc</string>
-			<key>path</key>
-			<string>../../UnitTests/MessageStylePreferenceMigrationTest.m</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
@@ -1559,6 +1526,39 @@
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
+		<key>B0E79B1E17095F39B38E3BB5</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAIStatusControllerRegisterGuard.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>52DACF91E7D4557E93DC969E</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Source/ESContactAlertsController.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>D912F3ED4B3754D8AE647AC3</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestESContactAlertsControllerRegisterGuard.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
 		<key>F3A7C89B77B855E6B362597D</key>
 		<dict>
 			<key>isa</key>
@@ -1726,8 +1726,6 @@
 				<string>E3E26DA4ED2E5C08A7D922E5</string>
 				<string>7744FE2BBB9D5DCD965BB0ED</string>
 				<string>9A1F2C63AE565070B78B37F8</string>
-				<string>FB8D35F4B8075066B9F6B599</string>
-				<string>F495B4A27597595EB3861B1A</string>
 				<string>EDCA5412E0C855ABBBA5DE5B</string>
 				<string>63CF7101459454DC9B17A792</string>
 				<string>C34C5C77AA045BB187A0D5D2</string>
@@ -1821,6 +1819,9 @@
 				<string>B85F5C7F4C715404A2987435</string>
 				<string>9135E8837FF0563788B41FBD</string>
 				<string>5F9D1EE0F77B5743A1B0BE35</string>
+				<string>F0DF952AB45E5FE3A78E96EA</string>
+				<string>F9A6D0FD01DF5B9EBC4B4240</string>
+				<string>B83DCB7DE19E5CB0A69F43D2</string>
 				<string>A68EA9696AB95F7AA1BEA7D5</string>
 				<string>C311239E73CC5141BB965BAD</string>
 				<string>089310D491BD5C0585435C12</string>
@@ -1908,20 +1909,6 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>A82194F603F151638876A670</string>
-		</dict>
-		<key>F495B4A27597595EB3861B1A</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-			<key>fileRef</key>
-			<string>5B331FBE75715D1887061614</string>
-		</dict>
-		<key>FB8D35F4B8075066B9F6B599</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-			<key>fileRef</key>
-			<string>2CC8655C35C851E6A3497633</string>
 		</dict>
 		<key>EDCA5412E0C855ABBBA5DE5B</key>
 		<dict>
@@ -2573,6 +2560,27 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>2C1CD77B976E53EE82775801</string>
+		</dict>
+		<key>F0DF952AB45E5FE3A78E96EA</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>B0E79B1E17095F39B38E3BB5</string>
+		</dict>
+		<key>F9A6D0FD01DF5B9EBC4B4240</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>52DACF91E7D4557E93DC969E</string>
+		</dict>
+		<key>B83DCB7DE19E5CB0A69F43D2</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>D912F3ED4B3754D8AE647AC3</string>
 		</dict>
 		<key>A68EA9696AB95F7AA1BEA7D5</key>
 		<dict>

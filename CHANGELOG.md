@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   with a certificate belonging to another team, and depended on `mkalias`,
   `buildchlog`, and an `AdiumApplescriptRunner` build product that cannot run
   on any supported macOS
+- Remove the one-time migration of settings left behind by previous Adium
+  releases (≤ 1.5): version-detection, dock-icon, account-preference,
+  sound-pack, keychain, Spotlight-log, libpurple/blist, and
+  `im.adium.*`/`com.adiumx.*` message-style preference upgrades no longer run
+  on first launch — AdiumY 2.0 has no upgrade path from prior Adium versions
 
 ### Fixed
 - Reject a truncated URL-shortener response (fewer bytes than the server
