@@ -22,8 +22,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `https://raw.githubusercontent.com/phaedrus1992/AdiumY/main/appcast.xml`;
   `SUFeedURL` was previously an empty string, so auto-update was linked but
   never configured
+- Guard the remaining enum-indexed C-array sites in the content-filtering,
+  status-icon, service-icon, and status-controller paths with
+  `NSParameterAssert` bounds checks, so an out-of-range plugin/API-supplied
+  enum value raises instead of writing past a fixed-size array
 
 ### Removed
+- Remove the AILoggerPlugin log-file upgrade UI (`LogFileUpgrade.nib`,
+  `AILogFileUpgradeWindowController`) and its one-time "Log
+  Extensions/Permissions Updated" gates
+- Remove the remaining pre-fork migration blocks that survived the 2.0
+  cleanup: saved-aways to saved-state conversion, the contact-list migration,
+  the libpurple service-ID substitution in account loading, and the Jabber
+  account-preferences migration
 - Remove the pre-fork release tooling in `Release/`. It drove mercurial, signed
   with a certificate belonging to another team, and depended on `mkalias`,
   `buildchlog`, and an `AdiumApplescriptRunner` build product that cannot run

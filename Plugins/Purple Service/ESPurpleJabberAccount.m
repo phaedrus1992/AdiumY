@@ -67,10 +67,7 @@
 /*!
  * @brief The UID will be changed. The account has a chance to perform modifications
  *
- * Upgrade old Jabber accounts stored with the host in a separate key to have the right UID, in the form
- * name@server.org
- *
- * Append @jabber.org to a proposed UID which has no domain name and does not need to be updated.
+ * Append @jabber.org (via [self serverSuffix]) to a proposed UID which has no domain name.
  *
  * @param proposedUID The proposed, pre-filtered UID (filtered means it has no characters invalid for this servce)
  * @result The UID to use; the default implementation just returns proposedUID.
@@ -81,21 +78,8 @@
 	NSString *correctUID;
 
 	if ((proposedUID && ([proposedUID length] > 0)) && ([proposedUID rangeOfString:@"@"].location == NSNotFound)) {
-
-		NSString *host;
-		// Upgrade code: grab a previously specified Jabber host
-		if ((host = [self preferenceForKey:@"Jabber:Host" group:GROUP_ACCOUNT_STATUS])) {
-			// Determine our new, full UID
-			correctUID = [NSString stringWithFormat:@"%@@%@", proposedUID, host];
-
-			// Clear the preference and then set the UID so we don't perform this upgrade again
-			[self setPreference:nil forKey:@"Jabber:Host" group:GROUP_ACCOUNT_STATUS];
-			[self setFormattedUID:correctUID notify:NotifyNow];
-
-		} else {
-			// Append [self serverSuffix] (e.g. @jabber.org) to a Jabber account with no server
-			correctUID = [proposedUID stringByAppendingString:[self serverSuffix]];
-		}
+		// Append [self serverSuffix] (e.g. @jabber.org) to a Jabber account with no server
+		correctUID = [proposedUID stringByAppendingString:[self serverSuffix]];
 	} else {
 		correctUID = proposedUID;
 	}

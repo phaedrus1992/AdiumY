@@ -72,6 +72,8 @@ static NSDictionary *serviceIconNames[NUMBER_OF_SERVICE_ICON_TYPES];
 
 + (NSString *)pathForServiceIconForServiceID:(NSString *)serviceID type:(AIServiceIconType)iconType
 {
+	NSParameterAssert(iconType >= 0 && iconType < NUMBER_OF_SERVICE_ICON_TYPES);
+
 	NSString *iconName = [serviceIconNames[iconType] objectForKey:serviceID];
 
 	if (iconName) {
@@ -91,6 +93,9 @@ static NSDictionary *serviceIconNames[NUMBER_OF_SERVICE_ICON_TYPES];
 								type:(AIServiceIconType)iconType
 						   direction:(AIIconDirection)iconDirection
 {
+	NSParameterAssert(iconType >= 0 && iconType < NUMBER_OF_SERVICE_ICON_TYPES);
+	NSParameterAssert(iconDirection >= 0 && iconDirection < NUMBER_OF_ICON_DIRECTIONS);
+
 	NSImage *serviceIcon;
 
 	// Retrieve the service icon from our cache

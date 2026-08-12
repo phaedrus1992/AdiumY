@@ -192,10 +192,9 @@ typedef enum { AINickServPassword, AIQPassword, AIXPassword, AIAuthServPassword 
  * This should only be used by an AIAccount to upgrade itself to a new service, as may happen when
  * transitioning from one implementation to another.
  *
- * Generally, this is not necessary, as migration can be performed by simply substituting the new service ID
- * for the old one in -[AdiumAccounts _upgradeServiceID:forAccountDict:]. However, if that is insufficient,
- * because for example some processing must be done with information from both old and new accounts,
- * this may be useful for performing a move at runtime.
+ * AdiumY 2.0 has no upgrade path from any previous version, so there is no service-ID
+ * substitution for migration (the legacy -[AdiumAccounts _upgradeServiceID:forAccountDict:]
+ * was removed). Use this method to move an account between services at runtime.
  *
  * It will save the change; account immediately becomes on service, and it will be on service when it is
  * next loaded.

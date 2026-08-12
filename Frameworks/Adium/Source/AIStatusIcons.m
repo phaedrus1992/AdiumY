@@ -107,6 +107,9 @@ NSString *defaultNameForStatusType(AIStatusType statusType)
 							iconType:(AIStatusIconType)iconType
 						   direction:(AIIconDirection)iconDirection
 {
+	NSParameterAssert(iconType >= 0 && iconType < NUMBER_OF_STATUS_ICON_TYPES);
+	NSParameterAssert(iconDirection >= 0 && iconDirection < NUMBER_OF_ICON_DIRECTIONS);
+
 	NSImage *statusIcon = nil;
 
 	// If not passed a statusName, find a default

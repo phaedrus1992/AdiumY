@@ -19,6 +19,7 @@ import os
 from generate_xcodeproj_core import (
     build_compile_entries,
     discover_unit_test_sources,
+    event_handler_group_count_drift,
     expand_build_path,
     sources_for_target,
     validate_source_paths,
@@ -357,6 +358,15 @@ def _validate_wired_imports(repo_root):
 # Validate the shim tree up front (independent of the project model) so a drifted
 # shim dir fails the run before any codegen.
 _validate_shim_manifest(REPO_ROOT)
+
+# Bind the CoverageHost register-guard stub to the real header — a stale
+# EVENT_HANDLER_GROUP_COUNT silently under-sizes the test bundle's arrays.
+_enum_drift = event_handler_group_count_drift(
+    os.path.join(REPO_ROOT, "Frameworks", "Adium", "Source", "AIContactAlertsControllerProtocol.h"),
+    os.path.join(PROJECT_DIR, "AdiumY", "AIContactAlertsControllerProtocol.h"),
+)
+if _enum_drift:
+    raise SystemExit("AIEventHandlerGroupType enum drift:\n  " + "\n  ".join(_enum_drift))
 
 objects = {
     # ── PBXProject ──────────────────────────────────────────────
