@@ -26,7 +26,7 @@ adium:
 
 test:
 	$(XCODEBUILD) -version
-	$(XCODEBUILD) -project Adium.xcodeproj -configuration $(BUILDCONFIGURATION) CFLAGS="$(ADIUM_CFLAGS)" $(ADIUM_NIGHTLY_FLAGS) -target "Unit tests" build
+	$(XCODEBUILD) test -project Tests/CoverageHost/CoverageHost.xcodeproj -scheme CoverageHost -configuration Debug -sdk macosx -derivedDataPath build/DerivedData -enableCodeCoverage YES CODE_SIGNING_ALLOWED=NO
 astest:
 	osascript unittest\ runner.applescript | tr '\r' '\n'
 
