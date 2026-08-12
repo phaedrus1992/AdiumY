@@ -24,9 +24,17 @@ adium:
 	$(XCODEBUILD) -version
 	$(XCODEBUILD) -project Adium.xcodeproj -configuration $(BUILDCONFIGURATION) CFLAGS="$(ADIUM_CFLAGS)" $(ADIUM_NIGHTLY_FLAGS) build
 
-test:
+# `test` runs the CoverageHost suite (the fork's test vehicle) and mirrors the
+# CI smoke-test step in .github/workflows/ci.yml. The CoverageHost test host
+# links a pre-built AIUtilities.framework — FRAMEWORK_SEARCH_PATHS in
+# Tests/CoverageHost/CoverageHost.xcodeproj pins build/DerivedData/... — so the
+# framework is built first, instrumented for coverage, as a file prerequisite.
+test: build/DerivedData/Build/Products/Debug/AIUtilities.framework
 	$(XCODEBUILD) -version
 	$(XCODEBUILD) test -project Tests/CoverageHost/CoverageHost.xcodeproj -scheme CoverageHost -configuration Debug -sdk macosx -derivedDataPath build/DerivedData -enableCodeCoverage YES CODE_SIGNING_ALLOWED=NO
+
+build/DerivedData/Build/Products/Debug/AIUtilities.framework:
+	$(XCODEBUILD) -project Frameworks/AIUtilities/AIUtilities.xcodeproj -target AIUtilities.framework -configuration Debug -sdk macosx SYMROOT="$(CURDIR)/build/DerivedData/Build/Products" OBJROOT="$(CURDIR)/build/DerivedData/Build/Intermediates" CODE_SIGNING_ALLOWED=NO CLANG_COVERAGE_MAPPING=YES CLANG_PROFILE_INSTRUMENTATION=YES build
 astest:
 	osascript unittest\ runner.applescript | tr '\r' '\n'
 
