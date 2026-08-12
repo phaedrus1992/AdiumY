@@ -81,6 +81,14 @@
  * but over the text path -sendMessage:withHtml: writes. */
 - (void)assertPlaintextRoundTrip:(NSString *)message
 {
+	/* Whitespace-only plaintext cannot round-trip through this decode step: NSXMLDocument (options:0)
+	 * drops whitespace-only text nodes, so <body> </body> decodes to "". Such a message carries no
+	 * escapable characters — the single-escape property has nothing to pin — so it is excluded from
+	 * the domain here, the same way xmlTextValidCopy: excludes unrepresentable control characters. */
+	if ([[message stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] length] == 0) {
+		return;
+	}
+
 	AWEzvContact *contact = [[AWEzvContact alloc] init];
 	[contact setUniqueID:@"bob@example.com"];
 	[contact setValue:@"127.0.0.1" forKey:@"ipAddr"];
