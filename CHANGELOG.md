@@ -222,6 +222,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   fatal)
 - Harden the sandbox-reference verification in `relink-sandbox-refs` against a
   SIGPIPE false pass that could ship a bundle with dead sandbox references
+- Fix `make test` running a `Unit tests` target that no longer exists in
+  `Adium.xcodeproj` — it now runs the CoverageHost test suite (the fork's test
+  vehicle, using the same invocation CI's smoke-test step uses) and builds the
+  instrumented `AIUtilities.framework` CoverageHost links, so a fresh checkout
+  tests cleanly and `make coverage-check` reads the produced profile
 
 ## [2.0.0] - 2026-08-03
 
