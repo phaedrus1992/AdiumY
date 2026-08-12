@@ -40,6 +40,11 @@
 #define KEY_DEFAULT_ACTION_ID @"Default Action ID"
 #define KEY_ONE_TIME_ALERT @"OneTime"
 
+// Stub of the enum in Frameworks/Adium/Source/AIContactAlertsControllerProtocol.h.
+// The test bundle can't import the real header (it would drag in the AdiumY.framework
+// declaration chain), so this hand-copy sizes ESContactAlertsController.m's register-side
+// arrays. generate-xcodeproj.py's drift check (issue #324) fails regeneration/CI if this
+// count diverges from the real header — update both together.
 typedef enum {
 	AIContactsEventHandlerGroup = 0,
 	AIMessageEventHandlerGroup,

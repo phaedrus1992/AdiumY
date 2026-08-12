@@ -14,6 +14,7 @@ SDK; the tests exercise them with synthetic inputs.
 import glob
 import json
 import os
+import re
 import shlex
 import subprocess
 import tempfile
@@ -262,3 +263,49 @@ def validate_source_paths(objects, project_dir):
         if not os.path.exists(abs_path):
             missing.append(abs_path)
     return sorted(missing)
+
+
+def extract_event_handler_group_count(header_path):
+    """Extract ``EVENT_HANDLER_GROUP_COUNT`` from a header, or raise ValueError.
+
+    The CoverageHost test bundle sizes its register-side static arrays with this
+    count, read from a hand-copied stub of AIContactAlertsControllerProtocol.h. A
+    header that loses the define is a broken binding, not a count of zero — so a
+    missing define raises rather than returning 0.
+    """
+    with open(header_path, encoding="utf-8", errors="replace") as f:
+        text = f.read()
+    m = re.search(r"^\s*#define\s+EVENT_HANDLER_GROUP_COUNT\s+(\d+)\s*$", text, re.MULTILINE)
+    if not m:
+        raise ValueError(f"no '#define EVENT_HANDLER_GROUP_COUNT <n>' in {header_path}")
+    return int(m.group(1))
+
+
+def event_handler_group_count_drift(real_header_path, stub_header_path):
+    """Return a list of drift errors between the real enum count and the test stub's.
+
+    The CoverageHost test TU cannot import the real AIContactAlertsControllerProtocol.h
+    (it would drag in the AdiumY.framework declaration chain), so the register path
+    compiled into the test bundle reads EVENT_HANDLER_GROUP_COUNT from a hand-copied
+    stub. If the real enum grows and the stub isn't updated, the test bundle's static
+    arrays silently stay smaller than the app's — stale register-guard coverage. Every
+    generator run and the unit test suite enforce that the two stay in lockstep.
+
+    Returns an empty list when the two counts match; otherwise a list of
+    human-readable errors.
+    """
+    try:
+        real = extract_event_handler_group_count(real_header_path)
+    except ValueError as e:
+        return [str(e)]
+    try:
+        stub = extract_event_handler_group_count(stub_header_path)
+    except ValueError as e:
+        return [str(e)]
+    if real != stub:
+        return [
+            f"EVENT_HANDLER_GROUP_COUNT drift: real header = {real}, CoverageHost stub = {stub}. "
+            f"Update {os.path.basename(stub_header_path)} (and the stub's AIEventHandlerGroupType "
+            f"enum) to match the real header before regenerating."
+        ]
+    return []

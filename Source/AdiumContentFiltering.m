@@ -58,6 +58,8 @@
 
 - (void)registerHTMLContentFilter:(id<AIHTMLContentFilter>)inFilter direction:(AIFilterDirection)direction
 {
+	NSParameterAssert(direction >= 0 && direction < FILTER_DIRECTION_COUNT);
+
 	if (!htmlContentFilters[direction]) {
 		htmlContentFilters[direction] = [[NSMutableArray alloc] init];
 	}
@@ -172,6 +174,8 @@
 					 direction:(AIFilterDirection)direction
 					   content:(AIContentObject *)content
 {
+	NSParameterAssert(direction >= 0 && direction < FILTER_DIRECTION_COUNT);
+
 	NSString *result = htmlString;
 	for (id<AIHTMLContentFilter> filter in htmlContentFilters[direction]) {
 		result = [filter filterHTMLString:result content:content];
@@ -257,6 +261,9 @@
 									 direction:(AIFilterDirection)direction
 									   context:(id)filterContext
 {
+	NSParameterAssert(type >= 0 && type < FILTER_TYPE_COUNT);
+	NSParameterAssert(direction >= 0 && direction < FILTER_DIRECTION_COUNT);
+
 	[self _filterAttributedString:&attributedString
 					contentFilter:contentFilter[type][direction]
 					filterContext:filterContext

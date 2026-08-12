@@ -164,39 +164,6 @@ NSString *serviceIDForJabberUID(NSString *UID);
 																	  group:PREF_GROUP_ADDRESSBOOK] boolValue];
 		}
 
-		// If old format-menu preference is set, perform migration
-		if ([adium.preferenceController preferenceForKey:@"AB Display Format" group:PREF_GROUP_ADDRESSBOOK]) {
-
-			NSInteger oldPreference =
-				[[adium.preferenceController preferenceForKey:@"AB Display Format"
-														group:PREF_GROUP_ADDRESSBOOK] integerValue];
-
-			switch (oldPreference) {
-			case 0: // firstlast
-				displayFormat = [[NSString alloc] initWithFormat:@"%@ %@", FORMAT_FIRST_FULL, FORMAT_LAST_FULL];
-				break;
-			case 1: // first
-				displayFormat = FORMAT_FIRST_FULL;
-				break;
-			case 2: // lastfirst
-				displayFormat = [[NSString alloc] initWithFormat:@"%@, %@", FORMAT_LAST_FULL, FORMAT_FIRST_FULL];
-				break;
-			case 3: // lastfirstnocomma
-				displayFormat = [[NSString alloc] initWithFormat:@"%@ %@", FORMAT_LAST_FULL, FORMAT_FIRST_FULL];
-				break;
-			case 4: // firstlastinitial
-				displayFormat = [[NSString alloc] initWithFormat:@"%@ %@", FORMAT_FIRST_FULL, FORMAT_LAST_INITIAL];
-				break;
-			default:
-				displayFormat = [[NSString alloc] initWithFormat:@"%@ %@", FORMAT_FIRST_FULL, FORMAT_LAST_FULL];
-			}
-
-			[adium.preferenceController setPreference:nil forKey:@"AB Display Format" group:PREF_GROUP_ADDRESSBOOK];
-			[adium.preferenceController setPreference:displayFormat
-											   forKey:KEY_AB_DISPLAYFORMAT
-												group:PREF_GROUP_ADDRESSBOOK];
-		}
-
 		// Services dictionary: maps serviceID → CNInstantMessageService string
 		serviceDict = [[NSDictionary alloc]
 			initWithObjectsAndKeys:CNInstantMessageServiceAIM, @"AIM", CNInstantMessageServiceJabber, @"Jabber",

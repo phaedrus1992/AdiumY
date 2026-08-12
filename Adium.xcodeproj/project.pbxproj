@@ -831,8 +831,6 @@
 		34F4677A080F49C5007800AB /* Safari.scpt in Resources */ = {isa = PBXBuildFile; fileRef = 34F46778080F49C5007800AB /* Safari.scpt */; };
 		34F4677B080F49C5007800AB /* Safari.png in Resources */ = {isa = PBXBuildFile; fileRef = 34F46779080F49C5007800AB /* Safari.png */; };
 		34F46785080F7FFB007800AB /* ESSafariLinkToolbarItemPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 34F46783080F7FFB007800AB /* ESSafariLinkToolbarItemPlugin.m */; };
-		34F849530A4AEFA00002A017 /* LogFileUpgrade.nib in Resources */ = {isa = PBXBuildFile; fileRef = 34F849520A4AEFA00002A017 /* LogFileUpgrade.nib */; };
-		34F849590A4AF04D0002A017 /* AILogFileUpgradeWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 34F849570A4AF04D0002A017 /* AILogFileUpgradeWindowController.m */; };
 		34F8D2AE0CF68FEB00F62536 /* AIUserListOutlineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 34F8D2AD0CF68FEB00F62536 /* AIUserListOutlineView.m */; };
 		34FF12120DA52FB10054A872 /* (null) in Headers */ = {isa = PBXBuildFile; };
 		34FF12130DA52FB10054A872 /* (null) in Sources */ = {isa = PBXBuildFile; };
@@ -2838,9 +2836,6 @@
 		34F46784080F7FFB007800AB /* ESSafariLinkToolbarItemPlugin.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ESSafariLinkToolbarItemPlugin.h; path = Source/ESSafariLinkToolbarItemPlugin.h; sourceTree = "<group>"; };
 		34F468E4080FA987007800AB /* de */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = de; path = "Plugins/Purple Service/Resources/de.lproj/DCPurpleJabberJoinChatView.nib"; sourceTree = "<group>"; };
 		34F468E5080FA987007800AB /* de */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = de; path = "Plugins/Purple Service/Resources/de.lproj/ESPurpleJabberAccountView.nib"; sourceTree = "<group>"; };
-		34F849520A4AEFA00002A017 /* LogFileUpgrade.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = LogFileUpgrade.nib; path = Resources/LogFileUpgrade.nib; sourceTree = "<group>"; };
-		34F849560A4AF04D0002A017 /* AILogFileUpgradeWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AILogFileUpgradeWindowController.h; path = Source/AILogFileUpgradeWindowController.h; sourceTree = "<group>"; };
-		34F849570A4AF04D0002A017 /* AILogFileUpgradeWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AILogFileUpgradeWindowController.m; path = Source/AILogFileUpgradeWindowController.m; sourceTree = "<group>"; };
 		34F8D2AC0CF68FEB00F62536 /* AIUserListOutlineView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIUserListOutlineView.h; path = Source/AIUserListOutlineView.h; sourceTree = "<group>"; };
 		34F8D2AD0CF68FEB00F62536 /* AIUserListOutlineView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AIUserListOutlineView.m; path = Source/AIUserListOutlineView.m; sourceTree = "<group>"; };
 		34FA280F0C820C3A00FEA944 /* AIPreviewContentMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIPreviewContentMessage.h; path = "Plugins/WebKit Message View/AIPreviewContentMessage.h"; sourceTree = "<group>"; };
@@ -5572,8 +5567,6 @@
 				342353D409D45725009FF634 /* AILogViewerWindowController.h */,
 				342353D509D45725009FF634 /* AILogViewerWindowController.m */,
 				34B9C7910A255DCE00CEA8AE /* LogViewerDateFilter.nib */,
-				34F849560A4AF04D0002A017 /* AILogFileUpgradeWindowController.h */,
-				34F849570A4AF04D0002A017 /* AILogFileUpgradeWindowController.m */,
 				34B5E25D0A7C94D3005186E6 /* AILogDateFormatter.h */,
 				34B5E25E0A7C94D3005186E6 /* AILogDateFormatter.m */,
 			);
@@ -6323,7 +6316,6 @@
 				4B191D880611C10800E8A4E7 /* License.txt */,
 				3474DFFF082550FD00BF30F0 /* Credits.rtf */,
 				34107B5509E992DA001CC042 /* GuestAccountWindow.nib */,
-				34F849520A4AEFA00002A017 /* LogFileUpgrade.nib */,
 				34483A980BC869680083723B /* AdvancedPreferences.nib */,
 			);
 			name = "About Box";
@@ -7372,7 +7364,6 @@
 				34B9C7920A255DCE00CEA8AE /* LogViewerDateFilter.nib in Resources */,
 				3456232F0A37723400E7FC97 /* LogViewer.nib in Resources */,
 				345623380A3773C300E7FC97 /* LoggingDefaults.plist in Resources */,
-				34F849530A4AEFA00002A017 /* LogFileUpgrade.nib in Resources */,
 				34382CEF0A50387A004BF6A2 /* MessageContextDisplayDefaults.plist in Resources */,
 				34DC884F0A7EEE2E003E1636 /* FormattingDefaults.plist in Resources */,
 				34DC88580A7EEE2E003E1636 /* FileTransferRequestPrompt.nib in Resources */,
@@ -7828,7 +7819,6 @@
 				3456232A0A3771F400E7FC97 /* AILogToGroup.m in Sources */,
 				3456232C0A3771F400E7FC97 /* AILogFromGroup.m in Sources */,
 				3456233F0A3773D100E7FC97 /* AILoggerPlugin.m in Sources */,
-				34F849590A4AF04D0002A017 /* AILogFileUpgradeWindowController.m in Sources */,
 				34382CEA0A50386C004BF6A2 /* DCMessageContextDisplayPlugin.m in Sources */,
 				348B250D0A50A1C900B2B972 /* ESSourceListBackgroundView.m in Sources */,
 				340670A90A55A4B4004E22AC /* ESGlassSplitView.m in Sources */,

@@ -33,6 +33,10 @@
 #define KEY_ACTION_DETAILS @"ActionDetails"
 #define KEY_ONE_TIME_ALERT @"OneTime"
 
+// This enum is hand-copied into Tests/CoverageHost/AdiumY/AIContactAlertsControllerProtocol.h
+// so the coverage test bundle can size its register-side arrays. The drift check in
+// generate-xcodeproj.py (issue #324) fails regeneration/CI if the two counts diverge —
+// keep the stub's enum and EVENT_HANDLER_GROUP_COUNT in sync with this header.
 typedef enum {
 	AIContactsEventHandlerGroup = 0,
 	AIMessageEventHandlerGroup,

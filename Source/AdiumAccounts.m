@@ -33,7 +33,6 @@
 - (void)_loadAccounts;
 - (void)_saveAccounts;
 - (NSString *)_generateUniqueInternalObjectID;
-- (NSString *)_upgradeServiceUniqueID:(NSString *)serviceUniqueID forAccountDict:(NSDictionary *)accountDict;
 @end
 
 @interface AIAccount (SekretsIKnow)
@@ -224,8 +223,7 @@
 	// Create an instance of every saved account
 	for (accountDict in accountList) {
 		@autoreleasepool {
-			NSString *serviceUniqueID = [self _upgradeServiceUniqueID:[accountDict objectForKey:ACCOUNT_TYPE]
-													   forAccountDict:accountDict];
+			NSString *serviceUniqueID = [accountDict objectForKey:ACCOUNT_TYPE];
 			AIAccount *newAccount;
 
 			// Fetch the account service, UID, and ID
@@ -255,69 +253,6 @@
 
 	// Broadcast an account list changed notification
 	[[NSNotificationCenter defaultCenter] postNotificationName:Account_ListChanged object:nil userInfo:nil];
-}
-
-/*!
- * @brief ServiceID upgrade code (v0.63 -> v0.70 for libpurple, v0.70 -> v0.80 for bonjour, v1.0 -> v1.1 for libpurple)
- *
- * The changed name will only be saved if some other account change, such as adding an account, occurs,
- * so this code should remain indefinitely to provide an upgrade path to people whose service IDs are in an
- * old style.
- *
- * @param serviceID NSString service unique ID (old or new)
- * @param accountDict Dictionary of the saved account
- * @return NSString service ID (new), or nil if unable to upgrade
- */
-- (NSString *)_upgradeServiceUniqueID:(NSString *)serviceID forAccountDict:(NSDictionary *)accountDict
-{
-	// Libgaim
-	if ([serviceID hasPrefix:@"libgaim"]) {
-		NSMutableString *newServiceID = [serviceID mutableCopy];
-		[newServiceID replaceOccurrencesOfString:@"libgaim"
-									  withString:@"libpurple"
-										 options:(NSLiteralSearch | NSAnchoredSearch)
-										   range:NSMakeRange(0, [newServiceID length])];
-		serviceID = newServiceID;
-
-	} else if ([serviceID hasSuffix:@"LIBGAIM"]) {
-		if ([serviceID isEqualToString:@"AIM-LIBGAIM"]) {
-			NSString *uid = [accountDict objectForKey:ACCOUNT_UID];
-			if (uid && [uid length]) {
-				const char firstCharacter = [uid characterAtIndex:0];
-
-				if ([uid hasSuffix:@"@mac.com"]) {
-					serviceID = @"libpurple-oscar-Mac";
-				} else if (firstCharacter >= '0' && firstCharacter <= '9') {
-					serviceID = @"libpurple-oscar-ICQ";
-				} else {
-					serviceID = @"libpurple-oscar-AIM";
-				}
-			}
-		} else if ([serviceID isEqualToString:@"GaduGadu-LIBGAIM"]) {
-			serviceID = @"libpurple-Gadu-Gadu";
-		} else if ([serviceID isEqualToString:@"Jabber-LIBGAIM"]) {
-			serviceID = @"libpurple-Jabber";
-		} else if ([serviceID isEqualToString:@"MSN-LIBGAIM"]) {
-			serviceID = @"libpurple-MSN";
-		} else if ([serviceID isEqualToString:@"Napster-LIBGAIM"]) {
-			serviceID = @"libpurple-Napster";
-		} else if ([serviceID isEqualToString:@"Novell-LIBGAIM"]) {
-			serviceID = @"libpurple-GroupWise";
-		} else if ([serviceID isEqualToString:@"Sametime-LIBGAIM"]) {
-			serviceID = @"libpurple-Sametime";
-		} else if ([serviceID isEqualToString:@"Yahoo-LIBGAIM"]) {
-			serviceID = @"libpurple-Yahoo!";
-		} else if ([serviceID isEqualToString:@"Yahoo-Japan-LIBGAIM"]) {
-			serviceID = @"libpurple-Yahoo!-Japan";
-		}
-	} else if ([serviceID isEqualToString:@"rvous-libezv"])
-		serviceID = @"bonjour-libezv";
-	else if ([serviceID isEqualToString:@"joscar-OSCAR-AIM"])
-		serviceID = @"libpurple-oscar-AIM";
-	else if ([serviceID isEqualToString:@"joscar-OSCAR-dotMac"])
-		serviceID = @"libpurple-oscar-Mac";
-
-	return serviceID;
 }
 
 /*!

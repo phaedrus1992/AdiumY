@@ -54,8 +54,6 @@
 @interface AIStatusController ()
 - (NSArray *)builtInStateArray;
 
-- (void)_upgradeSavedAwaysToSavedStates;
-
 - (NSArray *)_menuItemsForStatusesOfType:(AIStatusType)type
 				  forServiceCodeUniqueID:(NSString *)inServiceCodeUniqueID
 							  withTarget:(id)target;
@@ -441,6 +439,8 @@ static NSMutableSet *temporaryStateArray = nil;
 
 - (NSString *)localizedDescriptionForStatusName:(NSString *)statusName statusType:(AIStatusType)statusType
 {
+	NSParameterAssert(statusType >= AIAvailableStatusType && statusType < STATUS_TYPES_COUNT);
+
 	NSString *description = nil;
 
 	if (statusName && !(description = [self localizedDescriptionForCoreStatusName:statusName])) {
@@ -709,9 +709,6 @@ static NSMutableSet *temporaryStateArray = nil;
 
 		if (!_rootStateGroup)
 			_rootStateGroup = [AIStatusGroup statusGroup];
-
-		// Upgrade Adium 0.7x away messages
-		[self _upgradeSavedAwaysToSavedStates];
 	}
 
 	return _rootStateGroup;
@@ -1240,83 +1237,6 @@ static NSMutableSet *temporaryStateArray = nil;
 	}
 
 	[self saveStatusAsLastUsed:newState];
-}
-
-#pragma mark Upgrade code
-/*!
- * @brief Temporary upgrade code for 0.7x -> 0.8
- *
- * Versions 0.7x and prior stored their away messages in a different format.  This code allows a seamless
- * transition from 0.7x to 0.8.  We can easily recognize the old format because the away messages are of
- * type "Away" instead of type "State", which is used for all 0.8 and later saved states.
- * Since we are changing the array as we scan it, an enumerator will not work here.
- */
-#define OLD_KEY_SAVED_AWAYS @"Saved Away Messages"
-#define OLD_GROUP_AWAY_MESSAGES @"Away Messages"
-#define OLD_STATE_SAVED_AWAY @"Away"
-#define OLD_STATE_AWAY @"Message"
-#define OLD_STATE_AUTO_REPLY @"Autoresponse"
-#define OLD_STATE_TITLE @"Title"
-- (void)_upgradeSavedAwaysToSavedStates
-{
-	NSArray *savedAways = [adium.preferenceController preferenceForKey:OLD_KEY_SAVED_AWAYS
-																 group:OLD_GROUP_AWAY_MESSAGES];
-
-	if (savedAways) {
-		NSDictionary *state;
-
-		AILog(@"*** Upgrading Adium 0.7x saved aways: %@", savedAways);
-
-		[self setDelayStatusMenuRebuilding:YES];
-
-		// Update all the away messages to states.
-		for (state in savedAways) {
-			if ([[state objectForKey:@"Type"] isEqualToString:OLD_STATE_SAVED_AWAY]) {
-				AIStatus *statusState;
-
-				// Extract the away message information from this old record
-				NSData *statusMessageData = [state objectForKey:OLD_STATE_AWAY];
-				NSData *autoReplyMessageData = [state objectForKey:OLD_STATE_AUTO_REPLY];
-				NSString *title = [state objectForKey:OLD_STATE_TITLE];
-
-				// Create an AIStatus from this information
-				statusState = [AIStatus status];
-
-				// General category: It's an away type
-				[statusState setStatusType:AIAwayStatusType];
-
-				// Specific state: It's the generic away. Funny how that works out.
-				[statusState setStatusName:STATUS_NAME_AWAY];
-
-				// Set the status message (which is just the away message).
-				[statusState setStatusMessage:[NSAttributedString stringWithData:statusMessageData]];
-
-				// It has an auto reply.
-				[statusState setHasAutoReply:YES];
-
-				if (autoReplyMessageData) {
-					// Use the custom auto reply if it was set.
-					[statusState setAutoReply:[NSAttributedString stringWithData:autoReplyMessageData]];
-				} else {
-					// If no autoReplyMesssage, use the status message.
-					[statusState setAutoReplyIsStatusMessage:YES];
-				}
-
-				if (title)
-					[statusState setTitle:title];
-
-				// Add the updated state to our state array.
-				[self addStatusState:statusState];
-			}
-		}
-
-		AILog(@"*** Finished upgrading old saved statuses");
-
-		// Save these changes and delete the old aways so we don't need to do this again.
-		[self setDelayStatusMenuRebuilding:NO];
-
-		[adium.preferenceController setPreference:nil forKey:OLD_KEY_SAVED_AWAYS group:OLD_GROUP_AWAY_MESSAGES];
-	}
 }
 
 @end

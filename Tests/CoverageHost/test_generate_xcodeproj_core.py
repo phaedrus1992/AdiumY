@@ -14,6 +14,9 @@ Covers the generator hardening deferred from PR #292 review (issues #294, #295,
           discovery including .mm (per-file -x objective-c++).
   - #296: atomic compile_commands.json write (temp file + os.replace).
   - #194: referenced source paths must exist before the project is emitted.
+  - #324: the CoverageHost stub's AIEventHandlerGroupType (and its
+          EVENT_HANDLER_GROUP_COUNT) must stay in lockstep with the real header;
+          the live-file test is the CI enforcement.
 """
 
 import json
@@ -31,7 +34,9 @@ from generate_xcodeproj_core import (
     build_compile_entries,
     compile_command,
     discover_unit_test_sources,
+    event_handler_group_count_drift,
     expand_build_path,
+    extract_event_handler_group_count,
     sources_for_target,
     validate_source_paths,
     write_compile_commands_atomic,
@@ -480,6 +485,69 @@ class XcrunQueryTest(unittest.TestCase):
             with self.assertRaises(SystemExit) as cm:
                 xcrun_query(["--show-sdk-path"], "macosx")
         self.assertIn("returned no output", str(cm.exception))
+
+
+class EventHandlerGroupCountDriftTest(unittest.TestCase):
+    """#324: the CoverageHost stub's AIEventHandlerGroupType must track the real
+    header. The live-file test below runs in CI on every push/PR (the generator
+    itself only runs on `make xcodeproj`), so a stale stub count fails CI, not
+    just a local regeneration."""
+
+    @classmethod
+    def setUpClass(cls):
+        # Tests/CoverageHost → up two levels is the repo root.
+        cls.test_dir = os.path.dirname(os.path.abspath(__file__))
+        cls.repo_root = os.path.dirname(os.path.dirname(cls.test_dir))
+
+    def _header(self, text):
+        fd, path = tempfile.mkstemp(suffix=".h")
+        with os.fdopen(fd, "w") as f:
+            f.write(text)
+        self.addCleanup(os.unlink, path)
+        return path
+
+    def test_live_headers_in_lockstep(self):
+        # The enforcement test: the committed stub and the real header must both
+        # exist and agree today, or CI fails and the register-guard coverage is
+        # provably stale.
+        real = os.path.join(self.repo_root, "Frameworks", "Adium", "Source",
+                            "AIContactAlertsControllerProtocol.h")
+        stub = os.path.join(self.test_dir, "AdiumY", "AIContactAlertsControllerProtocol.h")
+        self.assertTrue(os.path.isfile(real), f"real header missing: {real}")
+        self.assertTrue(os.path.isfile(stub), f"stub header missing: {stub}")
+        self.assertEqual(
+            event_handler_group_count_drift(real, stub),
+            [],
+            "CoverageHost stub EVENT_HANDLER_GROUP_COUNT drifted from the real "
+            "header — update Tests/CoverageHost/AdiumY/AIContactAlertsControllerProtocol.h",
+        )
+
+    def test_matching_counts_return_empty(self):
+        text = "#define EVENT_HANDLER_GROUP_COUNT 5\n"
+        self.assertEqual(
+            event_handler_group_count_drift(self._header(text), self._header(text)),
+            [],
+        )
+
+    def test_mismatched_counts_return_error(self):
+        real = self._header("#define EVENT_HANDLER_GROUP_COUNT 6\n")
+        stub = self._header("#define EVENT_HANDLER_GROUP_COUNT 5\n")
+        errors = event_handler_group_count_drift(real, stub)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("real header = 6", errors[0])
+        self.assertIn("CoverageHost stub = 5", errors[0])
+
+    def test_missing_define_raises_value_error(self):
+        with self.assertRaises(ValueError):
+            extract_event_handler_group_count(self._header("enum X { A, B };\n"))
+
+    def test_missing_define_reported_as_drift_not_crash(self):
+        # A header that lost the define is a broken binding; drift must report
+        # it as an error rather than propagate a traceback through the generator.
+        stub = self._header("enum AIEventHandlerGroupType { A, B };\n")
+        errors = event_handler_group_count_drift(self._header("#define EVENT_HANDLER_GROUP_COUNT 5\n"), stub)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("EVENT_HANDLER_GROUP_COUNT", errors[0])
 
 
 if __name__ == "__main__":
