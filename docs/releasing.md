@@ -164,11 +164,16 @@ Each lane runs alone, so a failed release resumes rather than restarts.
 
 `VERSION` is read from the current git tag. Override with `VERSION=2.0.0`.
 
-`make-dmg.sh` (the `package` lane) reports a DMG whose Finder layout did not
-land — icons sit at default positions, e.g. on a headless runner with no
-`ditto`able `.DS_Store` or no Finder — as an end-of-run warning instead of a
-silent pass. Set `DMG_REQUIRE_FINDER_LAYOUT=1` to make a missing layout fatal
-for release builds that must ship it.
+`make-dmg.sh` (the `package` lane) applies the Finder window layout from a
+committed pre-baked `.DS_Store` (`Release/Artwork/dmg-DS_Store`), so CI builds
+get the identical icon positions, window size and background without a GUI
+session. It also applies a custom volume icon (`.VolumeIcon.icns` +
+`SetFile -a C`) so the mounted disk shows the AdiumY icon instead of a generic
+disk. A DMG whose layout did not land — icons at default positions — is
+reported as an end-of-run warning instead of a silent pass. Set
+`DMG_REQUIRE_FINDER_LAYOUT=1` to make a missing layout fatal for release builds
+that must ship it. (The baked `.DS_Store` records item names, so regenerate it
+if the staged app bundle or text files are ever renamed.)
 
 ## How signing works here
 
