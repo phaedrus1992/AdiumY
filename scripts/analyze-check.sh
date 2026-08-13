@@ -1,11 +1,5 @@
 #!/bin/bash
 set -euo pipefail
-# Deterministic collation: comm's sortedness check uses C ordering, but sort -u
-# defaults to the user locale — the two disagree on paths like "SLPurple" vs
-# "libpurple_extensions" (C: uppercase < lowercase; UTF-8 folds case), making
-# comm emit spurious "not in sorted order" warnings and, worse, potentially
-# misorder the comparison. Pin both to byte order.
-export LC_ALL=C
 
 # Clang Static Analyzer gate for the full AdiumY app.
 # Runs `xcodebuild analyze` against the `AdiumY - Debug` scheme (AdiumY.app plus
@@ -89,7 +83,7 @@ fi
 # Exit-status contract: only grep rc=1 (nothing matched) is tolerated — that is
 # the normal incremental case (xcodebuild re-analyses nothing when the derived
 # data is current, emitting zero warnings), and an empty findings file means
-# "nothing new", which is exactly what comm below needs to pass. ANY other
+# "nothing new", which is exactly what the baseline compare below needs to pass. ANY other
 # failure (grep rc=2 on an unreadable log, a sed/sort error) fails the gate:
 # swallowing it would produce an empty findings file and a silent green — the
 # fail-open the blanket `|| true` mask created. The `** ANALYZE SUCCEEDED **`
@@ -111,17 +105,13 @@ fi
 
 # Findings not in the baseline are NEW — fail the gate on them. The baseline
 # may carry '#'-prefixed rationale comments; strip them before comparing, and
-# treat a missing baseline as empty (first run: every finding is new).
-# grep rc=1 (an all-comment baseline) is expected — `|| true` keeps set -e from
-# aborting on it. An unreadable baseline (rc=2) also lands here, but that
-# degrades to an EMPTY baseline: every finding reads as "new" and the gate
-# fails — fail-closed, never a silent pass.
-if [ -f "$BASELINE_FILE" ]; then
-	BASELINE_SORTED="$(grep -v '^#' "$BASELINE_FILE" | sort -u || true)"
-else
-	BASELINE_SORTED=""
-fi
-NEW_FINDINGS="$(comm -23 "$FINDINGS_FILE" <(printf '%s\n' "$BASELINE_SORTED"))"
+# treat a missing or unreadable baseline as empty (first run: every finding is
+# new). That last case is fail-closed by design: an empty baseline makes every
+# finding read as "new" and the gate fails — never a silent pass. -F -x makes
+# the compare an exact whole-line set difference, so no sort/collation pinning
+# is needed (a missing baseline degrades to an empty pattern set, same result).
+BASELINE_ACTIVE="$(grep -v '^#' "$BASELINE_FILE" 2>/dev/null || true)"
+NEW_FINDINGS="$(grep -vxF -f <(printf '%s\n' "$BASELINE_ACTIVE") "$FINDINGS_FILE" || true)"
 
 if [ -n "$NEW_FINDINGS" ]; then
   echo ""
@@ -139,7 +129,7 @@ fi
 # the findings file is empty (incremental run, nothing re-analyzed): an empty
 # set makes every baseline entry look stale, which is noise, not signal.
 if [ -s "$FINDINGS_FILE" ]; then
-  STALE_BASELINE="$(comm -13 "$FINDINGS_FILE" <(printf '%s\n' "$BASELINE_SORTED"))"
+  STALE_BASELINE="$(printf '%s\n' "$BASELINE_ACTIVE" | grep -vxF -f "$FINDINGS_FILE" || true)"
   if [ -n "$STALE_BASELINE" ]; then
     echo "Note: baseline entries in scripts/analyze-baseline.txt no longer match any"
     echo "finding (the underlying issue may be fixed) — consider removing:"
