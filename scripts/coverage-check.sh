@@ -32,22 +32,38 @@ DERIVED_DATA="${DERIVED_DATA_DIR:-${BUILD_DIR:-build}/DerivedData}"
 
 echo "--- Coverage check (default threshold: ${DEFAULT_THRESHOLD}%) ---"
 
-# Locate the coverage profile
+# Locate the coverage profile. find errors (e.g. an unreadable directory) are
+# captured to scratch and surfaced — a gate that can't find its data must say
+# why, not swallow the error (previously `2>/dev/null || true` hid the cause).
 COV_FILE=""
+COV_ERR="$SCRATCH_DIR/find-profdata.err"
 for d in "${DERIVED_DATA}/Build/ProfileData" "${DERIVED_DATA}/Logs/Test"; do
   if [ -d "$d" ]; then
-    COV_FILE=$(find "$d" -name '*.profdata' -maxdepth 4 -print -quit 2>/dev/null || true)
+    find_rc=0
+    COV_FILE=$(find "$d" -name '*.profdata' -maxdepth 4 -print -quit 2>"$COV_ERR") || find_rc=$?
+    if [ -s "$COV_ERR" ]; then
+      echo "WARNING: error locating coverage profile under $d:" >&2
+      sed 's/^/  /' "$COV_ERR" >&2
+    fi
+    if [ "$find_rc" -ne 0 ]; then
+      echo "ERROR: find failed (rc $find_rc) locating coverage profile — cannot verify coverage." >&2
+      exit 1
+    fi
     [ -n "$COV_FILE" ] && break
   fi
 done
 
 if [ -z "$COV_FILE" ]; then
-  echo "WARNING: No coverage profile data found in ${DERIVED_DATA}."
-  echo "SKIPPED — no coverage data to check."
-  echo ""
-  echo "To generate coverage data, run tests with -enableCodeCoverage YES and build"
-  echo "targets with CLANG_COVERAGE_MAPPING=YES CLANG_PROFILE_INSTRUMENTATION=YES."
-  exit 0
+  if [ "${ALLOW_NO_COVERAGE:-0}" = "1" ]; then
+    echo "WARNING: No coverage profile data found in ${DERIVED_DATA}."
+    echo "SKIPPED (ALLOW_NO_COVERAGE=1) — no coverage data to check."
+    exit 0
+  fi
+  echo "ERROR: No coverage profile data found in ${DERIVED_DATA}."
+  echo "The coverage gate must not pass unmeasured. Generate coverage data by running"
+  echo "tests with -enableCodeCoverage YES and targets with CLANG_COVERAGE_MAPPING=YES"
+  echo "CLANG_PROFILE_INSTRUMENTATION=YES, or set ALLOW_NO_COVERAGE=1 to explicitly skip."
+  exit 1
 fi
 
 echo "Found coverage profile: $COV_FILE"
