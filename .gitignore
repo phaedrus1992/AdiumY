@@ -149,6 +149,9 @@ compile_commands.json
 # Python bytecode cache from the generator + its unittest suite
 __pycache__/
 
+# Hypothesis example cache from the property-based extraction tests
+.hypothesis/
+
 # fastlane
 fastlane/report.xml
 fastlane/Preview.html

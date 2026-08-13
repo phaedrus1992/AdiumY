@@ -73,33 +73,17 @@ if ! grep -q '\*\* ANALYZE SUCCEEDED \*\*' "$LOG_FILE"; then
   exit 1
 fi
 
-# Extract findings, normalized to checker\trelative-path\tmessage. Paths are
-# made relative to the repo root so the baseline is identical on any checkout
-# location; line/column numbers are dropped so moving code doesn't churn it.
-# Pure sed pipeline (no read loop): the analyzer always emits absolute paths
-# under $PROJECT_DIR, so strip that prefix first, then reshape. Files outside
-# the repo (system headers) keep their absolute path — still a stable key.
-#
-# Exit-status contract: only grep rc=1 (nothing matched) is tolerated — that is
-# the normal incremental case (xcodebuild re-analyses nothing when the derived
-# data is current, emitting zero warnings), and an empty findings file means
-# "nothing new", which is exactly what the baseline compare below needs to pass. ANY other
-# failure (grep rc=2 on an unreadable log, a sed/sort error) fails the gate:
-# swallowing it would produce an empty findings file and a silent green — the
-# fail-open the blanket `|| true` mask created. The `** ANALYZE SUCCEEDED **`
-# check above already proved analysis ran, so a non-zero rc here is a real
-# extraction error, not a no-op.
-# PROJECT_DIR goes into a sed PATTERN, so escape its regex metacharacters —
-# a repo path like "my[repo]" must not corrupt the prefix strip.
-ESCAPED_PROJECT_DIR="$(printf '%s' "$PROJECT_DIR" | sed -e 's/[][\\.^$|()*+?{}]/\\&/g')"
-EXTRACT_RC=0
-grep -E 'warning: .* \[[A-Za-z][A-Za-z0-9._]*\]$' "$LOG_FILE" \
-  | sed -E "s#^$ESCAPED_PROJECT_DIR/##" \
-  | sed -E 's#^(.+):[0-9]+:[0-9]+: warning: (.*) \[([A-Za-z][A-Za-z0-9._]*)\]$#\3\t\1\t\2#' \
-  | sort -u > "$FINDINGS_FILE" \
-  || EXTRACT_RC=$?
-if [ "$EXTRACT_RC" -ne 0 ] && [ "$EXTRACT_RC" -ne 1 ]; then
-  echo "ERROR: finding extraction failed (rc $EXTRACT_RC) — see $LOG_FILE." >&2
+# Extract findings, normalized to checker\trelative-path\tmessage — delegated to
+# the shared pipeline scripts/analyze-extract.sh, the single source of truth
+# exercised directly by Tests/CoverageHost/test_analyze_extract.py (issue #346).
+# It reads the log on stdin, strips the repo-root prefix (leaving system-header
+# paths absolute — still a stable key), drops line/column, and fails closed
+# (exit 1) on any extraction error: only "nothing matched" (grep rc=1, the
+# normal incremental case) is tolerated, so a non-zero rc here is a real error,
+# never a silent empty-findings pass. The `** ANALYZE SUCCEEDED **` check above
+# already proved analysis ran, so an extraction failure is not a no-op.
+if ! "$SCRIPT_DIR/analyze-extract.sh" "$PROJECT_DIR" < "$LOG_FILE" > "$FINDINGS_FILE"; then
+  echo "ERROR: finding extraction failed — see $LOG_FILE." >&2
   exit 1
 fi
 

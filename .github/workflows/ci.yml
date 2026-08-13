@@ -32,9 +32,14 @@ jobs:
         run: |
           make format-check CLANG_FORMAT="$(brew --prefix clang-format)/bin/clang-format"
 
-      - name: Run generator unit tests (Python, stdlib only)
+      - name: Run generator unit tests (Python + Hypothesis)
         run: |
-          python3 -m unittest discover -s Tests/CoverageHost -v
+          # venv isolates the pinned Hypothesis from the runner's system Python
+          # (externally-managed on Homebrew; PEP 668 blocks --user installs).
+          # 6.141.1 is the newest 6.x supporting the runner's Python 3.9.
+          python3 -m venv .tmp/hyp-venv
+          .tmp/hyp-venv/bin/pip install --quiet hypothesis==6.141.1
+          .tmp/hyp-venv/bin/python -m unittest discover -s Tests/CoverageHost -v
 
       - name: Shellcheck build scripts
         run: |
@@ -42,7 +47,9 @@ jobs:
           shellcheck \
             Dependencies/build-common.sh \
             Dependencies/build-universal-deps.sh \
-            Dependencies/build-phases/*.sh
+            Dependencies/build-phases/*.sh \
+            scripts/analyze-check.sh \
+            scripts/analyze-extract.sh
 
       - name: Build MMTabBarView.framework
         run: |
