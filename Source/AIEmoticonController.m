@@ -236,7 +236,7 @@ NSInteger packSortFunction(id packA, id packB, void *packOrderingArray);
 		BOOL currentLocationNeedsUpdate = YES;
 
 		if ([candidateEmoticons count]) {
-			NSString *replacementString;
+			NSString *replacementString = nil;
 			NSMutableAttributedString *replacement;
 			NSInteger textLength;
 			NSRange emoticonRangeInNewMessage;
@@ -299,7 +299,9 @@ NSInteger packSortFunction(id packA, id packB, void *packOrderingArray);
 				if (!endingSetDict) {
 					endingSetDict = [[NSMutableDictionary alloc] initWithCapacity:10];
 				}
-				if (!(endingTrimSet = [endingSetDict objectForKey:replacementString])) {
+				// replacementString is nil only if no equivalent matched; caching a
+				// trim set keyed by nil would crash the setObject:forKey:, so skip it.
+				if (replacementString && !(endingTrimSet = [endingSetDict objectForKey:replacementString])) {
 					NSMutableCharacterSet *tempSet = [[NSCharacterSet punctuationCharacterSet] mutableCopy];
 					[tempSet formUnionWithCharacterSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 					[tempSet formUnionWithCharacterSet:[NSCharacterSet symbolCharacterSet]];

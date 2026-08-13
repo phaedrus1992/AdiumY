@@ -1,0 +1,122 @@
+# Clang Static Analyzer baseline for the AdiumY - Debug scheme (full app).
+#
+# This file is the triage record for pre-existing analyzer findings at the time
+# the full-app analyze gate (issue #338) went live. It starts the gate green and
+# blocks only NEW findings. Format, one entry per line:
+#     <checker>\t<repo-relative-path>\t<message>
+# Line/column are intentionally dropped so moving code doesn't churn the file.
+# Lines beginning with '#' are comments and are ignored by scripts/analyze-check.sh.
+#
+# Triage policy:
+#   - Genuine first-party bugs found during triage were FIXED, not baselined:
+#     adiumPurpleRequest.m (nil value to setObject:forKey:), ESPurpleJabberAccount.m
+#     (nil disconnectionError deref), AIEmoticonController.m (nil dict key),
+#     JVFontPreviewField.m + InstantMessage.m (insecure decodeValueOfObjCType:at:).
+#   - Everything below is a documented false positive or deliberately deferred,
+#     each grouped by rationale.
+#
+# Category rationale:
+#
+# deadcode.DeadStores (first-party + vendored)
+#   Storing a value that is never read. None of these change behavior; each is a
+#   lint-level nit (assigned-then-overwritten locals, values used only through
+#   the enclosing expression). Not worth a commit each — tracked as bulk cleanup,
+#   issue #345.
+#
+# MMTabBarView + libezv + ssl-cdsa.c (Dependencies/, Plugins/Bonjour/libezv,
+# Plugins/Purple Service/libpurple_extensions/)
+#   Vendored third-party sources compiled into the app. Fixes belong upstream, not
+#   in the fork's diff. The libezv retain-count "leaks" and nullability warnings
+#   are the analyzer's inability to reason about MRC object graphs across methods.
+#
+# core.FixedAddressDereference — Source/ESDebugController.m
+#   AIExplodeOnEnumerationMutation deliberately writes to 0xdeadbeef to hard-crash
+#   when a collection is mutated during enumeration (DEBUG builds only). The
+#   "dereference of a fixed address" IS the intent.
+#
+# core.UndefinedBinaryOperatorResult — Source/AIListLayoutWindowController.m
+#   False positive: `while (positionChoices[i] != -1)` walks a -1-sentinel-
+#   terminated C array. Every caller (updateStatusIconMenu/updateServiceIconMenu/
+#   updateUserIconMenuFromPrefDict:) terminates the array with -1; the analyzer
+#   just can't prove a raw C array param is terminated.
+#
+# nullability.NullReturnedFromNonnull (first-party)
+#   - ESContactAlertsViewController.m / ESFileTransferProgressWindowController.m:
+#     outlineView:child:ofItem: returns nil only in the bounds-checked else
+#     branch — unreachable at runtime because the outline view only asks for
+#     indexes < numberOfChildrenOfItem:.
+#   - AIMessageViewController.m: textView:completions:... returns nil as the
+#     documented "no completions" early return after [textView complete:]; the
+#     protocol's nonnull annotation is stricter than the API contract.
+#
+# osx.cocoa.RetainCount — AMPurpleJabberServiceDiscoveryBrowserController.m
+#   Deliberate self-retain (`CFBridgingRetain(self)`) so the sheet outlives its
+#   init autorelease; bounded to one instance per service discovery. Genuine
+#   (if small) lifetime debt — tracked as issue #345.
+#
+# osx.ObjCProperty — Source/AIDockIconSelectionSheet.h
+#   `@property(copy) NSMutableArray *icons` stores an immutable copy, but the
+#   implementation only reads it ([self icons] count), never mutates through the
+#   property — harmless today, a smell if it ever mutates. Cleanup tracked as
+#   issue #345.
+#
+# osx.cocoa.UnusedIvars — Source/AIInterfaceController.h
+#   Informational: 'interfaceArray' is referenced by categories in other files;
+#   the checker only sees the @implementation in this file.
+core.FixedAddressDereference	Source/ESDebugController.m	Dereference of a fixed address
+core.NullDereference	Plugins/Bonjour/libezv/Simple HTTP Server/AsyncSocket.m	Access to field 'sin6_port' results in a dereference of a null pointer (loaded from variable 'pSockAddr6')
+core.UndefinedBinaryOperatorResult	Source/AIListLayoutWindowController.m	The left operand of '!=' is a garbage value
+deadcode.DeadStores	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMTabBarController.m	Value stored to 'totalOccupiedWidth' is never read
+deadcode.DeadStores	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMTabBarView.m	Value stored to 'dragEvent' is never read
+deadcode.DeadStores	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMTabBarView.m	Value stored to 'mouseUp' is never read
+deadcode.DeadStores	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMTabBarView.m	Value stored to 'myOriginalSize' is never read
+deadcode.DeadStores	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMTabDragAssistant.m	Value stored to 'lastDestinationIndex' is never read
+deadcode.DeadStores	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMTabDragAssistant.m	Value stored to 'mouseUp' is never read
+deadcode.DeadStores	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/Styles/MMLiveChatTabStyle.m	Although the value stored to 'outlinePath' is used in the enclosing expression, the value is never actually read from 'outlinePath'
+deadcode.DeadStores	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/Styles/MMLiveChatTabStyle.m	Value stored to 'lineColor' is never read
+deadcode.DeadStores	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/Styles/MMUnifiedTabStyle.m	Value stored to 'capMask' is never read
+deadcode.DeadStores	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/Styles/Yosemite Tab Style/MMYosemiteTabStyle.m	Value stored to 'capMask' is never read
+deadcode.DeadStores	Frameworks/Adium/Source/AIAccountViewController.m	Value stored to 'nameTable' during its initialization is never read
+deadcode.DeadStores	Frameworks/Adium/Source/AIContactHidingController.m	Although the value stored to 'tokenType' is used in the enclosing expression, the value is never actually read from 'tokenType'
+deadcode.DeadStores	Plugins/Bonjour/libezv/Classes/AWEzvContact.m	Value stored to 'mimeType' is never read
+deadcode.DeadStores	Plugins/Bonjour/libezv/Classes/AWEzvContact.m	Value stored to 'nfiles' is never read
+deadcode.DeadStores	Plugins/Bonjour/libezv/Classes/AWEzvContact.m	Value stored to 'posixflags' is never read
+deadcode.DeadStores	Plugins/Bonjour/libezv/Private Classes/AWEzvContactManagerRendezvous.m	Value stored to 'oldrendezvous' is never read
+deadcode.DeadStores	Plugins/Bonjour/libezv/Private Classes/AWEzvContactManagerRendezvous.m	Value stored to 'pool' during its initialization is never read
+deadcode.DeadStores	Plugins/Bonjour/libezv/Private Classes/AWEzvXMLStream.m	Value stored to 'status' is never read
+deadcode.DeadStores	Plugins/Bonjour/libezv/Simple HTTP Server/AsyncSocket.m	Value stored to 'pool' during its initialization is never read
+deadcode.DeadStores	Plugins/Purple Service/CBPurpleAccount.m	Although the value stored to 'll' is used in the enclosing expression, the value is never actually read from 'll'
+deadcode.DeadStores	Plugins/Purple Service/SLPurpleCocoaAdapter.m	Although the value stored to 'account' is used in the enclosing expression, the value is never actually read from 'account'
+deadcode.DeadStores	Plugins/Purple Service/SLPurpleCocoaAdapter.m	Although the value stored to 'child_pid' is used in the enclosing expression, the value is never actually read from 'child_pid'
+deadcode.DeadStores	Plugins/Purple Service/libpurple_extensions/ssl-cdsa.c	Value stored to 'bytesRead' is never read
+deadcode.DeadStores	Source/AIListController.m	Although the value stored to 'availableType' is used in the enclosing expression, the value is never actually read from 'availableType'
+deadcode.DeadStores	Source/AILogViewerWindowController.m	Although the value stored to 'currentTo' is used in the enclosing expression, the value is never actually read from 'currentTo'
+deadcode.DeadStores	Source/AILogViewerWindowController.m	Although the value stored to 'toSetForThisService' is used in the enclosing expression, the value is never actually read from 'toSetForThisService'
+deadcode.DeadStores	Source/AIStateMenuPlugin.m	Value stored to 'menubarMenu' during its initialization is never read
+deadcode.DeadStores	Source/AdiumOTREncryption.m	Value stored to 'account' during its initialization is never read
+deadcode.DeadStores	Source/AdiumOTREncryption.m	Value stored to 'context' during its initialization is never read
+deadcode.DeadStores	Source/DCMessageContextDisplayPlugin.m	Value stored to 'amountRead' is never read
+deadcode.DeadStores	Source/KNShelfSplitView.m	Although the value stored to 'currentLocation' is used in the enclosing expression, the value is never actually read from 'currentLocation'
+nullability.NullPassedToNonnull	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMAttachedTabBarButton.m	nil assigned to a pointer which is expected to have non-null value
+nullability.NullPassedToNonnull	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMTabBarView.m	nil passed to a callee that requires a non-null 3rd parameter
+nullability.NullPassedToNonnull	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMTabBarView.m	nil passed to a callee that requires a non-null 4th parameter
+nullability.NullPassedToNonnull	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMTabDragAssistant.m	nil passed to a callee that requires a non-null 1st parameter
+nullability.NullReturnedFromNonnull	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMTabBarButtonCell.m	nil returned from a method that is expected to return a non-null value
+nullability.NullReturnedFromNonnull	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMTabBarView.m	nil returned from a method that is expected to return a non-null value
+nullability.NullReturnedFromNonnull	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/MMTabDragAssistant.m	nil returned from a method that is expected to return a non-null value
+nullability.NullReturnedFromNonnull	Dependencies/MMTabBarView/MMTabBarView/MMTabBarView/NSView+MMTabBarViewExtensions.m	nil returned from a method that is expected to return a non-null value
+nullability.NullReturnedFromNonnull	Frameworks/Adium/Source/ESContactAlertsViewController.m	nil returned from a method that is expected to return a non-null value
+nullability.NullReturnedFromNonnull	Plugins/Dual Window Interface/AIMessageViewController.m	nil returned from a method that is expected to return a non-null value
+nullability.NullReturnedFromNonnull	Source/ESFileTransferProgressWindowController.m	nil returned from a method that is expected to return a non-null value
+osx.ObjCProperty	Source/AIDockIconSelectionSheet.h	Property of mutable type 'NSMutableArray' has 'copy' attribute; an immutable object will be stored instead
+osx.cocoa.RetainCount	Plugins/Bonjour/libezv/Private Classes/AWEzvContactManagerRendezvous.m	Potential leak of an object of type 'NSImage * _Nullable'
+osx.cocoa.RetainCount	Plugins/Bonjour/libezv/Private Classes/AWEzvContactManagerRendezvous.m	Potential leak of an object stored into 'contact'
+osx.cocoa.RetainCount	Plugins/Bonjour/libezv/Private Classes/AWEzvContactManagerRendezvous.m	Potential leak of an object stored into 'data'
+osx.cocoa.RetainCount	Plugins/Bonjour/libezv/Private Classes/AWEzvContactManagerRendezvous.m	Potential leak of an object stored into 'mutableNick'
+osx.cocoa.RetainCount	Plugins/Bonjour/libezv/Private Classes/AWEzvContactManagerRendezvous.m	Potential leak of an object stored into 'nick'
+osx.cocoa.RetainCount	Plugins/Bonjour/libezv/Private Classes/AWEzvContactManagerRendezvous.m	Potential leak of an object stored into 'serviceResolver'
+osx.cocoa.RetainCount	Plugins/Bonjour/libezv/Private Classes/AWEzvContactManagerRendezvous.m	Potential leak of an object stored into 'temp'
+osx.cocoa.RetainCount	Plugins/Bonjour/libezv/Simple HTTP Server/AsyncSocket.m	Potential leak of an object stored into 'ms'
+osx.cocoa.RetainCount	Plugins/Bonjour/libezv/Simple HTTP Server/AsyncSocket.m	Potential leak of an object stored into 'packet'
+osx.cocoa.RetainCount	Plugins/Purple Service/AMPurpleJabberServiceDiscoveryBrowserController.m	Potential leak of an object stored into 'self'
+osx.cocoa.UnusedIvars	Source/AIInterfaceController.h	Instance variable 'interfaceArray' in class 'AIInterfaceController' is never used by the methods in its @implementation (although it may be used by category methods)

@@ -174,7 +174,55 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
-      - name: Analyze AIUtilities.framework
+      # The full-app analyze compiles app sources that import vendored framework
+      # headers (libpurple, glib, ...), so the vendored frameworks must be
+      # present. Mirror the build job: restore the deps cache, build what's
+      # missing. Analyze never links, so CODE_SIGNING_ALLOWED=NO in
+      # analyze-check.sh is sufficient — no signature work on the stale
+      # ad-hoc-signed vendored bundles is needed.
+      - name: Cache vendored dependency builds
+        id: deps-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            Frameworks/libffi.framework
+            Frameworks/libgcrypt.framework
+            Frameworks/libgpg-error.framework
+            Frameworks/libotr.framework
+            Frameworks/libpcre2-8.framework
+            Frameworks/libpurple.framework
+            Frameworks/libxml2.framework
+            Frameworks/glib.framework
+            Frameworks/libgio.framework
+            Frameworks/libgmodule.framework
+            Frameworks/libgobject.framework
+            Frameworks/libgthread.framework
+            Frameworks/libintl.framework
+            Frameworks/FriBidi.framework
+            Frameworks/LMX.framework
+            Dependencies/build
+            Dependencies/.cache
+          key: deps-v2-${{ runner.os }}-${{ hashFiles('Dependencies/vendor/**', 'Dependencies/build-common.sh', 'Dependencies/build-phases/**', 'Dependencies/build-universal-deps.sh', 'Dependencies/meson-cross-*.ini') }}
+          restore-keys: |
+            deps-v2-${{ runner.os }}-
+
+      - name: Build universal dependencies (vendored, no network)
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        run: |
+          set -o pipefail
+          LOG_FILE="$RUNNER_TEMP/analyze-deps.log"
+          echo "--- Restored cached build artifacts, checking per-dependency stamps ---"
+          bash Dependencies/build-universal-deps.sh 2>&1 | tee "$LOG_FILE" | tail -40
+          echo "log-path=$LOG_FILE" >> "$GITHUB_ENV"
+
+      - name: Upload build log (on failure)
+        if: failure() && env.log-path != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: analyze-deps-log
+          path: ${{ env.log-path }}
+
+      - name: Analyze full app
         run: |
           bash scripts/analyze-check.sh
 
