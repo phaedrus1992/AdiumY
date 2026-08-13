@@ -132,16 +132,31 @@ cleanup_build_dirs() {
 STAMP_DIR="$ROOTDIR/.cache/stamps"
 
 # Check if a dependency's build is already cached.
-# Usage: skip_cached <phase_name> <sha256>
-# Returns 0 (skip) if stamp matches, 1 (build needed) otherwise.
+# Usage: skip_cached <phase_name> <sha256> [framework ...]
+# Returns 0 (skip) if the stamp matches AND every listed framework binary
+# still exists, 1 (build needed) otherwise.
+#
+# The framework names are a staleness check beyond the stamp hash: a cache
+# restore that returned stamps without their binaries (a torn/partial entry)
+# must not skip the phase — the verify gate would hard-fail on the missing
+# framework. Rebuilding one phase is cheaper and far clearer than that.
 skip_cached() {
     local name="$1"
     local sha256="$2"
     local stamp="$STAMP_DIR/$name"
+    local fw binary
+    shift 2
 
     [ "$FORCE" -eq 1 ] && return 1
     [ -f "$stamp" ] || return 1
     [ "$(cat "$stamp")" = "$sha256" ] || return 1
+    for fw in "$@"; do
+        binary="$SRCROOT/Frameworks/$fw.framework/Versions/A/$fw"
+        if [ ! -f "$binary" ]; then
+            echo "  STALE: $name — stamp matches but $binary missing; rebuilding"
+            return 1
+        fi
+    done
     echo "  CACHED: $name (matches stamp, use --force to rebuild)"
     return 0
 }

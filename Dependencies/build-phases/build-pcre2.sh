@@ -30,7 +30,7 @@ build_pcre2() {
 
 build_pcre2_phase() {
     echo "=== Phase: pcre2 $BUILD_PCRE2_VERSION ==="
-    skip_cached "pcre2" "$BUILD_PCRE2_SHA256" && return 0
+    skip_cached "pcre2" "$BUILD_PCRE2_SHA256" libpcre2-8 && return 0
     build_for_archs build_pcre2 "libpcre2-8.0.dylib"
     build_framework "libpcre2-8" "libpcre2-8" "$BUILD_DIR/lib/libpcre2-8.0.dylib" "" "$BUILD_PCRE2_VERSION"
 

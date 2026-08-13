@@ -30,7 +30,7 @@ build_libxml2() {
 
 build_libxml2_phase() {
     echo "=== Phase: libxml2 $BUILD_LIBXML2_VERSION ==="
-    skip_cached "libxml2" "$BUILD_LIBXML2_SHA256" && return 0
+    skip_cached "libxml2" "$BUILD_LIBXML2_SHA256" libxml2 && return 0
     # Dylib name libxml2.16.dylib: libtool -version-info is CURRENT:MICRO:AGE with
     # CURRENT=major+minor=17, AGE=minor-compat=1, so suffix = CURRENT-AGE = 16
     # (verified in the 2.15.3 configure.ac).

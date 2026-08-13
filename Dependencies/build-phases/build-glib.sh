@@ -91,7 +91,7 @@ PCEOF
 
 build_glib_phase() {
     echo "=== Phase: glib $BUILD_GLIB_VERSION ==="
-    skip_cached "glib" "$BUILD_GLIB_SHA256" && return 0
+    skip_cached "glib" "$BUILD_GLIB_SHA256" glib libgmodule libgobject libgthread libgio && return 0
 
     local dylibs="libglib-2.0.0.dylib libgmodule-2.0.0.dylib libgobject-2.0.0.dylib libgthread-2.0.0.dylib libgio-2.0.0.dylib"
 

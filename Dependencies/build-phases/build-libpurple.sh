@@ -61,7 +61,7 @@ build_libpurple_phase() {
     echo "=== Phase: libpurple $BUILD_LIBPURPLE_VERSION ==="
     local cache_key
     cache_key="$(libpurple_cache_key)"
-    skip_cached "libpurple" "$cache_key" && return 0
+    skip_cached "libpurple" "$cache_key" libpurple && return 0
 
     # Extract here (outer scope) so LIBPURPLE_SRC survives build_for_archs's subshell.
     local src_dir

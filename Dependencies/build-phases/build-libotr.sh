@@ -33,7 +33,7 @@ build_libotr() {
 
 build_libotr_phase() {
     echo "=== Phase: libotr $BUILD_LIBOTR_VERSION ==="
-    skip_cached "libotr" "$BUILD_LIBOTR_SHA256" && return 0
+    skip_cached "libotr" "$BUILD_LIBOTR_SHA256" libotr && return 0
     build_for_archs build_libotr "libotr.5.dylib"
 
     # Stage headers from sandbox so framework doesn't reference ephemeral paths
