@@ -16,7 +16,8 @@
 #       relative (stable baseline across checkouts); files outside the repo
 #       (system headers) keep their absolute path. The string is escaped before
 #       it goes into a sed PATTERN so a path like "my[repo]" can't corrupt the
-#       prefix strip.
+#       prefix strip — regex metachars and the '#' delimiter (s#…#…) are both
+#       escaped, or a "…#x" suffix would split the substitution at the wrong byte.
 #
 # Exit status:
 #   0  extraction succeeded (output may be empty — nothing matched is the
@@ -31,7 +32,7 @@ if [ "$#" -ne 1 ]; then
 fi
 
 PROJECT_DIR="$1"
-ESCAPED_PROJECT_DIR="$(printf '%s' "$PROJECT_DIR" | sed -e 's/[][\\.^$|()*+?{}]/\\&/g')"
+ESCAPED_PROJECT_DIR="$(printf '%s' "$PROJECT_DIR" | sed -e 's/[][\\#.^$|()*+?{}]/\\&/g')"
 
 # Pattern rationale (both documented failure modes from issue #346):
 #   * The checker suffix must be a DOTTED identifier (deadcode.DeadStores), not
