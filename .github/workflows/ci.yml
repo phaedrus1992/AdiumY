@@ -21,10 +21,12 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
       - name: Install xcpretty
-        run: sudo gem install xcpretty --no-document --quiet 2>&1 || true
+        run: |
+          sudo gem install xcpretty --no-document --quiet 2>&1 || { echo "error: xcpretty install failed"; exit 1; }
 
       - name: Install clang-format
-        run: brew install clang-format 2>&1 || true
+        run: |
+          brew install clang-format 2>&1 || { echo "error: clang-format install failed"; exit 1; }
 
       - name: Check code style (clang-format dry-run)
         run: |
@@ -36,7 +38,7 @@ jobs:
 
       - name: Shellcheck build scripts
         run: |
-          brew install shellcheck 2>&1 || true
+          brew install shellcheck 2>&1 || { echo "error: shellcheck install failed"; exit 1; }
           shellcheck \
             Dependencies/build-common.sh \
             Dependencies/build-universal-deps.sh \
@@ -44,6 +46,7 @@ jobs:
 
       - name: Build MMTabBarView.framework
         run: |
+          set -o pipefail
           xcodebuild -project Dependencies/MMTabBarView/MMTabBarView/MMTabBarView.xcodeproj \
                      -scheme MMTabBarView \
                      -configuration Release \
@@ -58,7 +61,8 @@ jobs:
           cp -R "$SRC" Frameworks/MMTabBarView.framework
 
       - name: Install build tools
-        run: brew install meson ninja pkg-config intltool || true
+        run: |
+          brew install meson ninja pkg-config intltool || { echo "error: build tools install failed"; exit 1; }
 
       - name: Cache vendored dependency builds
         id: deps-cache
@@ -80,6 +84,7 @@ jobs:
             Frameworks/libintl.framework
             Frameworks/FriBidi.framework
             Frameworks/LMX.framework
+            Frameworks/Sparkle.framework
             Dependencies/build
             Dependencies/.cache
           key: deps-v2-${{ runner.os }}-${{ hashFiles('Dependencies/vendor/**', 'Dependencies/build-common.sh', 'Dependencies/build-phases/**', 'Dependencies/build-universal-deps.sh', 'Dependencies/meson-cross-*.ini') }}
@@ -91,9 +96,13 @@ jobs:
         run: |
           set -o pipefail
           LOG_FILE="$RUNNER_TEMP/build-deps.log"
+          # Emit log-path before the build: under `bash -e` a failing pipeline
+          # aborts the step, and an echo after it never runs — which lost the
+          # full deps log on earlier failures. Set first so the upload step
+          # (if: failure() && env.log-path != '') always has a path.
+          echo "log-path=$LOG_FILE" >> "$GITHUB_ENV"
           echo "--- Restored cached build artifacts, checking per-dependency stamps ---"
           bash Dependencies/build-universal-deps.sh 2>&1 | tee "$LOG_FILE" | tail -40
-          echo "log-path=$LOG_FILE" >> "$GITHUB_ENV"
 
       - name: Upload build log (on failure)
         if: failure() && env.log-path != ''
@@ -170,7 +179,68 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
-      - name: Analyze AIUtilities.framework
+      # The full-app analyze compiles app sources that import vendored framework
+      # headers (libpurple, glib, ...), so the vendored frameworks must be
+      # present. Restore the deps cache read-only (never save: a restore from
+      # a stale/torn entry must not poison the cache, and the build job owns
+      # the write), then build what's missing. Analyze never links, so
+      # CODE_SIGNING_ALLOWED=NO in analyze-check.sh is sufficient — no
+      # signature work on the stale ad-hoc-signed vendored bundles is needed.
+      - name: Restore vendored dependency builds (read-only)
+        id: deps-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            Frameworks/libffi.framework
+            Frameworks/libgcrypt.framework
+            Frameworks/libgpg-error.framework
+            Frameworks/libotr.framework
+            Frameworks/libpcre2-8.framework
+            Frameworks/libpurple.framework
+            Frameworks/libxml2.framework
+            Frameworks/glib.framework
+            Frameworks/libgio.framework
+            Frameworks/libgmodule.framework
+            Frameworks/libgobject.framework
+            Frameworks/libgthread.framework
+            Frameworks/libintl.framework
+            Frameworks/FriBidi.framework
+            Frameworks/LMX.framework
+            Frameworks/Sparkle.framework
+            Dependencies/build
+            Dependencies/.cache
+          key: deps-v2-${{ runner.os }}-${{ hashFiles('Dependencies/vendor/**', 'Dependencies/build-common.sh', 'Dependencies/build-phases/**', 'Dependencies/build-universal-deps.sh', 'Dependencies/meson-cross-*.ini') }}
+          restore-keys: |
+            deps-v2-${{ runner.os }}-
+
+      - name: Build universal dependencies (vendored, no network)
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        run: |
+          set -o pipefail
+          LOG_FILE="$RUNNER_TEMP/analyze-deps.log"
+          # Same as the build job: emit log-path before the build pipeline so
+          # a failing `bash | tee | tail` can't prevent the artifact upload.
+          echo "log-path=$LOG_FILE" >> "$GITHUB_ENV"
+          echo "--- Restored cached build artifacts, checking per-dependency stamps ---"
+          bash Dependencies/build-universal-deps.sh 2>&1 | tee "$LOG_FILE" | tail -40
+
+      - name: Upload build log (on failure)
+        if: failure() && env.log-path != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: analyze-deps-log
+          path: ${{ env.log-path }}
+
+      # The full app links Sparkle.framework (gitignored, downloaded by
+      # Dependencies/build-phases/get-sparkle.sh, checksum-pinned). Locally it's
+      # present from prior builds; on a fresh runner the build job never needs it
+      # (AIUtilities/MMTabBarView don't link Sparkle), so fetch it here. The
+      # script is idempotent — a no-op when the cache restored it.
+      - name: Fetch Sparkle.framework
+        run: |
+          bash Dependencies/build-phases/get-sparkle.sh
+
+      - name: Analyze full app
         run: |
           bash scripts/analyze-check.sh
 

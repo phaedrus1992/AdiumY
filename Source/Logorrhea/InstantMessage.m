@@ -26,7 +26,7 @@
 		sender = [decoder decodeObject];
 		date = [decoder decodeObject];
 		text = [decoder decodeObject];
-		[decoder decodeValueOfObjCType:@encode(unsigned) at:&flags];
+		[decoder decodeValueOfObjCType:@encode(unsigned) at:&flags size:sizeof(flags)];
 	}
 
 	return self;

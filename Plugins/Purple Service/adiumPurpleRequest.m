@@ -222,10 +222,15 @@ static void *adiumPurpleRequestActionWithIcon(const char *title, const char *pri
 											 titleString, @"TitleString", nil];
 
 			// If we have both a primary and secondary string, use the primary as a header.
+			// primaryString may be nil (a request with no primary text); setObject:nil
+			// throws, so guard the writes. Without a primary, secondary alone still
+			// surfaces as the message.
 			if (secondaryString) {
-				[infoDict setObject:primaryString forKey:@"MessageHeader"];
+				if (primaryString) {
+					[infoDict setObject:primaryString forKey:@"MessageHeader"];
+				}
 				[infoDict setObject:secondaryString forKey:@"Message"];
-			} else {
+			} else if (primaryString) {
 				[infoDict setObject:primaryString forKey:@"Message"];
 			}
 

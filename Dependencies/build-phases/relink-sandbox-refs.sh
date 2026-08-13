@@ -19,6 +19,18 @@
 
 set -euo pipefail
 
+# Post-link fixup has no meaning during static analysis: `xcodebuild analyze`
+# compiles and analyzes sources but produces no runnable bundle, and this
+# script's codesign step would fail on unsigned embedded copies (the analyze
+# gate passes CODE_SIGNING_ALLOWED=NO, which also disables Xcode's sign-on-copy).
+# Skip so the full-app analyze gate (issue #338) isn't blocked by codesign work.
+# xcodebuild sets RUN_CLANG_STATIC_ANALYZER=YES for the analyze action; normal
+# builds leave it unset/NO.
+if [ "${RUN_CLANG_STATIC_ANALYZER:-NO}" = "YES" ]; then
+  echo "relink: skipping during static analysis (RUN_CLANG_STATIC_ANALYZER=YES)"
+  exit 0
+fi
+
 # --- Environment (Xcode Run Script phase) -------------------------------------
 [ -n "${TARGET_BUILD_DIR:-}" ] || { echo "relink: TARGET_BUILD_DIR not set (not a build phase?)" >&2; exit 1; }
 [ -n "${WRAPPER_NAME:-}" ] || { echo "relink: WRAPPER_NAME not set" >&2; exit 1; }

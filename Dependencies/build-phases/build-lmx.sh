@@ -36,7 +36,7 @@ build_lmx() {
 
 build_lmx_phase() {
     echo "=== Phase: LMX $BUILD_LMX_VERSION ==="
-    skip_cached "lmx" "$BUILD_LMX_SHA256" && return 0
+    skip_cached "lmx" "$BUILD_LMX_SHA256" LMX && return 0
     build_for_archs build_lmx "libLMX.dylib"
 
     # Stage headers from sandbox

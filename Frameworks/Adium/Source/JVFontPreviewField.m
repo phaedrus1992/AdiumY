@@ -27,8 +27,8 @@
 		_showFontFace = [coder decodeBoolForKey:@"showFontFace"];
 		_actualFont = [coder decodeObjectForKey:@"actualFont"];
 	} else {
-		[coder decodeValueOfObjCType:@encode(char) at:&_showPointSize];
-		[coder decodeValueOfObjCType:@encode(char) at:&_showFontFace];
+		[coder decodeValueOfObjCType:@encode(char) at:&_showPointSize size:sizeof(_showPointSize)];
+		[coder decodeValueOfObjCType:@encode(char) at:&_showFontFace size:sizeof(_showFontFace)];
 		_actualFont = [coder decodeObject];
 	}
 	return self;

@@ -30,7 +30,7 @@ build_gpg_error() {
 
 build_gpg_error_phase() {
     echo "=== Phase: libgpg-error $BUILD_GPGERROR_VERSION ==="
-    skip_cached "gpg-error" "$BUILD_GPGERROR_SHA256" && return 0
+    skip_cached "gpg-error" "$BUILD_GPGERROR_SHA256" libgpg-error && return 0
     build_for_archs build_gpg_error "libgpg-error.0.dylib"
 
     # Stage gpg-error headers so framework provides them for the Adium target
