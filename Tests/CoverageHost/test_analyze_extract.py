@@ -34,6 +34,12 @@ between "warning: " and " [checker]". Messages are generated adversarially
 (bracketed prose, colon snippets, quotes, dots) so the property would catch a
 re-broken FM1/FM2.
 
+A second property pins the OUTPUT CONTRACT independently of the round-trip
+oracle: every emitted line is exactly three tab-separated fields with a dotted
+checker in field 0, a colon-free path in field 1, and a tab/newline-free
+message in field 2. The round-trip oracle cannot see a pipeline that emits
+well-formed-but-wrong tuples; this contract can.
+
 Invariants on generated messages: no newline (a log line is one physical line)
 and no tab (the tuple is tab-separated; clang doesn't emit tabs in analyzer
 messages). Both are documented here rather than handled in the pipeline.
@@ -46,6 +52,7 @@ Run from the repo root:  python3 -m unittest discover -s Tests/CoverageHost -v
 """
 
 import os
+import re
 import string
 import subprocess
 import tempfile
@@ -114,9 +121,11 @@ class FindingExtractionTargetedRegression(unittest.TestCase):
             self.assertEqual(stdout, "core.NullDereference\t{}\t{}\n".format(rel, msg))
 
     def test_real_baseline_findings_extract_unchanged(self):
-        # A representative sample of the 57 baselined findings (all dotted
+        # A representative sample of the baselined findings (all dotted
         # checkers) must extract to exactly their baseline entries — guards the
-        # dotted-checker requirement against over-filtering real output.
+        # dotted-checker requirement against over-filtering real output. Note
+        # the space-heavy vendored path: a regex metachar/path-handling slip
+        # that only shows on unusual but real paths lands here.
         rows = [
             ("core.FixedAddressDereference", "Source/ESDebugController.m",
              "Dereference of a fixed address"),
@@ -156,17 +165,52 @@ class FindingExtractionTargetedRegression(unittest.TestCase):
 
     def test_project_dir_with_regex_metacharacters(self):
         # The project dir is interpolated into a sed PATTERN — regex metachars
-        # in it must not corrupt the prefix strip (e.g. a repo path "my[repo]").
+        # AND the '#' sed delimiter in it must not corrupt the prefix strip (a
+        # repo path "my[repo]#x" used to break the substitution at the '#').
         with tempfile.TemporaryDirectory() as td:
-            proj = os.path.join(td, "proj[1]+x")
+            proj = os.path.join(td, "proj[1]+x#")
             os.makedirs(proj)
             line = "{}/Source/File.m:1:1: warning: msg [deadcode.DeadStores]\n".format(proj)
             stdout, rc = extract(proj, line)
             self.assertEqual(rc, 0)
             self.assertEqual(stdout, "deadcode.DeadStores\tSource/File.m\tmsg\n")
 
+    def test_duplicate_findings_collapse(self):
+        # sort -u collapses identical tuples: the same checker/path/message on
+        # different line:col must emit ONE tuple (line/col are dropped, so the
+        # tuples are identical).
+        with tempfile.TemporaryDirectory() as td:
+            rel = "Source/File.m"
+            lines = "\n".join(
+                "{}/{rel}:{line}:1: warning: value stored is never read [deadcode.DeadStores]".format(td, rel=rel, line=n)
+                for n in (10, 20)
+            ) + "\n"
+            stdout, rc = extract(td, lines)
+            self.assertEqual(rc, 0)
+            self.assertEqual(stdout, "deadcode.DeadStores\t{}\tvalue stored is never read\n".format(rel))
+
+    def test_no_arguments_fails_closed(self):
+        # A missing PROJECT_DIR must fail loudly (usage on stderr), not read as
+        # "no findings" — the caller must never mistake a broken invocation for
+        # a clean run.
+        proc = subprocess.run([EXTRACT_SCRIPT], capture_output=True, text=True, check=False)
+        self.assertEqual(proc.returncode, 1)
+        self.assertIn("usage", proc.stderr)
+
+    def test_extra_arguments_fails_closed(self):
+        proc = subprocess.run([EXTRACT_SCRIPT, "/tmp/a", "/tmp/b"], capture_output=True, text=True, check=False)
+        self.assertEqual(proc.returncode, 1)
+        self.assertIn("usage", proc.stderr)
+
 
 if HAS_HYPOTHESIS:
+    # The @given/@settings decorators below are evaluated at class-body time,
+    # so the whole Hypothesis section must be hidden when hypothesis is absent
+    # (not just @skipUnless'd — a NameError would otherwise break the entire
+    # discover run). CI installs a pinned hypothesis (see
+    # .github/workflows/ci.yml); the targeted regression tests above still run
+    # without it.
+
     # Real checker names from scripts/analyze-baseline.txt plus generated
     # dotted names — the pipeline must accept the whole dotted checker space.
     _REAL_CHECKERS = [
@@ -203,8 +247,12 @@ if HAS_HYPOTHESIS:
         "assignment to 'unsigned char *' from 'char *'",
     ]
 
+    # Dots and spaces are real in repo paths (see the "Simple HTTP Server"
+    # baseline entry) — the alphabet must include them so the pipeline is
+    # exercised on the paths it actually sees. Standalone "." / ".." segments
+    # are filtered out: they'd make a component-level join meaningless.
     _path_component = st.text(
-        alphabet=string.ascii_letters + string.digits + "_-",
+        alphabet=string.ascii_letters + string.digits + "_- .",
         min_size=1, max_size=12,
     ).filter(lambda s: s not in (".", ".."))
     _path_tail = st.lists(_path_component, min_size=1, max_size=3).map("/".join)
@@ -232,13 +280,23 @@ if HAS_HYPOTHESIS:
         checker = draw(_dotted_checker())
         return in_project, path_tail, line, col, message, checker
 
+    def _run_findings(td, findings):
+        lines = []
+        expected = []
+        for in_project, path_tail, line, col, message, checker in findings:
+            if in_project:
+                abs_path = os.path.join(td, path_tail)
+                out_path = path_tail
+            else:
+                # A system-header path outside the repo: the prefix strip leaves
+                # it absolute, and it must survive reshape unchanged.
+                abs_path = os.path.join("/usr/include", path_tail)
+                out_path = abs_path
+            lines.append("{}:{}:{}: warning: {} [{}]".format(abs_path, line, col, message, checker))
+            expected.append("{}\t{}\t{}".format(checker, out_path, message))
+        stdout, rc = extract(td, "\n".join(lines) + "\n")
+        return stdout, rc, expected
 
-if HAS_HYPOTHESIS:
-    # The @given/@settings decorators below are evaluated at class-body time,
-    # so the whole class must be hidden when hypothesis is absent (not just
-    # @skipUnless'd — a NameError would otherwise break the entire discover
-    # run). CI installs a pinned hypothesis (see .github/workflows/ci.yml);
-    # the targeted regression tests above still run without it.
     class FindingExtractionRoundTrip(unittest.TestCase):
         """Hypothesis round-trip property: any batch of well-formed generated
         lines extracts to exactly their checker\tpath\tmessage tuples."""
@@ -247,21 +305,7 @@ if HAS_HYPOTHESIS:
         @settings(max_examples=150, deadline=None, suppress_health_check=[HealthCheck.too_slow])
         def test_round_trip_extracts_exact_tuples(self, findings):
             with tempfile.TemporaryDirectory() as td:
-                lines = []
-                expected = []
-                for in_project, path_tail, line, col, message, checker in findings:
-                    if in_project:
-                        abs_path = os.path.join(td, path_tail)
-                        out_path = path_tail
-                    else:
-                        # A system-header path outside the repo: the prefix
-                        # strip leaves it absolute, and it must survive reshape
-                        # unchanged.
-                        abs_path = os.path.join("/usr/include", path_tail)
-                        out_path = abs_path
-                    lines.append("{}:{}:{}: warning: {} [{}]".format(abs_path, line, col, message, checker))
-                    expected.append("{}\t{}\t{}".format(checker, out_path, message))
-                stdout, rc = extract(td, "\n".join(lines) + "\n")
+                stdout, rc, expected = _run_findings(td, findings)
                 self.assertEqual(rc, 0)
                 # Compare as sets, not exact order: the pipeline's `sort -u`
                 # uses locale-aware BSD sort (a tab collates after "/", where
@@ -272,6 +316,30 @@ if HAS_HYPOTHESIS:
                 actual_lines = stdout.splitlines()
                 self.assertEqual(set(actual_lines), set(expected))
                 self.assertEqual(len(actual_lines), len(set(actual_lines)))
+
+    class FindingExtractionOutputContract(unittest.TestCase):
+        """Independent invariant the round-trip oracle can't see: every emitted
+        line is three tab-separated fields with a dotted checker, a colon-free
+        path, and a tab/newline-free message. Guards the reshape against
+        emitting well-formed-but-wrong tuples that still round-trip."""
+
+        _checker_re = re.compile(r"^[A-Za-z][A-Za-z0-9._]*\.[A-Za-z][A-Za-z0-9._]*$")
+
+        @given(findings=st.lists(_finding(), min_size=1, max_size=8))
+        @settings(max_examples=150, deadline=None, suppress_health_check=[HealthCheck.too_slow])
+        def test_every_output_line_is_three_fields(self, findings):
+            with tempfile.TemporaryDirectory() as td:
+                stdout, rc, _ = _run_findings(td, findings)
+                self.assertEqual(rc, 0)
+                self.assertNotEqual(stdout, "")
+                for line in stdout.splitlines():
+                    fields = line.split("\t")
+                    self.assertEqual(len(fields), 3, "line {!r} must be exactly 3 tab-separated fields".format(line))
+                    checker, path, message = fields
+                    self.assertRegex(checker, self._checker_re)
+                    self.assertNotIn(":", path, "path {!r} must not contain ':'".format(path))
+                    self.assertNotIn("\t", message)
+                    self.assertNotIn("\n", message)
 
 
 if __name__ == "__main__":
