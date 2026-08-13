@@ -1,0 +1,98 @@
+name: Restore and build vendored dependencies
+description: >
+  Restore the vendored framework builds (libpurple, glib, ...) from the deps
+  cache and build whatever is missing. Shared by the build and analyze jobs so
+  the cache key/path list and the build+log steps live in one place instead of
+  being duplicated. The build job passes cache-mode: save (writes the cache on
+  a miss); the analyze job uses the default restore-only so a stale/torn cache
+  entry can never be re-saved over the build job's good one.
+inputs:
+  cache-mode:
+    description: "'save' also writes the deps cache after a miss; 'restore-only' never writes."
+    required: false
+    default: restore-only
+  log-name:
+    description: "Basename for the deps build log; the failure artifact is named '<log-name>-log'."
+    required: false
+    default: deps
+runs:
+  using: composite
+  steps:
+    - name: Restore vendored dependency builds
+      id: deps-cache
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: |
+          Frameworks/libffi.framework
+          Frameworks/libgcrypt.framework
+          Frameworks/libgpg-error.framework
+          Frameworks/libotr.framework
+          Frameworks/libpcre2-8.framework
+          Frameworks/libpurple.framework
+          Frameworks/libxml2.framework
+          Frameworks/glib.framework
+          Frameworks/libgio.framework
+          Frameworks/libgmodule.framework
+          Frameworks/libgobject.framework
+          Frameworks/libgthread.framework
+          Frameworks/libintl.framework
+          Frameworks/FriBidi.framework
+          Frameworks/LMX.framework
+          Frameworks/Sparkle.framework
+          Dependencies/build
+          Dependencies/.cache
+        key: deps-v2-${{ runner.os }}-${{ hashFiles('Dependencies/vendor/**', 'Dependencies/build-common.sh', 'Dependencies/build-phases/**', 'Dependencies/build-universal-deps.sh', 'Dependencies/meson-cross-*.ini') }}
+        restore-keys: |
+          deps-v2-${{ runner.os }}-
+
+    - name: Build universal dependencies (vendored, no network)
+      id: build-deps
+      if: steps.deps-cache.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        # Pass the input through the environment so the input never reaches a
+        # `${{ }}` expression in the shell (template-injection audit).
+        LOG_NAME: ${{ inputs.log-name }}
+      run: |
+        set -o pipefail
+        LOG_FILE="$RUNNER_TEMP/${LOG_NAME}.log"
+        # Emit log-path before the build: under `bash -e` a failing pipeline
+        # aborts the step, and an echo after it never runs — which lost the
+        # full deps log on earlier failures. Set first so the upload step
+        # (if: failure() && steps.build-deps.outputs.log-path != '') always
+        # has a path.
+        echo "log-path=$LOG_FILE" >> "$GITHUB_OUTPUT"
+        echo "--- Restored cached build artifacts, checking per-dependency stamps ---"
+        bash Dependencies/build-universal-deps.sh 2>&1 | tee "$LOG_FILE" | tail -40
+
+    - name: Upload build log (on failure)
+      if: failure() && steps.build-deps.outputs.log-path != ''
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: ${{ inputs.log-name }}-log
+        path: ${{ steps.build-deps.outputs.log-path }}
+
+    - name: Save vendored dependency builds (on miss)
+      if: inputs.cache-mode == 'save' && steps.deps-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: |
+          Frameworks/libffi.framework
+          Frameworks/libgcrypt.framework
+          Frameworks/libgpg-error.framework
+          Frameworks/libotr.framework
+          Frameworks/libpcre2-8.framework
+          Frameworks/libpurple.framework
+          Frameworks/libxml2.framework
+          Frameworks/glib.framework
+          Frameworks/libgio.framework
+          Frameworks/libgmodule.framework
+          Frameworks/libgobject.framework
+          Frameworks/libgthread.framework
+          Frameworks/libintl.framework
+          Frameworks/FriBidi.framework
+          Frameworks/LMX.framework
+          Frameworks/Sparkle.framework
+          Dependencies/build
+          Dependencies/.cache
+        key: deps-v2-${{ runner.os }}-${{ hashFiles('Dependencies/vendor/**', 'Dependencies/build-common.sh', 'Dependencies/build-phases/**', 'Dependencies/build-universal-deps.sh', 'Dependencies/meson-cross-*.ini') }}
