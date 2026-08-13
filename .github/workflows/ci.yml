@@ -21,10 +21,12 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
       - name: Install xcpretty
-        run: sudo gem install xcpretty --no-document --quiet 2>&1 || true
+        run: |
+          sudo gem install xcpretty --no-document --quiet 2>&1 || { echo "error: xcpretty install failed"; exit 1; }
 
       - name: Install clang-format
-        run: brew install clang-format 2>&1 || true
+        run: |
+          brew install clang-format 2>&1 || { echo "error: clang-format install failed"; exit 1; }
 
       - name: Check code style (clang-format dry-run)
         run: |
@@ -36,7 +38,7 @@ jobs:
 
       - name: Shellcheck build scripts
         run: |
-          brew install shellcheck 2>&1 || true
+          brew install shellcheck 2>&1 || { echo "error: shellcheck install failed"; exit 1; }
           shellcheck \
             Dependencies/build-common.sh \
             Dependencies/build-universal-deps.sh \
@@ -44,6 +46,7 @@ jobs:
 
       - name: Build MMTabBarView.framework
         run: |
+          set -o pipefail
           xcodebuild -project Dependencies/MMTabBarView/MMTabBarView/MMTabBarView.xcodeproj \
                      -scheme MMTabBarView \
                      -configuration Release \
@@ -58,7 +61,8 @@ jobs:
           cp -R "$SRC" Frameworks/MMTabBarView.framework
 
       - name: Install build tools
-        run: brew install meson ninja pkg-config intltool || true
+        run: |
+          brew install meson ninja pkg-config intltool || { echo "error: build tools install failed"; exit 1; }
 
       - name: Cache vendored dependency builds
         id: deps-cache
