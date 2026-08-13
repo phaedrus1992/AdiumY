@@ -20,6 +20,11 @@ cd "$PROJECT_DIR"
 
 LOG_FILE="$PROJECT_DIR/build/analyze.log"
 
+# On a clean checkout (CI runner, no prior build) build/ doesn't exist yet.
+# tee can't open the log without it — create it first, or the gate dies with a
+# misleading tee error before the analyzer even runs.
+mkdir -p "$(dirname "$LOG_FILE")"
+
 echo "--- Running Clang Static Analyzer (AIUtilities.framework) ---"
 
 # pipefail: a failed analyze must fail the gate, and `tee` still writes the
@@ -34,7 +39,16 @@ xcodebuild -project Frameworks/AIUtilities/AIUtilities.xcodeproj \
            CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED=NO \
            analyze 2>&1 | tee "$LOG_FILE"
 
-if grep -nE 'warning:.*\[[A-Za-z][A-Za-z0-9._]*\]' "$LOG_FILE"; then
+# The log must exist for the gate to mean anything — grep rc=2 (missing file)
+# must fail loudly, not read as "no findings".
+if [ ! -f "$LOG_FILE" ]; then
+  echo "ERROR: $LOG_FILE not found — analyze produced no log." >&2
+  exit 1
+fi
+
+# Anchor the checker name at EOL: analyzer findings end in [checker.name];
+# compiler warnings end in [-Wflag] and must not trip the gate.
+if grep -nE 'warning:.*\[[A-Za-z][A-Za-z0-9._]*\]$' "$LOG_FILE"; then
   echo ""
   echo "FAILED: Clang Static Analyzer found findings in AIUtilities.framework."
   echo "Fix them (or file a follow-up issue) before merging."
