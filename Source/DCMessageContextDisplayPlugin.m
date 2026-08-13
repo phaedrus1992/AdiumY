@@ -307,7 +307,7 @@ static DCMessageContextDisplayPlugin *sharedInstance = nil;
 					NSInteger idx = 0;
 					ssize_t amountRead;
 					for (; idx < readSize; idx += amountRead) {
-						amountRead = pread(fd, buf + idx, readSize, readOffset + idx);
+						amountRead = pread(fd, buf + idx, readSize - idx, readOffset + idx);
 						if (amountRead <= 0)
 							break;
 					}
