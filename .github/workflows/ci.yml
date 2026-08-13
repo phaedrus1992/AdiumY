@@ -13,7 +13,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
 
@@ -163,7 +163,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
 
@@ -189,22 +189,26 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          # Full history so --baseline-commit can diff against the base branch.
+          # Full clone gives all branch history for the merge-base diff; the
+          # read-only token is not persisted on the runner after checkout.
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Install Semgrep
         run: |
-          pip install --quiet semgrep
+          pip install --quiet semgrep==1.172.0
 
       - name: Scan for new findings (diff-aware vs base)
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |
           if [ -n "$BASE_REF" ]; then
-            git fetch origin "$BASE_REF" --depth=1
-            BASELINE="origin/$BASE_REF"
+            # Baseline = merge-base with the target branch, so only lines this
+            # PR actually changed are scanned. The full clone from checkout
+            # already has origin/$BASE_REF; no separate fetch needed.
+            BASELINE="$(git merge-base "origin/$BASE_REF" HEAD)"
           else
             # Push to main: baseline is the previous commit on main.
             BASELINE="origin/main~1"
