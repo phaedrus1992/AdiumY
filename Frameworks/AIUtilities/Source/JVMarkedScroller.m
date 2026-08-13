@@ -78,7 +78,7 @@ struct _mark {
 		NSUInteger start = [startNum unsignedIntegerValue];
 		NSUInteger stop = [stopNum unsignedIntegerValue];
 
-		NSRect shadesRect = NSZeroRect;
+		NSRect shadesRect;
 		if (self.isHorizontalScroller)
 			shadesRect = NSMakeRect(start, 0.f, (stop - start), width);
 		else
@@ -91,7 +91,7 @@ struct _mark {
 	}
 
 	if (([_shades count] % 2) == 1) {
-		NSRect shadesRect = NSZeroRect;
+		NSRect shadesRect;
 		NSUInteger start = [[_shades lastObject] unsignedIntegerValue];
 		CGFloat stop = [self contentViewLength];
 

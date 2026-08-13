@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Bake the release disk image's Finder window layout (icon positions, window
   size, background) so CI-built DMGs no longer ship with default icon positions
 - Restore the AdiumY icon on the release disk image's mounted volume
+- Add four CI quality gates: a Clang Static Analyzer gate on
+  AIUtilities.framework (`make analyze`, fails on analyzer findings), a
+  diff-aware semgrep SAST job (baseline = merge-base with the PR target
+  branch, fails on new findings), per-target coverage ratchet floors in
+  `coverage-thresholds.txt`, and a clang-format pre-commit hook via prek that
+  runs the same dry-run as CI's `make format-check`
 
 ### Changed
 - Point the Sparkle update feed at

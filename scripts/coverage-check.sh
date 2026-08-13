@@ -196,7 +196,10 @@ if [ -d "$BINARY_DIR" ]; then
   if [ -n "$BINARY" ] && "$XCRUN" llvm-cov --help &>/dev/null; then
     BINARY_NAME=$(basename "$BINARY" .framework)
     BRANCH_ERR="$SCRATCH_DIR/branchcov.err"
-    BRANCH_REPORT=$("$XCRUN" llvm-cov export -summary-only \
+    # Pass the native arch for universal (fat) binaries, same as the per-target
+    # llvm-cov report above — llvm-cov export refuses a fat binary without it
+    # ("-arch specifier is invalid or missing for universal binary").
+    BRANCH_REPORT=$("$XCRUN" llvm-cov export -summary-only -arch "$(uname -m)" \
       -instr-profile "$COV_FILE" "$BINARY/$BINARY_NAME" 2>"$BRANCH_ERR" || true)
     if [ -n "$BRANCH_REPORT" ]; then
       BRANCH_PCT=$(echo "$BRANCH_REPORT" | jq -r '.data[0].totals.branches.percent // 0' 2>/dev/null || echo "N/A")

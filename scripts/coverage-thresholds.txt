@@ -11,6 +11,15 @@
 # in coverage-check.sh (AutoHyperlinks, MMTabBarView) and don't need a line.
 #
 # When new production targets are added, add them here with threshold 0.
+#
+# Measured baseline (ratchet step 1, 2026-08-12 CI test run — CoverageHost
+# suite via `make test` + `make coverage-check`):
+#   AIUtilities        0.34%   floor(measured) = 0  (only target CI builds & tests)
+#   Adium              unmeasured (never built/tested in CI)  -> 0
+#   AdiumLibpurple     unmeasured (never built/tested in CI)  -> 0
+#   Purple Service     unmeasured (never built/tested in CI)  -> 0
+# Raising any threshold above its measured floor would fail the gate on the
+# ratchet step, so all stay at 0 until coverage work raises the measured floor.
 AIUtilities 0
 Adium 0
 AdiumLibpurple 0

@@ -544,13 +544,15 @@ enum {
 #define SBEFS_BOUNDARY_GUARD                                                                                           \
 	do {                                                                                                               \
 		if (i == buflen) {                                                                                             \
-			buf = realloc(buf, sizeof(unichar) * (buflen += buflenIncrement));                                         \
-			if (!buf) {                                                                                                \
+			unichar *newBuf = realloc(buf, sizeof(unichar) * (buflen += buflenIncrement));                             \
+			if (!newBuf) {                                                                                             \
 				NSLog(@"in stringByEscapingForShell: could not allocate %lu bytes",                                    \
 					  (unsigned long)(sizeof(unichar) * buflen));                                                      \
+				free(buf);                                                                                             \
 				free(myBuf);                                                                                           \
 				return nil;                                                                                            \
 			}                                                                                                          \
+			buf = newBuf;                                                                                              \
 		}                                                                                                              \
 	} while (0)
 
@@ -629,13 +631,15 @@ enum {
 #define SBEFR_BOUNDARY_GUARD                                                                                           \
 	do {                                                                                                               \
 		if (i == buflen) {                                                                                             \
-			buf = realloc(buf, sizeof(unichar) * (buflen += buflenIncrement));                                         \
-			if (!buf) {                                                                                                \
+			unichar *newBuf = realloc(buf, sizeof(unichar) * (buflen += buflenIncrement));                             \
+			if (!newBuf) {                                                                                             \
 				NSLog(@"in stringByEscapingForRegexp: could not allocate %lu bytes",                                   \
 					  (unsigned long)(sizeof(unichar) * buflen));                                                      \
+				free(buf);                                                                                             \
 				free(myBuf);                                                                                           \
 				return nil;                                                                                            \
 			}                                                                                                          \
+			buf = newBuf;                                                                                              \
 		}                                                                                                              \
 	} while (0)
 

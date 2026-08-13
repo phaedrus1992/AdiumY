@@ -1,0 +1,21 @@
+# prek / pre-commit hook configuration.
+#
+# prek (https://github.com/llmenv/prek) reads this file — or a native prek.toml —
+# and runs the hooks on staged files when you commit (the .git/hooks/pre-commit
+# shim, installed via `make install-hooks`, invokes it).
+#
+# Single local hook: clang-format dry-run via the same script CI uses
+# (scripts/format-check.sh --files, i.e. `make format-check`) so style
+# violations fail at commit time exactly as they would in CI. Fix with
+# `make format`, or bypass once with `git commit --no-verify`.
+
+repos:
+  - repo: local
+    hooks:
+      - id: clang-format
+        name: clang-format
+        description: Enforce .clang-format style on staged C/Objective-C sources
+        entry: bash scripts/format-check.sh --files
+        language: system
+        files: \.(m|mm|h|c|cc|cpp)$
+        pass_filenames: true

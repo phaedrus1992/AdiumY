@@ -566,7 +566,9 @@ static OSStatus CreateIPAddressListChangeCallbackSCF(SCDynamicStoreCallBack call
 			CFRunLoopAddSource(CFRunLoopGetCurrent(), ipChangesRunLoopSourceRef, kCFRunLoopDefaultMode);
 		}
 
-		CFRelease(storeRef);
+		if (storeRef) {
+			CFRelease(storeRef);
+		}
 	}
 }
 
