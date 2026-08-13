@@ -290,8 +290,6 @@ static void new_fingerprint_cb(void *opdata, OtrlUserState us, const char *accou
 
 		otrl_privkey_hash_to_human(their_hash, fingerprint);
 
-		ConnContext *context = otrl_context_find(otrg_plugin_userstate, username, accountname, protocol,
-												 OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);
 		if (otrl_privkey_fingerprint(otrg_plugin_userstate, our_hash, accountname, protocol)) {
 			/* our_hash is now filled in */
 		} else {
@@ -326,7 +324,6 @@ static void gone_secure_cb(void *opdata, ConnContext *context)
 {
 #pragma unused(opdata)
 	@autoreleasepool {
-		AIAccount *account = accountFromAccountID(context->accountname);
 		AIListContact *contact = contactForContext(context);
 
 		update_security_details_for_chat(chatForContext(context));
@@ -712,8 +709,6 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 - (void)_accountConnected:(NSNotification *)notification
 {
-	AIAccount *account = [notification object];
-
 	[self createOTRFiles];
 
 	if (!OTRWindowController) {
@@ -1215,9 +1210,6 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 						 accountName:(NSString *)accountName
 					 accountProtocol:(NSString *)accountProtocol
 {
-	AIAccount *account = [adium.accountController
-		accountWithInternalObjectID:[[accountName componentsSeparatedByString:@"."] lastObject]];
-
 	OtrlUserState userState = [[self class] userState];
 	ConnContext *context = otrl_context_find(userState, username.UTF8String, accountName.UTF8String,
 											 accountProtocol.UTF8String, OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);

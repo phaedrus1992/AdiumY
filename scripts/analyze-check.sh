@@ -1,11 +1,5 @@
 #!/bin/bash
 set -euo pipefail
-# Deterministic collation: comm's sortedness check uses C ordering, but sort -u
-# defaults to the user locale — the two disagree on paths like "SLPurple" vs
-# "libpurple_extensions" (C: uppercase < lowercase; UTF-8 folds case), making
-# comm emit spurious "not in sorted order" warnings and, worse, potentially
-# misorder the comparison. Pin both to byte order.
-export LC_ALL=C
 
 # Clang Static Analyzer gate for the full AdiumY app.
 # Runs `xcodebuild analyze` against the `AdiumY - Debug` scheme (AdiumY.app plus
@@ -79,49 +73,39 @@ if ! grep -q '\*\* ANALYZE SUCCEEDED \*\*' "$LOG_FILE"; then
   exit 1
 fi
 
-# Extract findings, normalized to checker\trelative-path\tmessage. Paths are
-# made relative to the repo root so the baseline is identical on any checkout
-# location; line/column numbers are dropped so moving code doesn't churn it.
-# Pure sed pipeline (no read loop): the analyzer always emits absolute paths
-# under $PROJECT_DIR, so strip that prefix first, then reshape. Files outside
-# the repo (system headers) keep their absolute path — still a stable key.
-#
-# Exit-status contract: only grep rc=1 (nothing matched) is tolerated — that is
-# the normal incremental case (xcodebuild re-analyses nothing when the derived
-# data is current, emitting zero warnings), and an empty findings file means
-# "nothing new", which is exactly what comm below needs to pass. ANY other
-# failure (grep rc=2 on an unreadable log, a sed/sort error) fails the gate:
-# swallowing it would produce an empty findings file and a silent green — the
-# fail-open the blanket `|| true` mask created. The `** ANALYZE SUCCEEDED **`
-# check above already proved analysis ran, so a non-zero rc here is a real
-# extraction error, not a no-op.
-# PROJECT_DIR goes into a sed PATTERN, so escape its regex metacharacters —
-# a repo path like "my[repo]" must not corrupt the prefix strip.
-ESCAPED_PROJECT_DIR="$(printf '%s' "$PROJECT_DIR" | sed -e 's/[][\\.^$|()*+?{}]/\\&/g')"
-EXTRACT_RC=0
-grep -E 'warning: .* \[[A-Za-z][A-Za-z0-9._]*\]$' "$LOG_FILE" \
-  | sed -E "s#^$ESCAPED_PROJECT_DIR/##" \
-  | sed -E 's#^(.+):[0-9]+:[0-9]+: warning: (.*) \[([A-Za-z][A-Za-z0-9._]*)\]$#\3\t\1\t\2#' \
-  | sort -u > "$FINDINGS_FILE" \
-  || EXTRACT_RC=$?
-if [ "$EXTRACT_RC" -ne 0 ] && [ "$EXTRACT_RC" -ne 1 ]; then
-  echo "ERROR: finding extraction failed (rc $EXTRACT_RC) — see $LOG_FILE." >&2
+# Extract findings, normalized to checker\trelative-path\tmessage — delegated to
+# the shared pipeline scripts/analyze-extract.sh, the single source of truth
+# exercised directly by Tests/CoverageHost/test_analyze_extract.py (issue #346).
+# It reads the log on stdin, strips the repo-root prefix (leaving system-header
+# paths absolute — still a stable key), drops line/column, and fails closed
+# (exit 1) on any extraction error: only "nothing matched" (grep rc=1, the
+# normal incremental case) is tolerated, so a non-zero rc here is a real error,
+# never a silent empty-findings pass. The `** ANALYZE SUCCEEDED **` check above
+# already proved analysis ran, so an extraction failure is not a no-op.
+if ! "$SCRIPT_DIR/analyze-extract.sh" "$PROJECT_DIR" < "$LOG_FILE" > "$FINDINGS_FILE"; then
+  echo "ERROR: finding extraction failed — see $LOG_FILE." >&2
   exit 1
 fi
 
 # Findings not in the baseline are NEW — fail the gate on them. The baseline
 # may carry '#'-prefixed rationale comments; strip them before comparing, and
-# treat a missing baseline as empty (first run: every finding is new).
-# grep rc=1 (an all-comment baseline) is expected — `|| true` keeps set -e from
-# aborting on it. An unreadable baseline (rc=2) also lands here, but that
-# degrades to an EMPTY baseline: every finding reads as "new" and the gate
-# fails — fail-closed, never a silent pass.
-if [ -f "$BASELINE_FILE" ]; then
-	BASELINE_SORTED="$(grep -v '^#' "$BASELINE_FILE" | sort -u || true)"
-else
-	BASELINE_SORTED=""
+# treat a missing or unreadable baseline as empty (first run: every finding is
+# new). That last case is fail-closed by design: an empty baseline makes every
+# finding read as "new" and the gate fails — never a silent pass. -F -x makes
+# the compare an exact whole-line set difference, so no sort/collation pinning
+# is needed (a missing baseline degrades to an empty pattern set, same result).
+BASELINE_ACTIVE="$(grep -v '^#' "$BASELINE_FILE" 2>/dev/null || true)"
+# grep -vxF returns 1 when nothing differs (the normal clean case) and 2 on an
+# I/O error — a `|| true` would silently turn that error into "no new findings",
+# a false green. Capture the rc and fail on anything > 1.
+set +e
+NEW_FINDINGS="$(grep -vxF -f <(printf '%s\n' "$BASELINE_ACTIVE") "$FINDINGS_FILE")"
+NEW_RC=$?
+set -e
+if [ "$NEW_RC" -gt 1 ]; then
+  echo "ERROR: baseline compare failed (grep rc $NEW_RC) — cannot determine new findings." >&2
+  exit 1
 fi
-NEW_FINDINGS="$(comm -23 "$FINDINGS_FILE" <(printf '%s\n' "$BASELINE_SORTED"))"
 
 if [ -n "$NEW_FINDINGS" ]; then
   echo ""
@@ -139,7 +123,15 @@ fi
 # the findings file is empty (incremental run, nothing re-analyzed): an empty
 # set makes every baseline entry look stale, which is noise, not signal.
 if [ -s "$FINDINGS_FILE" ]; then
-  STALE_BASELINE="$(comm -13 "$FINDINGS_FILE" <(printf '%s\n' "$BASELINE_SORTED"))"
+  # Warn-only hygiene check — but an rc > 1 (I/O error) must not be swallowed as
+  # "nothing stale", so distinguish it from the rc=1 no-match case.
+  set +e
+  STALE_BASELINE="$(printf '%s\n' "$BASELINE_ACTIVE" | grep -vxF -f "$FINDINGS_FILE")"
+  STALE_RC=$?
+  set -e
+  if [ "$STALE_RC" -gt 1 ]; then
+    echo "Note: stale-baseline check failed (grep rc $STALE_RC) — skipping." >&2
+  fi
   if [ -n "$STALE_BASELINE" ]; then
     echo "Note: baseline entries in scripts/analyze-baseline.txt no longer match any"
     echo "finding (the underlying issue may be fixed) — consider removing:"

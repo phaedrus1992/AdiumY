@@ -144,8 +144,6 @@
 	if ([inMenuItems count]) {
 		NSMenuItem *menuItem;
 
-		NSMenu *menubarMenu = [(NSMenuItem *)[inMenuItems objectAtIndex:0] menu];
-
 		for (menuItem in inMenuItems) {
 			[adium.menuController removeMenuItem:menuItem];
 		}

@@ -305,9 +305,9 @@ static DCMessageContextDisplayPlugin *sharedInstance = nil;
 
 					// Seek to it and read greedily until we hit readSize or run out of file.
 					NSInteger idx = 0;
-					ssize_t amountRead = 0;
-					for (amountRead = 0; idx < readSize; idx += amountRead) {
-						amountRead = pread(fd, buf + idx, readSize, readOffset + idx);
+					ssize_t amountRead;
+					for (; idx < readSize; idx += amountRead) {
+						amountRead = pread(fd, buf + idx, readSize - idx, readOffset + idx);
 						if (amountRead <= 0)
 							break;
 					}
