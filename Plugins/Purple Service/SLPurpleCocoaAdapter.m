@@ -146,9 +146,8 @@ static NSMutableArray *libpurplePluginArray = nil;
 static void ZombieKiller_Signal(int i)
 {
 	int status;
-	pid_t child_pid;
 
-	while ((child_pid = waitpid(-1, &status, WNOHANG)) > 0)
+	while (waitpid(-1, &status, WNOHANG) > 0)
 		;
 }
 
@@ -1285,14 +1284,12 @@ static void purpleUnregisterCb(PurpleAccount *account, gboolean success, void *u
 - (void)inviteContact:(AIListContact *)listContact toChat:(AIChat *)chat withMessage:(NSString *)inviteMessage;
 {
 	PurpleConversation *conv;
-	PurpleAccount *account;
 	PurpleConvChat *purpleChat;
 	AIAccount *adiumAccount = chat.account;
 
 	AILog(@"#### inviteContact:%@ toChat:%@", listContact.UID, chat.name);
 	// dchoby98
 	if (([adiumAccount isKindOfClass:[CBPurpleAccount class]]) && (conv = convLookupFromChat(chat, adiumAccount)) &&
-		(account = accountLookupFromAdiumAccount((CBPurpleAccount *)adiumAccount)) &&
 		(purpleChat = purple_conversation_get_chat_data(conv))) {
 
 		// PurpleBuddy		*buddy = purple_find_buddy(account, [listObject.UID UTF8String]);

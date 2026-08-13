@@ -306,16 +306,15 @@ static AILogViewerWindowController *__sharedLogViewer = nil;
 			[logFromGroupDict setObject:logFromGroup forKey:folderName];
 
 			// To processing
-			if (!(toSetForThisService = [toDict objectForKey:serviceClass])) {
+			toSetForThisService = [toDict objectForKey:serviceClass];
+			if (!toSetForThisService) {
 				toSetForThisService = [NSMutableSet set];
 				[toDict setObject:toSetForThisService forKey:serviceClass];
 			}
 
 			// Add the 'to' for each grouping on this account
 			for (AILogToGroup *currentToGroup in [logFromGroup toGroupArray]) {
-				NSString *currentTo;
-
-				if ((currentTo = [currentToGroup to])) {
+				if ([currentToGroup to] != nil) {
 					// Store currentToGroup on a key in the form "SERVICE.ACCOUNT_NAME/TARGET_CONTACT"
 					[logToGroupDict setObject:currentToGroup forKey:[currentToGroup relativePath]];
 				}

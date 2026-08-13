@@ -2831,9 +2831,9 @@ static void prompt_host_ok_cb(CBPurpleAccount *self, const char *host)
 		// If there is a submenu, generate and set it
 		if (act->children) {
 			NSMutableArray *childrenArray = [NSMutableArray array];
-			GList *l, *ll;
+			GList *l;
 			// Add a NSMenuItem for each child
-			for (l = ll = act->children; l; l = l->next) {
+			for (l = act->children; l; l = l->next) {
 				[self addMenuItemForMenuAction:(PurpleMenuAction *)l->data
 								forListContact:inContact
 								   purpleBuddy:buddy

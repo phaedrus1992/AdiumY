@@ -24,7 +24,7 @@
 	IBOutlet __unsafe_unretained AIImageCollectionView *imageCollectionView;
 	IBOutlet __unsafe_unretained NSButton *okButton;
 
-	NSMutableArray *icons;
+	NSArray *icons;
 	NSMutableArray *iconsData;
 
 	// Currently animated icon state and its index
@@ -38,7 +38,7 @@
 
 @property(assign) IBOutlet AIImageCollectionView *imageCollectionView;
 @property(assign) IBOutlet NSButton *okButton;
-@property(copy) NSMutableArray *icons;
+@property(copy) NSArray *icons;
 @property(strong) NSMutableArray *iconsData;
 @property(strong) AIIconState *animatedIconState;
 @property(assign) NSInteger animatedIndex;

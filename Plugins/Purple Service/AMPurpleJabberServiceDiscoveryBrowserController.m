@@ -46,7 +46,6 @@ static NSImage *det_triangle_closed = nil;
 
 		[[self window] makeKeyAndOrderFront:nil];
 
-		(void)CFBridgingRetain(self);
 		[outlineview setTarget:self];
 		[outlineview setDoubleAction:@selector(openService:)];
 	}

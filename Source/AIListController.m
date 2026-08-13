@@ -710,7 +710,7 @@
 	NSPasteboard *draggingPasteboard = [info draggingPasteboard];
 	NSString *availableType;
 
-	if ((availableType = [draggingPasteboard availableTypeFromArray:[NSArray arrayWithObject:@"AIListObject"]])) {
+	if ([draggingPasteboard availableTypeFromArray:[NSArray arrayWithObject:@"AIListObject"]]) {
 		// Kill the selection now, (in a more finder-esque way)
 		[outlineView deselectAll:nil];
 

@@ -476,7 +476,7 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMA
 
 		} else {
 
-			NSPoint startLocation = currentLocation = [self convertPoint:[anEvent locationInWindow] fromView:nil];
+			NSPoint startLocation = [self convertPoint:[anEvent locationInWindow] fromView:nil];
 			CGFloat initialDifference;
 
 			if (shelfOnRight) {

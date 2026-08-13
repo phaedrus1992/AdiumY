@@ -244,8 +244,7 @@ static AIContactHidingController *sharedControllerInstance = nil;
 	// Use CFStringTokenizer for multi-language support and to handle empty tokens
 	CFStringTokenizerRef tokenizer = CFStringTokenizerCreate(
 		nil, (CFStringRef)inSearchString, CFRangeMake(0, inSearchString.length), kCFStringTokenizerUnitWord, NULL);
-	CFStringTokenizerTokenType tokenType;
-	while ((tokenType = CFStringTokenizerAdvanceToNextToken(tokenizer)) != kCFStringTokenizerTokenNone) {
+	while (CFStringTokenizerAdvanceToNextToken(tokenizer) != kCFStringTokenizerTokenNone) {
 		CFRange range = CFStringTokenizerGetCurrentTokenRange(tokenizer);
 		NSRange nsRange = NSMakeRange(range.location, range.length);
 		NSString *keyword = [inSearchString substringWithRange:nsRange];

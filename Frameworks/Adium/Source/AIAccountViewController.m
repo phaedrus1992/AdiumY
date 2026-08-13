@@ -63,7 +63,6 @@
 - (id)init
 {
 	NSBundle *ourBundle = [NSBundle bundleForClass:[AIAccountViewController class]];
-	NSDictionary *nameTable = [NSDictionary dictionaryWithObject:self forKey:@"NSOwner"];
 
 	if ((self = [super init])) {
 		account = nil;
