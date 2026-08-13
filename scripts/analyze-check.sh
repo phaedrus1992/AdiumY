@@ -64,10 +64,18 @@ if [ "$XCODE_RC" -ne 0 ]; then
   exit 1
 fi
 
-# The log must exist for the gate to mean anything — grep rc=2 (missing file)
-# must fail loudly, not read as "no findings".
+# The log must exist AND show the analyzer ran to completion for the gate to
+# mean anything — a missing log must fail loudly, not read as "no findings".
+# xcodebuild prints `** ANALYZE SUCCEEDED **` when the analyze action finishes
+# (verified on both full and incremental runs); its absence with rc=0 means the
+# action was skipped or the log is stale, and extracting "no findings" from a
+# log with no analysis in it would be a false pass.
 if [ ! -f "$LOG_FILE" ]; then
   echo "ERROR: $LOG_FILE not found — analyze produced no log." >&2
+  exit 1
+fi
+if ! grep -q '\*\* ANALYZE SUCCEEDED \*\*' "$LOG_FILE"; then
+  echo "ERROR: $LOG_FILE lacks the '** ANALYZE SUCCEEDED **' marker — analyze did not complete." >&2
   exit 1
 fi
 
@@ -77,22 +85,39 @@ fi
 # Pure sed pipeline (no read loop): the analyzer always emits absolute paths
 # under $PROJECT_DIR, so strip that prefix first, then reshape. Files outside
 # the repo (system headers) keep their absolute path — still a stable key.
-# grep exits 1 when nothing matches — which is the normal incremental case
-# (xcodebuild analyze re-analyses nothing when the derived data is already
-# current, emitting zero warnings). pipefail + set -e would turn that into a
-# gate failure, so tolerate the empty extraction; an empty findings file means
-# "nothing new", which is exactly what comm below needs to pass.
+#
+# Exit-status contract: only grep rc=1 (nothing matched) is tolerated — that is
+# the normal incremental case (xcodebuild re-analyses nothing when the derived
+# data is current, emitting zero warnings), and an empty findings file means
+# "nothing new", which is exactly what comm below needs to pass. ANY other
+# failure (grep rc=2 on an unreadable log, a sed/sort error) fails the gate:
+# swallowing it would produce an empty findings file and a silent green — the
+# fail-open the blanket `|| true` mask created. The `** ANALYZE SUCCEEDED **`
+# check above already proved analysis ran, so a non-zero rc here is a real
+# extraction error, not a no-op.
+# PROJECT_DIR goes into a sed PATTERN, so escape its regex metacharacters —
+# a repo path like "my[repo]" must not corrupt the prefix strip.
+ESCAPED_PROJECT_DIR="$(printf '%s' "$PROJECT_DIR" | sed -e 's/[][\\.^$|()*+?{}]/\\&/g')"
+EXTRACT_RC=0
 grep -E 'warning: .* \[[A-Za-z][A-Za-z0-9._]*\]$' "$LOG_FILE" \
-  | sed -E "s#^$PROJECT_DIR/##" \
+  | sed -E "s#^$ESCAPED_PROJECT_DIR/##" \
   | sed -E 's#^(.+):[0-9]+:[0-9]+: warning: (.*) \[([A-Za-z][A-Za-z0-9._]*)\]$#\3\t\1\t\2#' \
   | sort -u > "$FINDINGS_FILE" \
-  || true
+  || EXTRACT_RC=$?
+if [ "$EXTRACT_RC" -ne 0 ] && [ "$EXTRACT_RC" -ne 1 ]; then
+  echo "ERROR: finding extraction failed (rc $EXTRACT_RC) — see $LOG_FILE." >&2
+  exit 1
+fi
 
 # Findings not in the baseline are NEW — fail the gate on them. The baseline
 # may carry '#'-prefixed rationale comments; strip them before comparing, and
 # treat a missing baseline as empty (first run: every finding is new).
+# grep rc=1 (an all-comment baseline) is expected — `|| true` keeps set -e from
+# aborting on it. An unreadable baseline (rc=2) also lands here, but that
+# degrades to an EMPTY baseline: every finding reads as "new" and the gate
+# fails — fail-closed, never a silent pass.
 if [ -f "$BASELINE_FILE" ]; then
-	BASELINE_SORTED="$(grep -v '^#' "$BASELINE_FILE" | sort -u)"
+	BASELINE_SORTED="$(grep -v '^#' "$BASELINE_FILE" | sort -u || true)"
 else
 	BASELINE_SORTED=""
 fi
