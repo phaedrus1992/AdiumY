@@ -55,22 +55,29 @@ runs:
         LOG_NAME: ${{ inputs.log-name }}
       run: |
         set -o pipefail
+        # log-name flows into the log path and the artifact name — constrain it
+        # so a bad input can't inject path separators or glob chars.
+        if ! [[ "$LOG_NAME" =~ ^[A-Za-z0-9._-]+$ ]]; then
+          echo "ERROR: log-name '${LOG_NAME}' contains invalid characters (allowed: [A-Za-z0-9._-])." >&2
+          exit 1
+        fi
         LOG_FILE="$RUNNER_TEMP/${LOG_NAME}.log"
         # Emit log-path before the build: under `bash -e` a failing pipeline
         # aborts the step, and an echo after it never runs — which lost the
-        # full deps log on earlier failures. Set first so the upload step
-        # (if: failure() && steps.build-deps.outputs.log-path != '') always
-        # has a path.
+        # full deps log on earlier failures. Write to BOTH GITHUB_ENV and
+        # GITHUB_OUTPUT: a failed step's outputs are not documented to persist,
+        # but GITHUB_ENV always does, so the upload step has a guaranteed path.
+        echo "log-path=$LOG_FILE" >> "$GITHUB_ENV"
         echo "log-path=$LOG_FILE" >> "$GITHUB_OUTPUT"
         echo "--- Restored cached build artifacts, checking per-dependency stamps ---"
         bash Dependencies/build-universal-deps.sh 2>&1 | tee "$LOG_FILE" | tail -40
 
     - name: Upload build log (on failure)
-      if: failure() && steps.build-deps.outputs.log-path != ''
+      if: failure() && (env['log-path'] != '' || steps.build-deps.outputs.log-path != '')
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: ${{ inputs.log-name }}-log
-        path: ${{ steps.build-deps.outputs.log-path }}
+        path: ${{ env['log-path'] || steps.build-deps.outputs.log-path }}
 
     - name: Save vendored dependency builds (on miss)
       if: inputs.cache-mode == 'save' && steps.deps-cache.outputs.cache-hit != 'true'
