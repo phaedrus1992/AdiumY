@@ -290,8 +290,6 @@ static void new_fingerprint_cb(void *opdata, OtrlUserState us, const char *accou
 
 		otrl_privkey_hash_to_human(their_hash, fingerprint);
 
-		(void)otrl_context_find(otrg_plugin_userstate, username, accountname, protocol, OTRL_INSTAG_BEST, 0, NULL, NULL,
-								NULL);
 		if (otrl_privkey_fingerprint(otrg_plugin_userstate, our_hash, accountname, protocol)) {
 			/* our_hash is now filled in */
 		} else {
