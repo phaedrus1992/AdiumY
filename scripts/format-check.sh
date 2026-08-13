@@ -39,6 +39,29 @@ if [ "${1:-}" = "--list" ]; then
   exit 0
 fi
 
+# --files: dry-run on the exact files passed as arguments (pre-commit hook mode
+# — prek appends the staged filenames). No find/exclude logic; prek already
+# filtered to the hook's `files` pattern. Shares the CLANG_FORMAT resolution
+# above, so what the hook checks is exactly what CI's `make format-check` checks.
+if [ "${1:-}" = "--files" ]; then
+  shift
+  FAILED=0
+  for f in "$@"; do
+    [ -f "$f" ] || continue  # staged deletions aren't on disk
+    if ! "$CLANG_FORMAT" --dry-run --Werror "$f"; then
+      echo "FAIL: $f does not match style"
+      FAILED=1
+    fi
+  done
+  if [ "$FAILED" -eq 1 ]; then
+    echo ""
+    echo "Some staged files don't match .clang-format style. Run 'make format' to fix,"
+    echo "or 'git commit --no-verify' to bypass."
+    exit 1
+  fi
+  exit 0
+fi
+
 echo "--- Running clang-format dry-run ---"
 
 FILES=$(find . \( "${EXCLUDE_PATTERNS[@]}" \) -o \( \
