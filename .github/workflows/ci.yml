@@ -84,6 +84,7 @@ jobs:
             Frameworks/libintl.framework
             Frameworks/FriBidi.framework
             Frameworks/LMX.framework
+            Frameworks/Sparkle.framework
             Dependencies/build
             Dependencies/.cache
           key: deps-v2-${{ runner.os }}-${{ hashFiles('Dependencies/vendor/**', 'Dependencies/build-common.sh', 'Dependencies/build-phases/**', 'Dependencies/build-universal-deps.sh', 'Dependencies/meson-cross-*.ini') }}
@@ -200,6 +201,7 @@ jobs:
             Frameworks/libintl.framework
             Frameworks/FriBidi.framework
             Frameworks/LMX.framework
+            Frameworks/Sparkle.framework
             Dependencies/build
             Dependencies/.cache
           key: deps-v2-${{ runner.os }}-${{ hashFiles('Dependencies/vendor/**', 'Dependencies/build-common.sh', 'Dependencies/build-phases/**', 'Dependencies/build-universal-deps.sh', 'Dependencies/meson-cross-*.ini') }}
@@ -221,6 +223,15 @@ jobs:
         with:
           name: analyze-deps-log
           path: ${{ env.log-path }}
+
+      # The full app links Sparkle.framework (gitignored, downloaded by
+      # Dependencies/build-phases/get-sparkle.sh, checksum-pinned). Locally it's
+      # present from prior builds; on a fresh runner the build job never needs it
+      # (AIUtilities/MMTabBarView don't link Sparkle), so fetch it here. The
+      # script is idempotent — a no-op when the cache restored it.
+      - name: Fetch Sparkle.framework
+        run: |
+          bash Dependencies/build-phases/get-sparkle.sh
 
       - name: Analyze full app
         run: |
