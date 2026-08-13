@@ -95,7 +95,17 @@ fi
 # the compare an exact whole-line set difference, so no sort/collation pinning
 # is needed (a missing baseline degrades to an empty pattern set, same result).
 BASELINE_ACTIVE="$(grep -v '^#' "$BASELINE_FILE" 2>/dev/null || true)"
-NEW_FINDINGS="$(grep -vxF -f <(printf '%s\n' "$BASELINE_ACTIVE") "$FINDINGS_FILE" || true)"
+# grep -vxF returns 1 when nothing differs (the normal clean case) and 2 on an
+# I/O error — a `|| true` would silently turn that error into "no new findings",
+# a false green. Capture the rc and fail on anything > 1.
+set +e
+NEW_FINDINGS="$(grep -vxF -f <(printf '%s\n' "$BASELINE_ACTIVE") "$FINDINGS_FILE")"
+NEW_RC=$?
+set -e
+if [ "$NEW_RC" -gt 1 ]; then
+  echo "ERROR: baseline compare failed (grep rc $NEW_RC) — cannot determine new findings." >&2
+  exit 1
+fi
 
 if [ -n "$NEW_FINDINGS" ]; then
   echo ""
@@ -113,7 +123,15 @@ fi
 # the findings file is empty (incremental run, nothing re-analyzed): an empty
 # set makes every baseline entry look stale, which is noise, not signal.
 if [ -s "$FINDINGS_FILE" ]; then
-  STALE_BASELINE="$(printf '%s\n' "$BASELINE_ACTIVE" | grep -vxF -f "$FINDINGS_FILE" || true)"
+  # Warn-only hygiene check — but an rc > 1 (I/O error) must not be swallowed as
+  # "nothing stale", so distinguish it from the rc=1 no-match case.
+  set +e
+  STALE_BASELINE="$(printf '%s\n' "$BASELINE_ACTIVE" | grep -vxF -f "$FINDINGS_FILE")"
+  STALE_RC=$?
+  set -e
+  if [ "$STALE_RC" -gt 1 ]; then
+    echo "Note: stale-baseline check failed (grep rc $STALE_RC) — skipping." >&2
+  fi
   if [ -n "$STALE_BASELINE" ]; then
     echo "Note: baseline entries in scripts/analyze-baseline.txt no longer match any"
     echo "finding (the underlying issue may be fixed) — consider removing:"
