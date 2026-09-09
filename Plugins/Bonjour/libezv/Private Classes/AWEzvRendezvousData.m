@@ -442,6 +442,10 @@ const char endn[] = { '\x00', '\x00', '\x00', '\x00'};
 	    /* convert binary to hex */
 	    NSUInteger valueLength = [(NSData *)value length];
 	    char *hexdata = (char *)malloc(valueLength * 2 + 1);
+	    if (hexdata == NULL) {
+		AWEzvLog(@"avDataAsDNSTXT: malloc failed for key=%@, skipping field", key);
+		continue;
+	    }
 	    NSUInteger i;
 
 	    for (i = 0; i < valueLength; i++) {
@@ -477,6 +481,10 @@ const char endn[] = { '\x00', '\x00', '\x00', '\x00'};
 		    /* convert binary to hex */
 		    NSUInteger valueLength = [(NSData *)value length];
 		    char *hexdata = (char *)malloc(valueLength * 2 + 1);
+		    if (hexdata == NULL) {
+			AWEzvLog(@"dataAsTXTRecordRef: malloc failed for key=%@, skipping field", key);
+			continue;
+		    }
 		    NSUInteger i;
 
 		    for (i = 0; i < valueLength; i++) {
@@ -484,7 +492,17 @@ const char endn[] = { '\x00', '\x00', '\x00', '\x00'};
 		    }
 		    hexdata[valueLength * 2] = '\0';
 			valueToSet = [[NSString stringWithUTF8String:hexdata] UTF8String];
-			valueSize = strlen(valueToSet);
+			/* TXTRecordSetValue rejects a "key=value" entry over 254 total bytes with
+			 * kDNSServiceErr_Invalid (confirmed empirically against this SDK's dns_sd; RFC 6763
+			 * §6.1's 255-byte character-string cap minus 1, reason undocumented). A value over
+			 * that per-key budget must clamp here, not assign the raw length: the loop above no
+			 * longer hardcodes 20 iterations (#354), so a value this large can now reach this
+			 * branch, and an unclamped uint8_t assignment would silently wrap mod 256. */
+			{
+				NSUInteger hexLength = strlen(valueToSet);
+				NSUInteger maxValueLength = 254 - strlen([key UTF8String]) - 1;
+				valueSize = (uint8_t)((hexLength > maxValueLength) ? maxValueLength : hexLength);
+			}
 			free(hexdata);
 		} else {
 		    valueToSet = [value UTF8String];
@@ -592,6 +610,10 @@ const char endn[] = { '\x00', '\x00', '\x00', '\x00'};
 		if ([value isKindOfClass:[NSData class]]) {
 			NSUInteger valueLength = [(NSData *)value length];
 			hexdata = (char *)malloc(valueLength * 2 + 1);
+			if (hexdata == NULL) {
+				AWEzvLog(@"avDataAsPackedPString: malloc failed for key=%@, skipping field", key);
+				continue;
+			}
 
 			for (i = 0; i < valueLength; i++) {
 				sprintf(hexdata + (i*2), "%.2x", ((unsigned char *)[(NSData *)value bytes])[i]);

@@ -14,6 +14,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#import "AIPropertyTestUtilities.h"
 #import "AWEzvRendezvousData.h"
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
@@ -55,6 +56,19 @@
 	return [record substringWithRange:NSMakeRange(valueStart, valueEnd - valueStart)];
 }
 
+/* PBTCheck reseeds the C library random() before each iteration (see AIPropertyTestUtilities.h),
+ * so building random bytes directly from random() keeps a failure reproducible via its seed. */
+- (NSData *)randomDataWithMaxLength:(NSUInteger)maxLength
+{
+	NSUInteger length = (NSUInteger)(random() % (maxLength + 1));
+	NSMutableData *data = [NSMutableData dataWithCapacity:length];
+	for (NSUInteger i = 0; i < length; i++) {
+		uint8_t byte = (uint8_t)(random() % 256);
+		[data appendBytes:&byte length:1];
+	}
+	return [data copy];
+}
+
 - (void)assertAvDataAsDNSTXTEncodesData:(NSData *)data
 {
 	AWEzvRendezvousData *rdata = [[AWEzvRendezvousData alloc] initWithDictionary:@{@"testkey" : data}];
@@ -75,6 +89,17 @@
 	TXTRecordDeallocate(&record);
 	XCTAssertEqualObjects(value, [self expectedHexForData:data],
 						  @"dataAsTXTRecordRef must hex-encode the full %lu-byte value, not a fixed 20 bytes",
+						  (unsigned long)[data length]);
+}
+
+- (void)assertAvDataAsPackedPStringEncodesData:(NSData *)data
+{
+	AWEzvRendezvousData *rdata = [[AWEzvRendezvousData alloc] initWithDictionary:@{@"testkey" : data}];
+	NSData *packed = [rdata avDataAsPackedPString];
+	NSString *record = [[NSString alloc] initWithData:packed encoding:NSUTF8StringEncoding];
+	NSString *value = [self avTxtValueForKey:@"testkey" inRecord:record];
+	XCTAssertEqualObjects(value, [self expectedHexForData:data],
+						  @"avDataAsPackedPString must hex-encode the full %lu-byte value, not a fixed 20 bytes",
 						  (unsigned long)[data length]);
 }
 
@@ -106,6 +131,53 @@
 		bytes[i] = (uint8_t)(i + 1);
 	}
 	[self assertDataAsTXTRecordRefEncodesData:[NSData dataWithBytes:bytes length:sizeof(bytes)]];
+}
+
+/* TXTRecordSetValue rejects a "key=value" entry over 254 total bytes (confirmed empirically
+ * against this SDK's dns_sd). A 128-byte NSData hex-encodes to 256 characters, past that budget
+ * for a 7-byte key. Before this fix, valueSize was assigned via a plain uint8_t = strlen(...),
+ * so 256 wrapped to 0 and TXTRecordSetValue silently dropped the value instead of clamping it. */
+- (void)testDataAsTXTRecordRefClampsValueOverProtocolLimitInsteadOfWrapping
+{
+	NSString *key = @"testkey";
+	uint8_t bytes[128];
+	for (NSUInteger i = 0; i < sizeof(bytes); i++) {
+		bytes[i] = (uint8_t)(i + 1);
+	}
+	NSData *data = [NSData dataWithBytes:bytes length:sizeof(bytes)];
+
+	AWEzvRendezvousData *rdata = [[AWEzvRendezvousData alloc] initWithDictionary:@{key : data}];
+	TXTRecordRef record = [rdata dataAsTXTRecordRef];
+	uint8_t valueLen = 0;
+	const void *valuePtr =
+		TXTRecordGetValuePtr(TXTRecordGetLength(&record), TXTRecordGetBytesPtr(&record), [key UTF8String], &valueLen);
+	NSString *value = [[NSString alloc] initWithBytes:valuePtr length:valueLen encoding:NSASCIIStringEncoding];
+	TXTRecordDeallocate(&record);
+
+	NSUInteger expectedMaxLength = 254 - [key length] - 1;
+	XCTAssertEqual(valueLen, expectedMaxLength, @"a value over the per-entry protocol limit must clamp, not wrap");
+	NSString *expectedPrefix = [[self expectedHexForData:data] substringToIndex:expectedMaxLength];
+	XCTAssertEqualObjects(value, expectedPrefix, @"the clamped value must be a truncated prefix, not garbage");
+}
+
+/* Property: for any byte length under the per-key protocol budget (a 7-byte key allows up to
+ * 246 raw bytes, see the clamp test above), avDataAsDNSTXT hex-encodes the exact bytes given —
+ * no fixed-length read/write, no truncation, regardless of length or byte content. */
+- (void)testAvDataAsDNSTXTRoundTripsOverRandomData
+{
+	PBTCheckDefault({ [self assertAvDataAsDNSTXTEncodesData:[self randomDataWithMaxLength:100]]; });
+}
+
+/* Same property as above, through the TXTRecordRef encoding path. */
+- (void)testDataAsTXTRecordRefRoundTripsOverRandomData
+{
+	PBTCheckDefault({ [self assertDataAsTXTRecordRefEncodesData:[self randomDataWithMaxLength:100]]; });
+}
+
+/* Same property as above, through the packed-Pascal-string encoding path. */
+- (void)testAvDataAsPackedPStringRoundTripsOverRandomData
+{
+	PBTCheckDefault({ [self assertAvDataAsPackedPStringEncodesData:[self randomDataWithMaxLength:100]]; });
 }
 
 @end
