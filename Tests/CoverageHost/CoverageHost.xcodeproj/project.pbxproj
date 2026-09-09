@@ -120,6 +120,9 @@
 				<string>AD22D7CF4EF851AF8556F63E</string>
 				<string>D1262B8826F455349DF6FF4B</string>
 				<string>A89C14563FD95D9F9FEF7255</string>
+				<string>4BE18A24F2CD5D6ABF3BC702</string>
+				<string>27B5022453C55F249963A382</string>
+				<string>AE5F3C8278825A139BCFBFB6</string>
 				<string>131B53350D945592B2320C7C</string>
 				<string>766FA3D15E445481A5874F5C</string>
 				<string>CA6FB54B118D5A6F91F0A82E</string>
@@ -852,6 +855,39 @@
 			<string>sourcecode.c.h</string>
 			<key>path</key>
 			<string>../../Plugins/Bonjour/libezv/Private Classes/AWEzvStack.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>4BE18A24F2CD5D6ABF3BC702</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Private Classes/AWEzvRendezvousData.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>27B5022453C55F249963A382</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Plugins/Bonjour/libezv/Private Classes/AWEzvRendezvousData.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>AE5F3C8278825A139BCFBFB6</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestAWEzvRendezvousDataHexEncoding.m</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
@@ -1768,6 +1804,8 @@
 				<string>A1CB5BDBB69D5ED98AADB7F7</string>
 				<string>92BBECC9C79152BC9B8FBD29</string>
 				<string>B7ACC6EDC5005FE18E0966C1</string>
+				<string>93D4C1129D965484A0CEBF1D</string>
+				<string>19738F9311ED56788A6E0D34</string>
 				<string>4C8B131082355562B50307E8</string>
 				<string>472C52FE65E354648564DB10</string>
 				<string>12E85110DACB5535B7A82BA9</string>
@@ -2217,6 +2255,20 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>83463C60914650889440F0CA</string>
+		</dict>
+		<key>93D4C1129D965484A0CEBF1D</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>4BE18A24F2CD5D6ABF3BC702</string>
+		</dict>
+		<key>19738F9311ED56788A6E0D34</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>AE5F3C8278825A139BCFBFB6</string>
 		</dict>
 		<key>92BBECC9C79152BC9B8FBD29</key>
 		<dict>

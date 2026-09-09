@@ -440,15 +440,17 @@ const char endn[] = { '\x00', '\x00', '\x00', '\x00'};
 	
 	if ([value isKindOfClass: [NSData class]]) {
 	    /* convert binary to hex */
-	    char *hexdata = (char *)malloc([(NSData *)value length] * 2 + 1);
-	    int i;
-	    
-	    for (i = 0; i < 20; i++) {
+	    NSUInteger valueLength = [(NSData *)value length];
+	    char *hexdata = (char *)malloc(valueLength * 2 + 1);
+	    NSUInteger i;
+
+	    for (i = 0; i < valueLength; i++) {
 		sprintf(hexdata + (i*2), "%.2x", ((unsigned char *)[(NSData *)value bytes])[i]);
 	    }
-	    hexdata[[(NSData *)value length] * 2] = '\0';
-	    
+	    hexdata[valueLength * 2] = '\0';
+
 	    [infoData appendString:[NSString stringWithUTF8String:hexdata]];
+	    free(hexdata);
 	} else {
 	    [infoData appendString:value];
 	}
@@ -473,13 +475,14 @@ const char endn[] = { '\x00', '\x00', '\x00', '\x00'};
 		
 		if ([value isKindOfClass: [NSData class]]) {
 		    /* convert binary to hex */
-		    char *hexdata = (char *)malloc([(NSData *)value length] * 2 + 1);
-		    int i;
-            
-		    for (i = 0; i < 20; i++) {
+		    NSUInteger valueLength = [(NSData *)value length];
+		    char *hexdata = (char *)malloc(valueLength * 2 + 1);
+		    NSUInteger i;
+
+		    for (i = 0; i < valueLength; i++) {
 			sprintf(hexdata + (i*2), "%.2x", ((unsigned char *)[(NSData *)value bytes])[i]);
 		    }
-		    hexdata[[(NSData *)value length] * 2] = '\0';
+		    hexdata[valueLength * 2] = '\0';
 			valueToSet = [[NSString stringWithUTF8String:hexdata] UTF8String];
 			valueSize = strlen(valueToSet);
 			free(hexdata);
@@ -582,17 +585,18 @@ const char endn[] = { '\x00', '\x00', '\x00', '\x00'};
 		for (key in keys) {
 		/* convert binary to hex */
 		char *hexdata;
-		int i;
-		
+		NSUInteger i;
+
 		value = [keys objectForKey:key];
-		
+
 		if ([value isKindOfClass:[NSData class]]) {
-			hexdata = (char *)malloc([(NSData *)value length] * 2 + 1);
-			
-			for (i = 0; i < 20; i++) {
+			NSUInteger valueLength = [(NSData *)value length];
+			hexdata = (char *)malloc(valueLength * 2 + 1);
+
+			for (i = 0; i < valueLength; i++) {
 				sprintf(hexdata + (i*2), "%.2x", ((unsigned char *)[(NSData *)value bytes])[i]);
 			}
-			hexdata[[(NSData *)value length] * 2] = '\0';
+			hexdata[valueLength * 2] = '\0';
 			
             [infoData appendFormat:@"%lu", ([(NSData *)value length] * 2 + [key length] + 1)];
 			[infoData appendString:key];
