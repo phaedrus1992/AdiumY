@@ -48,5 +48,9 @@ static inline NSComparisonResult compareObjectsWithSelector(id a, id b, SEL cmd)
 
 static inline NSComparisonResult compareObjectsWithSelector(id a, id b, SEL cmd)
 {
-	return (NSComparisonResult)objc_msgSend(a, cmd, b);
+	/* Modern SDKs declare objc_msgSend with no parameters so a caller must cast it to the
+	 * actual signature before invoking it — the untyped variadic form is no longer usable
+	 * directly on arm64. */
+	NSComparisonResult (*comparisonSend)(id, SEL, id) = (NSComparisonResult (*)(id, SEL, id))objc_msgSend;
+	return comparisonSend(a, cmd, b);
 }

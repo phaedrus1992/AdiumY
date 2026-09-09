@@ -36,8 +36,6 @@
 		6330D82F0918AB6000DCEFDD /* Preferences.nib in Resources */ = {isa = PBXBuildFile; fileRef = 6330D82E0918AB6000DCEFDD /* Preferences.nib */; };
 		635495A30911F19900F1EB0A /* MessageStyleView.nib in Resources */ = {isa = PBXBuildFile; fileRef = 635495A20911F19900F1EB0A /* MessageStyleView.nib */; };
 		63B88C2E0916EFDF00B2803B /* AXCAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 63B88C2D0916EFDF00B2803B /* AXCAppDelegate.m */; };
-		63D96247091616FD0041DF83 /* IconFamily.m in Sources */ = {isa = PBXBuildFile; fileRef = 63D96244091616FD0041DF83 /* IconFamily.m */; };
-		63D96248091616FD0041DF83 /* NSString+CarbonFSSpecCreation.m in Sources */ = {isa = PBXBuildFile; fileRef = 63D96246091616FD0041DF83 /* NSString+CarbonFSSpecCreation.m */; };
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
 		8D15AC2D0486D014006FF6A4 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B6FDCFA73011CA2CEA /* MainMenu.nib */; };
 		8D15AC2E0486D014006FF6A4 /* MyDocument.nib in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B4FDCFA73011CA2CEA /* MyDocument.nib */; };
@@ -102,10 +100,6 @@
 		635495A20911F19900F1EB0A /* MessageStyleView.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = MessageStyleView.nib; path = English.lproj/MessageStyleView.nib; sourceTree = "<group>"; };
 		63B88C2C0916EFDF00B2803B /* AXCAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AXCAppDelegate.h; sourceTree = "<group>"; };
 		63B88C2D0916EFDF00B2803B /* AXCAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = AXCAppDelegate.m; sourceTree = "<group>"; };
-		63D96243091616FD0041DF83 /* IconFamily.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = IconFamily.h; sourceTree = "<group>"; };
-		63D96244091616FD0041DF83 /* IconFamily.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = IconFamily.m; sourceTree = "<group>"; };
-		63D96245091616FD0041DF83 /* NSString+CarbonFSSpecCreation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "NSString+CarbonFSSpecCreation.h"; sourceTree = "<group>"; };
-		63D96246091616FD0041DF83 /* NSString+CarbonFSSpecCreation.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = "NSString+CarbonFSSpecCreation.m"; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D15AC370486D014006FF6A4 /* XtrasCreator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XtrasCreator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -150,8 +144,6 @@
 				076D85760914D8DA00D6D22C /* AXCFileCell.m */,
 				07E001B109159255003FE813 /* AXCIconPackEntry.h */,
 				07E001B209159255003FE813 /* AXCIconPackEntry.m */,
-				63D96243091616FD0041DF83 /* IconFamily.h */,
-				63D96244091616FD0041DF83 /* IconFamily.m */,
 			);
 			name = Generic;
 			sourceTree = "<group>";
@@ -172,8 +164,6 @@
 		07E0017E0915891A003FE813 /* Additions */ = {
 			isa = PBXGroup;
 			children = (
-				63D96245091616FD0041DF83 /* NSString+CarbonFSSpecCreation.h */,
-				63D96246091616FD0041DF83 /* NSString+CarbonFSSpecCreation.m */,
 				07E0018809158940003FE813 /* NSMutableArrayAdditions.h */,
 				07E0018909158940003FE813 /* NSMutableArrayAdditions.m */,
 				07484CB6091624B500D1A683 /* NSFileManager+BundleBit.h */,
@@ -360,10 +350,8 @@
 			files = (
 				8D15AC320486D014006FF6A4 /* main.m in Sources */,
 				07E0018A09158940003FE813 /* NSMutableArrayAdditions.m in Sources */,
-				63D96248091616FD0041DF83 /* NSString+CarbonFSSpecCreation.m in Sources */,
 				07484CB8091624B500D1A683 /* NSFileManager+BundleBit.m in Sources */,
 				0774A7FF0920BD1000CE742F /* NSMenu+ImmediatePopulation.m in Sources */,
-				63D96247091616FD0041DF83 /* IconFamily.m in Sources */,
 				075618CD0921F0BE00CBD740 /* AXCArrayControllerWithDragAndDrop.m in Sources */,
 				076D85770914D8DA00D6D22C /* AXCFileCell.m in Sources */,
 				63B88C2E0916EFDF00B2803B /* AXCAppDelegate.m in Sources */,
