@@ -9,7 +9,6 @@
 #import "AXCAbstractXtraDocument.h"
 
 #import "AXCFileCell.h"
-#import "IconFamily.h"
 #import "NSFileManager+BundleBit.h"
 #import "NSMutableArrayAdditions.h"
 
@@ -243,8 +242,9 @@
 			}
 		}
 
-		IconFamily *iconFamily = [IconFamily iconFamilyWithThumbnailsOfImage:icon]; // check on error handling for this
-		[iconFamily setAsCustomIconForFile:fileName];
+		if (![[NSWorkspace sharedWorkspace] setIcon:icon forFile:fileName options:0]) {
+			NSLog(@"AXCAbstractXtraDocument: failed to set custom icon on %@", fileName);
+		}
 
 		NSRange readmeRange = {0, [[readmeView textStorage] length]};
 		if ([readmeView isRichText])
