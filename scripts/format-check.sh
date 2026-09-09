@@ -39,15 +39,29 @@ if [ "${1:-}" = "--list" ]; then
   exit 0
 fi
 
+# A staged file under a vendored/forked path. prek's `files:` regex only
+# matches on extension, so it cannot apply the directory excludes below —
+# --files must check them itself or a vendored file fails here despite
+# `make format-check` (which does apply EXCLUDE_PATTERNS) never checking it.
+is_excluded() {
+  case "$1" in
+    Dependencies/*|"Frameworks/AutoHyperlinks Framework/"*|"Frameworks/MMTabBarView.framework/"*| \
+    *.framework/*|Plugins/Bonjour/libezv/*|*/JSONKit/*|Release/*|.tmp/*|build/*|.git/*)
+      return 0 ;;
+    *)
+      return 1 ;;
+  esac
+}
+
 # --files: dry-run on the exact files passed as arguments (pre-commit hook mode
-# — prek appends the staged filenames). No find/exclude logic; prek already
-# filtered to the hook's `files` pattern. Shares the CLANG_FORMAT resolution
+# — prek appends the staged filenames). Shares the CLANG_FORMAT resolution
 # above, so what the hook checks is exactly what CI's `make format-check` checks.
 if [ "${1:-}" = "--files" ]; then
   shift
   FAILED=0
   for f in "$@"; do
     [ -f "$f" ] || continue  # staged deletions aren't on disk
+    is_excluded "$f" && continue
     if ! "$CLANG_FORMAT" --dry-run --Werror "$f"; then
       echo "FAIL: $f does not match style"
       FAILED=1
