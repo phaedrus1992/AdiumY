@@ -103,6 +103,18 @@ jobs:
                      CLANG_PROFILE_INSTRUMENTATION=YES \
                      build 2>&1 | xcpretty
 
+      - name: Build XtrasCreator
+        run: |
+          set -o pipefail
+          xcodebuild -project Other/XtrasCreator/XtrasCreator.xcodeproj \
+                     -target XtrasCreator \
+                     -configuration Debug \
+                     -sdk macosx \
+                     SYMROOT="$PWD/build/DerivedData/Build/Products" \
+                     OBJROOT="$PWD/build/DerivedData/Build/Intermediates" \
+                     CODE_SIGNING_ALLOWED=NO \
+                     build 2>&1 | xcpretty
+
       - name: Run smoke tests (CoverageHost)
         run: |
           set -o pipefail
