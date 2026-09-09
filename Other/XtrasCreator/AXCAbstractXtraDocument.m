@@ -242,7 +242,9 @@
 			}
 		}
 
-		[[NSWorkspace sharedWorkspace] setIcon:icon forFile:fileName options:0];
+		if (![[NSWorkspace sharedWorkspace] setIcon:icon forFile:fileName options:0]) {
+			NSLog(@"AXCAbstractXtraDocument: failed to set custom icon on %@", fileName);
+		}
 
 		NSRange readmeRange = {0, [[readmeView textStorage] length]};
 		if ([readmeView isRichText])
