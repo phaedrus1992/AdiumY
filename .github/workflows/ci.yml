@@ -157,6 +157,13 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
+      # On a cold cache miss this job rebuilds the meson-based deps (glib,
+      # libpurple) from source, so the build tools must be present. The build
+      # job installs the same set; keep them in lockstep.
+      - name: Install build tools
+        run: |
+          brew install meson ninja pkg-config intltool || { echo "error: build tools install failed"; exit 1; }
+
       # The full-app analyze compiles app sources that import vendored framework
       # headers (libpurple, glib, ...), so the vendored frameworks must be
       # present. The composite restores the deps cache read-only (never save: a
