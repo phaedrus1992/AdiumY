@@ -107,6 +107,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   signing URLs — replaced by Sparkle 2 EdDSA CLI tools)
 
 ### Fixed
+- Fix the release failing on a transient staple error: `xcrun stapler staple`
+  fetches the ticket from Apple's CloudKit host, which drops connections without
+  warning and makes a single attempt fail with exit 68. The lane now retries the
+  staple (`STAPLE_ATTEMPTS`, default 4) and reports the last `stapler` output if
+  every attempt fails
 - Report the real reason the release preflight rejects the App Store Connect
   key: the check now includes `notarytool`'s own output instead of a generic
   "rejected the API key" message, and names a secret that does not decode to a
