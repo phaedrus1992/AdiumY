@@ -52,6 +52,8 @@
 				   [self sheetDidEnd:self.window returnCode:returnCode contextInfo:nil];
 			   }];
 	} else {
+		[self keepAliveUntilWindowCloses];
+
 		[self showWindow:nil];
 	}
 }

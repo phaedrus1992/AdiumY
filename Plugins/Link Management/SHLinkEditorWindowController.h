@@ -43,7 +43,7 @@
 }
 
 - (id)initWithTextView:(NSTextView *)inTextView notifyingTarget:(id)inTarget;
-- (void)showOnWindow:(NSWindow *)parentWindow __attribute__((ns_consumes_self));
+- (void)showOnWindow:(NSWindow *)parentWindow;
 
 - (IBAction)cancel:(id)sender;
 - (IBAction)acceptURL:(id)sender;

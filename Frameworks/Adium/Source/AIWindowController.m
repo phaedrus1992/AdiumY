@@ -44,6 +44,11 @@
 	}
 }
 
+// Controllers that hold themselves alive until their window closes. A controller
+// created inline and shown has no other owner, so ARC would free it as soon as the
+// showing method returned, and the window would go with it.
+static NSMutableSet *selfRetainedWindowControllers = nil;
+
 static NSRect screenBoundariesRect = {{0.0f, 0.0f}, {0.0f, 0.0f}};
 + (void)updateScreenBoundariesRect:(id)sender
 {
@@ -276,6 +281,23 @@ static CGFloat ToolbarHeightForWindow(NSWindow *window)
 }
 
 /*!
+ * @brief Hold this controller until its window closes
+ *
+ * A show method that does not hand the controller to a caller leaves it with no owner, so ARC
+ * frees it when that method returns. Call this from the branch that shows a plain window, not
+ * from the branch that shows a sheet, because a sheet already holds the controller through its
+ * completion block and it ends with orderOut: rather than close.
+ */
+- (void)keepAliveUntilWindowCloses
+{
+	if (selfRetainedWindowControllers == nil) {
+		selfRetainedWindowControllers = [[NSMutableSet alloc] init];
+	}
+
+	[selfRetainedWindowControllers addObject:self];
+}
+
+/*!
  * @brief Called immediately before the window closes.
  *
  * We take the opportunity to save the current window position and size here.
@@ -283,6 +305,8 @@ static CGFloat ToolbarHeightForWindow(NSWindow *window)
  */
 - (void)windowWillClose:(id)sender
 {
+	[selfRetainedWindowControllers removeObject:self];
+
 	NSString *key = [self adiumFrameAutosaveName];
 
 	if (key) {

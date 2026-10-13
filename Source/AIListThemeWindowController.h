@@ -98,7 +98,7 @@
 	NSString *themeName;
 }
 
-- (void)showOnWindow:(id)parentWindow __attribute__((ns_consumes_self));
+- (void)showOnWindow:(id)parentWindow;
 - (id)initWithName:(NSString *)inName notifyingTarget:(id)inTarget;
 - (IBAction)cancel:(id)sender;
 - (IBAction)okay:(id)sender;

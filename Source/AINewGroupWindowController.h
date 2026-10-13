@@ -27,7 +27,7 @@
 	AIListGroup *group;
 }
 
-- (void)showOnWindow:(NSWindow *)parentWindow __attribute__((ns_consumes_self));
+- (void)showOnWindow:(NSWindow *)parentWindow;
 - (AIListGroup *)group;
 - (IBAction)cancel:(id)sender;
 - (IBAction)addGroup:(id)sender;

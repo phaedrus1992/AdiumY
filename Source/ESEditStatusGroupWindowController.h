@@ -32,7 +32,7 @@
 	id target;
 }
 
-- (void)showOnWindow:(NSWindow *)parentWindow __attribute__((ns_consumes_self));
+- (void)showOnWindow:(NSWindow *)parentWindow;
 - (id)initWithStatusGroup:(AIStatusGroup *)inStatusGroup notifyingTarget:(id)inTarget;
 
 - (IBAction)okay:(id)sender;

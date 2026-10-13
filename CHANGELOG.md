@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   fresh install — the ARC migration made the `ns_consumes_self` attribute release
   the window controller as soon as it was shown, so both buttons had no target
   (#380)
+- Add Group, Add Contact from a link, and other windows shown without a parent no
+  longer open with dead controls — the same leftover `ns_consumes_self` attribute
+  was removed from every remaining method, and a controller shown without an owner
+  now holds itself until its window closes (#382)
 
 ## [2.0.0] - 2026-10-13
 

@@ -39,6 +39,8 @@
 			   }];
 
 	} else {
+		[self keepAliveUntilWindowCloses];
+
 		[self showWindow:nil];
 		[self.window makeKeyAndOrderFront:nil];
 		[NSApp activateIgnoringOtherApps:YES];

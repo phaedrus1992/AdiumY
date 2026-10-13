@@ -96,6 +96,8 @@
 			   }];
 
 	} else {
+		[self keepAliveUntilWindowCloses];
+
 		[self show];
 	}
 }
