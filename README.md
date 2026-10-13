@@ -36,6 +36,13 @@ namespace. See the [CHANGELOG](CHANGELOG.md) for the full list of changes.
 * **macOS 12.0 or later** (Monterey)
 * Intel or Apple Silicon Mac
 
+## Updates and Security Patches
+
+AdiumY 2.0.0 does not have an automatic updater.
+The application cannot check for updates or install them.
+To get a security patch, download the current release from the [releases page](https://github.com/phaedrus1992/AdiumY/releases).
+The auto-updater returns in a later release. See [issue #128](https://github.com/phaedrus1992/AdiumY/issues/128).
+
 ## Development
 
 * **Code style**: `.clang-format` (LLVM-based, tabs, 4-char indent, 120 cols,
