@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-13
+
 ### Added
 - Add a fastlane release pipeline that builds, Developer ID signs, notarizes
   and staples AdiumY, packages it as a disk image, and publishes it to GitHub
@@ -22,6 +24,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   branch, fails on new findings), per-target coverage ratchet floors in
   `coverage-thresholds.txt`, and a clang-format pre-commit hook via prek that
   runs the same dry-run as CI's `make format-check`
+- XEP-0352: Client State Indication for XMPP (Jabber) — send `<active/>`/`<inactive/>` on app foreground/background
+- XEP-0048: Bookmarks for XMPP (Jabber) — sync MUC bookmarks via Private XML Storage
+- XEP-0402: PubSub Bookmarks for XMPP (Jabber) — PEP-based bookmarks with automatic sync on connect
+- XEP-0393: Message Styling for XMPP (Jabber) — bold/italic/strikethrough/monospace/blockquote/preformatted text
+- XEP-0184: Message Delivery Receipts for XMPP (Jabber) — received receipts with `<request/>`/`<received/>` stanzas
+- XEP-0333: Chat Markers for XMPP (Jabber) — displayed/acknowledged/received/active message markers
+- XEP-0280: Message Carbons for XMPP (Jabber) — synchronize messages across multiple devices for the same account
+- EdDSA (Ed25519) appcast signing tooling: `generate_appcast`, `generate_keys`,
+  `sign_update` CLI tools extracted from Sparkle 2.9.4 distribution
+- `Utilities/README-appcast.md` documenting the release signing workflow
+- Register 15 AdiumY file-type identifiers (UTIs) in the app Info.plist so
+  AdiumY owns the `com.github.phaedrus1992.adiumy.*` document types (message
+  styles, soundsets, emoticonsets, icons, plugins, logs, and more)
+- Set an app category (social networking) in the app Info.plist
 
 ### Changed
 - Point the Sparkle update feed at
@@ -32,6 +48,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   status-icon, service-icon, and status-controller paths with
   `NSParameterAssert` bounds checks, so an out-of-range plugin/API-supplied
   enum value raises instead of writing past a fixed-size array
+- First release under the AdiumY identity at version 2.0 — the app menu,
+  About box, Dock, Finder, UI strings, and documentation all use the new
+  product name
+- Lowercased the bundle identifiers into the `com.github.phaedrus1992.adiumy`
+  namespace: the app is now `com.github.phaedrus1992.adiumy`, the framework
+  `com.github.phaedrus1992.adiumy.framework`, and libpurple
+  `com.github.phaedrus1992.adiumy.libpurple` (previously the mixed-case
+  `...adiumY.Adium` / `.AdiumFramework` / `.AdiumPurple`)
+- Renamed the framework from Adium.framework to AdiumY.framework and the
+  libpurple framework product from AdiumLibpurple to AdiumYLibpurple
+- Moved internal identifiers (dispatch queues, Spotlight importer) onto the
+  AdiumY namespace; legacy `im.adium.*` message-style identifiers remain only
+  as migration-map keys so existing styles resolve correctly
+- Fixed the Spotlight importer's bundle identifier typo ("spotlightImpoter")
+- Kept "The Adium Team, 2005-2008" upstream copyright attribution, noted as an
+  AdiumY fork
+- Moved the app cache directory to `~/Library/Caches/AdiumY`
+- Renamed the debug log directory to `~/Library/Logs/AdiumY Debug`
+- Purple Service now only supports XMPP (Jabber), IRC, and SIMPLE protocols
+- Build system: removed reference to libmeanwhile and json-glib in Xcode project
+- Vendored Sparkle framework updated from 1.17.0 to 2.9.4
+- Migrate update checker from Sparkle 1.x SUUpdater to Sparkle 2.x
+  SPUStandardUpdaterController and SPUUpdaterDelegate
+- Remove SUStatusChecker delegate conformance from AICrashReporter (removed in
+  Sparkle 2.x — version comparison handled by Sparkle delegate API)
 
 ### Removed
 - Remove the dead `Sparkle.framework` link and copy build phase from the app
@@ -55,6 +96,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   sound-pack, keychain, Spotlight-log, libpurple/blist, and
   `im.adium.*`/`com.adiumx.*` message-style preference upgrades no longer run
   on first launch — AdiumY 2.0 has no upgrade path from prior Adium versions
+- Dead protocol services: AIM/ICQ/OSCAR, MobileMe/.Mac, GTalk, LiveJournal,
+  Gadu-Gadu, Novell/GroupWise, Sametime/Meanwhile, Zephyr
+- Twitter Plugin (targets long-dead REST API v1.0, bundled STTwitter abandoned)
+- Image Uploading Plugin (ImageShack/Imgur anonymous APIs, targets dead services)
+- Video Chat Interface + Purple Service video/webcam glue (GStreamer/farstream
+  scaffolding that never worked on macOS)
+- libmeanwhile.framework and json-glib dependencies from build
+- `Utilities/AppcastReplaceItem.py` (Python 2, md5Sum-based signing, dead
+  signing URLs — replaced by Sparkle 2 EdDSA CLI tools)
 
 ### Fixed
 - Make `Dependencies/build-universal-deps.sh` stop on the first error: add an
@@ -248,64 +298,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   vehicle, using the same invocation CI's smoke-test step uses) and builds the
   instrumented `AIUtilities.framework` CoverageHost links, so a fresh checkout
   tests cleanly and `make coverage-check` reads the produced profile
-
-## [2.0.0] - 2026-08-03
-
-### Added
-- XEP-0352: Client State Indication for XMPP (Jabber) — send `<active/>`/`<inactive/>` on app foreground/background
-- XEP-0048: Bookmarks for XMPP (Jabber) — sync MUC bookmarks via Private XML Storage
-- XEP-0402: PubSub Bookmarks for XMPP (Jabber) — PEP-based bookmarks with automatic sync on connect
-- XEP-0393: Message Styling for XMPP (Jabber) — bold/italic/strikethrough/monospace/blockquote/preformatted text
-- XEP-0184: Message Delivery Receipts for XMPP (Jabber) — received receipts with `<request/>`/`<received/>` stanzas
-- XEP-0333: Chat Markers for XMPP (Jabber) — displayed/acknowledged/received/active message markers
-- XEP-0280: Message Carbons for XMPP (Jabber) — synchronize messages across multiple devices for the same account
-- EdDSA (Ed25519) appcast signing tooling: `generate_appcast`, `generate_keys`,
-  `sign_update` CLI tools extracted from Sparkle 2.9.4 distribution
-- `Utilities/README-appcast.md` documenting the release signing workflow
-- Register 15 AdiumY file-type identifiers (UTIs) in the app Info.plist so
-  AdiumY owns the `com.github.phaedrus1992.adiumy.*` document types (message
-  styles, soundsets, emoticonsets, icons, plugins, logs, and more)
-- Set an app category (social networking) in the app Info.plist
-
-### Changed
-- First release under the AdiumY identity at version 2.0 — the app menu,
-  About box, Dock, Finder, UI strings, and documentation all use the new
-  product name
-- Lowercased the bundle identifiers into the `com.github.phaedrus1992.adiumy`
-  namespace: the app is now `com.github.phaedrus1992.adiumy`, the framework
-  `com.github.phaedrus1992.adiumy.framework`, and libpurple
-  `com.github.phaedrus1992.adiumy.libpurple` (previously the mixed-case
-  `...adiumY.Adium` / `.AdiumFramework` / `.AdiumPurple`)
-- Renamed the framework from Adium.framework to AdiumY.framework and the
-  libpurple framework product from AdiumLibpurple to AdiumYLibpurple
-- Moved internal identifiers (dispatch queues, Spotlight importer) onto the
-  AdiumY namespace; legacy `im.adium.*` message-style identifiers remain only
-  as migration-map keys so existing styles resolve correctly
-- Fixed the Spotlight importer's bundle identifier typo ("spotlightImpoter")
-- Kept "The Adium Team, 2005-2008" upstream copyright attribution, noted as an
-  AdiumY fork
-- Moved the app cache directory to `~/Library/Caches/AdiumY`
-- Renamed the debug log directory to `~/Library/Logs/AdiumY Debug`
-- Purple Service now only supports XMPP (Jabber), IRC, and SIMPLE protocols
-- Build system: removed reference to libmeanwhile and json-glib in Xcode project
-- Vendored Sparkle framework updated from 1.17.0 to 2.9.4
-- Migrate update checker from Sparkle 1.x SUUpdater to Sparkle 2.x
-  SPUStandardUpdaterController and SPUUpdaterDelegate
-- Remove SUStatusChecker delegate conformance from AICrashReporter (removed in
-  Sparkle 2.x — version comparison handled by Sparkle delegate API)
-
-### Removed
-- Dead protocol services: AIM/ICQ/OSCAR, MobileMe/.Mac, GTalk, LiveJournal,
-  Gadu-Gadu, Novell/GroupWise, Sametime/Meanwhile, Zephyr
-- Twitter Plugin (targets long-dead REST API v1.0, bundled STTwitter abandoned)
-- Image Uploading Plugin (ImageShack/Imgur anonymous APIs, targets dead services)
-- Video Chat Interface + Purple Service video/webcam glue (GStreamer/farstream
-  scaffolding that never worked on macOS)
-- libmeanwhile.framework and json-glib dependencies from build
-- `Utilities/AppcastReplaceItem.py` (Python 2, md5Sum-based signing, dead
-  signing URLs — replaced by Sparkle 2 EdDSA CLI tools)
-
-### Fixed
 - Message view: live user-icon updates restored in the WKWebView renderer —
   setting or changing a contact's icon now updates already-rendered messages
   without reopening the chat
