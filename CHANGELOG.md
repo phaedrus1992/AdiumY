@@ -62,6 +62,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   as `bash script.sh` (the `-eu` shebang flags are ignored in that form). A
   failed build phase now stops at its own error instead of a long run that ends
   at the verification gate
+- Install the Sparkle CLI tools (`generate_appcast`, `generate_keys`,
+  `sign_update`) on every run of `get-sparkle.sh`, even when
+  `Sparkle.framework` is already present in the tree — the appcast lane no
+  longer fails with a missing `generate_appcast` after a restored framework,
+  and `--clean` now removes the tools as well as the framework
 - Reject a truncated URL-shortener response (fewer bytes than the server
   declared) instead of inserting a possibly-incomplete shortened URL
 - Refuse to evaluate a proxy auto-configuration (PAC) script that downloads
