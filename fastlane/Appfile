@@ -1,4 +1,8 @@
-require_relative "shared"
+# fastlane loads this file with `eval(content)` and no filename, so Ruby 3.4
+# cannot infer a basepath for `require_relative` and raises LoadError. Load
+# shared.rb by an absolute path instead. fastlane chdirs into this directory
+# before the eval, so Dir.pwd is this file's directory.
+require File.expand_path("shared", Dir.pwd)
 
 app_identifier("com.github.phaedrus1992.adiumy")
 team_id(env_or("TEAM_ID", TEAM_ID_DEFAULT))
