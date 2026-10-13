@@ -107,6 +107,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   signing URLs — replaced by Sparkle 2 EdDSA CLI tools)
 
 ### Fixed
+- Fix the release lane failing to start under Ruby 3.4: `fastlane/Appfile` used
+  `require_relative`, and fastlane loads the Appfile with `eval(content)` and no
+  filename, which Ruby 3.4 rejects with `cannot infer basepath`. The Appfile now
+  loads `shared.rb` by an absolute path
 - Make `Dependencies/build-universal-deps.sh` stop on the first error: add an
   explicit `set -euo pipefail` so the flags apply when a caller runs the script
   as `bash script.sh` (the `-eu` shebang flags are ignored in that form). A
