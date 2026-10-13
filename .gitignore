@@ -37,8 +37,8 @@ Frameworks/MMTabBarView.framework
 Frameworks/FriBidi.framework
 Frameworks/LMX.framework
 
-# Sparkle — now resolved via SPM binary target. The SPM-integrated XCFramework
-# is managed automatically; the old vendored copy was removed.
+# Sparkle.framework is downloaded by Dependencies/build-phases/get-sparkle.sh at
+# build time, not vendored. The app does not link it yet (#128).
 Frameworks/Sparkle.framework
 
 Resources/af/LC_MESSAGES

@@ -404,8 +404,8 @@ platform :mac do
     UI.message("Building vendored universal dependencies")
     sh("bash", File.join(ROOT, "Dependencies", "build-universal-deps.sh"))
 
-    # Supplies both Sparkle.framework, which the app links against, and the
-    # CLI tools the appcast lane needs.
+    # Fetches the Sparkle CLI tools the appcast lane needs. The same script also
+    # installs Sparkle.framework, which the app does not link yet (#128).
     UI.message("Fetching Sparkle")
     sh("bash", File.join(ROOT, "Dependencies", "build-phases", "get-sparkle.sh"))
 

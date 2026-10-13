@@ -1003,7 +1003,6 @@
 		636D938E0E4EA23F00E5F558 /* AdiumAddressBookAction_AIM.scpt in Resources */ = {isa = PBXBuildFile; fileRef = 636D936B0E4E9FD300E5F558 /* AdiumAddressBookAction_AIM.scpt */; };
 		636D93F40E4EAB7500E5F558 /* AIContactObserverManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 34555C5E0DB6BCE500649CD4 /* AIContactObserverManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		636D94090E4EAB9D00E5F558 /* AIContactObserverManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 34555C5F0DB6BCE500649CD4 /* AIContactObserverManager.m */; };
-		638392F809D4D67A0067B9B7 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 638392F609D4D67A0067B9B7 /* Sparkle.framework */; };
 		638BC1FC0FC932E000CE7600 /* AIObjectDebug.m in Sources */ = {isa = PBXBuildFile; fileRef = 638BC1FB0FC932E000CE7600 /* AIObjectDebug.m */; };
 		639484590EB13DFE008CB6DE /* AIContactHidingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 661561640D84AEEC004B7946 /* AIContactHidingController.m */; };
 		6394845B0EB13E04008CB6DE /* AIContactHidingController.h in Headers */ = {isa = PBXBuildFile; fileRef = 661561630D84AEEC004B7946 /* AIContactHidingController.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1118,7 +1117,6 @@
 		EE147A6D0896B18800A21377 /* ABSearch.png in Resources */ = {isa = PBXBuildFile; fileRef = EE147A6C0896B18700A21377 /* ABSearch.png */; };
 		EE147A790896B32400A21377 /* ABSearch.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE147A780896B32400A21377 /* ABSearch.nib */; };
 		EE147A800896B33400A21377 /* OWABSearchWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE147A7E0896B33400A21377 /* OWABSearchWindowController.m */; };
-		EE5754ED0B3D7A7A00100989 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 638392F609D4D67A0067B9B7 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		EEC461B6096D68580028632F /* OWSpellingPerContactPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC461B4096D68580028632F /* OWSpellingPerContactPlugin.m */; };
 		F5F8CA4D0A1A9C9400154550 /* GBQuestionHandlerPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = F5F8CA4B0A1A9C9400154550 /* GBQuestionHandlerPlugin.m */; };
 		FE679E39F3C744B386A480EA /* AIHotKeyCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E3B26D44D2946559357EF3B /* AIHotKeyCenter.m */; };
@@ -1295,7 +1293,6 @@
 				11EE1CD30CDD01120097F246 /* libintl.framework in Copy Frameworks */,
 				11EE1CD40CDD01120097F246 /* (null) in Copy Frameworks */,
 				11EE1CD50CDD01120097F246 /* libpurple.framework in Copy Frameworks */,
-				EE5754ED0B3D7A7A00100989 /* Sparkle.framework in Copy Frameworks */,
 				76731DE415F9057F007728C3 /* libgcrypt.framework in Copy Frameworks */,
 				9E1E1E270A96770C00E16DFC /* LMX.framework in Copy Frameworks */,
 				9719C92F1530EE4800217FBE /* FriBidi.framework in Copy Frameworks */,
@@ -3240,7 +3237,6 @@
 		636D93690E4E9FD300E5F558 /* AdiumAddressBookAction_Jabber.scpt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.scpt; name = AdiumAddressBookAction_Jabber.scpt; path = Frameworks/Adium/Resources/AdiumAddressBookAction_Jabber.scpt; sourceTree = "<group>"; };
 		636D936A0E4E9FD300E5F558 /* AdiumAddressBookAction_ICQ.scpt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.scpt; name = AdiumAddressBookAction_ICQ.scpt; path = Frameworks/Adium/Resources/AdiumAddressBookAction_ICQ.scpt; sourceTree = "<group>"; };
 		636D936B0E4E9FD300E5F558 /* AdiumAddressBookAction_AIM.scpt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.scpt; name = AdiumAddressBookAction_AIM.scpt; path = Frameworks/Adium/Resources/AdiumAddressBookAction_AIM.scpt; sourceTree = "<group>"; };
-		638392F609D4D67A0067B9B7 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = Frameworks/Sparkle.framework; sourceTree = "<group>"; };
 		638BC1FA0FC932E000CE7600 /* AIObjectDebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AIObjectDebug.h; path = Source/AIObjectDebug.h; sourceTree = "<group>"; };
 		638BC1FB0FC932E000CE7600 /* AIObjectDebug.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AIObjectDebug.m; path = Source/AIObjectDebug.m; sourceTree = "<group>"; };
 		63B0EC9A0F8FBB660062476B /* AIProxyListObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AIProxyListObject.m; path = Frameworks/Adium/Source/AIProxyListObject.m; sourceTree = "<group>"; };
@@ -3597,7 +3593,6 @@
 				34BD9D5A053146CC000AB133 /* Carbon.framework in Frameworks */,
 				34B588A1058D833A00E7EF0D /* ExceptionHandling.framework in Frameworks */,
 				34C18B0D06CAC95400FF5FF9 /* SystemConfiguration.framework in Frameworks */,
-				638392F809D4D67A0067B9B7 /* Sparkle.framework in Frameworks */,
 				9E1E1DFD0A96741500E16DFC /* LMX.framework in Frameworks */,
 				11AA1EFA0BCAE9C3003DDA66 /* Quartz.framework in Frameworks */,
 				340C1ABF0BD58FAB00D09235 /* Security.framework in Frameworks */,
@@ -6081,7 +6076,6 @@
 				76731DE015F90538007728C3 /* libgcrypt.framework */,
 				9719C92B1530EDF700217FBE /* FriBidi.framework */,
 				9E1E1DFC0A96741500E16DFC /* LMX.framework */,
-				638392F609D4D67A0067B9B7 /* Sparkle.framework */,
 				7E6F8A93105611B700C6D80D /* libotr.framework */,
 				979AA6B914D5A452008730DF /* libpurple.framework */,
 			);

@@ -34,6 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   enum value raises instead of writing past a fixed-size array
 
 ### Removed
+- Remove the dead `Sparkle.framework` link and copy build phase from the app
+  bundle. The auto-updater calling code was already gone; the framework itself
+  no longer ships, so the bundle stops implying update support it does not have.
+  The README now states that 2.0.0 has no updater, and the updater returns with
+  the distribution work (#128)
 - Remove the AILoggerPlugin log-file upgrade UI (`LogFileUpgrade.nib`,
   `AILogFileUpgradeWindowController`) and its one-time "Log
   Extensions/Permissions Updated" gates
