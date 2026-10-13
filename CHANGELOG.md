@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- Setup assistant: Continue and "Information About Importing" do nothing on a
+  fresh install — the ARC migration made the `ns_consumes_self` attribute release
+  the window controller as soon as it was shown, so both buttons had no target
+  (#380)
+
 ## [2.0.0] - 2026-10-13
 
 ### Added
