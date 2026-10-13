@@ -40,10 +40,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Set an app category (social networking) in the app Info.plist
 
 ### Changed
-- Point the Sparkle update feed at
-  `https://raw.githubusercontent.com/phaedrus1992/AdiumY/main/appcast.xml`;
-  `SUFeedURL` was previously an empty string, so auto-update was linked but
-  never configured
+- Set the Sparkle update feed URL
+  (`https://raw.githubusercontent.com/phaedrus1992/AdiumY/main/appcast.xml`) and
+  the EdDSA public key in the app's Info.plist and publish a signed appcast, so
+  the update feed is configured and ready for when the in-app updater returns
+  (#128). The updater itself does not ship in 2.0.0
 - Guard the remaining enum-indexed C-array sites in the content-filtering,
   status-icon, service-icon, and status-controller paths with
   `NSParameterAssert` bounds checks, so an out-of-range plugin/API-supplied
@@ -68,11 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Renamed the debug log directory to `~/Library/Logs/AdiumY Debug`
 - Purple Service now only supports XMPP (Jabber), IRC, and SIMPLE protocols
 - Build system: removed reference to libmeanwhile and json-glib in Xcode project
-- Vendored Sparkle framework updated from 1.17.0 to 2.9.4
-- Migrate update checker from Sparkle 1.x SUUpdater to Sparkle 2.x
-  SPUStandardUpdaterController and SPUUpdaterDelegate
-- Remove SUStatusChecker delegate conformance from AICrashReporter (removed in
-  Sparkle 2.x — version comparison handled by Sparkle delegate API)
+- Update the Sparkle tooling the release pipeline uses to sign and generate the
+  appcast from 1.17.0 to 2.9.4 (EdDSA signing in place of the old DSA tooling)
 
 ### Removed
 - Remove the dead `Sparkle.framework` link and copy build phase from the app
