@@ -107,6 +107,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   signing URLs — replaced by Sparkle 2 EdDSA CLI tools)
 
 ### Fixed
+- Report the real reason the release preflight rejects the App Store Connect
+  key: the check now includes `notarytool`'s own output instead of a generic
+  "rejected the API key" message, and names a secret that does not decode to a
+  PEM private key
 - Fix the release lane rejecting a normally-produced base64 `DEVELOPER_ID_P12`
   secret: `Base64.strict_decode64` raised `invalid base64` on the trailing
   newline (and 76-column wrapping) that every `base64` encoder emits. The lane
