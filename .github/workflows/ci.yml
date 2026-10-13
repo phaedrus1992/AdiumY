@@ -177,15 +177,9 @@ jobs:
           cache-mode: restore-only
           log-name: analyze-deps
 
-      # The full app links Sparkle.framework (gitignored, downloaded by
-      # Dependencies/build-phases/get-sparkle.sh, checksum-pinned). Locally it's
-      # present from prior builds; on a fresh runner the build job never needs it
-      # (AIUtilities/MMTabBarView don't link Sparkle), so fetch it here. The
-      # script is idempotent — a no-op when the cache restored it.
-      - name: Fetch Sparkle.framework
-        run: |
-          bash Dependencies/build-phases/get-sparkle.sh
-
+      # The app does not link Sparkle.framework (#128), so the analyze job needs
+      # no Sparkle download. The release pipeline fetches it for the appcast
+      # tools.
       - name: Analyze full app
         run: |
           bash scripts/analyze-check.sh

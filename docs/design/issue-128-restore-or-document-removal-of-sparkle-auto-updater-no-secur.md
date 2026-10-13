@@ -55,5 +55,8 @@ and the restore needs the framework.
 - [x] `plutil -lint Adium.xcodeproj/project.pbxproj` reports OK
 - [x] `xcodebuild -list -project Adium.xcodeproj` lists all targets
 - [x] No `Sparkle` reference remains in `Adium.xcodeproj/project.pbxproj`
-- [ ] CI build passes and the built bundle has no `Sparkle.framework`
+- [x] CI build passes and the built bundle has no `Sparkle.framework`. The build
+  job passes on this branch. Its log shows no copy of `Sparkle.framework` into
+  the app. The `Frameworks` link and the `Copy Frameworks` phase were the only
+  paths into the bundle, and both are removed.
 
