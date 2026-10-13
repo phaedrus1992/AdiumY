@@ -132,17 +132,38 @@ end
 # access. Catches a typo now rather than after an hour-long build.
 def verify_asc_credentials
   key = asc_api_key
-  sh("xcrun", "notarytool", "history", *notary_args(key), "--output-format", "json",
-     log: false, error_callback: lambda { |_|
-       UI.user_error!(<<~ERROR)
-         App Store Connect rejected the API key.
 
-         Check that ASC_KEY_ID (#{key[:id]}) matches the filename at
-         #{key[:path]}, that ASC_ISSUER_ID is the Issuer ID UUID and not the
-         key ID, and that the key is a Team key with at least the Developer
-         role. Individual keys cannot notarize.
-       ERROR
-     })
+  # A wrong ASC_KEY_P8 secret decodes to bytes that are not a private key at
+  # all (the base64 of the wrong file, or a double-encoded value). Say so here,
+  # where the file's shape is visible, instead of letting notarytool report an
+  # opaque auth failure.
+  body = File.read(key[:path])
+  unless body.include?("BEGIN PRIVATE KEY")
+    UI.user_error!(<<~ERROR)
+      The App Store Connect API key at #{key[:path]} is not a PEM private key.
+      It must contain a "-----BEGIN PRIVATE KEY-----" line. Re-export the .p8
+      and set ASC_KEY_P8 to its base64 (base64 -i AuthKey_#{key[:id]}.p8).
+    ERROR
+  end
+
+  # Open3 rather than `sh`: the failure message must carry notarytool's own
+  # stderr, because "rejected the API key" alone cannot tell a bad key id from
+  # a bad issuer from a key with no notary access.
+  output, status = Open3.capture2e("xcrun", "notarytool", "history",
+                                   *notary_args(key), "--output-format", "json")
+  return if status.success?
+
+  UI.user_error!(<<~ERROR)
+    App Store Connect rejected the API key.
+
+    notarytool said:
+    #{output}
+
+    Check that ASC_KEY_ID (#{key[:id]}) matches the filename at
+    #{key[:path]}, that ASC_ISSUER_ID is the Issuer ID UUID and not the
+    key ID, and that the key is a Team key with at least the Developer
+    role. Individual keys cannot notarize.
+  ERROR
 end
 
 # nil rather than an error, for callers that can proceed without a version.
