@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>AdiumY</title>
+        <item>
+            <title>2.0.0</title>
+            <pubDate>Tue, 13 Oct 2026 18:52:39 +0000</pubDate>
+            <sparkle:version>2.0.0</sparkle:version>
+            <sparkle:shortVersionString>2.0.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/phaedrus1992/AdiumY/releases/download/v2.0.0/AdiumY-2.0.0.dmg" length="23319641" type="application/octet-stream" sparkle:edSignature="xDNVk7EnNB6vxSfAV5P/39G2Fil8VNYFaqdCDKk6qSmqYHWbRehlDA6h6yyrrgvIiNKx2oSBclWQjXbyH6sKAA=="/>
+        </item>
+    </channel>
+</rss>
