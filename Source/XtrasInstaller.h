@@ -33,7 +33,7 @@
 }
 
 - (IBAction)cancel:(id)sender;
-- (void)installXtraAtURL:(NSURL *)url __attribute__((ns_consumes_self));
+- (void)installXtraAtURL:(NSURL *)url;
 + (XtrasInstaller *)installer __attribute__((objc_method_family(new)));
 
 @property(strong) NSURLSessionDataTask *download;

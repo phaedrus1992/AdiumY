@@ -36,7 +36,7 @@ typedef enum { ESPresetNameSheetOkayReturn = 1, ESPresetNameSheetCancelReturn = 
 		  explanatoryText:(NSString *)inExplanatoryText
 		  notifyingTarget:(id)inTarget
 				 userInfo:(id)inUserInfo;
-- (void)showOnWindow:(NSWindow *)parentWindow __attribute__((ns_consumes_self));
+- (void)showOnWindow:(NSWindow *)parentWindow;
 - (IBAction)okay:(id)sender;
 - (IBAction)cancel:(id)sender;
 

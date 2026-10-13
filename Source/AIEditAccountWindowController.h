@@ -48,7 +48,7 @@
 	id notifyTarget;
 }
 
-- (void)showOnWindow:(id)parentWindow __attribute__((ns_consumes_self));
+- (void)showOnWindow:(id)parentWindow;
 
 - (id)initWithAccount:(AIAccount *)inAccount notifyingTarget:(id)inTarget;
 - (IBAction)cancel:(id)sender;

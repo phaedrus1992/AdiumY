@@ -26,4 +26,5 @@
 - (NSRect)savedFrameFromString:(NSString *)frameString;
 - (void)windowDidLoad;
 - (void)showWindowInFrontIfAllowed:(BOOL)inFront;
+- (void)keepAliveUntilWindowCloses;
 @end

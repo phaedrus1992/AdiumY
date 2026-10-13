@@ -46,7 +46,7 @@
 			   server:(NSString *)newServer
 				 port:(NSInteger)newPort
 		  andPassword:(NSString *)newPassword;
-- (void)show __attribute__((ns_consumes_self));
+- (void)show;
 - (IBAction)okay:(id)sender;
 - (IBAction)displayAdvanced:(id)sender;
 

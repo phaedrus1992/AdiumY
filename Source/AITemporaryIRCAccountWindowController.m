@@ -52,6 +52,8 @@
 
 - (void)show
 {
+	[self keepAliveUntilWindowCloses];
+
 	[[self window] makeKeyAndOrderFront:nil];
 }
 

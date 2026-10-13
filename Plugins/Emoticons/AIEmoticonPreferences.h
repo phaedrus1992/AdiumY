@@ -37,7 +37,7 @@
 	BOOL viewIsOpen;
 }
 
-- (void)openOnWindow:(NSWindow *)parentWindow __attribute__((ns_consumes_self));
+- (void)openOnWindow:(NSWindow *)parentWindow;
 - (void)toggledPackController:(id)packController;
 - (void)emoticonXtrasDidChange;
 

@@ -23,7 +23,7 @@
 #define ALLOW_UNTRUSTED_XTRAS NO
 
 @interface XtrasInstaller ()
-- (void)closeInstaller __attribute__((ns_consumes_self));
+- (void)closeInstaller;
 - (void)updateInfoText;
 - (void)presentDownloadError:(NSError *)error;
 - (BOOL)downloadWasTruncated;

@@ -32,7 +32,7 @@
 }
 
 - (id)initWithChat:(AIChat *)inChat notifyingTarget:(id)inTarget;
-- (void)showOnWindow:(id)parentWindow __attribute__((ns_consumes_self));
+- (void)showOnWindow:(id)parentWindow;
 - (IBAction)add:(id)sender;
 - (IBAction)cancel:(id)sender;
 

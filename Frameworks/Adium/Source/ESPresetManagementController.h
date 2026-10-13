@@ -35,7 +35,7 @@
 }
 
 - (id)initWithPresets:(NSArray *)inPresets namedByKey:(NSString *)inNameKey withDelegate:(id)inDelegate;
-- (void)showOnWindow:(NSWindow *)parentWindow __attribute__((ns_consumes_self));
+- (void)showOnWindow:(NSWindow *)parentWindow;
 
 - (IBAction)duplicatePreset:(id)sender;
 - (IBAction)deletePreset:(id)sender;

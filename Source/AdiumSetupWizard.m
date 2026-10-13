@@ -33,8 +33,6 @@
 
 enum { WIZARD_TAB_WELCOME = 0, WIZARD_TAB_ADD_ACCOUNTS = 1, WIZARD_TAB_DONE = 2 };
 
-static AdiumSetupWizard *setupWizardWindowController = nil;
-
 @interface AdiumSetupWizard () <NSControlTextEditingDelegate>
 - (void)multipleImportAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo;
 - (void)show;
@@ -51,16 +49,15 @@ static AdiumSetupWizard *setupWizardWindowController = nil;
  */
 + (void)runWizard
 {
-	// ARC releases the controller when the method that creates it returns, which leaves the
-	// wizard window on screen with no action target. This static holds the controller until
-	// the window closes.
-	setupWizardWindowController = [[self alloc] initWithWindowNibName:@"SetupWizard"];
+	AdiumSetupWizard *setupWizardWindowController = [[self alloc] initWithWindowNibName:@"SetupWizard"];
 
 	[setupWizardWindowController show];
 }
 
 - (void)show
 {
+	[self keepAliveUntilWindowCloses];
+
 	// Configure and show window
 	[self showWindow:nil];
 	[[self window] orderFront:nil];
@@ -150,8 +147,6 @@ static AdiumSetupWizard *setupWizardWindowController = nil;
  */
 - (void)windowWillClose:(id)sender
 {
-	setupWizardWindowController = nil;
-
 	[super windowWillClose:sender];
 }
 

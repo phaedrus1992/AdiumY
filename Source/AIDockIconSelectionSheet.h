@@ -45,7 +45,7 @@
 @property(strong) NSTimer *animationTimer;
 @property(assign) NSUInteger previousIndex;
 
-- (void)openOnWindow:(NSWindow *)parentWindow __attribute__((ns_consumes_self));
+- (void)openOnWindow:(NSWindow *)parentWindow;
 
 #pragma mark - Animations
 
