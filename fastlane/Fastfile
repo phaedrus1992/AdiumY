@@ -558,11 +558,14 @@ platform :mac do
     dir = Dir.mktmpdir
     p12 = File.join(dir, "developer_id.p12")
     begin
-      # strict_decode64, not decode64: decode64 silently drops characters
-      # outside the base64 alphabet instead of raising, so a secret pasted
-      # with stray whitespace or a copy-paste error produces a corrupt .p12
-      # and a generic, hard-to-diagnose import_certificate failure.
-      File.binwrite(p12, Base64.strict_decode64(ENV.fetch("DEVELOPER_ID_P12")))
+      # `base64` always ends its output with a newline and wraps long input at
+      # 76 columns, and a GitHub secret stores both verbatim, so the raw value
+      # is not valid strict base64. Strip the whitespace first; strict_decode64
+      # still raises on a truncated or otherwise non-base64 value, so a corrupt
+      # secret cannot slip through as a listed alphabet character would under
+      # decode64.
+      encoded_p12 = ENV.fetch("DEVELOPER_ID_P12").gsub(/\s+/, "")
+      File.binwrite(p12, Base64.strict_decode64(encoded_p12))
       File.chmod(0o600, p12)
       import_certificate(
         certificate_path: p12,
