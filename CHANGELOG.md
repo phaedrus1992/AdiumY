@@ -107,6 +107,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   signing URLs — replaced by Sparkle 2 EdDSA CLI tools)
 
 ### Fixed
+- Fix the release lane rejecting a normally-produced base64 `DEVELOPER_ID_P12`
+  secret: `Base64.strict_decode64` raised `invalid base64` on the trailing
+  newline (and 76-column wrapping) that every `base64` encoder emits. The lane
+  now strips whitespace before decoding
 - Fix the release lane failing to start under Ruby 3.4: `fastlane/Appfile` used
   `require_relative`, and fastlane loads the Appfile with `eval(content)` and no
   filename, which Ruby 3.4 rejects with `cannot infer basepath`. The Appfile now
