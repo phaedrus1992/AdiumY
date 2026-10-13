@@ -57,6 +57,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   on first launch — AdiumY 2.0 has no upgrade path from prior Adium versions
 
 ### Fixed
+- Make `Dependencies/build-universal-deps.sh` stop on the first error: add an
+  explicit `set -euo pipefail` so the flags apply when a caller runs the script
+  as `bash script.sh` (the `-eu` shebang flags are ignored in that form). A
+  failed build phase now stops at its own error instead of a long run that ends
+  at the verification gate
 - Install the Sparkle CLI tools (`generate_appcast`, `generate_keys`,
   `sign_update`) on every run of `get-sparkle.sh`, even when
   `Sparkle.framework` is already present in the tree — the appcast lane no

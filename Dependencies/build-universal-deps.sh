@@ -13,7 +13,10 @@
 #   --build-dir=<dir>  Override build output directory (default: Dependencies/build/)
 #   --force        Ignore build stamps and rebuild all dependencies
 
-set -o pipefail
+# Set the flags here as well as in the shebang: every caller runs this as
+# `bash Dependencies/build-universal-deps.sh`, which ignores the shebang, so a
+# phase failure would otherwise not abort (see #359).
+set -euo pipefail
 
 ROOTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRCROOT="$(cd "$ROOTDIR/.." && pwd)"
