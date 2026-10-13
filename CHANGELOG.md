@@ -57,6 +57,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   on first launch — AdiumY 2.0 has no upgrade path from prior Adium versions
 
 ### Fixed
+- Make `Dependencies/build-universal-deps.sh` stop on the first error: add an
+  explicit `set -euo pipefail` so the flags apply when a caller runs the script
+  as `bash script.sh` (the `-eu` shebang flags are ignored in that form). A
+  failed build phase now stops at its own error instead of a long run that ends
+  at the verification gate
 - Reject a truncated URL-shortener response (fewer bytes than the server
   declared) instead of inserting a possibly-incomplete shortened URL
 - Refuse to evaluate a proxy auto-configuration (PAC) script that downloads
