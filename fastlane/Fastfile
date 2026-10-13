@@ -255,9 +255,24 @@ def notarize_and_staple(path)
   staple(path)
 end
 
+# Apple's CloudKit ticket host drops connections without warning, which makes
+# `stapler staple` fail with NSURLError -1005 and exit 68. The ticket is
+# already notarized, so a single drop must not fail the release. Attempts is
+# STAPLE_ATTEMPTS. A ticket that is truly missing fails every attempt, and the
+# last stapler output is then reported.
 def staple(path)
-  sh("xcrun", "stapler", "staple", path)
-  sh("xcrun", "stapler", "validate", path)
+  attempts = env_or("STAPLE_ATTEMPTS", "4").to_i
+  attempts.times do |i|
+    output, status = Open3.capture2e("xcrun", "stapler", "staple", path)
+    if status.success?
+      UI.message(output.strip)
+      sh("xcrun", "stapler", "validate", path)
+      return
+    end
+    UI.message("stapler staple attempt #{i + 1}/#{attempts} failed:\n#{output}")
+    sleep(5 * (i + 1)) unless i == attempts - 1
+  end
+  UI.user_error!("xcrun stapler staple #{path} failed after #{attempts} attempts")
 end
 
 # fastlane downcases lane option keys, so `SUBMISSION_ID:x` on the command line
