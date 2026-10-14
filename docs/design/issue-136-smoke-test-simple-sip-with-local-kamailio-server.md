@@ -37,7 +37,30 @@ SIP TLS, MSRP file transfer, voice/video — presence + IM smoke only.
 
 ## 2. Approach
 
-_To be filled in before implementation._
+The plan, and what the transport allows on a machine with Docker.
+
+1. **Server** — Kamailio 6.0.8 from `ghcr.io/kamailio/kamailio-ci` with a
+   generated `kamailio.cfg`: a registrar with no authentication, and a
+   `MESSAGE` route that looks the target up and relays. The module order
+   matters — a module that uses `tm` or `usrloc` must load after it — so the
+   config keeps the order of the image's own default file.
+2. **Profile** — type `libpurple-simple`, service `SIMPLE`, and the account
+   preferences `Simple:Use UDP` (false selects TCP) and
+   `Simple:Publish Status`, both read by `ESPurpleSimpleAccount.m`.
+3. **Peer** — a scripted SIP client speaking UDP or TCP with the standard
+   library only: REGISTER with the account as the address of record, then one
+   MESSAGE. The spike was removed rather than committed, because a test that
+   cannot pass on the development machine does not belong in the suite.
+4. **Blocked: delivery.** A client on the host registers successfully, but the
+   server in the container can open no connection back to the client's
+   ephemeral SIP port. A `MESSAGE` to that client ends in `408 Request
+   Timeout`, with and without `fix_nated_contact()`. The published port is the
+   only address the container can reach.
+   Docker on macOS forwards TCP but not UDP, so SIP's default transport
+   reaches no container at all.
+   A Linux runner with `--network host`, or a SIP server that runs natively on
+   macOS, removes the problem. There is no brew formula for Kamailio today.
+
 
 ## 3. Verification
 
