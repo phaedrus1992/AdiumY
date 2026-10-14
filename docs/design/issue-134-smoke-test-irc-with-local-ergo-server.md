@@ -34,7 +34,29 @@ IRCv3 SASL, TLS, bouncer/history — Ergo supports them; wire them in later once
 
 ## 2. Approach
 
-_To be filled in before implementation._
+The test drives the transport through the app's own AppleScript interface, so
+nothing is mocked and no other process touches the profile.
+
+1. **Server** — Ergo from `ghcr.io/ergochat/ergo:stable` runs with a generated
+   `ircd.yaml` mounted read-only: one plaintext listener on an ephemeral
+   published port, account registration and SASL off, so a client connects
+   with a nickname alone. The `limits` block comes from the image's own
+   defaults, because Ergo refuses to start below its minimum values.
+2. **Profile** — `lib/profile.py` writes the account with type
+   `libpurple-IRC` and the nickname as the UID, pointing at `127.0.0.1` with
+   `IRC:Use SSL` false. No password is stored: `ESIRCService` returns NO from
+   `requiresPassword`.
+3. **Peer** — `peers/irc_peer.py` speaks IRC over a plain socket, with the
+   standard library only. It sends one token and waits for a reply token.
+   IRC drops a message for a nickname that is not connected, and answers
+   `401 No such nick`, so the peer sends again until the app appears.
+4. **Channel** — the app joins a channel through its own URL handler
+   (`irc://127.0.0.1:<port>/#smoke-<token>`), the peer joins the same channel,
+   and the peer waits until it sees the app's nickname in it.
+5. **Assertions** — the test waits for the incoming token in the app's chat
+   log (receive path), sends the reply token from Adium through AppleScript
+   (send path), and then waits for the peer process to exit with status 0.
+
 
 ## 3. Verification
 

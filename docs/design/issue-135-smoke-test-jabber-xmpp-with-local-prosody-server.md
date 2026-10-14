@@ -41,7 +41,34 @@ MAM archive retrieval, HTTP file upload, carbons, OMEMO — the compliance matri
 
 ## 2. Approach
 
-_To be filled in before implementation._
+The test drives the transport through the app's own AppleScript interface, so
+nothing is mocked and no other process touches the profile.
+
+1. **Server** — Prosody from the `prosody/prosody` image runs as the `prosody`
+   user, with a generated `prosody.cfg.lua` mounted read-only.
+   TLS and s2s are off, plaintext authentication is on, and two throwaway
+   accounts are registered with `prosodyctl` on an ephemeral port.
+   A MUC component is available for the group-chat step.
+2. **Profile** — `lib/profile.py` writes `Accounts.plist` and
+   `AccountPrefs.plist` into a throwaway home.
+   The account ID is the integer string `0`, because the app keys account
+   preferences by that number, and `Type` selects the service
+   (`libpurple-Jabber`) while `Service` holds the short name (`Jabber`).
+3. **Password** — the app reads an account password from an internet-password
+   item in the login keychain, keyed `<service>.<account>` with protocol
+   `AdIM`. The test adds that item and removes it on exit.
+4. **Launch** — the app runs with `CFFIXED_USER_HOME` set to the throwaway
+   home, so the profile, the logs, and the caches stay inside it.
+5. **Online** — the app starts every account offline.
+   A preference does not connect it: `AIStatusController` only restores a
+   status at launch, and `SLPurpleCocoaAdapter` connects when it sets an
+   online status. The test therefore sends `go online` through AppleScript and
+   waits until the account's status type reads `available`.
+6. **Assertions** — the peer sends one token and waits for a reply token.
+   The test waits for the incoming token in the app's chat log (receive path),
+   sends the reply token from Adium through AppleScript (send path), and then
+   waits for the peer process to exit with status 0.
+
 
 ## 3. Verification
 
