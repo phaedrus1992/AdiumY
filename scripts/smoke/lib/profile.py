@@ -6,9 +6,16 @@ the app behaves like a fresh install with one account.
 
 Usage:
   profile.py --home <dir> --transport jabber --uid smoke-a@localhost
-             [--pref "Jabber:Connect Server=127.0.0.1"] [--object-id <id>]
+             [--pref "Jabber:Connect Server=127.0.0.1"]
 
-Prints the account object ID on stdout. Diagnostics go to stderr.
+Prints the keychain service and account names for the account password on
+stdout, one per line, as `keychain-service=<value>` and
+`keychain-account=<value>`. Diagnostics go to stderr.
+
+The app builds those two names in AdiumPasswords.m: the service is
+`<serviceID>.<account name>`, and the protocol is `AdIM`. The account name is
+the UID, so the UID must already be lowercase and free of spaces: the app
+compacts the UID before the lookup, and this script does not.
 """
 
 from __future__ import annotations
@@ -18,20 +25,13 @@ import plistlib
 import sys
 from pathlib import Path
 
-# The service ID pairs the account file with the transport the test exercises.
-# "type" selects the service when the app loads the account (it matches the
-# service's unique ID). "service" is the short name the app shows and uses in
-# the keychain key, so the two differ.
+# The service the app loads the account under: "type" selects the service by
+# its unique ID, and "service" is the short name the app shows and uses as the
+# first part of the keychain key.
 TRANSPORT_SERVICES = {
     "jabber": {"type": "libpurple-Jabber", "service": "Jabber"},
     "irc": {"type": "libpurple-IRC", "service": "IRC"},
-    "simple": {"type": "libpurple-simple", "service": "SIMPLE"},
-    "bonjour": {"type": "libpurple-bonjour", "service": "Bonjour"},
 }
-
-# Accounts that name their keychain item after their object ID instead of the
-# UID. The IRC service does this, because a nick can change or be taken.
-TRANSPORTS_USING_OBJECT_ID = {"irc"}
 
 # The app numbers its accounts and keeps the next free number in the same file,
 # so the ID is an integer string and the profile holds only one account.
@@ -46,11 +46,7 @@ def user_directory(home: Path) -> Path:
 def write_accounts(
     directory: Path, service_type: str, service_name: str, uid: str, object_id: str
 ) -> None:
-    """Write the account list the app loads at launch.
-
-    The app selects the service by the unique ID in "Type". "Service" holds the
-    short name, which is also the key of the account password in the keychain.
-    """
+    """Write the account list the app loads at launch."""
     payload = {
         "Accounts": [
             {
@@ -67,16 +63,20 @@ def write_accounts(
 
 
 def write_account_preferences(
-    directory: Path, object_id: str, preferences: dict[str, object]
+    directory: Path, object_id: str, preferences: dict
 ) -> None:
-    """Write the per-account preferences, keyed by account object ID."""
+    """Write the per-account preferences, keyed by the account object ID."""
     payload = {object_id: preferences}
     with (directory / "AccountPrefs.plist").open("wb") as handle:
         plistlib.dump(payload, handle)
 
 
-def parse_preference(text: str) -> tuple[str, object]:
-    """Split "key=value" into a key and a typed value."""
+def parse_preference(text: str) -> tuple:
+    """Split "key=value" into a key and a value.
+
+    Only the exact words "true" and "false" become booleans. Every other value
+    stays text, which is what an account preference expects.
+    """
     if "=" not in text:
         raise argparse.ArgumentTypeError(f"preference needs key=value, got {text!r}")
     key, _, raw = text.partition("=")
@@ -87,21 +87,26 @@ def parse_preference(text: str) -> tuple[str, object]:
     return key, raw
 
 
-def main(argv: list[str]) -> int:
+def keychain_names(transport: str, uid: str) -> tuple:
+    """Return the (service, account) names the app reads the password under."""
+    service = TRANSPORT_SERVICES[transport]["service"]
+    return f"{service}.{uid}", uid
+
+
+def main(argv: list) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--home", required=True, type=Path)
     parser.add_argument(
         "--transport", required=True, choices=sorted(TRANSPORT_SERVICES)
     )
     parser.add_argument("--uid", required=True)
-    parser.add_argument("--object-id", default=DEFAULT_OBJECT_ID)
     parser.add_argument("--pref", action="append", default=[], type=parse_preference)
     arguments = parser.parse_args(argv)
 
     directory = user_directory(arguments.home)
     directory.mkdir(parents=True, exist_ok=True)
 
-    preferences: dict[str, object] = {"isOnline": True}
+    preferences = {"isOnline": True}
     preferences.update(dict(arguments.pref))
 
     service = TRANSPORT_SERVICES[arguments.transport]
@@ -110,18 +115,15 @@ def main(argv: list[str]) -> int:
         service["type"],
         service["service"],
         arguments.uid,
-        arguments.object_id,
+        DEFAULT_OBJECT_ID,
     )
-    write_account_preferences(directory, arguments.object_id, preferences)
+    write_account_preferences(directory, DEFAULT_OBJECT_ID, preferences)
 
-    account_name = (
-        f"{service['service']}.{arguments.object_id}"
-        if arguments.transport in TRANSPORTS_USING_OBJECT_ID
-        else arguments.uid
+    keychain_service, keychain_account = keychain_names(
+        arguments.transport, arguments.uid
     )
-    print(f"object-id={arguments.object_id}")
-    print(f"keychain-service={service['service']}.{account_name}")
-    print(f"keychain-account={account_name}")
+    print(f"keychain-service={keychain_service}")
+    print(f"keychain-account={keychain_account}")
     print(f"profile.py: wrote {directory}", file=sys.stderr)
     return 0
 
