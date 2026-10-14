@@ -3,6 +3,14 @@
     <channel>
         <title>AdiumY</title>
         <item>
+            <title>2.0.1</title>
+            <pubDate>Wed, 14 Oct 2026 04:45:59 +0000</pubDate>
+            <sparkle:version>2.0.1</sparkle:version>
+            <sparkle:shortVersionString>2.0.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/phaedrus1992/AdiumY/releases/download/v2.0.1/AdiumY-2.0.1.dmg" length="23316846" type="application/octet-stream" sparkle:edSignature="OHV0uXnAYMzG2S+eePaLlUfQ5M4IiyGW6uHcLv1ZDRUl5NJh+vulY2MYCE2S1sOehTKQh49lSzhx9OiwI59KBg=="/>
+        </item>
+        <item>
             <title>2.0.0</title>
             <pubDate>Tue, 13 Oct 2026 18:52:39 +0000</pubDate>
             <sparkle:version>2.0.0</sparkle:version>
