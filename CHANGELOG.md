@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- Add self-contained smoke tests for the Jabber and IRC transports — each starts
+  a local server, gives the app a throwaway profile, and checks that a message
+  crosses in both directions (#134, #135)
+
 ## [2.0.1] - 2026-10-13
 
 ### Fixed
