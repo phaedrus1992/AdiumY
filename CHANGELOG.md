@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-10-13
+
 ### Fixed
 - Setup assistant: Continue and "Information About Importing" do nothing on a
   fresh install — the ARC migration made the `ns_consumes_self` attribute release
@@ -338,5 +340,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - About window: auto-scrolling credits no longer jump to the top when the text
   has no enclosing scroll view
 
-[Unreleased]: https://github.com/phaedrus1992/AdiumY/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/phaedrus1992/AdiumY/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/phaedrus1992/AdiumY/releases/tag/v2.0.1
 [2.0.0]: https://github.com/phaedrus1992/AdiumY/releases/tag/v2.0.0
