@@ -285,8 +285,12 @@ smoke_app_is_alive() {
 }
 
 smoke_adium_answers() {
+  # The timeout keeps one unresponsive app from holding up the whole wait:
+  # AppleScript's own default is two minutes per call.
   osascript -e 'on run argv' \
+    -e 'with timeout of 10 seconds' \
     -e 'tell application (item 1 of argv) to count accounts' \
+    -e 'end timeout' \
     -e 'end run' "$APP_NAME" >/dev/null 2>&1
 }
 
@@ -297,7 +301,9 @@ smoke_adium_answers() {
 smoke_check_automation() {
   local output
   if ! output="$(osascript -e 'on run argv' \
+    -e 'with timeout of 10 seconds' \
     -e 'tell application (item 1 of argv) to get version' \
+    -e 'end timeout' \
     -e 'end run' "$APP_NAME" 2>&1)"; then
     if [[ "$output" == *"-1743"* ]]; then
       smoke_fail "Automation permission" "the terminal is not allowed to send Apple events to $APP_NAME" \
@@ -320,7 +326,9 @@ smoke_applescript() {
   [ "${1:-}" = "--" ] && shift
 
   local output
-  if ! output="$(osascript -e 'on run argv' "${lines[@]}" -e 'end run' "$@" 2>&1)"; then
+  # A script that reaches an unresponsive app must not hold the run open.
+  if ! output="$(osascript -e 'on run argv' -e 'with timeout of 30 seconds' \
+    "${lines[@]}" -e 'end timeout' -e 'end run' "$@" 2>&1)"; then
     smoke_fail "AppleScript" "$output" \
       "check System Settings > Privacy & Security > Automation > $(smoke_terminal_name) > $APP_NAME"
   fi
@@ -343,7 +351,9 @@ smoke_go_online() {
 smoke_adium_status() {
   local uid="$1"
   osascript -e 'on run argv' \
+    -e 'with timeout of 10 seconds' \
     -e 'tell application (item 1 of argv) to tell account (item 2 of argv) to get status type' \
+    -e 'end timeout' \
     -e 'end run' "$APP_NAME" "$uid" 2>&1 || printf 'AppleScript failed\n'
 }
 
