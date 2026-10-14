@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import ssl
 import sys
 
 import slixmpp
@@ -58,18 +57,21 @@ class Peer(slixmpp.ClientXMPP):
             self.reply.set_result(body)
 
 
-def local_ssl_context() -> ssl.SSLContext:
-    """An SSL context that accepts the local test server's self-signed certificate."""
-    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    context.check_hostname = False
-    context.verify_mode = ssl.CERT_NONE
-    return context
-
-
 async def run(arguments: argparse.Namespace) -> int:
     peer = Peer(arguments)
-    peer.ssl_context = local_ssl_context()
-    await peer.connect(arguments.server, arguments.port)
+    # The test server disables TLS, so the handshake never needs a context.
+    # The connect still gets a deadline: a server that accepts the socket and
+    # then stalls must not hold the run open.
+    try:
+        await asyncio.wait_for(
+            peer.connect(arguments.server, arguments.port), timeout=arguments.timeout
+        )
+    except TimeoutError:
+        print(
+            f"peer: the server did not answer the handshake within {arguments.timeout}s",
+            file=sys.stderr,
+        )
+        return 1
 
     try:
         reply = await asyncio.wait_for(peer.reply, timeout=arguments.timeout)

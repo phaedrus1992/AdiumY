@@ -10,12 +10,16 @@ The work belongs to the plan in [issue #133](https://github.com/phaedrus1992/Adi
 ## What a test proves
 
 1. The app accepts the account and connects to the server.
+   The proof is the session in the server's own log; the account's status is
+   not enough, because it reads "available" before the connection is made.
 2. A message from another client arrives in the app, and the app writes it to
    its chat log.
 3. A message sent from the app reaches the other client.
 
 A run that only avoids a crash is a failure.
-Every assertion fails loudly with the observed state and the fix.
+Every assertion fails loudly with the observed state and the fix, and the
+failure carries the last server log lines, the chat log directory, or the peer
+log, whichever the step was waiting on.
 
 ## Requirements
 
@@ -40,9 +44,17 @@ Every assertion fails loudly with the observed state and the fix.
   Each test checks the permission first and prints these steps if it is missing.
 
 The Docker server runs as a container named `adiumy-smoke-<transport>` and is
-removed on exit.
+removed on exit. Its image is pinned by digest, so a run always tests the same
+server.
+
+The run refuses to start while another AdiumY is running.
+Apple events reach the app by name, not by process, so a test started next to
+your own session would drive that session instead of the throwaway one.
+Quit AdiumY first.
+
 The test never reads or writes the real Adium profile, and it removes its own
-keychain item on exit.
+keychain item on exit. A leftover is printed as a warning with the command that
+removes it.
 
 ## Run
 
