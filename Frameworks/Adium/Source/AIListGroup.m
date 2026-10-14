@@ -362,7 +362,10 @@
 								  objects:(__unsafe_unretained id *)stackbuf
 									count:(NSUInteger)len
 {
-	return [self.containedObjects countByEnumeratingWithState:state objects:stackbuf count:len];
+	// Enumerate our own array, not the copy -containedObjects hands out. Enumeration of a
+	// fresh copy in each batch defeats the mutation guard, and a batch cursor left over
+	// from a longer copy reads past the end of a shorter one (#385).
+	return [_containedObjects countByEnumeratingWithState:state objects:stackbuf count:len];
 }
 
 #pragma mark Applescript
