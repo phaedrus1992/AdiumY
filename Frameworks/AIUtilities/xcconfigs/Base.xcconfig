@@ -5,8 +5,8 @@ ARCHS = $(ARCHS_STANDARD)
 // the key expanded to empty and Xcode dropped it entirely — which made Sparkle
 // reject every build ("No Version CFBundleVersion"). The release lane
 // overrides both from the version tag.
-CURRENT_PROJECT_VERSION = 2.0.0
-MARKETING_VERSION = 2.0.0
+CURRENT_PROJECT_VERSION = 2.0.1
+MARKETING_VERSION = 2.0.1
 FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_PROJECT_2 = "$(SRCROOT)/Frameworks"
 GCC_ENABLE_CPP_EXCEPTIONS = NO
 GCC_WARN_CHECK_SWITCH_STATEMENTS = YES
