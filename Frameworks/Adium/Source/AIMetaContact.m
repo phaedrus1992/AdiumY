@@ -1035,9 +1035,11 @@ NSComparisonResult containedContactSort(AIListContact *objectA, AIListContact *o
 								  objects:(__unsafe_unretained id *)stackbuf
 									count:(NSUInteger)len
 {
-	return [self.containedObjects countByEnumeratingWithState:state
-													  objects:(__unsafe_unretained id *_Nonnull)stackbuf
-														count:len];
+	// Enumerate our own array, not the copy -containedObjects hands out, for the same
+	// reason as AIListGroup: each batch would otherwise run against a different array (#385).
+	return [_containedObjects countByEnumeratingWithState:state
+												  objects:(__unsafe_unretained id *_Nonnull)stackbuf
+													count:len];
 }
 
 #pragma mark Contained Contact sorting
