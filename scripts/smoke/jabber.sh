@@ -19,18 +19,17 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib/smoke.sh"
 
 readonly CONTAINER="adiumy-smoke-jabber"
+# Pinned by digest: a moving tag would change the server under the test.
+readonly IMAGE="prosody/prosody@sha256:984d473833c8401e049c63039b93a6fd1cdffa1f4abe3e93d005f34b3c87b893"
+readonly SLIXMPP_VERSION="1.17.0"
 readonly DOMAIN="localhost"
 readonly ACCOUNT_UID="smoke-a@$DOMAIN"
 readonly ACCOUNT_PASSWORD="smoke-a-pass"
 readonly PEER_UID="smoke-b@$DOMAIN"
 readonly PEER_PASSWORD="smoke-b-pass"
 
-pick_free_port() {
-  python3 -I -c 'import socket
-s = socket.socket()
-s.bind(("127.0.0.1", 0))
-print(s.getsockname()[1])
-s.close()'
+print_server_log() {
+  docker logs "$CONTAINER" 2>&1
 }
 
 stop_server() {
@@ -63,47 +62,53 @@ EOF
 }
 
 start_server() {
-  local port="$1" config
+  local port="$1" config output status=0
   config="$(write_server_config)"
 
   docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
-  docker run -d --name "$CONTAINER" \
+  output="$(docker run -d --name "$CONTAINER" \
     -p "$port:5222" \
     -v "$config:/etc/prosody/prosody.cfg.lua:ro" \
     --user prosody \
     --entrypoint prosody \
-    prosody/prosody -F >/dev/null ||
-    smoke_fail "server start" "docker run failed" "check that Docker is running"
+    "$IMAGE" -F 2>&1)" || status=$?
+  [ "$status" -eq 0 ] ||
+    smoke_fail "server start" "docker run exited $status: $output" \
+      "check that Docker is running and that no container holds the name $CONTAINER"
 
   smoke_step "prosody starting on port $port"
-  smoke_wait_for 30 "prosody to accept connections" smoke_port_is_open "$port"
-}
-
-smoke_port_is_open() {
-  local port="$1"
-  python3 -I -c "
-import socket, sys
-s = socket.socket()
-s.settimeout(1)
-sys.exit(0 if s.connect_ex(('127.0.0.1', $port)) == 0 else 1)"
+  smoke_wait_for_server "$port"
 }
 
 register_users() {
-  local command
+  local command output status
   for command in \
     "prosodyctl register smoke-a $DOMAIN $ACCOUNT_PASSWORD" \
     "prosodyctl register smoke-b $DOMAIN $PEER_PASSWORD"; do
-    if ! docker exec -u prosody "$CONTAINER" sh -c "$command" >/dev/null 2>&1; then
-      smoke_fail "user registration" "prosodyctl failed: $command" \
-        "read the server log: docker logs $CONTAINER"
-    fi
+    status=0
+    output="$(docker exec -u prosody "$CONTAINER" sh -c "$command" 2>&1)" || status=$?
+    [ "$status" -eq 0 ] ||
+      smoke_fail "user registration" "prosodyctl exited $status: $output" \
+        "check the server config written to $SMOKE_WORK/prosody.cfg.lua"
   done
 }
 
-account_is_online() {
-  local status
-  status="$(osascript -e "tell application \"$APP_NAME\" to tell account \"$ACCOUNT_UID\" to get status type" 2>/dev/null || true)"
-  [ "$status" = "available" ]
+# Start the peer in the background. It sends one message and waits for the
+# reply, so its exit status proves both directions.
+#   start_peer <stage> <port> <message> <expected>
+start_peer() {
+  local stage="$1" port="$2" message="$3" expected="$4"
+
+  uv run --quiet --no-project --with "slixmpp==$SLIXMPP_VERSION" python3 -I \
+    "$SMOKE_DIR/peers/xmpp_peer.py" \
+    --jid "$PEER_UID" --password "$PEER_PASSWORD" \
+    --server 127.0.0.1 --port "$port" \
+    --peer "$ACCOUNT_UID" \
+    --send "$message" --expect "$expected" \
+    --timeout "$SMOKE_MESSAGE_TIMEOUT" \
+    >"$SMOKE_WORK/logs/peer-$stage.out" 2>"$SMOKE_WORK/logs/peer-$stage.err" &
+  SMOKE_PEER_PID=$!
+  SMOKE_PEER_STATUS=""
 }
 
 main() {
@@ -111,10 +116,10 @@ main() {
   smoke_begin jabber
 
   local port
-  port="$(pick_free_port)"
+  port="$(smoke_pick_free_port)"
   smoke_set_server_stop stop_server
+  smoke_set_server_log print_server_log
 
-  smoke_check_automation
   start_server "$port"
   register_users
 
@@ -128,20 +133,17 @@ main() {
 
   smoke_launch_app
   smoke_go_online "$ACCOUNT_UID"
-  smoke_wait_for "$SMOKE_CONNECT_TIMEOUT" "the account to come online" account_is_online
-  smoke_step "account is online"
+  # The account's status says nothing about its connection, so wait for the
+  # session the server records.
+  smoke_wait_for "$SMOKE_CONNECT_TIMEOUT" "the app's session on the server" \
+    smoke_server_log_has "Authenticated as $ACCOUNT_UID"
+  smoke_step "the app is connected"
 
   local token
   token="smoke-$$-$(date +%s)"
   local incoming="FROM-PEER-$token" outgoing="FROM-ADIUM-$token"
 
-  uv run --quiet --no-project --with slixmpp python3 -I "$SMOKE_DIR/peers/xmpp_peer.py" \
-    --jid "$PEER_UID" --password "$PEER_PASSWORD" \
-    --server 127.0.0.1 --port "$port" \
-    --peer "$ACCOUNT_UID" \
-    --send "$incoming" --expect "$outgoing" \
-    --timeout "$SMOKE_MESSAGE_TIMEOUT" >"$SMOKE_WORK/logs/peer.out" 2>"$SMOKE_WORK/logs/peer.err" &
-  local peer_pid=$!
+  start_peer message "$port" "$incoming" "$outgoing"
 
   smoke_wait_for "$SMOKE_MESSAGE_TIMEOUT" "the app to log the incoming message" \
     smoke_log_contains "$incoming"
@@ -150,16 +152,9 @@ main() {
   smoke_send "$ACCOUNT_UID" "$PEER_UID" "$outgoing"
 
   smoke_wait_for "$SMOKE_MESSAGE_TIMEOUT" "the peer to receive the app's message" \
-    smoke_process_finished "$peer_pid"
+    smoke_peer_succeeded "$SMOKE_PEER_PID" "$SMOKE_WORK/logs/peer-message.err"
 
   smoke_step "PASS: Jabber smoke test"
-}
-
-# True once the background peer exits with status 0.
-smoke_process_finished() {
-  local pid="$1"
-  kill -0 "$pid" 2>/dev/null && return 1
-  wait "$pid"
 }
 
 main "$@"
