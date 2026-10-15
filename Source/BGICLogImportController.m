@@ -125,9 +125,13 @@
 
 	AIXMLElement *rootElement = [[AIXMLElement alloc] initWithName:@"chat"];
 
+	NSString *rootSenderID = [[[rawChat objectAtIndex:3] objectAtIndex:0] senderID];
+	if (rootSenderID == nil) {
+		rootSenderID = @"";
+	}
+
 	[rootElement setAttributeNames:[NSArray arrayWithObjects:@"xmlns", @"account", @"service", nil]
-							values:[NSArray arrayWithObjects:XML_LOGGING_NAMESPACE,
-															 [[[rawChat objectAtIndex:3] objectAtIndex:0] senderID],
+							values:[NSArray arrayWithObjects:XML_LOGGING_NAMESPACE, rootSenderID,
 															 [rawChat objectAtIndex:0], nil]];
 
 	AIXMLAppender *appender = [AIXMLAppender documentWithPath:documentPath rootElement:rootElement];
