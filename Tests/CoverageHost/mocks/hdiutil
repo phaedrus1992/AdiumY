@@ -1,0 +1,111 @@
+#!/bin/bash
+#
+# Minimal hdiutil stand-in for test_make_dmg_staging.py.
+#
+# The test drives the real Release/make-dmg.sh, which needs create / attach /
+# detach / convert to model the disk-image lifecycle. A directory stands in for
+# the image: `create` copies the staged folder into the image path, `attach`
+# copies the image into a mount directory, `detach` copies the mount back (the
+# write-back a real read-write attach performs), and `convert` copies the image
+# to the output.
+#
+# `attach` prints the XML plist that make-dmg.sh pipes through plutil + python3.
+# dev-entry is the image path itself; the mount path is recorded in
+# <image>.mount so `detach` can find it.
+set -euo pipefail
+
+command_name=$1
+shift
+
+# The path arguments are the bare words in the call; everything else is a flag
+# or a flag's value. Options that take a value must be listed here.
+value_flags="-srcfolder -volname -fs -fsargs -format -o"
+bare_args() {
+	local arg skip_next=
+	for arg in "$@"; do
+		if [ -n "$skip_next" ]; then
+			skip_next=
+			continue
+		fi
+		case " $value_flags " in
+		*" $arg "*)
+			skip_next=1
+			continue
+			;;
+		esac
+		case "$arg" in
+		-*) ;;
+		*) printf '%s\n' "$arg" ;;
+		esac
+	done
+}
+
+case "$command_name" in
+create)
+	# create -srcfolder <stage> ... <image> -quiet
+	stage=""
+	prev=""
+	for arg in "$@"; do
+		if [ "$prev" = "-srcfolder" ]; then
+			stage=$arg
+		fi
+		prev=$arg
+	done
+	image=$(bare_args "$@" | sed -n '1p')
+	rm -rf "$image"
+	ditto "$stage" "$image"
+	;;
+attach)
+	# attach -readwrite ... -plist <image>
+	image=$(bare_args "$@" | sed -n '1p')
+	mount=$(mktemp -d "${TMPDIR:-/tmp}/hdiutil-mock-mount.XXXXXX")
+	ditto "$image" "$mount"
+	printf '%s' "$mount" >"$image.mount"
+	cat <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>system-entities</key>
+	<array>
+		<dict>
+			<key>dev-entry</key><string>$image</string>
+			<key>mount-point</key><string>$mount</string>
+		</dict>
+	</array>
+</dict>
+</plist>
+PLIST
+	;;
+detach)
+	# detach <dev-entry> -quiet [-force]
+	dev=$(bare_args "$@" | sed -n '1p')
+	# A second detach (make-dmg.sh's trap after an explicit detach) is a no-op.
+	if [ ! -f "$dev.mount" ]; then
+		exit 0
+	fi
+	mount=$(cat "$dev.mount")
+	ditto "$mount" "$dev"
+	rm -f "$dev.mount"
+	rm -rf "$mount"
+	;;
+convert)
+	# convert <image> -format UDBZ -o <output> -quiet
+	image=$(bare_args "$@" | sed -n '1p')
+	output=""
+	prev=""
+	for arg in "$@"; do
+		if [ "$prev" = "-o" ]; then
+			output=$arg
+		fi
+		prev=$arg
+	done
+	rm -rf "$output"
+	mkdir -p "$(dirname "$output")"
+	ditto "$image" "$output"
+	;;
+*)
+	# Any other subcommand is irrelevant to the staging path.
+	exit 0
+	;;
+esac
