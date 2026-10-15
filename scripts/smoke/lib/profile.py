@@ -37,10 +37,39 @@ TRANSPORT_SERVICES = {
 # so the ID is an integer string and the profile holds only one account.
 DEFAULT_OBJECT_ID = "0"
 
+# Flag the app sets after it moves the old one-file-per-account preferences into
+# AccountPrefs.plist. On a fresh profile that move runs with an empty source
+# directory and overwrites the account preferences with an empty dictionary, so
+# this file claims the move already happened. The key is
+# LOADED_OBJECT_PREFS_KEY in AIPreferenceController.m, in the "General" group.
+GENERAL_PREFERENCES = {"Loaded individual object & account prefs": True}
+
+# A profile name the login window selects at launch. Without this file the app
+# opens its login window and waits for a user to pick a profile, so the account
+# never comes online on its own. The key is LOGIN_LAST_USER in AILoginController.m.
+LOGIN_PREFERENCES = {"Last Login Name": "Default"}
+
+# The profile the app opens: the only directory under Users/.
+USER_NAME = "Default"
+
 
 def user_directory(home: Path) -> Path:
     """Return the profile directory the app writes inside the throwaway home."""
-    return home / "Library" / "Application Support" / "Adium 2.0" / "Users" / "Default"
+    return (
+        home
+        / "Library"
+        / "Application Support"
+        / "Adium 2.0"
+        / "Users"
+        / USER_NAME
+    )
+
+
+def write_login_preferences(home: Path) -> None:
+    """Write the login file, which names the profile the app opens."""
+    path = home / "Library" / "Application Support" / "Adium 2.0"
+    with (path / "Login Preferences.plist").open("wb") as handle:
+        plistlib.dump(LOGIN_PREFERENCES, handle)
 
 
 def write_accounts(
@@ -62,6 +91,12 @@ def write_accounts(
         plistlib.dump(payload, handle)
 
 
+def write_general_preferences(directory: Path) -> None:
+    """Write the general preferences the app reads at launch."""
+    with (directory / "General.plist").open("wb") as handle:
+        plistlib.dump(GENERAL_PREFERENCES, handle)
+
+
 def write_account_preferences(
     directory: Path, object_id: str, preferences: dict
 ) -> None:
@@ -74,8 +109,9 @@ def write_account_preferences(
 def parse_preference(text: str) -> tuple:
     """Split "key=value" into a key and a value.
 
-    Only the exact words "true" and "false" become booleans. Every other value
-    stays text, which is what an account preference expects.
+    The value type follows the app's own account files: the exact words "true"
+    and "false" become booleans, digits become an integer, and every other
+    value stays text.
     """
     if "=" not in text:
         raise argparse.ArgumentTypeError(f"preference needs key=value, got {text!r}")
@@ -84,6 +120,8 @@ def parse_preference(text: str) -> tuple:
         raise argparse.ArgumentTypeError(f"preference needs a key, got {text!r}")
     if raw in ("true", "false"):
         return key, raw == "true"
+    if raw.isdigit():
+        return key, int(raw)
     return key, raw
 
 
@@ -117,6 +155,8 @@ def main(argv: list) -> int:
         arguments.uid,
         DEFAULT_OBJECT_ID,
     )
+    write_general_preferences(directory)
+    write_login_preferences(arguments.home)
     write_account_preferences(directory, DEFAULT_OBJECT_ID, preferences)
 
     keychain_service, keychain_account = keychain_names(

@@ -48,11 +48,12 @@ profile = load_profile()
 
 
 def write_profile(directory, object_id):
-    """Write both account files the way the smoke tests do."""
+    """Write every profile file the way the smoke tests do."""
     service = profile.TRANSPORT_SERVICES["jabber"]
     profile.write_accounts(
         directory, service["type"], service["service"], "smoke-a@localhost", object_id
     )
+    profile.write_general_preferences(directory)
     profile.write_account_preferences(directory, object_id, {"isOnline": True})
 
 
@@ -90,6 +91,17 @@ class AccountFileTest(unittest.TestCase):
         # the number the UUID converts to, and the profile stops matching.
         self.assertEqual(profile.DEFAULT_OBJECT_ID, str(int(profile.DEFAULT_OBJECT_ID)))
 
+    def test_general_file_stops_the_first_run_preference_migration(self):
+        # A fresh profile makes the app move the old per-account preference
+        # files into AccountPrefs.plist. The source directory is empty here, so
+        # the move writes an empty file and the run loses its own preferences.
+        with tempfile.TemporaryDirectory() as temp:
+            directory = _as_path(temp)
+            profile.write_general_preferences(directory)
+
+            general = plistlib.loads((directory / "General.plist").read_bytes())
+            self.assertTrue(general["Loaded individual object & account prefs"])
+
 
 class PreferenceTest(unittest.TestCase):
     """The "key=value" parser feeds values straight into the plist."""
@@ -100,6 +112,12 @@ class PreferenceTest(unittest.TestCase):
             profile.parse_preference("isOnline=false"), ("isOnline", False)
         )
 
+    def test_digits_become_an_integer(self):
+        # The app reads "Connect Port" as a number, and writes its own port
+        # back as one. A string here still parses, but it is not what the app
+        # stores, so the test would not match a real profile.
+        self.assertEqual(profile.parse_preference("Connect Port=5222"), ("Connect Port", 5222))
+
     def test_every_other_value_stays_text(self):
         self.assertEqual(
             profile.parse_preference("Connect Host=127.0.0.1"),
@@ -109,6 +127,8 @@ class PreferenceTest(unittest.TestCase):
         self.assertEqual(profile.parse_preference("k="), ("k", ""))
         self.assertEqual(profile.parse_preference("k=a=b"), ("k", "a=b"))
         self.assertEqual(profile.parse_preference("k= v "), ("k", " v "))
+        self.assertEqual(profile.parse_preference("k=-1"), ("k", "-1"))
+        self.assertEqual(profile.parse_preference("k=1.5"), ("k", "1.5"))
 
     def test_missing_separator_or_key_is_an_error(self):
         with self.assertRaises(Exception):

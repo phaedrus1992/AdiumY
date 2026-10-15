@@ -141,8 +141,7 @@ main() {
   smoke_go_online "$ACCOUNT_NICK"
   # The account's status says nothing about its connection, so wait for the
   # session the server records.
-  smoke_wait_for "$SMOKE_CONNECT_TIMEOUT" "the app's session on the server" \
-    smoke_server_log_has "Client connected \[$ACCOUNT_NICK\]"
+  smoke_wait_for_session "Client connected \[$ACCOUNT_NICK\]"
   smoke_step "the app is connected"
 
   local token

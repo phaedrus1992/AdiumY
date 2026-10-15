@@ -112,7 +112,7 @@ start_peer() {
 }
 
 main() {
-  smoke_require docker uv python3 osascript security
+  smoke_require docker uv python3 osascript
   smoke_begin jabber
 
   local port
@@ -126,6 +126,7 @@ main() {
   smoke_profile jabber "$ACCOUNT_UID" \
     "Connect Host=127.0.0.1" \
     "Connect Port=$port" \
+    "Jabber:Connect Server=127.0.0.1" \
     "Jabber:Require TLS=false" \
     "Jabber:Allow Plaintext Authentication=true" \
     "Jabber:Verify Certificates=false"
@@ -135,8 +136,7 @@ main() {
   smoke_go_online "$ACCOUNT_UID"
   # The account's status says nothing about its connection, so wait for the
   # session the server records.
-  smoke_wait_for "$SMOKE_CONNECT_TIMEOUT" "the app's session on the server" \
-    smoke_server_log_has "Authenticated as $ACCOUNT_UID"
+  smoke_wait_for_session "Authenticated as $ACCOUNT_UID"
   smoke_step "the app is connected"
 
   local token

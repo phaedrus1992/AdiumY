@@ -109,6 +109,44 @@ smoke_server_log_has() {
   return 1
 }
 
+# True when the app shows the password prompt it opens for an account whose
+# password it cannot read. The window title comes from PasswordPrompt.nib.
+smoke_app_wants_password() {
+  local output
+  output="$(osascript -e 'with timeout of 5 seconds' \
+    -e "tell application \"$APP_NAME\" to get name of every window" \
+    -e 'end timeout' 2>&1)" || return 1
+  case "$output" in
+  *"Connecting Account"*) return 0 ;;
+  esac
+  return 1
+}
+
+# Wait until the server records the account's session. A password prompt ends
+# the wait at once: the app has no password it can read, so no session can
+# appear, and the full timeout would hide the reason.
+#   smoke_wait_for_session <server log pattern>
+smoke_wait_for_session() {
+  local pattern="$1"
+  local output_file="$SMOKE_WORK/logs/last-wait.txt"
+  local deadline=$((SECONDS + SMOKE_CONNECT_TIMEOUT))
+  while [ "$SECONDS" -lt "$deadline" ]; do
+    if smoke_app_wants_password; then
+      smoke_fail "account password" \
+        "the app is asking for the account password instead of connecting" \
+        "the keychain did not give the app the password this run wrote. Unlock the screen, allow the $APP_NAME keychain prompt, and run this script again"
+    fi
+    if smoke_server_log_has "$pattern" >"$output_file" 2>&1; then
+      return 0
+    fi
+    sleep 0.5
+  done
+  smoke_fail "wait for the app's session on the server" \
+    "the condition stayed false for ${SMOKE_CONNECT_TIMEOUT}s. Last check:
+$(tail -n 20 "$output_file" 2>/dev/null)" \
+    "run with SMOKE_KEEP=1 to keep the work directory, then read the app and server logs in it"
+}
+
 smoke_require() {
   local tool
   for tool in "$@"; do
@@ -162,6 +200,8 @@ smoke_server_reports_listening() {
 #   smoke_begin <transport>
 smoke_begin() {
   SMOKE_TRANSPORT="$1"
+  # The name every transport script gives its server container.
+  SMOKE_CONTAINER="adiumy-smoke-$SMOKE_TRANSPORT"
   # The work directory stays inside the repository. Docker Desktop and colima
   # share the home directory with their virtual machine, so a server config
   # under the home tree is the only path a container can mount.
@@ -185,6 +225,7 @@ smoke_profile() {
   local transport="$1" uid="$2"
   shift 2
 
+  SMOKE_ACCOUNT_UID="$uid"
   local arguments=(--home "$SMOKE_HOME" --transport "$transport" --uid "$uid")
   local preference
   for preference in "$@"; do
@@ -204,31 +245,30 @@ smoke_profile() {
 
 # Store the account password in the login keychain. Adium reads account
 # passwords from an internet-password item keyed by the service name it builds
-# from the account, which profile.py computes.
+# from the account, which profile.py computes. The item goes in through the API
+# the app reads it with; see the keychain_item.py docstring for why the
+# security command does not work here.
 #   smoke_keychain_add <password>
 smoke_keychain_add() {
   local password="$1" output status=0
 
-  output="$(security add-internet-password \
-    -s "$SMOKE_KEYCHAIN_SERVICE" -a "$SMOKE_KEYCHAIN_ACCOUNT" \
-    -r AdIM -w "$password" -U 2>&1)" || status=$?
+  output="$(python3 -I "$SMOKE_DIR/lib/keychain_item.py" add \
+    --server "$SMOKE_KEYCHAIN_SERVICE" --account "$SMOKE_KEYCHAIN_ACCOUNT" \
+    --password "$password" --app "$APP_BUNDLE" 2>&1)" || status=$?
   [ "$status" -eq 0 ] ||
-    smoke_fail "keychain write" "security exited $status: $output" \
+    smoke_fail "keychain write" "keychain_item.py exited $status: $output" \
       "unlock the login keychain and run this script again"
 }
 
 smoke_keychain_remove() {
   [ -n "$SMOKE_KEYCHAIN_SERVICE" ] || return 0
   local output
-  if ! output="$(security delete-internet-password \
-    -s "$SMOKE_KEYCHAIN_SERVICE" -a "$SMOKE_KEYCHAIN_ACCOUNT" 2>&1)"; then
-    # The item may simply not exist, which is not a leak.
-    case "$output" in
-    *"could not be found"*) ;;
-    *) smoke_warn "keychain item left behind: delete it with
-    security delete-internet-password -s '$SMOKE_KEYCHAIN_SERVICE' -a '$SMOKE_KEYCHAIN_ACCOUNT'
-    ($output)" ;;
-    esac
+  if ! output="$(python3 -I "$SMOKE_DIR/lib/keychain_item.py" remove \
+    --server "$SMOKE_KEYCHAIN_SERVICE" --account "$SMOKE_KEYCHAIN_ACCOUNT" 2>&1)"; then
+    smoke_warn "keychain item left behind: delete it with
+    python3 -I $SMOKE_DIR/lib/keychain_item.py remove \\
+      --server '$SMOKE_KEYCHAIN_SERVICE' --account '$SMOKE_KEYCHAIN_ACCOUNT'
+    ($output)"
   fi
 }
 
@@ -251,11 +291,17 @@ smoke_terminal_name() {
   printf 'the terminal\n'
 }
 
+# Pids of the app under test. The path names one bundle, so this finds every
+# copy of it, including one that starts after this run launched the first.
+smoke_app_processes() {
+  pgrep -f "$APP_BINARY" 2>/dev/null || true
+}
+
 # Apple events reach the app by name, so any other running copy answers them
 # too. Refuse to run rather than drive the wrong instance.
 smoke_require_no_other_app() {
   local running
-  running="$(pgrep -f "$APP_BINARY" 2>/dev/null || true)"
+  running="$(smoke_app_processes)"
   [ -z "$running" ] || smoke_fail "another instance is running" \
     "$APP_NAME is already running, pid $running" \
     "quit $APP_NAME and run this script again: Apple events reach the app by name, so the test would drive your session too"
@@ -271,8 +317,10 @@ smoke_launch_app() {
   SMOKE_APP_WAS_LAUNCHED=1
   smoke_step "app started, pid $SMOKE_APP_PID"
   smoke_wait_for 15 "the app to stay up" smoke_app_is_alive
-  smoke_check_automation
-  smoke_wait_for "$SMOKE_CONNECT_TIMEOUT" "the app to answer AppleScript" smoke_adium_answers
+  # The app answers Apple events a moment after it starts, and it loads its
+  # account list a few seconds later. Both waits cover that startup time: a
+  # step that names the account before it exists fails with -1728.
+  smoke_wait_for "$SMOKE_CONNECT_TIMEOUT" "the app to load $SMOKE_ACCOUNT_UID" smoke_app_has_account
 }
 
 smoke_app_is_alive() {
@@ -284,38 +332,40 @@ smoke_app_is_alive() {
   return 1
 }
 
-smoke_adium_answers() {
+# True when the app answers Apple events and lists the account this run wrote
+# into its profile. The UID is per-run, so an answer that carries it also proves
+# the events reach the instance this run started.
+smoke_app_has_account() {
+  local output
+  # The app name is written into the script, not passed in: AppleScript needs
+  # the app's own terminology at compile time, and a reference resolved from a
+  # variable has none ("The variable accounts is not defined").
   # The timeout keeps one unresponsive app from holding up the whole wait:
   # AppleScript's own default is two minutes per call.
-  osascript -e 'on run argv' \
-    -e 'with timeout of 10 seconds' \
-    -e 'tell application (item 1 of argv) to count accounts' \
-    -e 'end timeout' \
-    -e 'end run' "$APP_NAME" >/dev/null 2>&1
-}
-
-# Confirm the terminal may drive the app through Apple events. Without the
-# Automation permission every scripted step fails, so check once, up front.
-# Call it only after smoke_launch_app, so the only instance that can answer is
-# the one this script started.
-smoke_check_automation() {
-  local output
-  if ! output="$(osascript -e 'on run argv' \
-    -e 'with timeout of 10 seconds' \
-    -e 'tell application (item 1 of argv) to get version' \
-    -e 'end timeout' \
-    -e 'end run' "$APP_NAME" 2>&1)"; then
+  if ! output="$(osascript -e 'with timeout of 10 seconds' \
+    -e "tell application \"$APP_NAME\" to get name of every account" \
+    -e 'end timeout' 2>&1)"; then
+    # -1743 is the Automation permission, which only the user can grant. Every
+    # other failure, such as -600 while the app still starts, is a retry.
     if [[ "$output" == *"-1743"* ]]; then
       smoke_fail "Automation permission" "the terminal is not allowed to send Apple events to $APP_NAME" \
         "enable System Settings > Privacy & Security > Automation > $(smoke_terminal_name) > $APP_NAME, then run this script again"
     fi
-    smoke_fail "AppleScript check" "$output" \
-      "read $SMOKE_WORK/logs/app.stdout to see why the app did not answer"
+    printf 'the app did not answer: %s\napp.stdout tail:\n%s\n' \
+      "$output" "$(tail -n 10 "$SMOKE_WORK/logs/app.stdout" 2>/dev/null)"
+    return 1
   fi
+  if grep -qF -- "$SMOKE_ACCOUNT_UID" <<<"$output"; then
+    return 0
+  fi
+  printf 'the app lists no account %s yet: %s\n' "$SMOKE_ACCOUNT_UID" "$output"
+  return 1
 }
 
-# Run AppleScript with arguments. Values always travel as arguments, never
-# inside the script text, so a value cannot change what the script does.
+# Run AppleScript with arguments. Account names and message text always travel
+# as arguments, never inside the script text, so a value cannot change what the
+# script does. Only the app name is written into the script, because AppleScript
+# resolves an app's own terminology at compile time.
 #   smoke_applescript <script line> [<script line> ...] -- <argument> ...
 smoke_applescript() {
   local lines=()
@@ -329,6 +379,12 @@ smoke_applescript() {
   # A script that reaches an unresponsive app must not hold the run open.
   if ! output="$(osascript -e 'on run argv' -e 'with timeout of 30 seconds' \
     "${lines[@]}" -e 'end timeout' -e 'end run' "$@" 2>&1)"; then
+    # A dead app answers -609, which reads like a permission problem and is not
+    # one. Report the crash, with the two places that name its cause.
+    if [ "$SMOKE_APP_WAS_LAUNCHED" = 1 ] && ! kill -0 "$SMOKE_APP_PID" 2>/dev/null; then
+      smoke_fail "the app stopped during an AppleScript command" "$output" \
+        "the app crashed. Read the end of $SMOKE_WORK/logs/app.stdout, and the newest $APP_NAME report in ~/Library/Logs/DiagnosticReports"
+    fi
     smoke_fail "AppleScript" "$output" \
       "check System Settings > Privacy & Security > Automation > $(smoke_terminal_name) > $APP_NAME"
   fi
@@ -341,8 +397,8 @@ smoke_go_online() {
   local uid="$1"
   smoke_step "bringing $uid online"
   smoke_applescript \
-    'tell application (item 1 of argv) to tell account (item 2 of argv) to go online' \
-    -- "$APP_NAME" "$uid" >/dev/null
+    "tell application \"$APP_NAME\" to tell account (item 1 of argv) to go online" \
+    -- "$uid" >/dev/null
 }
 
 # Read the account's status type. This is a status, not a connection: the app
@@ -352,9 +408,9 @@ smoke_adium_status() {
   local uid="$1"
   osascript -e 'on run argv' \
     -e 'with timeout of 10 seconds' \
-    -e 'tell application (item 1 of argv) to tell account (item 2 of argv) to get status type' \
+    -e "tell application \"$APP_NAME\" to tell account (item 1 of argv) to get status type" \
     -e 'end timeout' \
-    -e 'end run' "$APP_NAME" "$uid" 2>&1 || printf 'AppleScript failed\n'
+    -e 'end run' "$uid" 2>&1 || printf 'AppleScript failed\n'
 }
 
 # Send a message from Adium to a contact, through a chat the app opens.
@@ -363,13 +419,13 @@ smoke_send() {
   local account_uid="$1" contact_uid="$2" message="$3"
   smoke_step "sending from Adium: $message"
   smoke_applescript \
-    'tell application (item 1 of argv)' \
-    'tell account (item 2 of argv)' \
-    'set newChat to make new chat with contacts {contact (item 3 of argv)} with new chat window' \
+    "tell application \"$APP_NAME\"" \
+    'tell account (item 1 of argv)' \
+    'set newChat to make new chat with contacts {contact (item 2 of argv)} with new chat window' \
     'end tell' \
-    'send newChat message (item 4 of argv)' \
+    'send newChat message (item 3 of argv)' \
     'end tell' \
-    -- "$APP_NAME" "$account_uid" "$contact_uid" "$message" >/dev/null
+    -- "$account_uid" "$contact_uid" "$message" >/dev/null
 }
 
 # --- assertions -----------------------------------------------------------
@@ -412,16 +468,38 @@ smoke_peer_succeeded() {
 
 # --- teardown -------------------------------------------------------------
 
+# Stop every process of the app this run started. The recorded pid is not
+# enough: a second copy of the same bundle can start beside it, and a copy left
+# running would answer the Apple events of the next run.
 smoke_stop_app() {
   [ "$SMOKE_APP_WAS_LAUNCHED" -eq 1 ] || return 0
   SMOKE_APP_WAS_LAUNCHED=0
-  kill -TERM "$SMOKE_APP_PID" 2>/dev/null || true
-  local deadline=$((SECONDS + 15))
-  while [ "$SECONDS" -lt "$deadline" ] && kill -0 "$SMOKE_APP_PID" 2>/dev/null; do
+
+  local pids deadline
+  pids="$(smoke_app_processes)"
+  [ -n "$pids" ] || return 0
+  # Word splitting is wanted: kill takes every pid in the list.
+  # shellcheck disable=SC2086
+  kill -TERM $pids 2>/dev/null || true
+
+  deadline=$((SECONDS + 15))
+  while [ "$SECONDS" -lt "$deadline" ] && [ -n "$(smoke_app_processes)" ]; do
     sleep 0.5
   done
-  if kill -0 "$SMOKE_APP_PID" 2>/dev/null; then
-    smoke_warn "the app did not stop; pid $SMOKE_APP_PID is still running"
+
+  pids="$(smoke_app_processes)"
+  [ -n "$pids" ] || return 0
+  # shellcheck disable=SC2086
+  kill -KILL $pids 2>/dev/null || true
+  deadline=$((SECONDS + 5))
+  while [ "$SECONDS" -lt "$deadline" ] && [ -n "$(smoke_app_processes)" ]; do
+    sleep 0.5
+  done
+
+  pids="$(smoke_app_processes)"
+  if [ -n "$pids" ]; then
+    smoke_warn "the app did not stop; pid $pids is still running:
+    kill -KILL $pids"
   fi
 }
 
@@ -436,15 +514,20 @@ smoke_cleanup() {
   smoke_stop_app
   smoke_stop_peer
   smoke_keychain_remove
-  if [ -n "${SMOKE_STOP_SERVER:-}" ]; then
-    $SMOKE_STOP_SERVER >/dev/null 2>&1 || smoke_warn "the server container was not removed;
-    remove it with: docker rm -f \$(docker ps -aq --filter name=$SMOKE_TRANSPORT)"
-  fi
   if [ "${SMOKE_KEEP:-0}" = "1" ]; then
-    smoke_step "kept the work directory: $SMOKE_WORK"
-  elif [ "$SMOKE_WORK_CREATED" = "1" ] && [ -d "$SMOKE_WORK" ]; then
-    trash "$SMOKE_WORK" >/dev/null 2>&1 ||
-      smoke_warn "the work directory was not removed: $SMOKE_WORK"
+    # The server stays up with the work directory, so the run can be inspected
+    # with docker logs after it ends.
+    smoke_step "kept the work directory: $SMOKE_WORK
+kept the server container: read it with docker logs $SMOKE_CONTAINER"
+  else
+    if [ -n "${SMOKE_STOP_SERVER:-}" ]; then
+      $SMOKE_STOP_SERVER >/dev/null 2>&1 || smoke_warn "the server container was not removed;
+    remove it with: docker rm -f \$(docker ps -aq --filter name=$SMOKE_TRANSPORT)"
+    fi
+    if [ "$SMOKE_WORK_CREATED" = "1" ] && [ -d "$SMOKE_WORK" ]; then
+      trash "$SMOKE_WORK" >/dev/null 2>&1 ||
+        smoke_warn "the work directory was not removed: $SMOKE_WORK"
+    fi
   fi
   exit "$status"
 }
