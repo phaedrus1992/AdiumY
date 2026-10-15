@@ -767,13 +767,14 @@ typedef enum {
 		return;
 	}
 
-	// The contact-list controller owns group membership, so route the add
-	// through it: it performs the local move, or the server-side move when the
-	// service keeps a list. The AppleScript "make new contact" handler is a
-	// caller, and a silent no-op there reads to a script as success (#407).
+	// The base class has no server-side contact list, so this is the local
+	// membership move, the same one AIContactController performs itself. An
+	// account whose service keeps a list overrides this method and does both
+	// (CBPurpleAccount does). The AppleScript "make new contact" handler is a
+	// caller; a no-op there reads to a script as success (#407).
 	NSMutableSet *groups = [NSMutableSet setWithSet:(contact.groups ?: [NSSet set])];
 	[groups addObject:group];
-	[adium.contactController moveContact:contact fromGroups:contact.groups intoGroups:groups];
+	[adium.contactController _moveContactLocally:contact fromGroups:contact.groups toGroups:groups];
 }
 
 /*!
