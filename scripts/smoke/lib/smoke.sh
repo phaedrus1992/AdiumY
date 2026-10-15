@@ -42,6 +42,7 @@ SMOKE_APP_PID=""
 SMOKE_APP_WAS_LAUNCHED=0
 SMOKE_KEYCHAIN_SERVICE=""
 SMOKE_KEYCHAIN_ACCOUNT=""
+SMOKE_ACCOUNT_UID=""
 SMOKE_PEER_PID=""
 SMOKE_PEER_STATUS=""
 
@@ -116,11 +117,16 @@ smoke_server_log_has() {
 
 # True when the app shows the password prompt it opens for an account whose
 # password it cannot read. The window title comes from PasswordPrompt.nib.
+# A window check that fails on its own (the app is gone, or the Automation
+# permission is missing) is not a prompt: its text goes into the wait report.
 smoke_app_wants_password() {
   local output
   output="$(osascript -e 'with timeout of 5 seconds' \
     -e "tell application \"$APP_NAME\" to get name of every window" \
-    -e 'end timeout' 2>&1)" || return 1
+    -e 'end timeout' 2>&1)" || {
+    printf 'window check failed: %s\n' "$output"
+    return 1
+  }
   case "$output" in
   *"Connecting Account"*) return 0 ;;
   esac
@@ -136,6 +142,11 @@ smoke_wait_for_session() {
   local output_file="$SMOKE_WORK/logs/last-wait.txt"
   local deadline=$((SECONDS + SMOKE_CONNECT_TIMEOUT))
   while [ "$SECONDS" -lt "$deadline" ]; do
+    if [ -n "$SMOKE_APP_PID" ] && ! kill -0 "$SMOKE_APP_PID" 2>/dev/null; then
+      smoke_fail "the app while connecting" \
+        "the app stopped before the server saw its session" \
+        "read the end of $SMOKE_WORK/logs/app.stdout, and the newest $APP_NAME report in ~/Library/Logs/DiagnosticReports"
+    fi
     if smoke_app_wants_password; then
       smoke_fail "account password" \
         "the app is asking for the account password instead of connecting" \
@@ -301,8 +312,15 @@ smoke_terminal_name() {
 
 # Pids of the app under test. The path names one bundle, so this finds every
 # copy of it, including one that starts after this run launched the first.
+# pgrep exit 1 means "no match", which is normal; any other status is a real
+# failure and must not read as "no app is running".
 smoke_app_processes() {
-  pgrep -f "$APP_BINARY" 2>/dev/null || true
+  local pids status=0
+  pids="$(pgrep -f "$APP_BINARY" 2>/dev/null)" || status=$?
+  if [ "$status" -gt 1 ]; then
+    smoke_warn "pgrep failed with status $status while looking for $APP_NAME"
+  fi
+  [ -z "$pids" ] || printf '%s\n' "$pids"
 }
 
 # Apple events reach the app by name, so any other running copy answers them
@@ -319,6 +337,9 @@ smoke_require_no_other_app() {
 # logs, and its caches inside that home only.
 smoke_launch_app() {
   smoke_require_no_other_app
+  [ -n "$SMOKE_ACCOUNT_UID" ] ||
+    smoke_fail "app launch" "no account was written for this run" \
+      "call smoke_profile before smoke_launch_app"
   local arguments=()
   if [ "$SMOKE_APP_DEBUG" = 1 ]; then
     arguments+=(-AIEnableDebugLogging YES)
