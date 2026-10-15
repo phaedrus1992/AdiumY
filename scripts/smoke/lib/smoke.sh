@@ -262,7 +262,7 @@ smoke_keychain_add() {
 
   output="$(python3 -I "$SMOKE_DIR/lib/keychain_item.py" add \
     --server "$SMOKE_KEYCHAIN_SERVICE" --account "$SMOKE_KEYCHAIN_ACCOUNT" \
-    --password "$password" --app "$APP_BUNDLE" 2>&1)" || status=$?
+    --password "$password" 2>&1)" || status=$?
   [ "$status" -eq 0 ] ||
     smoke_fail "keychain write" "keychain_item.py exited $status: $output" \
       "unlock the login keychain and run this script again"

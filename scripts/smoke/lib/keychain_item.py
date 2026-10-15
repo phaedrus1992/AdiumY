@@ -10,9 +10,16 @@ asks the user for the password, and the account never connects. This script
 writes the item through the same API the app reads it with, so the run needs no
 prompt.
 
+The item is stored with no access object, so it takes the default access, which
+names no application. A constructed access list cannot serve here. The entries
+that SecAccessCreate makes with no application force the app to ask the user to
+confirm each read, and an entry that names the app does not help, because a
+locally built app carries no stable code requirement. An unanswered dialog
+blocks the app until the run times out. The password here is a throwaway for a
+test account on localhost, and the item is removed when the run ends.
+
 Usage:
   keychain_item.py add --server <name> --account <name> --password <text>
-                       --app <path to the application>
   keychain_item.py remove --server <name> --account <name>
 
 Exit 0 when the item is stored or removed. A missing item on removal is not an
@@ -34,7 +41,6 @@ PROTOCOL = "AdIM"
 # Keychain Services status codes used here.
 ERR_SEC_SUCCESS = 0
 ERR_SEC_ITEM_NOT_FOUND = -25300
-ERR_SEC_DUPLICATE_ITEM = -25299
 
 # The Core Foundation string encoding for UTF-8.
 K_CF_STRING_ENCODING_UTF8 = 0x08000100
@@ -78,28 +84,8 @@ class _Frameworks:
 
         self.security.SecItemAdd.restype = ctypes.c_int32
         self.security.SecItemAdd.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-        self.security.SecItemUpdate.restype = ctypes.c_int32
-        self.security.SecItemUpdate.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
         self.security.SecItemDelete.restype = ctypes.c_int32
         self.security.SecItemDelete.argtypes = [ctypes.c_void_p]
-        self.security.SecAccessCreate.restype = ctypes.c_int32
-        self.security.SecAccessCreate.argtypes = [
-            ctypes.c_void_p,
-            ctypes.c_void_p,
-            ctypes.POINTER(ctypes.c_void_p),
-        ]
-        self.security.SecTrustedApplicationCreateFromPath.restype = ctypes.c_int32
-        self.security.SecTrustedApplicationCreateFromPath.argtypes = [
-            ctypes.c_char_p,
-            ctypes.POINTER(ctypes.c_void_p),
-        ]
-        self.core_foundation.CFArrayCreate.restype = ctypes.c_void_p
-        self.core_foundation.CFArrayCreate.argtypes = [
-            ctypes.c_void_p,
-            ctypes.POINTER(ctypes.c_void_p),
-            ctypes.c_long,
-            ctypes.c_void_p,
-        ]
 
         # The dictionaries are built for one call and released by this script,
         # so they need no key or value callbacks. A callback structure passed
@@ -127,45 +113,6 @@ class _Frameworks:
         if not value:
             raise KeychainError("cannot create the password data")
         return value
-
-    def trusted_application(self, path) -> int:
-        """Create a reference to one application the item trusts.
-
-        A path of None names the process that is running this script.
-        """
-        encoded = None if path is None else path.encode("utf-8")
-        application = ctypes.c_void_p()
-        status = self.security.SecTrustedApplicationCreateFromPath(
-            encoded, ctypes.byref(application)
-        )
-        if status != ERR_SEC_SUCCESS or not application.value:
-            raise KeychainError(
-                f"SecTrustedApplicationCreateFromPath for {path} failed with status {status}"
-            )
-        return application.value
-
-    def access_for_applications(self, applications: list) -> int:
-        """Create an access list that trusts the given applications.
-
-        The app reads the password while the screen may be locked, and macOS
-        cannot show its access prompt then: the read fails with
-        errSecInDarkWake and the account stays offline. An item that only the
-        creating process may read therefore cannot be tested unattended.
-        """
-        values = (ctypes.c_void_p * len(applications))(*applications)
-        trusted = self.core_foundation.CFArrayCreate(None, values, len(applications), None)
-        if not trusted:
-            raise KeychainError("cannot create the trusted application list")
-        access = ctypes.c_void_p()
-        try:
-            status = self.security.SecAccessCreate(
-                self.string("smoke test item"), trusted, ctypes.byref(access)
-            )
-        finally:
-            self.release(trusted)
-        if status != ERR_SEC_SUCCESS or not access.value:
-            raise KeychainError(f"SecAccessCreate failed with status {status}")
-        return access.value
 
     def dictionary(self, pairs: list) -> int:
         """Create a Core Foundation dictionary from (key, value) address pairs."""
@@ -202,12 +149,12 @@ def _query(frameworks: _Frameworks, server: str, account: str) -> int:
     )
 
 
-def add_item(server: str, account: str, password: str, application: str) -> None:
+def add_item(server: str, account: str, password: str) -> None:
     """Store the password for one account, replacing any existing item."""
     frameworks = _Frameworks()
     query = _query(frameworks, server, account)
-    # The item replaces an older one, so its access list is the one this script
-    # sets. SecItemUpdate does not change the access list.
+    # The old item goes first: SecItemUpdate does not change the access list,
+    # so only a fresh item carries the default access.
     status = frameworks.security.SecItemDelete(query)
     if status not in (ERR_SEC_SUCCESS, ERR_SEC_ITEM_NOT_FOUND):
         frameworks.release(query)
@@ -217,15 +164,9 @@ def add_item(server: str, account: str, password: str, application: str) -> None
             f"-s {server!r} -a {account!r}"
         )
 
-    # This script must be in the access list with the app: an item that only the
-    # app may read cannot be deleted by the next run, which then fails with
-    # errSecInvalidOwnerEdit.
-    access = frameworks.access_for_applications(
-        [
-            frameworks.trusted_application(application),
-            frameworks.trusted_application(None),
-        ]
-    )
+    # No access object goes into the attributes. The default access names no
+    # application, so the app reads the password without a question; the module
+    # docstring gives the reason.
     attributes = frameworks.dictionary(
         [
             (
@@ -239,7 +180,6 @@ def add_item(server: str, account: str, password: str, application: str) -> None
                 frameworks.constant("kSecValueData"),
                 frameworks.data(password.encode("utf-8")),
             ),
-            (frameworks.constant("kSecAttrAccess"), access),
         ]
     )
     try:
@@ -252,7 +192,6 @@ def add_item(server: str, account: str, password: str, application: str) -> None
     finally:
         frameworks.release(query)
         frameworks.release(attributes)
-        frameworks.release(access)
 
 
 def remove_item(server: str, account: str) -> None:
@@ -280,18 +219,11 @@ def main(argv: list) -> int:
         subparser.add_argument("--account", required=True)
         if name == "add":
             subparser.add_argument("--password", required=True)
-            subparser.add_argument(
-                "--app",
-                required=True,
-                help="the application that must read the password without a prompt",
-            )
     arguments = parser.parse_args(argv)
 
     try:
         if arguments.command == "add":
-            add_item(
-                arguments.server, arguments.account, arguments.password, arguments.app
-            )
+            add_item(arguments.server, arguments.account, arguments.password)
         else:
             remove_item(arguments.server, arguments.account)
     except KeychainError as error:
