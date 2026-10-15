@@ -201,6 +201,29 @@
 
 #pragma mark - C Callbacks
 
+/* The domain part of a JID: no node, no resource. */
+static NSString *AMPurpleJabberCSI_domain(NSString *jid)
+{
+	NSRange at = [jid rangeOfString:@"@" options:NSBackwardsSearch];
+	NSString *host = (at.location == NSNotFound) ? jid : [jid substringFromIndex:NSMaxRange(at)];
+	NSRange slash = [host rangeOfString:@"/"];
+	return (slash.location == NSNotFound) ? host : [host substringToIndex:slash.location];
+}
+
+/* True when the stanza came from this account's own server. A stanza with no
+ * from attribute came over the connection itself, which is the server too. */
+static BOOL AMPurpleJabberCSI_from_own_server(NSString *uid, xmlnode *node)
+{
+	const char *from = xmlnode_get_attrib(node, "from");
+	if (!from || !*from) {
+		return YES;
+	}
+
+	NSString *senderDomain = [AMPurpleJabberCSI_domain([NSString stringWithUTF8String:from]) lowercaseString];
+	NSString *serverDomain = [AMPurpleJabberCSI_domain(uid) lowercaseString];
+	return [senderDomain isEqualToString:serverDomain];
+}
+
 /* True when the node is the answer to the feature query and it lists CSI. */
 static BOOL AMPurpleJabberCSI_is_disco_reply_with_csi(xmlnode *node)
 {
@@ -240,21 +263,51 @@ static void AMPurpleJabberCSI_received_xmlnode_cb(PurpleConnection *gc, xmlnode 
 			if (!node || !gc || !self) {
 				return;
 			}
+
+			// The signal belongs to the prpl, so it fires for every Jabber
+			// connection. Act only on stanzas from this account's own stream.
+			PurpleAccount *pa = [self->_account purpleAccount];
+			if (pa == NULL || gc != purple_account_get_connection(pa)) {
+				return;
+			}
+
+			NSString *uid = [self->_account UID];
 			if (strcmp(node->name, "enabled") == 0) {
 				const char *xmlns = xmlnode_get_namespace(node);
-				if (xmlns && strcmp(xmlns, [NS_CSI UTF8String]) == 0) {
+				if (xmlns && strcmp(xmlns, [NS_CSI UTF8String]) == 0 && AMPurpleJabberCSI_from_own_server(uid, node)) {
 					self->_csiEnabled = YES;
 					AILog(@"AMPurpleJabberCSI: Server enabled CSI");
 					[self _sendState:AMPurpleJabberCSIStateActive];
 				}
 
 			} else if (strcmp(node->name, "iq") == 0) {
-				if (AMPurpleJabberCSI_is_disco_reply_with_csi(node)) {
-					[self _sendEnable];
-				} else {
-					const char *identifier = xmlnode_get_attrib(node, "id");
-					if (identifier && strcmp(identifier, [CSI_DISCO_QUERY_ID UTF8String]) == 0) {
-						AILog(@"AMPurpleJabberCSI: Server does not support CSI");
+				const char *identifier = xmlnode_get_attrib(node, "id");
+				BOOL isOurReply = identifier && strcmp(identifier, [CSI_DISCO_QUERY_ID UTF8String]) == 0;
+				if (isOurReply && AMPurpleJabberCSI_from_own_server(uid, node)) {
+					if (AMPurpleJabberCSI_is_disco_reply_with_csi(node)) {
+						[self _sendEnable];
+					} else {
+						const char *type = xmlnode_get_attrib(node, "type");
+						if (type && strcmp(type, "error") == 0) {
+							// The reply names its own cause; report that instead of a
+							// capability claim.
+							const char *errorType = NULL;
+							const char *condition = NULL;
+							xmlnode *error = xmlnode_get_child(node, "error");
+							if (error) {
+								errorType = xmlnode_get_attrib(error, "type");
+								for (xmlnode *child = error->child; child; child = child->next) {
+									if (strcmp(child->name, "text") != 0) {
+										condition = child->name;
+										break;
+									}
+								}
+							}
+							AILog(@"AMPurpleJabberCSI: The feature query failed (%s: %s)",
+								  errorType ? errorType : "unknown", condition ? condition : "unknown");
+						} else {
+							AILog(@"AMPurpleJabberCSI: Server does not support CSI");
+						}
 					}
 				}
 			}
