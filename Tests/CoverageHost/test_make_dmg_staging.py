@@ -77,10 +77,12 @@ class MakeDmgStagingTest(unittest.TestCase):
         self.assertEqual(staged, CHANGELOG.read_text(encoding="utf-8"))
 
     def test_changes_txt_is_not_the_frozen_1x_history(self):
-        staged = self.read_image_file("Changes.txt")
+        # The first version heading of the frozen 1.x history must not appear in
+        # the image. Derived rather than hardcoded so the marker follows the
+        # file it is taken from.
         frozen = (REPO_ROOT / "ChangeLogs" / "Changes.txt").read_text(encoding="utf-8")
-        self.assertNotEqual(staged, frozen)
-        self.assertNotIn("Version 1.5.11", staged)
+        marker = next(line for line in frozen.splitlines() if line.startswith("Version "))
+        self.assertNotIn(marker, self.read_image_file("Changes.txt"))
 
     def test_license_txt_is_staged(self):
         self.assertEqual(self.read_image_file("License.txt"), LICENSE.read_text(encoding="utf-8"))

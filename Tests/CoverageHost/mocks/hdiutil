@@ -52,12 +52,24 @@ create)
 		prev=$arg
 	done
 	image=$(bare_args "$@" | sed -n '1p')
+	[ -n "$stage" ] || {
+		echo "mock hdiutil: no -srcfolder in: $*" >&2
+		exit 2
+	}
+	[ -n "$image" ] || {
+		echo "mock hdiutil: no image path in: $*" >&2
+		exit 2
+	}
 	rm -rf "$image"
 	ditto "$stage" "$image"
 	;;
 attach)
 	# attach -readwrite ... -plist <image>
 	image=$(bare_args "$@" | sed -n '1p')
+	[ -n "$image" ] || {
+		echo "mock hdiutil: no image path in: $*" >&2
+		exit 2
+	}
 	mount=$(mktemp -d "${TMPDIR:-/tmp}/hdiutil-mock-mount.XXXXXX")
 	ditto "$image" "$mount"
 	printf '%s' "$mount" >"$image.mount"
@@ -80,9 +92,11 @@ PLIST
 detach)
 	# detach <dev-entry> -quiet [-force]
 	dev=$(bare_args "$@" | sed -n '1p')
-	# A second detach (make-dmg.sh's trap after an explicit detach) is a no-op.
+	# make-dmg.sh's trap can detach after an explicit detach; a device this
+	# mock never attached is a harness error, not a no-op.
 	if [ ! -f "$dev.mount" ]; then
-		exit 0
+		echo "mock hdiutil: detach of a device that was never attached: $dev" >&2
+		exit 2
 	fi
 	mount=$(cat "$dev.mount")
 	ditto "$mount" "$dev"
@@ -100,12 +114,22 @@ convert)
 		fi
 		prev=$arg
 	done
+	[ -n "$image" ] || {
+		echo "mock hdiutil: no image path in: $*" >&2
+		exit 2
+	}
+	[ -n "$output" ] || {
+		echo "mock hdiutil: no -o output in: $*" >&2
+		exit 2
+	}
 	rm -rf "$output"
 	mkdir -p "$(dirname "$output")"
 	ditto "$image" "$output"
 	;;
 *)
-	# Any other subcommand is irrelevant to the staging path.
-	exit 0
+	# The script only ever calls create/attach/detach/convert. Anything else
+	# means the mock and the script have drifted apart; fail loudly.
+	echo "mock hdiutil: unsupported subcommand: $command_name" >&2
+	exit 2
 	;;
 esac

@@ -60,6 +60,10 @@ ditto "$APP" "$STAGE/$(basename "$APP")"
 # is the frozen upstream 1.x history, and staging it put 1.x notes in the 2.x
 # images (#406). Keep the staged name Changes.txt — the Finder layout, baked
 # .DS_Store and AppleScript fallback alike, positions an item by that name.
+[ -f "$SRC_DIR/CHANGELOG.md" ] || {
+	echo "error: $SRC_DIR/CHANGELOG.md is missing — the DMG build must run from a full source checkout" >&2
+	exit 66
+}
 ditto "$SRC_DIR/CHANGELOG.md" "$STAGE/Changes.txt"
 ditto "$SRC_DIR/License.txt" "$STAGE/License.txt"
 ln -s /Applications "$STAGE/Applications"
