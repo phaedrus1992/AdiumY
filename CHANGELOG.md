@@ -15,8 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 - OTR now works with other OTR clients: the identity strings libotr keys its
   sessions on were service-scoped instead of upstream's, so a private
-  conversation could only ever match another copy of this same build. Stored
-  identities are re-derived once, so contacts re-verify the fingerprint (#403)
+  conversation could only ever match another copy of this same build. The
+  identity change is one-time: the app generates a new key on the next secure
+  session, and contacts must verify the new fingerprint (#403)
 - OTR starts when the plugin is installed at runtime through the Xtras manager:
   the user state is created on first use instead of only at app launch (#410)
 - AppleScript's `make new contact ... with properties {parentGroup: ...}` adds
