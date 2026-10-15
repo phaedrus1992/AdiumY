@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import plistlib
+import re
 import sys
 from pathlib import Path
 
@@ -122,8 +123,8 @@ def parse_preference(text: str) -> tuple:
     """Split "key=value" into a key and a value.
 
     The value type follows the app's own account files: the exact words "true"
-    and "false" become booleans, digits become an integer, and every other
-    value stays text.
+    and "false" become booleans, a run of ASCII digits becomes an integer, and
+    every other value stays text.
     """
     if "=" not in text:
         raise argparse.ArgumentTypeError(f"preference needs key=value, got {text!r}")
@@ -132,7 +133,7 @@ def parse_preference(text: str) -> tuple:
         raise argparse.ArgumentTypeError(f"preference needs a key, got {text!r}")
     if raw in ("true", "false"):
         return key, raw == "true"
-    if raw.isdigit():
+    if re.fullmatch("[0-9]+", raw):
         return key, int(raw)
     return key, raw
 

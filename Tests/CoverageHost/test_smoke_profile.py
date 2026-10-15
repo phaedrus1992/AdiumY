@@ -24,6 +24,7 @@ import importlib.util
 import os
 import pathlib
 import plistlib
+import re
 import tempfile
 import unittest
 
@@ -119,6 +120,12 @@ class PreferenceTest(unittest.TestCase):
         # back as one. A string here still parses, but it is not what the app
         # stores, so the test would not match a real profile.
         self.assertEqual(profile.parse_preference("Connect Port=5222"), ("Connect Port", 5222))
+
+    def test_non_ascii_digits_stay_text(self):
+        # str.isdigit() accepts superscripts and other scripts' numerals, but a
+        # preference value must be ASCII digits to become an integer.
+        self.assertEqual(profile.parse_preference("k=²"), ("k", "²"))
+        self.assertEqual(profile.parse_preference("k=١٢٣"), ("k", "١٢٣"))
 
     def test_every_other_value_stays_text(self):
         self.assertEqual(
@@ -223,6 +230,21 @@ if HAS_HYPOTHESIS:
                 self.assertEqual(payload["Accounts"][0]["ObjectID"], str(number))
                 self.assertEqual(payload["TopAccountID"], str(number + 1))
                 self.assertEqual(list(preferences), [str(number)])
+
+    class PreferenceValueProperty(unittest.TestCase):
+        """Only an exact boolean word or an ASCII digit run changes a value's type."""
+
+        @given(value=st.text())
+        @settings(max_examples=200, deadline=None)
+        def test_value_types_follow_the_documented_rule(self, value):
+            key, parsed = profile.parse_preference("k=" + value)
+            self.assertEqual(key, "k")
+            if value in ("true", "false"):
+                self.assertIsInstance(parsed, bool)
+            elif re.fullmatch("[0-9]+", value):
+                self.assertIsInstance(parsed, int)
+            else:
+                self.assertEqual(parsed, value)
 
 
 if __name__ == "__main__":
