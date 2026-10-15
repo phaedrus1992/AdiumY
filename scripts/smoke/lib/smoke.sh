@@ -29,6 +29,11 @@ APP_BINARY="$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 SMOKE_CONNECT_TIMEOUT="${SMOKE_CONNECT_TIMEOUT:-60}"
 SMOKE_MESSAGE_TIMEOUT="${SMOKE_MESSAGE_TIMEOUT:-30}"
 
+# Set SMOKE_APP_DEBUG=1 to have the app write its debug log inside the
+# throwaway home. The log is the only view into the app while a run goes
+# wrong: the app's standard output holds little more than its startup noise.
+SMOKE_APP_DEBUG="${SMOKE_APP_DEBUG:-0}"
+
 SMOKE_TRANSPORT=""
 SMOKE_HOME=""
 SMOKE_WORK=""
@@ -144,7 +149,7 @@ smoke_wait_for_session() {
   smoke_fail "wait for the app's session on the server" \
     "the condition stayed false for ${SMOKE_CONNECT_TIMEOUT}s. Last check:
 $(tail -n 20 "$output_file" 2>/dev/null)" \
-    "run with SMOKE_KEEP=1 to keep the work directory, then read the app and server logs in it"
+    "run with SMOKE_KEEP=1 SMOKE_APP_DEBUG=1 to keep the work directory and have the app write its own log, then read them"
 }
 
 smoke_require() {
@@ -231,6 +236,9 @@ smoke_profile() {
   for preference in "$@"; do
     arguments+=(--pref "$preference")
   done
+  if [ "$SMOKE_APP_DEBUG" = 1 ]; then
+    arguments+=(--debug-log)
+  fi
 
   local output
   output="$(python3 -I "$SMOKE_DIR/lib/profile.py" "${arguments[@]}")" ||
@@ -311,7 +319,13 @@ smoke_require_no_other_app() {
 # logs, and its caches inside that home only.
 smoke_launch_app() {
   smoke_require_no_other_app
-  CFFIXED_USER_HOME="$SMOKE_HOME" "$APP_BINARY" \
+  local arguments=()
+  if [ "$SMOKE_APP_DEBUG" = 1 ]; then
+    arguments+=(-AIEnableDebugLogging YES)
+  fi
+  # The guard around the array keeps an empty expansion legal under set -u on
+  # the bash 3.2 that macOS ships.
+  CFFIXED_USER_HOME="$SMOKE_HOME" "$APP_BINARY" ${arguments[@]+"${arguments[@]}"} \
     >"$SMOKE_WORK/logs/app.stdout" 2>&1 &
   SMOKE_APP_PID=$!
   SMOKE_APP_WAS_LAUNCHED=1

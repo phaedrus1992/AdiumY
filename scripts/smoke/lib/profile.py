@@ -52,6 +52,12 @@ LOGIN_PREFERENCES = {"Last Login Name": "Default"}
 # The profile the app opens: the only directory under Users/.
 USER_NAME = "Default"
 
+# The group file that makes the app write its debug log, which is the inside
+# view of the app while a smoke test runs. The keys are KEY_DEBUG_WRITE_LOG and
+# GROUP_DEBUG in ESDebugController.h, and the log lands in
+# <home>/Library/Logs/AdiumY Debug/<date>.log.
+DEBUG_PREFERENCES = {"Write Debug Log": True}
+
 
 def user_directory(home: Path) -> Path:
     """Return the profile directory the app writes inside the throwaway home."""
@@ -97,6 +103,12 @@ def write_general_preferences(directory: Path) -> None:
         plistlib.dump(GENERAL_PREFERENCES, handle)
 
 
+def write_debug_preferences(directory: Path) -> None:
+    """Write the group file that makes the app write its debug log."""
+    with (directory / "Debug Group.plist").open("wb") as handle:
+        plistlib.dump(DEBUG_PREFERENCES, handle)
+
+
 def write_account_preferences(
     directory: Path, object_id: str, preferences: dict
 ) -> None:
@@ -139,6 +151,11 @@ def main(argv: list) -> int:
     )
     parser.add_argument("--uid", required=True)
     parser.add_argument("--pref", action="append", default=[], type=parse_preference)
+    parser.add_argument(
+        "--debug-log",
+        action="store_true",
+        help="make the app write its debug log into the throwaway home",
+    )
     arguments = parser.parse_args(argv)
 
     directory = user_directory(arguments.home)
@@ -158,6 +175,8 @@ def main(argv: list) -> int:
     write_general_preferences(directory)
     write_login_preferences(arguments.home)
     write_account_preferences(directory, DEFAULT_OBJECT_ID, preferences)
+    if arguments.debug_log:
+        write_debug_preferences(directory)
 
     keychain_service, keychain_account = keychain_names(
         arguments.transport, arguments.uid

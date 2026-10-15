@@ -12,7 +12,9 @@ pin the parts the app depends on:
   - the preference file is keyed by that same number, because the app looks the
     preferences up by the account's numeric ID;
   - the keychain names match what AdiumPasswords.m builds, with a protocol of
-    `AdIM`.
+    `AdIM`;
+  - the debug-log option writes the group file that turns on the app's own log,
+    and writes it only when the option is given.
 
 Run from the repo root:  python3 -m unittest discover -s Tests/CoverageHost -v
 Run just this file:      python3 -m unittest discover -s Tests/CoverageHost -p 'test_smoke_profile*' -v
@@ -156,6 +158,43 @@ class KeychainNameTest(unittest.TestCase):
             keychain_service, account = profile.keychain_names(transport, "smoke-a")
             self.assertEqual(keychain_service, f"{service['service']}.smoke-a")
             self.assertEqual(account, "smoke-a")
+
+
+class DebugLogTest(unittest.TestCase):
+    """The --debug-log option controls the group file the app reads.
+
+    That file turns on the app's own debug log, which is the inside view of the
+    app while a run goes wrong.
+    """
+
+    def test_debug_log_option_writes_the_group_file(self):
+        with tempfile.TemporaryDirectory() as temp:
+            home = _as_path(temp)
+            profile.main(
+                [
+                    "--home",
+                    temp,
+                    "--transport",
+                    "jabber",
+                    "--uid",
+                    "smoke-a@localhost",
+                    "--debug-log",
+                ]
+            )
+
+            directory = profile.user_directory(home)
+            payload = plistlib.loads((directory / "Debug Group.plist").read_bytes())
+            self.assertEqual(payload, {"Write Debug Log": True})
+
+    def test_a_run_without_the_option_leaves_no_group_file(self):
+        with tempfile.TemporaryDirectory() as temp:
+            home = _as_path(temp)
+            profile.main(
+                ["--home", temp, "--transport", "jabber", "--uid", "smoke-a@localhost"]
+            )
+
+            directory = profile.user_directory(home)
+            self.assertFalse((directory / "Debug Group.plist").exists())
 
 
 def _as_path(text):
