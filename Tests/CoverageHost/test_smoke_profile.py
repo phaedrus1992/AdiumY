@@ -12,7 +12,9 @@ pin the parts the app depends on:
   - the preference file is keyed by that same number, because the app looks the
     preferences up by the account's numeric ID;
   - the keychain names match what AdiumPasswords.m builds, with a protocol of
-    `AdIM`.
+    `AdIM`;
+  - the debug-log option writes the group file that turns on the app's own log,
+    and writes it only when the option is given.
 
 Run from the repo root:  python3 -m unittest discover -s Tests/CoverageHost -v
 Run just this file:      python3 -m unittest discover -s Tests/CoverageHost -p 'test_smoke_profile*' -v
@@ -22,6 +24,7 @@ import importlib.util
 import os
 import pathlib
 import plistlib
+import re
 import tempfile
 import unittest
 
@@ -48,11 +51,12 @@ profile = load_profile()
 
 
 def write_profile(directory, object_id):
-    """Write both account files the way the smoke tests do."""
+    """Write every profile file the way the smoke tests do."""
     service = profile.TRANSPORT_SERVICES["jabber"]
     profile.write_accounts(
         directory, service["type"], service["service"], "smoke-a@localhost", object_id
     )
+    profile.write_general_preferences(directory)
     profile.write_account_preferences(directory, object_id, {"isOnline": True})
 
 
@@ -90,6 +94,17 @@ class AccountFileTest(unittest.TestCase):
         # the number the UUID converts to, and the profile stops matching.
         self.assertEqual(profile.DEFAULT_OBJECT_ID, str(int(profile.DEFAULT_OBJECT_ID)))
 
+    def test_general_file_stops_the_first_run_preference_migration(self):
+        # A fresh profile makes the app move the old per-account preference
+        # files into AccountPrefs.plist. The source directory is empty here, so
+        # the move writes an empty file and the run loses its own preferences.
+        with tempfile.TemporaryDirectory() as temp:
+            directory = _as_path(temp)
+            profile.write_general_preferences(directory)
+
+            general = plistlib.loads((directory / "General.plist").read_bytes())
+            self.assertTrue(general["Loaded individual object & account prefs"])
+
 
 class PreferenceTest(unittest.TestCase):
     """The "key=value" parser feeds values straight into the plist."""
@@ -100,6 +115,18 @@ class PreferenceTest(unittest.TestCase):
             profile.parse_preference("isOnline=false"), ("isOnline", False)
         )
 
+    def test_digits_become_an_integer(self):
+        # The app reads "Connect Port" as a number, and writes its own port
+        # back as one. A string here still parses, but it is not what the app
+        # stores, so the test would not match a real profile.
+        self.assertEqual(profile.parse_preference("Connect Port=5222"), ("Connect Port", 5222))
+
+    def test_non_ascii_digits_stay_text(self):
+        # str.isdigit() accepts superscripts and other scripts' numerals, but a
+        # preference value must be ASCII digits to become an integer.
+        self.assertEqual(profile.parse_preference("k=²"), ("k", "²"))
+        self.assertEqual(profile.parse_preference("k=١٢٣"), ("k", "١٢٣"))
+
     def test_every_other_value_stays_text(self):
         self.assertEqual(
             profile.parse_preference("Connect Host=127.0.0.1"),
@@ -109,6 +136,8 @@ class PreferenceTest(unittest.TestCase):
         self.assertEqual(profile.parse_preference("k="), ("k", ""))
         self.assertEqual(profile.parse_preference("k=a=b"), ("k", "a=b"))
         self.assertEqual(profile.parse_preference("k= v "), ("k", " v "))
+        self.assertEqual(profile.parse_preference("k=-1"), ("k", "-1"))
+        self.assertEqual(profile.parse_preference("k=1.5"), ("k", "1.5"))
 
     def test_missing_separator_or_key_is_an_error(self):
         with self.assertRaises(Exception):
@@ -138,6 +167,43 @@ class KeychainNameTest(unittest.TestCase):
             self.assertEqual(account, "smoke-a")
 
 
+class DebugLogTest(unittest.TestCase):
+    """The --debug-log option controls the group file the app reads.
+
+    That file turns on the app's own debug log, which is the inside view of the
+    app while a run goes wrong.
+    """
+
+    def test_debug_log_option_writes_the_group_file(self):
+        with tempfile.TemporaryDirectory() as temp:
+            home = _as_path(temp)
+            profile.main(
+                [
+                    "--home",
+                    temp,
+                    "--transport",
+                    "jabber",
+                    "--uid",
+                    "smoke-a@localhost",
+                    "--debug-log",
+                ]
+            )
+
+            directory = profile.user_directory(home)
+            payload = plistlib.loads((directory / "Debug Group.plist").read_bytes())
+            self.assertEqual(payload, {"Write Debug Log": True})
+
+    def test_a_run_without_the_option_leaves_no_group_file(self):
+        with tempfile.TemporaryDirectory() as temp:
+            home = _as_path(temp)
+            profile.main(
+                ["--home", temp, "--transport", "jabber", "--uid", "smoke-a@localhost"]
+            )
+
+            directory = profile.user_directory(home)
+            self.assertFalse((directory / "Debug Group.plist").exists())
+
+
 def _as_path(text):
     """Return a Path for a directory name from tempfile."""
     return pathlib.Path(text)
@@ -164,6 +230,21 @@ if HAS_HYPOTHESIS:
                 self.assertEqual(payload["Accounts"][0]["ObjectID"], str(number))
                 self.assertEqual(payload["TopAccountID"], str(number + 1))
                 self.assertEqual(list(preferences), [str(number)])
+
+    class PreferenceValueProperty(unittest.TestCase):
+        """Only an exact boolean word or an ASCII digit run changes a value's type."""
+
+        @given(value=st.text())
+        @settings(max_examples=200, deadline=None)
+        def test_value_types_follow_the_documented_rule(self, value):
+            key, parsed = profile.parse_preference("k=" + value)
+            self.assertEqual(key, "k")
+            if value in ("true", "false"):
+                self.assertIsInstance(parsed, bool)
+            elif re.fullmatch("[0-9]+", value):
+                self.assertIsInstance(parsed, int)
+            else:
+                self.assertEqual(parsed, value)
 
 
 if __name__ == "__main__":

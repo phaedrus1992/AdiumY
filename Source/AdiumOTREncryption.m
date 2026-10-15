@@ -174,6 +174,19 @@ static ConnContext *contextForChat(AIChat *chat)
 		if (!account || !contact)
 			return NULL;
 
+		// libotr dereferences the state at once, so a NULL state would abort the
+		// process. Report the missing initialization and skip OTR instead (#405).
+		if (otrg_plugin_userstate == NULL) {
+			// A send that skips here goes out unencrypted, so say so once per
+			// run rather than once per message.
+			static BOOL reportedMissingUserState = NO;
+			if (!reportedMissingUserState) {
+				reportedMissingUserState = YES;
+				AILogWithSignature(@"No OTR user state yet. Messages here go out unencrypted.");
+			}
+			return NULL;
+		}
+
 		NSString *accountName = [AdiumOTREncryption accountNameForOtrlAccount:account];
 		NSString *protocol = account.service.serviceID;
 		NSString *username = contact.UID;
@@ -665,14 +678,24 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 		OTRPersistenceFilePath = nil;
 		OTRWindowController = nil;
 		adiumOTREncryption = self;
+
+		// The plugin that owns this object loads before the accounts do, and the
+		// keys live in the profile. Both are ready when the app finishes loading,
+		// so start the encryption there (#405).
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(adiumFinishedLaunching:)
+													 name:AIApplicationDidFinishLoadingNotification
+												   object:nil];
 	}
 
 	return self;
 }
 
-- (void)controllerDidLoad
+- (void)adiumFinishedLaunching:(NSNotification *)notification
 {
-	// Initialize the static user state for C callbacks
+#pragma unused(notification)
+	// Every send and every receive dereferences the user state, so create it
+	// before the first message can be sent (#405).
 	otrg_plugin_userstate = [[self class] userState];
 
 	// Read fingerprints, instance tags, and private keys
@@ -888,10 +911,11 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 	otrl_tlv_free(tlvs);
 
 	if (!ret && newMessage == NULL) {
-		// Not an OTR message
+		// Not an OTR message. Pass it through unchanged: libotr sets newMessage
+		// only for a message it decoded, so a plain message arrives here (#402).
 		if (outIsOTR)
 			*outIsOTR = NO;
-		return nil;
+		return message;
 	}
 
 	// OTR-related message
@@ -1451,8 +1475,17 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 	OtrlUserState userState = [[self class] userState];
 
-	otrl_privkey_read_fingerprints(userState, [fingerprintPath UTF8String], NULL, NULL);
-	otrl_instag_read(userState, [instagPath UTF8String]);
+	gcry_error_t fingerprintError = otrl_privkey_read_fingerprints(userState, [fingerprintPath UTF8String], NULL, NULL);
+	if (fingerprintError != 0) {
+		AILogWithSignature(@"Could not read the OTR fingerprint file %@ (error %u).", fingerprintPath,
+						   (unsigned int)fingerprintError);
+	}
+
+	gcry_error_t instagError = otrl_instag_read(userState, [instagPath UTF8String]);
+	if (instagError != 0) {
+		AILogWithSignature(@"Could not read the OTR instance-tag file %@ (error %u).", instagPath,
+						   (unsigned int)instagError);
+	}
 
 	for (AIAccount *account in adium.accountController.accounts) {
 		if (account.online) {

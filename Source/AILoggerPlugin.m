@@ -153,6 +153,7 @@ CFStringRef CopyTextContentForFileData(CFStringRef contentTypeUTI, NSURL *urlToF
 void runWithAutoreleasePool(dispatch_block_t block);
 static inline dispatch_block_t blockWithAutoreleasePool(dispatch_block_t block);
 NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context);
+static void AILoggerAddAttribute(AIXMLElement *element, NSString *name, id value);
 
 #pragma mark -
 #pragma mark Static Globals
@@ -565,6 +566,22 @@ static inline dispatch_block_t blockWithAutoreleasePool(dispatch_block_t block)
 	} copy];
 }
 
+/*!
+ * @brief Add one attribute to an XML element, unless the value is nil
+ *
+ * A value can be absent: an Info.plist key is nil when the build did not set it
+ * (#400), and a message can have no source. A nil must not reach the element,
+ * so every site uses this one rule.
+ */
+static void AILoggerAddAttribute(AIXMLElement *element, NSString *name, id value)
+{
+	if (value == nil) {
+		return;
+	}
+
+	[element setValue:value forAttribute:name];
+}
+
 NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context)
 {
 	NSDictionary *cache = (__bridge NSDictionary *)context;
@@ -865,29 +882,24 @@ NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context)
 
 				if ([contentType isEqualToString:CONTENT_MESSAGE_TYPE] ||
 					[contentType isEqualToString:CONTENT_CONTEXT_TYPE]) {
-					NSMutableArray *attributeKeys = [NSMutableArray arrayWithObjects:@"sender", @"time", nil];
-					NSMutableArray *attributeValues =
-						[NSMutableArray arrayWithObjects:[[content source] UID], date, nil];
 					AIXMLAppender *appender = [self _appenderForChat:chat];
+
+					AIXMLElement *messageElement = [[AIXMLElement alloc] initWithName:@"message"];
+					AILoggerAddAttribute(messageElement, @"sender", [[content source] UID]);
+					AILoggerAddAttribute(messageElement, @"time", date);
 					if ([content isAutoreply]) {
-						[attributeKeys addObject:@"auto"];
-						[attributeValues addObject:@"true"];
+						AILoggerAddAttribute(messageElement, @"auto", @"true");
 					}
 
 					NSString *displayName = [chat displayNameForContact:content.source];
 
 					if (![[[content source] UID] isEqualToString:displayName]) {
-						[attributeKeys addObject:@"alias"];
-						[attributeValues addObject:displayName];
+						AILoggerAddAttribute(messageElement, @"alias", displayName);
 					}
-
-					AIXMLElement *messageElement = [[AIXMLElement alloc] initWithName:@"message"];
 
 					[messageElement addEscapedObject:[bself->xhtmlDecoder
 														 encodeHTML:[content message]
 														 imagesPath:[appender.path stringByDeletingLastPathComponent]]];
-
-					[messageElement setAttributeNames:attributeKeys values:attributeValues];
 
 					[appender appendElement:messageElement];
 
@@ -944,33 +956,21 @@ NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context)
 
 					} else if ([contentType isEqualToString:CONTENT_EVENT_TYPE] ||
 							   [contentType isEqualToString:CONTENT_NOTIFICATION_TYPE]) {
-						NSMutableArray *attributeKeys = nil, *attributeValues = nil;
-						if (content.source) {
-							attributeKeys = [NSMutableArray arrayWithObjects:@"type", @"sender", @"time", nil];
-							attributeValues = [NSMutableArray arrayWithObjects:[(AIContentEvent *)content eventType],
-																			   [[content source] UID], date, nil];
-						} else {
-							attributeKeys = [NSMutableArray arrayWithObjects:@"type", @"time", nil];
-							attributeValues =
-								[NSMutableArray arrayWithObjects:[(AIContentEvent *)content eventType], date, nil];
-						}
-
 						AIXMLAppender *appender = [self _appenderForChat:chat];
 
+						AIXMLElement *statusElement = [[AIXMLElement alloc] initWithName:@"status"];
+						AILoggerAddAttribute(statusElement, @"type", [(AIContentEvent *)content eventType]);
+						AILoggerAddAttribute(statusElement, @"sender", [[content source] UID]);
+						AILoggerAddAttribute(statusElement, @"time", date);
 						if (content.source &&
 							![[[content source] UID] isEqualToString:[[content source] displayName]]) {
-							[attributeKeys addObject:@"alias"];
-							[attributeValues addObject:[[content source] displayName]];
+							AILoggerAddAttribute(statusElement, @"alias", [[content source] displayName]);
 						}
-
-						AIXMLElement *statusElement = [[AIXMLElement alloc] initWithName:@"status"];
 
 						[statusElement
 							addEscapedObject:[bself->xhtmlDecoder
 												 encodeHTML:[content message]
 												 imagesPath:[[appender path] stringByDeletingLastPathComponent]]];
-
-						[statusElement setAttributeNames:attributeKeys values:attributeValues];
 
 						[appender appendElement:statusElement];
 						dirty = YES;
@@ -1008,9 +1008,9 @@ NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context)
 		// Print the windowOpened event in the log
 		AIXMLElement *eventElement = [[AIXMLElement alloc] initWithName:@"event"];
 
-		[eventElement setAttributeNames:[NSArray arrayWithObjects:@"type", @"sender", @"time", nil]
-								 values:[NSArray arrayWithObjects:@"windowOpened", chat.account.UID,
-																  [formatter stringFromDate:[NSDate date]], nil]];
+		AILoggerAddAttribute(eventElement, @"type", @"windowOpened");
+		AILoggerAddAttribute(eventElement, @"sender", chat.account.UID);
+		AILoggerAddAttribute(eventElement, @"time", [formatter stringFromDate:[NSDate date]]);
 
 		[appender appendElement:eventElement];
 
@@ -1032,9 +1032,9 @@ NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context)
 	if (appender) {
 		AIXMLElement *eventElement = [[AIXMLElement alloc] initWithName:@"event"];
 
-		[eventElement setAttributeNames:[NSArray arrayWithObjects:@"type", @"sender", @"time", nil]
-								 values:[NSArray arrayWithObjects:@"windowClosed", chat.account.UID,
-																  [formatter stringFromDate:[NSDate date]], nil]];
+		AILoggerAddAttribute(eventElement, @"type", @"windowClosed");
+		AILoggerAddAttribute(eventElement, @"sender", chat.account.UID);
+		AILoggerAddAttribute(eventElement, @"time", [formatter stringFromDate:[NSDate date]]);
 
 		[appender appendElement:eventElement];
 		[self closeAppenderForChat:chat];
@@ -1078,25 +1078,22 @@ NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context)
 
 		AIXMLElement *rootElement = [[AIXMLElement alloc] initWithName:@"chat"];
 
-		[rootElement
-			setAttributeNames:[NSArray
-								  arrayWithObjects:@"xmlns", @"account", @"service", @"adiumversion", @"buildid", nil]
-					   values:[NSArray arrayWithObjects:XML_LOGGING_NAMESPACE, chat.account.UID,
-														chat.account.service.serviceID,
-														[[NSBundle mainBundle]
-															objectForInfoDictionaryKey:@"CFBundleShortVersionString"],
-														[[NSBundle mainBundle]
-															objectForInfoDictionaryKey:@"AIBuildIdentifier"],
-														nil]];
+		AILoggerAddAttribute(rootElement, @"xmlns", XML_LOGGING_NAMESPACE);
+		AILoggerAddAttribute(rootElement, @"account", chat.account.UID);
+		AILoggerAddAttribute(rootElement, @"service", chat.account.service.serviceID);
+		AILoggerAddAttribute(rootElement, @"adiumversion",
+							 [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
+		AILoggerAddAttribute(rootElement, @"buildid",
+							 [[NSBundle mainBundle] objectForInfoDictionaryKey:@"AIBuildIdentifier"]);
 
 		appender = [AIXMLAppender documentWithPath:fullPath rootElement:rootElement];
 
 		// Add the window opened event now
 		AIXMLElement *eventElement = [[AIXMLElement alloc] initWithName:@"event"];
 
-		[eventElement setAttributeNames:[NSArray arrayWithObjects:@"type", @"sender", @"time", nil]
-								 values:[NSArray arrayWithObjects:@"windowOpened", chat.account.UID,
-																  [formatter stringFromDate:[NSDate date]], nil]];
+		AILoggerAddAttribute(eventElement, @"type", @"windowOpened");
+		AILoggerAddAttribute(eventElement, @"sender", chat.account.UID);
+		AILoggerAddAttribute(eventElement, @"time", [formatter stringFromDate:[NSDate date]]);
 
 		[appender appendElement:eventElement];
 

@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import plistlib
+import re
 import sys
 from pathlib import Path
 
@@ -37,10 +38,45 @@ TRANSPORT_SERVICES = {
 # so the ID is an integer string and the profile holds only one account.
 DEFAULT_OBJECT_ID = "0"
 
+# Flag the app sets after it moves the old one-file-per-account preferences into
+# AccountPrefs.plist. On a fresh profile that move runs with an empty source
+# directory and overwrites the account preferences with an empty dictionary, so
+# this file claims the move already happened. The key is
+# LOADED_OBJECT_PREFS_KEY in AIPreferenceController.m, in the "General" group.
+GENERAL_PREFERENCES = {"Loaded individual object & account prefs": True}
+
+# A profile name the login window selects at launch. Without this file the app
+# opens its login window and waits for a user to pick a profile, so the account
+# never comes online on its own. The key is LOGIN_LAST_USER in AILoginController.m.
+LOGIN_PREFERENCES = {"Last Login Name": "Default"}
+
+# The profile the app opens: the only directory under Users/.
+USER_NAME = "Default"
+
+# The group file that makes the app write its debug log, which is the inside
+# view of the app while a smoke test runs. The keys are KEY_DEBUG_WRITE_LOG and
+# GROUP_DEBUG in ESDebugController.h, and the log lands in
+# <home>/Library/Logs/AdiumY Debug/<date>.log.
+DEBUG_PREFERENCES = {"Write Debug Log": True}
+
 
 def user_directory(home: Path) -> Path:
     """Return the profile directory the app writes inside the throwaway home."""
-    return home / "Library" / "Application Support" / "Adium 2.0" / "Users" / "Default"
+    return (
+        home
+        / "Library"
+        / "Application Support"
+        / "Adium 2.0"
+        / "Users"
+        / USER_NAME
+    )
+
+
+def write_login_preferences(home: Path) -> None:
+    """Write the login file, which names the profile the app opens."""
+    path = home / "Library" / "Application Support" / "Adium 2.0"
+    with (path / "Login Preferences.plist").open("wb") as handle:
+        plistlib.dump(LOGIN_PREFERENCES, handle)
 
 
 def write_accounts(
@@ -62,6 +98,18 @@ def write_accounts(
         plistlib.dump(payload, handle)
 
 
+def write_general_preferences(directory: Path) -> None:
+    """Write the general preferences the app reads at launch."""
+    with (directory / "General.plist").open("wb") as handle:
+        plistlib.dump(GENERAL_PREFERENCES, handle)
+
+
+def write_debug_preferences(directory: Path) -> None:
+    """Write the group file that makes the app write its debug log."""
+    with (directory / "Debug Group.plist").open("wb") as handle:
+        plistlib.dump(DEBUG_PREFERENCES, handle)
+
+
 def write_account_preferences(
     directory: Path, object_id: str, preferences: dict
 ) -> None:
@@ -74,8 +122,9 @@ def write_account_preferences(
 def parse_preference(text: str) -> tuple:
     """Split "key=value" into a key and a value.
 
-    Only the exact words "true" and "false" become booleans. Every other value
-    stays text, which is what an account preference expects.
+    The value type follows the app's own account files: the exact words "true"
+    and "false" become booleans, a run of ASCII digits becomes an integer, and
+    every other value stays text.
     """
     if "=" not in text:
         raise argparse.ArgumentTypeError(f"preference needs key=value, got {text!r}")
@@ -84,6 +133,8 @@ def parse_preference(text: str) -> tuple:
         raise argparse.ArgumentTypeError(f"preference needs a key, got {text!r}")
     if raw in ("true", "false"):
         return key, raw == "true"
+    if re.fullmatch("[0-9]+", raw):
+        return key, int(raw)
     return key, raw
 
 
@@ -101,6 +152,11 @@ def main(argv: list) -> int:
     )
     parser.add_argument("--uid", required=True)
     parser.add_argument("--pref", action="append", default=[], type=parse_preference)
+    parser.add_argument(
+        "--debug-log",
+        action="store_true",
+        help="make the app write its debug log into the throwaway home",
+    )
     arguments = parser.parse_args(argv)
 
     directory = user_directory(arguments.home)
@@ -117,7 +173,11 @@ def main(argv: list) -> int:
         arguments.uid,
         DEFAULT_OBJECT_ID,
     )
+    write_general_preferences(directory)
+    write_login_preferences(arguments.home)
     write_account_preferences(directory, DEFAULT_OBJECT_ID, preferences)
+    if arguments.debug_log:
+        write_debug_preferences(directory)
 
     keychain_service, keychain_account = keychain_names(
         arguments.transport, arguments.uid

@@ -1042,6 +1042,27 @@ typedef enum {
 }
 
 #pragma mark AppleScript
+
+/**
+ * @brief Resolve a scripting value that holds either a reference or the object
+ *
+ * AppleScript evaluates an object reference before the command handler runs, when
+ * the app can resolve it. The value here is then the object itself, and not an
+ * NSScriptObjectSpecifier. Only a specifier answers -objectsByEvaluatingSpecifier,
+ * so sending it to the object aborts the app (#404).
+ *
+ * @param value A value from a scripting property dictionary, or nil
+ * @return The referenced object, or nil when a specifier has no referent
+ */
+static id AIResolveScriptingReference(id value)
+{
+	if ([value respondsToSelector:@selector(objectsByEvaluatingSpecifier)]) {
+		return [value objectsByEvaluatingSpecifier];
+	}
+
+	return value;
+}
+
 - (NSNumber *)scriptingInternalObjectID
 {
 	return [NSNumber numberWithInt:[self.internalObjectID intValue]];
@@ -1111,8 +1132,8 @@ typedef enum {
 		return nil;
 	}
 	AIListContact *newContact = [adium.contactController contactWithService:self.service account:self UID:contactUID];
-	NSScriptObjectSpecifier *groupSpecifier = [keyDictionary objectForKey:@"parentGroup"];
-	AIListGroup *group = [groupSpecifier objectsByEvaluatingSpecifier];
+	id groupSpecifier = [keyDictionary objectForKey:@"parentGroup"];
+	AIListGroup *group = AIResolveScriptingReference(groupSpecifier);
 	// If we have a group, we add this contact to the contact list.
 	if (groupSpecifier && group) {
 		[self addContact:newContact toGroup:group];
@@ -1162,7 +1183,7 @@ typedef enum {
 	}
 
 	if ([participants count] == 1) {
-		AIListContact *contact = [[participants objectAtIndex:0] objectsByEvaluatingSpecifier];
+		AIListContact *contact = AIResolveScriptingReference([participants objectAtIndex:0]);
 		if (!contact) {
 			[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
 			[[NSScriptCommand currentCommand] setScriptErrorString:@"Can't find that contact!"];
@@ -1174,7 +1195,7 @@ typedef enum {
 			// I need to put this in a new chat window
 			chatWindowController = [adium.interfaceController openContainerWithID:nil name:nil];
 		} else if ([resolvedKeyDictionary objectForKey:@"inWindow"]) {
-			AIMessageWindow *chatWindow = [resolvedKeyDictionary objectForKey:@"inWindow"];
+			AIMessageWindow *chatWindow = AIResolveScriptingReference([resolvedKeyDictionary objectForKey:@"inWindow"]);
 			index = [[chatWindow chats] count];
 			chatWindowController = (AIMessageWindowController *)[chatWindow windowController];
 		} else {
@@ -1211,7 +1232,13 @@ typedef enum {
 		// this can take a while...
 		NSMutableArray *newParticipants = [[NSMutableArray alloc] init];
 		for (int i = 0; i < [participants count]; i++) {
-			[newParticipants addObject:[[participants objectAtIndex:i] objectsByEvaluatingSpecifier]];
+			AIListContact *participant = AIResolveScriptingReference([participants objectAtIndex:i]);
+			if (!participant) {
+				[[NSScriptCommand currentCommand] setScriptErrorNumber:errOSACantAssign];
+				[[NSScriptCommand currentCommand] setScriptErrorString:@"Can't find that contact!"];
+				return nil;
+			}
+			[newParticipants addObject:participant];
 		}
 
 		// AIChat *newChat = [adium.chatController chatWithName:name identifier:nil onAccount:self

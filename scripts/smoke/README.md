@@ -25,6 +25,9 @@ log, whichever the step was waiting on.
 
 - macOS, with Docker running and `uv` installed.
 - The app, built: `make adium` (the tests read `build/Release-Debug/AdiumY.app`).
+  Under Xcode 27 the build stops in MMTabBarView on a deployment target error;
+  run `make adium ADIUM_NIGHTLY_FLAGS="MACOSX_DEPLOYMENT_TARGET=12.0"` instead
+  until [issue #363](https://github.com/phaedrus1992/AdiumY/issues/363) lands.
 - **The Automation permission for AdiumY.** The test drives the app through its
   AppleScript interface, which macOS gates behind a per-application permission.
   Grant it once:
@@ -42,6 +45,9 @@ log, whichever the step was waiting on.
 
   macOS refuses an Apple event with error `-1743` when the permission is off.
   Each test checks the permission first and prints these steps if it is missing.
+- The login keychain unlocked, with the screen awake.
+  While the machine is locked or asleep, macOS refuses the account-password
+  read with `errSecInDarkWake` (-25320), and the account never connects.
 
 The Docker server runs as a container named `adiumy-smoke-<transport>` and is
 removed on exit. Its image is pinned by digest, so a run always tests the same
