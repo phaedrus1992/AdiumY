@@ -10,15 +10,17 @@ asks the user for the password, and the account never connects. This script
 writes the item through the same API the app reads it with, so the run needs no
 prompt.
 
-The item is stored with no access object, so it takes the default access, which
-names no application. A constructed access list cannot serve here. The entries
-that SecAccessCreate makes with no application force the app to ask the user to
-confirm each read, and an entry that names the app does not help, because a
-locally built app carries no stable code requirement. An unanswered dialog
-blocks the app until the run times out. The password here is a throwaway for a
-test account on localhost, and the item is removed when the run ends. Only
-items that this script writes are removed: an item from the older ``security``
-recipe does not match this query and stays in the login keychain.
+The item takes an access list that answers no question to any application,
+which the ``security -A`` command also makes. Naming the app in the list cannot
+work: the app is a local build whose code changes on every rebuild, so macOS
+cannot match it and asks the user to confirm the first read of every new item.
+The password here is a throwaway for a test account on localhost, and the item
+is removed when the run ends. Only items that this script writes are removed:
+an item from the older ``security`` recipe does not match this query and stays
+in the login keychain.
+
+The login keychain must be unlocked: while the screen is asleep macOS refuses
+the read with errSecInDarkWake, and the account never connects.
 
 Usage:
   keychain_item.py add --server <name> --account <name> --password <text>
@@ -46,6 +48,9 @@ ERR_SEC_ITEM_NOT_FOUND = -25300
 
 # The Core Foundation string encoding for UTF-8.
 K_CF_STRING_ENCODING_UTF8 = 0x08000100
+
+# The prompt selector that asks no question. See SecACLSetContents.
+NO_PROMPT = 0
 
 
 class KeychainError(Exception):
@@ -82,12 +87,44 @@ class _Frameworks:
             ctypes.c_void_p,
             ctypes.c_void_p,
         ]
+        self.core_foundation.CFArrayCreate.restype = ctypes.c_void_p
+        self.core_foundation.CFArrayCreate.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_void_p),
+            ctypes.c_long,
+            ctypes.c_void_p,
+        ]
+        self.core_foundation.CFArrayGetCount.restype = ctypes.c_long
+        self.core_foundation.CFArrayGetCount.argtypes = [ctypes.c_void_p]
+        self.core_foundation.CFArrayGetValueAtIndex.restype = ctypes.c_void_p
+        self.core_foundation.CFArrayGetValueAtIndex.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_long,
+        ]
         self.core_foundation.CFRelease.argtypes = [ctypes.c_void_p]
 
         self.security.SecItemAdd.restype = ctypes.c_int32
         self.security.SecItemAdd.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
         self.security.SecItemDelete.restype = ctypes.c_int32
         self.security.SecItemDelete.argtypes = [ctypes.c_void_p]
+        self.security.SecAccessCreate.restype = ctypes.c_int32
+        self.security.SecAccessCreate.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_void_p),
+        ]
+        self.security.SecAccessCopyACLList.restype = ctypes.c_int32
+        self.security.SecAccessCopyACLList.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_void_p),
+        ]
+        self.security.SecACLSetContents.restype = ctypes.c_int32
+        self.security.SecACLSetContents.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            ctypes.c_uint32,
+        ]
 
     def constant(self, name: str) -> int:
         """Return the address of an exported Keychain Services constant."""
@@ -112,6 +149,48 @@ class _Frameworks:
         if not value:
             raise KeychainError("cannot create the password data")
         return value
+
+    def access_for_any_application(self) -> int:
+        """Create an access list that answers no question to any application.
+
+        SecAccessCreate makes the entries; every one of them then takes an
+        empty application list, which means every application, and the prompt
+        selector that asks nothing. The app reads the item without a question,
+        and this script can replace it on the next run.
+        """
+        empty = self.core_foundation.CFArrayCreate(None, None, 0, None)
+        if not empty:
+            raise KeychainError("cannot create the empty application list")
+        access = ctypes.c_void_p()
+        try:
+            status = self.security.SecAccessCreate(
+                self.string("smoke test item"), empty, ctypes.byref(access)
+            )
+        finally:
+            self.release(empty)
+        if status != ERR_SEC_SUCCESS or not access.value:
+            raise KeychainError(f"SecAccessCreate failed with status {status}")
+
+        acl_list = ctypes.c_void_p()
+        status = self.security.SecAccessCopyACLList(access, ctypes.byref(acl_list))
+        if status != ERR_SEC_SUCCESS or not acl_list.value:
+            self.release(access)
+            raise KeychainError(f"SecAccessCopyACLList failed with status {status}")
+        try:
+            count = self.core_foundation.CFArrayGetCount(acl_list)
+            for index in range(count):
+                acl = self.core_foundation.CFArrayGetValueAtIndex(acl_list, index)
+                status = self.security.SecACLSetContents(
+                    acl, None, self.string("smoke test item"), NO_PROMPT
+                )
+                if status != ERR_SEC_SUCCESS:
+                    self.release(access)
+                    raise KeychainError(
+                        f"SecACLSetContents failed with status {status}"
+                    )
+        finally:
+            self.release(acl_list)
+        return access.value
 
     def dictionary(self, pairs: list) -> int:
         """Create a Core Foundation dictionary from (key, value) address pairs."""
@@ -149,7 +228,7 @@ def add_item(server: str, account: str, password: str) -> None:
     frameworks = _Frameworks()
     query = _query(frameworks, server, account)
     # The old item goes first: SecItemUpdate does not change the access list,
-    # so only a fresh item carries the default access.
+    # so only a fresh item carries the new one.
     status = frameworks.security.SecItemDelete(query)
     if status not in (ERR_SEC_SUCCESS, ERR_SEC_ITEM_NOT_FOUND):
         frameworks.release(query)
@@ -159,10 +238,10 @@ def add_item(server: str, account: str, password: str) -> None:
             f"Keychain Access (search for {server!r})."
         )
 
-    # No access object goes into the attributes. The default access names no
-    # application, so the app reads the password without a question; the module
-    # docstring gives the reason. The item never syncs, and it is readable only
-    # on this device while the keychain is unlocked.
+    # The access list answers no question to any application; the module
+    # docstring gives the reason. The item never syncs, and it is readable
+    # only on this device while the keychain is unlocked.
+    access = frameworks.access_for_any_application()
     attributes = frameworks.dictionary(
         [
             (
@@ -184,6 +263,7 @@ def add_item(server: str, account: str, password: str) -> None:
                 frameworks.constant("kSecValueData"),
                 frameworks.data(password.encode("utf-8")),
             ),
+            (frameworks.constant("kSecAttrAccess"), access),
         ]
     )
     try:
@@ -196,6 +276,7 @@ def add_item(server: str, account: str, password: str) -> None:
     finally:
         frameworks.release(query)
         frameworks.release(attributes)
+        frameworks.release(access)
 
 
 def remove_item(server: str, account: str) -> None:
