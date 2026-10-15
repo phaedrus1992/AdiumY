@@ -81,7 +81,6 @@
 - (void)verifyUnknownFingerprint:(NSValue *)contextValue;
 
 // Methods called from C functions (need forward declaration before @implementation)
-+ (OtrlUserState)userState;
 + (NSString *)accountNameForOtrlAccount:(AIAccount *)inAccount;
 - (void)initializeOTR;
 - (NSString *)privKeyPathForAccount:(AIAccount *)inAccount;
@@ -99,14 +98,34 @@ static AdiumOTREncryption *adiumOTREncryption = nil;
 static OtrlUserState otrg_userstate(void)
 {
 	if (otrg_plugin_userstate == NULL && adiumOTREncryption != nil) {
-		[adiumOTREncryption initializeOTR];
+		// initializeOTR reads the key files, which call back into this
+		// accessor; the flag keeps a failed creation from re-entering it.
+		static BOOL initializing = NO;
+		if (!initializing) {
+			initializing = YES;
+			[adiumOTREncryption initializeOTR];
+			initializing = NO;
+		}
 	}
 
 	return otrg_plugin_userstate;
 }
 
-// The single place that builds a context lookup. libotr identifies a context
-// by accountname, protocol, then the peer: accountname is the account's
+// The state fails to create only when the allocator does, but an operation
+// that skips on a NULL state otherwise leaves no trace. One line per run names
+// the first skipped operation.
+static void logMissingUserState(NSString *operation)
+{
+	static BOOL reported = NO;
+	if (!reported) {
+		reported = YES;
+		AILogWithSignature(@"No OTR user state; skipped %@. OTR stays off until the state exists.", operation);
+	}
+}
+
+// The single place that builds a context lookup. The vendored libotr's
+// otrl_context_find takes the peer first, then the account strings:
+// (us, user, accountname, protocol, instag, ...). accountname is the account's
 // internalObjectID and protocol is the service's serviceCodeUniqueID, the
 // strings upstream stores (#403). A NULL state returns no context: the caller
 // must skip OTR rather than let libotr dereference it.
@@ -118,19 +137,13 @@ static ConnContext *contextForAccountAndContact(AIAccount *account, AIListContac
 
 		OtrlUserState userState = otrg_userstate();
 		if (userState == NULL) {
-			// A send that skips here goes out unencrypted, so say so once per
-			// run rather than once per message.
-			static BOOL reportedMissingUserState = NO;
-			if (!reportedMissingUserState) {
-				reportedMissingUserState = YES;
-				AILogWithSignature(@"No OTR user state yet. Messages here go out unencrypted.");
-			}
+			logMissingUserState(@"the context lookup");
 			return NULL;
 		}
 
-		return otrl_context_find(userState, [[AdiumOTREncryption accountNameForOtrlAccount:account] UTF8String],
-								 [account.service.serviceCodeUniqueID UTF8String], [contact.UID UTF8String],
-								 OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);
+		return otrl_context_find(
+			userState, [contact.UID UTF8String], [[AdiumOTREncryption accountNameForOtrlAccount:account] UTF8String],
+			[account.service.serviceCodeUniqueID UTF8String], OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);
 	}
 }
 
@@ -166,14 +179,19 @@ static AIListContact *contactFromInfo(const char *accountID, const char *protoco
 
 		AIAccount *account = accountFromAccountID(accountID);
 		if (!account) {
-			// The stored account may be gone; fall back to the service, which
-			// still finds the contact under the right account service.
+			// The stored account may be gone. Fall back to the first account on
+			// the same service; with several accounts on one service that is a
+			// guess, so name the account it picked.
 			NSString *protocolNS = [NSString stringWithUTF8String:protocol];
 			for (AIAccount *acct in adium.accountController.accounts) {
 				if ([acct.service.serviceCodeUniqueID isEqualToString:protocolNS]) {
 					account = acct;
 					break;
 				}
+			}
+			if (account) {
+				AILogWithSignature(@"No account %s; resolved the context of %s through %@.", accountID, username,
+								   account);
 			}
 		}
 		if (!account)
@@ -244,12 +262,19 @@ static void create_privkey_cb(void *opdata, const char *accountname, const char 
 			return;
 
 		AIService *service = serviceFromUniqueID(protocol);
-		NSString *identifier = [NSString stringWithFormat:@"%@ (%@)", account.formattedUID, [service shortDescription]];
+		if (!service) {
+			AILogWithSignature(@"No service with unique ID %s; the key window shows an unknown service.", protocol);
+		}
+		NSString *identifier =
+			[NSString stringWithFormat:@"%@ (%@)", account.formattedUID, ([service shortDescription] ?: @"unknown")];
 		[ESOTRPrivateKeyGenerationWindowController startedGeneratingForIdentifier:identifier];
 
 		NSString *privkeyPath = [adiumOTREncryption privKeyPathForAccount:account];
 		NSString *fullPath = [privkeyPath stringByExpandingTildeInPath];
-		otrl_privkey_generate(otrg_plugin_userstate, fullPath.UTF8String, accountname, protocol);
+		gcry_error_t error = otrl_privkey_generate(otrg_userstate(), fullPath.UTF8String, accountname, protocol);
+		if (error) {
+			AILogWithSignature(@"libotr could not generate a private key: %s", gcry_strerror(error));
+		}
 
 		[ESOTRPrivateKeyGenerationWindowController finishedGeneratingForIdentifier:identifier];
 	}
@@ -272,7 +297,7 @@ static void inject_message_cb(void *opdata, const char *accountname, const char 
 		if (!message || !recipient || !protocol || !accountname)
 			return;
 
-		AIChat *chat = chatForContext(otrl_context_find(otrg_userstate(), accountname, protocol, recipient,
+		AIChat *chat = chatForContext(otrl_context_find(otrg_userstate(), recipient, accountname, protocol,
 														OTRL_INSTAG_BEST, 0, NULL, NULL, NULL));
 		if (!chat)
 			return;
@@ -324,7 +349,7 @@ static void new_fingerprint_cb(void *opdata, OtrlUserState us, const char *accou
 
 		otrl_privkey_hash_to_human(their_hash, fingerprint);
 
-		if (otrl_privkey_fingerprint(otrg_plugin_userstate, our_hash, accountname, protocol)) {
+		if (otrl_privkey_fingerprint(otrg_userstate(), our_hash, accountname, protocol)) {
 			/* our_hash is now filled in */
 		} else {
 			our_hash[0] = '\0';
@@ -350,7 +375,7 @@ static void write_fingerprints_cb(void *opdata)
 #pragma unused(opdata)
 	@autoreleasepool {
 		NSString *fingerprintPath = [FINGERPRINT_PATH stringByExpandingTildeInPath];
-		otrl_privkey_write_fingerprints(otrg_plugin_userstate, fingerprintPath.UTF8String);
+		otrl_privkey_write_fingerprints(otrg_userstate(), fingerprintPath.UTF8String);
 	}
 }
 
@@ -433,7 +458,7 @@ static void create_instag_cb(void *opdata, const char *accountname, const char *
 #pragma unused(opdata, accountname, protocol)
 	@autoreleasepool {
 		NSString *instagPath = [INSTAG_PATH stringByExpandingTildeInPath];
-		otrl_instag_generate(otrg_plugin_userstate, instagPath.UTF8String, accountname, protocol);
+		otrl_instag_generate(otrg_userstate(), instagPath.UTF8String, accountname, protocol);
 	}
 }
 
@@ -482,7 +507,7 @@ static void disconnect_from_context(ConnContext *context)
 		if (!context)
 			return;
 
-		otrl_message_disconnect(otrg_plugin_userstate, &otrOps, NULL, context->accountname, context->protocol,
+		otrl_message_disconnect(otrg_userstate(), &otrOps, NULL, context->accountname, context->protocol,
 								context->username, OTRL_INSTAG_BEST);
 	}
 }
@@ -516,7 +541,7 @@ static void update_security_details_for_chat(AIChat *inChat)
 			[details setValue:[NSString stringWithUTF8String:hash] forKey:@"Their Fingerprint"];
 
 			char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN];
-			if (otrl_privkey_fingerprint(otrg_plugin_userstate, our_hash, context->accountname, context->protocol)) {
+			if (otrl_privkey_fingerprint(otrg_userstate(), our_hash, context->accountname, context->protocol)) {
 				[details setValue:[NSString stringWithUTF8String:our_hash] forKey:@"Our Fingerprint"];
 			}
 
@@ -551,7 +576,7 @@ static void display_otr_message(const char *accountname, const char *protocol, c
 			return;
 
 		ConnContext *context =
-			otrl_context_find(otrg_userstate(), accountname, protocol, username, OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);
+			otrl_context_find(otrg_userstate(), username, accountname, protocol, OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);
 		AIChat *chat = chatForContext(context);
 		if (!chat)
 			return;
@@ -611,7 +636,7 @@ void otrg_ui_forget_fingerprint(Fingerprint *fingerprint)
 		const char *protocol = fingerprint->context->protocol;
 
 		ConnContext *context =
-			otrl_context_find(otrg_userstate(), accountname, protocol, username, 0, 0, NULL, NULL, NULL);
+			otrl_context_find(otrg_userstate(), username, accountname, protocol, 0, 0, NULL, NULL, NULL);
 
 		otrl_context_forget_fingerprint(fingerprint, 0);
 		otrg_plugin_write_fingerprints();
@@ -678,16 +703,6 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 #pragma mark OtrlUserState operations
 
-+ (OtrlUserState)userState
-{
-	static OtrlUserState userState = NULL;
-	if (!userState) {
-		userState = otrl_userstate_create();
-	}
-
-	return userState;
-}
-
 + (NSString *)accountNameForOtrlAccount:(AIAccount *)inAccount
 {
 	// libotr identifies an account by this string in its contexts, stored
@@ -736,7 +751,11 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 	// Every send and every receive dereferences the user state, so create it
 	// before the first message can be sent (#405).
-	otrg_plugin_userstate = [[self class] userState];
+	otrg_plugin_userstate = otrl_userstate_create();
+	if (otrg_plugin_userstate == NULL) {
+		AILogWithSignature(@"Could not create the OTR user state. OTR stays off for this run.");
+		return;
+	}
 
 	// Read fingerprints, instance tags, and private keys
 	[self readFingerprintsAndPrivkeys];
@@ -783,8 +802,7 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 - (OtrlPolicy)otrPolicyForUsername:(NSString *)username accountName:(NSString *)accountName
 {
-	AIAccount *account = [adium.accountController
-		accountWithInternalObjectID:[[accountName componentsSeparatedByString:@"."] lastObject]];
+	AIAccount *account = [adium.accountController accountWithInternalObjectID:accountName];
 	AIListContact *contact = [adium.contactController contactWithService:account.service account:account UID:username];
 
 	return [self otrPolicyForContact:contact];
@@ -799,8 +817,7 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 - (void)handleTLVsForUsername:(NSString *)username accountName:(NSString *)accountName tlvs:(OtrlTLV *)tlvs
 {
-	AIAccount *account = [adium.accountController
-		accountWithInternalObjectID:[[accountName componentsSeparatedByString:@"."] lastObject]];
+	AIAccount *account = [adium.accountController accountWithInternalObjectID:accountName];
 	AIListContact *contact = [adium.contactController contactWithService:account.service account:account UID:username];
 
 	if (tlvs && (tlvs->type == OTRL_TLV_DISCONNECTED)) {
@@ -924,6 +941,7 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 	if (userState == NULL) {
 		// No state means no OTR: pass the message through untouched, the same
 		// as any other non-OTR message (#402).
+		logMissingUserState(@"message decryption");
 		if (outIsOTR)
 			*outIsOTR = NO;
 		return message;
@@ -977,6 +995,11 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 			newMessage = NULL;
 		} else {
 			decodedMessage = [NSString stringWithUTF8String:newMessage];
+			if (!decodedMessage) {
+				// libotr handed back bytes that are not UTF-8; the message is
+				// unreadable rather than absent, so say which happened.
+				AILogWithSignature(@"Decrypted message is not UTF-8 and was dropped.");
+			}
 		}
 	}
 
@@ -1011,6 +1034,7 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 	OtrlUserState userState = otrg_userstate();
 	if (userState == NULL) {
+		logMissingUserState(@"message encryption");
 		return nil;
 	}
 
@@ -1112,7 +1136,7 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 		otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
 	}
 
-	otrl_privkey_fingerprint(otrg_plugin_userstate, our_hash, context->accountname, context->protocol);
+	otrl_privkey_fingerprint(otrg_userstate(), our_hash, context->accountname, context->protocol);
 
 	AIListContact *contact = (AIListContact *)[inChat listObject];
 	NSString *who = contact ? contact.UID : [NSString stringWithUTF8String:context->username];
@@ -1143,7 +1167,7 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 		otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
 	}
 
-	otrl_privkey_fingerprint(otrg_plugin_userstate, our_hash, context->accountname, context->protocol);
+	otrl_privkey_fingerprint(otrg_userstate(), our_hash, context->accountname, context->protocol);
 
 	NSString *who = [NSString stringWithUTF8String:context->username];
 
@@ -1163,6 +1187,7 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 {
 	OtrlUserState userState = otrg_userstate();
 	if (userState == NULL) {
+		logMissingUserState(@"the session disconnect");
 		return;
 	}
 
@@ -1178,6 +1203,7 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 	OtrlUserState userState = otrg_userstate();
 	if (userState == NULL) {
+		logMissingUserState(@"the account disconnect");
 		return;
 	}
 
@@ -1247,12 +1273,13 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 	OtrlUserState userState = otrg_userstate();
 	if (userState == NULL) {
+		logMissingUserState(@"the fingerprint trust");
 		return;
 	}
 
 	ConnContext *context =
-		otrl_context_find(userState, accountName.UTF8String, account.service.serviceCodeUniqueID.UTF8String,
-						  username.UTF8String, OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);
+		otrl_context_find(userState, username.UTF8String, accountName.UTF8String,
+						  account.service.serviceCodeUniqueID.UTF8String, OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);
 	if (context && context->active_fingerprint) {
 		if (fingerprint &&
 			[[self activeFingerprintForContact:[adium.contactController contactWithService:account.service
@@ -1260,6 +1287,11 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 																					   UID:username]]
 				isEqualToString:fingerprint]) {
 			otrl_context_set_trust(context->active_fingerprint, "verified");
+		} else {
+			// The user verified a fingerprint, but the context now holds a
+			// different one, so trusting nothing is the safe result. Say so.
+			AILogWithSignature(@"Not trusting %@ for %@: it does not match the active fingerprint.", fingerprint,
+							   username);
 		}
 	}
 }
@@ -1286,11 +1318,12 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 {
 	OtrlUserState userState = otrg_userstate();
 	if (userState == NULL) {
+		logMissingUserState(@"the fingerprint lookup");
 		return nil;
 	}
 
-	ConnContext *context = otrl_context_find(userState, accountName.UTF8String, accountProtocol.UTF8String,
-											 username.UTF8String, OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);
+	ConnContext *context = otrl_context_find(userState, username.UTF8String, accountName.UTF8String,
+											 accountProtocol.UTF8String, OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);
 	if (context) {
 		Fingerprint *fingerprint = context->active_fingerprint;
 		if (fingerprint) {
@@ -1408,6 +1441,7 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 	OtrlUserState userState = otrg_userstate();
 	if (userState == NULL) {
+		logMissingUserState(@"private key generation");
 		return;
 	}
 
