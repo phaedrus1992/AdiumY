@@ -1,0 +1,4 @@
+#!/bin/bash
+# SetFile stand-in for test_make_dmg_staging.py: the volume-icon attribute is
+# cosmetic and needs a real HFS+ volume; the mock accepts the call.
+exit 0

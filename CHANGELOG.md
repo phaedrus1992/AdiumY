@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   crosses in both directions (#134, #135)
 
 ### Fixed
+- OTR now works with other OTR clients: the identity strings libotr keys its
+  sessions on were service-scoped instead of upstream's, so a private
+  conversation could only ever match another copy of this same build. The
+  identity change is one-time: the app generates a new key on the next secure
+  session, and contacts must verify the new fingerprint (#403)
+- OTR starts when the plugin is installed at runtime through the Xtras manager:
+  the user state is created on first use instead of only at app launch (#410)
+- AppleScript's `make new contact ... with properties {parentGroup: ...}` adds
+  the contact to the group: the account-level add was an empty stub for accounts
+  that keep no server-side list (#407)
+- The disk image's Changes.txt carries the 2.x changelog: the DMG staged the
+  frozen 1.x history from ChangeLogs/ (#406)
 - Sending a message no longer stops the app: the OTR user state was created in a
   method that nothing calls, so libotr dereferenced a null state on the first
   message (#405)

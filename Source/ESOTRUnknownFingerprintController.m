@@ -171,6 +171,14 @@
 	AIAccount *account = [responseInfo objectForKey:@"AIAccount"];
 	NSString *who = [responseInfo objectForKey:@"who"];
 
+	// The response dictionary carries NSNull for an account this build no
+	// longer knows; sending it internalObjectID would crash. The lookup takes
+	// the peer first, then the upstream identity strings (#403).
+	if (![account isKindOfClass:[AIAccount class]]) {
+		AILog(@"Warning: ESOTRUnknownFingerprintController: no account for %@", responseInfo);
+		return;
+	}
+
 	ConnContext *context =
 		otrl_context_find(otrg_get_userstate(), [who UTF8String], [account.internalObjectID UTF8String],
 						  [account.service.serviceCodeUniqueID UTF8String], 0, 0, NULL, NULL, NULL);

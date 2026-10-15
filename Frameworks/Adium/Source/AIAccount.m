@@ -755,13 +755,26 @@ typedef enum {
  * @brief Add contacts
  *
  * Add contacts to a group on this account.  Create the group if it doesn't already exist.
+ * The base implementation adds the contact to the group in the local contact
+ * list; an account whose service keeps a server-side list overrides this to
+ * perform the server-side add as well.
  * @param objects NSArray of AIListContact objects to add
  * @param group AIListGroup destination for contacts
  */
 - (void)addContact:(AIListContact *)contact toGroup:(AIListGroup *)group
 {
-	// XXX - Our behavior for duplicate contacts isn't specified here.  Should we handle that adium-side automatically?
-	// -ai
+	if (contact == nil || group == nil) {
+		return;
+	}
+
+	// The base class has no server-side contact list, so this is the local
+	// membership move, the same one AIContactController performs itself. An
+	// account whose service keeps a list overrides this method and does both
+	// (CBPurpleAccount does). The AppleScript "make new contact" handler is a
+	// caller; a no-op there reads to a script as success (#407).
+	NSMutableSet *groups = [NSMutableSet setWithSet:(contact.groups ?: [NSSet set])];
+	[groups addObject:group];
+	[adium.contactController _moveContactLocally:contact fromGroups:contact.groups toGroups:groups];
 }
 
 /*!

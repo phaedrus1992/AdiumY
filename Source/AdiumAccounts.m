@@ -102,17 +102,19 @@
 
 - (AIAccount *)accountWithInternalObjectID:(NSString *)objectID
 {
-	AIAccount *account = nil;
 	// Some ancient preferences have NSNumbers instead of NSStrings. Work properly, silently.
 	if ([objectID isKindOfClass:[NSNumber class]])
 		objectID = [(NSNumber *)objectID stringValue];
 
-	for (account in accounts) {
+	for (AIAccount *account in accounts) {
 		if ([objectID isEqualToString:account.internalObjectID])
-			break;
+			return account;
 	}
 
-	return account;
+	// Return nil for no match. A for-in loop leaves its variable on the last
+	// element, so falling out of the loop used to return an unrelated account
+	// for any missed lookup.
+	return nil;
 }
 
 // Editing
