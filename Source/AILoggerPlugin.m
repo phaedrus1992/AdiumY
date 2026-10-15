@@ -153,6 +153,7 @@ CFStringRef CopyTextContentForFileData(CFStringRef contentTypeUTI, NSURL *urlToF
 void runWithAutoreleasePool(dispatch_block_t block);
 static inline dispatch_block_t blockWithAutoreleasePool(dispatch_block_t block);
 NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context);
+static void AILoggerAddAttribute(NSMutableArray *names, NSMutableArray *values, NSString *name, id value);
 
 #pragma mark -
 #pragma mark Static Globals
@@ -563,6 +564,23 @@ static inline dispatch_block_t blockWithAutoreleasePool(dispatch_block_t block)
 	return [^{
 		runWithAutoreleasePool(block);
 	} copy];
+}
+
+/*!
+ * @brief Add one attribute to the parallel name and value arrays AIXMLElement takes
+ *
+ * A name without a value trips an assertion in AIXMLElement, and a value can be
+ * absent: an Info.plist key is nil when the build did not set it (#400). Skip
+ * both arrays together so they stay the same length.
+ */
+static void AILoggerAddAttribute(NSMutableArray *names, NSMutableArray *values, NSString *name, id value)
+{
+	if (value == nil) {
+		return;
+	}
+
+	[names addObject:name];
+	[values addObject:value];
 }
 
 NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context)
@@ -1078,25 +1096,33 @@ NSComparisonResult sortPaths(NSString *path1, NSString *path2, void *context)
 
 		AIXMLElement *rootElement = [[AIXMLElement alloc] initWithName:@"chat"];
 
-		[rootElement
-			setAttributeNames:[NSArray
-								  arrayWithObjects:@"xmlns", @"account", @"service", @"adiumversion", @"buildid", nil]
-					   values:[NSArray arrayWithObjects:XML_LOGGING_NAMESPACE, chat.account.UID,
-														chat.account.service.serviceID,
-														[[NSBundle mainBundle]
-															objectForInfoDictionaryKey:@"CFBundleShortVersionString"],
-														[[NSBundle mainBundle]
-															objectForInfoDictionaryKey:@"AIBuildIdentifier"],
-														nil]];
+		NSMutableArray *rootAttributeNames = [NSMutableArray array];
+		NSMutableArray *rootAttributeValues = [NSMutableArray array];
+
+		AILoggerAddAttribute(rootAttributeNames, rootAttributeValues, @"xmlns", XML_LOGGING_NAMESPACE);
+		AILoggerAddAttribute(rootAttributeNames, rootAttributeValues, @"account", chat.account.UID);
+		AILoggerAddAttribute(rootAttributeNames, rootAttributeValues, @"service", chat.account.service.serviceID);
+		AILoggerAddAttribute(rootAttributeNames, rootAttributeValues, @"adiumversion",
+							 [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
+		AILoggerAddAttribute(rootAttributeNames, rootAttributeValues, @"buildid",
+							 [[NSBundle mainBundle] objectForInfoDictionaryKey:@"AIBuildIdentifier"]);
+
+		[rootElement setAttributeNames:rootAttributeNames values:rootAttributeValues];
 
 		appender = [AIXMLAppender documentWithPath:fullPath rootElement:rootElement];
 
 		// Add the window opened event now
 		AIXMLElement *eventElement = [[AIXMLElement alloc] initWithName:@"event"];
 
-		[eventElement setAttributeNames:[NSArray arrayWithObjects:@"type", @"sender", @"time", nil]
-								 values:[NSArray arrayWithObjects:@"windowOpened", chat.account.UID,
-																  [formatter stringFromDate:[NSDate date]], nil]];
+		NSMutableArray *eventAttributeNames = [NSMutableArray array];
+		NSMutableArray *eventAttributeValues = [NSMutableArray array];
+
+		AILoggerAddAttribute(eventAttributeNames, eventAttributeValues, @"type", @"windowOpened");
+		AILoggerAddAttribute(eventAttributeNames, eventAttributeValues, @"sender", chat.account.UID);
+		AILoggerAddAttribute(eventAttributeNames, eventAttributeValues, @"time",
+							 [formatter stringFromDate:[NSDate date]]);
+
+		[eventElement setAttributeNames:eventAttributeNames values:eventAttributeValues];
 
 		[appender appendElement:eventElement];
 
