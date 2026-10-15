@@ -12,6 +12,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   a local server, gives the app a throwaway profile, and checks that a message
   crosses in both directions (#134, #135)
 
+### Fixed
+- Sending a message no longer stops the app: the OTR user state was created in a
+  method that nothing calls, so libotr dereferenced a null state on the first
+  message (#405)
+- AppleScript no longer stops the app when it makes a chat with a contact the app
+  knows — the make handlers sent a specifier message to a value AppleScript had
+  already resolved (#404)
+- Every plain incoming message reached the chat again: the OTR decrypt path
+  returned nothing for a message that is not OTR (#402)
+- The chat log no longer stops the app at startup when an Info.plist value is
+  missing (#400)
+- A Jabber server without client state indication support no longer receives an
+  `<enable/>` element that closes the connection (#401)
+
 ## [2.0.1] - 2026-10-13
 
 ### Fixed
