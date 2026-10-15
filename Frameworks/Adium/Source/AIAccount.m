@@ -1195,7 +1195,7 @@ static id AIResolveScriptingReference(id value)
 			// I need to put this in a new chat window
 			chatWindowController = [adium.interfaceController openContainerWithID:nil name:nil];
 		} else if ([resolvedKeyDictionary objectForKey:@"inWindow"]) {
-			AIMessageWindow *chatWindow = [resolvedKeyDictionary objectForKey:@"inWindow"];
+			AIMessageWindow *chatWindow = AIResolveScriptingReference([resolvedKeyDictionary objectForKey:@"inWindow"]);
 			index = [[chatWindow chats] count];
 			chatWindowController = (AIMessageWindowController *)[chatWindow windowController];
 		} else {
