@@ -177,7 +177,13 @@ static ConnContext *contextForChat(AIChat *chat)
 		// libotr dereferences the state at once, so a NULL state would abort the
 		// process. Report the missing initialization and skip OTR instead (#405).
 		if (otrg_plugin_userstate == NULL) {
-			AILogWithSignature(@"No OTR user state. Skipping the encryption lookup for this chat.");
+			// A send that skips here goes out unencrypted, so say so once per
+			// run rather than once per message.
+			static BOOL reportedMissingUserState = NO;
+			if (!reportedMissingUserState) {
+				reportedMissingUserState = YES;
+				AILogWithSignature(@"No OTR user state yet. Messages here go out unencrypted.");
+			}
 			return NULL;
 		}
 
@@ -1469,8 +1475,17 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 	OtrlUserState userState = [[self class] userState];
 
-	otrl_privkey_read_fingerprints(userState, [fingerprintPath UTF8String], NULL, NULL);
-	otrl_instag_read(userState, [instagPath UTF8String]);
+	gcry_error_t fingerprintError = otrl_privkey_read_fingerprints(userState, [fingerprintPath UTF8String], NULL, NULL);
+	if (fingerprintError != 0) {
+		AILogWithSignature(@"Could not read the OTR fingerprint file %@ (error %u).", fingerprintPath,
+						   (unsigned int)fingerprintError);
+	}
+
+	gcry_error_t instagError = otrl_instag_read(userState, [instagPath UTF8String]);
+	if (instagError != 0) {
+		AILogWithSignature(@"Could not read the OTR instance-tag file %@ (error %u).", instagPath,
+						   (unsigned int)instagError);
+	}
 
 	for (AIAccount *account in adium.accountController.accounts) {
 		if (account.online) {
