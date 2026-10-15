@@ -16,7 +16,9 @@ that SecAccessCreate makes with no application force the app to ask the user to
 confirm each read, and an entry that names the app does not help, because a
 locally built app carries no stable code requirement. An unanswered dialog
 blocks the app until the run times out. The password here is a throwaway for a
-test account on localhost, and the item is removed when the run ends.
+test account on localhost, and the item is removed when the run ends. Only
+items that this script writes are removed: an item from the older ``security``
+recipe does not match this query and stays in the login keychain.
 
 Usage:
   keychain_item.py add --server <name> --account <name> --password <text>
@@ -87,16 +89,13 @@ class _Frameworks:
         self.security.SecItemDelete.restype = ctypes.c_int32
         self.security.SecItemDelete.argtypes = [ctypes.c_void_p]
 
-        # The dictionaries are built for one call and released by this script,
-        # so they need no key or value callbacks. A callback structure passed
-        # by address from ctypes would be a copy of a pointer, not the
-        # structure, and the dictionary would be malformed.
-        self._type_key_callbacks = None
-        self._type_value_callbacks = None
-
     def constant(self, name: str) -> int:
         """Return the address of an exported Keychain Services constant."""
         return ctypes.c_void_p.in_dll(self.security, name).value
+
+    def core_foundation_constant(self, name: str) -> int:
+        """Return the address of an exported Core Foundation constant."""
+        return ctypes.c_void_p.in_dll(self.core_foundation, name).value
 
     def string(self, text: str) -> int:
         """Create a Core Foundation string."""
@@ -119,14 +118,10 @@ class _Frameworks:
         count = len(pairs)
         keys = (ctypes.c_void_p * count)(*[key for key, _ in pairs])
         values = (ctypes.c_void_p * count)(*[value for _, value in pairs])
-        handle = self.core_foundation.CFDictionaryCreate(
-            None,
-            keys,
-            values,
-            count,
-            self._type_key_callbacks,
-            self._type_value_callbacks,
-        )
+        # The dictionary lives for one call: no key or value callbacks. A
+        # callback structure passed by address from ctypes would be a copy of
+        # a pointer, not the structure, and the dictionary would be malformed.
+        handle = self.core_foundation.CFDictionaryCreate(None, keys, values, count, None, None)
         if not handle:
             raise KeychainError("cannot create the query dictionary")
         return handle
@@ -159,14 +154,15 @@ def add_item(server: str, account: str, password: str) -> None:
     if status not in (ERR_SEC_SUCCESS, ERR_SEC_ITEM_NOT_FOUND):
         frameworks.release(query)
         raise KeychainError(
-            f"an item for {server} exists and this script cannot remove it "
-            f"(status {status}). Remove it with: security delete-internet-password "
-            f"-s {server!r} -a {account!r}"
+            f"cannot remove items for {server}, if any (status {status}). Unlock "
+            f"the login keychain and run the step again, or delete the item in "
+            f"Keychain Access (search for {server!r})."
         )
 
     # No access object goes into the attributes. The default access names no
     # application, so the app reads the password without a question; the module
-    # docstring gives the reason.
+    # docstring gives the reason. The item never syncs, and it is readable only
+    # on this device while the keychain is unlocked.
     attributes = frameworks.dictionary(
         [
             (
@@ -176,6 +172,14 @@ def add_item(server: str, account: str, password: str) -> None:
             (frameworks.constant("kSecAttrServer"), frameworks.string(server)),
             (frameworks.constant("kSecAttrAccount"), frameworks.string(account)),
             (frameworks.constant("kSecAttrProtocol"), frameworks.string(PROTOCOL)),
+            (
+                frameworks.constant("kSecAttrAccessible"),
+                frameworks.constant("kSecAttrAccessibleWhenUnlockedThisDeviceOnly"),
+            ),
+            (
+                frameworks.constant("kSecAttrSynchronizable"),
+                frameworks.core_foundation_constant("kCFBooleanFalse"),
+            ),
             (
                 frameworks.constant("kSecValueData"),
                 frameworks.data(password.encode("utf-8")),
@@ -202,9 +206,9 @@ def remove_item(server: str, account: str) -> None:
         status = frameworks.security.SecItemDelete(query)
         if status not in (ERR_SEC_SUCCESS, ERR_SEC_ITEM_NOT_FOUND):
             raise KeychainError(
-                f"SecItemDelete for {server} failed with status {status}. "
-                f"Remove the item with: keychain_item.py remove "
-                f"--server {server!r} --account {account!r}"
+                f"SecItemDelete for {server} failed with status {status}. Unlock "
+                f"the login keychain and run the step again, or delete the item "
+                f"in Keychain Access (search for {server!r})."
             )
     finally:
         frameworks.release(query)
