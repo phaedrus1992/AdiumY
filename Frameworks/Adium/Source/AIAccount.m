@@ -799,6 +799,10 @@ typedef enum {
 	for (AIListContact *contact in objects) {
 		NSSet *currentGroups = contact.groups ?: [NSSet set];
 		if (![currentGroups intersectsSet:groupSet]) {
+			// A caller can pass groups the contact does not hold locally: the
+			// remote group names of a flat contact list, for example. Name the
+			// contact instead of trying an unspecified removal (#414).
+			AILogWithSignature(@"%@: %@ holds none of %@; nothing to remove.", self, contact, groups);
 			continue;
 		}
 
@@ -828,7 +832,8 @@ typedef enum {
  * list; an account whose service keeps a server-side list overrides this to
  * perform the server-side move as well.
  * @param objects NSArray of AIListContact objects to remove
- * @param oldGroups NSSet of AIListGroup source for contacts
+ * @param oldGroups NSSet of AIListGroup source for contacts. The base
+ *        implementation moves from the contact's current local groups instead.
  * @param group NSSet of AIListGroup destination for contacts
  */
 - (void)moveListObjects:(NSArray *)objects fromGroups:(NSSet *)oldGroups toGroups:(NSSet *)groups
