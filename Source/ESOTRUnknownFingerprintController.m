@@ -170,30 +170,30 @@
 {
 	AIAccount *account = [responseInfo objectForKey:@"AIAccount"];
 	NSString *who = [responseInfo objectForKey:@"who"];
+	NSData *fingerprintData = [responseInfo objectForKey:@"Fingerprint"];
 
 	// The response dictionary carries NSNull for an account this build no
-	// longer knows; sending it internalObjectID would crash. The lookup takes
-	// the peer first, then the upstream identity strings (#403).
+	// longer knows; sending it internalObjectID would crash (#403).
 	if (![account isKindOfClass:[AIAccount class]]) {
 		AILog(@"Warning: ESOTRUnknownFingerprintController: no account for %@", responseInfo);
 		return;
 	}
 
-	ConnContext *context =
-		otrl_context_find(otrg_get_userstate(), [who UTF8String], [account.internalObjectID UTF8String],
-						  [account.service.serviceCodeUniqueID UTF8String], 0, 0, NULL, NULL, NULL);
-	Fingerprint *fprint;
-	BOOL oldtrust;
-
-	if (context == NULL) {
-		AILog(@"Warning: ESOTRUnknownFingerprintController: NULL context for %@", responseInfo);
+	if (![fingerprintData isKindOfClass:[NSData class]] || [fingerprintData length] != 20) {
+		AILog(@"Warning: ESOTRUnknownFingerprintController: no fingerprint bytes for %@", responseInfo);
 		return;
 	}
 
-	fprint = context->active_fingerprint;
+	// Trust exactly the instance whose fingerprint the user saw. A lookup by
+	// name alone picks the first client instance, which can be the other
+	// client of a multi-client peer (#415).
+	Fingerprint *fprint = otrg_fingerprint_for_identity([who UTF8String], [account.internalObjectID UTF8String],
+														[account.service.serviceCodeUniqueID UTF8String],
+														fingerprintData.bytes, fingerprintData.length);
+	BOOL oldtrust;
 
 	if (fprint == NULL) {
-		AILog(@"Warning: ESOTRUnknownFingerprintController: NULL fprint for %@", responseInfo);
+		AILog(@"Warning: ESOTRUnknownFingerprintController: no stored fingerprint for %@", responseInfo);
 		return;
 	}
 

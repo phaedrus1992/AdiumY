@@ -70,6 +70,9 @@
 				<string>F09A95CC0FCF5A08A87719ED</string>
 				<string>DF9DD999E70A542A82B68DFA</string>
 				<string>A82194F603F151638876A670</string>
+				<string>97C81B84CB1750F68F53C3A9</string>
+				<string>6D6F9E75C0345ED090B08B96</string>
+				<string>C6C4F78FE94858EF860A5914</string>
 				<string>F9B767DA118E55B7B08F966E</string>
 				<string>371503F9B5725A20B52AF0D7</string>
 				<string>374C7B6633CB56D2AED136F0</string>
@@ -338,6 +341,39 @@
 			<string>sourcecode.c.objc</string>
 			<key>path</key>
 			<string>../../UnitTests/AIXtraBundleIdentifierTest.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>97C81B84CB1750F68F53C3A9</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../Frameworks/Adium/Source/AIOTRIdentityMigration.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>6D6F9E75C0345ED090B08B96</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>../../Frameworks/Adium/Source/AIOTRIdentityMigration.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>C6C4F78FE94858EF860A5914</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>../../UnitTests/TestOTRIdentityMigration.m</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
@@ -1864,6 +1900,8 @@
 				<string>C311239E73CC5141BB965BAD</string>
 				<string>089310D491BD5C0585435C12</string>
 				<string>535A8FC9E96C5A508615C3E7</string>
+				<string>1FAEFB8B4A395EA682165644</string>
+				<string>BDD71971A2F35548B2075270</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<false/>
@@ -1947,6 +1985,20 @@
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
 			<string>A82194F603F151638876A670</string>
+		</dict>
+		<key>1FAEFB8B4A395EA682165644</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>97C81B84CB1750F68F53C3A9</string>
+		</dict>
+		<key>BDD71971A2F35548B2075270</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>fileRef</key>
+			<string>C6C4F78FE94858EF860A5914</string>
 		</dict>
 		<key>EDCA5412E0C855ABBBA5DE5B</key>
 		<dict>
@@ -2758,7 +2810,7 @@
 				<key>GCC_OPTIMIZATION_LEVEL</key>
 				<string>0</string>
 				<key>MACOSX_DEPLOYMENT_TARGET</key>
-				<string>11.0</string>
+				<string>12.0</string>
 				<key>ONLY_ACTIVE_ARCH</key>
 				<string>YES</string>
 				<key>PRODUCT_NAME</key>
@@ -2794,7 +2846,7 @@
 				<key>GCC_OPTIMIZATION_LEVEL</key>
 				<string>s</string>
 				<key>MACOSX_DEPLOYMENT_TARGET</key>
-				<string>11.0</string>
+				<string>12.0</string>
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 				<key>SDKROOT</key>

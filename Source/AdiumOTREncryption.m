@@ -28,6 +28,7 @@
 #import <AdiumY/AIListContact.h>
 #import <AdiumY/AIListObject.h>
 #import <AdiumY/AILoginControllerProtocol.h>
+#import <AdiumY/AIOTRIdentityMigration.h>
 #import <AdiumY/AIService.h>
 #import <AdiumY/AIServiceIcons.h>
 
@@ -79,6 +80,10 @@
 - (NSString *)pathForEncryptedMessage:(NSString *)messageExtension;
 - (void)setSecurityDetails:(NSDictionary *)securityDetailsDict forChat:(AIChat *)inChat;
 - (void)verifyUnknownFingerprint:(NSValue *)contextValue;
+- (void)migrateStoredIdentities;
+- (void)migrateFingerprintStoreWithMigrations:(NSArray<AIOTRIdentityMigration *> *)migrations;
+- (void)migratePrivateKeyFileForAccount:(AIAccount *)inAccount migration:(AIOTRIdentityMigration *)migration;
+- (BOOL)privateKeyFileAtPath:(NSString *)path holdsKeyForName:(NSString *)accountName protocol:(NSString *)protocol;
 
 // Methods called from C functions (need forward declaration before @implementation)
 + (NSString *)accountNameForOtrlAccount:(AIAccount *)inAccount;
@@ -362,6 +367,7 @@ static void new_fingerprint_cb(void *opdata, OtrlUserState us, const char *accou
 			@"who" : who,
 			@"Their Fingerprint" : [NSString stringWithUTF8String:their_hash],
 			@"Our Fingerprint" : [NSString stringWithUTF8String:our_hash],
+			@"Fingerprint" : [NSData dataWithBytes:fingerprint length:20],
 		};
 
 		dispatch_async(dispatch_get_main_queue(), ^{
@@ -377,6 +383,39 @@ static void write_fingerprints_cb(void *opdata)
 		NSString *fingerprintPath = [FINGERPRINT_PATH stringByExpandingTildeInPath];
 		otrl_privkey_write_fingerprints(otrg_userstate(), fingerprintPath.UTF8String);
 	}
+}
+
+// libotr has no write function for a single key, so the migrated file is
+// rebuilt from the parsed key and serialized in the same advanced format
+// libotr's own writer uses (#413).
+static NSData *RebuiltPrivateKeyFileData(OtrlPrivKey *key, NSString *currentName, NSString *currentProtocol)
+{
+	gcry_sexp_t rebuilt = NULL;
+	gcry_error_t error = gcry_sexp_build(&rebuilt, NULL, "(privkeys (account (name %s) (protocol %s) %S))",
+										 currentName.UTF8String, currentProtocol.UTF8String, key->privkey);
+	if (error) {
+		AILogWithSignature(@"libotr could not rebuild the private key with the current identity strings: %s",
+						   gcry_strerror(error));
+		return nil;
+	}
+
+	// gcry_sexp_sprint reports the length including the terminating NUL, the
+	// same contract libotr's own writer relies on.
+	size_t length = gcry_sexp_sprint(rebuilt, GCRYSEXP_FMT_ADVANCED, NULL, 0);
+	if (length == 0) {
+		gcry_sexp_release(rebuilt);
+		return nil;
+	}
+
+	NSMutableData *data = [NSMutableData dataWithLength:length];
+	gcry_sexp_sprint(rebuilt, GCRYSEXP_FMT_ADVANCED, data.mutableBytes, length);
+	gcry_sexp_release(rebuilt);
+
+	if (data.length > 0 && ((const char *)data.bytes)[data.length - 1] == '\0') {
+		data.length = data.length - 1;
+	}
+
+	return data;
 }
 
 static void gone_secure_cb(void *opdata, ConnContext *context)
@@ -631,21 +670,50 @@ void otrg_ui_forget_fingerprint(Fingerprint *fingerprint)
 		if (!fingerprint || !fingerprint->context)
 			return;
 
-		const char *username = fingerprint->context->username;
-		const char *accountname = fingerprint->context->accountname;
-		const char *protocol = fingerprint->context->protocol;
-
-		ConnContext *context =
-			otrl_context_find(otrg_userstate(), username, accountname, protocol, 0, 0, NULL, NULL, NULL);
+		// Use the context the fingerprint belongs to. A lookup by name alone
+		// picks the first client instance, not necessarily this one (#415).
+		ConnContext *context = fingerprint->context;
+		AIChat *chat = chatForContext(context);
 
 		otrl_context_forget_fingerprint(fingerprint, 0);
 		otrg_plugin_write_fingerprints();
 		otrg_ui_update_keylist();
 
-		AIChat *chat = chatForContext(context);
 		if (chat) {
 			update_security_details_for_chat(chat);
 		}
+	}
+}
+
+Fingerprint *otrg_fingerprint_for_identity(const char *username, const char *accountname, const char *protocol,
+										   const unsigned char *fingerprint, size_t fingerprintLength)
+{
+	@autoreleasepool {
+		if (!username || !accountname || !protocol || !fingerprint || fingerprintLength != 20) {
+			return NULL;
+		}
+
+		OtrlUserState userState = otrg_userstate();
+		if (userState == NULL) {
+			logMissingUserState(@"the fingerprint lookup");
+			return NULL;
+		}
+
+		// One context per client instance. The fingerprint bytes pick the exact
+		// instance, so an accept or deny lands on the one the user saw (#415).
+		for (ConnContext *context = userState->context_root; context != NULL; context = context->next) {
+			if (strcmp(context->username, username) != 0 || strcmp(context->accountname, accountname) != 0 ||
+				strcmp(context->protocol, protocol) != 0) {
+				continue;
+			}
+
+			Fingerprint *found = otrl_context_find_fingerprint(context, (unsigned char *)fingerprint, 0, NULL);
+			if (found != NULL) {
+				return found;
+			}
+		}
+
+		return NULL;
 	}
 }
 
@@ -757,6 +825,10 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 		return;
 	}
 
+	// Move any stored identity from the pre-#403 strings to the current ones
+	// before the files are read (#413)
+	[self migrateStoredIdentities];
+
 	// Read fingerprints, instance tags, and private keys
 	[self readFingerprintsAndPrivkeys];
 
@@ -796,6 +868,174 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 	if (!OTRWindowController) {
 		OTRWindowController = (ESOTRPreferences *)[ESOTRPreferences preferencePaneForPlugin:self];
 	}
+}
+
+#pragma mark Stored identity migration
+
+// #403 changed the account and protocol strings libotr keys its stored data by.
+// Without this pass the old private key is never read again, so the app
+// generates a fresh key and every peer verification is redone once (#413).
+- (void)migrateStoredIdentities
+{
+	NSMutableArray<AIOTRIdentityMigration *> *migrations = [NSMutableArray array];
+	NSMutableArray<AIAccount *> *migrationAccounts = [NSMutableArray array];
+
+	for (AIAccount *account in adium.accountController.accounts) {
+		AIService *service = account.service;
+		NSString *internalObjectID = account.internalObjectID;
+		if (service == nil || internalObjectID == nil) {
+			AILogWithSignature(@"OTR: skipped the identity migration for %@: it has no service or account ID.",
+							   account);
+			continue;
+		}
+
+		AIOTRIdentityMigration *migration = [[AIOTRIdentityMigration alloc]
+			initWithLegacyAccountName:[NSString stringWithFormat:@"%@.%@", service.serviceID, internalObjectID]
+				   currentAccountName:[[self class] accountNameForOtrlAccount:account]
+					   legacyProtocol:service.serviceID
+					  currentProtocol:service.serviceCodeUniqueID];
+		[migrations addObject:migration];
+		[migrationAccounts addObject:account];
+	}
+
+	[self migrateFingerprintStoreWithMigrations:migrations];
+
+	for (NSUInteger i = 0; i < [migrationAccounts count]; i++) {
+		[self migratePrivateKeyFileForAccount:migrationAccounts[i] migration:migrations[i]];
+	}
+}
+
+- (void)migrateFingerprintStoreWithMigrations:(NSArray<AIOTRIdentityMigration *> *)migrations
+{
+	NSString *fingerprintPath = [FINGERPRINT_PATH stringByExpandingTildeInPath];
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+
+	if (![fileManager fileExistsAtPath:fingerprintPath]) {
+		// A fresh profile has no stored fingerprints to move.
+		return;
+	}
+
+	NSError *readError = nil;
+	NSString *storeText = [NSString stringWithContentsOfFile:fingerprintPath
+													encoding:NSUTF8StringEncoding
+													   error:&readError];
+	if (storeText == nil) {
+		AILogWithSignature(@"OTR: cannot read the fingerprint store %@ (%@). The stored identities stay as they are.",
+						   fingerprintPath, readError);
+		return;
+	}
+
+	NSUInteger changedLineCount = 0;
+	NSString *migratedText = AIOTRMigratedFingerprintStoreText(storeText, migrations, &changedLineCount);
+	if (changedLineCount == 0) {
+		return;
+	}
+
+	NSError *writeError = nil;
+	if (![migratedText writeToFile:fingerprintPath atomically:YES encoding:NSUTF8StringEncoding error:&writeError]) {
+		AILogWithSignature(
+			@"OTR: cannot write the migrated fingerprint store %@ (%@). The stored identities stay as they are.",
+			fingerprintPath, writeError);
+		return;
+	}
+
+	AILogWithSignature(@"OTR: moved %lu stored fingerprint entry or entries in %@ to the current identity strings.",
+					   (unsigned long)changedLineCount, fingerprintPath);
+}
+
+- (void)migratePrivateKeyFileForAccount:(AIAccount *)inAccount migration:(AIOTRIdentityMigration *)migration
+{
+	NSString *currentPath = [[self privKeyPathForAccount:inAccount] stringByExpandingTildeInPath];
+	NSString *legacyPath = [[PRIVKEY_PATH
+		stringByAppendingPathComponent:[NSString
+										   stringWithFormat:@"%@.%@.key", migration.legacyAccountName,
+															[inAccount.UID stringByReplacingOccurrencesOfString:@"/"
+																									 withString:@"_"]]]
+		stringByExpandingTildeInPath];
+
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+	if ([fileManager fileExistsAtPath:currentPath]) {
+		// Already migrated, or a fresh key exists. Never overwrite it.
+		return;
+	}
+	if (![fileManager fileExistsAtPath:legacyPath]) {
+		// Nothing to move for this account.
+		return;
+	}
+
+	OtrlUserState scratch = otrl_userstate_create();
+	if (scratch == NULL) {
+		AILogWithSignature(@"OTR: cannot create a scratch state to migrate the key file %@.", legacyPath);
+		return;
+	}
+
+	if (otrl_privkey_read(scratch, legacyPath.UTF8String)) {
+		AILogWithSignature(@"OTR: cannot read the legacy key file %@. It stays as it is.", legacyPath);
+		otrl_userstate_free(scratch);
+		return;
+	}
+
+	OtrlPrivKey *key = scratch->privkey_root;
+	if (key == NULL || key->next != NULL || strcmp(key->accountname, migration.legacyAccountName.UTF8String) != 0 ||
+		strcmp(key->protocol, migration.legacyProtocol.UTF8String) != 0) {
+		AILogWithSignature(@"OTR: the legacy key file %@ does not hold exactly one key for %@. It stays as it is.",
+						   legacyPath, migration.legacyAccountName);
+		otrl_userstate_free(scratch);
+		return;
+	}
+
+	NSData *rebuilt = RebuiltPrivateKeyFileData(key, migration.currentAccountName, migration.currentProtocol);
+	otrl_userstate_free(scratch);
+
+	BOOL wrote = NO;
+	if (rebuilt != nil) {
+		wrote = [rebuilt writeToFile:currentPath atomically:YES];
+	}
+	if (!wrote) {
+		AILogWithSignature(@"OTR: cannot write the migrated key file %@. The legacy file stays as it is.", currentPath);
+		return;
+	}
+
+	// The key file holds secret material; libotr creates these files 0600.
+	[fileManager setAttributes:@{NSFilePosixPermissions : @(0600)} ofItemAtPath:currentPath error:NULL];
+
+	if (![self privateKeyFileAtPath:currentPath
+					holdsKeyForName:migration.currentAccountName
+						   protocol:migration.currentProtocol]) {
+		// Drop the damaged copy so the next launch retries the move.
+		[fileManager removeItemAtPath:currentPath error:NULL];
+		AILogWithSignature(
+			@"OTR: the migrated key file %@ does not read back; removed it. The legacy file stays as it is.",
+			currentPath);
+		return;
+	}
+
+	NSError *removalError = nil;
+	if (![fileManager removeItemAtPath:legacyPath error:&removalError]) {
+		AILogWithSignature(@"OTR: moved the key to %@, but cannot remove %@ (%@). A duplicate file stays behind.",
+						   currentPath, legacyPath, removalError);
+		return;
+	}
+
+	AILogWithSignature(@"OTR: moved the private key to %@ with the current identity strings.", currentPath);
+}
+
+// Reads the written file back in a scratch state, so a damaged write never
+// replaces the legacy file.
+- (BOOL)privateKeyFileAtPath:(NSString *)path holdsKeyForName:(NSString *)accountName protocol:(NSString *)protocol
+{
+	OtrlUserState scratch = otrl_userstate_create();
+	if (scratch == NULL) {
+		return NO;
+	}
+
+	BOOL holdsKey = NO;
+	if (otrl_privkey_read(scratch, path.UTF8String) == 0) {
+		holdsKey = (otrl_privkey_find(scratch, accountName.UTF8String, protocol.UTF8String) != NULL);
+	}
+	otrl_userstate_free(scratch);
+
+	return holdsKey;
 }
 
 #pragma mark OTR integration
@@ -1141,12 +1381,13 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 	AIListContact *contact = (AIListContact *)[inChat listObject];
 	NSString *who = contact ? contact.UID : [NSString stringWithUTF8String:context->username];
 
-	NSDictionary *responseInfo = @{
-		@"AIAccount" : account,
-		@"who" : who,
-		@"Their Fingerprint" : [NSString stringWithUTF8String:their_hash],
-		@"Our Fingerprint" : [NSString stringWithUTF8String:our_hash],
-	};
+	NSMutableDictionary *responseInfo = [NSMutableDictionary
+		dictionaryWithObjectsAndKeys:account, @"AIAccount", who, @"who", [NSString stringWithUTF8String:their_hash],
+									 @"Their Fingerprint", [NSString stringWithUTF8String:our_hash], @"Our Fingerprint",
+									 nil];
+	if (fingerprint != NULL) {
+		[responseInfo setObject:[NSData dataWithBytes:fingerprint->fingerprint length:20] forKey:@"Fingerprint"];
+	}
 
 	[ESOTRUnknownFingerprintController showVerifyFingerprintPromptWithResponseInfo:responseInfo];
 }
@@ -1171,12 +1412,13 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 	NSString *who = [NSString stringWithUTF8String:context->username];
 
-	NSDictionary *responseInfo = @{
-		@"AIAccount" : (account ? account : [NSNull null]),
-		@"who" : who,
-		@"Their Fingerprint" : [NSString stringWithUTF8String:their_hash],
-		@"Our Fingerprint" : [NSString stringWithUTF8String:our_hash],
-	};
+	NSMutableDictionary *responseInfo = [NSMutableDictionary
+		dictionaryWithObjectsAndKeys:(account ? account : (id)[NSNull null]), @"AIAccount", who, @"who",
+									 [NSString stringWithUTF8String:their_hash], @"Their Fingerprint",
+									 [NSString stringWithUTF8String:our_hash], @"Our Fingerprint", nil];
+	if (fingerprint != NULL) {
+		[responseInfo setObject:[NSData dataWithBytes:fingerprint->fingerprint length:20] forKey:@"Fingerprint"];
+	}
 
 	[ESOTRUnknownFingerprintController showUnknownFingerprintPromptWithResponseInfo:responseInfo];
 }

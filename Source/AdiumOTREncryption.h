@@ -43,6 +43,12 @@ void otrg_ui_forget_fingerprint(Fingerprint *fingerprint);
 void otrg_plugin_write_fingerprints(void);
 void otrg_ui_update_keylist(void);
 
+/* Find the stored fingerprint whose bytes match across every client instance
+ * of the peer, so an accept or deny lands on the instance the user saw (#415).
+ * Returns NULL when no instance holds that fingerprint. */
+Fingerprint *otrg_fingerprint_for_identity(const char *username, const char *accountname, const char *protocol,
+										   const unsigned char *fingerprint, size_t fingerprintLength);
+
 TrustLevel otrg_plugin_context_to_trust(ConnContext *context);
 
 /* Generate a private key for the given accountname/protocol */
