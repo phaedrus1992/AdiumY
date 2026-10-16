@@ -13,11 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   crosses in both directions (#134, #135)
 
 ### Fixed
+- OTR verifies the fingerprint you were shown: accepting or denying a prompt now
+  applies to the exact client instance the fingerprint came from. A peer signed
+  in on two devices at once could previously have the decision land on the other
+  device's fingerprint (#415)
+- Removing a contact from a group, or moving one between groups, works on
+  accounts that keep no server-side contact list (Bonjour, for example): both
+  actions did nothing and reported nothing (#414)
 - OTR now works with other OTR clients: the identity strings libotr keys its
   sessions on were service-scoped instead of upstream's, so a private
   conversation could only ever match another copy of this same build. The
-  identity change is one-time: the app generates a new key on the next secure
-  session, and contacts must verify the new fingerprint (#403)
+  change is invisible: the stored key, known fingerprints, and instance tags
+  move to the new strings on first launch, so there is no new fingerprint to
+  verify (#403, #413)
 - OTR starts when the plugin is installed at runtime through the Xtras manager:
   the user state is created on first use instead of only at app launch (#410)
 - AppleScript's `make new contact ... with properties {parentGroup: ...}` adds

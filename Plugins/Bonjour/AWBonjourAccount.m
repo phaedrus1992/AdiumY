@@ -107,9 +107,6 @@
 	[libezv logout];
 }
 
-- (void)removeContacts:(NSArray *)objects fromGroups:(NSArray *)groups
-{}
-
 #pragma mark Libezv Callbacks
 
 /*!
@@ -592,27 +589,6 @@
 - (void)remoteUserFinishedDownload:(EKEzvOutgoingFileTransfer *)transfer
 {
 	[[ESFileTransfer existingFileTransferWithID:[transfer uniqueID]] setStatus:Complete_FileTransfer];
-}
-
-#pragma mark Contact list management
-- (void)moveListObjects:(NSArray *)objects fromGroups:(NSSet *)oldGroups toGroups:(NSSet *)groups
-{
-	// Move the objects to it
-	for (AIListContact *contact in objects) {
-		if (![contact.remoteGroups intersectsSet:oldGroups] && oldGroups.count) {
-			continue;
-		}
-
-		/*
-		for (AIListGroup *group in oldGroups) {
-			[contact removeRemoteGroupName:group.UID];
-		}
-
-		for (AIListGroup *group in groups) {
-			[contact addRemoteGroupName:group.UID];
-		}
-		 */
-	}
 }
 
 @end
