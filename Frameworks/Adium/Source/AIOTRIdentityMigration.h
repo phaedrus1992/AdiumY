@@ -61,4 +61,15 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *AIOTRMigratedFingerprintStoreText(NSString *storeText, NSArray<AIOTRIdentityMigration *> *migrations,
 											NSUInteger *_Nullable changedLineCount);
 
+/// Rewrites the instance-tag store the same way, for the store libotr lays out
+/// as account, protocol, and tag fields.
+///
+/// @param storeText The whole instance-tag store.
+/// @param migrations One record for each account that needs a new identity.
+/// @param changedLineCount On return, the count of lines with changed fields.
+///        Pass NULL if the count is not needed.
+/// @return The rewritten store. The result equals storeText when no line matched.
+NSString *AIOTRMigratedInstagStoreText(NSString *storeText, NSArray<AIOTRIdentityMigration *> *migrations,
+									   NSUInteger *_Nullable changedLineCount);
+
 NS_ASSUME_NONNULL_END

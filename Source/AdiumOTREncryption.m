@@ -68,7 +68,6 @@
 @interface AdiumOTREncryption ()
 @property(nonatomic, copy) NSString *OTRPersistenceFilePath;
 @property(nonatomic, strong) ESOTRPreferences *OTRWindowController;
-@property(nonatomic, assign) BOOL keyReadSuccess;
 - (void)createOTRFiles;
 - (void)emptyPassphraseForAccount:(AIAccount *)inAccount;
 - (NSString *)activeFingerprintForContact:(AIListContact *)inContact;
@@ -81,9 +80,18 @@
 - (void)setSecurityDetails:(NSDictionary *)securityDetailsDict forChat:(AIChat *)inChat;
 - (void)verifyUnknownFingerprint:(NSValue *)contextValue;
 - (void)migrateStoredIdentities;
-- (void)migrateFingerprintStoreWithMigrations:(NSArray<AIOTRIdentityMigration *> *)migrations;
+- (void)migrateStoreAtPath:(NSString *)storePath
+			withMigrations:(NSArray<AIOTRIdentityMigration *> *)migrations
+				  rewriter:(NSString *(*)(NSString *, NSArray<AIOTRIdentityMigration *> *, NSUInteger *))rewriter;
 - (void)migratePrivateKeyFileForAccount:(AIAccount *)inAccount migration:(AIOTRIdentityMigration *)migration;
-- (BOOL)privateKeyFileAtPath:(NSString *)path holdsKeyForName:(NSString *)accountName protocol:(NSString *)protocol;
+- (void)removeLegacyKeyFileAtPath:(NSString *)legacyPath
+			whenCurrentFileAtPath:(NSString *)currentPath
+				  holdsKeyForName:(NSString *)accountName
+						 protocol:(NSString *)protocol;
+- (BOOL)privateKeyFileAtPath:(NSString *)path
+			 holdsKeyForName:(NSString *)accountName
+					protocol:(NSString *)protocol
+					   error:(gcry_error_t *)outError;
 
 // Methods called from C functions (need forward declaration before @implementation)
 + (NSString *)accountNameForOtrlAccount:(AIAccount *)inAccount;
@@ -150,6 +158,31 @@ static ConnContext *contextForAccountAndContact(AIAccount *account, AIListContac
 			userState, [contact.UID UTF8String], [[AdiumOTREncryption accountNameForOtrlAccount:account] UTF8String],
 			[account.service.serviceCodeUniqueID UTF8String], OTRL_INSTAG_BEST, 0, NULL, NULL, NULL);
 	}
+}
+
+// Builds the prompt payload for the fingerprint controllers. The fingerprint
+// bytes travel with it, so an accept or deny lands on the exact instance the
+// user saw (#415). The caller ensures the context has an active fingerprint.
+static NSDictionary *OTRResponseInfoForContext(ConnContext *context, AIAccount *account, NSString *who)
+{
+	char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN] = "";
+	char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN] = "";
+
+	Fingerprint *fingerprint = context->active_fingerprint;
+	if (fingerprint != NULL) {
+		otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
+	}
+
+	OtrlUserState userState = otrg_userstate();
+	if (userState != NULL) {
+		otrl_privkey_fingerprint(userState, our_hash, context->accountname, context->protocol);
+	}
+
+	return [NSMutableDictionary
+		dictionaryWithObjectsAndKeys:(account ? account : (id)[NSNull null]), @"AIAccount", who, @"who",
+									 [NSString stringWithUTF8String:their_hash], @"Their Fingerprint",
+									 [NSString stringWithUTF8String:our_hash], @"Our Fingerprint",
+									 [NSData dataWithBytes:fingerprint->fingerprint length:20], @"Fingerprint", nil];
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -690,6 +723,7 @@ Fingerprint *otrg_fingerprint_for_identity(const char *username, const char *acc
 {
 	@autoreleasepool {
 		if (!username || !accountname || !protocol || !fingerprint || fingerprintLength != 20) {
+			AILogWithSignature(@"OTR: the fingerprint lookup got invalid arguments; no fingerprint is resolved.");
 			return NULL;
 		}
 
@@ -878,7 +912,6 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 - (void)migrateStoredIdentities
 {
 	NSMutableArray<AIOTRIdentityMigration *> *migrations = [NSMutableArray array];
-	NSMutableArray<AIAccount *> *migrationAccounts = [NSMutableArray array];
 
 	for (AIAccount *account in adium.accountController.accounts) {
 		AIService *service = account.service;
@@ -895,52 +928,52 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 					   legacyProtocol:service.serviceID
 					  currentProtocol:service.serviceCodeUniqueID];
 		[migrations addObject:migration];
-		[migrationAccounts addObject:account];
+
+		[self migratePrivateKeyFileForAccount:account migration:migration];
 	}
 
-	[self migrateFingerprintStoreWithMigrations:migrations];
-
-	for (NSUInteger i = 0; i < [migrationAccounts count]; i++) {
-		[self migratePrivateKeyFileForAccount:migrationAccounts[i] migration:migrations[i]];
-	}
+	[self migrateStoreAtPath:[FINGERPRINT_PATH stringByExpandingTildeInPath]
+			  withMigrations:migrations
+					rewriter:AIOTRMigratedFingerprintStoreText];
+	[self migrateStoreAtPath:[INSTAG_PATH stringByExpandingTildeInPath]
+			  withMigrations:migrations
+					rewriter:AIOTRMigratedInstagStoreText];
 }
 
-- (void)migrateFingerprintStoreWithMigrations:(NSArray<AIOTRIdentityMigration *> *)migrations
+- (void)migrateStoreAtPath:(NSString *)storePath
+			withMigrations:(NSArray<AIOTRIdentityMigration *> *)migrations
+				  rewriter:(NSString *(*)(NSString *, NSArray<AIOTRIdentityMigration *> *, NSUInteger *))rewriter
 {
-	NSString *fingerprintPath = [FINGERPRINT_PATH stringByExpandingTildeInPath];
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 
-	if (![fileManager fileExistsAtPath:fingerprintPath]) {
-		// A fresh profile has no stored fingerprints to move.
+	if (![fileManager fileExistsAtPath:storePath]) {
+		// A fresh profile has no stored identities to move.
 		return;
 	}
 
 	NSError *readError = nil;
-	NSString *storeText = [NSString stringWithContentsOfFile:fingerprintPath
-													encoding:NSUTF8StringEncoding
-													   error:&readError];
+	NSString *storeText = [NSString stringWithContentsOfFile:storePath encoding:NSUTF8StringEncoding error:&readError];
 	if (storeText == nil) {
-		AILogWithSignature(@"OTR: cannot read the fingerprint store %@ (%@). The stored identities stay as they are.",
-						   fingerprintPath, readError);
+		AILogWithSignature(@"OTR: cannot read the store %@ (%@). The stored identities stay as they are.", storePath,
+						   readError);
 		return;
 	}
 
 	NSUInteger changedLineCount = 0;
-	NSString *migratedText = AIOTRMigratedFingerprintStoreText(storeText, migrations, &changedLineCount);
+	NSString *migratedText = rewriter(storeText, migrations, &changedLineCount);
 	if (changedLineCount == 0) {
 		return;
 	}
 
 	NSError *writeError = nil;
-	if (![migratedText writeToFile:fingerprintPath atomically:YES encoding:NSUTF8StringEncoding error:&writeError]) {
-		AILogWithSignature(
-			@"OTR: cannot write the migrated fingerprint store %@ (%@). The stored identities stay as they are.",
-			fingerprintPath, writeError);
+	if (![migratedText writeToFile:storePath atomically:YES encoding:NSUTF8StringEncoding error:&writeError]) {
+		AILogWithSignature(@"OTR: cannot write the migrated store %@ (%@). The stored identities stay as they are.",
+						   storePath, writeError);
 		return;
 	}
 
-	AILogWithSignature(@"OTR: moved %lu stored fingerprint entry or entries in %@ to the current identity strings.",
-					   (unsigned long)changedLineCount, fingerprintPath);
+	AILogWithSignature(@"OTR: moved %lu stored %@ entry or entries to the current identity strings.",
+					   (unsigned long)changedLineCount, [storePath lastPathComponent]);
 }
 
 - (void)migratePrivateKeyFileForAccount:(AIAccount *)inAccount migration:(AIOTRIdentityMigration *)migration
@@ -955,7 +988,12 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	if ([fileManager fileExistsAtPath:currentPath]) {
-		// Already migrated, or a fresh key exists. Never overwrite it.
+		// Already migrated, or a fresh key exists. Never overwrite it, but a
+		// legacy copy left behind by an earlier failed removal still goes.
+		[self removeLegacyKeyFileAtPath:legacyPath
+				  whenCurrentFileAtPath:currentPath
+						holdsKeyForName:migration.currentAccountName
+							   protocol:migration.currentProtocol];
 		return;
 	}
 	if (![fileManager fileExistsAtPath:legacyPath]) {
@@ -987,32 +1025,43 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 	NSData *rebuilt = RebuiltPrivateKeyFileData(key, migration.currentAccountName, migration.currentProtocol);
 	otrl_userstate_free(scratch);
 
+	NSError *writeError = nil;
 	BOOL wrote = NO;
 	if (rebuilt != nil) {
-		wrote = [rebuilt writeToFile:currentPath atomically:YES];
+		// Create the file 0600 before the write, the way libotr's own writer
+		// does: an atomic NSData write goes through the process umask and
+		// leaves the key world-readable.
+		if ([fileManager createFileAtPath:currentPath contents:nil attributes:@{NSFilePosixPermissions : @(0600)}]) {
+			wrote = [rebuilt writeToFile:currentPath options:0 error:&writeError];
+		} else {
+			AILogWithSignature(@"OTR: cannot create the migrated key file %@. The legacy file stays as it is.",
+							   currentPath);
+			return;
+		}
 	}
 	if (!wrote) {
-		AILogWithSignature(@"OTR: cannot write the migrated key file %@. The legacy file stays as it is.", currentPath);
+		AILogWithSignature(@"OTR: cannot write the migrated key file %@ (%@). The legacy file stays as it is.",
+						   currentPath, writeError);
 		return;
 	}
 
-	// The key file holds secret material; libotr creates these files 0600.
-	[fileManager setAttributes:@{NSFilePosixPermissions : @(0600)} ofItemAtPath:currentPath error:NULL];
-
+	gcry_error_t verifyError = 0;
 	if (![self privateKeyFileAtPath:currentPath
 					holdsKeyForName:migration.currentAccountName
-						   protocol:migration.currentProtocol]) {
+						   protocol:migration.currentProtocol
+							  error:&verifyError]) {
 		// Drop the damaged copy so the next launch retries the move.
 		[fileManager removeItemAtPath:currentPath error:NULL];
-		AILogWithSignature(
-			@"OTR: the migrated key file %@ does not read back; removed it. The legacy file stays as it is.",
-			currentPath);
+		AILogWithSignature(@"OTR: the migrated key file %@ does not read back (error %u); removed it. The legacy "
+						   @"file stays as it is.",
+						   currentPath, (unsigned int)verifyError);
 		return;
 	}
 
 	NSError *removalError = nil;
 	if (![fileManager removeItemAtPath:legacyPath error:&removalError]) {
-		AILogWithSignature(@"OTR: moved the key to %@, but cannot remove %@ (%@). A duplicate file stays behind.",
+		AILogWithSignature(@"OTR: moved the key to %@, but cannot remove %@ (%@). The cleanup retries on the next "
+						   @"launch.",
 						   currentPath, legacyPath, removalError);
 		return;
 	}
@@ -1020,20 +1069,59 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 	AILogWithSignature(@"OTR: moved the private key to %@ with the current identity strings.", currentPath);
 }
 
+// Removes a legacy key copy whose earlier removal failed. The current file
+// must read back first, so the cleanup never removes the only good copy.
+- (void)removeLegacyKeyFileAtPath:(NSString *)legacyPath
+			whenCurrentFileAtPath:(NSString *)currentPath
+				  holdsKeyForName:(NSString *)accountName
+						 protocol:(NSString *)protocol
+{
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+	if (![fileManager fileExistsAtPath:legacyPath]) {
+		return;
+	}
+
+	if (![self privateKeyFileAtPath:currentPath holdsKeyForName:accountName protocol:protocol error:NULL]) {
+		AILogWithSignature(@"OTR: kept the legacy key file %@: the current key file %@ does not read back.", legacyPath,
+						   currentPath);
+		return;
+	}
+
+	NSError *removalError = nil;
+	if (![fileManager removeItemAtPath:legacyPath error:&removalError]) {
+		AILogWithSignature(@"OTR: cannot remove the leftover legacy key file %@ (%@). The cleanup retries on the "
+						   @"next launch.",
+						   legacyPath, removalError);
+		return;
+	}
+
+	AILogWithSignature(@"OTR: removed the leftover legacy key file %@.", legacyPath);
+}
+
 // Reads the written file back in a scratch state, so a damaged write never
-// replaces the legacy file.
-- (BOOL)privateKeyFileAtPath:(NSString *)path holdsKeyForName:(NSString *)accountName protocol:(NSString *)protocol
+// replaces the legacy file. On NO, outError holds the libotr read error; it
+// stays zero when the file parsed but holds no key for the account.
+- (BOOL)privateKeyFileAtPath:(NSString *)path
+			 holdsKeyForName:(NSString *)accountName
+					protocol:(NSString *)protocol
+					   error:(gcry_error_t *)outError
 {
 	OtrlUserState scratch = otrl_userstate_create();
 	if (scratch == NULL) {
+		if (outError != NULL) {
+			*outError = gcry_error(GPG_ERR_ENOMEM);
+		}
 		return NO;
 	}
 
-	BOOL holdsKey = NO;
-	if (otrl_privkey_read(scratch, path.UTF8String) == 0) {
-		holdsKey = (otrl_privkey_find(scratch, accountName.UTF8String, protocol.UTF8String) != NULL);
-	}
+	gcry_error_t readError = otrl_privkey_read(scratch, path.UTF8String);
+	BOOL holdsKey =
+		(readError == 0) && (otrl_privkey_find(scratch, accountName.UTF8String, protocol.UTF8String) != NULL);
 	otrl_userstate_free(scratch);
+
+	if (outError != NULL) {
+		*outError = readError;
+	}
 
 	return holdsKey;
 }
@@ -1368,28 +1456,18 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 	if (!account)
 		return;
 
-	char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN] = "";
-	char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN] = "";
-
-	Fingerprint *fingerprint = context->active_fingerprint;
-	if (fingerprint) {
-		otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
+	if (context->active_fingerprint == NULL) {
+		// Without the fingerprint bytes the answer cannot be recorded, so do
+		// not ask about a blank value (#415).
+		AILogWithSignature(@"OTR: no active fingerprint for %@; the verification prompt is skipped.", inChat);
+		return;
 	}
-
-	otrl_privkey_fingerprint(otrg_userstate(), our_hash, context->accountname, context->protocol);
 
 	AIListContact *contact = (AIListContact *)[inChat listObject];
 	NSString *who = contact ? contact.UID : [NSString stringWithUTF8String:context->username];
 
-	NSMutableDictionary *responseInfo = [NSMutableDictionary
-		dictionaryWithObjectsAndKeys:account, @"AIAccount", who, @"who", [NSString stringWithUTF8String:their_hash],
-									 @"Their Fingerprint", [NSString stringWithUTF8String:our_hash], @"Our Fingerprint",
-									 nil];
-	if (fingerprint != NULL) {
-		[responseInfo setObject:[NSData dataWithBytes:fingerprint->fingerprint length:20] forKey:@"Fingerprint"];
-	}
-
-	[ESOTRUnknownFingerprintController showVerifyFingerprintPromptWithResponseInfo:responseInfo];
+	[ESOTRUnknownFingerprintController
+		showVerifyFingerprintPromptWithResponseInfo:OTRResponseInfoForContext(context, account, who)];
 }
 
 - (void)verifyUnknownFingerprint:(NSValue *)contextValue
@@ -1398,29 +1476,17 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 	if (!context)
 		return;
 
-	AIAccount *account = accountFromAccountID(context->accountname);
-
-	char our_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN] = "";
-	char their_hash[OTRL_PRIVKEY_FPRINT_HUMAN_LEN] = "";
-
-	Fingerprint *fingerprint = context->active_fingerprint;
-	if (fingerprint) {
-		otrl_privkey_hash_to_human(their_hash, fingerprint->fingerprint);
+	if (context->active_fingerprint == NULL) {
+		AILogWithSignature(@"OTR: no active fingerprint for %s; the verification prompt is skipped.",
+						   context->username);
+		return;
 	}
 
-	otrl_privkey_fingerprint(otrg_userstate(), our_hash, context->accountname, context->protocol);
-
+	AIAccount *account = accountFromAccountID(context->accountname);
 	NSString *who = [NSString stringWithUTF8String:context->username];
 
-	NSMutableDictionary *responseInfo = [NSMutableDictionary
-		dictionaryWithObjectsAndKeys:(account ? account : (id)[NSNull null]), @"AIAccount", who, @"who",
-									 [NSString stringWithUTF8String:their_hash], @"Their Fingerprint",
-									 [NSString stringWithUTF8String:our_hash], @"Our Fingerprint", nil];
-	if (fingerprint != NULL) {
-		[responseInfo setObject:[NSData dataWithBytes:fingerprint->fingerprint length:20] forKey:@"Fingerprint"];
-	}
-
-	[ESOTRUnknownFingerprintController showUnknownFingerprintPromptWithResponseInfo:responseInfo];
+	[ESOTRUnknownFingerprintController
+		showUnknownFingerprintPromptWithResponseInfo:OTRResponseInfoForContext(context, account, who)];
 }
 
 - (void)disconnectFromUsername:(NSString *)username
@@ -1762,16 +1828,14 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 
 	OtrlUserState userState = otrg_userstate();
 
-	if (!otrl_privkey_read(userState, privkeyFilename.UTF8String)) {
-		_keyReadSuccess = YES;
-	}
+	// The flag stays per call: one account's success must not skip the legacy
+	// fallback for the next account.
+	BOOL keyRead = (otrl_privkey_read(userState, privkeyFilename.UTF8String) == 0);
 
-	if (!_keyReadSuccess) {
+	if (!keyRead) {
 		NSString *oldPrivkeyFilename = [[self oldPrivKeyPathForAccount:inAccount] stringByExpandingTildeInPath];
 		if ([oldPrivkeyFilename length] > 0) {
-			if (!otrl_privkey_read(userState, oldPrivkeyFilename.UTF8String)) {
-				_keyReadSuccess = YES;
-			}
+			otrl_privkey_read(userState, oldPrivkeyFilename.UTF8String);
 		}
 	}
 }
@@ -1795,10 +1859,12 @@ static OtrlPolicy policyForContact(AIListContact *contact)
 						   (unsigned int)instagError);
 	}
 
+	// Read every configured account's key, not only the accounts that are
+	// online: this runs before the accounts connect, and a key that stays
+	// unloaded makes libotr call create_privkey, which overwrites the stored
+	// key with a fresh one (#413).
 	for (AIAccount *account in adium.accountController.accounts) {
-		if (account.online) {
-			[self readPrivateKeyForAccount:account];
-		}
+		[self readPrivateKeyForAccount:account];
 	}
 
 	return YES;

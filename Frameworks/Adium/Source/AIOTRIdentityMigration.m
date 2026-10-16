@@ -37,23 +37,23 @@
 
 @end
 
-static NSString *MigratedFingerprintStoreLine(NSString *line, NSArray<AIOTRIdentityMigration *> *migrations,
-											  NSUInteger *changedLineCount)
+static NSString *MigratedStoreLine(NSString *line, NSArray<AIOTRIdentityMigration *> *migrations,
+								   NSUInteger accountField, NSUInteger protocolField, NSUInteger *changedLineCount)
 {
 	NSArray<NSString *> *fields = [line componentsSeparatedByString:@"\t"];
-	if ([fields count] < 4) {
+	if ([fields count] <= protocolField + 1) {
 		return line;
 	}
 
 	for (AIOTRIdentityMigration *migration in migrations) {
-		if (![fields[1] isEqualToString:migration.legacyAccountName]) {
+		if (![fields[accountField] isEqualToString:migration.legacyAccountName]) {
 			continue;
 		}
 
 		NSMutableArray<NSString *> *rewritten = [fields mutableCopy];
-		rewritten[1] = migration.currentAccountName;
-		if ([fields[2] isEqualToString:migration.legacyProtocol]) {
-			rewritten[2] = migration.currentProtocol;
+		rewritten[accountField] = migration.currentAccountName;
+		if ([fields[protocolField] isEqualToString:migration.legacyProtocol]) {
+			rewritten[protocolField] = migration.currentProtocol;
 		}
 
 		(*changedLineCount)++;
@@ -63,14 +63,14 @@ static NSString *MigratedFingerprintStoreLine(NSString *line, NSArray<AIOTRIdent
 	return line;
 }
 
-NSString *AIOTRMigratedFingerprintStoreText(NSString *storeText, NSArray<AIOTRIdentityMigration *> *migrations,
-											NSUInteger *changedLineCount)
+static NSString *MigratedStoreText(NSString *storeText, NSArray<AIOTRIdentityMigration *> *migrations,
+								   NSUInteger accountField, NSUInteger protocolField, NSUInteger *changedLineCount)
 {
 	NSUInteger changed = 0;
 	NSMutableArray<NSString *> *rewrittenLines = [NSMutableArray array];
 
 	for (NSString *line in [storeText componentsSeparatedByString:@"\n"]) {
-		[rewrittenLines addObject:MigratedFingerprintStoreLine(line, migrations, &changed)];
+		[rewrittenLines addObject:MigratedStoreLine(line, migrations, accountField, protocolField, &changed)];
 	}
 
 	if (changedLineCount != NULL) {
@@ -78,4 +78,16 @@ NSString *AIOTRMigratedFingerprintStoreText(NSString *storeText, NSArray<AIOTRId
 	}
 
 	return [rewrittenLines componentsJoinedByString:@"\n"];
+}
+
+NSString *AIOTRMigratedFingerprintStoreText(NSString *storeText, NSArray<AIOTRIdentityMigration *> *migrations,
+											NSUInteger *changedLineCount)
+{
+	return MigratedStoreText(storeText, migrations, 1, 2, changedLineCount);
+}
+
+NSString *AIOTRMigratedInstagStoreText(NSString *storeText, NSArray<AIOTRIdentityMigration *> *migrations,
+									   NSUInteger *changedLineCount)
+{
+	return MigratedStoreText(storeText, migrations, 0, 1, changedLineCount);
 }
