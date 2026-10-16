@@ -15,6 +15,7 @@
  */
 
 #import "AIOTRIdentityMigration.h"
+#import "AIPropertyTestUtilities.h"
 #import <XCTest/XCTest.h>
 
 /*
@@ -34,6 +35,24 @@ static AIOTRIdentityMigration *TestMigration(NSString *legacyAccountName, NSStri
 												  currentAccountName:currentAccountName
 													  legacyProtocol:legacyProtocol
 													 currentProtocol:currentProtocol];
+}
+
+static AIOTRIdentityMigration *TestMigrationWithIndex(NSUInteger index)
+{
+	return TestMigration([NSString stringWithFormat:@"legacy-%lu", (unsigned long)index],
+						 [NSString stringWithFormat:@"current-%lu", (unsigned long)index],
+						 [NSString stringWithFormat:@"protocol-%lu", (unsigned long)index],
+						 [NSString stringWithFormat:@"prpl-%lu", (unsigned long)index]);
+}
+
+// A generated field never contains a tab or a newline, so it stays inside its
+// own store column.
+static NSString *TestRandomField(void)
+{
+	NSString *field = PBTRandomASCIIString(8);
+	field = [field stringByReplacingOccurrencesOfString:@"\t" withString:@""];
+	field = [field stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+	return [field stringByReplacingOccurrencesOfString:@"\r" withString:@""];
 }
 
 @implementation OTRIdentityMigrationTest
@@ -169,6 +188,162 @@ static AIOTRIdentityMigration *TestMigration(NSString *legacyAccountName, NSStri
 	NSString *expected = [NSString stringWithFormat:@"%@\tabc\tprpl-service\t%@\n", user, OldFingerprintHex];
 	XCTAssertEqualObjects(result, expected, @"The user field passes through unchanged.");
 	XCTAssertEqual(changed, (NSUInteger)1, @"One line changed.");
+}
+
+- (void)testMigratesInstagStore
+{
+	NSString *store = @"# WARNING! You shouldn't copy this file to another computer.\n"
+					   "service.abc\tservice\t00000001\n"
+					   "other.xyz\tother\t00000002\n";
+	NSUInteger changed = 0;
+
+	NSString *result = AIOTRMigratedInstagStoreText(
+		store, @[ TestMigration(@"service.abc", @"abc", @"service", @"prpl-service") ], &changed);
+
+	NSString *expected = @"# WARNING! You shouldn't copy this file to another computer.\n"
+						  "abc\tprpl-service\t00000001\n"
+						  "other.xyz\tother\t00000002\n";
+	XCTAssertEqualObjects(result, expected, @"The comment and unmatched lines pass through.");
+	XCTAssertEqual(changed, (NSUInteger)1, @"One line changed.");
+}
+
+- (void)testLeavesShortInstagLineAlone
+{
+	NSString *store = @"service.abc\tservice\n";
+
+	NSString *result = AIOTRMigratedInstagStoreText(
+		store, @[ TestMigration(@"service.abc", @"abc", @"service", @"prpl-service") ], NULL);
+
+	XCTAssertEqualObjects(result, store, @"A line without a tag field does not change.");
+}
+
+// Property: a store whose account fields match no migration is returned byte
+// for byte, whatever the line shapes (empty lines, short lines, stray tabs).
+- (void)testGeneratedNonMatchingStoresPassThroughByteForByte
+{
+	PBTCheckDefault({
+		NSMutableArray<NSString *> *lines = [NSMutableArray array];
+		NSUInteger lineCount = PBTUniform(6);
+		for (NSUInteger i = 0; i < lineCount; i++) {
+			NSUInteger fieldCount = PBTUniform(7);
+			NSMutableArray<NSString *> *fields = [NSMutableArray array];
+			for (NSUInteger field = 0; field < fieldCount; field++) {
+				[fields addObject:TestRandomField()];
+			}
+			if (fieldCount >= 2) {
+				// Every account field carries a "nomatch." prefix, so no line
+				// can collide with a migration's legacy name.
+				fields[1] = [@"nomatch." stringByAppendingString:fields[1]];
+			}
+			[lines addObject:[fields componentsJoinedByString:@"\t"]];
+		}
+
+		NSString *store = [lines componentsJoinedByString:@"\n"];
+		if (PBTRandomBool()) {
+			store = [store stringByAppendingString:@"\n"];
+		}
+
+		NSUInteger changed = 123;
+		NSString *result = AIOTRMigratedFingerprintStoreText(store, @[ TestMigrationWithIndex(1) ], &changed);
+
+		XCTAssertEqualObjects(result, store, @"A store with no matching account passes through byte for byte.");
+		XCTAssertEqual(changed, (NSUInteger)0, @"No line changed.");
+	});
+}
+
+// Property: the rewrite changes exactly the account and protocol fields; the
+// field count and every other field survive.
+- (void)testRewriteKeepsFieldCountAndChangesOnlyIdentityFields
+{
+	AIOTRIdentityMigration *migration = TestMigrationWithIndex(1);
+	PBTCheckDefault({
+		NSUInteger fieldCount = 4 + PBTUniform(4);
+		NSMutableArray<NSString *> *fields = [NSMutableArray array];
+		for (NSUInteger field = 0; field < fieldCount; field++) {
+			[fields addObject:TestRandomField()];
+		}
+		fields[1] = migration.legacyAccountName;
+		fields[2] = PBTRandomBool() ? migration.legacyProtocol : TestRandomField();
+		NSString *line = [fields componentsJoinedByString:@"\t"];
+		BOOL protocolWasLegacy = [fields[2] isEqualToString:migration.legacyProtocol];
+
+		NSUInteger changed = 0;
+		NSString *result = AIOTRMigratedFingerprintStoreText(line, @[ migration ], &changed);
+		NSArray<NSString *> *resultFields = [result componentsSeparatedByString:@"\t"];
+
+		XCTAssertEqual([resultFields count], fieldCount, @"The field count survives the rewrite.");
+		XCTAssertEqualObjects(resultFields[1], migration.currentAccountName,
+							  @"The account field becomes the current account name.");
+		XCTAssertEqualObjects(resultFields[2], protocolWasLegacy ? migration.currentProtocol : fields[2],
+							  @"The protocol field changes only when it held the legacy protocol.");
+		for (NSUInteger field = 0; field < fieldCount; field++) {
+			if (field != 1 && field != 2) {
+				XCTAssertEqualObjects(resultFields[field], fields[field], @"Only the identity fields change.");
+			}
+		}
+		XCTAssertEqual(changed, (NSUInteger)1, @"One line changed.");
+	});
+}
+
+// Property: running the migration twice equals running it once, which the
+// every-launch call site relies on.
+- (void)testMigrationIsIdempotentOverGeneratedStores
+{
+	NSArray<AIOTRIdentityMigration *> *migrations = @[ TestMigrationWithIndex(1), TestMigrationWithIndex(2) ];
+	PBTCheckDefault({
+		NSMutableArray<NSString *> *lines = [NSMutableArray array];
+		NSUInteger lineCount = 1 + PBTUniform(6);
+		for (NSUInteger i = 0; i < lineCount; i++) {
+			NSMutableArray<NSString *> *fields = [NSMutableArray array];
+			for (NSUInteger field = 0; field < 4; field++) {
+				[fields addObject:TestRandomField()];
+			}
+			fields[1] = migrations[PBTUniform(2)].legacyAccountName;
+			[lines addObject:[fields componentsJoinedByString:@"\t"]];
+		}
+		NSString *store = [lines componentsJoinedByString:@"\n"];
+
+		NSUInteger firstChanged = 0;
+		NSString *once = AIOTRMigratedFingerprintStoreText(store, migrations, &firstChanged);
+		NSUInteger secondChanged = 123;
+		NSString *twice = AIOTRMigratedFingerprintStoreText(once, migrations, &secondChanged);
+
+		XCTAssertEqualObjects(twice, once, @"The second pass changes nothing.");
+		XCTAssertEqual(secondChanged, (NSUInteger)0, @"The second pass reports no changed lines.");
+		XCTAssertEqual(firstChanged, lineCount, @"The first pass changes every generated line.");
+	});
+}
+
+// Property: the returned count equals the number of rewritten lines, and it is
+// zero exactly when the store is returned unchanged.
+- (void)testChangedCountMatchesRewrittenLines
+{
+	NSArray<AIOTRIdentityMigration *> *migrations = @[ TestMigrationWithIndex(1), TestMigrationWithIndex(2) ];
+	PBTCheckDefault({
+		NSMutableArray<NSString *> *lines = [NSMutableArray array];
+		NSUInteger matchingLines = 0;
+		NSUInteger lineCount = 1 + PBTUniform(6);
+		for (NSUInteger i = 0; i < lineCount; i++) {
+			NSMutableArray<NSString *> *fields = [NSMutableArray array];
+			for (NSUInteger field = 0; field < 4; field++) {
+				[fields addObject:TestRandomField()];
+			}
+			if (PBTRandomBool()) {
+				fields[1] = migrations[PBTUniform(2)].legacyAccountName;
+				matchingLines++;
+			} else {
+				fields[1] = [@"nomatch." stringByAppendingString:fields[1]];
+			}
+			[lines addObject:[fields componentsJoinedByString:@"\t"]];
+		}
+		NSString *store = [lines componentsJoinedByString:@"\n"];
+
+		NSUInteger changed = 0;
+		NSString *result = AIOTRMigratedFingerprintStoreText(store, migrations, &changed);
+
+		XCTAssertEqual(changed, matchingLines, @"The count equals the number of rewritten lines.");
+		XCTAssertEqual([result isEqualToString:store], (changed == 0), @"A zero count means an unchanged store.");
+	});
 }
 
 @end
