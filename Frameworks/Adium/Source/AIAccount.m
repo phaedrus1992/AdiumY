@@ -780,12 +780,33 @@ typedef enum {
 /*!
  * @brief Remove contacts
  *
- * Remove contacts from this account.
+ * Remove contacts from groups on this account. The base implementation removes
+ * the contacts from the groups in the local contact list; an account whose
+ * service keeps a server-side list overrides this to perform the server-side
+ * removal as well.
  * @param objects NSArray of AIListContact objects to remove
  * @param groups NSArray of AIListGroup objects to remove from.
  */
 - (void)removeContacts:(NSArray *)objects fromGroups:(NSArray *)groups
-{}
+{
+	if (groups == nil || [groups count] == 0) {
+		return;
+	}
+
+	// The base class has no server-side contact list, so this is the local
+	// membership move. A silent no-op here reads to callers as success (#414).
+	NSSet *groupSet = [NSSet setWithArray:groups];
+	for (AIListContact *contact in objects) {
+		NSSet *currentGroups = contact.groups ?: [NSSet set];
+		if (![currentGroups intersectsSet:groupSet]) {
+			continue;
+		}
+
+		NSMutableSet *remaining = [NSMutableSet setWithSet:currentGroups];
+		[remaining minusSet:groupSet];
+		[adium.contactController _moveContactLocally:contact fromGroups:currentGroups toGroups:remaining];
+	}
+}
 
 /*!
  * @brief Remove a group
@@ -803,14 +824,20 @@ typedef enum {
  * @brief Move contacts
  *
  * Move existing contacts to a specific group on this account.  The passed contacts should already exist somewhere on
- * this account.
+ * this account. The base implementation performs the move in the local contact
+ * list; an account whose service keeps a server-side list overrides this to
+ * perform the server-side move as well.
  * @param objects NSArray of AIListContact objects to remove
  * @param oldGroups NSSet of AIListGroup source for contacts
  * @param group NSSet of AIListGroup destination for contacts
  */
 - (void)moveListObjects:(NSArray *)objects fromGroups:(NSSet *)oldGroups toGroups:(NSSet *)groups
 {
-	NSAssert(NO, @"Should not be reached");
+	// The base class has no server-side contact list. An NSAssert here was
+	// compiled out in Release, so the move ended in silence (#414).
+	for (AIListContact *contact in objects) {
+		[adium.contactController _moveContactLocally:contact fromGroups:(contact.groups ?: [NSSet set])toGroups:groups];
+	}
 }
 
 /*!
